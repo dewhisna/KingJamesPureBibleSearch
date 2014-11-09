@@ -26,42 +26,68 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QMetaType>
 
 #ifdef USE_FESTIVAL_SERVER
 #include <QTcpSocket>
 #endif
 
-namespace QtSpeech_v1 { // API v1.0
+// ============================================================================
+
+struct TAsyncTalkingObject
+{
+	TAsyncTalkingObject(const QString &strText = QString(), QObject *pObject = NULL, const char *pSlot = NULL)
+		:	m_strText(strText),
+			m_pObject(pObject),
+			m_pSlot(pSlot)
+	{ }
+
+	bool hasNotificationSlot() const
+	{
+		return ((m_pSlot != NULL) && (!m_pObject.isNull()));
+	}
+
+	QString m_strText;
+	QPointer<QObject> m_pObject;
+	const char *m_pSlot;
+};
+Q_DECLARE_METATYPE(TAsyncTalkingObject)
+typedef QList<TAsyncTalkingObject> TAsyncTalkingObjectsList;
 
 // ============================================================================
+
+namespace QtSpeech_v1 { // API v1.0
 
 class QtSpeech_th : public QObject
 {
 	Q_OBJECT
 
 public:
-	QtSpeech_th(QObject * p =0L)
-		:	QObject(p),
-			err(""),
-			has_error(false)
-	{}
+	QtSpeech_th(QObject * p = 0L);
 	virtual ~QtSpeech_th()
 	{}
 
 public slots:
 	void doInit();
-	void say(QString strText);
+	void say(TAsyncTalkingObject aTalkingObject);
 	void eval(QString strExpr);
+	void clearQueue();
+
+protected slots:
+	void en_sayNext();
 
 signals:
     void logicError(QtSpeech::LogicError);
     void finished();
+	void doneTalking();
 
 private:
     friend class QtSpeech;
     QtSpeech::LogicError err;
     bool has_error;
 	static bool init;
+	bool m_bAmTalking;
+	TAsyncTalkingObjectsList m_lstTalkingObjects;		// Used with the multi-threaded local Festival (as opposed to client/server)
 };
 
 
@@ -81,27 +107,6 @@ protected slots:
 // ============================================================================
 
 #ifdef USE_FESTIVAL_SERVER
-
-struct TAsyncTalkingObject
-{
-	TAsyncTalkingObject(const QString &strText, QObject *pObject = NULL, const char *pSlot = NULL)
-		:	m_strText(strText),
-			m_pObject(pObject),
-			m_pSlot(pSlot)
-	{ }
-
-	bool hasNotificationSlot() const
-	{
-		return ((m_pSlot != NULL) && (!m_pObject.isNull()));
-	}
-
-	QString m_strText;
-	QPointer<QObject> m_pObject;
-	const char *m_pSlot;
-};
-typedef QList<TAsyncTalkingObject> TAsyncTalkingObjectsList;
-
-
 
 class QtSpeech_asyncServerIO : public QObject
 {
@@ -124,6 +129,7 @@ public slots:
 	void readVoices();
 	void say(const TAsyncTalkingObject &aTalkingObject);
 	void setVoice(const QtSpeech::VoiceName &aVoice);
+	void clearQueue();
 
 protected slots:
 	bool connectToServer();
@@ -137,6 +143,7 @@ private:
 	QString m_strHostname;
 	int m_nPortNumber;
 	bool m_bAmTalking;
+	bool m_bSendCommandInProgress;
 	TAsyncTalkingObjectsList m_lstTalkingObjects;
 };
 #endif

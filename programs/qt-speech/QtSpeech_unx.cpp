@@ -90,6 +90,7 @@ class QtSpeech_GlobalData : public QtSpeech_asyncServerIOMonitor
 public:
 	QtSpeech_GlobalData()
 	{
+		qRegisterMetaType<TAsyncTalkingObject>("TAsyncTalkingObject");
 	}
 	virtual ~QtSpeech_GlobalData()
 	{
@@ -102,6 +103,7 @@ public:
 	}
 
 	QPointer<QThread> m_pSpeechThread;
+	QPointer<QtSpeech_th> m_pSpeechTalker_th;			// Worker object for talking
 	QtSpeech::VoiceName m_vnSelectedVoiceName;
 	QtSpeech::VoiceName m_vnRequestedVoiceName;
 	QtSpeech::VoiceNames m_lstVoiceNames;
@@ -140,6 +142,16 @@ protected slots:
 
 // qobject for speech thread
 bool QtSpeech_th::init = false;
+
+QtSpeech_th::QtSpeech_th(QObject * p)
+	:	QObject(p),
+		err(""),
+		has_error(false),
+		m_bAmTalking(false)
+{
+	connect(this, SIGNAL(doneTalking()), this, SLOT(en_sayNext()), Qt::QueuedConnection);
+}
+
 void QtSpeech_th::doInit()
 {
 	if (!init) {
@@ -148,19 +160,11 @@ void QtSpeech_th::doInit()
 	}
 }
 
-void QtSpeech_th::say(QString strText)
+void QtSpeech_th::say(TAsyncTalkingObject aTalkingObject)
 {
-    try {
-		doInit();
-        has_error = false;
-		EST_String est_text(strText.toUtf8());
-        SysCall(festival_say_text(est_text), QtSpeech::LogicError);
-    }
-	catch (const QtSpeech::LogicError &e) {
-        has_error = true;
-        err = e;
-    }
-    emit finished();
+	doInit();
+	m_lstTalkingObjects.append(aTalkingObject);
+	if (!m_bAmTalking) en_sayNext();
 }
 
 void QtSpeech_th::eval(QString strExpr)
@@ -176,6 +180,40 @@ void QtSpeech_th::eval(QString strExpr)
 		err = e;
 	}
 	emit finished();
+}
+
+void QtSpeech_th::en_sayNext()
+{
+	if (m_lstTalkingObjects.isEmpty()) {
+		m_bAmTalking = false;
+		emit finished();
+		return;
+	}
+
+	m_bAmTalking = true;
+
+	try {
+		has_error = false;
+		EST_String est_text(m_lstTalkingObjects.at(0).m_strText.toUtf8());
+		SysCall(festival_say_text(est_text), QtSpeech::LogicError);
+	}
+	catch (const QtSpeech::LogicError &e) {
+		has_error = true;
+		err = e;
+	}
+
+	if (m_lstTalkingObjects.at(0).hasNotificationSlot()) {
+		QTimer::singleShot(0, m_lstTalkingObjects.at(0).m_pObject, m_lstTalkingObjects.at(0).m_pSlot);		// Note: singleShot IS a QueuedConnection!
+	}
+	m_lstTalkingObjects.pop_front();
+
+	emit doneTalking();
+}
+
+void QtSpeech_th::clearQueue()
+{
+	m_lstTalkingObjects.clear();
+	if (!m_bAmTalking) emit finished();		// If we're already talking, the talking loop will emit the finished when it realizes we're done with things to say...
 }
 
 // ============================================================================
@@ -280,14 +318,14 @@ void QtSpeech::tell(const QString &strText, QObject *pObject, const char *pSlot)
 		g_QtSpeechGlobal.m_pSpeechThread->start();
 	}
 
-	QtSpeech_th * th = new QtSpeech_th();
-	th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
-	connect(th, SIGNAL(finished()), this, SIGNAL(finished()), Qt::QueuedConnection);
-	if (pObject && pSlot) {
-		connect(th, SIGNAL(finished()), pObject, pSlot, Qt::QueuedConnection);		// Note: Will automatically disconnect on thread destruction
+	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
+		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
+		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::QueuedConnection);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
-	connect(th, SIGNAL(finished()), th, SLOT(deleteLater()), Qt::QueuedConnection);
-	QMetaObject::invokeMethod(th, "say", Qt::QueuedConnection, Q_ARG(QString, strText));
+
+	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "say", Qt::QueuedConnection, Q_ARG(TAsyncTalkingObject, TAsyncTalkingObject(strText, pObject, pSlot)));
 }
 
 void QtSpeech::say(const QString &strText) const
@@ -310,17 +348,17 @@ void QtSpeech::say(const QString &strText) const
 		g_QtSpeechGlobal.m_pSpeechThread->start();
 	}
 
-	QEventLoop el;
-	QtSpeech_th th;
-	th.moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
-	connect(&th, SIGNAL(finished()), &el, SLOT(quit()), Qt::QueuedConnection);
-	connect(&th, SIGNAL(finished()), this, SIGNAL(finished()), Qt::QueuedConnection);
-	QMetaObject::invokeMethod(&th, "say", Qt::QueuedConnection, Q_ARG(QString, strText));
-	el.exec(QEventLoop::ExcludeUserInputEvents);
-
-	if (th.has_error) {
-		qDebug("%s", th.err.msg.toUtf8().data());
+	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
+		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
+		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::QueuedConnection);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
+
+	QEventLoop el;
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), &el, SLOT(quit()), Qt::QueuedConnection);
+	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "say", Qt::QueuedConnection, Q_ARG(TAsyncTalkingObject, TAsyncTalkingObject(strText)));
+	el.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
 void QtSpeech::timerEvent(QTimerEvent * te)
@@ -442,7 +480,8 @@ QtSpeech_asyncServerIO::QtSpeech_asyncServerIO(const QString &strHostname, int n
 	:	QObject(pParent),
 		m_strHostname(strHostname),
 		m_nPortNumber(nPortNumber),
-		m_bAmTalking(false)
+		m_bAmTalking(false),
+		m_bSendCommandInProgress(false)
 {
 	connect(&m_sockFestival, SIGNAL(readyRead()), this, SLOT(en_readyRead()));
 	connect(&m_sockFestival, SIGNAL(disconnected()), this, SIGNAL(lostServer()));
@@ -496,6 +535,8 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand, bool 
 {
 	if (!isConnected()) return QStringList();
 
+	m_bSendCommandInProgress = true;
+
 	m_sockFestival.readAll();			// Flush incoming
 	m_sockFestival.write(QString("%1\n").arg(strCommand).toUtf8());
 
@@ -509,7 +550,7 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand, bool 
 		(bWaitForReply && m_sockFestival.waitForReadyRead(SERVER_IO_TIMEOUT))) {
 
 #ifdef DEBUG_SERVER_IO
-		qDebug("Read Ready... Data:");
+		qDebug("Read Ready (sendCommand)... Data:");
 #endif
 
 		QString strResult;
@@ -526,6 +567,8 @@ QStringList QtSpeech_asyncServerIO::sendCommand(const QString &strCommand, bool 
 		lstResultLines = strResult.split(QChar('\n'));
 	}
 
+	m_bSendCommandInProgress = false;
+
 	return lstResultLines;
 }
 
@@ -533,7 +576,7 @@ void QtSpeech_asyncServerIO::en_readyRead()
 {
 	if (m_bAmTalking) {
 #ifdef DEBUG_SERVER_IO
-		qDebug("Read Ready... Data:");
+		qDebug("Read Ready (asyncReadyTalking)... Data:");
 #endif
 
 		QString strResult;
@@ -555,6 +598,16 @@ void QtSpeech_asyncServerIO::en_readyRead()
 			}
 			m_lstTalkingObjects.pop_front();
 			en_sayNext();
+		}
+	} else {
+		if (!m_bSendCommandInProgress) {
+			// Otherwise purge buffer because talking may have been stoped via a queue clear:
+			QString strData = QString::fromUtf8(m_sockFestival.readAll());
+#ifdef DEBUG_SERVER_IO
+			qDebug("Read Ready (asyncReadyIdle)... Data:\n%s", strData.toUtf8().data());
+#else
+			Q_UNUSED(strData);
+#endif
 		}
 	}
 }
@@ -612,6 +665,21 @@ void QtSpeech_asyncServerIO::en_sayNext()
 		strEscText.remove(QChar('\"'));
 		m_bAmTalking = true;				// Set flag to announce doneTalking
 		sendCommand(QString("(SayText \"%1\")").arg(strEscText), false);
+	}
+}
+
+void QtSpeech_asyncServerIO::clearQueue()
+{
+	if (!m_bAmTalking) {
+		// If we aren't talking, clear everything:
+		m_lstTalkingObjects.clear();
+	} else {
+		// Otherwise, clear all but the current object:
+		if (!m_lstTalkingObjects.isEmpty()) {
+			TAsyncTalkingObject aTemp = m_lstTalkingObjects.at(0);
+			m_lstTalkingObjects.clear();
+			m_lstTalkingObjects.append(aTemp);
+		}
 	}
 }
 
