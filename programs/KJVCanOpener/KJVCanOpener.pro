@@ -461,9 +461,10 @@ FORMS += \
 	EditWWWLinkDlg.ui \
 	KJVCrossRefEditDlg.ui \
 	KJVNoteEditDlg.ui \
-	KJVTTSOptionsConfig.ui \
 	KJVUserNotesDatabaseConfig.ui
 
+!emscripten:!vnc:QtSpeech:FORMS += \
+	KJVTTSOptionsConfig.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

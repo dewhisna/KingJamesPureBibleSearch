@@ -258,7 +258,7 @@ private:
 
 // ============================================================================
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
 #include "ui_KJVTTSOptionsConfig.h"
 
@@ -293,7 +293,7 @@ private:
 	Ui::CKJVTTSOptionsConfig ui;
 };
 
-#endif
+#endif	// QtSpeech && !EMSCRIPTEN && !VNCSERVER
 
 // ============================================================================
 
@@ -598,8 +598,10 @@ enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_USER_NOTES_DATABASE = 3,
 	CPSE_BIBLE_DATABASE = 4,
 	CPSE_DICT_DATABASE = 5,
-	CPSE_LOCALE = 6,
-	CPSE_TTS_OPTIONS = 7
+	CPSE_LOCALE = 6
+#ifdef USING_QT_SPEECH
+	,CPSE_TTS_OPTIONS = 7
+#endif
 #else
 	CPSE_BIBLE_DATABASE = 3,
 	CPSE_DICT_DATABASE = 4,
@@ -631,7 +633,7 @@ private:
 #endif
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
 	CKJVDictDatabaseConfig *m_pDictDatabaseConfig;
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVTTSOptionsConfig *m_pTTSOptionsConfig;
 #endif
 	CKJVLocaleConfig *m_pLocaleConfig;

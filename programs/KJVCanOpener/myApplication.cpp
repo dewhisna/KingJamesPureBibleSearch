@@ -1355,10 +1355,10 @@ int CMyApplication::execute(bool bBuildDB)
 			QUrl urlTTSServer(strTTSServer);
 			QString strTTSHost = urlTTSServer.host();
 			if (urlTTSServer.scheme().compare(QTSPEECH_SERVER_SCHEME_NAME, Qt::CaseInsensitive) != 0) {
-				displayWarning(m_pSplash, g_constrInitialization, tr("Unknown Text-To-Speech Server Scheme name.  Expected \"%1\".", "Errors").arg(QTSPEECH_SERVER_SCHEME_NAME));
+				displayWarning(m_pSplash, g_constrInitialization, tr("Unknown Text-To-Speech Server Scheme name.\nExpected \"%1\".", "Errors").arg(QTSPEECH_SERVER_SCHEME_NAME));
 			} else if ((!strTTSHost.isEmpty()) &&
 						(!QtSpeech::connectToServer(strTTSHost, urlTTSServer.port(QTSPEECH_DEFAULT_SERVER_PORT)))) {
-				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to connect to Text-To-Speech Server \"%1\"!", "Errors").arg(strTTSServer));
+				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to connect to Text-To-Speech Server!\n\n\"%1\"", "Errors").arg(strTTSServer));
 			}
 		}
 	} else {
