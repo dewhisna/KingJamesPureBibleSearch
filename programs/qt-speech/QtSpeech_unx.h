@@ -31,6 +31,8 @@
 
 namespace QtSpeech_v1 { // API v1.0
 
+// ============================================================================
+
 class QtSpeech_th : public QObject
 {
 	Q_OBJECT
@@ -61,7 +63,23 @@ private:
 };
 
 
+class QtSpeech_asyncServerIOMonitor : public QObject
+{
+	Q_OBJECT
+public:
+	QtSpeech_asyncServerIOMonitor(QObject *pParent = 0L)
+		:	QObject(pParent)
+	{ }
+	virtual ~QtSpeech_asyncServerIOMonitor() { }
+
+protected slots:
+	virtual void en_lostServer() = 0;							// Called when the connection with the server gets dropped (so that things like resetting the selected voice can happen)
+};
+
+// ============================================================================
+
 #ifdef USE_FESTIVAL_SERVER
+
 class QtSpeech_asyncServerIO : public QObject
 {
 	Q_OBJECT
@@ -98,6 +116,8 @@ private:
 	bool m_bAmTalking;
 };
 #endif
+
+// ============================================================================
 
 }	// namespace QtSpeech_v1
 #endif // QtSpeech_unx_H

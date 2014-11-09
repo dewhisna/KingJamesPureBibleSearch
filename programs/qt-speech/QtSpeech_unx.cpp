@@ -20,6 +20,7 @@
 #include <QtSpeech>
 #include <QtSpeech_unx.h>
 #include <festival.h>
+#include <QList>
 
 #include <assert.h>
 
@@ -27,7 +28,7 @@ namespace QtSpeech_v1 { // API v1.0
 
 // ============================================================================
 
-#define DEBUG_SERVER_IO
+//#define DEBUG_SERVER_IO
 #define SERVER_IO_TIMEOUT 3000				// Timeout in msec for read, write, connect, etc
 #define SERVER_IO_BLOCK_MAX 65536l			// Maximum number of read/write bytes per transfer
 
@@ -84,17 +85,17 @@ public:
 };
 
 // global data
-class QtSpeech_GlobalData
+class QtSpeech_GlobalData : public QtSpeech_asyncServerIOMonitor
 {
 public:
 	QtSpeech_GlobalData()
 	{
 	}
-	~QtSpeech_GlobalData()
+	virtual ~QtSpeech_GlobalData()
 	{
 #ifdef USE_FESTIVAL_SERVER
 		if (!g_pAsyncServerIO.isNull()) {
-			QObject::disconnect(g_pAsyncServerIO.data(), 0, 0, 0);
+			disconnect(g_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
 			delete g_pAsyncServerIO.data();
 		}
 #endif
@@ -108,6 +109,17 @@ public:
 #ifdef USE_FESTIVAL_SERVER
 	QPointer<QtSpeech_asyncServerIO> g_pAsyncServerIO;
 #endif
+
+	bool serverSupported();								// True if QtSpeech library compiled with server support
+	bool serverConnected();								// True if currently connected to a speech server
+	bool connectToServer(const QString &strHostname, int nPortNumber);
+	void disconnectFromServer();
+
+	void setVoice();
+
+protected slots:
+	virtual void en_lostServer();
+
 } g_QtSpeechGlobal;
 
 // ============================================================================
@@ -177,12 +189,6 @@ QtSpeech::QtSpeech(QObject * parent)
 	}
 
 	g_QtSpeechGlobal.m_vnRequestedVoiceName = convn_DefaultVoiceName;
-
-#ifdef USE_FESTIVAL_SERVER
-	if (serverConnected()) {
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
-	}
-#endif
 }
 
 QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
@@ -197,12 +203,6 @@ QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
 	}
 
 	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
-
-#ifdef USE_FESTIVAL_SERVER
-	if (serverConnected()) {
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
-	}
-#endif
 }
 
 QtSpeech::~QtSpeech()
@@ -243,69 +243,29 @@ QtSpeech::VoiceNames QtSpeech::voices()
 
 bool QtSpeech::serverSupported()
 {
-#ifdef USE_FESTIVAL_SERVER
-	return true;
-#else
-	return false;
-#endif
+	return g_QtSpeechGlobal.serverSupported();
 }
 
 bool QtSpeech::serverConnected()
 {
-#ifdef USE_FESTIVAL_SERVER
-	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) {
-		return g_QtSpeechGlobal.g_pAsyncServerIO->isConnected();
-	}
-#endif
-
-	return false;
+	return g_QtSpeechGlobal.serverConnected();
 }
 
 bool QtSpeech::connectToServer(const QString &strHostname, int nPortNumber)
 {
-#ifdef USE_FESTIVAL_SERVER
-	disconnectFromServer();		// Disconnect from any existing server
-	g_QtSpeechGlobal.g_pAsyncServerIO = new QtSpeech_asyncServerIO(strHostname, nPortNumber);
-	return serverConnected();
-#else
-	Q_UNUSED(strHostname);
-	Q_UNUSED(nPortNumber);
-	return false;
-#endif
+	return g_QtSpeechGlobal.connectToServer(strHostname, nPortNumber);
 }
 
 void QtSpeech::disconnectFromServer()
 {
-#ifdef USE_FESTIVAL_SERVER
-	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) {
-		QObject::disconnect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
-		delete g_QtSpeechGlobal.g_pAsyncServerIO.data();
-	}
-#endif
-}
-
-void QtSpeech::en_lostServer()
-{
-#ifdef USE_FESTIVAL_SERVER
-	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) {			// May be null if we have multiple outstanding QtSpeech objects
-#ifdef DEBUG_SERVER_IO
-		qDebug("Lost connection to Festival Server... switching to internal Festival");
-#endif
-		disconnectFromServer();									// Delete our connectivity object
-		// If we lose the server that we were using, we need reselect the last request voice on the internal festival:
-		if (g_QtSpeechGlobal.m_vnRequestedVoiceName.isEmpty()) {
-			g_QtSpeechGlobal.m_vnRequestedVoiceName = g_QtSpeechGlobal.m_vnSelectedVoiceName;
-			g_QtSpeechGlobal.m_vnSelectedVoiceName.clear();
-		}
-	}
-#endif
+	g_QtSpeechGlobal.disconnectFromServer();
 }
 
 // ----------------------------------------------------------------------------
 
 void QtSpeech::tell(QString strText) const
 {
-	setVoice();
+	g_QtSpeechGlobal.setVoice();
 
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
@@ -329,7 +289,7 @@ void QtSpeech::tell(QString strText) const
 
 void QtSpeech::say(QString strText) const
 {
-	setVoice();
+	g_QtSpeechGlobal.setVoice();
 
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
@@ -359,46 +319,115 @@ void QtSpeech::say(QString strText) const
 	}
 }
 
-void QtSpeech::setVoice(const VoiceName &aVoice) const
+void QtSpeech::timerEvent(QTimerEvent * te)
 {
-	VoiceName theVoice = (!aVoice.isEmpty() ? aVoice : g_QtSpeechGlobal.m_vnRequestedVoiceName);
-	g_QtSpeechGlobal.m_vnRequestedVoiceName.clear();
+    QObject::timerEvent(te);
+}
+
+// ============================================================================
+
+
+bool QtSpeech_GlobalData::serverSupported()
+{
+#ifdef USE_FESTIVAL_SERVER
+	return true;
+#else
+	return false;
+#endif
+}
+
+bool QtSpeech_GlobalData::serverConnected()
+{
+#ifdef USE_FESTIVAL_SERVER
+	if (!g_pAsyncServerIO.isNull()) {
+		return g_pAsyncServerIO->isConnected();
+	}
+#endif
+
+	return false;
+}
+
+bool QtSpeech_GlobalData::connectToServer(const QString &strHostname, int nPortNumber)
+{
+#ifdef USE_FESTIVAL_SERVER
+	disconnectFromServer();		// Disconnect from any existing server
+	g_pAsyncServerIO = new QtSpeech_asyncServerIO(strHostname, nPortNumber);
+	connect(g_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
+	return serverConnected();
+#else
+	Q_UNUSED(strHostname);
+	Q_UNUSED(nPortNumber);
+	return false;
+#endif
+}
+
+void QtSpeech_GlobalData::disconnectFromServer()
+{
+#ifdef USE_FESTIVAL_SERVER
+	if (!g_pAsyncServerIO.isNull()) {
+		disconnect(g_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
+		delete g_pAsyncServerIO.data();
+#ifdef DEBUG_SERVER_IO
+		qDebug("Switching to internal Festival...");
+#endif
+	}
+
+	// If we switch from server to internal OR internal to server, we need to reselect the last requested
+	//		voice on the new festival:
+	if (m_vnRequestedVoiceName.isEmpty()) {
+		m_vnRequestedVoiceName = m_vnSelectedVoiceName;
+	}
+	m_vnSelectedVoiceName.clear();								// Must needs reselect voice
+#endif
+}
+
+void QtSpeech_GlobalData::setVoice()
+{
+	QtSpeech::VoiceName theVoice = m_vnRequestedVoiceName;
+	m_vnRequestedVoiceName.clear();
 
 	if (theVoice.isEmpty()) return;
-	if (g_QtSpeechGlobal.m_vnSelectedVoiceName == theVoice) return;
+	if (m_vnSelectedVoiceName == theVoice) return;
 
-	g_QtSpeechGlobal.m_vnSelectedVoiceName = theVoice;
+	m_vnSelectedVoiceName = theVoice;
+
+#ifdef DEBUG_SERVER_IO
+	qDebug("Setting voice to: %s", theVoice.id.toUtf8().data());
+#endif
 
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		QEventLoop el;
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(operationComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
-		g_QtSpeechGlobal.g_pAsyncServerIO->setVoice(theVoice);
+		connect(g_pAsyncServerIO.data(), SIGNAL(operationComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
+		g_pAsyncServerIO->setVoice(theVoice);
 		el.exec(QEventLoop::ExcludeUserInputEvents);
 		return;
 	}
 #endif
 
-	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
-		g_QtSpeechGlobal.m_pSpeechThread->start();
+	if (m_pSpeechThread.isNull()) {
+		m_pSpeechThread = new QThread;
+		m_pSpeechThread->start();
 	}
 
 	QEventLoop el;
 	QtSpeech_th th;
-	th.moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+	th.moveToThread(m_pSpeechThread);
 	connect(&th, SIGNAL(finished()), &el, SLOT(quit()), Qt::QueuedConnection);
 	QMetaObject::invokeMethod(&th, "eval", Qt::QueuedConnection, Q_ARG(QString, constr_VoiceId.arg(theVoice.id)));
 	el.exec(QEventLoop::ExcludeUserInputEvents);
-
-	if (th.has_error) {
-		qDebug("%s", th.err.msg.toUtf8().data());
-	}
 }
 
-void QtSpeech::timerEvent(QTimerEvent * te)
+void QtSpeech_GlobalData::en_lostServer()
 {
-    QObject::timerEvent(te);
+#ifdef USE_FESTIVAL_SERVER
+	if (!g_pAsyncServerIO.isNull()) {
+#ifdef DEBUG_SERVER_IO
+		qDebug("Lost connection to Festival Server...");
+#endif
+		disconnectFromServer();							// Delete our connectivity object and switch to internal Festival
+	}
+#endif
 }
 
 // ============================================================================

@@ -86,15 +86,10 @@ public slots:
 	virtual void say(QString strText) const;					//!< Say something, synchronous
 	virtual void tell(QString strText) const;					//!< Tell something, asynchronous
 
-protected slots:
-	virtual void en_lostServer();								// Called when the connection with the server gets dropped (so that things like resetting the selected voice can happen)
-
 signals:
 	void finished();
 
 protected:
-	virtual void setVoice(const VoiceName &aVoice = VoiceName()) const;
-
 	virtual void timerEvent(QTimerEvent *);
 
 private:
