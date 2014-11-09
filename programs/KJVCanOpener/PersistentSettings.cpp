@@ -32,6 +32,10 @@
 
 #include <assert.h>
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 // ============================================================================
 
 namespace
@@ -169,6 +173,12 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_strMainDictDatabaseUUID(dictionaryDescriptor(DDE_WEB1828).m_strUUID),	// Default to reading Web1828
 		// ----
 		m_strApplicationLanguage(QString()),			// Default to System Locale language
+		// ----
+#ifdef USING_QT_SPEECH
+		m_strTTSServerURL(QString("%1://").arg(QTSPEECH_SERVER_SCHEME_NAME)),	// Default to no Text-To-Speech server
+#else
+		m_strTTSServerURL(QString()),
+#endif
 		// ----
 		m_bScreenSwipeableMainWindow(false),
 #ifdef IS_MOBILE_APP
@@ -346,6 +356,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_strMainDictDatabaseUUID != pTarget->m_strMainDictDatabaseUUID) emit changedMainDictDatabaseSelection(pTarget->m_strMainDictDatabaseUUID);
 
 		if (pSource->m_strApplicationLanguage != pTarget->m_strApplicationLanguage) emit changedApplicationLanguage(pTarget->m_strApplicationLanguage);
+		if (pSource->m_strTTSServerURL != pTarget->m_strTTSServerURL) emit changedTTSServerURL(pTarget->m_strTTSServerURL);
 		if (pSource->m_bScreenSwipeableMainWindow != pTarget->m_bScreenSwipeableMainWindow) emit changedScreenSwipeableMainWindow(pTarget->m_bScreenSwipeableMainWindow);
 		if (pSource->m_bScrollbarsEnabled != pTarget->m_bScrollbarsEnabled) emit changedScrollbarsEnabled(pTarget->m_bScrollbarsEnabled);
 		if (pSource->m_bTouchGesturesEnabled != pTarget->m_bTouchGesturesEnabled) emit changedTouchGesturesEnabled(pTarget->m_bTouchGesturesEnabled);
@@ -856,6 +867,14 @@ void CPersistentSettings::setApplicationLanguage(const QString &strLangName)
 	if (m_pPersistentSettingData->m_strApplicationLanguage != strLangName) {
 		m_pPersistentSettingData->m_strApplicationLanguage = strLangName;
 		emit changedApplicationLanguage(strLangName);
+	}
+}
+
+void CPersistentSettings::setTTSServerURL(const QString &strTTSServerURL)
+{
+	if (m_pPersistentSettingData->m_strTTSServerURL != strTTSServerURL) {
+		m_pPersistentSettingData->m_strTTSServerURL = strTTSServerURL;
+		emit changedTTSServerURL(strTTSServerURL);
 	}
 }
 

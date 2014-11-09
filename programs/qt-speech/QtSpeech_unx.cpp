@@ -27,7 +27,7 @@ namespace QtSpeech_v1 { // API v1.0
 
 // ============================================================================
 
-//#define DEBUG_SERVER_IO
+#define DEBUG_SERVER_IO
 #define SERVER_IO_TIMEOUT 3000				// Timeout in msec for read, write, connect, etc
 #define SERVER_IO_BLOCK_MAX 65536l			// Maximum number of read/write bytes per transfer
 
@@ -93,7 +93,10 @@ public:
 	~QtSpeech_GlobalData()
 	{
 #ifdef USE_FESTIVAL_SERVER
-		if (!g_pAsyncServerIO.isNull()) delete g_pAsyncServerIO.data();
+		if (!g_pAsyncServerIO.isNull()) {
+			QObject::disconnect(g_pAsyncServerIO.data(), 0, 0, 0);
+			delete g_pAsyncServerIO.data();
+		}
 #endif
 	}
 
@@ -274,7 +277,10 @@ bool QtSpeech::connectToServer(const QString &strHostname, int nPortNumber)
 void QtSpeech::disconnectFromServer()
 {
 #ifdef USE_FESTIVAL_SERVER
-	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) delete g_QtSpeechGlobal.g_pAsyncServerIO.data();
+	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) {
+		QObject::disconnect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
+		delete g_QtSpeechGlobal.g_pAsyncServerIO.data();
+	}
 #endif
 }
 

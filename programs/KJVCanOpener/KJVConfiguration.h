@@ -260,6 +260,45 @@ private:
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
+#include "ui_KJVTTSOptionsConfig.h"
+
+class CKJVTTSOptionsConfig : public QWidget
+{
+	Q_OBJECT
+
+public:
+	explicit CKJVTTSOptionsConfig(QWidget *parent = 0);
+	~CKJVTTSOptionsConfig();
+
+	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
+	void saveSettings();					// Writes changes back to system
+
+	bool isDirty() const { return m_bIsDirty; }
+
+signals:
+	void dataChanged(bool bNeedRestart);
+
+private slots:
+	void en_changedTTSServerURL(const QString &strTTSServerURL);
+
+// Data Private:
+private:
+
+
+// UI Private:
+private:
+	bool m_bIsDirty;
+	bool m_bLoadingData;
+
+	Ui::CKJVTTSOptionsConfig ui;
+};
+
+#endif
+
+// ============================================================================
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+
 #include "ui_KJVUserNotesDatabaseConfig.h"
 
 class CKJVUserNotesDatabaseConfig : public QWidget
@@ -559,7 +598,8 @@ enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_USER_NOTES_DATABASE = 3,
 	CPSE_BIBLE_DATABASE = 4,
 	CPSE_DICT_DATABASE = 5,
-	CPSE_LOCALE = 6
+	CPSE_LOCALE = 6,
+	CPSE_TTS_OPTIONS = 7
 #else
 	CPSE_BIBLE_DATABASE = 3,
 	CPSE_DICT_DATABASE = 4,
@@ -591,6 +631,9 @@ private:
 #endif
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
 	CKJVDictDatabaseConfig *m_pDictDatabaseConfig;
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	CKJVTTSOptionsConfig *m_pTTSOptionsConfig;
+#endif
 	CKJVLocaleConfig *m_pLocaleConfig;
 };
 

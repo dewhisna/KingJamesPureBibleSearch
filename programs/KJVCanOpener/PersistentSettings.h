@@ -157,6 +157,8 @@ public:
 
 	QString applicationLanguage() const { return m_pPersistentSettingData->m_strApplicationLanguage; }
 
+	QString ttsServerURL() const { return m_pPersistentSettingData->m_strTTSServerURL; }
+
 	bool screenSwipeableMainWindow() const { return m_pPersistentSettingData->m_bScreenSwipeableMainWindow; }
 	bool scrollbarsEnabled() const
 	{
@@ -232,6 +234,8 @@ signals:
 
 	void changedApplicationLanguage(const QString &strLangName);
 
+	void changedTTSServerURL(const QString &strTTSServerURL);
+
 	void changedScreenSwipeableMainWindow(bool bIsSwipeable);
 	void changedScrollbarsEnabled(bool bEnabled);
 	void changedTouchGesturesEnabled(bool bEnabled);
@@ -297,6 +301,8 @@ public slots:
 	void setCopyWrdNdxInSearchResultsRefs(bool bCopy);
 
 	void setApplicationLanguage(const QString &strLangName);
+
+	void setTTSServerURL(const QString &strTTSServerURL);
 
 	void setScreenSwipeableMainWindow(bool bIsSwipeable);
 	void setScrollbarsEnabled(bool bIsEnabled);
@@ -382,6 +388,8 @@ private:
 		QString m_strMainDictDatabaseUUID;				// UUID of Main Dictionary Database to load (written in KJVCanOpener shutdown, read in myApplication execute)
 		// ----
 		QString m_strApplicationLanguage;				// Language to use for the application.  Empty string to use the system locale.
+		// ----
+		QString m_strTTSServerURL;						// Text-To-Speech Server URL.  Empty string = use none (loaded at app startup via "execute()")
 		// ----
 		bool m_bScreenSwipeableMainWindow;				// True if the main KJVCanOpener window is a multi-screen "swipeable"
 		bool m_bScrollbarsEnabled;						// True if scollbars are enabled on scrollareas (for mobile devices)

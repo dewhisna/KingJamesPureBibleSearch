@@ -144,8 +144,14 @@ public:
 	static void saveApplicationLanguage();
 	static void restoreApplicationLanguage();
 
+	static void saveTTSServerURL();
+	static void restoreTTSServerURL();
+
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
 	QString startupStyleSheet() const { return m_strStartupStyleSheet; }
+
+	QString ttsServerURL() const { return m_strTTSServerURL; }
+	void setTTSServerURL(const QString &strTTSServerURL) { m_strTTSServerURL = strTTSServerURL; }		// Set before calling execute() so we'll connect to server at startup
 
 	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
 
@@ -234,6 +240,7 @@ protected:
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
+	QString m_strTTSServerURL;							// Text-To-Speech server URL for use with Festival, etc. from the command-line "-TTSServer" option
 #ifdef SHOW_SPLASH_SCREEN
 	QElapsedTimer m_splashTimer;
 	QSplashScreen *m_pSplash;							// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen

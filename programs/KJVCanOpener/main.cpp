@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
 	bool bSingleThreadedSearchResults = true;
 #endif
 	QString strStealthSettingsFilename;
+	QString strTTSServerURL;
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
@@ -172,6 +173,7 @@ int main(int argc, char *argv[])
 	bool bLookingForSettings = false;
 	bool bLookingForBibleDB = false;
 	bool bLookingForDictDB = false;
+	bool bLookingForTTSServerURL = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
 		if (!strArg.startsWith("-")) {
@@ -192,6 +194,9 @@ int main(int argc, char *argv[])
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Dictionary Database Index \"%1\"", "Errors").arg(strArg));
 				}
+			} else if (bLookingForTTSServerURL) {
+				strTTSServerURL = strArg;
+				bLookingForTTSServerURL = false;
 			} else if (strKJSFile.isEmpty()) {
 				strKJSFile = strArg;
 			} else {
@@ -199,7 +204,8 @@ int main(int argc, char *argv[])
 			}
 		} else if ((!bLookingForSettings) &&
 					(!bLookingForBibleDB) &&
-					(!bLookingForDictDB)) {
+					(!bLookingForDictDB) &&
+					(!bLookingForTTSServerURL)) {
 			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 				bBuildDB = true;
 			} else if (strArg.compare("-bbl", Qt::CaseInsensitive) == 0) {
@@ -217,6 +223,8 @@ int main(int argc, char *argv[])
 			} else if ((strArg.compare("-multithreaded", Qt::CaseInsensitive) == 0) ||
 						(strArg.compare("-mt", Qt::CaseInsensitive) == 0)) {
 				bSingleThreadedSearchResults = false;
+			} else if (strArg.compare("-TTSServer", Qt::CaseInsensitive) == 0) {
+				bLookingForTTSServerURL = true;
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
 			}
@@ -233,10 +241,15 @@ int main(int argc, char *argv[])
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForDictDB = false;
 			}
+			if (bLookingForTTSServerURL) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Text-To-Speech Server URL, but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForTTSServerURL = false;
+			}
 		}
 	}
 
 	pApp->setFileToLoad(strKJSFile);
+	pApp->setTTSServerURL(strTTSServerURL);
 
 #if defined(EMSCRIPTEN) || defined(VNCSERVER)
 	bStealthMode = true;

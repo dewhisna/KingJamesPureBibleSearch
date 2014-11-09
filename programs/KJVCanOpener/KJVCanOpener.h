@@ -213,6 +213,7 @@ protected slots:
 	void en_LaunchBibleDatabaseConfig();
 	void en_LaunchDictDatabaseConfig();
 	void en_LaunchLocaleSettingsConfig();
+	void en_LaunchTTSOptionsConfig();
 
 	void en_NewCanOpener(QAction *pAction = NULL);
 

@@ -39,6 +39,7 @@
 
 #ifdef USING_QT_SPEECH
 #include <QtSpeech>
+#include <QUrl>
 #endif
 
 #ifdef SHOW_SPLASH_SCREEN
@@ -119,6 +120,10 @@ namespace {
 	const QString constrDictDatabaseSettingsGroup("DictionaryDatabaseSettings");
 	//const QString constrDatabaseUUIDKey("UUID");									// Entries in the dictionary settings signify selecting it for the corresponding language
 	//const QString constrLoadOnStartKey("LoadOnStart");
+
+	// Text-To-Speech Settings:
+	const QString constrTTSSettingsGroup("TextToSpeech");
+	const QString constrTTSServerURLKey("TTSServerURL");
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -770,6 +775,32 @@ void CMyApplication::restoreApplicationLanguage()
 
 // ============================================================================
 
+void CMyApplication::saveTTSServerURL()
+{
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		settings.beginGroup(constrTTSSettingsGroup);
+		if (!CPersistentSettings::instance()->ttsServerURL().isEmpty()) {
+			settings.setValue(constrTTSServerURLKey, CPersistentSettings::instance()->ttsServerURL());
+		} else {
+			settings.remove(constrTTSServerURLKey);
+		}
+		settings.endGroup();
+	}
+}
+
+void CMyApplication::restoreTTSServerURL()
+{
+	if (CPersistentSettings::instance()->settings() != NULL) {
+		QSettings &settings(*CPersistentSettings::instance()->settings());
+		settings.beginGroup(constrTTSSettingsGroup);
+		CPersistentSettings::instance()->setTTSServerURL(settings.value(constrTTSServerURLKey, CPersistentSettings::instance()->ttsServerURL()).toString());
+		settings.endGroup();
+	}
+}
+
+// ============================================================================
+
 bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 {
 #ifdef EMSCRIPTEN
@@ -1273,6 +1304,10 @@ int CMyApplication::execute(bool bBuildDB)
 	restoreApplicationLanguage();
 	saveApplicationLanguage();
 
+	// Restore Text-To-Speech Server URL Setting (and save for next time):
+	restoreTTSServerURL();
+	saveTTSServerURL();
+
 	// Setup our Fonts:
 #ifdef LOAD_APPLICATION_FONTS
 	//	Note: As of Qt 5.2, iOS doesn't currently load fonts correctly and causes:
@@ -1313,11 +1348,29 @@ int CMyApplication::execute(bool bBuildDB)
 
 	// Setup Text-To-Speech:
 #ifdef USING_QT_SPEECH
-	// TODO : Add reading/setting of Speech Server Port:
 	if (QtSpeech::serverSupported()) {
-		if (!QtSpeech::connectToServer()) {
-			displayWarning(m_pSplash, g_constrInitialization, tr("Failed to connect to Text-To-Speech Server!", "Errors"));
+		QString strTTSServer = m_strTTSServerURL;
+		if (strTTSServer.isEmpty()) strTTSServer = CPersistentSettings::instance()->ttsServerURL();
+		if (!strTTSServer.isEmpty()) {
+			QUrl urlTTSServer(strTTSServer);
+			QString strTTSHost = urlTTSServer.host();
+			if (urlTTSServer.scheme().compare(QTSPEECH_SERVER_SCHEME_NAME, Qt::CaseInsensitive) != 0) {
+				displayWarning(m_pSplash, g_constrInitialization, tr("Unknown Text-To-Speech Server Scheme name.  Expected \"%1\".", "Errors").arg(QTSPEECH_SERVER_SCHEME_NAME));
+			} else if ((!strTTSHost.isEmpty()) &&
+						(!QtSpeech::connectToServer(strTTSHost, urlTTSServer.port(QTSPEECH_DEFAULT_SERVER_PORT)))) {
+				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to connect to Text-To-Speech Server \"%1\"!", "Errors").arg(strTTSServer));
+			}
 		}
+	} else {
+		// If user specified a TTS Server on the command-line and this build doesn't support server mode, warn him:
+		if (!m_strTTSServerURL.isEmpty()) {
+			displayWarning(m_pSplash, g_constrInitialization, tr("Text-To-Speech Server was specified, but this build of King James Pure Bible Search doesn't support external servers", "Errors"));
+		}
+	}
+#else
+	// If user specified a TTS Server on the command-line and this build doesn't support TTS, warn him:
+	if (!m_strTTSServerURL.isEmpty()) {
+		displayWarning(m_pSplash, g_constrInitialization, tr("Text-To-Speech Server was specified, but this build of King James Pure Bible Search doesn't support Text-To-Speech", "Errors"));
 	}
 #endif
 

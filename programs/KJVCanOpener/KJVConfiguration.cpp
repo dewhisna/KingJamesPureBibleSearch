@@ -59,6 +59,10 @@
 #include <QTimer>
 #include <QRegExp>
 #include <QFileDialog>
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#include <QUrl>
+#endif
 
 #ifdef MODELTEST
 // For some reason, including the modeltest code causes our wwWidgets QwwColorButton class to
@@ -2807,6 +2811,78 @@ void CKJVLocaleConfig::en_changeApplicationLanguage(int nIndex)
 // ============================================================================
 // ============================================================================
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+
+CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
+	:	QWidget(parent),
+		m_bIsDirty(false),
+		m_bLoadingData(false)
+{
+	ui.setupUi(this);
+
+	connect(ui.editTTSServerURL, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedTTSServerURL(const QString &)));
+
+	loadSettings();
+}
+
+CKJVTTSOptionsConfig::~CKJVTTSOptionsConfig()
+{
+
+}
+
+void CKJVTTSOptionsConfig::loadSettings()
+{
+	m_bLoadingData = true;
+
+	ui.editTTSServerURL->setText(CPersistentSettings::instance()->ttsServerURL());
+
+	m_bLoadingData = false;
+	m_bIsDirty = false;
+}
+
+void CKJVTTSOptionsConfig::saveSettings()
+{
+	CMyApplication::saveTTSServerURL();
+#ifdef USING_QT_SPEECH
+	if (QtSpeech::serverSupported()) {
+		QString strTTSServer = CPersistentSettings::instance()->ttsServerURL();
+		if (!strTTSServer.isEmpty()) {
+			QUrl urlTTSServer(strTTSServer);
+			QString strTTSHost = urlTTSServer.host();
+			if (urlTTSServer.scheme().compare(QTSPEECH_SERVER_SCHEME_NAME, Qt::CaseInsensitive) != 0) {
+				QMessageBox::warning(this, windowTitle(), tr("Unknown Text-To-Speech Server Scheme name.  Expected \"%1\".", "Errors").arg(QTSPEECH_SERVER_SCHEME_NAME));
+			} else if ((!strTTSHost.isEmpty()) &&
+						(!QtSpeech::connectToServer(strTTSHost, urlTTSServer.port(QTSPEECH_DEFAULT_SERVER_PORT)))) {
+				QMessageBox::warning(this, windowTitle(), tr("Failed to connect to Text-To-Speech Server \"%1\"!", "Errors").arg(strTTSServer));
+			} else {
+				if (strTTSHost.isEmpty()) {
+					QtSpeech::disconnectFromServer();			// Empty Host means we disconnect from current server
+				}
+			}
+		} else {
+			QtSpeech::disconnectFromServer();				// Empty URL means we disconnect from current server
+		}
+	}
+#endif
+
+	m_bIsDirty = false;
+}
+
+void CKJVTTSOptionsConfig::en_changedTTSServerURL(const QString &strTTSServerURL)
+{
+	if (m_bLoadingData) return;
+
+	CPersistentSettings::instance()->setTTSServerURL(strTTSServerURL);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+#endif	// !EMSCRIPTEN && !VNCSERVER
+
+// ============================================================================
+// ============================================================================
+
 CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QwwConfigWidget(parent),
 		m_pGeneralSettingsConfig(NULL),
@@ -2817,6 +2893,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #endif
 		m_pBibleDatabaseConfig(NULL),
 		m_pDictDatabaseConfig(NULL),
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		m_pTTSOptionsConfig(NULL),
+#endif
 		m_pLocaleConfig(NULL)
 {
 	assert(!pBibleDatabase.isNull());
@@ -2831,6 +2910,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
 	m_pDictDatabaseConfig = new CKJVDictDatabaseConfig(this);
 	m_pLocaleConfig = new CKJVLocaleConfig(this);
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	m_pTTSOptionsConfig = new CKJVTTSOptionsConfig(this);
+#endif
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings", "MainMenu"));
 	addGroup(m_pCopyOptionsConfig, QIcon(":/res/copy_128.png"), tr("Copy Options", "MainMenu"));
@@ -2841,6 +2923,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database", "MainMenu"));
 	addGroup(m_pDictDatabaseConfig, QIcon(":/res/Apps-accessories-dictionary-icon-128.png"), tr("Dictionary Database", "MainMenu"));
 	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings", "MainMenu"));
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	addGroup(m_pTTSOptionsConfig, QIcon(":/res/Actions-text-speak-icon-128.png"), tr("Text-To-Speech", "MainMenu"));
+#endif
 
 	QWidget *pSelect = m_pGeneralSettingsConfig;		// Default page
 
@@ -2868,6 +2953,11 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_LOCALE:
 			pSelect = m_pLocaleConfig;
 			break;
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		case CPSE_TTS_OPTIONS:
+			pSelect = m_pTTSOptionsConfig;
+			break;
+#endif
 		case CPSE_DEFAULT:
 			break;
 		default:
@@ -2886,6 +2976,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pDictDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 	connect(m_pLocaleConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	connect(m_pTTSOptionsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+#endif
 }
 
 CKJVConfiguration::~CKJVConfiguration()
@@ -2904,6 +2997,9 @@ void CKJVConfiguration::loadSettings()
 	m_pBibleDatabaseConfig->loadSettings();
 	m_pDictDatabaseConfig->loadSettings();
 	m_pLocaleConfig->loadSettings();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	m_pTTSOptionsConfig->loadSettings();
+#endif
 }
 
 void CKJVConfiguration::saveSettings()
@@ -2917,6 +3013,9 @@ void CKJVConfiguration::saveSettings()
 	m_pBibleDatabaseConfig->saveSettings();
 	m_pDictDatabaseConfig->saveSettings();
 	m_pLocaleConfig->saveSettings();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	m_pTTSOptionsConfig->saveSettings();
+#endif
 }
 
 bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
@@ -2938,6 +3037,10 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 			return m_pDictDatabaseConfig->isDirty();
 		case CPSE_LOCALE:
 			return m_pLocaleConfig->isDirty();
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		case CPSE_TTS_OPTIONS:
+			return m_pTTSOptionsConfig->isDirty();
+#endif
 		case CPSE_DEFAULT:
 		default:
 			return (m_pGeneralSettingsConfig->isDirty() ||
@@ -2948,6 +3051,9 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 					m_pTextFormatConfig->isDirty() ||
 					m_pBibleDatabaseConfig->isDirty() ||
 					m_pDictDatabaseConfig->isDirty() ||
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+					m_pTTSOptionsConfig->isDirty() ||
+#endif
 					m_pLocaleConfig->isDirty());
 	}
 }

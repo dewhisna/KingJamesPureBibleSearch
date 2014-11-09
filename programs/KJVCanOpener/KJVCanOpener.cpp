@@ -762,7 +762,16 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F7));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchLocaleSettingsConfig()));
+
+#ifndef VNCSERVER
+	pAction = new QAction(this);
+	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F8));
+	addAction(pAction);
+	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchTTSOptionsConfig()));
 #endif
+
+#endif	// !EMSCRIPTEN
+
 
 	// --- Window Menu
 	QMenu *pWindowMenu = ui.menuBar->addMenu(tr("&Window", "MainMenu"));
@@ -2798,6 +2807,13 @@ void CKJVCanOpener::en_LaunchLocaleSettingsConfig()
 {
 #if !defined(EMSCRIPTEN)
 	en_Configure(CPSE_LOCALE);
+#endif
+}
+
+void CKJVCanOpener::en_LaunchTTSOptionsConfig()
+{
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	en_Configure(CPSE_TTS_OPTIONS);
 #endif
 }
 

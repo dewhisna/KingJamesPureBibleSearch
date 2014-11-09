@@ -29,6 +29,12 @@
 #   define QTSPEECH_API Q_DECL_IMPORT
 #endif
 
+#ifdef Q_OS_LINUX
+#define QTSPEECH_DEFAULT_SERVER_PORT 1314				// Festival's typical server port number
+#define QTSPEECH_SERVER_SCHEME_NAME "festival"
+// TODO : Add other OS's here
+#endif
+
 namespace QtSpeech_v1 { // API v1.0
 
 class QTSPEECH_API QtSpeech : public QObject

@@ -423,15 +423,13 @@ void CScriptureText<T,U>::en_readSelection()
 	//		This will combine questions and exclamations, joining them with adjacent statements,
 	//		but there isn't likely to be a ton of them run together, which will achieve the
 	//		goal of not overflowing the buffer:
-	static const QRegExp regexpSentence("[;.:]");
-	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence);
+	static const QRegExp regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
+	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts);
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
-		if (!lstSentences.at(ndx).isEmpty()) {
-			// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
-			//		some special characters (like specialized apostrophes) mess up the
-			//		speech synthesis:
-			m_speech.tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx), true), true).normalized(QString::NormalizationForm_KC));
-		}
+		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
+		//		some special characters (like specialized apostrophes) mess up the
+		//		speech synthesis:
+		m_speech.tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
 	}
 }
 

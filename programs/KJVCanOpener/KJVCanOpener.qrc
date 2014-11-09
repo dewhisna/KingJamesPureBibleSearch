@@ -103,5 +103,6 @@
 		<file>res/language_256.png</file>
 		<file>res/Insert-hyperlink-icon-48.png</file>
 		<file>res/Apps-accessories-dictionary-icon-128.png</file>
+		<file>res/Actions-text-speak-icon-128.png</file>
 	</qresource>
 </RCC>

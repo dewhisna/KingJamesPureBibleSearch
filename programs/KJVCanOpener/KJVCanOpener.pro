@@ -461,6 +461,7 @@ FORMS += \
 	EditWWWLinkDlg.ui \
 	KJVCrossRefEditDlg.ui \
 	KJVNoteEditDlg.ui \
+	KJVTTSOptionsConfig.ui \
 	KJVUserNotesDatabaseConfig.ui
 
 
