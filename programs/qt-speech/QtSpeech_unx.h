@@ -20,10 +20,12 @@
 #define QtSpeech_unx_H
 
 #include <QObject>
+#include <QPointer>
 #include <QtSpeech>
 
 #include <QString>
 #include <QStringList>
+#include <QList>
 
 #ifdef USE_FESTIVAL_SERVER
 #include <QTcpSocket>
@@ -80,6 +82,27 @@ protected slots:
 
 #ifdef USE_FESTIVAL_SERVER
 
+struct TAsyncTalkingObject
+{
+	TAsyncTalkingObject(const QString &strText, QObject *pObject = NULL, const char *pSlot = NULL)
+		:	m_strText(strText),
+			m_pObject(pObject),
+			m_pSlot(pSlot)
+	{ }
+
+	bool hasNotificationSlot() const
+	{
+		return ((m_pSlot != NULL) && (!m_pObject.isNull()));
+	}
+
+	QString m_strText;
+	QPointer<QObject> m_pObject;
+	const char *m_pSlot;
+};
+typedef QList<TAsyncTalkingObject> TAsyncTalkingObjectsList;
+
+
+
 class QtSpeech_asyncServerIO : public QObject
 {
 	Q_OBJECT
@@ -92,15 +115,14 @@ public:
 
 signals:
 	void lostServer();
-	void operationFailed();
-	void operationSucceeded();
-	void operationComplete();
+	void readVoicesComplete();
+	void setVoiceComplete();
 
 	void doneTalking();
 
 public slots:
 	void readVoices();
-	void say(const QString &strText);
+	void say(const TAsyncTalkingObject &aTalkingObject);
 	void setVoice(const QtSpeech::VoiceName &aVoice);
 
 protected slots:
@@ -108,12 +130,14 @@ protected slots:
 	void disconnectFromServer();
 	QStringList sendCommand(const QString &strCommand, bool bWaitForReply = true);
 	void en_readyRead();
+	void en_sayNext();
 
 private:
 	QTcpSocket m_sockFestival;
 	QString m_strHostname;
 	int m_nPortNumber;
 	bool m_bAmTalking;
+	TAsyncTalkingObjectsList m_lstTalkingObjects;
 };
 #endif
 

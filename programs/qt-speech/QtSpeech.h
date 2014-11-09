@@ -83,8 +83,8 @@ public:
 	static void disconnectFromServer();
 
 public slots:
-	virtual void say(QString strText) const;					//!< Say something, synchronous
-	virtual void tell(QString strText) const;					//!< Tell something, asynchronous
+	virtual void say(const QString &strText) const;														//!< Say something, synchronous
+	virtual void tell(const QString &strText, QObject *pObject = 0L, const char *pSlot = 0L) const;		//!< Tell something, asynchronous
 
 signals:
 	void finished();
