@@ -85,6 +85,7 @@ public:
 public slots:
 	virtual void say(const QString &strText) const;														//!< Say something, synchronous
 	virtual void tell(const QString &strText, QObject *pObject = 0L, const char *pSlot = 0L) const;		//!< Tell something, asynchronous
+	virtual void clearQueue() const;				// Clear all pending "tell" operations
 
 signals:
 	void finished();

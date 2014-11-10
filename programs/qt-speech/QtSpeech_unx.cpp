@@ -95,9 +95,9 @@ public:
 	virtual ~QtSpeech_GlobalData()
 	{
 #ifdef USE_FESTIVAL_SERVER
-		if (!g_pAsyncServerIO.isNull()) {
-			disconnect(g_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
-			delete g_pAsyncServerIO.data();
+		if (!m_pAsyncServerIO.isNull()) {
+			disconnect(m_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
+			delete m_pAsyncServerIO.data();
 		}
 #endif
 	}
@@ -109,7 +109,7 @@ public:
 	QtSpeech::VoiceNames m_lstVoiceNames;
 
 #ifdef USE_FESTIVAL_SERVER
-	QPointer<QtSpeech_asyncServerIO> g_pAsyncServerIO;
+	QPointer<QtSpeech_asyncServerIO> m_pAsyncServerIO;
 #endif
 
 	bool serverSupported();								// True if QtSpeech library compiled with server support
@@ -213,7 +213,7 @@ void QtSpeech_th::en_sayNext()
 void QtSpeech_th::clearQueue()
 {
 	m_lstTalkingObjects.clear();
-	if (!m_bAmTalking) emit finished();		// If we're already talking, the talking loop will emit the finished when it realizes we're done with things to say...
+	if (!m_bAmTalking) emit finished();		// If we're already talking, the talking loop will emit the finished when it realizes we're done with things to say...  Otherwise we should emit it
 }
 
 // ============================================================================
@@ -266,10 +266,10 @@ QtSpeech::VoiceNames QtSpeech::voices()
 	}
 
 #ifdef USE_FESTIVAL_SERVER
-	if (!g_QtSpeechGlobal.g_pAsyncServerIO.isNull()) {
+	if (!g_QtSpeechGlobal.m_pAsyncServerIO.isNull()) {
 		QEventLoop el;
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(readVoicesComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
-		g_QtSpeechGlobal.g_pAsyncServerIO->readVoices();
+		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(readVoicesComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
+		g_QtSpeechGlobal.m_pAsyncServerIO->readVoices();
 		el.exec(QEventLoop::ExcludeUserInputEvents);
 	}
 #endif
@@ -307,8 +307,8 @@ void QtSpeech::tell(const QString &strText, QObject *pObject, const char *pSlot)
 
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::UniqueConnection);
-		g_QtSpeechGlobal.g_pAsyncServerIO->say(TAsyncTalkingObject(strText, pObject, pSlot));
+		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::UniqueConnection);
+		g_QtSpeechGlobal.m_pAsyncServerIO->say(TAsyncTalkingObject(strText, pObject, pSlot));
 		return;
 	}
 #endif
@@ -335,9 +335,9 @@ void QtSpeech::say(const QString &strText) const
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		QEventLoop el;
-//		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(doneTalking()), &el, SLOT(quit()), Qt::QueuedConnection);
-		connect(g_QtSpeechGlobal.g_pAsyncServerIO.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::UniqueConnection);
-		g_QtSpeechGlobal.g_pAsyncServerIO->say(TAsyncTalkingObject(strText, &el, SLOT(quit())));
+//		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(doneTalking()), &el, SLOT(quit()), Qt::QueuedConnection);
+		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::UniqueConnection);
+		g_QtSpeechGlobal.m_pAsyncServerIO->say(TAsyncTalkingObject(strText, &el, SLOT(quit())));
 		el.exec(QEventLoop::ExcludeUserInputEvents);
 		return;
 	}
@@ -361,6 +361,30 @@ void QtSpeech::say(const QString &strText) const
 	el.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
+void QtSpeech::clearQueue() const
+{
+#ifdef USE_FESTIVAL_SERVER
+	if (serverConnected()) {
+		g_QtSpeechGlobal.m_pAsyncServerIO->clearQueue();
+		return;
+	}
+#endif
+
+	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
+		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
+		g_QtSpeechGlobal.m_pSpeechThread->start();
+	}
+
+	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
+		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
+		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking()), this, SIGNAL(finished()), Qt::QueuedConnection);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
+	}
+
+	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "clearQueue", Qt::QueuedConnection);
+}
+
 void QtSpeech::timerEvent(QTimerEvent * te)
 {
     QObject::timerEvent(te);
@@ -381,8 +405,8 @@ bool QtSpeech_GlobalData::serverSupported()
 bool QtSpeech_GlobalData::serverConnected()
 {
 #ifdef USE_FESTIVAL_SERVER
-	if (!g_pAsyncServerIO.isNull()) {
-		return g_pAsyncServerIO->isConnected();
+	if (!m_pAsyncServerIO.isNull()) {
+		return m_pAsyncServerIO->isConnected();
 	}
 #endif
 
@@ -393,8 +417,8 @@ bool QtSpeech_GlobalData::connectToServer(const QString &strHostname, int nPortN
 {
 #ifdef USE_FESTIVAL_SERVER
 	disconnectFromServer();		// Disconnect from any existing server
-	g_pAsyncServerIO = new QtSpeech_asyncServerIO(strHostname, nPortNumber);
-	connect(g_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
+	m_pAsyncServerIO = new QtSpeech_asyncServerIO(strHostname, nPortNumber);
+	connect(m_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
 	return serverConnected();
 #else
 	Q_UNUSED(strHostname);
@@ -406,9 +430,9 @@ bool QtSpeech_GlobalData::connectToServer(const QString &strHostname, int nPortN
 void QtSpeech_GlobalData::disconnectFromServer()
 {
 #ifdef USE_FESTIVAL_SERVER
-	if (!g_pAsyncServerIO.isNull()) {
-		disconnect(g_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
-		delete g_pAsyncServerIO.data();
+	if (!m_pAsyncServerIO.isNull()) {
+		disconnect(m_pAsyncServerIO.data(), 0, 0, 0);			// Disconnect everything to prevent event firing on dead object
+		delete m_pAsyncServerIO.data();
 #ifdef DEBUG_SERVER_IO
 		qDebug("Switching to internal Festival...");
 #endif
@@ -440,8 +464,8 @@ void QtSpeech_GlobalData::setVoice()
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		QEventLoop el;
-		connect(g_pAsyncServerIO.data(), SIGNAL(setVoiceComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
-		g_pAsyncServerIO->setVoice(theVoice);
+		connect(m_pAsyncServerIO.data(), SIGNAL(setVoiceComplete()), &el, SLOT(quit()), Qt::QueuedConnection);
+		m_pAsyncServerIO->setVoice(theVoice);
 		el.exec(QEventLoop::ExcludeUserInputEvents);
 		return;
 	}
@@ -463,7 +487,7 @@ void QtSpeech_GlobalData::setVoice()
 void QtSpeech_GlobalData::en_lostServer()
 {
 #ifdef USE_FESTIVAL_SERVER
-	if (!g_pAsyncServerIO.isNull()) {
+	if (!m_pAsyncServerIO.isNull()) {
 #ifdef DEBUG_SERVER_IO
 		qDebug("Lost connection to Festival Server...");
 #endif
