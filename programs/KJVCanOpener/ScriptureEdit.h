@@ -128,8 +128,12 @@ protected:
 //protected slots:
 protected:
 #ifdef USING_QT_SPEECH
-	virtual void en_readSelection();
+	virtual void en_readSelection();			// Equivalent to SpeechPlay
 	virtual void en_readFromCursor();
+	virtual void en_speechPause();
+	virtual void en_speechStop();
+	virtual void en_speechFinished(bool bQueueEmpty);			// Trigger by QtSpeech::finished() to queue next phrase portion
+	virtual void setSpeechActionEnables();
 #endif
 
 	virtual void en_findParentCanOpener();
@@ -173,6 +177,7 @@ private:
 private:
 #ifdef USING_QT_SPEECH
 	QtSpeech m_speech;
+	bool m_bSpeechInProgress;		// Set to True when starting a TTS operation, cleared either when it's done the selection or is stopped
 #endif
 	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
@@ -252,6 +257,10 @@ protected slots:
 #ifdef USING_QT_SPEECH
 	virtual void en_readSelection() = 0;
 	virtual void en_readFromCursor() = 0;
+	virtual void en_speechPause() = 0;
+	virtual void en_speechStop() = 0;
+	virtual void en_speechFinished(bool bQueueEmpty) = 0;
+	virtual void setSpeechActionEnables() = 0;
 #endif
 
 	virtual void en_findParentCanOpener() = 0;
@@ -310,6 +319,10 @@ protected slots:
 #ifdef USING_QT_SPEECH
 	virtual void en_readSelection() = 0;
 	virtual void en_readFromCursor() = 0;
+	virtual void en_speechPause() = 0;
+	virtual void en_speechStop() = 0;
+	virtual void en_speechFinished(bool bQueueEmpty) = 0;
+	virtual void setSpeechActionEnables() = 0;
 #endif
 
 	virtual void en_findParentCanOpener() = 0;

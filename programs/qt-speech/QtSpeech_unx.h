@@ -74,12 +74,13 @@ public slots:
 	void clearQueue();
 
 protected slots:
-	void en_sayNext();
+	void en_sayNext(bool bInitialSay);
 
 signals:
     void logicError(QtSpeech::LogicError);
     void finished();
-	void doneTalking();
+	void sayNext(bool bInitialSay);
+	void doneTalking(bool bQueueEmpty);
 
 private:
     friend class QtSpeech;
@@ -123,7 +124,7 @@ signals:
 	void readVoicesComplete();
 	void setVoiceComplete();
 
-	void doneTalking();
+	void doneTalking(bool bQueueEmpty);
 
 public slots:
 	void readVoices();

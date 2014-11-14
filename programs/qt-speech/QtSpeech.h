@@ -88,7 +88,7 @@ public slots:
 	virtual void clearQueue() const;				// Clear all pending "tell" operations
 
 signals:
-	void finished();
+	void finished(bool bQueueEmpty);
 
 protected:
 	virtual void timerEvent(QTimerEvent *);

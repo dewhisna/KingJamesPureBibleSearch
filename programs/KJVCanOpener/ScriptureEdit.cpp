@@ -84,6 +84,9 @@ namespace {
 template <class T, class U>
 CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	T(parent),
+#ifdef USING_QT_SPEECH
+		m_bSpeechInProgress(false),
+#endif
 		m_pBibleDatabase(pBibleDatabase),
 		m_pFindDialog(NULL),
 		m_bDoingPopup(false),
@@ -215,20 +218,29 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pStatusAction = new QAction(this);
 
 #ifdef USING_QT_SPEECH
-	QAction *pSpeechAction;
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		QAction *pSpeechAction;
 
+		pSpeechAction = new QAction("readSelection", this);
 #ifndef Q_OS_MAC
-	pSpeechAction = new QAction("readSelection", this);
-	pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
-	T::addAction(pSpeechAction);
-	T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readSelection()));
-	pSpeechAction = new QAction("readFromCursor", this);
-	pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_R));
-	T::addAction(pSpeechAction);
-	T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
+		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
+#else
+		pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
 #endif
+		T::addAction(pSpeechAction);
+		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readSelection()));
+		pSpeechAction = new QAction("readFromCursor", this);
+#ifndef Q_OS_MAC
+		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_R));
+#else
+		pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_R));
+#endif
+		T::addAction(pSpeechAction);
+		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
 
-#endif
+		T::connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+	}
+#endif	// USING_QT_SPEECH
 
 #ifdef TOUCH_GESTURE_PROCESSING
 	T::grabGesture(Qt::TapGesture);
@@ -372,6 +384,12 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
 #endif
+#ifdef USING_QT_SPEECH
+		if (pCanOpener->actionSpeechPause())
+			T::connect(pCanOpener->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
+		if (pCanOpener->actionSpeechStop())
+			T::connect(pCanOpener->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
+#endif
 	}
 }
 
@@ -425,6 +443,8 @@ void CScriptureText<T,U>::en_readSelection()
 	//		goal of not overflowing the buffer:
 	static const QRegExp regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
 	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts);
+	if (!lstSentences.isEmpty()) m_bSpeechInProgress = true;
+	setSpeechActionEnables();
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
 		//		some special characters (like specialized apostrophes) mess up the
@@ -442,6 +462,43 @@ void CScriptureText<T,U>::en_readFromCursor()
 		qDebug("%s", lstVoices.at(ndx).id.toUtf8().data());
 	}
 
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_speechPause()
+{
+	// TODO ?
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_speechStop()
+{
+	m_speech.clearQueue();
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_speechFinished(bool bQueueEmpty)
+{
+	if (bQueueEmpty) m_bSpeechInProgress = false;
+	setSpeechActionEnables();
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::setSpeechActionEnables()
+{
+	bool bIsScriptureBrowser = false;
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		bIsScriptureBrowser = true;
+	}
+
+	if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
+		if (parentCanOpener()->actionSpeechPlay() != NULL) {
+			parentCanOpener()->actionSpeechPlay()->setEnabled(!m_bSpeechInProgress && haveSelection());
+		}
+		if (parentCanOpener()->actionSpeechStop() != NULL) {
+			parentCanOpener()->actionSpeechStop()->setEnabled(m_bSpeechInProgress);
+		}
+	}
 }
 
 #endif
@@ -503,21 +560,31 @@ bool CScriptureText<T,U>::eventFilter(QObject *obj, QEvent *ev)
 template<class T, class U>
 bool CScriptureText<T,U>::event(QEvent *ev)
 {
+	bool bIsScriptureBrowser = false;
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		bIsScriptureBrowser = true;
+	}
+
 	if (ev->type() == QEvent::FocusIn) {
 		emit T::activatedScriptureText();
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-		bool bEditEnable = false;
-		if (qobject_cast<const QTextBrowser *>(this) != NULL) {
-			bEditEnable = true;
-		}
-
 		if (parentCanOpener() != NULL) {
-			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditEnable);
-			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bEditEnable);
+			parentCanOpener()->actionUserNoteEditor()->setEnabled(bIsScriptureBrowser);
+			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bIsScriptureBrowser);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
 			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
-				lstHighlightActions.at(ndxHighlight)->setEnabled(bEditEnable);
+				lstHighlightActions.at(ndxHighlight)->setEnabled(bIsScriptureBrowser);
 			}
+		}
+#endif
+#ifdef USING_QT_SPEECH
+		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
+			if (parentCanOpener()->actionSpeechPlay())
+				T::connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
+//			if (parentCanOpener()->actionSpeechPause())
+//				T::connect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
+//			if (parentCanOpener()->actionSpeechStop())
+//				T::connect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 		}
 #endif
 	} else if (ev->type() == QEvent::FocusOut) {
@@ -532,6 +599,16 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
 				lstHighlightActions.at(ndxHighlight)->setEnabled(false);
 			}
+		}
+#endif
+#ifdef USING_QT_SPEECH
+		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
+			if (parentCanOpener()->actionSpeechPlay())
+				T::disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
+//			if (parentCanOpener()->actionSpeechPause())
+//				T::disconnect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
+//			if (parentCanOpener()->actionSpeechStop())
+//				T::disconnect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 		}
 #endif
 	}
@@ -845,6 +922,10 @@ void CScriptureText<T,U>::updateSelection()
 
 	if ((CTipEdit::tipEditIsPinned(parentCanOpener())) && (prevSelection != m_lstSelectedPhrases))
 		m_dlyDetailUpdate.trigger();
+
+#ifdef USING_QT_SPEECH
+	setSpeechActionEnables();
+#endif
 
 	m_bDoingSelectionChange = false;
 }

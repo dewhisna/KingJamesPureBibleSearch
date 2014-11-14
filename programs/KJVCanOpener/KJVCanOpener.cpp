@@ -267,6 +267,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// ----
 	m_pActionAbout(NULL),
 	// ----
+	m_pSpeechToolbar(NULL),
+	m_pActionSpeechPlay(NULL),
+	m_pActionSpeechPause(NULL),
+	m_pActionSpeechStop(NULL),
+	// ----
 	m_bBrowserActive(false),
 	m_bSearchResultsActive(false),
 	m_bPhraseEditorActive(false),
@@ -328,6 +333,51 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	delete ui.usernotesToolBar;
 	ui.usernotesToolBar = NULL;
 #endif
+
+	// -------------------- Speech Toolbar:
+
+#ifdef USING_QT_SPEECH
+	// Accelerators: Ctrl-Shift (Meta-Shift on Mac): Y-U-I-O-P (Back-Stop-Pause-Play-Forward)
+	m_pSpeechToolbar = new QToolBar(this);
+	m_pSpeechToolbar->setObjectName(QStringLiteral("speechToolBar"));
+	addToolBar(Qt::TopToolBarArea, m_pSpeechToolbar);
+	m_pSpeechToolbar->setWindowTitle(QApplication::translate("CKJVCanOpener", "Text-To-&Speech Toolbar", 0));	// Keep this in QApplication namespace to be consistent with the ToolBars in the UI file
+
+	m_pActionSpeechPlay = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), tr("Play", "MainMenu"), this);
+#ifndef Q_OS_MAC
+	m_pActionSpeechPlay->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+#else
+	m_pActionSpeechPlay->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_O));
+#endif
+	m_pActionSpeechPlay->setStatusTip(tr("Play Text-To-Speech for Current Selection and/or Chapter", "MainMenu"));
+	m_pActionSpeechPlay->setToolTip(tr("Play Text-To-Speech", "MainMenu"));
+	m_pActionSpeechPlay->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser w/selection
+	m_pSpeechToolbar->addAction(m_pActionSpeechPlay);
+
+#if 0
+	m_pActionSpeechPause = new QAction(style()->standardIcon(QStyle::SP_MediaPause), tr("Pause", "MainMenu"), this);
+#ifndef Q_OS_MAC
+	m_pActionSpeechPause->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
+#else
+	m_pActionSpeechPause->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_I));
+#endif
+	m_pActionSpeechPause->setStatusTip(tr("Pause Text-To-Speech currently in progress", "MainMenu"));
+	m_pActionSpeechPause->setToolTip(tr("Pause Text-To-Speech", "MainMenu"));
+	m_pActionSpeechPause->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser w/selection
+	m_pSpeechToolbar->addAction(m_pActionSpeechPause);
+#endif
+
+	m_pActionSpeechStop = new QAction(style()->standardIcon(QStyle::SP_MediaStop), tr("Stop", "MainMenu"), this);
+#ifndef Q_OS_MAC
+	m_pActionSpeechStop->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_U));
+#else
+	m_pActionSpeechStop->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_U));
+#endif
+	m_pActionSpeechStop->setStatusTip(tr("Stop Text-To-Speech currently in progress", "MainMenu"));
+	m_pActionSpeechStop->setToolTip(tr("Stop Text-To-Speech", "MainMenu"));
+	m_pActionSpeechStop->setEnabled(false);			// Will get enabled on proper focus-in to Search Results and/or Scripture Browser w/selection
+	m_pSpeechToolbar->addAction(m_pActionSpeechStop);
+#endif	// USING_QT_SPEECH
 
 	// -------------------- Setup the Three Panes:
 

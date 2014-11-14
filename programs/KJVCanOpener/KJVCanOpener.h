@@ -42,6 +42,7 @@
 #include <QString>
 #include <QSplitter>
 #include <QPointer>
+#include <QToolBar>
 
 #include <assert.h>
 
@@ -82,6 +83,9 @@ public:
 	CHighlighterButtons *highlighterButtons() const { return m_pHighlighterButtons; }
 	QAction *actionUserNoteEditor() const { return m_pActionUserNoteEditor; }
 	QAction *actionCrossRefsEditor() const { return m_pActionCrossRefsEditor; }
+	QAction *actionSpeechPlay() const { return m_pActionSpeechPlay; }
+	QAction *actionSpeechPause() const { return m_pActionSpeechPause; }
+	QAction *actionSpeechStop() const { return m_pActionSpeechStop; }
 
 	bool canClose() const { return m_bCanClose; }
 	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
@@ -259,6 +263,11 @@ private:
 	// ----
 	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)
+	// ----
+	QToolBar *m_pSpeechToolbar;		// Text-To-Speech Playback actions toolbar -- these will be NULL if Text-To-Speech isn't supported
+	QAction *m_pActionSpeechPlay;
+	QAction *m_pActionSpeechPause;
+	QAction *m_pActionSpeechStop;
 
 	bool m_bBrowserActive;
 	bool m_bSearchResultsActive;
