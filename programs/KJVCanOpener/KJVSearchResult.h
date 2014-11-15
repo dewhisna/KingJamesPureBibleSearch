@@ -54,10 +54,6 @@
 #include <QPoint>
 #include <QRect>
 
-#ifdef USING_QT_SPEECH
-#include <QtSpeech>
-#endif
-
 #include <assert.h>
 
 // ============================================================================
@@ -211,10 +207,6 @@ private:
 	bool m_bDoubleTouchStarted;
 	QPersistentModelIndex m_ndxDoubleTouch;		// Index in our model for the double-touch target
 	float m_nAccumulatedScrollOffset;
-#endif
-	// ----
-#ifdef USING_QT_SPEECH
-	bool m_bSpeechInProgress;		// Set to True when starting a TTS operation, cleared either when it's done the selection or is stopped
 #endif
 	// ----
 	bool m_bInvertTextBrightness;	// Local copies so we can have different current values than the app setting so we can preview settings

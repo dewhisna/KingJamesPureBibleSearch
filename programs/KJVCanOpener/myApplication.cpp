@@ -881,6 +881,32 @@ void CMyApplication::signalSpyCaughtSlot(const QString &strMessage) const
 
 // ============================================================================
 
+#ifdef USING_QT_SPEECH
+
+void CMyApplication::en_clearingSpeechQueue()
+{
+	// Note: This function may get called multiple times during a queue clear because the
+	//		QtSpeech::clearQueue can get called multiple times because of multiple widgets
+	//		trying to handle the speechStop button...
+	assert(!m_pSpeech.isNull());
+	if (connect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)), Qt::UniqueConnection)) {
+		setOverrideCursor(Qt::WaitCursor);
+	}
+}
+
+void CMyApplication::en_speechFinished(bool bQueueEmpty)
+{
+	if (bQueueEmpty) {
+		assert(!m_pSpeech.isNull());
+		disconnect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+		restoreOverrideCursor();
+	}
+}
+
+#endif	// USING_QT_SPEECH
+
+// ============================================================================
+
 CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDatabase)
 {
 	m_bAreRestarting = false;			// Once we create a new CanOpener we are no longer restarting...
@@ -1371,7 +1397,10 @@ int CMyApplication::execute(bool bBuildDB)
 		}
 	}
 
-	if (m_pSpeech.isNull()) m_pSpeech = new QtSpeech(this);
+	if (m_pSpeech.isNull()) {
+		m_pSpeech = new QtSpeech(this);
+		connect(m_pSpeech.data(), SIGNAL(clearingQueue()), this, SLOT(en_clearingSpeechQueue()));
+	}
 #else
 	// If user specified a TTS Server on the command-line and this build doesn't support TTS, warn him:
 	if (!m_strTTSServerURL.isEmpty()) {

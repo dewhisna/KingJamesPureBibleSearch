@@ -64,6 +64,10 @@
 #include <QMessageBox>
 #include <QScrollBar>
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 #ifdef MODELTEST
 #include <modeltest.h>
 #endif
@@ -94,9 +98,6 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 #ifdef TOUCH_GESTURE_PROCESSING
 		m_bDoubleTouchStarted(false),
 		m_nAccumulatedScrollOffset(0),
-#endif
-#ifdef USING_QT_SPEECH
-		m_bSpeechInProgress(false),
 #endif
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
@@ -330,8 +331,6 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	if (pSpeech != NULL) {
 		connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
-
-		m_bSpeechInProgress = pSpeech->isTalking();
 	}
 #endif	// USING_QT_SPEECH
 
@@ -456,41 +455,33 @@ void CSearchResultsTreeView::en_speechPause()
 
 void CSearchResultsTreeView::en_speechStop()
 {
-	if ((parentCanOpener() != NULL) && (hasFocus()) && (m_bSpeechInProgress)) {
-		QApplication::setOverrideCursor(Qt::WaitCursor);
-	}
-
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if (pSpeech != NULL) {
-		if (hasFocus()) pSpeech->clearQueue();
-	}
+	if ((pSpeech != NULL) && (pSpeech->isTalking())) pSpeech->clearQueue();
 }
 
 void CSearchResultsTreeView::en_speechBeginning()
 {
-	m_bSpeechInProgress = true;
 	setSpeechActionEnables();
 }
 
 void CSearchResultsTreeView::en_speechFinished(bool bQueueEmpty)
 {
-	if ((parentCanOpener() != NULL) && (hasFocus()) && (m_bSpeechInProgress)) {
-		QApplication::restoreOverrideCursor();
-	}
-
-	if (bQueueEmpty) m_bSpeechInProgress = false;
+	Q_UNUSED(bQueueEmpty);
 	setSpeechActionEnables();
 }
 
 void CSearchResultsTreeView::setSpeechActionEnables()
 {
-	if ((parentCanOpener() != NULL) && (hasFocus())) {
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+
+	if (pSpeech != NULL) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
-			parentCanOpener()->actionSpeechPlay()->setEnabled(!m_bSpeechInProgress && speakableNodeSelected());
+			parentCanOpener()->actionSpeechPlay()->setEnabled(!pSpeech->isTalking() && speakableNodeSelected());
 		}
 		if (parentCanOpener()->actionSpeechStop() != NULL) {
-			parentCanOpener()->actionSpeechStop()->setEnabled(m_bSpeechInProgress);
+			parentCanOpener()->actionSpeechStop()->setEnabled(pSpeech->isTalking());
 		}
 	}
 }

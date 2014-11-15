@@ -400,8 +400,10 @@ void QtSpeech::say(const QString &strText) const
 	el.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
-void QtSpeech::clearQueue() const
+void QtSpeech::clearQueue()
 {
+	emit clearingQueue();
+
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		g_QtSpeechGlobal.m_pAsyncServerIO->clearQueue();

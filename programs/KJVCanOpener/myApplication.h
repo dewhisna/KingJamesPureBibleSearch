@@ -220,6 +220,11 @@ public:
 #endif
 
 private slots:
+#ifdef USING_QT_SPEECH
+	void en_clearingSpeechQueue();						// Used to set waitCursor while stopping speech operations
+	void en_speechFinished(bool bQueueEmpty);
+#endif
+
 	void removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener);
 	void activatedKJVCanOpener(CKJVCanOpener *pCanOpener);
 	void en_triggeredKJVCanOpener(QAction *pAction);

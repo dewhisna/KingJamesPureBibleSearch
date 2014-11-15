@@ -41,10 +41,6 @@
 #include <QActionGroup>
 #include <QUrl>
 
-#ifdef USING_QT_SPEECH
-#include <QtSpeech>
-#endif
-
 // ============================================================================
 
 // Forward declarations:
@@ -176,9 +172,6 @@ private:
 	void setLastActiveTag();		// Sets last active tag from last tag if we're on an active verse/word
 
 private:
-#ifdef USING_QT_SPEECH
-	bool m_bSpeechInProgress;		// Set to True when starting a TTS operation, cleared either when it's done the selection or is stopped
-#endif
 	CBibleDatabasePtr m_pBibleDatabase;
 	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable

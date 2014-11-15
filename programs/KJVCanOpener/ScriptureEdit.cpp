@@ -55,6 +55,10 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 #ifdef TOUCH_GESTURE_PROCESSING
 //#include <QGestureEvent>
 //#include <QTapGesture>
@@ -84,9 +88,6 @@ namespace {
 template <class T, class U>
 CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	T(parent),
-#ifdef USING_QT_SPEECH
-		m_bSpeechInProgress(false),
-#endif
 		m_pBibleDatabase(pBibleDatabase),
 		m_pFindDialog(NULL),
 		m_bDoingPopup(false),
@@ -236,8 +237,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		if (pSpeech != NULL) {
 			T::connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 			T::connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
-
-			m_bSpeechInProgress = pSpeech->isTalking();
 		}
 	}
 #endif	// USING_QT_SPEECH
@@ -478,42 +477,21 @@ void CScriptureText<T,U>::en_speechPause()
 template<class T, class U>
 void CScriptureText<T,U>::en_speechStop()
 {
-	bool bIsScriptureBrowser = false;
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
-		bIsScriptureBrowser = true;
-	}
-
-	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus()) && (m_bSpeechInProgress)) {
-		QApplication::setOverrideCursor(Qt::WaitCursor);
-	}
-
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if (pSpeech != NULL) {
-		if (U::hasFocus()) pSpeech->clearQueue();
-	}
+	if ((pSpeech != NULL) && (pSpeech->isTalking())) pSpeech->clearQueue();
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::en_speechBeginning()
 {
-	m_bSpeechInProgress = true;
 	setSpeechActionEnables();
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::en_speechFinished(bool bQueueEmpty)
 {
-	bool bIsScriptureBrowser = false;
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
-		bIsScriptureBrowser = true;
-	}
-
-	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus()) && (m_bSpeechInProgress)) {
-		QApplication::restoreOverrideCursor();
-	}
-
-	if (bQueueEmpty) m_bSpeechInProgress = false;
+	Q_UNUSED(bQueueEmpty);
 	setSpeechActionEnables();
 }
 
@@ -524,13 +502,17 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
 		bIsScriptureBrowser = true;
 	}
+	if (!bIsScriptureBrowser) return;				// Needed for the updateSelection() processing
 
-	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus())) {
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+
+	if (pSpeech != NULL) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
-			parentCanOpener()->actionSpeechPlay()->setEnabled(!m_bSpeechInProgress && haveSelection());
+			parentCanOpener()->actionSpeechPlay()->setEnabled(!pSpeech->isTalking() && haveSelection());
 		}
 		if (parentCanOpener()->actionSpeechStop() != NULL) {
-			parentCanOpener()->actionSpeechStop()->setEnabled(m_bSpeechInProgress);
+			parentCanOpener()->actionSpeechStop()->setEnabled(pSpeech->isTalking());
 		}
 	}
 }
