@@ -132,7 +132,8 @@ protected:
 	virtual void en_readFromCursor();
 	virtual void en_speechPause();
 	virtual void en_speechStop();
-	virtual void en_speechFinished(bool bQueueEmpty);			// Trigger by QtSpeech::finished() to queue next phrase portion
+	virtual void en_speechBeginning();							// Triggered by QtSpeech::beginning() to set SpeechInProgress
+	virtual void en_speechFinished(bool bQueueEmpty);			// Triggered by QtSpeech::finished() to queue next phrase portion
 	virtual void setSpeechActionEnables();
 #endif
 
@@ -259,6 +260,7 @@ protected slots:
 	virtual void en_readFromCursor() = 0;
 	virtual void en_speechPause() = 0;
 	virtual void en_speechStop() = 0;
+	virtual void en_speechBeginning() = 0;
 	virtual void en_speechFinished(bool bQueueEmpty) = 0;
 	virtual void setSpeechActionEnables() = 0;
 #endif
@@ -321,6 +323,7 @@ protected slots:
 	virtual void en_readFromCursor() = 0;
 	virtual void en_speechPause() = 0;
 	virtual void en_speechStop() = 0;
+	virtual void en_speechBeginning() = 0;
 	virtual void en_speechFinished(bool bQueueEmpty) = 0;
 	virtual void setSpeechActionEnables() = 0;
 #endif

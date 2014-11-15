@@ -80,7 +80,8 @@ signals:
     void logicError(QtSpeech::LogicError);
     void finished();
 	void sayNext(bool bInitialSay);
-	void doneTalking(bool bQueueEmpty);
+	void beginTalking();								// Triggered only when queue goes from empty to non-empty
+	void doneTalking(bool bQueueEmpty);					// Triggered once for every say() operation.  Last item in buffer will send "true"
 
 private:
     friend class QtSpeech;
@@ -124,7 +125,8 @@ signals:
 	void readVoicesComplete();
 	void setVoiceComplete();
 
-	void doneTalking(bool bQueueEmpty);
+	void beginTalking();								// Triggered only when queue goes from empty to non-empty
+	void doneTalking(bool bQueueEmpty);					// Triggered once for every say() operation.  Last item in buffer will send "true"
 
 public slots:
 	void readVoices();

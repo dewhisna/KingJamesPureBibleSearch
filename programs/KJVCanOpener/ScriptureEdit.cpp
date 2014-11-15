@@ -238,6 +238,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		T::addAction(pSpeechAction);
 		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
 
+		T::connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 		T::connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
 	}
 #endif	// USING_QT_SPEECH
@@ -443,8 +444,6 @@ void CScriptureText<T,U>::en_readSelection()
 	//		goal of not overflowing the buffer:
 	static const QRegExp regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
 	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts);
-	if (!lstSentences.isEmpty()) m_bSpeechInProgress = true;
-	setSpeechActionEnables();
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
 		//		some special characters (like specialized apostrophes) mess up the
@@ -473,12 +472,36 @@ void CScriptureText<T,U>::en_speechPause()
 template<class T, class U>
 void CScriptureText<T,U>::en_speechStop()
 {
+	bool bIsScriptureBrowser = false;
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		bIsScriptureBrowser = true;
+	}
+
+	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus()) && (m_bSpeechInProgress)) {
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+	}
 	m_speech.clearQueue();
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_speechBeginning()
+{
+	m_bSpeechInProgress = true;
+	setSpeechActionEnables();
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::en_speechFinished(bool bQueueEmpty)
 {
+	bool bIsScriptureBrowser = false;
+	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		bIsScriptureBrowser = true;
+	}
+
+	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus()) && (m_bSpeechInProgress)) {
+		QApplication::restoreOverrideCursor();
+	}
+
 	if (bQueueEmpty) m_bSpeechInProgress = false;
 	setSpeechActionEnables();
 }
@@ -491,7 +514,7 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 		bIsScriptureBrowser = true;
 	}
 
-	if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
+	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus())) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(!m_bSpeechInProgress && haveSelection());
 		}
@@ -585,6 +608,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 //				T::connect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
 //			if (parentCanOpener()->actionSpeechStop())
 //				T::connect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
+			setSpeechActionEnables();
 		}
 #endif
 	} else if (ev->type() == QEvent::FocusOut) {
@@ -603,8 +627,10 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 #endif
 #ifdef USING_QT_SPEECH
 		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
-			if (parentCanOpener()->actionSpeechPlay())
+			if (parentCanOpener()->actionSpeechPlay()) {
 				T::disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
+				parentCanOpener()->actionSpeechPlay()->setEnabled(false);
+			}
 //			if (parentCanOpener()->actionSpeechPause())
 //				T::disconnect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
 //			if (parentCanOpener()->actionSpeechStop())

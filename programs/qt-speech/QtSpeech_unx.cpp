@@ -190,6 +190,8 @@ void QtSpeech_th::en_sayNext(bool bInitialSay)
 	//		the last message when more are still in the eventLoop:
 	if (!bInitialSay) {
 		emit doneTalking(m_lstTalkingObjects.isEmpty());
+	} else {
+		if (!m_lstTalkingObjects.isEmpty()) emit beginTalking();
 	}
 
 	if (m_lstTalkingObjects.isEmpty()) {
@@ -315,6 +317,7 @@ void QtSpeech::tell(const QString &strText, QObject *pObject, const char *pSlot)
 
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
+		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::UniqueConnection);
 		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::UniqueConnection);
 		g_QtSpeechGlobal.m_pAsyncServerIO->say(TAsyncTalkingObject(strText, pObject, pSlot));
 		return;
@@ -329,6 +332,7 @@ void QtSpeech::tell(const QString &strText, QObject *pObject, const char *pSlot)
 	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
 		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
@@ -343,6 +347,7 @@ void QtSpeech::say(const QString &strText) const
 #ifdef USE_FESTIVAL_SERVER
 	if (serverConnected()) {
 		QEventLoop el;
+		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::UniqueConnection);
 //		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(doneTalking(bool)), &el, SLOT(quit()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pAsyncServerIO.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::UniqueConnection);
 		g_QtSpeechGlobal.m_pAsyncServerIO->say(TAsyncTalkingObject(strText, &el, SLOT(quit())));
@@ -359,6 +364,7 @@ void QtSpeech::say(const QString &strText) const
 	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
 		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
@@ -386,6 +392,7 @@ void QtSpeech::clearQueue() const
 	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
 		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
@@ -683,6 +690,7 @@ void QtSpeech_asyncServerIO::readVoices()
 
 void QtSpeech_asyncServerIO::say(const TAsyncTalkingObject &aTalkingObject)
 {
+	if (m_lstTalkingObjects.isEmpty() && !m_bAmTalking) emit beginTalking();
 	m_lstTalkingObjects.append(aTalkingObject);
 	if (!m_bAmTalking) en_sayNext();
 }

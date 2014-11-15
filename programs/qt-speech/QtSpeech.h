@@ -88,7 +88,8 @@ public slots:
 	virtual void clearQueue() const;				// Clear all pending "tell" operations
 
 signals:
-	void finished(bool bQueueEmpty);
+	void beginning();								// Triggered on first say or tell operation when queue is empty (additional say/tell operations do NOT trigger it until finished(true) has been triggered)
+	void finished(bool bQueueEmpty);				// Triggered at the end of ALL say/tell operations.  Last item in queue will trigger with finished(true).
 
 protected:
 	virtual void timerEvent(QTimerEvent *);
