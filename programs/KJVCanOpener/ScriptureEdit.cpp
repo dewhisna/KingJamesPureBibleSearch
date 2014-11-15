@@ -219,6 +219,17 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 #ifdef USING_QT_SPEECH
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+		QAction *pSpeechAction;
+
+		pSpeechAction = new QAction("readFromCursor", this);
+#ifndef Q_OS_MAC
+		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_R));
+#else
+		pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_R));
+#endif
+		T::addAction(pSpeechAction);
+		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
+
 		T::connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 		T::connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
 	}
