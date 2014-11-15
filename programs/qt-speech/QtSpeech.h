@@ -77,6 +77,8 @@ public:
 	const VoiceName & name() const; //!< Name of current voice
 	static VoiceNames voices();     //!< List of available voices in system
 
+	static bool isTalking();									// Returns true if currently talking (i.e. between beginning and finished signals)
+
 	static bool serverSupported();								// True if QtSpeech library compiled with server support
 	static bool serverConnected();								// True if currently connected to a speech server
 	static bool connectToServer(const QString &strHostname = "localhost", int nPortNumber = 1314);

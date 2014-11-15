@@ -330,6 +330,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	if (pSpeech != NULL) {
 		connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+
+		m_bSpeechInProgress = pSpeech->isTalking();
 	}
 #endif	// USING_QT_SPEECH
 

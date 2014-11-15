@@ -89,6 +89,7 @@ class QtSpeech_GlobalData : public QtSpeech_asyncServerIOMonitor
 {
 public:
 	QtSpeech_GlobalData()
+		:	m_bIsTalking(false)
 	{
 		qRegisterMetaType<TAsyncTalkingObject>("TAsyncTalkingObject");
 	}
@@ -100,6 +101,29 @@ public:
 			delete m_pAsyncServerIO.data();
 		}
 #endif
+	}
+
+	bool isTalking() const { return m_bIsTalking; }
+
+	bool createWorkerThread()
+	{
+		bool bCreatedWorker = false;
+
+		if (m_pSpeechThread.isNull()) {
+			m_pSpeechThread = new QThread;
+			m_pSpeechThread->start();
+		}
+
+		if (m_pSpeechTalker_th.isNull()) {
+			bCreatedWorker = true;
+			m_pSpeechTalker_th = new QtSpeech_th();
+			m_pSpeechTalker_th->moveToThread(m_pSpeechThread);
+			connect(m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SLOT(en_beginTalking()), Qt::QueuedConnection);
+			connect(m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SLOT(en_doneTalking(bool)), Qt::QueuedConnection);
+			connect(m_pSpeechTalker_th.data(), SIGNAL(finished()), m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
+		}
+
+		return bCreatedWorker;
 	}
 
 	QPointer<QThread> m_pSpeechThread;
@@ -122,6 +146,18 @@ public:
 protected slots:
 	virtual void en_lostServer();
 
+	virtual void en_beginTalking()
+	{
+		m_bIsTalking = true;
+	}
+
+	virtual void en_doneTalking(bool bQueueEmpty)
+	{
+		if (bQueueEmpty) m_bIsTalking = false;
+	}
+
+private:
+	bool m_bIsTalking;
 } g_QtSpeechGlobal;
 
 // ============================================================================
@@ -289,6 +325,11 @@ QtSpeech::VoiceNames QtSpeech::voices()
 
 // ----------------------------------------------------------------------------
 
+bool QtSpeech::isTalking()
+{
+	return g_QtSpeechGlobal.isTalking();
+}
+
 bool QtSpeech::serverSupported()
 {
 	return g_QtSpeechGlobal.serverSupported();
@@ -324,17 +365,9 @@ void QtSpeech::tell(const QString &strText, QObject *pObject, const char *pSlot)
 	}
 #endif
 
-	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
-		g_QtSpeechGlobal.m_pSpeechThread->start();
-	}
-
-	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
-		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+	if (g_QtSpeechGlobal.createWorkerThread()) {
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::QueuedConnection);
-		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
 
 	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "say", Qt::QueuedConnection, Q_ARG(TAsyncTalkingObject, TAsyncTalkingObject(strText, pObject, pSlot)));
@@ -356,17 +389,9 @@ void QtSpeech::say(const QString &strText) const
 	}
 #endif
 
-	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
-		g_QtSpeechGlobal.m_pSpeechThread->start();
-	}
-
-	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
-		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+	if (g_QtSpeechGlobal.createWorkerThread()) {
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::QueuedConnection);
-		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
 
 	QEventLoop el;
@@ -384,17 +409,9 @@ void QtSpeech::clearQueue() const
 	}
 #endif
 
-	if (g_QtSpeechGlobal.m_pSpeechThread.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechThread = new QThread;
-		g_QtSpeechGlobal.m_pSpeechThread->start();
-	}
-
-	if (g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
-		g_QtSpeechGlobal.m_pSpeechTalker_th = new QtSpeech_th();
-		g_QtSpeechGlobal.m_pSpeechTalker_th->moveToThread(g_QtSpeechGlobal.m_pSpeechThread);
+	if (g_QtSpeechGlobal.createWorkerThread()) {
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), Qt::QueuedConnection);
 		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), Qt::QueuedConnection);
-		connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
 	}
 
 	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "clearQueue", Qt::QueuedConnection);
@@ -434,6 +451,8 @@ bool QtSpeech_GlobalData::connectToServer(const QString &strHostname, int nPortN
 	disconnectFromServer();		// Disconnect from any existing server
 	m_pAsyncServerIO = new QtSpeech_asyncServerIO(strHostname, nPortNumber);
 	connect(m_pAsyncServerIO.data(), SIGNAL(lostServer()), this, SLOT(en_lostServer()));
+	connect(m_pAsyncServerIO.data(), SIGNAL(beginTalking()), this, SLOT(en_beginTalking()));
+	connect(m_pAsyncServerIO.data(), SIGNAL(doneTalking(bool)), this, SLOT(en_doneTalking(bool)));
 	return serverConnected();
 #else
 	Q_UNUSED(strHostname);

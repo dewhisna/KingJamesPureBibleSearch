@@ -104,6 +104,9 @@ public:
 
 protected slots:
 	virtual void en_lostServer() = 0;							// Called when the connection with the server gets dropped (so that things like resetting the selected voice can happen)
+
+	virtual void en_beginTalking() = 0;
+	virtual void en_doneTalking(bool bQueueEmpty) = 0;
 };
 
 // ============================================================================

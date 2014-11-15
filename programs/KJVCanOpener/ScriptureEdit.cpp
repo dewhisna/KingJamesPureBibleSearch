@@ -236,6 +236,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		if (pSpeech != NULL) {
 			T::connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 			T::connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+
+			m_bSpeechInProgress = pSpeech->isTalking();
 		}
 	}
 #endif	// USING_QT_SPEECH
