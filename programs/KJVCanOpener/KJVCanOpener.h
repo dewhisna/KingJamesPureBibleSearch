@@ -86,6 +86,7 @@ public:
 	QAction *actionSpeechPlay() const { return m_pActionSpeechPlay; }
 	QAction *actionSpeechPause() const { return m_pActionSpeechPause; }
 	QAction *actionSpeechStop() const { return m_pActionSpeechStop; }
+	QAction *actionSpeakSelection() const { return m_pActionSpeakSelection; }
 
 	bool canClose() const { return m_bCanClose; }
 	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
@@ -268,6 +269,7 @@ private:
 	QAction *m_pActionSpeechPlay;
 	QAction *m_pActionSpeechPause;
 	QAction *m_pActionSpeechStop;
+	QAction *m_pActionSpeakSelection;
 
 	bool m_bBrowserActive;
 	bool m_bSearchResultsActive;

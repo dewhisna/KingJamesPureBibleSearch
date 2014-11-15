@@ -324,17 +324,6 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pStatusAction = new QAction(this);
 
 #ifdef USING_QT_SPEECH
-	QAction *pSpeechAction;
-
-	pSpeechAction = new QAction("readSelectedSearchResults", this);
-#ifndef Q_OS_MAC
-	pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
-#else
-	pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
-#endif
-	addAction(pSpeechAction);
-	connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_speechPlay()));
-
 	connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 	connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
 #endif	// USING_QT_SPEECH
@@ -402,6 +391,8 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 		m_pEditMenuLocal->insertAction(m_pMenuUserNotesInsertionPoint, pCanOpener->actionCrossRefsEditor());
 #endif
 #ifdef USING_QT_SPEECH
+		if (pCanOpener->actionSpeakSelection()) addAction(pCanOpener->actionSpeakSelection());
+
 		if (pCanOpener->actionSpeechPause())
 			connect(pCanOpener->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
 		if (pCanOpener->actionSpeechStop())
@@ -995,6 +986,8 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 #ifdef USING_QT_SPEECH
 		if (parentCanOpener()->actionSpeechPlay())
 			connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_speechPlay()), Qt::UniqueConnection);
+		if (parentCanOpener()->actionSpeakSelection())
+			connect(parentCanOpener()->actionSpeakSelection(), SIGNAL(triggered()), this, SLOT(en_speechPlay()), Qt::UniqueConnection);
 		setSpeechActionEnables();
 #endif
 	}
@@ -1019,9 +1012,10 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 		}
 #endif
 #ifdef USING_QT_SPEECH
-		if (parentCanOpener()->actionSpeechPlay()) {
+		if (parentCanOpener()->actionSpeechPlay())
 			disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_speechPlay()));
-		}
+		if (parentCanOpener()->actionSpeakSelection())
+			disconnect(parentCanOpener()->actionSpeakSelection(), SIGNAL(triggered()), this, SLOT(en_speechPlay()));
 		setSpeechActionEnables();
 #endif
 	}

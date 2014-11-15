@@ -219,25 +219,6 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 #ifdef USING_QT_SPEECH
 	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
-		QAction *pSpeechAction;
-
-		pSpeechAction = new QAction("readSelection", this);
-#ifndef Q_OS_MAC
-		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
-#else
-		pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
-#endif
-		T::addAction(pSpeechAction);
-		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readSelection()));
-		pSpeechAction = new QAction("readFromCursor", this);
-#ifndef Q_OS_MAC
-		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_R));
-#else
-		pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_R));
-#endif
-		T::addAction(pSpeechAction);
-		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
-
 		T::connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
 		T::connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
 	}
@@ -386,6 +367,8 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
 #endif
 #ifdef USING_QT_SPEECH
+		if (pCanOpener->actionSpeakSelection()) T::addAction(pCanOpener->actionSpeakSelection());
+
 		if (pCanOpener->actionSpeechPause())
 			T::connect(pCanOpener->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
 		if (pCanOpener->actionSpeechStop())
@@ -605,6 +588,8 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
 			if (parentCanOpener()->actionSpeechPlay())
 				T::connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()), Qt::UniqueConnection);
+			if (parentCanOpener()->actionSpeakSelection())
+				T::connect(parentCanOpener()->actionSpeakSelection(), SIGNAL(triggered()), this, SLOT(en_readSelection()), Qt::UniqueConnection);
 //			if (parentCanOpener()->actionSpeechPause())
 //				T::connect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
 //			if (parentCanOpener()->actionSpeechStop())
@@ -627,9 +612,10 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 #endif
 #ifdef USING_QT_SPEECH
 			if (bIsScriptureBrowser) {
-				if (parentCanOpener()->actionSpeechPlay()) {
+				if (parentCanOpener()->actionSpeechPlay())
 					T::disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
-				}
+				if (parentCanOpener()->actionSpeakSelection())
+					T::disconnect(parentCanOpener()->actionSpeakSelection(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
 				setSpeechActionEnables();
 //				if (parentCanOpener()->actionSpeechPause())
 //					T::disconnect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));

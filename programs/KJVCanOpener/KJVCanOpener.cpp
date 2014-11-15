@@ -271,6 +271,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionSpeechPlay(NULL),
 	m_pActionSpeechPause(NULL),
 	m_pActionSpeechStop(NULL),
+	m_pActionSpeakSelection(NULL),
 	// ----
 	m_bBrowserActive(false),
 	m_bSearchResultsActive(false),
@@ -377,6 +378,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionSpeechStop->setToolTip(tr("Stop Text-To-Speech", "MainMenu"));
 	m_pActionSpeechStop->setEnabled(false);			// Will get enabled on proper focus-in to Search Results and/or Scripture Browser w/selection
 	m_pSpeechToolbar->addAction(m_pActionSpeechStop);
+
+	m_pActionSpeakSelection = new QAction("speakSelection", this);
+#ifndef Q_OS_MAC
+	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
+#else
+	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
+#endif
+
 #endif	// USING_QT_SPEECH
 
 	// -------------------- Setup the Three Panes:
