@@ -230,8 +230,13 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		T::addAction(pSpeechAction);
 		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
 
-		T::connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
-		T::connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+		assert(!g_pMyApplication.isNull());
+		QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+
+		if (pSpeech != NULL) {
+			T::connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
+			T::connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+		}
 	}
 #endif	// USING_QT_SPEECH
 
@@ -431,6 +436,10 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 template<class T, class U>
 void CScriptureText<T,U>::en_readSelection()
 {
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+	if (pSpeech == NULL) return;
+
 	if (!haveSelection()) return;
 
 	// The speech buffer has a limited size, so break into individual sentences at a period.
@@ -443,7 +452,7 @@ void CScriptureText<T,U>::en_readSelection()
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
 		//		some special characters (like specialized apostrophes) mess up the
 		//		speech synthesis:
-		m_speech.tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
+		pSpeech->tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
 	}
 }
 
@@ -475,7 +484,12 @@ void CScriptureText<T,U>::en_speechStop()
 	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus()) && (m_bSpeechInProgress)) {
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 	}
-	if (U::hasFocus()) m_speech.clearQueue();
+
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+	if (pSpeech != NULL) {
+		if (U::hasFocus()) pSpeech->clearQueue();
+	}
 }
 
 template<class T, class U>

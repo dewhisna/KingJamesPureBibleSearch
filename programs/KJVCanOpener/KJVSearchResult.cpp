@@ -324,8 +324,13 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pStatusAction = new QAction(this);
 
 #ifdef USING_QT_SPEECH
-	connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
-	connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+
+	if (pSpeech != NULL) {
+		connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
+		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+	}
 #endif	// USING_QT_SPEECH
 
 	// Setup our change notifications:
@@ -407,6 +412,10 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 
 void CSearchResultsTreeView::en_speechPlay()
 {
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+	if (pSpeech == NULL) return;
+
 	if (!speakableNodeSelected()) return;
 
 	QModelIndexList lstSelectedVerses = getSelectedVerses();
@@ -434,7 +443,7 @@ void CSearchResultsTreeView::en_speechPlay()
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
 		//		some special characters (like specialized apostrophes) mess up the
 		//		speech synthesis:
-		m_speech.tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
+		pSpeech->tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
 	}
 }
 
@@ -448,7 +457,12 @@ void CSearchResultsTreeView::en_speechStop()
 	if ((parentCanOpener() != NULL) && (hasFocus()) && (m_bSpeechInProgress)) {
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 	}
-	if (hasFocus()) m_speech.clearQueue();
+
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+	if (pSpeech != NULL) {
+		if (hasFocus()) pSpeech->clearQueue();
+	}
 }
 
 void CSearchResultsTreeView::en_speechBeginning()

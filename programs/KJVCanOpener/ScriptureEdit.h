@@ -177,7 +177,6 @@ private:
 
 private:
 #ifdef USING_QT_SPEECH
-	QtSpeech m_speech;
 	bool m_bSpeechInProgress;		// Set to True when starting a TTS operation, cleared either when it's done the selection or is stopped
 #endif
 	CBibleDatabasePtr m_pBibleDatabase;

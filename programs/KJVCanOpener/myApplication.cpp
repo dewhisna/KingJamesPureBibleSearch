@@ -38,7 +38,6 @@
 #endif
 
 #ifdef USING_QT_SPEECH
-#include <QtSpeech>
 #include <QUrl>
 #endif
 
@@ -84,6 +83,10 @@
 
 QPointer<CMyApplication> g_pMyApplication = NULL;
 QPointer<QMdiArea> g_pMdiArea = NULL;
+
+#ifdef USING_QT_SPEECH
+QPointer<QtSpeech> CMyApplication::m_pSpeech = NULL;
+#endif
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
 
@@ -1367,6 +1370,8 @@ int CMyApplication::execute(bool bBuildDB)
 			displayWarning(m_pSplash, g_constrInitialization, tr("Text-To-Speech Server was specified, but this build of King James Pure Bible Search doesn't support external servers", "Errors"));
 		}
 	}
+
+	if (m_pSpeech.isNull()) m_pSpeech = new QtSpeech(this);
 #else
 	// If user specified a TTS Server on the command-line and this build doesn't support TTS, warn him:
 	if (!m_strTTSServerURL.isEmpty()) {

@@ -50,6 +50,10 @@
 #include <QtSingleApplication>
 #endif
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 #ifdef SIGNAL_SPY_DEBUG
 #include "signalspy/Q4puGenericSignalSpy.h"
 #endif
@@ -146,6 +150,10 @@ public:
 
 	static void saveTTSServerURL();
 	static void restoreTTSServerURL();
+
+#ifdef USING_QT_SPEECH
+	static QtSpeech *speechSynth() { return m_pSpeech.data(); }
+#endif
 
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
 	QString startupStyleSheet() const { return m_strStartupStyleSheet; }
@@ -246,6 +254,9 @@ protected:
 	QSplashScreen *m_pSplash;							// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
 #else
 	QWidget *m_pSplash;									// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
+#endif
+#ifdef USING_QT_SPEECH
+	static QPointer<QtSpeech> m_pSpeech;				// "Global" singleton for Speech
 #endif
 	BIBLE_DESCRIPTOR_ENUM m_nSelectedMainBibleDB;		// Selected (or Default) Main Bible Database descriptor index
 	DICTIONARY_DESCRIPTOR_ENUM m_nSelectedMainDictDB;	// Selected (or Default) Main Dictionary Database descriptor index
