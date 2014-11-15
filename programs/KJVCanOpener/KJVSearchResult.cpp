@@ -37,6 +37,7 @@
 #endif
 #include "SearchCompleter.h"
 #include "BusyCursor.h"
+#include "PhraseEdit.h"
 
 #include "myApplication.h"
 
@@ -93,6 +94,9 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 #ifdef TOUCH_GESTURE_PROCESSING
 		m_bDoubleTouchStarted(false),
 		m_nAccumulatedScrollOffset(0),
+#endif
+#ifdef USING_QT_SPEECH
+		m_bSpeechInProgress(false),
 #endif
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
@@ -319,6 +323,22 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 
 	m_pStatusAction = new QAction(this);
 
+#ifdef USING_QT_SPEECH
+	QAction *pSpeechAction;
+
+	pSpeechAction = new QAction("readSelectedSearchResults", this);
+#ifndef Q_OS_MAC
+	pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
+#else
+	pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
+#endif
+	addAction(pSpeechAction);
+	connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_speechPlay()));
+
+	connect(&m_speech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
+	connect(&m_speech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+#endif	// USING_QT_SPEECH
+
 	// Setup our change notifications:
 	connect(vlmodel(), SIGNAL(modelReset()), this, SLOT(en_listChanged()));
 	connect(vlmodel(), SIGNAL(layoutChanged()), this, SLOT(en_listChanged()));
@@ -381,8 +401,94 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 		m_pEditMenu->addAction(pCanOpener->actionCrossRefsEditor());
 		m_pEditMenuLocal->insertAction(m_pMenuUserNotesInsertionPoint, pCanOpener->actionCrossRefsEditor());
 #endif
+#ifdef USING_QT_SPEECH
+		if (pCanOpener->actionSpeechPause())
+			connect(pCanOpener->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
+		if (pCanOpener->actionSpeechStop())
+			connect(pCanOpener->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
+#endif
 	}
 }
+
+// ----------------------------------------------------------------------------
+
+#ifdef USING_QT_SPEECH
+
+void CSearchResultsTreeView::en_speechPlay()
+{
+	if (!speakableNodeSelected()) return;
+
+	QModelIndexList lstSelectedVerses = getSelectedVerses();
+	vlmodel()->sortModelIndexList(lstSelectedVerses, false);
+
+	// The speech buffer has a limited size, so break into individual sentences at a period.
+	//		This will combine questions and exclamations, joining them with adjacent statements,
+	//		but there isn't likely to be a ton of them run together, which will achieve the
+	//		goal of not overflowing the buffer:
+	static const QRegExp regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
+	QStringList lstSentences;
+
+	for (int ndx = 0; ndx < lstSelectedVerses.size(); ++ndx) {
+		const CVerseListItem &item(vlmodel()->data(lstSelectedVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
+		if (item.verseIndex().isNull()) continue;
+		CRelIndex ndxVerse = item.getIndex();
+		ndxVerse.setWord(0);
+		lstSentences.append(vlmodel()->bibleDatabase()->PassageReferenceText(ndxVerse, true).split(regexpSentence, QString::SkipEmptyParts));
+		CParsedPhrase phrase;
+		phrase.ParsePhrase(item.getVersePlainText());
+		lstSentences.append(phrase.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts));
+	}
+
+	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
+		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
+		//		some special characters (like specialized apostrophes) mess up the
+		//		speech synthesis:
+		m_speech.tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
+	}
+}
+
+void CSearchResultsTreeView::en_speechPause()
+{
+	// TODO ?
+}
+
+void CSearchResultsTreeView::en_speechStop()
+{
+	if ((parentCanOpener() != NULL) && (hasFocus()) && (m_bSpeechInProgress)) {
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+	}
+	if (hasFocus()) m_speech.clearQueue();
+}
+
+void CSearchResultsTreeView::en_speechBeginning()
+{
+	m_bSpeechInProgress = true;
+	setSpeechActionEnables();
+}
+
+void CSearchResultsTreeView::en_speechFinished(bool bQueueEmpty)
+{
+	if ((parentCanOpener() != NULL) && (hasFocus()) && (m_bSpeechInProgress)) {
+		QApplication::restoreOverrideCursor();
+	}
+
+	if (bQueueEmpty) m_bSpeechInProgress = false;
+	setSpeechActionEnables();
+}
+
+void CSearchResultsTreeView::setSpeechActionEnables()
+{
+	if ((parentCanOpener() != NULL) && (hasFocus())) {
+		if (parentCanOpener()->actionSpeechPlay() != NULL) {
+			parentCanOpener()->actionSpeechPlay()->setEnabled(!m_bSpeechInProgress && speakableNodeSelected());
+		}
+		if (parentCanOpener()->actionSpeechStop() != NULL) {
+			parentCanOpener()->actionSpeechStop()->setEnabled(m_bSpeechInProgress);
+		}
+	}
+}
+
+#endif	// USING_QT_SPEECH
 
 // ----------------------------------------------------------------------------
 
@@ -582,6 +688,11 @@ bool CSearchResultsTreeView::editableNodeSelected() const
 	return ((selectionModel()->selectedRows().size() <= 1) &&
 			(currentIndex().isValid()) &&
 			(CVerseListModel::toVerseIndex(currentIndex())->relIndex().isSet()));
+}
+
+bool CSearchResultsTreeView::speakableNodeSelected() const
+{
+	return !getSelectedVerses().isEmpty();
 }
 
 void CSearchResultsTreeView::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
@@ -877,11 +988,17 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 {
 	emit activatedSearchResults();
 	QTreeView::focusInEvent(event);
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (parentCanOpener() != NULL) {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		parentCanOpener()->highlighterButtons()->setHighlighterTips(true);
-	}
 #endif
+#ifdef USING_QT_SPEECH
+		if (parentCanOpener()->actionSpeechPlay())
+			connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_speechPlay()), Qt::UniqueConnection);
+		setSpeechActionEnables();
+#endif
+	}
+
 	handle_selectionChanged();
 }
 
@@ -889,10 +1006,10 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 {
 	QTreeView::focusOutEvent(event);
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if ((parentCanOpener() != NULL) &&
 		(event->reason() != Qt::MenuBarFocusReason) &&
 		(event->reason() != Qt::PopupFocusReason)) {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		parentCanOpener()->highlighterButtons()->setHighlighterTips(false);
 		parentCanOpener()->actionUserNoteEditor()->setEnabled(false);
 		parentCanOpener()->actionCrossRefsEditor()->setEnabled(false);
@@ -900,8 +1017,14 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 		for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
 			lstHighlightActions.at(ndxHighlight)->setEnabled(false);
 		}
-	}
 #endif
+#ifdef USING_QT_SPEECH
+		if (parentCanOpener()->actionSpeechPlay()) {
+			disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_speechPlay()));
+		}
+		setSpeechActionEnables();
+#endif
+	}
 }
 
 void CSearchResultsTreeView::contextMenuEvent(QContextMenuEvent *event)

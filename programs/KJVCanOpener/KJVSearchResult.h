@@ -54,6 +54,10 @@
 #include <QPoint>
 #include <QRect>
 
+#ifdef USING_QT_SPEECH
+#include <QtSpeech>
+#endif
+
 #include <assert.h>
 
 // ============================================================================
@@ -101,6 +105,7 @@ public:
 
 	TVerseIndex currentVerseIndex() const;
 	bool editableNodeSelected() const;
+	bool speakableNodeSelected() const;
 
 	QModelIndexList getSelectedVerses() const;
 	QModelIndexList getSelectedEntries() const;
@@ -144,6 +149,15 @@ private slots:
 	void handle_searchResultActivated(const QModelIndex &index);	// Triggered on Activate or DoubleClick to handle Enter or double-click activation of searchResult (this emits our searchResultActivated signal)
 #ifdef TOUCH_GESTURE_PROCESSING
 	void en_doubleTouchTimeout();
+#endif
+
+#ifdef USING_QT_SPEECH
+	void en_speechPlay();
+	void en_speechPause();
+	void en_speechStop();
+	void en_speechBeginning();							// Triggered by QtSpeech::beginning() to set SpeechInProgress
+	void en_speechFinished(bool bQueueEmpty);			// Triggered by QtSpeech::finished() to queue next phrase portion
+	void setSpeechActionEnables();
 #endif
 
 signals:
@@ -198,6 +212,12 @@ private:
 	QPersistentModelIndex m_ndxDoubleTouch;		// Index in our model for the double-touch target
 	float m_nAccumulatedScrollOffset;
 #endif
+	// ----
+#ifdef USING_QT_SPEECH
+	QtSpeech m_speech;
+	bool m_bSpeechInProgress;		// Set to True when starting a TTS operation, cleared either when it's done the selection or is stopped
+#endif
+	// ----
 	bool m_bInvertTextBrightness;	// Local copies so we can have different current values than the app setting so we can preview settings
 	int m_nTextBrightness;
 	// ----

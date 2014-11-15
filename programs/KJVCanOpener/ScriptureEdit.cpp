@@ -433,6 +433,7 @@ void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 // ----------------------------------------------------------------------------
 
 #ifdef USING_QT_SPEECH
+
 template<class T, class U>
 void CScriptureText<T,U>::en_readSelection()
 {
@@ -480,7 +481,7 @@ void CScriptureText<T,U>::en_speechStop()
 	if ((bIsScriptureBrowser) && (parentCanOpener() != NULL) && (U::hasFocus()) && (m_bSpeechInProgress)) {
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 	}
-	m_speech.clearQueue();
+	if (U::hasFocus()) m_speech.clearQueue();
 }
 
 template<class T, class U>
@@ -524,7 +525,7 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 	}
 }
 
-#endif
+#endif	// USING_QT_SPEECH
 
 // ----------------------------------------------------------------------------
 
@@ -603,7 +604,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 #ifdef USING_QT_SPEECH
 		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
 			if (parentCanOpener()->actionSpeechPlay())
-				T::connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
+				T::connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()), Qt::UniqueConnection);
 //			if (parentCanOpener()->actionSpeechPause())
 //				T::connect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
 //			if (parentCanOpener()->actionSpeechStop())
@@ -612,31 +613,31 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 		}
 #endif
 	} else if (ev->type() == QEvent::FocusOut) {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		QFocusEvent *pFocusEvent = static_cast<QFocusEvent *>(ev);
 		if ((parentCanOpener() != NULL) &&
 			(pFocusEvent->reason() != Qt::MenuBarFocusReason) &&
 			(pFocusEvent->reason() != Qt::PopupFocusReason)) {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 			parentCanOpener()->actionUserNoteEditor()->setEnabled(false);
 			parentCanOpener()->actionCrossRefsEditor()->setEnabled(false);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
 			for (int ndxHighlight = 0; ndxHighlight < lstHighlightActions.size(); ++ndxHighlight) {
 				lstHighlightActions.at(ndxHighlight)->setEnabled(false);
 			}
-		}
 #endif
 #ifdef USING_QT_SPEECH
-		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
-			if (parentCanOpener()->actionSpeechPlay()) {
-				T::disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
-				parentCanOpener()->actionSpeechPlay()->setEnabled(false);
+			if (bIsScriptureBrowser) {
+				if (parentCanOpener()->actionSpeechPlay()) {
+					T::disconnect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
+				}
+				setSpeechActionEnables();
+//				if (parentCanOpener()->actionSpeechPause())
+//					T::disconnect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
+//				if (parentCanOpener()->actionSpeechStop())
+//					T::disconnect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 			}
-//			if (parentCanOpener()->actionSpeechPause())
-//				T::disconnect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
-//			if (parentCanOpener()->actionSpeechStop())
-//				T::disconnect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
-		}
 #endif
+		}
 	}
 
 	switch (ev->type()) {
