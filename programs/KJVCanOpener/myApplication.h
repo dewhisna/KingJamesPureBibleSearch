@@ -236,7 +236,7 @@ private slots:
 
 	void en_notesFileAutoSaveTriggered();
 	void en_changedUserNotesDatabase();
-	void en_changedNoteesFileAutoSaveTime(int nAutoSaveTime);
+	void en_changedNotesFileAutoSaveTime(int nAutoSaveTime);
 
 protected:
 	bool event(QEvent *event);

@@ -1190,7 +1190,7 @@ void CMyApplication::en_changedUserNotesDatabase()
 	}
 }
 
-void CMyApplication::en_changedNoteesFileAutoSaveTime(int nAutoSaveTime)
+void CMyApplication::en_changedNotesFileAutoSaveTime(int nAutoSaveTime)
 {
 	m_dlyNotesFilesAutoSave.setMinimumDelay(nAutoSaveTime*60000);		// Convert minutes->milliseconds
 	if (nAutoSaveTime > 0) {
@@ -1628,7 +1628,7 @@ int CMyApplication::execute(bool bBuildDB)
 	m_dlyNotesFilesAutoSave.setMinimumDelay(CPersistentSettings::instance()->notesFileAutoSaveTime()*60000);		// Convert minutes->milliseconds
 	connect(&m_dlyNotesFilesAutoSave, SIGNAL(triggered()), this, SLOT(en_notesFileAutoSaveTriggered()));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesDatabase()), this, SLOT(en_changedUserNotesDatabase()));
-	connect(CPersistentSettings::instance(), SIGNAL(changedNotesFileAutoSaveTime(int)), this, SLOT(en_changedNoteesFileAutoSaveTime(int)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedNotesFileAutoSaveTime(int)), this, SLOT(en_changedNotesFileAutoSaveTime(int)));
 
 #ifdef USE_MDI_MAIN_WINDOW
 	g_pMdiArea = new QMdiArea();
