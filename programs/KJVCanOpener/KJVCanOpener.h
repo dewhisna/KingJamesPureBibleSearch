@@ -222,6 +222,12 @@ protected slots:
 
 	void en_NewCanOpener(QAction *pAction = NULL);
 
+#ifdef USING_QT_SPEECH
+	void en_speechPause();
+	void en_speechStop();
+	void setSpeechActionEnables();
+#endif
+
 // Data Private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;

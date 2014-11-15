@@ -235,8 +235,8 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
 		if (pSpeech != NULL) {
-			T::connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
-			T::connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+			T::connect(pSpeech, SIGNAL(beginning()), this, SLOT(setSpeechActionEnables()));
+			T::connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(setSpeechActionEnables()));
 		}
 	}
 #endif	// USING_QT_SPEECH
@@ -385,11 +385,6 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 #endif
 #ifdef USING_QT_SPEECH
 		if (pCanOpener->actionSpeakSelection()) T::addAction(pCanOpener->actionSpeakSelection());
-
-		if (pCanOpener->actionSpeechPause())
-			T::connect(pCanOpener->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
-		if (pCanOpener->actionSpeechStop())
-			T::connect(pCanOpener->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 #endif
 	}
 }
@@ -469,33 +464,6 @@ void CScriptureText<T,U>::en_readFromCursor()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::en_speechPause()
-{
-	// TODO ?
-}
-
-template<class T, class U>
-void CScriptureText<T,U>::en_speechStop()
-{
-	assert(!g_pMyApplication.isNull());
-	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if ((pSpeech != NULL) && (pSpeech->isTalking())) pSpeech->clearQueue();
-}
-
-template<class T, class U>
-void CScriptureText<T,U>::en_speechBeginning()
-{
-	setSpeechActionEnables();
-}
-
-template<class T, class U>
-void CScriptureText<T,U>::en_speechFinished(bool bQueueEmpty)
-{
-	Q_UNUSED(bQueueEmpty);
-	setSpeechActionEnables();
-}
-
-template<class T, class U>
 void CScriptureText<T,U>::setSpeechActionEnables()
 {
 	bool bIsScriptureBrowser = false;
@@ -507,12 +475,9 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if (pSpeech != NULL) {
+	if ((pSpeech != NULL) && (U::hasFocus())) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(!pSpeech->isTalking() && haveSelection());
-		}
-		if (parentCanOpener()->actionSpeechStop() != NULL) {
-			parentCanOpener()->actionSpeechStop()->setEnabled(pSpeech->isTalking());
 		}
 	}
 }
@@ -599,10 +564,6 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 				T::connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()), Qt::UniqueConnection);
 			if (parentCanOpener()->actionSpeakSelection())
 				T::connect(parentCanOpener()->actionSpeakSelection(), SIGNAL(triggered()), this, SLOT(en_readSelection()), Qt::UniqueConnection);
-//			if (parentCanOpener()->actionSpeechPause())
-//				T::connect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
-//			if (parentCanOpener()->actionSpeechStop())
-//				T::connect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 			setSpeechActionEnables();
 		}
 #endif
@@ -626,10 +587,6 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 				if (parentCanOpener()->actionSpeakSelection())
 					T::disconnect(parentCanOpener()->actionSpeakSelection(), SIGNAL(triggered()), this, SLOT(en_readSelection()));
 				setSpeechActionEnables();
-//				if (parentCanOpener()->actionSpeechPause())
-//					T::disconnect(parentCanOpener()->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
-//				if (parentCanOpener()->actionSpeechStop())
-//					T::disconnect(parentCanOpener()->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 			}
 #endif
 		}

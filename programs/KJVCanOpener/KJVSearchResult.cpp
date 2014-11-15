@@ -329,8 +329,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
 	if (pSpeech != NULL) {
-		connect(pSpeech, SIGNAL(beginning()), this, SLOT(en_speechBeginning()));
-		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+		connect(pSpeech, SIGNAL(beginning()), this, SLOT(setSpeechActionEnables()));
+		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(setSpeechActionEnables()));
 	}
 #endif	// USING_QT_SPEECH
 
@@ -398,11 +398,6 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 #endif
 #ifdef USING_QT_SPEECH
 		if (pCanOpener->actionSpeakSelection()) addAction(pCanOpener->actionSpeakSelection());
-
-		if (pCanOpener->actionSpeechPause())
-			connect(pCanOpener->actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
-		if (pCanOpener->actionSpeechStop())
-			connect(pCanOpener->actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 #endif
 	}
 }
@@ -448,40 +443,14 @@ void CSearchResultsTreeView::en_speechPlay()
 	}
 }
 
-void CSearchResultsTreeView::en_speechPause()
-{
-	// TODO ?
-}
-
-void CSearchResultsTreeView::en_speechStop()
-{
-	assert(!g_pMyApplication.isNull());
-	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if ((pSpeech != NULL) && (pSpeech->isTalking())) pSpeech->clearQueue();
-}
-
-void CSearchResultsTreeView::en_speechBeginning()
-{
-	setSpeechActionEnables();
-}
-
-void CSearchResultsTreeView::en_speechFinished(bool bQueueEmpty)
-{
-	Q_UNUSED(bQueueEmpty);
-	setSpeechActionEnables();
-}
-
 void CSearchResultsTreeView::setSpeechActionEnables()
 {
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if (pSpeech != NULL) {
+	if ((pSpeech != NULL) && (hasFocus())) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(!pSpeech->isTalking() && speakableNodeSelected());
-		}
-		if (parentCanOpener()->actionSpeechStop() != NULL) {
-			parentCanOpener()->actionSpeechStop()->setEnabled(pSpeech->isTalking());
 		}
 	}
 }
@@ -1250,7 +1219,7 @@ void CSearchResultsTreeView::setTextBrightness(bool bInvert, int nBrightness)
 									.arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
 }
 
-QStyleOptionViewItem CSearchResultsTreeView::viewOptions () const
+QStyleOptionViewItem CSearchResultsTreeView::viewOptions() const
 {
 	QStyleOptionViewItemV4 optionV4 = QTreeView::viewOptions();
 

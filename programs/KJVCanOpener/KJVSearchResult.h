@@ -149,10 +149,6 @@ private slots:
 
 #ifdef USING_QT_SPEECH
 	void en_speechPlay();
-	void en_speechPause();
-	void en_speechStop();
-	void en_speechBeginning();							// Triggered by QtSpeech::beginning() to set SpeechInProgress
-	void en_speechFinished(bool bQueueEmpty);			// Triggered by QtSpeech::finished() to queue next phrase portion
 	void setSpeechActionEnables();
 #endif
 

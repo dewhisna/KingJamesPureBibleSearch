@@ -386,6 +386,19 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
 #endif
 
+	if (actionSpeechPause())
+		connect(actionSpeechPause(), SIGNAL(triggered()), this, SLOT(en_speechPause()));
+	if (actionSpeechStop())
+		connect(actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
+
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+
+	if (pSpeech != NULL) {
+		connect(pSpeech, SIGNAL(beginning()), this, SLOT(setSpeechActionEnables()));
+		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(setSpeechActionEnables()));
+	}
+
 #endif	// USING_QT_SPEECH
 
 	// -------------------- Setup the Three Panes:
@@ -2904,3 +2917,30 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 	}
 }
 
+#ifdef USING_QT_SPEECH
+
+void CKJVCanOpener::en_speechPause()
+{
+	// TODO ?
+}
+
+void CKJVCanOpener::en_speechStop()
+{
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+	if ((pSpeech != NULL) && (pSpeech->isTalking())) pSpeech->clearQueue();
+}
+
+void CKJVCanOpener::setSpeechActionEnables()
+{
+	assert(!g_pMyApplication.isNull());
+	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
+
+	if (pSpeech != NULL) {
+		if (actionSpeechStop() != NULL) {
+			actionSpeechStop()->setEnabled(pSpeech->isTalking());
+		}
+	}
+}
+
+#endif
