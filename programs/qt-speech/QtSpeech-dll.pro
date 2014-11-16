@@ -18,6 +18,15 @@
 
 TEMPLATE = lib
 
+win32 {
+	DEFINES += WIN32_LEAN_AND_MEAN
+	DEFINES += _CRT_SECURE_NO_WARNINGS
+	DEFINES += UNICODE _UNICODE
+
+	CONFIG -= debug_and_release                                                     # Get rid of double debug/release subfolders and do correct shadow build
+	equals(MSVC_VER, "12.0"):QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01         # Enable Support for WinXP if we are building with MSVC 2013, as MSVC 2010 already does
+}
+
 useserver {
 	QT += network
 	DEFINES += USE_FESTIVAL_SERVER
@@ -27,10 +36,10 @@ CONFIG += dll
 CONFIG += qtspeech_libbuild
 DEFINES += QTSPEECH_LIBRARY
 CONFIG(debug, debug|release) {
-    TARGET = QtSpeechd
+	TARGET = QtSpeechd
 }
 CONFIG(release, debug|release) {
-    TARGET = QtSpeech
+	TARGET = QtSpeech
 }
 
 include(QtSpeech.pri)

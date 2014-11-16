@@ -62,6 +62,7 @@ HEADERS += \
 
 macx {
 	qtspeech_libbuild{
+		HEADERS += $$PWD/QtSpeech_ATO.h
 		SOURCES += $$PWD/QtSpeech_mac.cpp
 	}
 
@@ -70,19 +71,23 @@ macx {
 
 win32 {
 	qtspeech_libbuild {
+		HEADERS += $$PWD/QtSpeech_win.h \
+					$$PWD/QtSpeech_ATO.h
 		SOURCES += $$PWD/QtSpeech_win.cpp
+
+#		INCLUDEPATH += "C:/Program Files/PSDK/Include"
+#		INCLUDEPATH += "C:/Program Files/PSDK/Include/atl"
+		INCLUDEPATH += "C:/Program Files (x86)/Microsoft Speech SDK 5.1/Include"
+		INCLUDEPATH += "$$PWD/sapi51_fixes"
+
+		LIBS += -L"C:/Program Files (x86)/Microsoft Speech SDK 5.1/Lib/i386"
 	}
-
-#	INCLUDEPATH += "C:/Program Files/PSDK/Include"
-#	INCLUDEPATH += "C:/Program Files/PSDK/Include/atl"
-	INCLUDEPATH += "C:/Program Files (x86)/Microsoft Speech SDK 5.1/Include"
-
-	LIBS += -L"C:/Program Files (x86)/Microsoft Speech SDK 5.1/Lib/i386"
 }
 
 unix:!mac {
 	qtspeech_libbuild {
-		HEADERS += $$PWD/QtSpeech_unx.h
+		HEADERS += $$PWD/QtSpeech_unx.h \
+					$$PWD/QtSpeech_ATO.h
 		SOURCES += $$PWD/QtSpeech_unx.cpp
 	}
 

@@ -96,6 +96,7 @@ vnc:QT += network
 QtSpeech {
 	DEFINES += USING_QT_SPEECH
 	include(../qt-speech/QtSpeech.pri)
+	DEFINES += QTSPEECH_STATIC							# Use QtSpeech as static lib regardless of static/dynamicness of the executable
 }
 
 

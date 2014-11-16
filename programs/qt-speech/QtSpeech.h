@@ -54,9 +54,13 @@
 #   define QTSPEECH_API Q_DECL_IMPORT
 #endif
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
 #define QTSPEECH_DEFAULT_SERVER_PORT 1314				// Festival's typical server port number
 #define QTSPEECH_SERVER_SCHEME_NAME "festival"
+#elif defined(Q_OS_WIN)
+#define QTSPEECH_DEFAULT_SERVER_PORT -1
+#define QTSPEECH_SERVER_SCHEME_NAME ""
+#else
 // TODO : Add other OS's here
 #endif
 
@@ -102,10 +106,12 @@ public:
 	const VoiceName & name() const; //!< Name of current voice
 	static VoiceNames voices();     //!< List of available voices in system
 
-	static bool isTalking();									// Returns true if currently talking (i.e. between beginning and finished signals)
+	virtual bool canSpeak() const;					// Returns true if speech is supported on this system (i.e. no errors during initialization)
 
-	static bool serverSupported();								// True if QtSpeech library compiled with server support
-	static bool serverConnected();								// True if currently connected to a speech server
+	static bool isTalking();						// Returns true if currently talking (i.e. between beginning and finished signals)
+
+	static bool serverSupported();					// True if QtSpeech library compiled with server support
+	static bool serverConnected();					// True if currently connected to a speech server
 	static bool connectToServer(const QString &strHostname = "localhost", int nPortNumber = 1314);
 	static void disconnectFromServer();
 
@@ -128,5 +134,6 @@ private:
 };
 
 } // namespace QtSpeech_v1
+
 #endif // QtSpeech_H
 

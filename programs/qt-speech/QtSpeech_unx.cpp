@@ -101,6 +101,8 @@ namespace {
 	};
 }
 
+// ============================================================================
+
 // internal data
 class QtSpeech::Private
 {
@@ -108,6 +110,8 @@ public:
 	Private() {}
 
 };
+
+// ============================================================================
 
 // global data
 class QtSpeech_GlobalData : public QtSpeech_asyncServerIOMonitor
@@ -127,8 +131,6 @@ public:
 		}
 #endif
 	}
-
-	bool isTalking() const { return m_bIsTalking; }
 
 	bool createWorkerThread()
 	{
@@ -153,6 +155,7 @@ public:
 
 	QPointer<QThread> m_pSpeechThread;
 	QPointer<QtSpeech_th> m_pSpeechTalker_th;			// Worker object for talking
+
 	QtSpeech::VoiceName m_vnSelectedVoiceName;
 	QtSpeech::VoiceName m_vnRequestedVoiceName;
 	QtSpeech::VoiceNames m_lstVoiceNames;
@@ -170,19 +173,6 @@ public:
 
 protected slots:
 	virtual void en_lostServer();
-
-	virtual void en_beginTalking()
-	{
-		m_bIsTalking = true;
-	}
-
-	virtual void en_doneTalking(bool bQueueEmpty)
-	{
-		if (bQueueEmpty) m_bIsTalking = false;
-	}
-
-private:
-	bool m_bIsTalking;
 } g_QtSpeechGlobal;
 
 // ============================================================================
@@ -202,10 +192,10 @@ private:
 // ============================================================================
 
 // qobject for speech thread
-bool QtSpeech_th::init = false;
+bool QtSpeech_th::m_bInit = false;
 
-QtSpeech_th::QtSpeech_th(QObject * p)
-	:	QObject(p),
+QtSpeech_th::QtSpeech_th(QObject *pParent)
+	:	QObject(pParent),
 		err(""),
 		has_error(false),
 		m_bAmTalking(false)
@@ -215,9 +205,9 @@ QtSpeech_th::QtSpeech_th(QObject * p)
 
 void QtSpeech_th::doInit()
 {
-	if (!init) {
+	if (!m_bInit) {
 		festival_initialize(true, FESTIVAL_HEAP_SIZE);
-		init = true;
+		m_bInit = true;
 	}
 }
 
@@ -291,7 +281,7 @@ void QtSpeech_th::clearQueue()
 
 // implementation
 QtSpeech::QtSpeech(QObject * parent)
-	:QObject(parent), d(new Private)
+	:	QObject(parent), d(new Private)
 {
 	if (convn_DefaultVoiceName.isEmpty()) {
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
@@ -301,7 +291,7 @@ QtSpeech::QtSpeech(QObject * parent)
 }
 
 QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
-	:QObject(parent), d(new Private)
+	:	QObject(parent), d(new Private)
 {
 	if (aVoiceName.isEmpty()) {
 		aVoiceName = convn_DefaultVoiceName;
@@ -349,6 +339,11 @@ QtSpeech::VoiceNames QtSpeech::voices()
 }
 
 // ----------------------------------------------------------------------------
+
+bool QtSpeech::canSpeak() const
+{
+	return true;
+}
 
 bool QtSpeech::isTalking()
 {
@@ -450,7 +445,6 @@ void QtSpeech::timerEvent(QTimerEvent * te)
 }
 
 // ============================================================================
-
 
 bool QtSpeech_GlobalData::serverSupported()
 {

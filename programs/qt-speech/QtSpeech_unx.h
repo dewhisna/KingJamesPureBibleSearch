@@ -50,34 +50,12 @@
 
 #include <QString>
 #include <QStringList>
-#include <QList>
-#include <QMetaType>
 
 #ifdef USE_FESTIVAL_SERVER
 #include <QTcpSocket>
 #endif
 
-// ============================================================================
-
-struct TAsyncTalkingObject
-{
-	TAsyncTalkingObject(const QString &strText = QString(), QObject *pObject = NULL, const char *pSlot = NULL)
-		:	m_strText(strText),
-			m_pObject(pObject),
-			m_pSlot(pSlot)
-	{ }
-
-	bool hasNotificationSlot() const
-	{
-		return ((m_pSlot != NULL) && (!m_pObject.isNull()));
-	}
-
-	QString m_strText;
-	QPointer<QObject> m_pObject;
-	const char *m_pSlot;
-};
-Q_DECLARE_METATYPE(TAsyncTalkingObject)
-typedef QList<TAsyncTalkingObject> TAsyncTalkingObjectsList;
+#include "QtSpeech_ATO.h"
 
 // ============================================================================
 
@@ -88,7 +66,7 @@ class QtSpeech_th : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_th(QObject * p = 0L);
+	QtSpeech_th(QObject *pParent = NULL);
 	virtual ~QtSpeech_th()
 	{}
 
@@ -112,26 +90,9 @@ private:
 	friend class QtSpeech;
 	QtSpeech::LogicError err;
 	bool has_error;
-	static bool init;
+	static bool m_bInit;
 	bool m_bAmTalking;
 	TAsyncTalkingObjectsList m_lstTalkingObjects;		// Used with the multi-threaded local Festival (as opposed to client/server)
-};
-
-
-class QtSpeech_asyncServerIOMonitor : public QObject
-{
-	Q_OBJECT
-public:
-	QtSpeech_asyncServerIOMonitor(QObject *pParent = 0L)
-		:	QObject(pParent)
-	{ }
-	virtual ~QtSpeech_asyncServerIOMonitor() { }
-
-protected slots:
-	virtual void en_lostServer() = 0;							// Called when the connection with the server gets dropped (so that things like resetting the selected voice can happen)
-
-	virtual void en_beginTalking() = 0;
-	virtual void en_doneTalking(bool bQueueEmpty) = 0;
 };
 
 // ============================================================================
@@ -179,8 +140,9 @@ private:
 };
 #endif
 
+}	// namespace QtSpeech_v1
+
 // ============================================================================
 
-}	// namespace QtSpeech_v1
 #endif // QtSpeech_unx_H
 
