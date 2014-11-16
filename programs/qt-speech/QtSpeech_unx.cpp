@@ -1,20 +1,45 @@
 /*  QtSpeech -- a small cross-platform library to use TTS
-    Copyright (C) 2010-2011 LynxLine.
+	Copyright (C) 2010-2011 LynxLine.
 
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 3 of the License, or (at your option) any later version.
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 3 of the License, or (at your option) any later version.
 
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General
-    Public License along with this library; if not, write to the
-    Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-    Boston, MA 02110-1301 USA */
+	You should have received a copy of the GNU Lesser General
+	Public License along with this library; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+	Boston, MA 02110-1301 USA
+
+===============================================================================
+
+	This version modified for KJPBS usage as follows:
+
+	Copyright (C) 2014 Donna Whisnant, a.k.a. Dewtronics.
+	Contact: http://www.dewtronics.com/
+
+	This file is part of the KJVCanOpener Application as originally written
+	and developed for Bethel Church, Festus, MO.
+
+	GNU General Public License Usage
+	This file may be used under the terms of the GNU General Public License
+	version 3.0 as published by the Free Software Foundation and appearing
+	in the file gpl-3.0.txt included in the packaging of this file. Please
+	review the following information to ensure the GNU General Public License
+	version 3.0 requirements will be met:
+	http://www.gnu.org/copyleft/gpl.html.
+
+	Other Usage
+	Alternatively, this file may be used in accordance with the terms and
+	conditions contained in a signed written agreement between you and
+	Dewtronics.
+
+*/
 
 #include <QtCore>
 #include <QtSpeech>
@@ -165,13 +190,13 @@ private:
 // some defines for throwing exceptions
 #define Where QString("%1:%2:").arg(__FILE__).arg(__LINE__)
 #define SysCall(x,e) {\
-    int ok = x;\
-    if (!ok) {\
-        QString msg = #e;\
-        msg += ":"+QString(__FILE__);\
-        msg += ":"+QString::number(__LINE__)+":"+#x;\
-        throw e(msg);\
-    }\
+	int ok = x;\
+	if (!ok) {\
+		QString msg = #e;\
+		msg += ":"+QString(__FILE__);\
+		msg += ":"+QString::number(__LINE__)+":"+#x;\
+		throw e(msg);\
+	}\
 }
 
 // ============================================================================
@@ -266,7 +291,7 @@ void QtSpeech_th::clearQueue()
 
 // implementation
 QtSpeech::QtSpeech(QObject * parent)
-    :QObject(parent), d(new Private)
+	:QObject(parent), d(new Private)
 {
 	if (convn_DefaultVoiceName.isEmpty()) {
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
@@ -276,11 +301,11 @@ QtSpeech::QtSpeech(QObject * parent)
 }
 
 QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
-    :QObject(parent), d(new Private)
+	:QObject(parent), d(new Private)
 {
 	if (aVoiceName.isEmpty()) {
 		aVoiceName = convn_DefaultVoiceName;
-    }
+	}
 
 	if (aVoiceName.isEmpty()) {
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
@@ -421,7 +446,7 @@ void QtSpeech::clearQueue()
 
 void QtSpeech::timerEvent(QTimerEvent * te)
 {
-    QObject::timerEvent(te);
+	QObject::timerEvent(te);
 }
 
 // ============================================================================

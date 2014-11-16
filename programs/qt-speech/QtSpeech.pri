@@ -15,6 +15,31 @@
 # Public License along with this library; if not, write to the
 # Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 # Boston, MA 02110-1301 USA
+#
+# =============================================================================
+#
+# This version modified for KJPBS usage as follows:
+#
+# Copyright (C) 2014 Donna Whisnant, a.k.a. Dewtronics.
+# Contact: http://www.dewtronics.com/
+#
+# This file is part of the KJVCanOpener Application as originally written
+# and developed for Bethel Church, Festus, MO.
+#
+# GNU General Public License Usage
+# This file may be used under the terms of the GNU General Public License
+# version 3.0 as published by the Free Software Foundation and appearing
+# in the file gpl-3.0.txt included in the packaging of this file. Please
+# review the following information to ensure the GNU General Public License
+# version 3.0 requirements will be met:
+# http://www.gnu.org/copyleft/gpl.html.
+#
+# Other Usage
+# Alternatively, this file may be used in accordance with the terms and
+# conditions contained in a signed written agreement between you and
+# Dewtronics.
+#
+
 
 !contains( included_modules, qt-speech/QtSpeech.pri) {
 		included_modules += qt-speech/QtSpeech.pri
@@ -48,11 +73,11 @@ win32 {
 		SOURCES += $$PWD/QtSpeech_win.cpp
 	}
 
-	INCLUDEPATH += "C:/Program Files/PSDK/Include"
-	INCLUDEPATH += "C:/Program Files/PSDK/Include/atl"
-	INCLUDEPATH += "C:/Program Files/Microsoft Speech SDK 5.1/Include"
+#	INCLUDEPATH += "C:/Program Files/PSDK/Include"
+#	INCLUDEPATH += "C:/Program Files/PSDK/Include/atl"
+	INCLUDEPATH += "C:/Program Files (x86)/Microsoft Speech SDK 5.1/Include"
 
-	LIBS += -L"C:/Program Files/Microsoft Speech SDK 5.1/Lib/i386"
+	LIBS += -L"C:/Program Files (x86)/Microsoft Speech SDK 5.1/Lib/i386"
 }
 
 unix:!mac {
