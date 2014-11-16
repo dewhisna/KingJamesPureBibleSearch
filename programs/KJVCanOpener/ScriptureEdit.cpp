@@ -477,7 +477,7 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 
 	if ((pSpeech != NULL) && (U::hasFocus())) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
-			parentCanOpener()->actionSpeechPlay()->setEnabled(!pSpeech->isTalking() && haveSelection());
+			parentCanOpener()->actionSpeechPlay()->setEnabled(pSpeech->canSpeak() && !pSpeech->isTalking() && haveSelection());
 		}
 	}
 }

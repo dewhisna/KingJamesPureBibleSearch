@@ -175,7 +175,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_strApplicationLanguage(QString()),			// Default to System Locale language
 		// ----
 #ifdef USING_QT_SPEECH
-		m_strTTSServerURL(QString("%1").arg(QTSPEECH_DEFAULT_SERVER_PORT).isEmpty() ? QString() : QString("%1://").arg(QTSPEECH_SERVER_SCHEME_NAME)),	// Default to no Text-To-Speech server
+		m_strTTSServerURL(QString("%1").arg(QTSPEECH_SERVER_SCHEME_NAME).isEmpty() ? QString() : QString("%1://").arg(QTSPEECH_SERVER_SCHEME_NAME)),	// Default to no Text-To-Speech server
 #else
 		m_strTTSServerURL(QString()),
 #endif

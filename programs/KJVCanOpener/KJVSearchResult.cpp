@@ -450,7 +450,7 @@ void CSearchResultsTreeView::setSpeechActionEnables()
 
 	if ((pSpeech != NULL) && (hasFocus())) {
 		if (parentCanOpener()->actionSpeechPlay() != NULL) {
-			parentCanOpener()->actionSpeechPlay()->setEnabled(!pSpeech->isTalking() && speakableNodeSelected());
+			parentCanOpener()->actionSpeechPlay()->setEnabled(pSpeech->canSpeak() && !pSpeech->isTalking() && speakableNodeSelected());
 		}
 	}
 }

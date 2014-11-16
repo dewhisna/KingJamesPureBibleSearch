@@ -3222,6 +3222,15 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 		m_bHandlingPageSwap = false;
 	}
 
+#ifdef USING_QT_SPEECH
+	if (static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index) == CPSE_TTS_OPTIONS) {
+		if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL) && (!g_pMyApplication->speechSynth()->canSpeak())) {
+			QMessageBox::warning(this, windowTitle(), tr("Failed to load system Text-To-Speech Module.\n"
+														"To use Text-To-Speech, you may need to install the Text-To-Speech support package."));
+		}
+	}
+#endif
+
 	m_nLastIndex = index;
 
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index)));
