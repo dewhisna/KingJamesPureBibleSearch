@@ -24,12 +24,12 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_QT						"3.0.0"
-#define VER_FILEVERSION				3,0,0,0
-#define VER_FILEVERSION_STR			"3,0,0,0\0"
+#define VER_QT						"3.0.90"
+#define VER_FILEVERSION				3,0,90,0
+#define VER_FILEVERSION_STR			"3,0,90,0\0"
 
-#define VER_PRODUCTVERSION			3,0,0,0
-#define VER_PRODUCTVERSION_STR		"3,0,0,0\0"
+#define VER_PRODUCTVERSION			3,0,90,0
+#define VER_PRODUCTVERSION_STR		"3,0,90,0\0"
 
 #if defined(EMSCRIPTEN)
 #define VER_SPECIALVERSION_STR		"(Emscripten Web-Version)\0"
@@ -38,8 +38,8 @@
 #define VER_SPECIALVERSION_STR		"(VNC Web-Version)\0"
 #define SPECIAL_BUILD				1
 #else
-#define VER_SPECIALVERSION_STR		"Release-Preview Version\0"
-#define SPECIAL_BUILD				0
+#define VER_SPECIALVERSION_STR		"Alpha Test Version\0"
+#define SPECIAL_BUILD				1
 #endif
 #define VER_BUILD_DATE_STR			__DATE__
 #define VER_BUILD_TIME_STR			__TIME__
