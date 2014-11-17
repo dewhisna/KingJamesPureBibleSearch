@@ -108,6 +108,7 @@ public:
 	}
 	virtual ~QtSpeech_GlobalData()
 	{
+		m_pSpVoice.Release();
 		CoUninitialize();
 	}
 
