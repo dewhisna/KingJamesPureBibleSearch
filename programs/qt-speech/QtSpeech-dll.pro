@@ -25,6 +25,7 @@ win32 {
 
 	CONFIG -= debug_and_release                                                     # Get rid of double debug/release subfolders and do correct shadow build
 	equals(MSVC_VER, "12.0"):QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01         # Enable Support for WinXP if we are building with MSVC 2013, as MSVC 2010 already does
+	DEFINES += _USING_V110_SDK71_													# Needed to run on WinXP and use ATL (as needed for QtSpeech)
 }
 
 useserver {
