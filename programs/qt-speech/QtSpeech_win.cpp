@@ -227,7 +227,7 @@ void QtSpeech_th::setVoice(QString strVoiceID)
 				QString strTempVoiceID;
 				WCHAR *pwcID = NULL;
 				CComPtr<ISpObjectToken> pSysVoice;
-				SysCall( pVoicesEnum->Next(ndx, &pSysVoice, NULL), QtSpeech::LogicError );
+				SysCall( pVoicesEnum->Next(1, &pSysVoice, NULL), QtSpeech::LogicError );
 				SysCall( pSysVoice->GetId(&pwcID), QtSpeech::LogicError );
 				strTempVoiceID = QString::fromWCharArray(pwcID);
 				if (strTempVoiceID == strVoiceID) m_pSpVoice->SetVoice(pSysVoice);
@@ -343,7 +343,7 @@ QtSpeech::VoiceNames QtSpeech::voices()
 			WCHAR *pwcID = NULL;
 			WCHAR *pwcName = NULL;
 			CComPtr<ISpObjectToken> pSysVoice;
-			SysCall( pVoicesEnum->Next(ndx, &pSysVoice, NULL), LogicError );
+			SysCall( pVoicesEnum->Next(1, &pSysVoice, NULL), LogicError );
 			SysCall( SpGetDescription(pSysVoice, &pwcName), LogicError );
 			SysCall( pSysVoice->GetId(&pwcID), LogicError );
 			aVoiceName.id = QString::fromWCharArray(pwcID);
