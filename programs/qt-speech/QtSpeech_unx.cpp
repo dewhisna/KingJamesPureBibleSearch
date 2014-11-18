@@ -118,7 +118,6 @@ class QtSpeech_GlobalData : public QtSpeech_asyncServerIOMonitor
 {
 public:
 	QtSpeech_GlobalData()
-		:	m_bIsTalking(false)
 	{
 		qRegisterMetaType<TAsyncTalkingObject>("TAsyncTalkingObject");
 	}
