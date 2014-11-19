@@ -324,7 +324,8 @@ QtSpeech::~QtSpeech()
 
 const QtSpeech::VoiceName &QtSpeech::name() const
 {
-	return g_QtSpeechGlobal.m_vnSelectedVoiceName;
+	if (!g_QtSpeechGlobal.m_vnSelectedVoiceName.isEmpty()) return g_QtSpeechGlobal.m_vnSelectedVoiceName;
+	return g_QtSpeechGlobal.m_vnRequestedVoiceName;
 }
 
 QtSpeech::VoiceNames QtSpeech::voices()

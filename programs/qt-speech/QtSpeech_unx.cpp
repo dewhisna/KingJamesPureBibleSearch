@@ -62,16 +62,16 @@ namespace QtSpeech_v1 { // API v1.0
 namespace {
 	const QString constr_VoiceId = QString("(voice_%1)");
 
-	const QtSpeech::VoiceName convn_DefaultVoiceName = { "rab_diphone", "English (Male)", "en" };
+	const QtSpeech::VoiceName convn_DefaultVoiceName = { "rab_diphone", "British English Male residual LPC, diphone ", "en" };
 
 	// Internal names are those supplied without our custom build of Festival:
 	const QtSpeech::VoiceName convnarr_internalVoiceNames[] =
 	{
-		{ "cmu_us_awb_cg", "English (male)", "en" },
-		{ "cmu_us_slt_arctic_hts", "English (female)", "en" },
-		{ "cmu_us_rms_cg", "English (male)", "en" },
-		{ "kal_diphone", "English (male)", "en" },
-		{ "rab_diphone", "English (male)", "en" },
+		{ "cmu_us_awb_cg", "Scottish English Male (with US frontend) clustergen", "en" },
+		{ "cmu_us_slt_arctic_hts", "American English Female, HTS", "en" },
+		{ "cmu_us_rms_cg", "American English Male using clustergen", "en" },
+		{ "kal_diphone", "American English Male residual LPC diphone", "en" },
+		{ "rab_diphone", "British English Male residual LPC, diphone ", "en" },
 		{ "", "", "" }
 	};
 
@@ -80,17 +80,17 @@ namespace {
 	//		when running in client/server mode:
 	const QtSpeech::VoiceName convnarr_commonVoiceNames[] =
 	{
-		{ "cmu_us_awb_cg", "English (male)", "en" },
-		{ "cmu_us_slt_arctic_hts", "English (female)", "en" },
-		{ "cmu_us_rms_cg", "English (male)", "en" },
+		{ "cmu_us_awb_cg", "Scottish English Male (with US frontend) clustergen", "en" },
+		{ "cmu_us_slt_arctic_hts", "American English Female, HTS", "en" },
+		{ "cmu_us_rms_cg", "American English Male using clustergen", "en" },
 		{ "cmu_us_clb_artic_clunits", "English (female)", "en" },
 		{ "ked_diphone", "English (male)", "en" },
 		{ "cmu_us_jmk_arctic_clunits", "English (male)", "en" },
 		{ "cmu_us_rms_arctic_clunits", "English (male)", "en" },
 		{ "en1_mbrola", "English (male)", "en" },
-		{ "kal_diphone", "English (male)", "en" },
+		{ "kal_diphone", "American English Male residual LPC diphone", "en" },
 		{ "don_diphone", "English (male)", "en" },
-		{ "rab_diphone", "English (male)", "en" },
+		{ "rab_diphone", "British English Male residual LPC, diphone ", "en" },
 		{ "us2_mbrola", "English (male)", "en" },
 		{ "us3_mbrola", "English (male)", "en" },
 		{ "cmu_us_awb_arctic_clunits", "English (male)", "en" },
@@ -312,7 +312,8 @@ QtSpeech::~QtSpeech()
 
 const QtSpeech::VoiceName &QtSpeech::name() const
 {
-	return g_QtSpeechGlobal.m_vnSelectedVoiceName;
+	if (!g_QtSpeechGlobal.m_vnSelectedVoiceName.isEmpty()) return g_QtSpeechGlobal.m_vnSelectedVoiceName;
+	return g_QtSpeechGlobal.m_vnRequestedVoiceName;
 }
 
 QtSpeech::VoiceNames QtSpeech::voices()
