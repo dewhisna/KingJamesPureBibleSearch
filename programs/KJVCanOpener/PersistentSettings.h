@@ -158,6 +158,7 @@ public:
 	QString applicationLanguage() const { return m_pPersistentSettingData->m_strApplicationLanguage; }
 
 	QString ttsServerURL() const { return m_pPersistentSettingData->m_strTTSServerURL; }
+	QString ttsSelectedVoiceID() const { return m_pPersistentSettingData->m_strTTSSelectedVoiceID; }
 
 	bool screenSwipeableMainWindow() const { return m_pPersistentSettingData->m_bScreenSwipeableMainWindow; }
 	bool scrollbarsEnabled() const
@@ -235,6 +236,7 @@ signals:
 	void changedApplicationLanguage(const QString &strLangName);
 
 	void changedTTSServerURL(const QString &strTTSServerURL);
+	void changedTTSSelectedVoiceID(const QString &strTTSSelectedVoice);
 
 	void changedScreenSwipeableMainWindow(bool bIsSwipeable);
 	void changedScrollbarsEnabled(bool bEnabled);
@@ -303,6 +305,7 @@ public slots:
 	void setApplicationLanguage(const QString &strLangName);
 
 	void setTTSServerURL(const QString &strTTSServerURL);
+	void setTTSSelectedVoiceID(const QString &strTTSSelectedVoiceID);
 
 	void setScreenSwipeableMainWindow(bool bIsSwipeable);
 	void setScrollbarsEnabled(bool bIsEnabled);
@@ -390,6 +393,7 @@ private:
 		QString m_strApplicationLanguage;				// Language to use for the application.  Empty string to use the system locale.
 		// ----
 		QString m_strTTSServerURL;						// Text-To-Speech Server URL.  Empty string = use none (loaded at app startup via "execute()")
+		QString m_strTTSSelectedVoiceID;				// Text-To-Speech Selected Voice ID
 		// ----
 		bool m_bScreenSwipeableMainWindow;				// True if the main KJVCanOpener window is a multi-screen "swipeable"
 		bool m_bScrollbarsEnabled;						// True if scollbars are enabled on scrollareas (for mobile devices)

@@ -32,19 +32,50 @@
     <number>0</number>
    </property>
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="lblTTSServerURL">
-       <property name="text">
-        <string>Text-To-Speech &amp;Server URL (Host and Port):</string>
-       </property>
-       <property name="buddy">
-        <cstring>editTTSServerURL</cstring>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="lblTTSServerURL">
+         <property name="text">
+          <string>Text-To-Speech &amp;Server URL (Host and Port):</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>editTTSServerURL</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="editTTSServerURL"/>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLineEdit" name="editTTSServerURL"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="lblTTSVoiceSelection">
+         <property name="text">
+          <string>&amp;Voice to Use:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>comboBoxTTSVoiceSelection</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="comboBoxTTSVoiceSelection">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

@@ -100,10 +100,11 @@ public:
 
 	// api
 	QtSpeech(QObject * parent);
-	QtSpeech(VoiceName aVoiceName = VoiceName(), QObject * parent = 0L);
+	QtSpeech(const VoiceName &aVoiceName = VoiceName(), QObject * parent = 0L);
 	virtual ~QtSpeech();
 
-	const VoiceName & name() const; //!< Name of current voice
+	const VoiceName &voiceName() const; //!< Name of current voice
+	void setVoiceName(const VoiceName &aVoiceName);
 	static VoiceNames voices();     //!< List of available voices in system
 
 	virtual bool canSpeak() const;					// Returns true if speech is supported on this system (i.e. no errors during initialization)

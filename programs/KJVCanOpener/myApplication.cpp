@@ -127,6 +127,7 @@ namespace {
 	// Text-To-Speech Settings:
 	const QString constrTTSSettingsGroup("TextToSpeech");
 	const QString constrTTSServerURLKey("TTSServerURL");
+	const QString constrTTSSelectedVoiceIDKey("TTSSelectedVoiceID");
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -778,7 +779,7 @@ void CMyApplication::restoreApplicationLanguage()
 
 // ============================================================================
 
-void CMyApplication::saveTTSServerURL()
+void CMyApplication::saveTTSSettings()
 {
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
@@ -788,16 +789,22 @@ void CMyApplication::saveTTSServerURL()
 		} else {
 			settings.remove(constrTTSServerURLKey);
 		}
+		if (!CPersistentSettings::instance()->ttsSelectedVoiceID().isEmpty()) {
+			settings.setValue(constrTTSSelectedVoiceIDKey, CPersistentSettings::instance()->ttsSelectedVoiceID());
+		} else {
+			settings.remove(constrTTSSelectedVoiceIDKey);
+		}
 		settings.endGroup();
 	}
 }
 
-void CMyApplication::restoreTTSServerURL()
+void CMyApplication::restoreTTSSettings()
 {
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrTTSSettingsGroup);
 		CPersistentSettings::instance()->setTTSServerURL(settings.value(constrTTSServerURLKey, CPersistentSettings::instance()->ttsServerURL()).toString());
+		CPersistentSettings::instance()->setTTSSelectedVoiceID(settings.value(constrTTSSelectedVoiceIDKey, CPersistentSettings::instance()->ttsSelectedVoiceID()).toString());
 		settings.endGroup();
 	}
 }
@@ -1333,9 +1340,9 @@ int CMyApplication::execute(bool bBuildDB)
 	restoreApplicationLanguage();
 	saveApplicationLanguage();
 
-	// Restore Text-To-Speech Server URL Setting (and save for next time):
-	restoreTTSServerURL();
-	saveTTSServerURL();
+	// Restore Text-To-Speech Settings (and save for next time):
+	restoreTTSSettings();
+	saveTTSSettings();
 
 	// Setup our Fonts:
 #ifdef LOAD_APPLICATION_FONTS
@@ -1398,8 +1405,13 @@ int CMyApplication::execute(bool bBuildDB)
 	}
 
 	if (m_pSpeech.isNull()) {
-		m_pSpeech = new QtSpeech(this);
+		QtSpeech::VoiceName vnSelectedVoice;
+		vnSelectedVoice.id = CPersistentSettings::instance()->ttsSelectedVoiceID();
+		m_pSpeech = new QtSpeech(vnSelectedVoice, this);
 		connect(m_pSpeech.data(), SIGNAL(clearingQueue()), this, SLOT(en_clearingSpeechQueue()));
+		vnSelectedVoice = m_pSpeech->voiceName();		// Get resolved name in case it wasn't set or was invalid
+		CPersistentSettings::instance()->setTTSSelectedVoiceID(vnSelectedVoice.id);
+		saveTTSSettings();								// And save new default name in case it changed
 	}
 #else
 	// If user specified a TTS Server on the command-line and this build doesn't support TTS, warn him:

@@ -2884,7 +2884,7 @@ void CKJVCanOpener::en_LaunchLocaleSettingsConfig()
 
 void CKJVCanOpener::en_LaunchTTSOptionsConfig()
 {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	en_Configure(CPSE_TTS_OPTIONS);
 #endif
 }

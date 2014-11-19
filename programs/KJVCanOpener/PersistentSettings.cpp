@@ -179,6 +179,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 #else
 		m_strTTSServerURL(QString()),
 #endif
+		m_strTTSSelectedVoiceID(QString()),
 		// ----
 		m_bScreenSwipeableMainWindow(false),
 #ifdef IS_MOBILE_APP
@@ -357,6 +358,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 		if (pSource->m_strApplicationLanguage != pTarget->m_strApplicationLanguage) emit changedApplicationLanguage(pTarget->m_strApplicationLanguage);
 		if (pSource->m_strTTSServerURL != pTarget->m_strTTSServerURL) emit changedTTSServerURL(pTarget->m_strTTSServerURL);
+		if (pSource->m_strTTSSelectedVoiceID != pTarget->m_strTTSSelectedVoiceID) emit changedTTSSelectedVoiceID(pTarget->m_strTTSSelectedVoiceID);
 		if (pSource->m_bScreenSwipeableMainWindow != pTarget->m_bScreenSwipeableMainWindow) emit changedScreenSwipeableMainWindow(pTarget->m_bScreenSwipeableMainWindow);
 		if (pSource->m_bScrollbarsEnabled != pTarget->m_bScrollbarsEnabled) emit changedScrollbarsEnabled(pTarget->m_bScrollbarsEnabled);
 		if (pSource->m_bTouchGesturesEnabled != pTarget->m_bTouchGesturesEnabled) emit changedTouchGesturesEnabled(pTarget->m_bTouchGesturesEnabled);
@@ -875,6 +877,14 @@ void CPersistentSettings::setTTSServerURL(const QString &strTTSServerURL)
 	if (m_pPersistentSettingData->m_strTTSServerURL != strTTSServerURL) {
 		m_pPersistentSettingData->m_strTTSServerURL = strTTSServerURL;
 		emit changedTTSServerURL(strTTSServerURL);
+	}
+}
+
+void CPersistentSettings::setTTSSelectedVoiceID(const QString &strTTSSelectedVoiceID)
+{
+	if (m_pPersistentSettingData->m_strTTSSelectedVoiceID != strTTSSelectedVoiceID) {
+		m_pPersistentSettingData->m_strTTSSelectedVoiceID = strTTSSelectedVoiceID;
+		emit changedTTSSelectedVoiceID(strTTSSelectedVoiceID);
 	}
 }
 

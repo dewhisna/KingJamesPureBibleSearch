@@ -301,18 +301,18 @@ QtSpeech::QtSpeech(QObject * parent)
 	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
 }
 
-QtSpeech::QtSpeech(VoiceName aVoiceName, QObject * parent)
+QtSpeech::QtSpeech(const VoiceName &aVoiceName, QObject * parent)
 	:	QObject(parent), d(new Private)
 {
-	if (aVoiceName.isEmpty()) {
-		aVoiceName = defaultVoiceName();
-	}
+	VoiceName theVoiceName = aVoiceName;
 
-	if (aVoiceName.isEmpty()) {
+	if (theVoiceName.isEmpty()) theVoiceName = defaultVoiceName();
+
+	if (theVoiceName.isEmpty()) {
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
 	}
 
-	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
+	g_QtSpeechGlobal.m_vnRequestedVoiceName = theVoiceName;
 }
 
 QtSpeech::~QtSpeech()
@@ -322,10 +322,18 @@ QtSpeech::~QtSpeech()
 
 // ----------------------------------------------------------------------------
 
-const QtSpeech::VoiceName &QtSpeech::name() const
+const QtSpeech::VoiceName &QtSpeech::voiceName() const
 {
 	if (!g_QtSpeechGlobal.m_vnSelectedVoiceName.isEmpty()) return g_QtSpeechGlobal.m_vnSelectedVoiceName;
 	return g_QtSpeechGlobal.m_vnRequestedVoiceName;
+}
+
+void QtSpeech::setVoiceName(const VoiceName &aVoiceName)
+{
+	VoiceName theVoiceName = aVoiceName;
+
+	if (theVoiceName.isEmpty()) theVoiceName = defaultVoiceName();
+	if (!theVoiceName.isEmpty()) g_QtSpeechGlobal.m_vnRequestedVoiceName = theVoiceName;
 }
 
 QtSpeech::VoiceNames QtSpeech::voices()

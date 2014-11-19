@@ -280,6 +280,7 @@ signals:
 
 private slots:
 	void en_changedTTSServerURL(const QString &strTTSServerURL);
+	void en_changedTTSVoiceSelection(int nIndex);
 
 // Data Private:
 private:

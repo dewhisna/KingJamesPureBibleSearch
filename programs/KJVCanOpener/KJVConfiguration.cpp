@@ -2822,6 +2822,16 @@ CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
 
 	connect(ui.editTTSServerURL, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedTTSServerURL(const QString &)));
 
+	ui.comboBoxTTSVoiceSelection->clear();
+	QtSpeech::VoiceNames lstVoiceNames = QtSpeech::voices();
+	for (int ndx = 0; ndx < lstVoiceNames.size(); ++ndx) {
+		assert(!lstVoiceNames.at(ndx).isEmpty());
+		if (lstVoiceNames.at(ndx).isEmpty()) continue;
+		ui.comboBoxTTSVoiceSelection->addItem(lstVoiceNames.at(ndx).name, lstVoiceNames.at(ndx).id);
+	}
+
+	connect(ui.comboBoxTTSVoiceSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedTTSVoiceSelection(int)));
+
 	loadSettings();
 }
 
@@ -2836,13 +2846,18 @@ void CKJVTTSOptionsConfig::loadSettings()
 
 	ui.editTTSServerURL->setText(CPersistentSettings::instance()->ttsServerURL());
 
+	int nIndex = ui.comboBoxTTSVoiceSelection->findData(CPersistentSettings::instance()->ttsSelectedVoiceID());
+	if (nIndex != -1) {
+		ui.comboBoxTTSVoiceSelection->setCurrentIndex(nIndex);
+	}
+
 	m_bLoadingData = false;
 	m_bIsDirty = false;
 }
 
 void CKJVTTSOptionsConfig::saveSettings()
 {
-	CMyApplication::saveTTSServerURL();
+	CMyApplication::saveTTSSettings();
 	if (QtSpeech::serverSupported()) {
 		QString strTTSServer = CPersistentSettings::instance()->ttsServerURL();
 		if (!strTTSServer.isEmpty()) {
@@ -2863,6 +2878,12 @@ void CKJVTTSOptionsConfig::saveSettings()
 		}
 	}
 
+	if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL)) {
+		QtSpeech::VoiceName aVoiceName;
+		aVoiceName.id = CPersistentSettings::instance()->ttsSelectedVoiceID();
+		g_pMyApplication->speechSynth()->setVoiceName(aVoiceName);
+	}
+
 	m_bIsDirty = false;
 }
 
@@ -2871,6 +2892,20 @@ void CKJVTTSOptionsConfig::en_changedTTSServerURL(const QString &strTTSServerURL
 	if (m_bLoadingData) return;
 
 	CPersistentSettings::instance()->setTTSServerURL(strTTSServerURL);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CKJVTTSOptionsConfig::en_changedTTSVoiceSelection(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	assert(nIndex != -1);
+	if (nIndex == -1) return;
+
+	QString strVoiceID = ui.comboBoxTTSVoiceSelection->itemData(nIndex).toString();
+	CPersistentSettings::instance()->setTTSSelectedVoiceID(strVoiceID);
 
 	m_bIsDirty = true;
 	emit dataChanged(false);

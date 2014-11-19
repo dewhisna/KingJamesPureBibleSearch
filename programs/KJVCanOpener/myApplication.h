@@ -148,8 +148,8 @@ public:
 	static void saveApplicationLanguage();
 	static void restoreApplicationLanguage();
 
-	static void saveTTSServerURL();
-	static void restoreTTSServerURL();
+	static void saveTTSSettings();
+	static void restoreTTSSettings();
 
 #ifdef USING_QT_SPEECH
 	static QtSpeech *speechSynth() { return m_pSpeech.data(); }
