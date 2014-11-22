@@ -56,7 +56,7 @@
 
 // ============================================================================
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 // some defines for throwing exceptions
 #define Where QString("%1:%2:").arg(__FILE__).arg(__LINE__)
@@ -472,6 +472,6 @@ void QtSpeech_GlobalData::setVoice()
 	el.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
-} // namespace QtSpeech_v1
+} // namespace QtSpeech_v2
 
 // ============================================================================

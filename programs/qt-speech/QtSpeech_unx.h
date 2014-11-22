@@ -59,7 +59,7 @@
 
 // ============================================================================
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 class QtSpeech_th : public QObject
 {
@@ -140,7 +140,7 @@ private:
 };
 #endif
 
-}	// namespace QtSpeech_v1
+}	// namespace QtSpeech_v2
 
 // ============================================================================
 

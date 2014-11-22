@@ -57,7 +57,7 @@
 
 // ============================================================================
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 #ifdef Q_OS_MAC64
 #define SpeechDoneUPP_ARG2 void *
@@ -102,7 +102,7 @@ private:
 	SpeechDoneUPP m_pDoneCall;
 };
 
-}	// namespace QtSpeech_v1
+}	// namespace QtSpeech_v2
 
 // ============================================================================
 #endif	// QtSpeech_mac_H

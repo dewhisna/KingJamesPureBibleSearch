@@ -67,7 +67,7 @@
 // TODO : Add other OS's here
 #endif
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 class QTSPEECH_API QtSpeech : public QObject
 {
@@ -141,7 +141,7 @@ private:
 	Private * d;
 };
 
-} // namespace QtSpeech_v1
+} // namespace QtSpeech_v2
 
 #endif // QtSpeech_H
 

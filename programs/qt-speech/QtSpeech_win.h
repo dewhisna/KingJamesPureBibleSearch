@@ -60,7 +60,7 @@
 
 // ============================================================================
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 
 class QtSpeech_th : public QObject
@@ -96,7 +96,7 @@ private:
 	TAsyncTalkingObjectsList m_lstTalkingObjects;
 };
 
-}	// namespace QtSpeech_v1
+}	// namespace QtSpeech_v2
 
 // ============================================================================
 #endif	// QtSpeech_win_H

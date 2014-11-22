@@ -51,7 +51,7 @@
 
 // ============================================================================
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 namespace {
 	const QString constr_VoiceId = QString("%1");
@@ -442,6 +442,6 @@ void QtSpeech_GlobalData::speechFinished(SpeechChannel nChannel, SpeechDoneUPP_A
 	}
 }
 
-} // namespace QtSpeech_v1
+} // namespace QtSpeech_v2
 
 // ============================================================================

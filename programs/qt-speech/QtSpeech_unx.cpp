@@ -49,7 +49,7 @@
 
 #include <assert.h>
 
-namespace QtSpeech_v1 { // API v1.0
+namespace QtSpeech_v2 { // API v2.0
 
 // ============================================================================
 
@@ -784,4 +784,4 @@ void QtSpeech_asyncServerIO::setVoice(const QtSpeech::TVoiceName &aVoice)
 
 // ============================================================================
 
-} // namespace QtSpeech_v1
+} // namespace QtSpeech_v2
