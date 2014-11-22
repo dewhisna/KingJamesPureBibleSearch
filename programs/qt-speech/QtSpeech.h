@@ -78,7 +78,7 @@ public:
 	struct CloseError : Error { CloseError(QString s):Error(s) {} };
 
 	// types
-	struct VoiceName {
+	struct TVoiceName {
 		QString id;
 		QString name;
 		QString lang;
@@ -90,22 +90,22 @@ public:
 			lang.clear();
 		}
 		inline bool isEmpty() const { return id.isEmpty(); }
-		inline bool operator==(const VoiceName &other) const
+		inline bool operator==(const TVoiceName &other) const
 		{
 			return (id == other.id);
 		}
 
 	};
-	typedef QList<VoiceName> VoiceNames;
+	typedef QList<TVoiceName> TVoiceNamesList;
 
 	// api
 	QtSpeech(QObject * parent);
-	QtSpeech(const VoiceName &aVoiceName = VoiceName(), QObject * parent = 0L);
+	QtSpeech(const TVoiceName &aVoiceName = TVoiceName(), QObject * parent = 0L);
 	virtual ~QtSpeech();
 
-	const VoiceName &voiceName() const; //!< Name of current voice
-	void setVoiceName(const VoiceName &aVoiceName);
-	static VoiceNames voices();     //!< List of available voices in system
+	const TVoiceName &voiceName() const; //!< Name of current voice
+	void setVoiceName(const TVoiceName &aVoiceName);
+	static TVoiceNamesList voices();     //!< List of available voices in system
 
 	virtual bool canSpeak() const;					// Returns true if speech is supported on this system (i.e. no errors during initialization)
 

@@ -455,7 +455,7 @@ void CScriptureText<T,U>::en_readSelection()
 template<class T, class U>
 void CScriptureText<T,U>::en_readFromCursor()
 {
-	QtSpeech::VoiceNames lstVoices = QtSpeech::voices();
+	QtSpeech::TVoiceNamesList lstVoices = QtSpeech::voices();
 
 	for (int ndx = 0; ndx < lstVoices.size(); ++ndx) {
 		qDebug("%s (%s)", lstVoices.at(ndx).id.toUtf8().data(), lstVoices.at(ndx).name.toUtf8().data());

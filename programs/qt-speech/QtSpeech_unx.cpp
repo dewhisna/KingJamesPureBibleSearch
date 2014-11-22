@@ -62,10 +62,10 @@ namespace QtSpeech_v1 { // API v1.0
 namespace {
 	const QString constr_VoiceId = QString("(voice_%1)");
 
-	const QtSpeech::VoiceName convn_DefaultVoiceName = { "rab_diphone", "British English Male residual LPC, diphone ", "en" };
+	const QtSpeech::TVoiceName convn_DefaultVoiceName = { "rab_diphone", "British English Male residual LPC, diphone ", "en" };
 
 	// Internal names are those supplied without our custom build of Festival:
-	const QtSpeech::VoiceName convnarr_internalVoiceNames[] =
+	const QtSpeech::TVoiceName convnarr_internalVoiceNames[] =
 	{
 		{ "cmu_us_awb_cg", "Scottish English Male (with US frontend) clustergen", "en" },
 		{ "cmu_us_slt_arctic_hts", "American English Female, HTS", "en" },
@@ -78,7 +78,7 @@ namespace {
 	// Common names are ones likely to be encountered on a server used to
 	//		resolve a human readable description and language identifiers
 	//		when running in client/server mode:
-	const QtSpeech::VoiceName convnarr_commonVoiceNames[] =
+	const QtSpeech::TVoiceName convnarr_commonVoiceNames[] =
 	{
 		{ "cmu_us_awb_cg", "Scottish English Male (with US frontend) clustergen", "en" },
 		{ "cmu_us_slt_arctic_hts", "American English Female, HTS", "en" },
@@ -155,9 +155,9 @@ public:
 	QPointer<QThread> m_pSpeechThread;
 	QPointer<QtSpeech_th> m_pSpeechTalker_th;			// Worker object for talking
 
-	QtSpeech::VoiceName m_vnSelectedVoiceName;
-	QtSpeech::VoiceName m_vnRequestedVoiceName;
-	QtSpeech::VoiceNames m_lstVoiceNames;
+	QtSpeech::TVoiceName m_vnSelectedVoiceName;
+	QtSpeech::TVoiceName m_vnRequestedVoiceName;
+	QtSpeech::TVoiceNamesList m_lstVoiceNames;
 
 #ifdef USE_FESTIVAL_SERVER
 	QPointer<QtSpeech_asyncServerIO> m_pAsyncServerIO;
@@ -289,10 +289,10 @@ QtSpeech::QtSpeech(QObject * parent)
 	g_QtSpeechGlobal.m_vnRequestedVoiceName = convn_DefaultVoiceName;
 }
 
-QtSpeech::QtSpeech(const VoiceName &aVoiceName, QObject * parent)
+QtSpeech::QtSpeech(const TVoiceName &aVoiceName, QObject * parent)
 	:	QObject(parent), d(new Private)
 {
-	VoiceName theVoiceName = aVoiceName;
+	TVoiceName theVoiceName = aVoiceName;
 
 	if (theVoiceName.isEmpty()) theVoiceName = convn_DefaultVoiceName;
 
@@ -310,21 +310,21 @@ QtSpeech::~QtSpeech()
 
 // ----------------------------------------------------------------------------
 
-const QtSpeech::VoiceName &QtSpeech::voiceName() const
+const QtSpeech::TVoiceName &QtSpeech::voiceName() const
 {
 	if (!g_QtSpeechGlobal.m_vnSelectedVoiceName.isEmpty()) return g_QtSpeechGlobal.m_vnSelectedVoiceName;
 	return g_QtSpeechGlobal.m_vnRequestedVoiceName;
 }
 
-void QtSpeech::setVoiceName(const VoiceName &aVoiceName)
+void QtSpeech::setVoiceName(const TVoiceName &aVoiceName)
 {
-	VoiceName theVoiceName = aVoiceName;
+	TVoiceName theVoiceName = aVoiceName;
 
 	if (theVoiceName.isEmpty()) theVoiceName = convn_DefaultVoiceName;
 	if (!theVoiceName.isEmpty()) g_QtSpeechGlobal.m_vnRequestedVoiceName = theVoiceName;
 }
 
-QtSpeech::VoiceNames QtSpeech::voices()
+QtSpeech::TVoiceNamesList QtSpeech::voices()
 {
 	if (!g_QtSpeechGlobal.m_lstVoiceNames.isEmpty()) return g_QtSpeechGlobal.m_lstVoiceNames;
 
@@ -512,7 +512,7 @@ void QtSpeech_GlobalData::disconnectFromServer()
 
 void QtSpeech_GlobalData::setVoice()
 {
-	QtSpeech::VoiceName theVoice = m_vnRequestedVoiceName;
+	QtSpeech::TVoiceName theVoice = m_vnRequestedVoiceName;
 	m_vnRequestedVoiceName.clear();
 
 	if (theVoice.isEmpty()) return;
@@ -719,7 +719,7 @@ void QtSpeech_asyncServerIO::readVoices()
 			QStringList lstVoices = strVoices.split(QChar(' '));
 			g_QtSpeechGlobal.m_lstVoiceNames.clear();
 			for (int ndx = 0; ndx < lstVoices.size(); ++ndx) {
-				QtSpeech::VoiceName aVoice = { lstVoices.at(ndx), "Unknown", "" };
+				QtSpeech::TVoiceName aVoice = { lstVoices.at(ndx), "Unknown", "" };
 				int nFoundNdx = -1;
 				for (int ndxCommonVoice = 0; ((nFoundNdx == -1) && (!convnarr_commonVoiceNames[ndxCommonVoice].isEmpty())); ++ndxCommonVoice) {
 					if (aVoice.id.compare(convnarr_commonVoiceNames[ndxCommonVoice].id) == 0) nFoundNdx = ndxCommonVoice;
@@ -771,7 +771,7 @@ void QtSpeech_asyncServerIO::clearQueue()
 	}
 }
 
-void QtSpeech_asyncServerIO::setVoice(const QtSpeech::VoiceName &aVoice)
+void QtSpeech_asyncServerIO::setVoice(const QtSpeech::TVoiceName &aVoice)
 {
 	if (connectToServer()) {
 		if (!aVoice.isEmpty()) sendCommand(constr_VoiceId.arg(aVoice.id));

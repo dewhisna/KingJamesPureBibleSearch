@@ -120,7 +120,7 @@ signals:
 public slots:
 	void readVoices();
 	void say(const TAsyncTalkingObject &aTalkingObject);
-	void setVoice(const QtSpeech::VoiceName &aVoice);
+	void setVoice(const QtSpeech::TVoiceName &aVoice);
 	void clearQueue();
 
 protected slots:

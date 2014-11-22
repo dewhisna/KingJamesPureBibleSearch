@@ -2823,7 +2823,7 @@ CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
 	connect(ui.editTTSServerURL, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedTTSServerURL(const QString &)));
 
 	ui.comboBoxTTSVoiceSelection->clear();
-	QtSpeech::VoiceNames lstVoiceNames = QtSpeech::voices();
+	QtSpeech::TVoiceNamesList lstVoiceNames = QtSpeech::voices();
 	for (int ndx = 0; ndx < lstVoiceNames.size(); ++ndx) {
 		assert(!lstVoiceNames.at(ndx).isEmpty());
 		if (lstVoiceNames.at(ndx).isEmpty()) continue;
@@ -2879,7 +2879,7 @@ void CKJVTTSOptionsConfig::saveSettings()
 	}
 
 	if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL)) {
-		QtSpeech::VoiceName aVoiceName;
+		QtSpeech::TVoiceName aVoiceName;
 		aVoiceName.id = CPersistentSettings::instance()->ttsSelectedVoiceID();
 		g_pMyApplication->speechSynth()->setVoiceName(aVoiceName);
 	}

@@ -136,9 +136,9 @@ public:
 	QPointer<QThread> m_pSpeechThread;
 	QPointer<QtSpeech_th> m_pSpeechTalker_th;			// Worker object for talking
 
-	QtSpeech::VoiceName m_vnSelectedVoiceName;
-	QtSpeech::VoiceName m_vnRequestedVoiceName;
-	QtSpeech::VoiceNames m_lstVoiceNames;
+	QtSpeech::TVoiceName m_vnSelectedVoiceName;
+	QtSpeech::TVoiceName m_vnRequestedVoiceName;
+	QtSpeech::TVoiceNamesList m_lstVoiceNames;
 
 	CComPtr<ISpVoice> m_pSpVoice;						// SDK Voice Object
 
@@ -151,9 +151,9 @@ protected slots:
 
 // ============================================================================
 
-static QtSpeech::VoiceName defaultVoiceName()
+static QtSpeech::TVoiceName defaultVoiceName()
 {
-	QtSpeech::VoiceName aVoiceName;
+	QtSpeech::TVoiceName aVoiceName;
 
 	try {
 		WCHAR *pwcID = NULL;
@@ -292,7 +292,7 @@ void QtSpeech_th::clearQueue()
 QtSpeech::QtSpeech(QObject * parent)
 	:	QObject(parent), d(new Private)
 {
-	VoiceName aVoiceName = defaultVoiceName();
+	TVoiceName aVoiceName = defaultVoiceName();
 
 	if (aVoiceName.isEmpty()) {
 		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
@@ -301,10 +301,10 @@ QtSpeech::QtSpeech(QObject * parent)
 	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
 }
 
-QtSpeech::QtSpeech(const VoiceName &aVoiceName, QObject * parent)
+QtSpeech::QtSpeech(const TVoiceName &aVoiceName, QObject * parent)
 	:	QObject(parent), d(new Private)
 {
-	VoiceName theVoiceName = aVoiceName;
+	TVoiceName theVoiceName = aVoiceName;
 
 	if (theVoiceName.isEmpty()) theVoiceName = defaultVoiceName();
 
@@ -322,21 +322,21 @@ QtSpeech::~QtSpeech()
 
 // ----------------------------------------------------------------------------
 
-const QtSpeech::VoiceName &QtSpeech::voiceName() const
+const QtSpeech::TVoiceName &QtSpeech::voiceName() const
 {
 	if (!g_QtSpeechGlobal.m_vnSelectedVoiceName.isEmpty()) return g_QtSpeechGlobal.m_vnSelectedVoiceName;
 	return g_QtSpeechGlobal.m_vnRequestedVoiceName;
 }
 
-void QtSpeech::setVoiceName(const VoiceName &aVoiceName)
+void QtSpeech::setVoiceName(const TVoiceName &aVoiceName)
 {
-	VoiceName theVoiceName = aVoiceName;
+	TVoiceName theVoiceName = aVoiceName;
 
 	if (theVoiceName.isEmpty()) theVoiceName = defaultVoiceName();
 	if (!theVoiceName.isEmpty()) g_QtSpeechGlobal.m_vnRequestedVoiceName = theVoiceName;
 }
 
-QtSpeech::VoiceNames QtSpeech::voices()
+QtSpeech::TVoiceNamesList QtSpeech::voices()
 {
 	if (!g_QtSpeechGlobal.m_lstVoiceNames.isEmpty()) return g_QtSpeechGlobal.m_lstVoiceNames;
 	if (g_QtSpeechGlobal.m_pSpVoice == NULL) return g_QtSpeechGlobal.m_lstVoiceNames;
@@ -348,7 +348,7 @@ QtSpeech::VoiceNames QtSpeech::voices()
 		SysCall( SpEnumTokens(SPCAT_VOICES, NULL, NULL, &pVoicesEnum), LogicError );
 		SysCall( pVoicesEnum->GetCount(&nCount), LogicError );
 		for (ULONG ndx = 0; ndx < nCount; ++ndx) {
-			VoiceName aVoiceName;
+			TVoiceName aVoiceName;
 			WCHAR *pwcID = NULL;
 			WCHAR *pwcName = NULL;
 			CComPtr<ISpObjectToken> pSysVoice;
@@ -451,7 +451,7 @@ void QtSpeech::timerEvent(QTimerEvent * te)
 
 void QtSpeech_GlobalData::setVoice()
 {
-	QtSpeech::VoiceName theVoice = m_vnRequestedVoiceName;
+	QtSpeech::TVoiceName theVoice = m_vnRequestedVoiceName;
 	m_vnRequestedVoiceName.clear();
 
 	if (theVoice.isEmpty()) return;

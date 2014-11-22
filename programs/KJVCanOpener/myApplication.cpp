@@ -1405,7 +1405,7 @@ int CMyApplication::execute(bool bBuildDB)
 	}
 
 	if (m_pSpeech.isNull()) {
-		QtSpeech::VoiceName vnSelectedVoice;
+		QtSpeech::TVoiceName vnSelectedVoice;
 		vnSelectedVoice.id = CPersistentSettings::instance()->ttsSelectedVoiceID();
 		m_pSpeech = new QtSpeech(vnSelectedVoice, this);
 		connect(m_pSpeech.data(), SIGNAL(clearingQueue()), this, SLOT(en_clearingSpeechQueue()));

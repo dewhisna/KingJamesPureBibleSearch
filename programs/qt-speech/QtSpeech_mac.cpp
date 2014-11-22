@@ -72,7 +72,7 @@ public:
 		:isWaitingInLoop(false),
 		  onFinishSlot(0L) {}
 
-	VoiceName name;
+	TVoiceName name;
 	SpeechChannel channel;
 
 	static const QString VoiceId;
@@ -94,7 +94,7 @@ QList<QtSpeech::Private::Ptr> QtSpeech::Private::ptrs = QList<QtSpeech::Private:
 QtSpeech::QtSpeech(QObject * parent)
 	:QObject(parent), d(new Private)
 {
-	VoiceName n;
+	TVoiceName n;
 	VoiceDescription info;
 	SysCall( GetVoiceDescription(NULL, &info, sizeof(VoiceDescription)), InitError);
 	n.name = QString::fromAscii((const char *)(info.name+1), int(info.name[0]));
@@ -124,7 +124,7 @@ QtSpeech::QtSpeech(QObject * parent)
 	d->ptrs << this;
 }
 
-QtSpeech::QtSpeech(VoiceName n, QObject * parent)
+QtSpeech::QtSpeech(TVoiceName n, QObject * parent)
 	:QObject(parent), d(new Private)
 {
 	if (n.id.isEmpty()) {
@@ -171,14 +171,14 @@ QtSpeech::~QtSpeech()
 	delete d;
 }
 
-const QtSpeech::VoiceName & QtSpeech::name() const {
+const QtSpeech::TVoiceName & QtSpeech::name() const {
 	return d->name;
 }
 
-QtSpeech::VoiceNames QtSpeech::voices()
+QtSpeech::TVoiceNamesList QtSpeech::voices()
 {
 	SInt16 count;
-	VoiceNames vs;
+	TVoiceNamesList vs;
 	VoiceDescription desc;
 	SysCall( CountVoices(&count), LogicError);
 	SysCall( GetVoiceDescription(NULL, &desc, sizeof(VoiceDescription)), LogicError);
@@ -188,7 +188,7 @@ QtSpeech::VoiceNames QtSpeech::voices()
 		SysCall( GetIndVoice(i, &voice), LogicError);
 		SysCall( GetVoiceDescription(&voice, &info, sizeof(VoiceDescription)), LogicError);
 		QString name = QString::fromAscii((const char *)(info.name+1), int(info.name[0]));
-		VoiceName vname = { Private::VoiceId.arg(voice.id), name };
+		TVoiceName vname = { Private::VoiceId.arg(voice.id), name };
 		vs << vname;
 	}
 	return vs;
