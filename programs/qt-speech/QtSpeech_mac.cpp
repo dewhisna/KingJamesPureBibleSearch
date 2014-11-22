@@ -41,11 +41,22 @@
 
 */
 
+// ============================================================================
+
 #include <QtCore>
 #include <QtSpeech>
-#include <ApplicationServices/ApplicationServices.h>
+#include <QtSpeech_mac.h>
+
+#include <assert.h>
+
+// ============================================================================
 
 namespace QtSpeech_v1 { // API v1.0
+
+namespace {
+	const QString constr_VoiceId = QString("%1");
+
+}
 
 // some defines for throwing exceptions
 #define Where QString("%1:%2:").arg(__FILE__).arg(__LINE__)
@@ -59,195 +70,361 @@ namespace QtSpeech_v1 { // API v1.0
 	}\
 }
 
-#ifdef Q_OS_MAC64
-#define SpeechDoneUPP_ARG2 void *
-#else
-#define SpeechDoneUPP_ARG2 long
-#endif
+// ============================================================================
 
 // internal data
-class QtSpeech::Private {
+class QtSpeech::Private
+{
 public:
-	Private()
-		:isWaitingInLoop(false),
-		  onFinishSlot(0L) {}
+	Private() {}
 
-	TVoiceName name;
-	SpeechChannel channel;
-
-	static const QString VoiceId;
-	typedef QPointer<QtSpeech> Ptr;
-	static QList<Ptr> ptrs;
-
-	bool isWaitingInLoop;
-	QPointer<QEventLoop> waitEventLoop;
-
-	SpeechDoneUPP doneCall;
-	const char * onFinishSlot;
-	QPointer<QObject> onFinishObj;
-	static void speechFinished(SpeechChannel, SpeechDoneUPP_ARG2 refCon);
 };
-const QString QtSpeech::Private::VoiceId = QString("macosx:%1");
-QList<QtSpeech::Private::Ptr> QtSpeech::Private::ptrs = QList<QtSpeech::Private::Ptr>();
+
+// ============================================================================
+
+// global data
+class QtSpeech_GlobalData : public QtSpeech_asyncServerIOMonitor
+{
+public:
+	QtSpeech_GlobalData()
+	{
+		try {
+
+		} catch (...) { /* TODO : Add saving of error message */ }
+	}
+	virtual ~QtSpeech_GlobalData()
+	{
+
+	}
+
+	bool createWorkerThread()
+	{
+		bool bCreatedWorker = false;
+
+		QtSpeech::TVoiceName theVoice = m_vnRequestedVoiceName;
+		m_vnRequestedVoiceName.clear();
+
+		if (!theVoice.isEmpty()) {
+			m_vnSelectedVoiceName = theVoice;
+		}
+
+		if ((!m_pSpeechTalker_th.isNull()) &&
+			(!theVoice.isEmpty()) &&
+			(theVoice != m_vnSelectedVoiceName)) {
+			delete m_pSpeechTalker_th.data();
+			m_pSpeechTalker_th.clear();
+		}
+
+		if (m_pSpeechTalker_th.isNull()) {
+			bCreatedWorker = true;
+			m_pSpeechTalker_th = new QtSpeech_th(m_vnSelectedVoiceName);
+			connect(m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SLOT(en_beginTalking()), Qt::QueuedConnection);
+			connect(m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SLOT(en_doneTalking(bool)), Qt::QueuedConnection);
+			connect(m_pSpeechTalker_th.data(), SIGNAL(finished()), m_pSpeechTalker_th.data(), SLOT(deleteLater()), Qt::QueuedConnection);
+		}
+
+		return bCreatedWorker;
+	}
+
+	QPointer<QtSpeech_th> m_pSpeechTalker_th;			// Worker object for talking
+
+	QtSpeech::TVoiceName m_vnSelectedVoiceName;
+	QtSpeech::TVoiceName m_vnRequestedVoiceName;
+	QtSpeech::TVoiceNamesList m_lstVoiceNames;
+
+	static void speechFinished(SpeechChannel nChannel, SpeechDoneUPP_ARG2 refCon);
+
+protected slots:
+	virtual void en_lostServer() { }
+
+} g_QtSpeechGlobal;
+
+// ============================================================================
+
+static QtSpeech::TVoiceName defaultVoiceName()
+{
+	QtSpeech::TVoiceName aVoiceName;
+
+	try {
+		VoiceDescription desc;
+		SysCall( GetVoiceDescription(NULL, &desc, sizeof(VoiceDescription)), QtSpeech::InitError);
+		aVoiceName.id = constr_VoiceId.arg(desc.voice.id);
+		aVoiceName.name = QString::fromLatin1(reinterpret_cast<const char *>(&desc.name[1]), desc.name[0]);			// Convert from Pascal string
+		// TODO : Set aVoiceName.lang
+	} catch (...) { /* TODO : Add saving of error message */ }
+
+	return aVoiceName;
+}
+
+// ============================================================================
+
+bool QtSpeech_th::m_bInit = false;
+
+QtSpeech_th::QtSpeech_th(const QtSpeech::TVoiceName &aVoiceName, QObject *pParent)
+	:	QObject(pParent),
+		err(""),
+		has_error(false),
+		m_bAmTalking(false)
+{
+	doInit();
+
+	try {
+		// SetVoice() handled here implicitly:
+		QtSpeech::TVoiceName theVoice = aVoiceName;
+		if (theVoice.isEmpty()) theVoice = defaultVoiceName();
+
+		SInt16 nCount;
+		VoiceSpec voice;
+		VoiceSpec *pVoice = NULL;
+		SysCall( CountVoices(&nCount), QtSpeech::InitError);
+		for (int i=1; i<= nCount; ++i) {
+			SysCall( GetIndVoice(i, &voice), QtSpeech::InitError);
+			QString strID = constr_VoiceId.arg(voice.id);
+			if (strID == theVoice.id) {
+				pVoice = &voice;
+				break;
+			}
+		}
+
+		m_pDoneCall = NewSpeechDoneUPP(&QtSpeech_GlobalData::speechFinished);
+		SysCall( NewSpeechChannel(pVoice, &m_nChannel), QtSpeech::InitError);
+		SysCall( SetSpeechInfo(m_nChannel, soSpeechDoneCallBack, (void *)m_pDoneCall), QtSpeech::InitError);
+	} catch (...) { /* TODO : Add saving of error message */ }
+	connect(this, SIGNAL(sayNext(bool)), this, SLOT(en_sayNext(bool)), Qt::QueuedConnection);
+}
+
+QtSpeech_th::~QtSpeech_th()
+{
+	assert(m_nChannel);
+
+	try {
+		SysCall( StopSpeech(m_nChannel), QtSpeech::CloseError);
+		SysCall( DisposeSpeechChannel(m_nChannel), QtSpeech::CloseError);
+		DisposeSpeechDoneUPP(m_pDoneCall);
+	} catch (...) { /* TODO : Add saving of error message */ }
+}
+
+void QtSpeech_th::doInit()
+{
+	if (!m_bInit) {
+		// TODO : Additional init operations
+		m_bInit = true;
+	}
+}
+
+void QtSpeech_th::say(TAsyncTalkingObject aTalkingObject)
+{
+	doInit();
+	m_lstTalkingObjects.append(aTalkingObject);
+	if (!m_bAmTalking) en_sayNext(true);
+}
+
+void QtSpeech_th::en_sayNext(bool bInitialSay)
+{
+	// Do this here rather than at the bottom of the function so
+	//		that additional text can get queued from processing
+	//		more say() events.  Otherwise, we'll think we are at
+	//		the last message when more are still in the eventLoop:
+	if (!bInitialSay) {
+		emit doneTalking(m_lstTalkingObjects.isEmpty());
+	} else {
+		if (!m_lstTalkingObjects.isEmpty()) emit beginTalking();
+	}
+
+	if (m_lstTalkingObjects.isEmpty()) {
+		m_bAmTalking = false;
+		emit finished();
+		return;
+	}
+
+	m_bAmTalking = true;
+
+	try {
+		has_error = false;
+
+		CFStringRef cfText = CFStringCreateWithCharacters(0,
+								reinterpret_cast<const UniChar *>(m_lstTalkingObjects.at(0).m_strText.unicode()),
+								m_lstTalkingObjects.at(0).m_strText.length());
+
+		OSErr ok = SpeakCFString(m_nChannel, cfText, NULL);
+		CFRelease(cfText);
+		if (ok != noErr) throw QtSpeech::LogicError(Where+"SpeakCFString()");
+	}
+	catch (const QtSpeech::LogicError &e) {
+		has_error = true;
+		err = e;
+		m_lstTalkingObjects.clear();
+		m_bAmTalking = false;
+		emit finished();
+	}
+}
+
+void QtSpeech_th::speechFinished(SpeechChannel nChannel, SpeechDoneUPP_ARG2 refCon)
+{
+	assert(nChannel == m_nChannel);
+	Q_UNUSED(refCon);
+
+	if (!m_lstTalkingObjects.isEmpty()) {		// Note: can be empty if clearQueue() has been called!
+		if (m_lstTalkingObjects.at(0).hasNotificationSlot()) {
+			QTimer::singleShot(0, m_lstTalkingObjects.at(0).m_pObject, m_lstTalkingObjects.at(0).m_pSlot);		// Note: singleShot IS a QueuedConnection!
+		}
+		m_lstTalkingObjects.pop_front();
+	}
+
+	emit sayNext(false);
+}
+
+void QtSpeech_th::clearQueue()
+{
+	m_lstTalkingObjects.clear();
+	if (!m_bAmTalking) {
+		emit finished();		// If we're already talking, the talking loop will emit the finished when it realizes we're done with things to say...  Otherwise we should emit it
+	} else {
+		try {
+			SysCall( StopSpeech(m_nChannel), QtSpeech::CloseError);
+		} catch (...) { /* TODO : Add saving of error message */ }
+	}
+}
+
+// ============================================================================
 
 // implementation
 QtSpeech::QtSpeech(QObject * parent)
-	:QObject(parent), d(new Private)
+	:	QObject(parent), d(new Private)
 {
-	TVoiceName n;
-	VoiceDescription info;
-	SysCall( GetVoiceDescription(NULL, &info, sizeof(VoiceDescription)), InitError);
-	n.name = QString::fromAscii((const char *)(info.name+1), int(info.name[0]));
-	n.id = d->VoiceId.arg(info.voice.id);
+	TVoiceName aVoiceName = defaultVoiceName();
 
-	if (n.id.isEmpty())
-		throw InitError(Where+"No default voice in system");
-
-	SInt16 count;
-	VoiceSpec voice;
-	VoiceSpec * voice_ptr(0L);
-	SysCall( CountVoices(&count), InitError);
-	for (int i=1; i<= count; i++) {
-		SysCall( GetIndVoice(i, &voice), InitError);
-		QString id = d->VoiceId.arg(voice.id);
-		if (id == n.id) {
-			voice_ptr = &voice;
-			break;
-		}
+	if (aVoiceName.isEmpty()) {
+		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
 	}
 
-	d->doneCall = NewSpeechDoneUPP(&Private::speechFinished);
-	SysCall( NewSpeechChannel(voice_ptr, &d->channel), InitError);
-	SysCall( SetSpeechInfo(d->channel, soSpeechDoneCallBack,
-						   (void *)d->doneCall), InitError);
-	d->name = n;
-	d->ptrs << this;
+	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
 }
 
-QtSpeech::QtSpeech(TVoiceName n, QObject * parent)
-	:QObject(parent), d(new Private)
+QtSpeech::QtSpeech(const TVoiceName &aVoiceName, QObject * parent)
+	:	QObject(parent), d(new Private)
 {
-	if (n.id.isEmpty()) {
-		VoiceDescription info;
-		SysCall( GetVoiceDescription(NULL, &info, sizeof(VoiceDescription)), InitError);
-		n.name = QString::fromAscii((const char *)(info.name+1), int(info.name[0]));
-		n.id = d->VoiceId.arg(info.voice.id);
+	TVoiceName theVoiceName = aVoiceName;
+
+	if (theVoiceName.isEmpty()) theVoiceName = defaultVoiceName();
+
+	if (theVoiceName.isEmpty()) {
+		qDebug("%s", QString("%1No default voice in system").arg(Where).toUtf8().data());
 	}
 
-	if (n.id.isEmpty())
-		throw InitError(Where+"No default voice in system");
-
-	SInt16 count;
-	VoiceSpec voice;
-	VoiceSpec * voice_ptr(0L);
-	SysCall( CountVoices(&count), InitError);
-	for (int i=1; i<= count; i++) {
-		SysCall( GetIndVoice(i, &voice), InitError);
-		QString id = d->VoiceId.arg(voice.id);
-		if (id == n.id) {
-			voice_ptr = &voice;
-			break;
-		}
-	}
-
-	d->doneCall = NewSpeechDoneUPP(&Private::speechFinished);
-	SysCall( NewSpeechChannel(voice_ptr, &d->channel), InitError);
-	SysCall( SetSpeechInfo(d->channel, soSpeechDoneCallBack,
-						   (void *)d->doneCall), InitError);
-	d->name = n;
-	d->ptrs << this;
+	g_QtSpeechGlobal.m_vnRequestedVoiceName = theVoiceName;
 }
 
 QtSpeech::~QtSpeech()
 {
-	if (!d->channel)
-		throw CloseError(Where+"No speech channel to close");
-
-	SysCall( StopSpeech(d->channel), CloseError);
-	SysCall( DisposeSpeechChannel(d->channel), CloseError);
-	DisposeSpeechDoneUPP(d->doneCall);
-
-	d->ptrs.removeAll(this);
 	delete d;
 }
 
-const QtSpeech::TVoiceName & QtSpeech::name() const {
-	return d->name;
+// ----------------------------------------------------------------------------
+
+const QtSpeech::TVoiceName &QtSpeech::voiceName() const
+{
+	if (!g_QtSpeechGlobal.m_vnSelectedVoiceName.isEmpty()) return g_QtSpeechGlobal.m_vnSelectedVoiceName;
+	return g_QtSpeechGlobal.m_vnRequestedVoiceName;
+}
+
+void QtSpeech::setVoiceName(const TVoiceName &aVoiceName)
+{
+	TVoiceName theVoiceName = aVoiceName;
+
+	if (theVoiceName.isEmpty()) theVoiceName = defaultVoiceName();
+	if (!theVoiceName.isEmpty()) g_QtSpeechGlobal.m_vnRequestedVoiceName = theVoiceName;
 }
 
 QtSpeech::TVoiceNamesList QtSpeech::voices()
 {
-	SInt16 count;
-	TVoiceNamesList vs;
-	VoiceDescription desc;
-	SysCall( CountVoices(&count), LogicError);
-	SysCall( GetVoiceDescription(NULL, &desc, sizeof(VoiceDescription)), LogicError);
-	for (int i=1; i<= count; i++) {
-		VoiceSpec voice;
-		VoiceDescription info;
-		SysCall( GetIndVoice(i, &voice), LogicError);
-		SysCall( GetVoiceDescription(&voice, &info, sizeof(VoiceDescription)), LogicError);
-		QString name = QString::fromAscii((const char *)(info.name+1), int(info.name[0]));
-		TVoiceName vname = { Private::VoiceId.arg(voice.id), name };
-		vs << vname;
-	}
-	return vs;
+	if (!g_QtSpeechGlobal.m_lstVoiceNames.isEmpty()) return g_QtSpeechGlobal.m_lstVoiceNames;
+
+	try {
+		SInt16 nCount;
+//		VoiceDescription desc;
+		SysCall( CountVoices(&nCount), LogicError);
+//		SysCall( GetVoiceDescription(NULL, &desc, sizeof(VoiceDescription)), LogicError);
+		for (int i=1; i<= nCount; ++i) {
+			VoiceSpec voice;
+			VoiceDescription desc;
+			SysCall( GetIndVoice(i, &voice), LogicError);
+			SysCall( GetVoiceDescription(&voice, &desc, sizeof(VoiceDescription)), LogicError);
+			TVoiceName aVoiceName;
+			aVoiceName.id = constr_VoiceId.arg(voice.id);
+			aVoiceName.name = QString::fromLatin1(reinterpret_cast<const char *>(&desc.name[1]), desc.name[0]);		// Convert from Pascal string
+			// TODO : Set aVoiceName.lang
+			g_QtSpeechGlobal.m_lstVoiceNames << aVoiceName;
+		}
+	} catch (...) { /* TODO : Add saving of error message */ }
+
+	return g_QtSpeechGlobal.m_lstVoiceNames;
 }
 
-void QtSpeech::tell(QString text) const {
-	tell(text, 0L,0L);
-}
+// ----------------------------------------------------------------------------
 
-void QtSpeech::tell(QString text, QObject * obj, const char * slot) const
+bool QtSpeech::canSpeak() const
 {
-	d->onFinishObj = obj;
-	d->onFinishSlot = slot;
-	if (obj && slot)
-		connect(const_cast<QtSpeech *>(this), SIGNAL(finished()), obj, slot);
-
-	CFStringRef cf_text = CFStringCreateWithCharacters(0,
-							reinterpret_cast<const UniChar *>(
-							  text.unicode()), text.length());
-
-	OSErr ok = SpeakCFString(d->channel, cf_text, NULL);
-	CFRelease(cf_text);
-
-	if (ok != noErr) throw LogicError(Where+"SpeakCFString()");
+	return true;
 }
 
-void QtSpeech::say(QString text) const
+bool QtSpeech::isTalking()
 {
-	if (d->isWaitingInLoop)
-		throw LogicError(Where+"Already in process of saying something");
+	return g_QtSpeechGlobal.isTalking();
+}
 
-	d->isWaitingInLoop = true;
-	tell(text);
+bool QtSpeech::serverSupported()
+{
+	return false;
+}
+
+bool QtSpeech::serverConnected()
+{
+	return false;
+}
+
+bool QtSpeech::connectToServer(const QString &strHostname, int nPortNumber)
+{
+	Q_UNUSED(strHostname);
+	Q_UNUSED(nPortNumber);
+	return false;
+}
+
+void QtSpeech::disconnectFromServer()
+{
+
+}
+
+// ----------------------------------------------------------------------------
+
+void QtSpeech::tell(const QString &strText, QObject *pObject, const char *pSlot) const
+{
+	g_QtSpeechGlobal.createWorkerThread();
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::UniqueConnection));
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::UniqueConnection));
+	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "say", Qt::QueuedConnection, Q_ARG(TAsyncTalkingObject, TAsyncTalkingObject(strText, pObject, pSlot)));
+}
+
+void QtSpeech::say(const QString &strText) const
+{
+	g_QtSpeechGlobal.createWorkerThread();
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::UniqueConnection));
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::UniqueConnection));
 
 	QEventLoop el;
-	d->waitEventLoop = &el;
-	el.exec();
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(finished()), &el, SLOT(quit()), Qt::QueuedConnection);
+	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "say", Qt::QueuedConnection, Q_ARG(TAsyncTalkingObject, TAsyncTalkingObject(strText)));
+	el.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
-void QtSpeech::Private::speechFinished(SpeechChannel chan, SpeechDoneUPP_ARG2 refCon)
+void QtSpeech::clearQueue()
 {
-	Q_UNUSED(refCon);
-	foreach(QtSpeech * c, ptrs) {
-		if (c && c->d->channel == chan) {
-			c->finished();
-			if (c->d->onFinishObj && c->d->onFinishSlot) {
-				disconnect(c, SIGNAL(finished()),
-						   c->d->onFinishObj, c->d->onFinishSlot);
-				c->d->onFinishSlot = 0L;
-				c->d->onFinishObj = 0L;
-			}
-			if (c->d->isWaitingInLoop) {
-				c->d->isWaitingInLoop = false;
-				if (c->d->waitEventLoop)
-					c->d->waitEventLoop->quit();
-			}
-			break;
-		}
-	}
+	emit clearingQueue();
+
+	g_QtSpeechGlobal.createWorkerThread();
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(beginTalking()), this, SIGNAL(beginning()), static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::UniqueConnection));
+	connect(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), SIGNAL(doneTalking(bool)), this, SIGNAL(finished(bool)), static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::UniqueConnection));
+	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "clearQueue", Qt::QueuedConnection);
 }
 
 void QtSpeech::timerEvent(QTimerEvent * te)
@@ -255,4 +432,16 @@ void QtSpeech::timerEvent(QTimerEvent * te)
 	QObject::timerEvent(te);
 }
 
+// ============================================================================
+
+void QtSpeech_GlobalData::speechFinished(SpeechChannel nChannel, SpeechDoneUPP_ARG2 refCon)
+{
+	assert(!g_QtSpeechGlobal.m_pSpeechTalker_th.isNull());
+	if (!g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
+		g_QtSpeechGlobal.m_pSpeechTalker_th->speechFinished(nChannel, refCon);
+	}
+}
+
 } // namespace QtSpeech_v1
+
+// ============================================================================

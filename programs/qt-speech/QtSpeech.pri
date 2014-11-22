@@ -53,16 +53,25 @@ HEADERS += \
 
 !qtspeech_libbuild {
 	CONFIG(debug, debug|release) {
-		LIBS += -lQtSpeechd
+		!macx {
+			LIBS += -lQtSpeechd
+		} else {
+			LIBS += -L$$[QT_INSTALL_LIBS] -lQtSpeech_debug
+		}
 	}
 	CONFIG(release, debug|release) {
-		LIBS += -lQtSpeech
+		!macx {
+			LIBS += -lQtSpeech
+		} else {
+			LIBS += -L$$[QT_INSTALL_LIBS] -lQtSpeech
+		}
 	}
 }
 
 macx {
 	qtspeech_libbuild{
-		HEADERS += $$PWD/QtSpeech_ATO.h
+		HEADERS += $$PWD/QtSpeech_mac.h \
+					$$PWD/QtSpeech_ATO.h
 		SOURCES += $$PWD/QtSpeech_mac.cpp
 	}
 

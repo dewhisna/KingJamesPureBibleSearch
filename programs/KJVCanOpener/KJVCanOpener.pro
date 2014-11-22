@@ -774,13 +774,15 @@ macx {
 			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/QtXml KingJamesPureBibleSearch.app/Contents/Frameworks/QtXml.framework/QtXml$$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(ln -s Versions/Current/wwwidgets4 KingJamesPureBibleSearch.app/Contents/Frameworks/wwwidgets4.framework/wwwidgets4$$escape_expand(\\n\\t))
 
-			# Keep unsigned version so we have one we can distribute to people that doesn't leave signature footprints:
-			QMAKE_POST_LINK += $$quote(cp -R KingJamesPureBibleSearch.app KingJamesPureBibleSearch_unsigned.app$$escape_expand(\\n\\t))
+			CONFIG(release, debug|release) {
+				# Keep unsigned version so we have one we can distribute to people that doesn't leave signature footprints:
+				QMAKE_POST_LINK += $$quote(cp -R KingJamesPureBibleSearch.app KingJamesPureBibleSearch_unsigned.app$$escape_expand(\\n\\t))
 
-			sandboxed {
-				QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle_sandboxed$$escape_expand(\\n\\t))
-			} else {
-				QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle_unsandboxed$$escape_expand(\\n\\t))
+				sandboxed {
+					QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle_sandboxed$$escape_expand(\\n\\t))
+				} else {
+					QMAKE_POST_LINK += $$quote(../../KJVCanOpener/macxsign_qt5_bundle_unsandboxed$$escape_expand(\\n\\t))
+				}
 			}
 		}
 	}

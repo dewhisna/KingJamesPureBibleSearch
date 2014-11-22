@@ -1296,9 +1296,9 @@ make install
 Building qt-speech:
 ------------------------
 
-Linux 4.8.5-64-local (with server support)
-------------------------------------------
-cd Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+Linux 4.8.5-64-local (with server support):
+-------------------------------------------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
 mkdir build-Qt-4.8.5-64-local
 cd build-Qt-4.8.5-64-local
 /usr/local/Trolltech/Qt-4.8.5-64-local/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro
@@ -1307,13 +1307,14 @@ make clean
 /usr/local/Trolltech/Qt-4.8.5-64-local/bin/qmake CONFIG+=release CONFIG+=useserver ../QtSpeech-static.pro
 make
 make clean
-ln -s libQtSpeech.a /usr/local/Trolltech/Qt-4.8.5-64-local/lib/libQtSpeech.a
-ln -s libQtSpeechd.a /usr/local/Trolltech/Qt-4.8.5-64-local/lib/libQtSpeechd.a
+cd /usr/local/Trolltech/Qt-4.8.5-64-local/lib/
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-64-local/libQtSpeech.a libQtSpeech.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-64-local/libQtSpeechd.a libQtSpeechd.a
 
 
-Linux 5.3.1-64-local (with server support)
-------------------------------------------
-cd Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+Linux 5.3.1-64-local (with server support):
+-------------------------------------------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
 mkdir build-Qt-5.3.1-64-local
 cd build-Qt-5.3.1-64-local
 /usr/local/Trolltech/Qt-5.3.1-64-local/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro
@@ -1322,10 +1323,33 @@ make clean
 /usr/local/Trolltech/Qt-5.3.1-64-local/bin/qmake CONFIG+=release CONFIG+=useserver ../QtSpeech-static.pro
 make
 make clean
-ln -s libQtSpeech.a /usr/local/Trolltech/Qt-5.3.1-64-local/lib/libQtSpeech.a
-ln -s libQtSpeechd.a /usr/local/Trolltech/Qt-5.3.1-64-local/lib/libQtSpeechd.a
+cd /usr/local/Trolltech/Qt-5.3.1-64-local/lib/
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeechd.a libQtSpeechd.a
 
 NOTE: Remove "CONFIG+=useserver" to build without Festival Client/Server support
+
+
+Windows 5.3.1-64-local (from in cygwin):
+----------------------------------------
+Build QtSpeech-static.pro in QtCreator and copy libQtSpeech.a, libQtSpeechd.a, and
+libQtSpeechd.pdb to the C:\Qt\5.3.1\lib folder
+
+
+Mac 5.3.1-64-local:
+-------------------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+mkdir build-Qt-5.3.1-64-local
+cd build-Qt-5.3.1-64-local
+~/Qt/5.3.1-ios/5.3/clang_64/bin/qmake CONFIG+=debug ../QtSpeech-static.pro
+make
+make clean
+~/Qt/5.3.1-ios/5.3/clang_64/bin/qmake CONFIG+=release ../QtSpeech-static.pro
+make
+make clean
+cd ~/Qt/5.3.1-ios/5.3/clang_64/lib/
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeechd.a libQtSpeech_debug.a
 
 
 ===============================================================================

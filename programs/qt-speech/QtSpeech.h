@@ -60,6 +60,9 @@
 #elif defined(Q_OS_WIN)
 #define QTSPEECH_DEFAULT_SERVER_PORT -1
 #define QTSPEECH_SERVER_SCHEME_NAME ""
+#elif defined(Q_OS_MACX)
+#define QTSPEECH_DEFAULT_SERVER_PORT -1
+#define QTSPEECH_SERVER_SCHEME_NAME ""
 #else
 // TODO : Add other OS's here
 #endif
@@ -93,6 +96,10 @@ public:
 		inline bool operator==(const TVoiceName &other) const
 		{
 			return (id == other.id);
+		}
+		inline bool operator!=(const TVoiceName &other) const
+		{
+			return (id != other.id);
 		}
 
 	};
