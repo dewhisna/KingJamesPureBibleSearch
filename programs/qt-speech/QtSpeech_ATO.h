@@ -78,7 +78,7 @@ class QtSpeech_asyncServerIOMonitor : public QObject
 {
 	Q_OBJECT
 public:
-	QtSpeech_asyncServerIOMonitor(QObject *pParent = 0L)
+	QtSpeech_asyncServerIOMonitor(QObject *pParent = NULL)
 		:	QObject(pParent),
 			m_bIsTalking(false)
 	{

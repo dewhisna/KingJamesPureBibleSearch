@@ -289,8 +289,9 @@ void QtSpeech_th::clearQueue()
 // ============================================================================
 
 // implementation
-QtSpeech::QtSpeech(QObject * parent)
-	:	QObject(parent), d(new Private)
+QtSpeech::QtSpeech(QObject *pParent)
+	:	QObject(pParent),
+		d(new Private)
 {
 	TVoiceName aVoiceName = defaultVoiceName();
 
@@ -301,8 +302,9 @@ QtSpeech::QtSpeech(QObject * parent)
 	g_QtSpeechGlobal.m_vnRequestedVoiceName = aVoiceName;
 }
 
-QtSpeech::QtSpeech(const TVoiceName &aVoiceName, QObject * parent)
-	:	QObject(parent), d(new Private)
+QtSpeech::QtSpeech(const TVoiceName &aVoiceName, QObject *pParent)
+	:	QObject(pParent),
+		d(new Private)
 {
 	TVoiceName theVoiceName = aVoiceName;
 
@@ -439,11 +441,6 @@ void QtSpeech::clearQueue()
 	}
 
 	QMetaObject::invokeMethod(g_QtSpeechGlobal.m_pSpeechTalker_th.data(), "clearQueue", Qt::QueuedConnection);
-}
-
-void QtSpeech::timerEvent(QTimerEvent * te)
-{
-	QObject::timerEvent(te);
 }
 
 // ============================================================================

@@ -106,8 +106,8 @@ public:
 	typedef QList<TVoiceName> TVoiceNamesList;
 
 	// api
-	QtSpeech(QObject * parent);
-	QtSpeech(const TVoiceName &aVoiceName = TVoiceName(), QObject * parent = 0L);
+	QtSpeech(QObject *pParent = NULL);
+	QtSpeech(const TVoiceName &aVoiceName, QObject *pParent = NULL);
 	virtual ~QtSpeech();
 
 	const TVoiceName &voiceName() const; //!< Name of current voice
@@ -125,16 +125,13 @@ public:
 
 public slots:
 	virtual void say(const QString &strText) const;														//!< Say something, synchronous
-	virtual void tell(const QString &strText, QObject *pObject = 0L, const char *pSlot = 0L) const;		//!< Tell something, asynchronous
+	virtual void tell(const QString &strText, QObject *pObject = NULL, const char *pSlot = NULL) const;		//!< Tell something, asynchronous
 	virtual void clearQueue();						// Clear all pending "tell" operations
 
 signals:
 	void beginning();								// Triggered on first say or tell operation when queue is empty (additional say/tell operations do NOT trigger it until finished(true) has been triggered)
 	void finished(bool bQueueEmpty);				// Triggered at the end of ALL say/tell operations.  Last item in queue will trigger with finished(true).
 	void clearingQueue();							// Triggered when clearQueue is called so app can set waitCursor, etc.
-
-protected:
-	virtual void timerEvent(QTimerEvent *);
 
 private:
 	class Private;

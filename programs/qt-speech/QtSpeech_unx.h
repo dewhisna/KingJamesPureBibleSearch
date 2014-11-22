@@ -104,7 +104,7 @@ class QtSpeech_asyncServerIO : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_asyncServerIO(const QString &strHostname, int nPortNumber, QObject *pParent = 0L);
+	QtSpeech_asyncServerIO(const QString &strHostname, int nPortNumber, QObject *pParent = NULL);
 	virtual ~QtSpeech_asyncServerIO();
 
 	bool isConnected();
