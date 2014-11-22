@@ -2820,6 +2820,11 @@ CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	if (!QtSpeech::serverSupported()) {
+		ui.editTTSServerURL->setEnabled(false);
+		ui.editTTSServerURL->setPlaceholderText(tr("Not used on this platform", "SpeechSettings"));
+	}
+
 	connect(ui.editTTSServerURL, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedTTSServerURL(const QString &)));
 
 	ui.comboBoxTTSVoiceSelection->clear();
