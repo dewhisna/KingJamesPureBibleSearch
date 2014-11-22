@@ -76,6 +76,10 @@ macx {
 	}
 
 	LIBS *= -framework AppKit
+
+	# Mac: use system Frameworks
+	#LIBS += -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework Carbon
+
 }
 
 win32 {
@@ -110,8 +114,6 @@ unix:!mac {
 	# Linux: use asound
 	LIBS += -lasound
 
-	# Mac: use system Frameworks
-	#LIBS += -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework Carbon
 }
 
 }

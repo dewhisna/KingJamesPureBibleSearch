@@ -37,7 +37,11 @@ CONFIG += dll
 CONFIG += qtspeech_libbuild
 DEFINES += QTSPEECH_LIBRARY
 CONFIG(debug, debug|release) {
-	TARGET = QtSpeechd
+	!mac {
+		TARGET = QtSpeechd
+	} else {
+		TARGET = QtSpeech_debug
+	}
 }
 CONFIG(release, debug|release) {
 	TARGET = QtSpeech

@@ -1332,7 +1332,7 @@ NOTE: Remove "CONFIG+=useserver" to build without Festival Client/Server support
 
 Windows 5.3.1-64-local (from in cygwin):
 ----------------------------------------
-Build QtSpeech-static.pro in QtCreator and copy libQtSpeech.a, libQtSpeechd.a, and
+Build QtSpeech-static.pro in QtCreator and copy libQtSpeech.lib, libQtSpeechd.lib, and
 libQtSpeechd.pdb to the C:\Qt\5.3.1\lib folder
 
 
@@ -1349,7 +1349,7 @@ make
 make clean
 cd ~/Qt/5.3.1-ios/5.3/clang_64/lib/
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
-ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeechd.a libQtSpeech_debug.a
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech_debug.a libQtSpeech_debug.a
 
 
 ===============================================================================
