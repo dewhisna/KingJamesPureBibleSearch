@@ -14,11 +14,21 @@ my $response = param 'recaptcha_response_field';
 my $resolution = param 'resolution';
 my $bbl = param 'bbl';
 
-if ($resolution eq '') {
+# Limit uncontrolled input:
+if ($resolution eq '1024x768') {
+} elsif ($resolution eq '1280x720') {
+} elsif ($resolution eq '1280x1024') {
+} elsif ($resolution eq '1440x810') {
+} elsif ($resolution eq '1920x1080') {
+} else {
   $resolution = '1280x1024';
 }
 
-if ($bbl eq '') {
+# Limit uncontrolled input and remap Bible indexes accordingly:
+if ($bbl eq '1') {
+} elsif ($bbl eq '2') {
+  $bbl = '14';
+} else {
   $bbl = '1';
 }
 
