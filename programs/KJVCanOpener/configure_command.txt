@@ -726,6 +726,26 @@ Make with:  make -j 32
 
 Note: Using the Dwarf2 exceptions is important to avoid the context swapping overhead on every single function call with the SJLJ method, which was causing us major performance issues.
 
+
+
+Qt 5.4.0 - (Desktop)
+====================
+
+Linux
+-----
+
+Linux LOCAL BUILD (x64 dynamic):   <<<<< This is the "official" local build for 5.4.0 (note: doesn't build docs)
+../5.4.0-src/configure -v -platform linux-g++-64 -release -force-debug-info -opensource -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-xcb -qt-pcre -qt-xkbcommon -gui -widgets -fontconfig -no-dbus -nomake examples -prefix /usr/local/Trolltech/Qt-5.4.0-64-local -confirm-license 
+
+use:  make -j 16 (or higher)
+
+To build/install docs:
+----------------------
+make docs
+make install_docs
+
+
+
 ===============================================================================
 ===============================================================================
 
