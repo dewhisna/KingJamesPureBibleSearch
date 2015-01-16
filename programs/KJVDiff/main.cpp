@@ -211,6 +211,8 @@ int main(int argc, char *argv[])
 	bool bHyphenInsensitive = false;
 	bool bUseAbbrevRefs = false;
 	bool bUseConcordanceWords = false;
+	bool bPunctuationOnly = false;
+	bool bIgnoreEmptyVerses = false;
 	bool bAllDiffs = true;
 	bool bTextDiffs = false;
 	bool bWordDiffs = false;
@@ -254,6 +256,10 @@ int main(int argc, char *argv[])
 			bUseAbbrevRefs = true;
 		} else if (strArg.compare("-n") == 0) {
 			bUseConcordanceWords = true;
+		} else if (strArg.compare("-o") == 0) {
+			bPunctuationOnly = true;
+		} else if (strArg.compare("-i") == 0) {
+			bIgnoreEmptyVerses = true;
 		} else if (strArg.compare("-m") == 0) {
 			bAllDiffs = false;
 			bTextDiffs = true;
@@ -289,6 +295,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -h  =  Hyphen-Insensitive (i.e. Discard hyphens rather than compare them)\n").toUtf8().data();
 		std::cerr << QString("  -b  =  Use Abbreviated Book names when outputting references\n").toUtf8().data();
 		std::cerr << QString("  -n  =  Use Concordance Word List instead of General Word List (Word Diffs Only)\n").toUtf8().data();
+		std::cerr << QString("  -o  =  Punctuation Only (Primarily for comparing foreign text database layout)\n").toUtf8().data();
+		std::cerr << QString("  -i  =  Ignore empty verses (i.e. non-existant verses)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Diffs to run:\n").toUtf8().data();
 		std::cerr << QString("  -m  =  Text Markup Diffs\n").toUtf8().data();
@@ -422,10 +430,10 @@ int main(int argc, char *argv[])
 					QString strRef1 = ((pVerse1 != NULL) ? passageReference(pBible1, bUseAbbrevRefs, ndxVerse1, true) : QString("<<missing>>"));
 					QString strRef2 = ((pVerse2 != NULL) ? passageReference(pBible2, bUseAbbrevRefs, ndxVerse2, true) : QString("<<missing>>"));
 					QString strDiffText = QString("%1 : %2\n").arg(strRef1).arg(strRef2);
-					bool bHaveBothVerses = ((pVerse1 != NULL) && (pVerse2 != NULL));
+					bool bHaveBothVerses = ((pVerse1 != NULL) && (pVerse2 != NULL) && (pVerse1->m_nNumWrd != 0) && (pVerse2->m_nNumWrd != 0));
 
-					bool bHaveDiff = !bHaveBothVerses;
-					if ((bHaveBothVerses) &&
+					bool bHaveDiff = !bHaveBothVerses && !bIgnoreEmptyVerses;
+					if ((bHaveBothVerses) && (!bPunctuationOnly) &&
 						(pVerse1->m_nNumWrd != pVerse2->m_nNumWrd)) {
 						strDiffText += QString("    WordCount: %1 <=> %2\n").arg(pVerse1->m_nNumWrd).arg(pVerse2->m_nNumWrd);
 						bHaveDiff = true;
@@ -465,11 +473,12 @@ int main(int argc, char *argv[])
 						strTemplate1.remove(QRegExp("[M]"));
 						strTemplate2.remove(QRegExp("[M]"));
 					}
-					if (bIgnoreVerseText) {
+					if (bIgnoreVerseText || bPunctuationOnly) {
 						// Leave the "w" in place so that rendering checks will work correctly!
 						// strTemplate1.remove(QRegExp("[w]"));
 						// strTemplate2.remove(QRegExp("[w]"));
-					} else {
+					} else if ((!bIgnoreEmptyVerses) ||
+							   (bIgnoreEmptyVerses && !strTemplate1.isEmpty() && !strTemplate2.isEmpty())) {
 						CVerseEntry veNewVerseWords1((pVerse1 != NULL) ? *pVerse1 : CVerseEntry());
 						QString strWordTemplate1;
 						for (unsigned int nWrd = 0; nWrd < veNewVerseWords1.m_nNumWrd; ++nWrd) {
@@ -515,6 +524,19 @@ int main(int argc, char *argv[])
 					veNewVerse1.m_strTemplate = strTemplate1;
 					CVerseEntry veNewVerse2((pVerse2 != NULL) ? *pVerse2 : CVerseEntry());
 					veNewVerse2.m_strTemplate = strTemplate2;
+					// Do PunctuationOnly reduction here so that we leave the full rendering spec in the NewVerse objects so we don't assert on rendering the words
+					if (bPunctuationOnly) {
+//						strTemplate1.remove(QRegExp("[^\\.\\,\\?\\!\\-\\:\\;]"));
+//						strTemplate2.remove(QRegExp("[^\\.\\,\\?\\!\\-\\:\\;]"));
+						// Special case for comparing the King James Française by ignoring commas too:
+						strTemplate1.remove(QRegExp("[^\\.\\?\\!\\-\\:\\;]"));
+						strTemplate2.remove(QRegExp("[^\\.\\?\\!\\-\\:\\;]"));
+					}
+					if ((bIgnoreEmptyVerses) &&
+						(strTemplate1.isEmpty() || strTemplate2.isEmpty())) {
+						strTemplate1.clear();
+						strTemplate2.clear();
+					}
 					// Note: deApostrHyphen is used here so that hyphen and apostrophy differences in the rendering markup (like the weird extra hyphen
 					//			that exists in Exodus 32:32 doesn't trigger unsubstantiated diffs):
 					if (CSearchStringListModel::deApostrHyphen(strTemplate1, false) != CSearchStringListModel::deApostrHyphen(strTemplate2, false)) {
@@ -619,12 +641,22 @@ int main(int argc, char *argv[])
 					}
 					if ((!bEOL1) && ((strKeyWord1 != strLookAhead2) || (strLookAhead1 == strLookAhead2))) ++itrWordEntry1;
 					if ((!bEOL2) && ((strKeyWord2 != strLookAhead1) || (strLookAhead1 == strLookAhead2))) ++itrWordEntry2;
-				} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
-					strWordDiffOutput += itrWordEntry1->word() + "\n";
-					if (!bEOL1) ++itrWordEntry1;
-				} else if ((nComp > 0) && (!strKeyWord2.isEmpty())) {
-					strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + itrWordEntry2->word() + "\n";
-					if (!bEOL2) ++itrWordEntry2;
+				} else if (nComp < 0) {
+					if (!strKeyWord1.isEmpty()) {
+						strWordDiffOutput += itrWordEntry1->word() + "\n";
+						if (!bEOL1) ++itrWordEntry1;
+					} else if (!strKeyWord2.isEmpty()) {
+						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + itrWordEntry2->word() + "\n";
+						if (!bEOL2) ++itrWordEntry2;
+					}
+				} else if (nComp > 0) {
+					if (!strKeyWord2.isEmpty()) {
+						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + itrWordEntry2->word() + "\n";
+						if (!bEOL2) ++itrWordEntry2;
+					} else if (!strKeyWord1.isEmpty()) {
+						strWordDiffOutput += itrWordEntry1->word() + "\n";
+						if (!bEOL1) ++itrWordEntry1;
+					}
 				} else {
 					// We can only be here if nothing is greater than something or we
 					//		ran out of input on both sides and yet didn't exit the loop:
@@ -645,12 +677,22 @@ int main(int argc, char *argv[])
 					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
 					if (!bEOL1) ++itrWordEntry1;
 					if (!bEOL2) ++itrWordEntry2;
-				} else if ((nComp < 0) && (!strKeyWord1.isEmpty())) {
-					strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
-					if (!bEOL1) ++itrWordEntry1;
-				} else if ((nComp > 0) && (!strKeyWord2.isEmpty())) {
-					strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
-					if (!bEOL2) ++itrWordEntry2;
+				} else if (nComp < 0) {
+					if (!strKeyWord1.isEmpty()) {
+						strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
+						if (!bEOL1) ++itrWordEntry1;
+					} else if (!strKeyWord2.isEmpty()) {
+						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
+						if (!bEOL2) ++itrWordEntry2;
+					}
+				} else if (nComp > 0) {
+					if (!strKeyWord2.isEmpty()) {
+						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
+						if (!bEOL2) ++itrWordEntry2;
+					} else if (!strKeyWord1.isEmpty()) {
+						strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
+						if (!bEOL1) ++itrWordEntry1;
+					}
 				} else {
 					// We can only be here if nothing is greater than something or we
 					//		ran out of input on both sides and yet didn't exit the loop:
