@@ -81,13 +81,13 @@
         <string>Show/Hide Scripture Browser Navigation</string>
        </property>
        <property name="styleSheet">
-         <string notr="true">QToolButton { border: none; } :hover { border: 1px; } :pressed { border: 1px; }</string>
-       </property>
-       <property name="autoRaise">
-        <bool>true</bool>
+        <string notr="true">QToolButton { border: none;  :hover { border: 1px; } :pressed { border: 1px; } }</string>
        </property>
        <property name="checked">
         <bool>false</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
        </property>
        <property name="arrowType">
         <enum>Qt::DownArrow</enum>
