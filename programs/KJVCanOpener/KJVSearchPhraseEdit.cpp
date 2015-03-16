@@ -144,8 +144,8 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	connect(&m_dlyUpdateCompleter, SIGNAL(triggered()), this, SLOT(delayed_UpdatedCompleter()));
 
 #ifdef USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY
-	setCompleterPopupDelay(CPersistentSettings::instance()->searchActivationDelay());		// Somewhat Arbitrary time, used to avoid slow completer model updates on Windows (we'll mirror the activation delay)
-	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setCompleterPopupDelay(int)));
+	setCompleterPopupDelay(CPersistentSettings::instance()->autoCompleterActivationDelay());	// Used to avoid slow completer model updates primarily on Windows OS
+	connect(CPersistentSettings::instance(), SIGNAL(changedAutoCompleterActivationDelay(int)), this, SLOT(setCompleterPopupDelay(int)));
 #else
 	setCompleterPopupDelay(0);
 #endif
@@ -310,6 +310,7 @@ void CPhraseLineEdit::processPendingUpdateCompleter()
 	m_dlyUpdateCompleter.untrigger();
 	ParsePhrase(textCursor());
 	if (m_pCompleter->popup()->isVisible()) m_pCompleter->popup()->setCurrentIndex(QModelIndex());
+	delayed_UpdatedCompleter();				// This is needed for when we do a delayed completer popup that we update the text markup in addition to the phrase above
 }
 
 void CPhraseLineEdit::UpdateCompleter()
@@ -865,7 +866,6 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 	CBusyCursor iAmBusy(NULL);
 
 	QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
-
 
 	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
 		assert(m_pMatchingPhrasesModel != NULL);

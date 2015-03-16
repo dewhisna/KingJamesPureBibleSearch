@@ -375,7 +375,10 @@ void CKJVSearchSpec::en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearc
 {
 	resizeScrollAreaLayout();
 	ensureSearchPhraseVisible(pSearchPhrase);
-	setFocusSearchPhrase(pSearchPhrase);
+// The following focus change is causing the cursor-bounce-back issue when the search results
+//	have been recomputed and the search lists get updated.  The focusing of the phrase
+//	is already initiated by the button-click handler, so this is redundant:
+//	setFocusSearchPhrase(pSearchPhrase);
 }
 
 void CKJVSearchSpec::resizeScrollAreaLayout()

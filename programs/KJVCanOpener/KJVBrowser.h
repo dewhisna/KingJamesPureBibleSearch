@@ -29,6 +29,7 @@
 #include "PhraseEdit.h"
 #include "ScriptureEdit.h"
 #include "DelayedExecutionTimer.h"
+#include "PersistentSettings.h"
 
 #include <QWidget>
 #include <QTextBrowser>
@@ -138,6 +139,9 @@ private:
 private slots:
 	void en_changedScrollbarsEnabled(bool bEnabled);
 	void en_changedChapterScrollbarMode();
+
+	void en_clickedHideNavigationPane();
+	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 
 	void en_selectionChanged();
 

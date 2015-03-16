@@ -111,6 +111,15 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 #else
 		m_nSearchActivationDelay(QApplication::doubleClickInterval() * 2),
 #endif
+#ifndef EMSCRIPTEN
+#ifndef IS_CONSOLE_APP
+		m_nAutoCompleterActivationDelay(QApplication::doubleClickInterval()),
+#else
+		m_nAutoCompleterActivationDelay(0),
+#endif
+#else
+		m_nAutoCompleterActivationDelay(QApplication::doubleClickInterval() * 2),
+#endif
 		m_nInitialNumberOfSearchPhrases(1),
 		m_bHideMatchingPhrasesLists(false),
 		m_bAutoExpandSearchResultsTree(false),
@@ -131,6 +140,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nVerseRenderingMode(CPhraseNavigator::VRME_FF),
 		m_bShowPilcrowMarkers(true),
 		m_nScriptureBrowserLineHeight(1.0),
+		m_nBrowserNavigationPaneMode(BNPME_COMPLETE),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
@@ -298,6 +308,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 
 		if (pSource->m_nSearchPhraseCompleterFilterMode != pTarget->m_nSearchPhraseCompleterFilterMode) emit changedSearchPhraseCompleterFilterMode(pTarget->m_nSearchPhraseCompleterFilterMode);
 		if (pSource->m_nSearchActivationDelay != pTarget->m_nSearchActivationDelay) emit changedSearchPhraseActivationDelay(pTarget->m_nSearchActivationDelay);
+		if (pSource->m_nAutoCompleterActivationDelay != pTarget->m_nAutoCompleterActivationDelay) emit changedAutoCompleterActivationDelay(pTarget->m_nAutoCompleterActivationDelay);
 		if (pSource->m_nInitialNumberOfSearchPhrases != pTarget->m_nInitialNumberOfSearchPhrases) emit changedInitialNumberOfSearchPhrases(pTarget->m_nInitialNumberOfSearchPhrases);
 		if (pSource->m_bHideMatchingPhrasesLists != pTarget->m_bHideMatchingPhrasesLists) emit changedHideMatchingPhrasesLists(pTarget->m_bHideMatchingPhrasesLists);
 		if (pSource->m_bAutoExpandSearchResultsTree != pTarget->m_bAutoExpandSearchResultsTree) emit changedAutoExpandSearchResultsTree(pTarget->m_bAutoExpandSearchResultsTree);
@@ -310,6 +321,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nVerseRenderingMode != pTarget->m_nVerseRenderingMode) emit changedVerseRenderingMode(pTarget->m_nVerseRenderingMode);
 		if (pSource->m_bShowPilcrowMarkers != pTarget->m_bShowPilcrowMarkers) emit changedShowPilcrowMarkers(pTarget->m_bShowPilcrowMarkers);
 		if (pSource->m_nScriptureBrowserLineHeight != pTarget->m_nScriptureBrowserLineHeight) emit changedScriptureBrowserLineHeight(pTarget->m_nScriptureBrowserLineHeight);
+		if (pSource->m_nBrowserNavigationPaneMode != pTarget->m_nBrowserNavigationPaneMode) emit changedBrowserNavigationPaneMode(pTarget->m_nBrowserNavigationPaneMode);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -508,6 +520,14 @@ void CPersistentSettings::setSearchActivationDelay(int nDelay)
 	}
 }
 
+void CPersistentSettings::setAutoCompleterActivationDelay(int nDelay)
+{
+	if (m_pPersistentSettingData->m_nAutoCompleterActivationDelay != nDelay) {
+		m_pPersistentSettingData->m_nAutoCompleterActivationDelay = nDelay;
+		emit changedAutoCompleterActivationDelay(m_pPersistentSettingData->m_nAutoCompleterActivationDelay);
+	}
+}
+
 void CPersistentSettings::setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases)
 {
 	if (m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases != nInitialNumberOfSearchPhrases) {
@@ -593,6 +613,14 @@ void CPersistentSettings::setScriptureBrowserLineHeight(qreal nLineHeight)
 	if (m_pPersistentSettingData->m_nScriptureBrowserLineHeight != nLineHeight) {
 		m_pPersistentSettingData->m_nScriptureBrowserLineHeight = nLineHeight;
 		emit changedScriptureBrowserLineHeight(m_pPersistentSettingData->m_nScriptureBrowserLineHeight);
+	}
+}
+
+void CPersistentSettings::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode)
+{
+	if (m_pPersistentSettingData->m_nBrowserNavigationPaneMode != nBrowserNavigationPaneMode) {
+		m_pPersistentSettingData->m_nBrowserNavigationPaneMode = nBrowserNavigationPaneMode;
+		emit changedBrowserNavigationPaneMode(m_pPersistentSettingData->m_nBrowserNavigationPaneMode);
 	}
 }
 

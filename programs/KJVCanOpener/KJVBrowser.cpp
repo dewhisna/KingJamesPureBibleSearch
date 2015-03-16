@@ -23,7 +23,6 @@
 
 #include "KJVBrowser.h"
 #include "VerseListModel.h"
-#include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "dbDescriptors.h"
 
@@ -80,10 +79,12 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	setNavigationActivationDelay(CPersistentSettings::instance()->navigationActivationDelay());
 	setPassageReferenceActivationDelay(CPersistentSettings::instance()->passageReferenceActivationDelay());
+	setBrowserNavigationPaneMode(CPersistentSettings::instance()->browserNavigationPaneMode());
 
 	connect(CPersistentSettings::instance(), SIGNAL(changedNavigationActivationDelay(int)), this, SLOT(setNavigationActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM)), this, SLOT(en_changedChapterScrollbarMode()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -95,6 +96,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(this, SIGNAL(en_gotoIndex(const TPhraseTag &)), m_pScriptureBrowser, SLOT(en_gotoIndex(const TPhraseTag &)));
 	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
 	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
+
+	connect(ui.btnHideNavigation, SIGNAL(clicked()), this, SLOT(en_clickedHideNavigationPane()));
 
 	connect(ui.comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
 	connect(ui.comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
@@ -193,6 +196,49 @@ void CKJVBrowser::setNavigationActivationDelay(int nDelay)
 void CKJVBrowser::setPassageReferenceActivationDelay(int nDelay)
 {
 	m_dlyPassageReference.setMinimumDelay(nDelay);
+}
+
+// ----------------------------------------------------------------------------
+
+void CKJVBrowser::en_clickedHideNavigationPane()
+{
+	switch (CPersistentSettings::instance()->browserNavigationPaneMode()) {
+		case BNPME_HIDDEN:
+			CPersistentSettings::instance()->setBrowserNavigationPaneMode(BNPME_PASSAGE_REF_ONLY);
+			break;
+		case BNPME_PASSAGE_REF_ONLY:
+			CPersistentSettings::instance()->setBrowserNavigationPaneMode(BNPME_COMPLETE);
+			break;
+		case BNPME_COMPLETE:
+			CPersistentSettings::instance()->setBrowserNavigationPaneMode(BNPME_HIDDEN);
+			break;
+	}
+}
+
+void CKJVBrowser::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode)
+{
+	switch (nBrowserNavigationPaneMode) {
+		case BNPME_COMPLETE:
+			ui.btnHideNavigation->setArrowType(Qt::DownArrow);
+			ui.btnHideNavigation->setChecked(true);
+			ui.frameNavigationPane->setVisible(true);
+			ui.widgetPassageReference->setVisible(true);
+			break;
+
+		case BNPME_PASSAGE_REF_ONLY:
+			ui.btnHideNavigation->setArrowType(Qt::RightArrow);
+			ui.btnHideNavigation->setChecked(true);
+			ui.frameNavigationPane->setVisible(false);
+			ui.widgetPassageReference->setVisible(true);
+			break;
+
+		case BNPME_HIDDEN:
+			ui.btnHideNavigation->setArrowType(Qt::UpArrow);
+			ui.btnHideNavigation->setChecked(false);
+			ui.frameNavigationPane->setVisible(false);
+			ui.widgetPassageReference->setVisible(false);
+			break;
+	}
 }
 
 // ----------------------------------------------------------------------------

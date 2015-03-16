@@ -1750,8 +1750,14 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 	ui.comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), CSearchCompleter::SCFME_SOUNDEX);
 	ui.comboSearchPhraseCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), CSearchCompleter::SCFME_UNFILTERED);
 
+#ifndef USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY
+	ui.lblAutoCompleterActivationDelay->setEnabled(false);
+	ui.spinAutoCompleterActivationDelay->setEnabled(false);
+#endif
+
 	connect(ui.comboSearchPhraseCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(int)));
 	connect(ui.spinSearchPhraseActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedSearchPhraseActivationDelay(int)));
+	connect(ui.spinAutoCompleterActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedAutoCompleterActivationDelay(int)));
 	connect(ui.spinInitialNumberOfSearchPhrases, SIGNAL(valueChanged(int)), this, SLOT(en_changedInitialNumberOfSearchPhrases(int)));
 	connect(ui.checkBoxHideMatchingPhrasesLists, SIGNAL(clicked(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)));
 	connect(ui.checkBoxAutoExpandSearchResultsTree, SIGNAL(clicked(bool)), this, SLOT(en_changedAutoExpandSearchResultsTree(bool)));
@@ -1779,6 +1785,7 @@ void CConfigSearchOptions::loadSettings()
 		ui.comboSearchPhraseCompleterMode->setCurrentIndex(0);
 	}
 	ui.spinSearchPhraseActivationDelay->setValue(CPersistentSettings::instance()->searchActivationDelay());
+	ui.spinAutoCompleterActivationDelay->setValue(CPersistentSettings::instance()->autoCompleterActivationDelay());
 	ui.spinInitialNumberOfSearchPhrases->setValue(CPersistentSettings::instance()->initialNumberOfSearchPhrases());
 	ui.checkBoxHideMatchingPhrasesLists->setChecked(CPersistentSettings::instance()->hideMatchingPhrasesLists());
 	ui.checkBoxAutoExpandSearchResultsTree->setChecked(CPersistentSettings::instance()->autoExpandSearchResultsTree());
@@ -1798,6 +1805,7 @@ void CConfigSearchOptions::saveSettings()
 		assert(false);
 	}
 	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
+	CPersistentSettings::instance()->setAutoCompleterActivationDelay(ui.spinAutoCompleterActivationDelay->value());
 	CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(ui.spinInitialNumberOfSearchPhrases->value());
 	CPersistentSettings::instance()->setHideMatchingPhrasesLists(ui.checkBoxHideMatchingPhrasesLists->isChecked());
 	CPersistentSettings::instance()->setAutoExpandSearchResultsTree(ui.checkBoxAutoExpandSearchResultsTree->isChecked());
@@ -1814,6 +1822,15 @@ void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseActivationDelay(int nValue)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nValue);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigSearchOptions::en_changedAutoCompleterActivationDelay(int nValue)
 {
 	if (m_bLoadingData) return;
 

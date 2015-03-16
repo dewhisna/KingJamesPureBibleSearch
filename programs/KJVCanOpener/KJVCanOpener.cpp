@@ -146,6 +146,7 @@ namespace {
 	const QString constrSearchPhrasesGroup("SearchPhrases");
 	const QString constrUserSearchPhrasesGroup("UserSearchPhrases");
 	const QString constrSearchActivationDelayKey("SearchActivationDelay");
+	const QString constrAutoCompleterActivationDelayKey("AutoCompleterActivationDelay");
 	const QString constrSearchPhraseCompleterFilterModeKey("SearchPhraseCompleterFilterMode");
 	const QString constrInitialNumberOfSearchPhrasesKey("InitialNumberOfSearchPhrases");
 	const QString constrHideMatchingPhrasesListsKey("HideMatchingPhrasesLists");
@@ -179,6 +180,7 @@ namespace {
 	const QString constrVerseRenderingModeKey("VerseRenderingMode");
 	const QString constrShowPilcrowMarkersKey("ShowPilcrowMarkers");
 	const QString constrLineHeightKey("LineHeight");
+	const QString constrBrowserNavigationPaneModeKey("BrowserNavigationPaneMode");
 
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
@@ -1130,6 +1132,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		// Search Phrases Settings:
 		settings.beginGroup(constrSearchPhrasesGroup);
 		settings.setValue(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay());
+		settings.setValue(constrAutoCompleterActivationDelayKey, CPersistentSettings::instance()->autoCompleterActivationDelay());
 		settings.setValue(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode());
 		settings.setValue(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases());
 		settings.setValue(constrHideMatchingPhrasesListsKey, CPersistentSettings::instance()->hideMatchingPhrasesLists());
@@ -1182,6 +1185,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode());
 		settings.setValue(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers());
 		settings.setValue(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight());
+		settings.setValue(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode());
 		settings.endGroup();
 
 		// Browser Object (used for Subwindows: FindDialog, etc):
@@ -1424,6 +1428,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			// Search Phrases Settings:
 			settings.beginGroup(constrSearchPhrasesGroup);
 			CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
+			CPersistentSettings::instance()->setAutoCompleterActivationDelay(settings.value(constrAutoCompleterActivationDelayKey, CPersistentSettings::instance()->autoCompleterActivationDelay()).toInt());
 			CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
 			CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
 			CPersistentSettings::instance()->setHideMatchingPhrasesLists(settings.value(constrHideMatchingPhrasesListsKey, CPersistentSettings::instance()->hideMatchingPhrasesLists()).toBool());
@@ -1565,6 +1570,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setVerseRenderingMode(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode()).toUInt()));
 			CPersistentSettings::instance()->setShowPilcrowMarkers(settings.value(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers()).toBool());
 			CPersistentSettings::instance()->setScriptureBrowserLineHeight(settings.value(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight()).toDouble());
+			CPersistentSettings::instance()->setBrowserNavigationPaneMode(static_cast<BROWSER_NAVIGATION_PANE_MODE_ENUM>(settings.value(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode()).toInt()));
 		}
 		settings.endGroup();
 

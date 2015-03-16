@@ -46,6 +46,12 @@ enum CHAPTER_SCROLLBAR_MODE_ENUM {
 	CSME_RIGHT = 2
 };
 
+enum BROWSER_NAVIGATION_PANE_MODE_ENUM {
+	BNPME_COMPLETE = -1,			// Complete Navigation Pane is visible (-1 so new items can be added without affecting enum since these are saved in settings)
+	BNPME_HIDDEN = 0,				// Entire Navigation Pane is Hidden
+	BNPME_PASSAGE_REF_ONLY = 1		// Passage Reference editor only is visble
+};
+
 enum COPY_MIME_TYPE_ENUM {
 	CMTE_ALL = 0,
 	CMTE_HTML = 1,
@@ -102,6 +108,7 @@ public:
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
+	int autoCompleterActivationDelay() const { return m_pPersistentSettingData->m_nAutoCompleterActivationDelay; }
 	int initialNumberOfSearchPhrases() const { return m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases; }
 	bool hideMatchingPhrasesLists() const { return m_pPersistentSettingData->m_bHideMatchingPhrasesLists; }
 	bool autoExpandSearchResultsTree() const { return m_pPersistentSettingData->m_bAutoExpandSearchResultsTree; }
@@ -114,6 +121,7 @@ public:
 	CPhraseNavigator::VERSE_RENDERING_MODE_ENUM verseRenderingMode() const { return m_pPersistentSettingData->m_nVerseRenderingMode; }
 	bool showPilcrowMarkers() const { return m_pPersistentSettingData->m_bShowPilcrowMarkers; }
 	qreal scriptureBrowserLineHeight() const { return m_pPersistentSettingData->m_nScriptureBrowserLineHeight; }
+	BROWSER_NAVIGATION_PANE_MODE_ENUM browserNavigationPaneMode() const { return m_pPersistentSettingData->m_nBrowserNavigationPaneMode; }
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
@@ -206,6 +214,7 @@ signals:
 
 	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedSearchPhraseActivationDelay(int nDelay);
+	void changedAutoCompleterActivationDelay(int nDelay);
 	void changedInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
 	void changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 	void changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
@@ -218,6 +227,7 @@ signals:
 	void changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
 	void changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void changedScriptureBrowserLineHeight(qreal nLineHeight);
+	void changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 
 	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
@@ -261,6 +271,7 @@ public slots:
 
 	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setSearchActivationDelay(int nDelay);
+	void setAutoCompleterActivationDelay(int nDelay);
 	void setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
 	void setHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 	void setAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);
@@ -273,6 +284,7 @@ public slots:
 	void setVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
 	void setShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void setScriptureBrowserLineHeight(qreal nLineHeight);
+	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 
 	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
@@ -343,6 +355,7 @@ private:
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases
+		int m_nAutoCompleterActivationDelay;			// Auto Completer Popup Activation Delay for the Search Phrases
 		int m_nInitialNumberOfSearchPhrases;			// Number of Search Phrases to create to opening a new Search Window
 		bool m_bHideMatchingPhrasesLists;				// True if user elected to hide the Search Phrase droplists/trees
 		bool m_bAutoExpandSearchResultsTree;			// True to auto-expand Search Results Tree on Search
@@ -355,6 +368,7 @@ private:
 		CPhraseNavigator::VERSE_RENDERING_MODE_ENUM m_nVerseRenderingMode;	// How to display verses within the Scripture Browser
 		bool m_bShowPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be rendered
 		qreal m_nScriptureBrowserLineHeight;			// Line-height to use in the Scripture Browser display (1.00 to 2.00 for 100% to 200% or single to double spaced)
+		BROWSER_NAVIGATION_PANE_MODE_ENUM m_nBrowserNavigationPaneMode;			// Controls what part of the book/chapter/verse navigation pane is visible above the Scripture Browser
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation

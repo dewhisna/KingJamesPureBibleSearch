@@ -367,6 +367,7 @@ signals:
 private slots:
 	void en_changedSearchPhraseCompleterFilterMode(int nIndex);
 	void en_changedSearchPhraseActivationDelay(int nValue);
+	void en_changedAutoCompleterActivationDelay(int nValue);
 	void en_changedInitialNumberOfSearchPhrases(int nValue);
 	void en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 	void en_changedAutoExpandSearchResultsTree(bool bAutoExpandSearchResultsTree);

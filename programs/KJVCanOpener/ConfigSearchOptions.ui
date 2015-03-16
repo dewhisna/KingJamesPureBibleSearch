@@ -28,36 +28,6 @@
    <string>Search Options</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="lblSearchPhraseActivationDelay">
-       <property name="text">
-        <string>Search Phrase Activation &amp;Delay (ms):</string>
-       </property>
-       <property name="buddy">
-        <cstring>spinSearchPhraseActivationDelay</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="CSpinBox" name="spinSearchPhraseActivationDelay">
-       <property name="minimum">
-        <number>50</number>
-       </property>
-       <property name="maximum">
-        <number>2000</number>
-       </property>
-       <property name="singleStep">
-        <number>50</number>
-       </property>
-       <property name="value">
-        <number>500</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -88,21 +58,64 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="checkBoxAutoExpandSearchResultsTree">
-     <property name="text">
-      <string>&amp;Auto Expand Search Results Tree</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QCheckBox" name="checkBoxHideNotFoundInStatistics">
-     <property name="text">
-      <string>&amp;Hide &quot;Not Found In&quot; Statistics</string>
-     </property>
-    </widget>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="lblSearchPhraseActivationDelay">
+       <property name="text">
+        <string>Search &amp;Phrase Activation Delay (ms):</string>
+       </property>
+       <property name="buddy">
+        <cstring>spinSearchPhraseActivationDelay</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="CSpinBox" name="spinSearchPhraseActivationDelay">
+       <property name="minimum">
+        <number>50</number>
+       </property>
+       <property name="maximum">
+        <number>2000</number>
+       </property>
+       <property name="singleStep">
+        <number>50</number>
+       </property>
+       <property name="value">
+        <number>500</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QLabel" name="lblAutoCompleterActivationDelay">
+       <property name="text">
+        <string>Auto Completer Activation &amp;Delay (ms):</string>
+       </property>
+       <property name="buddy">
+        <cstring>spinAutoCompleterActivationDelay</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="CSpinBox" name="spinAutoCompleterActivationDelay">
+       <property name="maximum">
+        <number>2000</number>
+       </property>
+       <property name="singleStep">
+        <number>50</number>
+       </property>
+       <property name="value">
+        <number>500</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="lblInitialNumberOfSearchPhrases">
@@ -126,10 +139,24 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QCheckBox" name="checkBoxHideMatchingPhrasesLists">
      <property name="text">
       <string>Hide &amp;Matching Words/Phrases Lists</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QCheckBox" name="checkBoxAutoExpandSearchResultsTree">
+     <property name="text">
+      <string>&amp;Auto Expand Search Results Tree</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QCheckBox" name="checkBoxHideNotFoundInStatistics">
+     <property name="text">
+      <string>&amp;Hide &quot;Not Found In&quot; Statistics</string>
      </property>
     </widget>
    </item>
@@ -145,6 +172,7 @@
  <tabstops>
   <tabstop>comboSearchPhraseCompleterMode</tabstop>
   <tabstop>spinSearchPhraseActivationDelay</tabstop>
+  <tabstop>spinAutoCompleterActivationDelay</tabstop>
   <tabstop>spinInitialNumberOfSearchPhrases</tabstop>
   <tabstop>checkBoxHideMatchingPhrasesLists</tabstop>
   <tabstop>checkBoxAutoExpandSearchResultsTree</tabstop>
