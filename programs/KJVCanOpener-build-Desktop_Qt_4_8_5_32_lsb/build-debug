@@ -1,5 +1,5 @@
 #! /bin/bash
 
 cd Debug
-/usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake ../../KJVCanOpener/KJVCanOpener.pro -r -spec linux-lsb-g++-32 CONFIG+=debug CONFIG+=declarative_debug
+/usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake ../../KJVCanOpener/KJVCanOpener.pro CONFIG+=lsb -r -spec linux-lsb-g++-32 CONFIG+=debug CONFIG+=declarative_debug
 make -w -j 32

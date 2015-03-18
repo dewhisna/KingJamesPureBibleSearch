@@ -1332,6 +1332,24 @@ sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Q
 sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-64-local/libQtSpeechd.a libQtSpeechd.a
 
 
+Linux 4.8.5-32-lsb (with server support):
+-----------------------------------------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+mkdir build-Qt-4.8.5-32-lsb
+cd build-Qt-4.8.5-32-lsb
+/usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro -r -spec linux-lsb-g++-32
+make
+make clean
+/usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake CONFIG+=release CONFIG+=useserver ../QtSpeech-static.pro -r -spec linux-lsb-g++-32
+make
+make clean
+cd /usr/local/Trolltech/Qt-4.8.5-32-lsb/lib/
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-32-lsb/libQtSpeech.a libQtSpeech.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-32-lsb/libQtSpeechd.a libQtSpeechd.a
+
+NOTE : Still need to figure out how to get Festival to compile under LSB!!!
+
+
 Linux 5.3.1-64-local (with server support):
 -------------------------------------------
 cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
