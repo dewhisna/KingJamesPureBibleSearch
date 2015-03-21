@@ -1,6 +1,7 @@
 TARGET  = qmotifstyle
 PLUGIN_TYPE = styles
 PLUGIN_EXTENDS = widgets
+PLUGIN_CLASS_NAME = QMotifStylePlugin
 load(qt_plugin)
 
 QT = core gui widgets
