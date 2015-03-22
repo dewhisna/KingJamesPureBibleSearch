@@ -46,6 +46,10 @@ win32 {
 	DEFINES += _USING_V110_SDK71_													# Needed to run on WinXP and use ATL (as needed for QtSpeech)
 }
 
+ios {
+	CONFIG -= iphonesimulator_and_iphoneos				# Get rid of double iphoneos/iphonesimulator subfolders and do correct shadow build
+}
+
 exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
 
 !android:!ios:!emscripten:!vnc {
@@ -104,8 +108,7 @@ QtSpeech {
 # Add the Plastique Style:
 # In Qt4, Plastique is built-in to Qt itself:
 lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
-# Disable on iOS until we get make further progress on the port:
-!ios:greaterThan(QT_MAJOR_VERSION,4) {
+greaterThan(QT_MAJOR_VERSION,4) {
 	static {
 		include(../qtstyleplugins/src/qtstyleplugins.pri)
 		DEFINES += PLASTIQUE_STATIC
@@ -252,7 +255,7 @@ TEMPLATE = app
 CODECFORSRC = UTF-8
 CODECFORTR  = UTF-8
 
-RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
+win32:RC_FILE += 	KJVCanOpener.rc  # descibes program icon and version
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
@@ -570,59 +573,59 @@ ios {
 	app_bundle {
 		# Note: For some reason, wildcards don't work with the builtin-copy operation on Mac/iOS
 		#		so we have to explicitly name each file:
-		iconDeploy.files = ../../KJVCanOpener/res/bible_64.png
+		iconDeploy.files = ../KJVCanOpener/res/bible_64.png
 		iconDeploy.path = .
-		dbDeploy.files +=  ../../KJVCanOpener/db/bbl-kjv1769.ccdb
-		dbDeploy.files += ../../KJVCanOpener/db/dct-web1828.s3db
-#		dbDeploy.files += ../../KJVCanOpener/db/dct-web1913.s3db
+		dbDeploy.files +=  ../KJVCanOpener/db/bbl-kjv1769.ccdb
+		dbDeploy.files += ../KJVCanOpener/db/dct-web1828.s3db
+#		dbDeploy.files += ../KJVCanOpener/db/dct-web1913.s3db
 		dbDeploy.path = /assets/KJVCanOpener/db
-		fontDeploy.files += ../../KJVCanOpener/fonts/SCRIPTBL.TTF
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSansMono.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSans.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf
-		fontDeploy.files += ../../KJVCanOpener/fonts/DejaVuSerif.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/SCRIPTBL.TTF
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSans-Bold.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansCondensed.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSansMono.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSans.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf
+		fontDeploy.files += ../KJVCanOpener/fonts/DejaVuSerif.ttf
 		fontDeploy.path = /assets/KJVCanOpener/fonts
-		docDeploy.files += ../../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
-#		docDeploy.files += ../../KJVCanOpener/kjvdatagen/kjv_summary.xls
-#		docDeploy.files += ../../KJVCanOpener/articles/kjv_stats.xls
+		docDeploy.files += ../KJVCanOpener/doc/KingJamesPureBibleSearch.pdf
+#		docDeploy.files += ../KJVCanOpener/kjvdatagen/kjv_summary.xls
+#		docDeploy.files += ../KJVCanOpener/articles/kjv_stats.xls
 		docDeploy.path = /assets/KJVCanOpener/doc
-		examplesDeploy.files += ../../KJVCanOpener/examples/example01.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example02.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example03.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example04.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example05.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example06.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example07.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example08.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example09.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example10.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example11.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example12.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example13.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example14.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example15.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example16.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example17.kjs
-		examplesDeploy.files += ../../KJVCanOpener/examples/example18.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example01.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example02.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example03.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example04.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example05.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example06.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example07.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example08.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example09.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example10.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example11.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example12.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example13.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example14.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example15.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example16.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example17.kjs
+		examplesDeploy.files += ../KJVCanOpener/examples/example18.kjs
 		examplesDeploy.path = /assets/KJVCanOpener/examples
-		licDeploy.files = ../../KJVCanOpener/gpl-3.0.txt
+		licDeploy.files = ../KJVCanOpener/gpl-3.0.txt
 		licDeploy.path = /assets/KJVCanOpener/license
 
 		QMAKE_BUNDLE_DATA += iconDeploy dbDeploy fontDeploy docDeploy examplesDeploy licDeploy

@@ -7,11 +7,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Copyright(c)2012-2013 Donna Whisnant, a.k.a. Dewtronics</string>
+	<string>Copyright(c)2012-2015 Donna Whisnant, a.k.a. Dewtronics</string>
 	<key>CFBundleSignature</key>
-	<string>@TYPEINFO@</string>
+	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>@EXECUTABLE@</string>
+	<string>KingJamesPureBibleSearch</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.education</string>
 	<key>CFBundleVersion</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>2.0.0</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.dewtronics.@EXECUTABLE@-iOS</string>
+	<string>com.dewtronics.KingJamesPureBibleSearch-iOS</string>
 	<key>NOTE</key>
 	<string>Don't make me have to open a can on you!</string>
 	<key>CFBundleDocumentTypes</key>
@@ -35,7 +35,7 @@
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.dewtronics.@EXECUTABLE@.kjs</string>
+				<string>com.dewtronics.KingJamesPureBibleSearch.kjs</string>
 			</array>
 		</dict>
 	</array>
@@ -51,7 +51,7 @@
 			<key>UTTypeDescription</key>
 			<string>King James Search File</string>
 			<key>UTTypeIdentifier</key>
-			<string>com.dewtronics.@EXECUTABLE@.kjs</string>
+			<string>com.dewtronics.KingJamesPureBibleSearch.kjs</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

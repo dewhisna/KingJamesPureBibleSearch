@@ -745,6 +745,16 @@ make docs
 make install_docs
 
 
+Qt 5.5.0 - Alpha
+================
+
+Mac iOS Build
+-------------
+
+mkdir ~/Qt/5.5.0-alpha-ios-build
+cd ~/Qt/5.5.0-alpha-ios-build
+../5.5.0-alpha-src/configure -xplatform macx-ios-clang -debug-and-release -prefix /Users/dewhisna/Qt/5.5.0-alpha-ios-run -opensource -confirm-license -qt-zlib -qt-pcre -qt-sql-sqlite -qt-libpng -qt-libjpeg -qt-freetype
+
 
 ===============================================================================
 ===============================================================================
@@ -1304,6 +1314,21 @@ cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5.3.1-win32-mingw-dw2_4.8.0_rubenvb
 cd build-qtstyleplugins-5.3.1-win32-mingw-dw2_4.8.0_rubenvb
 ~/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb/bin/qmake CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
+
+-------------------------------------------------------------------------------
+
+
+Mac 5.5.0-alpha-ios (staticQt):
+-------------------------------
+-----
+cd KingJamesPureBibleSearch
+mkdir build-qtstyleplugins-5_5_0_alpha_ios_staic
+cd build-qtstyleplugins-5_5_0_alpha_ios_staic
+~/Qt/5.5.0-alpha-ios-run/bin/qmake -spec macx-ios-clang CONFIG+=static CONFIG+=release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
 -----
