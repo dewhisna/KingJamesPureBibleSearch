@@ -1328,7 +1328,7 @@ Mac 5.5.0-alpha-ios (staticQt):
 cd KingJamesPureBibleSearch
 mkdir build-qtstyleplugins-5_5_0_alpha_ios_staic
 cd build-qtstyleplugins-5_5_0_alpha_ios_staic
-~/Qt/5.5.0-alpha-ios-run/bin/qmake -spec macx-ios-clang CONFIG+=static CONFIG+=release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
+~/Qt/5.5.0-alpha-ios-run/bin/qmake -spec macx-ios-clang CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
 -----
