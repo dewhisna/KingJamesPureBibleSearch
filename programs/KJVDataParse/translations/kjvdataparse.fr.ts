@@ -2306,7 +2306,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="244"/>
         <source>Revelation</source>
         <comment>bookname</comment>
-        <translation>Apocalypse</translation>
+        <translation>Révélation</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="244"/>
