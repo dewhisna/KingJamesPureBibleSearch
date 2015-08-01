@@ -1,4 +1,4 @@
-![KJPBS logo][programs/KJVCanOpener/images/BethelPictures/king-james-purebiblesearch_logo_250x169.png]
+![KingJamesPureBibleSearch logo](programs/KJVCanOpener/images/BethelPictures/king-james-purebiblesearch_logo_250x169.png)
 
 Description
 -----------
