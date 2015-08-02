@@ -1,4 +1,4 @@
-![KingJamesPureBibleSearch logo](programs/KJVCanOpener/images/BethelPictures/king-james-purebiblesearch_logo_250x169.png)
+![KingJamesPureBibleSearch logo](./programs/KJVCanOpener/images/BethelPictures/king-james-purebiblesearch_logo_250x169.png)
 
 Description
 -----------
@@ -41,4 +41,4 @@ Alternatively, this repository may be used in accordance with the terms
 and conditions contained in a signed written agreement between you and
 Dewtronics, a.k.a. Donna Whisnant.
 
-See '[LICENSE](LICENSE)' for the full content of the license.
+See '[LICENSE](./LICENSE)' for the full content of the license.
