@@ -17,3 +17,36 @@
 *.core
 .DS_Store
 .svn
+*.qm
+
+# Build targets:
+/programs/qt-speech/festival/festival/
+/programs/qt-speech/festival/speech_tools/
+/programs/build-qtstyleplugins*
+/programs/build-KJVCanOpener-Qt*local/
+/programs/build-KJVCanOpener-Qt*win32_kubuntu/
+/programs/build-KJVDataParse*/
+/programs/build-KJVDiff*/
+/programs/build-kjfparse*/
+/programs/build-rv1865parse*/
+/programs/qt-speech/build-*/
+
+# Non-distributed Output Packages:
+/Output/KingJamesPureBibleSearch-3_0_0-1-x86_64-unsigned.dmg
+
+# Non-distributed Databases:
+/programs/KJVCanOpener/db/bbl-specTest.ccdb
+/programs/KJVCanOpener/db/bbl-gerlut1545.ccdb
+/programs/KJVCanOpener/db/bbl-gersch2000.ccdb
+/programs/KJVCanOpener/db/bbl-kjv1611.ccdb
+/programs/KJVCanOpener/db/bbl-kjv1611a.ccdb
+/programs/KJVCanOpener/db/bbl-kjva.ccdb
+/programs/KJVCanOpener/db/bbl-ukjv.ccdb
+/programs/KJVCanOpener/db/bbl-kjvpce.ccdb
+/programs/KJVCanOpener/db/bbl-rv1602p.ccdb
+/programs/KJVCanOpener/db/bbl-rv1865lcbp20100713.ccdb
+/programs/KJVCanOpener/db/bbl-rv1865sbv20140622.ccdb
+/programs/KJVCanOpener/db/bbl-kjf2006.ccdb
+/programs/KJVCanOpener/db/bbl-kjf2015-workinprogress.ccdb
+
+
