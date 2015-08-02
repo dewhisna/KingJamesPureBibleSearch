@@ -9,9 +9,7 @@ Graphically visualize search results, cross-reference sources and word lexicons,
 
 For more info and downloads, see [PureBibleSearch.com](http://www.purebiblesearch.com/)
 
-For details on the King James Code, [Visit Bethel Church](http://visitbethelchurch.com/)
-
-Or, [Prophetic Research Ministry](http://propheticresearchministry.com/)
+For details on the King James Code, [Visit Bethel Church](http://visitbethelchurch.com/) or, [Prophetic Research Ministry](http://propheticresearchministry.com/)
 
 
 License
@@ -43,4 +41,4 @@ Alternatively, this repository may be used in accordance with the terms
 and conditions contained in a signed written agreement between you and
 Dewtronics, a.k.a. Donna Whisnant.
 
-See '[LICENSE!](LICENSE)' for the full content of the license.
+See '[LICENSE](LICENSE)' for the full content of the license.
