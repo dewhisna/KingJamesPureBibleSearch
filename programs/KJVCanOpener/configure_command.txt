@@ -1044,7 +1044,7 @@ needed for a dynamic plugin, but not static.  As static, we get duplicate
 symbols between it and qt itself.
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_0_rc1_cocoa_static
 cd build-qtstyleplugins-5_2_0_rc1_cocoa_static
 ~/Qt/5.2.0-rc1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
@@ -1061,7 +1061,7 @@ Linux 5.2.0-rc1-64-local (dynamicQt):
 -------------------------------------
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_0_rc1_64_local
 cd build-qtstyleplugins-5_2_0_rc1_64_local
 /usr/local/Trolltech/Qt-5.2.0-rc1-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1074,7 +1074,7 @@ Android 5.2.0-rc1 (armeabi_v7a):
 --------------------------------
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_0_rc1_android_armeabi_v7a_gcc_4_8
 cd build-qtstyleplugins-5_2_0_rc1_android_armeabi_v7a_gcc_4_8
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
@@ -1088,7 +1088,7 @@ make install
 Mac 5.2.0-cocoa-static:
 -----------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_0_cocoa_static
 cd build-qtstyleplugins-5_2_0_cocoa_static
 ~/Qt/5.2.0-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
@@ -1100,7 +1100,7 @@ make install
 Mac 5.2.0-64-local:
 -------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_0_64_local
 cd build-qtstyleplugins-5_2_0_64_local
 ~/Qt/5.2.0-ios-android/5.2.0/clang_64/bin/qmake CONFIG+=static CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
@@ -1112,7 +1112,7 @@ make install
 Linux 5.2.0-64-local (dynamicQt):
 -------------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_0_64_local
 cd build-qtstyleplugins-5_2_0_64_local
 /usr/local/Trolltech/Qt-5.2.0-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1125,7 +1125,7 @@ sudo make install
 Linux 5.2.1-64-local (dynamicQt):
 -------------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_1_64_local
 cd build-qtstyleplugins-5_2_1_64_local
 /usr/local/Trolltech/Qt-5.2.1-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1137,7 +1137,7 @@ sudo make install
 Mac 5.2.1-cocoa-static:
 -----------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_1_cocoa_static
 cd build-qtstyleplugins-5_2_1_cocoa_static
 ~/Qt/5.2.1-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
@@ -1149,7 +1149,7 @@ make install
 Mac 5.2.1-64-local:
 -------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_2_1_64_local
 cd build-qtstyleplugins-5_2_1_64_local
 ~/Qt/5.2.1-ios/5.2.1/clang_64/bin/qmake CONFIG+=static CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
@@ -1163,7 +1163,7 @@ make install
 Linux 5.3.0-64-local (dynamicQt):
 -------------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_0_64_local
 cd build-qtstyleplugins-5_3_0_64_local
 /usr/local/Trolltech/Qt-5.3.0-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1176,7 +1176,7 @@ Android 5.3.0 (armeabi_v7a):
 ----------------------------
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_0_android_armv7_gcc_4_8
 cd build-qtstyleplugins-5_3_0_android_armv7_gcc_4_8
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
@@ -1191,7 +1191,7 @@ Android 5.3.0 (x86):
 --------------------
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_0_android_x86_gcc_4_8
 cd build-qtstyleplugins-5_3_0_android_x86_gcc_4_8
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
@@ -1205,7 +1205,7 @@ make install
 Mac 5.3.0-cocoa-static:
 -----------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_0_cocoa_static
 cd build-qtstyleplugins-5_3_0_cocoa_static
 ~/Qt/5.3.0-cocoa-static-run/bin/qmake CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
@@ -1217,7 +1217,7 @@ make install
 Mac 5.3.0-64-local:
 -------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_0_64_local
 cd build-qtstyleplugins-5_3_0_64_local
 ~/Qt/5.3.0-ios/5.3/clang_64/bin/qmake CONFIG+=static CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
@@ -1229,7 +1229,7 @@ make install
 Windows 5.3.0-win32 (cross_win32):
 ----------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_0_win32
 cd build-qtstyleplugins-5_3_0_win32
 ~/Qt/5.3.0-win32/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1244,7 +1244,7 @@ make install
 Mac 5.3.1-64-local (dynamicQt):
 -------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_1_64_local
 cd build-qtstyleplugins-5_3_1_64_local
 ~/Qt/5.3.1-ios/5.3/clang_64/bin/qmake CONFIG+=debug_and_release ../qtstyleplugins/qtstyleplugins.pro
@@ -1256,7 +1256,7 @@ make install
 Linux 5.3.1-64-local (dynamicQt):
 -------------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_1_64_local
 cd build-qtstyleplugins-5_3_1_64_local
 /usr/local/Trolltech/Qt-5.3.1-64-local/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1269,7 +1269,7 @@ Android 5.3.1 (armeabi_v7a):
 ----------------------------
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_1_android_armv7_gcc_4_8
 cd build-qtstyleplugins-5_3_1_android_armv7_gcc_4_8
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
@@ -1284,7 +1284,7 @@ Android 5.3.1 (x86):
 --------------------
 
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_1_android_x86_gcc_4_8
 cd build-qtstyleplugins-5_3_1_android_x86_gcc_4_8
 export ANDROID_NDK_ROOT=/home/dewhisna/android/android-ndk-r9d
@@ -1298,7 +1298,7 @@ make install
 Windows 5.3.1-win32-kubuntu (cross_win32):
 ------------------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_3_1_win32_kubuntu
 cd build-qtstyleplugins-5_3_1_win32_kubuntu
 ~/Qt/5.3.1-win32-kubuntu/bin/qmake CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1310,7 +1310,7 @@ make install
 Windows 5.3.1-win32-mingw-dw2_4.8.0_rubenvb (cross_win32):
 ----------------------------------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5.3.1-win32-mingw-dw2_4.8.0_rubenvb
 cd build-qtstyleplugins-5.3.1-win32-mingw-dw2_4.8.0_rubenvb
 ~/Qt/5.3.1-win32-mingw-dw2_4.8.0_rubenvb/bin/qmake CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
@@ -1325,13 +1325,26 @@ make install
 Mac 5.5.0-alpha-ios (staticQt):
 -------------------------------
 -----
-cd KingJamesPureBibleSearch
+cd KingJamesPureBibleSearch/programs
 mkdir build-qtstyleplugins-5_5_0_alpha_ios_staic
 cd build-qtstyleplugins-5_5_0_alpha_ios_staic
 ~/Qt/5.5.0-alpha-ios-run/bin/qmake -spec macx-ios-clang CONFIG+=static CONFIG+=debug_and_release DEFINES+=QT_STATICPLUGIN ../qtstyleplugins/qtstyleplugins.pro
 make
 make install
 -----
+
+
+Linux 5.5.0-gcc_64 (dynamicQt):
+-------------------------------
+-----
+cd KingJamesPureBibleSearch/programs
+mkdir build-qtstyleplugins-5_5_0_gcc_64
+cd build-qtstyleplugins-5_5_0_gcc_64
+~/Qt/5.5.0-android/5.5/gcc_64/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+make
+make install
+-----
+
 
 
 ===============================================================================
@@ -1343,7 +1356,7 @@ Building qt-speech:
 
 Linux 4.8.5-64-local (with server support):
 -------------------------------------------
-cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech
 mkdir build-Qt-4.8.5-64-local
 cd build-Qt-4.8.5-64-local
 /usr/local/Trolltech/Qt-4.8.5-64-local/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro
@@ -1353,13 +1366,13 @@ make clean
 make
 make clean
 cd /usr/local/Trolltech/Qt-4.8.5-64-local/lib/
-sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-64-local/libQtSpeech.a libQtSpeech.a
-sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-64-local/libQtSpeechd.a libQtSpeechd.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-4.8.5-64-local/libQtSpeech.a libQtSpeech.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-4.8.5-64-local/libQtSpeechd.a libQtSpeechd.a
 
 
 Linux 4.8.5-32-lsb (with server support):
 -----------------------------------------
-cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech
 mkdir build-Qt-4.8.5-32-lsb
 cd build-Qt-4.8.5-32-lsb
 /usr/local/Trolltech/Qt-4.8.5-32-lsb/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro -r -spec linux-lsb-g++-32
@@ -1369,15 +1382,15 @@ make clean
 make
 make clean
 cd /usr/local/Trolltech/Qt-4.8.5-32-lsb/lib/
-sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-32-lsb/libQtSpeech.a libQtSpeech.a
-sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-4.8.5-32-lsb/libQtSpeechd.a libQtSpeechd.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-4.8.5-32-lsb/libQtSpeech.a libQtSpeech.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-4.8.5-32-lsb/libQtSpeechd.a libQtSpeechd.a
 
 NOTE : Still need to figure out how to get Festival to compile under LSB!!!
 
 
 Linux 5.3.1-64-local (with server support):
 -------------------------------------------
-cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech
 mkdir build-Qt-5.3.1-64-local
 cd build-Qt-5.3.1-64-local
 /usr/local/Trolltech/Qt-5.3.1-64-local/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro
@@ -1387,8 +1400,8 @@ make clean
 make
 make clean
 cd /usr/local/Trolltech/Qt-5.3.1-64-local/lib/
-sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
-sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeechd.a libQtSpeechd.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
+sudo ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-5.3.1-64-local/libQtSpeechd.a libQtSpeechd.a
 
 NOTE: Remove "CONFIG+=useserver" to build without Festival Client/Server support
 
@@ -1401,7 +1414,7 @@ libQtSpeechd.pdb to the C:\Qt\5.3.1\lib folder
 
 Mac 5.3.1-64-local:
 -------------------
-cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech
 mkdir build-Qt-5.3.1-64-local
 cd build-Qt-5.3.1-64-local
 ~/Qt/5.3.1-ios/5.3/clang_64/bin/qmake CONFIG+=debug ../QtSpeech-static.pro
@@ -1411,8 +1424,27 @@ make clean
 make
 make clean
 cd ~/Qt/5.3.1-ios/5.3/clang_64/lib/
-ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
-ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech_debug.a libQtSpeech_debug.a
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech.a libQtSpeech.a
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-5.3.1-64-local/libQtSpeech_debug.a libQtSpeech_debug.a
+
+
+Linux 5.5.0-gcc_64 (with server support):
+-----------------------------------------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech
+mkdir build-Qt-5.5.0-gcc_64
+cd build-Qt-5.5.0-gcc_64
+~/Qt/5.5.0-android/5.5/gcc_64/bin/qmake CONFIG+=debug CONFIG+=useserver ../QtSpeech-static.pro
+make
+make clean
+~/Qt/5.5.0-android/5.5/gcc_64/bin/qmake CONFIG+=release CONFIG+=useserver ../QtSpeech-static.pro
+make
+make clean
+cd ~/Qt/5.5.0-android/5.5/gcc_64/lib/
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-5.5.0-gcc_64/libQtSpeech.a libQtSpeech.a
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/qt-speech/build-Qt-5.5.0-gcc_64/libQtSpeechd.a libQtSpeechd.a
+
+NOTE: Remove "CONFIG+=useserver" to build without Festival Client/Server support
+
 
 
 ===============================================================================
@@ -1769,7 +1801,7 @@ export EMSCRIPTEN_ROOT_PATH=/home/dewhisna/emscripten/emscripten
 
 <Build in QtCreator>
 
-cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
 
 mkdir -p qt-fonts && cp ~/emscripten/build-emscripten-qt/install/lib/fonts/helvetica_*.qpf ~/emscripten/build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
 cp ~/emscripten/build-emscripten-qt/install/lib/QtGui.a QtGui.so
@@ -1778,7 +1810,7 @@ cp ~/emscripten/build-emscripten-qt/install/lib/QtSql.a QtSql.so
 cp ~/emscripten/build-emscripten-qt/install/lib/QtXml.a QtXml.so
 
 mkdir -p data
-cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/KJVCanOpener/db/kjvtext.s3db data/
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/db/kjvtext.s3db data/
 
 
 (Inline):
@@ -1822,7 +1854,7 @@ $EMSCRIPTEN_ROOT_PATH/emcc \
 *******************************************************************************
 NOTE: This is the production release we are using for final KJPBS Build!!!
 *******************************************************************************
-cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-Qt_4_8_4_emscripten/Debug (or Release)
 
 mkdir -p qt-fonts && cp ~/emscripten/build-emscripten-qt/install/lib/fonts/helvetica_*.qpf ~/emscripten/build-emscripten-qt/install/lib/fonts/fixed_*.qpf qt-fonts/
 
@@ -1837,7 +1869,7 @@ cp ~/emscripten/build-emscripten-qt/install/lib/QtCore.a QtCore.so
 cp ~/emscripten/build-emscripten-qt/install/lib/QtXml.a QtXml.so
 
 mkdir -p data
-cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/KJVCanOpener/db/kjvtext.ccdb data/
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/db/kjvtext.ccdb data/
 
 $EMSCRIPTEN_ROOT_PATH/emcc \
   KingJamesPureBibleSearch.bc \
