@@ -35,6 +35,9 @@ QT       += core gui xml
 }
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
+# Include QWebChannel support on Qt 5.5+, if it's been selected:
+webchannel:include(../qwebchannel/qwebchannel.pri)
+
 !emscripten {
 	CONFIG += wwwidgets
 }

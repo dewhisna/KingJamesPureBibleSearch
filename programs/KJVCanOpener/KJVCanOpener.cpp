@@ -69,6 +69,11 @@
 #include <QDesktopServices>
 #include <QDir>
 
+#ifdef USING_WEBCHANNEL
+#include <webChannelServer.h>
+#include <webChannelObjects.h>
+#endif
+
 // ============================================================================
 
 #define KJS_FILE_VERSION 2				// Current KJS File Version (King James Search file)
@@ -961,6 +966,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pActionCrossRefsEditor, SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
 #endif
 
+	// -------------------- Launch WebChannel:
+#ifdef USING_WEBCHANNEL
+	m_pWebChannelServer = new CWebChannelServer(QHostAddress::LocalHost, 12345, this);
+	if (m_pWebChannelServer->isListening()) {
+		m_pWebChannelObjects = new CWebChannelObjects(m_pBibleDatabase, g_pUserNotesDatabase, this);
+		m_pWebChannelServer->registerObject("kjpbs", m_pWebChannelObjects);
+	}
+#endif
 
 	// -------------------- Persistent Settings:
 	// Do this as a singleShot to delay it until after we get out of the constructor.
@@ -1696,13 +1709,13 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 		return;
 	}
 
-	int nResult;
-	bool bPromptFilename = false;
-
 	assert(!g_pMyApplication.isNull());
 
 	if (g_pMyApplication->isLastCanOpener()) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		int nResult;
+		bool bPromptFilename = false;
+
 		assert(!g_pUserNotesDatabase.isNull());
 		if (g_pUserNotesDatabase->isDirty()) {
 			// If we don't have a file name, yet made some change to the KJN, prompt them for a path:

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>King James Pure Bible Search Standalone Server</title>
+		<script type="text/javascript" src="./qwebchannel.js"></script>
+		<script type="text/javascript">
+			//BEGIN SETUP
+			function output(message)
+			{
+				var output = document.getElementById("output");
+				output.innerHTML = output.innerHTML + message + "\n";
+			}
+			window.onload = function() {
+				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+				output("Connecting to WebSocket server at " + baseUrl + ".");
+				var socket = new WebSocket(baseUrl);
+
+				socket.onclose = function()
+				{
+					console.error("web channel closed");
+					alert("web channel closed");
+				};
+				socket.onerror = function(error)
+				{
+					console.error("web channel error: " + error);
+					alert("web channel error: " + error);
+				};
+				socket.onopen = function()
+				{
+					output("WebSocket connected, setting up QWebChannel.");
+					new QWebChannel(socket, function(channel) {
+						// make our kjpbs object accessible globally
+						window.kjpbs = channel.objects.kjpbs;
+
+						document.getElementById("searchPhrase").searchPhraseChanged = function() {
+							var input = document.getElementById("searchPhrase");
+							var text = input.value;
+							if (!text) {
+								document.getElementById("searchResults").innerHTML = "";
+								return;
+							}
+
+							kjpbs.setSearchPhrases(text);
+						}
+
+						kjpbs.searchResultsChanged.connect(function(strHtmlLiSearchResults) {
+							document.getElementById("searchResults").innerHTML = strHtmlLiSearchResults;
+						});
+
+						output("Connected to WebChannel, ready to send/receive searches!");
+					});
+				}
+			}
+			//END SETUP
+		</script>
+		<style type="text/css">
+			html {
+				height: 100%;
+				width: 100%;
+			}
+			#output {
+				width: 500px;
+				height: 75px;
+			}
+			#searchPhrase {
+				width: 500px;
+				margin: 0 10px 0 0;
+			}
+			#searchResults {
+				list-style-type: none;
+				width: 100%;
+				min-height: 300px;
+				height: 300px;
+				max-height:auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>King James Pure Bible Search</h1>
+		<h2>Standalone Server</h2>
+		<textarea id="output"></textarea><br />
+		<input id="searchPhrase" type="text" onchange="javascript:searchPhraseChanged();" />
+		<ol id="searchResults" />
+	</body>
+</html>

@@ -54,6 +54,10 @@ class CKJVCrossRefEditDlg;
 class CHighlighterButtons;
 class CTipEdit;
 class CDictionaryWidget;
+#ifdef USING_WEBCHANNEL
+class CWebChannelServer;
+class CWebChannelObjects;
+#endif
 
 // ============================================================================
 
@@ -284,6 +288,11 @@ private:
 
 	bool m_bCanClose;				// Set to false when displaying a window-modal dialog to keep application from trying to close us
 	bool m_bIsClosing;				// True when window has issued an isClosing signal and set a deleteLater(), used as a guard for our event handler
+
+#ifdef USING_WEBCHANNEL
+	QPointer<CWebChannelServer> m_pWebChannelServer;
+	QPointer<CWebChannelObjects> m_pWebChannelObjects;
+#endif
 
 	CKJVSearchSpec *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
