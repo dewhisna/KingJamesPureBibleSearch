@@ -262,10 +262,13 @@ void CKJVSearchSpec::writeKJVSearchFile(QSettings &kjsFile, const QString &strSu
 
 // ------------------------------------------------------------------
 
-void CKJVSearchSpec::setFocusSearchPhrase(int nIndex)
+CKJVSearchPhraseEdit *CKJVSearchSpec::setFocusSearchPhrase(int nIndex)
 {
-	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size()))
+	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size())) {
 		setFocusSearchPhrase(m_lstSearchPhraseEditors.at(nIndex));
+		return m_lstSearchPhraseEditors.at(nIndex);
+	}
+	return NULL;
 }
 
 void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase)
