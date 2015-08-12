@@ -248,6 +248,16 @@ void CPhraseLineEdit::setExclude(bool bExclude)
 	}
 }
 
+void CPhraseLineEdit::setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords)
+{
+	{
+		CDoUpdate doUpdate(this);				// Don't send update for the text clear, we'll send it later after we set it
+		clear();
+	}
+	insertCommonPhraseCompletion(aPhraseEntry.textEncoded());
+	Q_UNUSED(bFindWords);						// PhraseLineEdit will always find words on insertion
+}
+
 void CPhraseLineEdit::insertCompletion(const QString& completion)
 {
 	CParsedPhrase::insertCompletion(textCursor(), completion);

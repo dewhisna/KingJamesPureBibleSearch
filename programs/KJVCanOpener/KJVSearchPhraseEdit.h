@@ -94,6 +94,8 @@ public:
 	inline bool isDisabled() const { assert(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 
+	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords);
+
 	void processPendingUpdateCompleter();
 
 	int completerPopupDelay() const { return m_dlyPopupCompleter.minimumDelay(); }

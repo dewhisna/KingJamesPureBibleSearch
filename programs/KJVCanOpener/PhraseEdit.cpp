@@ -686,7 +686,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	if (bFindWords) FindWords();
 }
 
-void CParsedPhrase::ParsePhrase(const QString &strPhrase)
+void CParsedPhrase::ParsePhrase(const QString &strPhrase, bool bFindWords)
 {
 	clearCache();
 
@@ -703,9 +703,10 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase)
 	}
 
 	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
+	if (bFindWords) FindWords();
 }
 
-void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
+void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase, bool bFindWords)
 {
 	clearCache();
 
@@ -730,6 +731,7 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase)
 	}
 
 	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
+	if (bFindWords) FindWords();
 }
 
 void CParsedPhrase::FindWords()
