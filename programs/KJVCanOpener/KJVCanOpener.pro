@@ -512,7 +512,7 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		translation_build.input = $$translation_source.files
 		translation_build.depends = $$translation_source.files
 #		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
-		trnaslation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
+		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
 		translation_build.CONFIG = no_link
 		QMAKE_EXTRA_TARGETS += translation_build $$translation_source.files
 		QMAKE_EXTRA_COMPILERS += translation_build
