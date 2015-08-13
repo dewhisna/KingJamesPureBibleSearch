@@ -27,7 +27,7 @@
 #include <dbstruct.h>
 #include <UserNotesDatabase.h>
 #include <VerseListModel.h>
-#include <headlessSearchResults.h>
+#include "headlessSearchResults.h"
 
 #include <QObject>
 #include <QPointer>

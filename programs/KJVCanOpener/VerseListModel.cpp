@@ -98,11 +98,11 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	assert(!pBibleDatabase.isNull());
 	assert(!pUserNotesDatabase.isNull());
 
-	m_private.m_richifierTagsDisplay.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
-	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
-	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	m_private.m_richifierTagsDisplay.setFromPersistentSettings(*CPersistentSettings::instance(), false);
+	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
-	en_changedCopyOptions();		// Update the m_richifierTagsCopying options
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
 	if (!m_private.m_pUserNotesDatabase.isNull()) {
@@ -2663,24 +2663,14 @@ void CVerseListModel::en_WordsOfJesusColorChanged(const QColor &color)
 	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
 }
 
+void CVerseListModel::en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
+{
+	m_private.m_richifierTagsDisplay.setShowPilcrowMarkers(bShowPilcrowMarkers);
+}
+
 void CVerseListModel::en_changedCopyOptions()
 {
-	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
-		case CPhraseNavigator::TCAWME_NO_MARKING:
-			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString(), QString());
-			break;
-		case CPhraseNavigator::TCAWME_ITALICS:
-			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
-			break;
-		case CPhraseNavigator::TCAWME_BRACKETS:
-			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString("["), QString("]"));
-			break;
-		default:
-			assert(false);
-			break;
-	}
-
-	m_private.m_richifierTagsCopying.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
+	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 }
 
 // ----------------------------------------------------------------------------

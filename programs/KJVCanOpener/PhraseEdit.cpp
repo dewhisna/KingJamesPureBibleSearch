@@ -1051,35 +1051,17 @@ CPhraseNavigator::CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocume
 		m_pBibleDatabase(pBibleDatabase),
 		m_TextDocument(textDocument)
 {
-	m_richifierTagsDisplay.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
-	m_richifierTagsCopying.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	m_richifierTagsDisplay.setFromPersistentSettings(*CPersistentSettings::instance(), false);
+	m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
+
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
-
-	m_richifierTagsDisplay.setShowPilcrowMarkers(CPersistentSettings::instance()->showPilcrowMarkers());
 	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
-
-	en_changedCopyOptions();		// Update the m_richifierTagsCopying options
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 }
 
 void CPhraseNavigator::en_changedCopyOptions()
 {
-	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
-		case TCAWME_NO_MARKING:
-			m_richifierTagsCopying.setTransChangeAddedTags(QString(), QString());
-			break;
-		case TCAWME_ITALICS:
-			m_richifierTagsCopying.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
-			break;
-		case TCAWME_BRACKETS:
-			m_richifierTagsCopying.setTransChangeAddedTags(QString("["), QString("]"));
-			break;
-		default:
-			assert(false);
-			break;
-	}
-
-	m_richifierTagsCopying.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
+	m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 }
 
 int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const

@@ -26,8 +26,8 @@
 
 #include <QObject>
 #include <QWebSocketServer>
-#include <websocketclientwrapper.h>
 #include <QWebChannel>
+#include "websocketclientwrapper.h"
 
 //
 // CWebChannelServer

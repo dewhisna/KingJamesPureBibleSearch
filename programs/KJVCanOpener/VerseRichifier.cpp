@@ -25,6 +25,9 @@
 #include "dbstruct.h"
 #include "ParseSymbols.h"
 
+#include "PersistentSettings.h"
+#include "PhraseEdit.h"
+
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
 
@@ -333,6 +336,33 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	richVerseText.parse(baton);
 
 	return baton.m_strVerseText.trimmed();
+}
+
+// ============================================================================
+// ============================================================================
+
+void CVerseTextRichifierTags::setFromPersistentSettings(const CPersistentSettings &aPersistentSettings, bool bCopyOptions)
+{
+	setWordsOfJesusTagsByColor(aPersistentSettings.colorWordsOfJesus());
+
+	if (bCopyOptions) {
+		switch (aPersistentSettings.transChangeAddWordMode()) {
+			case CPhraseNavigator::TCAWME_NO_MARKING:
+				setTransChangeAddedTags(QString(), QString());
+				break;
+			case CPhraseNavigator::TCAWME_ITALICS:
+				setTransChangeAddedTags(QString("<i>"), QString("</i>"));
+				break;
+			case CPhraseNavigator::TCAWME_BRACKETS:
+				setTransChangeAddedTags(QString("["), QString("]"));
+				break;
+			default:
+				assert(false);
+				break;
+		}
+	}
+
+	setShowPilcrowMarkers(bCopyOptions ? aPersistentSettings.copyPilcrowMarkers() : aPersistentSettings.showPilcrowMarkers());
 }
 
 // ============================================================================

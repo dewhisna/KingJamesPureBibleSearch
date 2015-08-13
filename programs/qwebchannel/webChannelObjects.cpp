@@ -74,7 +74,7 @@ void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 void CWebChannelObjects::en_searchResultsReady()
 {
 	CVerseTextRichifierTags richifierTags;
-	richifierTags.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
+	richifierTags.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
 	int nVerses = m_pSearchResults->vlmodel().rowCount();
 #if DEBUG_WEBCHANNEL
@@ -83,8 +83,6 @@ void CWebChannelObjects::en_searchResultsReady()
 	QString strResults;
 	for (int ndx = 0; ndx < nVerses; ++ndx) {
 		QModelIndex ndxModel = m_pSearchResults->vlmodel().index(ndx);
-
-//		strResults += "<li>" + m_pSearchResults->vlmodel().data(ndxModel, CVerseListModel::VERSE_COPYING_ROLE).toString() + "</li>";
 
 		const CVerseListItem &item(m_pSearchResults->vlmodel().data(ndxModel, CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		if (item.verseIndex().isNull()) continue;
@@ -98,6 +96,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		strVerse += "</li>";
 		strResults += strVerse;
 	}
+
 #if DEBUG_WEBCHANNEL
 	qDebug("Sending Results");
 #endif

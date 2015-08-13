@@ -30,6 +30,8 @@
 
 #include "dbstruct.h"
 
+// Forward declarations
+class CPersistentSettings;
 
 // ============================================================================
 
@@ -56,6 +58,8 @@ public:
 	{
 
 	}
+
+	void setFromPersistentSettings(const CPersistentSettings &aPersistentSettings, bool bCopyOptions = false);	// If bCopyOptions==true, DisplayOptions will be used
 
 	inline bool addRichPs119HebrewPrefix() const { return m_bAddRichPs119HebrewPrefix; }
 	void setAddRichPs119HebrewPrefix(bool bAddRichPs119HebrewPrefix)
