@@ -1123,8 +1123,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	//			j:				-- Words of Jesus End
 	//			D:				-- Divine Name Start
 	//			d:				-- Divine Name End
+	//			R:				-- Search Result Start (reserved placeholder, see VerseRichifier)
+	//			r:				-- Search Result End (reserved placeholder, see VerseRichifier)
 	//			M:				-- Hebrew Psalm 119 Marker
-
 
 
 

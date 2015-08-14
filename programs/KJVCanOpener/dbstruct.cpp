@@ -1704,7 +1704,7 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	return &(footnote->second);
 }
 
-QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
+QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors, const TPhraseTagList &tagsSearchResults) const
 {
 	CRelIndex ndx = ndxRel;
 	ndx.setWord(0);							// We always return the whole verse, not specific words
@@ -1715,10 +1715,10 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
 	TVerseCacheMap::iterator itr = cache.find(ndx);
 	if (itr != cache.end()) return (itr->second);
-	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, tagsSearchResults);
 	return cache[ndx];
 #else
-	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, tagsSearchResults);
 #endif
 }
 
@@ -1922,6 +1922,18 @@ void TPhraseTag::setFromPassageTag(const CBibleDatabase *pBibleDatabase, const T
 		}
 		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(ndxStart) + 1;
 	}
+}
+
+QString TPhraseTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
+	assert(pBibleDatabase != NULL);
+
+	if (pBibleDatabase == NULL) return QString();
+	QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
+	if (m_nCount > 1) {
+		uint32_t nNormal = pBibleDatabase->NormalizeIndex(m_RelIndex);
+		strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + m_nCount - 1)));
+	}
+	return strReferenceRangeText;
 }
 
 TTagBoundsPair TPhraseTag::bounds(const CBibleDatabase *pBibleDatabase) const
@@ -2338,6 +2350,21 @@ void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const T
 		m_nVerseCount = (CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
 						CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first) + 1;
 	}
+}
+
+QString TPassageTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
+	assert(pBibleDatabase != NULL);
+
+	if (pBibleDatabase == NULL) return QString();
+	CRelIndex ndxFirst(m_RelIndex);
+	ndxFirst.setWord(0);
+	QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(ndxFirst);
+	if (m_nVerseCount > 1) {
+		CRelIndex ndxLast(pBibleDatabase->calcRelIndex(0, m_nVerseCount-1, 0, 0, 0, ndxFirst));
+		ndxLast.setWord(0);
+		strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(ndxLast);
+	}
+	return strReferenceRangeText;
 }
 
 // ============================================================================

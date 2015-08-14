@@ -784,6 +784,233 @@ typedef QMap<QString, TBibleDatabaseSettings> TBibleDatabaseSettingsMap;		// Map
 
 // ============================================================================
 
+// Relative Index and Word Count pair used for highlighting phrases:
+class TPhraseTag
+{
+public:
+	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
+		:	m_RelIndex(ndx),
+			m_nCount(nCount)
+	{ }
+
+	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc);
+
+	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage)
+		:	m_nCount(0)
+	{
+		setFromPassageTag(pBibleDatabase, tagPassage);
+	}
+
+	inline const CRelIndex &relIndex() const { return m_RelIndex; }
+	inline CRelIndex &relIndex() { return m_RelIndex; }						// Needed for >> operator
+	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
+	inline const unsigned int &count() const { return m_nCount; }
+	inline unsigned int &count() { return m_nCount; }						// Needed for >> operator
+	inline void setCount(unsigned int nCount) { m_nCount = nCount; }
+
+	void setFromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage);
+	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const;
+
+	bool isSet() const {
+		return (m_RelIndex.isSet());
+	}
+
+	bool haveSelection() const {
+		return ((m_RelIndex.isSet()) && (m_nCount != 0));
+	}
+
+	bool operator==(const TPhraseTag &otherTag) const {
+		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
+				(m_nCount == otherTag.count()));
+	}
+
+	bool operator!=(const TPhraseTag &otherTag) const {
+		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
+				(m_nCount != otherTag.count()));
+	}
+
+	TTagBoundsPair bounds(const CBibleDatabase *pBibleDatabase) const;			// Returns a pair containing the Normalized Lo and Hi indexes covered by this tag
+
+	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
+	TPhraseTag mask(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;		// Creates a new tag that's the content of this tag masked by the specified aTag.
+	friend class TPhraseTagList;
+
+private:
+	CRelIndex m_RelIndex;
+	unsigned int m_nCount;
+};
+inline QDataStream& operator<<(QDataStream &out, const TPhraseTag &ndx) {
+	out << ndx.relIndex() << ndx.count();
+	return out;
+}
+inline QDataStream& operator>>(QDataStream &in, TPhraseTag &ndx) {
+	in >> ndx.relIndex() >> ndx.count();
+	return in;
+}
+Q_DECLARE_METATYPE(TPhraseTag)
+
+const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
+const QString g_constrHighlighterPhraseTagListMimeType("application/vnd.dewtronics.kjvcanopener.highlighter.phrasetaglist");
+const QString g_constrPlainTextMimeType("text/plain");
+const QString g_constrHTMLTextMimeType("text/html");
+
+// ----------------------------------------------------------------------------
+
+// List of tags used for highlighting found phrases, etc:
+class TPhraseTagList : public QList<TPhraseTag>
+{
+public:
+	TPhraseTagList();
+	TPhraseTagList(const TPhraseTag &aTag);
+	TPhraseTagList(const TPhraseTagList &src);
+	TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
+
+	bool isSet() const;
+
+	void setFromPassageTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
+
+	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const;
+	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
+	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
+	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
+	int findIntersectingIndex(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag, int nStartIndex = 0) const;
+
+	bool isEquivalent(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const
+	{
+		return (completelyContains(pBibleDatabase, aTagList) && aTagList.completelyContains(pBibleDatabase, *this));
+	}
+};
+
+typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases
+
+struct TPhraseTagListSortPredicate {
+	static bool ascendingLessThan(const TPhraseTag &s1, const TPhraseTag &s2)
+	{
+		return (s1.relIndex().index() < s2.relIndex().index());
+	}
+};
+
+struct HighlighterNameSortPredicate {
+	bool operator() (const QString &v1, const QString &v2) const;
+};
+
+// PhraseTag Highlighter Mapping Types:
+typedef std::map<QString, TPhraseTagList, HighlighterNameSortPredicate> THighlighterTagMap;		// Map of HighlighterName to TPhraseTagList (Highlighters are kept in sorted decomposed alphabetical order for overlay order)
+typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;						// Map of Bible Database UUID to THighlighterTagMap
+
+// ============================================================================
+
+// Relative Index and VERSE Count pair used for highlighting Passages:
+
+class TPassageTag
+{
+public:
+	explicit inline TPassageTag(const CRelIndex &ndx = CRelIndex(), unsigned int nVerseCount = 0)
+		:	m_RelIndex(ndx),
+			m_nVerseCount(nVerseCount)
+	{
+		if (m_RelIndex.isSet()) m_RelIndex.setWord(1);
+	}
+	TPassageTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase)
+		:	m_nVerseCount(0)
+	{
+		setFromPhraseTag(pBibleDatabase, tagPhrase);
+	}
+
+	inline const CRelIndex &relIndex() const { return m_RelIndex; }
+	inline CRelIndex &relIndex() { return m_RelIndex; }							// Needed for >> operator
+	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
+	inline const unsigned int &verseCount() const { return m_nVerseCount; }
+	inline unsigned int &verseCount() { return m_nVerseCount; }					// Needed for >> operator
+	inline void setVerseCount(unsigned int nVerseCount) { m_nVerseCount = nVerseCount; }
+
+	void setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase);
+	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const;
+
+	bool isSet() const {
+		return (m_RelIndex.isSet());
+	}
+
+	bool haveSelection() const {
+		return ((m_RelIndex.isSet()) && (m_nVerseCount != 0));
+	}
+
+	bool operator==(const TPassageTag &otherTag) const {
+		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
+				(m_nVerseCount == otherTag.verseCount()));
+	}
+
+	bool operator!=(const TPassageTag &otherTag) const {
+		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
+				(m_nVerseCount != otherTag.verseCount()));
+	}
+
+//	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
+//	bool intersects(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
+//	bool intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
+	friend class TPassageTagList;
+
+private:
+	CRelIndex m_RelIndex;
+	unsigned int m_nVerseCount;
+};
+inline QDataStream& operator<<(QDataStream &out, const TPassageTag &ndx) {
+	out << ndx.relIndex() << ndx.verseCount();
+	return out;
+}
+inline QDataStream& operator>>(QDataStream &in, TPassageTag &ndx) {
+	in >> ndx.relIndex() >> ndx.verseCount();
+	return in;
+}
+Q_DECLARE_METATYPE(TPassageTag)
+
+const QString g_constrPassageTagMimeType("application/vnd.dewtronics.kjvcanopener.passagetag");
+
+// List of tags used for highlighting found phrases, etc:
+class TPassageTagList : public QList<TPassageTag>
+{
+public:
+	TPassageTagList()
+		:	QList<TPassageTag>()
+	{ }
+
+	TPassageTagList(const TPassageTag &aTag)
+		:	QList<TPassageTag>()
+	{
+		append(aTag);
+	}
+
+	TPassageTagList(const TPassageTagList &src)
+		:	QList<TPassageTag>(src)
+	{ }
+
+	TPassageTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags)
+		:	QList<TPassageTag>()
+	{
+		setFromPhraseTagList(pBibleDatabase, lstPhraseTags);
+	}
+
+	void setFromPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags);
+	unsigned int verseCount() const;
+
+//	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
+//	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
+//	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
+};
+
+struct TPassageTagListSortPredicate {
+	static bool ascendingLessThan(const TPassageTag &s1, const TPassageTag &s2)
+	{
+		return (s1.relIndex().index() < s2.relIndex().index());
+	}
+};
+
+// ============================================================================
+
 class CReadDatabase;			// Forward declaration for class friendship
 class COSISXmlHandler;
 
@@ -907,7 +1134,10 @@ public:
 	}
 	QString soundEx(const QString &strDecomposedConcordanceWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Concordance Word (calculations done based on this Bible Database language)
 
-	QString richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+	QString richVerseText(const CRelIndex &ndxRel,
+							const CVerseTextRichifierTags &tags,
+							bool bAddAnchors = false,
+							const TPhraseTagList &tagsSearchResults = TPhraseTagList()) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
 #endif
@@ -1186,258 +1416,6 @@ private:
 	QList<DICTIONARY_DESCRIPTOR_ENUM> m_lstAvailableDatabases;		// List of descriptor enums for Dictionary databases available
 };
 
-
-// ============================================================================
-
-// Relative Index and Word Count pair used for highlighting phrases:
-class TPhraseTag
-{
-public:
-	explicit inline TPhraseTag(const CRelIndex &ndx = CRelIndex(), unsigned int nCount = 0)
-		:	m_RelIndex(ndx),
-			m_nCount(nCount)
-	{ }
-
-	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc);
-
-	TPhraseTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage)
-		:	m_nCount(0)
-	{
-		setFromPassageTag(pBibleDatabase, tagPassage);
-	}
-
-	inline const CRelIndex &relIndex() const { return m_RelIndex; }
-	inline CRelIndex &relIndex() { return m_RelIndex; }						// Needed for >> operator
-	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
-	inline const unsigned int &count() const { return m_nCount; }
-	inline unsigned int &count() { return m_nCount; }						// Needed for >> operator
-	inline void setCount(unsigned int nCount) { m_nCount = nCount; }
-
-	void setFromPassageTag(const CBibleDatabase *pBibleDatabase, const TPassageTag &tagPassage);
-
-	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
-		assert(pBibleDatabase != NULL);
-
-		if (pBibleDatabase == NULL) return QString();
-		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
-		if (m_nCount > 1) {
-			uint32_t nNormal = pBibleDatabase->NormalizeIndex(m_RelIndex);
-			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + m_nCount - 1)));
-		}
-		return strReferenceRangeText;
-	}
-
-	bool isSet() const {
-		return (m_RelIndex.isSet());
-	}
-
-	bool haveSelection() const {
-		return ((m_RelIndex.isSet()) && (m_nCount != 0));
-	}
-
-	bool operator==(const TPhraseTag &otherTag) const {
-		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
-				(m_nCount == otherTag.count()));
-	}
-
-	bool operator!=(const TPhraseTag &otherTag) const {
-		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
-				(m_nCount != otherTag.count()));
-	}
-
-	TTagBoundsPair bounds(const CBibleDatabase *pBibleDatabase) const;			// Returns a pair containing the Normalized Lo and Hi indexes covered by this tag
-
-	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
-	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
-	bool intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
-	TPhraseTag mask(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;		// Creates a new tag that's the content of this tag masked by the specified aTag.
-	friend class TPhraseTagList;
-
-private:
-	CRelIndex m_RelIndex;
-	unsigned int m_nCount;
-};
-inline QDataStream& operator<<(QDataStream &out, const TPhraseTag &ndx) {
-	out << ndx.relIndex() << ndx.count();
-	return out;
-}
-inline QDataStream& operator>>(QDataStream &in, TPhraseTag &ndx) {
-	in >> ndx.relIndex() >> ndx.count();
-	return in;
-}
-Q_DECLARE_METATYPE(TPhraseTag)
-
-const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
-const QString g_constrHighlighterPhraseTagListMimeType("application/vnd.dewtronics.kjvcanopener.highlighter.phrasetaglist");
-const QString g_constrPlainTextMimeType("text/plain");
-const QString g_constrHTMLTextMimeType("text/html");
-
-// ----------------------------------------------------------------------------
-
-// List of tags used for highlighting found phrases, etc:
-class TPhraseTagList : public QList<TPhraseTag>
-{
-public:
-	TPhraseTagList();
-	TPhraseTagList(const TPhraseTag &aTag);
-	TPhraseTagList(const TPhraseTagList &src);
-	TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
-
-	bool isSet() const;
-
-	void setFromPassageTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
-
-	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
-	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const;
-	bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
-	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
-	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList);		// Note: Both lists MUST be sorted before calling this function!  The resulting list will be sorted...
-	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag);
-	int findIntersectingIndex(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag, int nStartIndex = 0) const;
-
-	bool isEquivalent(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList) const
-	{
-		return (completelyContains(pBibleDatabase, aTagList) && aTagList.completelyContains(pBibleDatabase, *this));
-	}
-};
-
-typedef QList<TPhraseTagList> TPhraseTagListList;		// List of tag lists, use to keep tag lists for multiple phrases
-
-struct TPhraseTagListSortPredicate {
-	static bool ascendingLessThan(const TPhraseTag &s1, const TPhraseTag &s2)
-	{
-		return (s1.relIndex().index() < s2.relIndex().index());
-	}
-};
-
-struct HighlighterNameSortPredicate {
-	bool operator() (const QString &v1, const QString &v2) const;
-};
-
-// PhraseTag Highlighter Mapping Types:
-typedef std::map<QString, TPhraseTagList, HighlighterNameSortPredicate> THighlighterTagMap;		// Map of HighlighterName to TPhraseTagList (Highlighters are kept in sorted decomposed alphabetical order for overlay order)
-typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;						// Map of Bible Database UUID to THighlighterTagMap
-
-// ============================================================================
-
-// Relative Index and VERSE Count pair used for highlighting Passages:
-
-class TPassageTag
-{
-public:
-	explicit inline TPassageTag(const CRelIndex &ndx = CRelIndex(), unsigned int nVerseCount = 0)
-		:	m_RelIndex(ndx),
-			m_nVerseCount(nVerseCount)
-	{
-		if (m_RelIndex.isSet()) m_RelIndex.setWord(1);
-	}
-	TPassageTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase)
-		:	m_nVerseCount(0)
-	{
-		setFromPhraseTag(pBibleDatabase, tagPhrase);
-	}
-
-	inline const CRelIndex &relIndex() const { return m_RelIndex; }
-	inline CRelIndex &relIndex() { return m_RelIndex; }							// Needed for >> operator
-	inline void setRelIndex(const CRelIndex &ndx) { m_RelIndex = ndx; }
-	inline const unsigned int &verseCount() const { return m_nVerseCount; }
-	inline unsigned int &verseCount() { return m_nVerseCount; }					// Needed for >> operator
-	inline void setVerseCount(unsigned int nVerseCount) { m_nVerseCount = nVerseCount; }
-
-	void setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagPhrase);
-
-	QString PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
-		assert(pBibleDatabase != NULL);
-
-		if (pBibleDatabase == NULL) return QString();
-		CRelIndex ndxFirst(m_RelIndex);
-		ndxFirst.setWord(0);
-		QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(ndxFirst);
-		if (m_nVerseCount > 1) {
-			CRelIndex ndxLast(pBibleDatabase->calcRelIndex(0, m_nVerseCount-1, 0, 0, 0, ndxFirst));
-			ndxLast.setWord(0);
-			strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(ndxLast);
-		}
-		return strReferenceRangeText;
-	}
-
-	bool isSet() const {
-		return (m_RelIndex.isSet());
-	}
-
-	bool haveSelection() const {
-		return ((m_RelIndex.isSet()) && (m_nVerseCount != 0));
-	}
-
-	bool operator==(const TPassageTag &otherTag) const {
-		return ((m_RelIndex.index() == otherTag.relIndex().index()) &&
-				(m_nVerseCount == otherTag.verseCount()));
-	}
-
-	bool operator!=(const TPassageTag &otherTag) const {
-		return ((m_RelIndex.index() != otherTag.relIndex().index()) ||
-				(m_nVerseCount != otherTag.verseCount()));
-	}
-
-//	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
-//	bool intersects(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
-//	bool intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
-	friend class TPassageTagList;
-
-private:
-	CRelIndex m_RelIndex;
-	unsigned int m_nVerseCount;
-};
-inline QDataStream& operator<<(QDataStream &out, const TPassageTag &ndx) {
-	out << ndx.relIndex() << ndx.verseCount();
-	return out;
-}
-inline QDataStream& operator>>(QDataStream &in, TPassageTag &ndx) {
-	in >> ndx.relIndex() >> ndx.verseCount();
-	return in;
-}
-Q_DECLARE_METATYPE(TPassageTag)
-
-const QString g_constrPassageTagMimeType("application/vnd.dewtronics.kjvcanopener.passagetag");
-
-// List of tags used for highlighting found phrases, etc:
-class TPassageTagList : public QList<TPassageTag>
-{
-public:
-	TPassageTagList()
-		:	QList<TPassageTag>()
-	{ }
-
-	TPassageTagList(const TPassageTag &aTag)
-		:	QList<TPassageTag>()
-	{
-		append(aTag);
-	}
-
-	TPassageTagList(const TPassageTagList &src)
-		:	QList<TPassageTag>(src)
-	{ }
-
-	TPassageTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags)
-		:	QList<TPassageTag>()
-	{
-		setFromPhraseTagList(pBibleDatabase, lstPhraseTags);
-	}
-
-	void setFromPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &lstPhraseTags);
-	unsigned int verseCount() const;
-
-//	bool completelyContains(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag) const;
-//	void intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
-//	bool removeIntersection(const CBibleDatabase *pBibleDatabase, const TPassageTag &aTag);
-};
-
-struct TPassageTagListSortPredicate {
-	static bool ascendingLessThan(const TPassageTag &s1, const TPassageTag &s2)
-	{
-		return (s1.relIndex().index() < s2.relIndex().index());
-	}
-};
 
 // ============================================================================
 

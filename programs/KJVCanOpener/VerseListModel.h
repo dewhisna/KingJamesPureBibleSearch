@@ -393,24 +393,27 @@ public:
 		return getVerseRichText(plainRichifierTags);
 	}
 
-	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags) const
+	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags,
+								const TPhraseTagList &tagsSearchResults = TPhraseTagList()) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
 #endif
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags);
+		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, tagsSearchResults);
 		return m_strRichTextCache;
 #else
-		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags);
+		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, tagsSearchResults);
 #endif
 	}
-	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase, const CVerseTextRichifierTags &richifierTags)
+	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
+									const CVerseTextRichifierTags &richifierTags,
+									const TPhraseTagList &tagsSearchResults = TPhraseTagList())
 	{
 		assert(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
-		return pBibleDatabase->richVerseText(ndx, richifierTags, false);
+		return pBibleDatabase->richVerseText(ndx, richifierTags, false, tagsSearchResults);
 	}
 
 	void sortPhraseTags()

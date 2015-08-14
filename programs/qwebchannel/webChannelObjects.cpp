@@ -92,7 +92,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		strVerse += "<li>";
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += " ";
-		strVerse += item.getVerseRichText(richifierTags);
+		strVerse += item.getVerseRichText(richifierTags, item.phraseTags());
 		strVerse += "</li>";
 		strResults += strVerse;
 	}

@@ -45,10 +45,12 @@ public:
 			m_strTransChangeAddedEnd("</i>"),
 			m_strWordsOfJesusBegin("<font color=\"red\">"),
 			m_strWordsOfJesusEnd("</font> "),
-//			m_strDivideNameBegin("<b>"),
-//			m_strDivideNameEnd("</b>")
-			m_strDivideNameBegin("<font size=\"-1\">"),
-			m_strDivideNameEnd("</font>"),
+//			m_strDivineNameBegin("<b>"),
+//			m_strDivineNameEnd("</b>")
+			m_strDivineNameBegin("<font size=\"-1\">"),
+			m_strDivineNameEnd("</font>"),
+			m_strSearchResultsBegin("<font color=\"blue\">"),
+			m_strSearchResultsEnd("</font>"),
 			m_bShowPilcrowMarkers(true)
 	{
 		calcHash();
@@ -93,13 +95,21 @@ public:
 		}
 	}
 
-	inline QString divineNameBegin() const { return m_strDivideNameBegin; }
-	inline QString divineNameEnd() const { return m_strDivideNameEnd; }
+	inline QString divineNameBegin() const { return m_strDivineNameBegin; }
+	inline QString divineNameEnd() const { return m_strDivineNameEnd; }
 	void setDivineNameTags(const QString &strTagBegin, const QString &strTagEnd)
 	{
-		m_strDivideNameBegin = strTagBegin;
-		m_strDivideNameEnd = strTagEnd;
+		m_strDivineNameBegin = strTagBegin;
+		m_strDivineNameEnd = strTagEnd;
 		calcHash();
+	}
+
+	inline QString searchResultsBegin() const { return m_strSearchResultsBegin; }
+	inline QString searchResultsEnd() const { return m_strSearchResultsEnd; }
+	void setSearchResultsTags(const QString &strTagBegin, const QString &strTagEnd)
+	{
+		m_strSearchResultsBegin = strTagBegin;
+		m_strSearchResultsEnd = strTagEnd;
 	}
 
 	inline bool showPilcrowMarkers() const { return m_bShowPilcrowMarkers; }
@@ -119,8 +129,10 @@ protected:
 						't' + m_strTransChangeAddedEnd +
 						'J' + m_strWordsOfJesusBegin +
 						'j' + m_strWordsOfJesusEnd +
-						'D' + m_strDivideNameBegin +
-						'd' + m_strDivideNameEnd +
+						'D' + m_strDivineNameBegin +
+						'd' + m_strDivineNameEnd +
+						'R' + m_strSearchResultsBegin +
+						'r' + m_strSearchResultsEnd +
 						(m_bShowPilcrowMarkers ? 'P' : 'p'));
 	}
 
@@ -131,8 +143,10 @@ private:
 	QString m_strTransChangeAddedEnd;
 	QString m_strWordsOfJesusBegin;
 	QString m_strWordsOfJesusEnd;
-	QString m_strDivideNameBegin;
-	QString m_strDivideNameEnd;
+	QString m_strDivineNameBegin;
+	QString m_strDivineNameEnd;
+	QString m_strSearchResultsBegin;
+	QString m_strSearchResultsEnd;
 	bool m_bShowPilcrowMarkers;
 };
 
@@ -146,6 +160,7 @@ public:
 		setTransChangeAddedTags("[", "]");
 		setWordsOfJesusTags(QString(), QString());
 		setDivineNameTags(QString(), QString());
+		setSearchResultsTags(QString(), QString());
 		setShowPilcrowMarkers(false);
 	}
 };
@@ -163,12 +178,15 @@ private:
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, int *pWordCount = NULL)
+		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, int *pWordCount = NULL, const TPhraseTagList &tagsSearchResults = TPhraseTagList())
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
+				m_strTemplate(strTemplate),
 				m_nStartWord(ndxRelative.word()),
 				m_pWordCount(pWordCount),
-				m_bOutput(false)
+				m_lstTagsSearchResults(tagsSearchResults),
+				m_bOutput(false),
+				m_bInSearchResult(false)
 		{
 			assert(pBibleDatabase != NULL);
 			m_strVerseText.reserve(1024);					// Avoid reallocations
@@ -177,20 +195,25 @@ private:
 			if (m_nStartWord == 0) m_bOutput = true;
 		}
 
-		QString m_strVerseText;								// Verse Text being built
-		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;
+		QString m_strTemplate;								// Verse Template being parsed -- will be identical to the one from CVerseEntry if not doing SearchResults, or modified if we are
+		// ----
+		QString m_strVerseText;								// Verse Text being built
+		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		uint32_t m_nStartWord;								// Set to the word to start parse on from ndxRelative on initial call (0 and 1 are both start of verse)
 		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
+		const TPhraseTagList &m_lstTagsSearchResults;		// Search Results to highlight if set
 		bool m_bOutput;										// True when outputting text
+		bool m_bInSearchResult;								// True when we are inside intersection of m_lstTagsSearchResults, f->t triggers writing the begin tag, t->f triggers writing the end tag
 	};
 
 	void parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
 
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
-							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false, int *pWordCount = NULL);
+							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false,
+							int *pWordCount = NULL, const TPhraseTagList &tagsSearchResults = TPhraseTagList());
 
 private:
 	const CVerseTextRichifier *m_pRichNext;
