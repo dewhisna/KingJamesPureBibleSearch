@@ -87,11 +87,12 @@ public:
 		m_strWordsOfJesusEnd = strTagEnd;
 		calcHash();
 	}
-	void setWordsOfJesusTagsByColor(const QColor &color) {
+	void setWordsOfJesusTagsByColor(const QColor &color)
+	{
 		if (color.isValid()) {
 			setWordsOfJesusTags(QString("<font color=\"%1\">").arg(color.name()), "</font> ");
 		} else {
-			setWordsOfJesusTags("", "");
+			setWordsOfJesusTags(QString(), QString());
 		}
 	}
 
@@ -110,6 +111,14 @@ public:
 	{
 		m_strSearchResultsBegin = strTagBegin;
 		m_strSearchResultsEnd = strTagEnd;
+	}
+	void setSearchResultsTagsByColor(const QColor &color)
+	{
+		if (color.isValid()) {
+			setSearchResultsTags(QString("<font color=\"%1\">").arg(color.name()), "</font>");
+		} else {
+			setSearchResultsTags(QString(), QString());
+		}
 	}
 
 	inline bool showPilcrowMarkers() const { return m_bShowPilcrowMarkers; }

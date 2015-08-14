@@ -371,6 +371,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 void CVerseTextRichifierTags::setFromPersistentSettings(const CPersistentSettings &aPersistentSettings, bool bCopyOptions)
 {
 	setWordsOfJesusTagsByColor(aPersistentSettings.colorWordsOfJesus());
+	setSearchResultsTagsByColor(aPersistentSettings.colorSearchResults());
 
 	if (bCopyOptions) {
 		switch (aPersistentSettings.transChangeAddWordMode()) {

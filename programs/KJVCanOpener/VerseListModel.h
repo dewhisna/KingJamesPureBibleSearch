@@ -821,6 +821,7 @@ public slots:
 
 protected slots:
 	void en_WordsOfJesusColorChanged(const QColor &color);
+	void en_SearchResultsColorChanged(const QColor &color);
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void en_changedCopyOptions();
 

@@ -586,6 +586,10 @@ protected slots:
 		m_richifierTagsDisplay.setWordsOfJesusTagsByColor(color);
 		m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
 	}
+	void en_SearchResultsColorChanged(const QColor &color)
+	{
+		m_richifierTagsDisplay.setSearchResultsTagsByColor(color);
+	}
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
 	{
 		m_richifierTagsDisplay.setShowPilcrowMarkers(bShowPilcrowMarkers);

@@ -102,6 +102,7 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
@@ -2661,6 +2662,11 @@ void CVerseListModel::en_WordsOfJesusColorChanged(const QColor &color)
 {
 	m_private.m_richifierTagsDisplay.setWordsOfJesusTagsByColor(color);
 	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
+}
+
+void CVerseListModel::en_SearchResultsColorChanged(const QColor &color)
+{
+	m_private.m_richifierTagsDisplay.setSearchResultsTagsByColor(color);
 }
 
 void CVerseListModel::en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
