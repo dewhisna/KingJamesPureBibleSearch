@@ -73,6 +73,9 @@
 							$("#tabs").tabs("option", "active", 1);
 							$("#tabs").tabs("refresh");
 							scrollToAnchor(ndxRel);
+							// Select the text:
+							$("#" + ndxRel).addClass("selected");
+							$("#" + ndxRel).next().addClass("selected");
 						});
 
 						output("Connected to WebChannel, ready to send/receive searches!");
@@ -97,6 +100,8 @@
 			.category { font-size:medium; font-weight:normal; }
 			.superscription { font-size:medium; font-weight:normal; font-style:italic; }
 			.colophon { font-size:medium; font-weight:normal; font-style:italic; }
+
+			.selected { background:yellow; }
 
 			#output {
 				width: 500px;
