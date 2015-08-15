@@ -23,7 +23,10 @@
 
 #include "webChannelObjects.h"
 
+#include "PhraseEdit.h"
+
 #include <QStringList>
+#include <QTextDocument>
 
 #define DEBUG_WEBCHANNEL 1
 
@@ -90,10 +93,12 @@ void CWebChannelObjects::en_searchResultsReady()
 		ndxVerse.setWord(0);
 		QString strVerse;
 		strVerse += "<li>";
+		strVerse += QString("<a href=\"javascript:gotoIndex(%1);\">").arg(ndxVerse.index());
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
+		strVerse += "</a>";
 		strVerse += " ";
 		strVerse += item.getVerseRichText(richifierTags, item.phraseTags());
-		strVerse += "</li>";
+		strVerse += "</li><br />";
 		strResults += strVerse;
 	}
 
@@ -101,4 +106,9 @@ void CWebChannelObjects::en_searchResultsReady()
 	qDebug("Sending Results");
 #endif
 	emit searchResultsChanged(strResults);
+}
+
+void CWebChannelObjects::gotoIndex(uint32_t ndx)
+{
+	emit scriptureBrowserRender(m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndx), CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags | CPhraseNavigator::TRO_InnerHTML)));
 }

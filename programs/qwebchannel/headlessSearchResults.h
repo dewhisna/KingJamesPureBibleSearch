@@ -29,8 +29,10 @@
 #include <VerseListModel.h>
 
 #include <QPointer>
+#include <QTextDocument>
 
 // Forward declarations:
+class CPhraseNavigator;
 
 //
 // CHeadlessSearchResults
@@ -43,9 +45,11 @@ public:
 	CHeadlessSearchResults(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent = 0);
 	virtual ~CHeadlessSearchResults();
 
-	void setParsedPhrases(const CSearchResultsData &searchResultsData);
-
 	inline const CVerseListModel &vlmodel() const { return m_verseListModel; }
+	CPhraseNavigator &phraseNavigator() const { return *m_pPhraseNavigator; }
+
+public slots:
+	void setParsedPhrases(const CSearchResultsData &searchResultsData);
 
 signals:
 	// Pass-through:
@@ -53,6 +57,8 @@ signals:
 
 private:
 	CVerseListModel m_verseListModel;
+	CPhraseNavigator *m_pPhraseNavigator;
+	QTextDocument m_scriptureText;
 };
 
 #endif	// HEADLESS_SEARCH_RESULTS_H

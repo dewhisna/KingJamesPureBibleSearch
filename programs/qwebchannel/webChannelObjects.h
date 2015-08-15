@@ -47,10 +47,14 @@ public:
 	virtual ~CWebChannelObjects();
 
 public slots:
-	void setSearchPhrases(const QString &strPhrases);		// Phrases, separated by semicolon
+	void setSearchPhrases(const QString &strPhrases);		// Phrases, separated by semicolon, to search for
+
+	void gotoIndex(uint32_t ndx);							// Passage to navigate Scripture Browser to
 
 signals:
 	void searchResultsChanged(const QString &strHtmlLiSearchResults);		// Triggered by en_searchResultsReady() when we have data to send to channel
+
+	void scriptureBrowserRender(const QString &strHtmlScripture);			// Triggered by scripture browser navigation to display rendered text
 
 protected:
 

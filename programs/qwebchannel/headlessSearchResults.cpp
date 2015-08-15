@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "headlessSearchResults.h"
+#include "PhraseEdit.h"
 
 CHeadlessSearchResults::CHeadlessSearchResults(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent)
 	:	QObject(pParent),
@@ -32,6 +33,8 @@ CHeadlessSearchResults::CHeadlessSearchResults(CBibleDatabasePtr pBibleDatabase,
 	m_verseListModel.setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 
 	connect(&m_verseListModel, SIGNAL(searchResultsReady()), this, SIGNAL(searchResultsReady()));
+
+	m_pPhraseNavigator = new CPhraseNavigator(pBibleDatabase, m_scriptureText, this);
 }
 
 CHeadlessSearchResults::~CHeadlessSearchResults()
