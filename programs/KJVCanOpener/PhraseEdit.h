@@ -488,7 +488,8 @@ public:
 		TRO_SuppressPrePostChapters = 0x400,		// Suppress adding pre/post chapter displays
 		TRO_Copying = 0x800,						// Text Copying mode (i.e. add selected font from copy option, etc)
 		TRO_ScriptureBrowser = 0x1000,				// Rendering Scripture Browser Text
-		TRO_SearchResults = 0x2000					// Rendering Search Results Text
+		TRO_SearchResults = 0x2000,					// Rendering Search Results Text
+		TRO_InnerHTML = 0x4000						// Generate Inner-HTML Only (i.e. no header and body tags)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 

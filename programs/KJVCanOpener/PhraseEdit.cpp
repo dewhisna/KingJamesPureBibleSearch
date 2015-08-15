@@ -1321,24 +1321,26 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
 	}
 
-//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
-//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
-//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
-//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
-	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
-										"<title>%1</title><style type=\"text/css\">\n"
-										"body, p, li, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
-										".book { font-size:xx-large; font-weight:bold; }\n"
-										".chapter { font-size:x-large; font-weight:bold; }\n"
-										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										".category { font-size:medium; font-weight:normal; }\n"
-										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										"</style></head><body>\n")
-										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
-										.arg(strCopyFont)																// Copy Font
-										.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
+//											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
+//											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+											"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+											"<title>%1</title><style type=\"text/css\">\n"
+											"body, p, li, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
+											".book { font-size:xx-large; font-weight:bold; }\n"
+											".chapter { font-size:x-large; font-weight:bold; }\n"
+											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											".category { font-size:medium; font-weight:normal; }\n"
+											".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											"</style></head><body>\n")
+											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
+											.arg(strCopyFont)																// Copy Font
+											.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+	}
 
 	CRelIndex ndxBookChap(ndx.book(), ndx.chapter(), 0, 0);
 	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
@@ -1408,7 +1410,10 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 	}
 
-	scriptureHTML.appendRawText("</body></html>");
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		scriptureHTML.appendRawText("</body></html>");
+	}
+
 	QString strRawHTML = scriptureHTML.getResult();
 	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
@@ -1495,24 +1500,26 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 											CPersistentSettings::instance()->verseRenderingModeCopying() :
 											CPersistentSettings::instance()->verseRenderingMode());
 
-//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
-//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
-//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
-//										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
-	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
-										"<title>%1</title><style type=\"text/css\">\n"
-										"body, p, li, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
-										".book { font-size:xx-large; font-weight:bold; }\n"
-										".chapter { font-size:x-large; font-weight:bold; }\n"
-										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										".category { font-size:medium; font-weight:normal; }\n"
-										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										"</style></head><body>\n")
-										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
-										.arg(strCopyFont)																// Copy Font
-										.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
+//											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n.subtitle { font-size:medium; font-weight:normal; }\n.category { font-size:medium; font-weight:normal; }\n</style></head><body>\n")
+//											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+											"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+											"<title>%1</title><style type=\"text/css\">\n"
+											"body, p, li, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
+											".book { font-size:xx-large; font-weight:bold; }\n"
+											".chapter { font-size:x-large; font-weight:bold; }\n"
+											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											".category { font-size:medium; font-weight:normal; }\n"
+											".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											"</style></head><body>\n")
+											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
+											.arg(strCopyFont)																// Copy Font
+											.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+	}
 
 	CRelIndex relPrev = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
 	CRelIndex relNext = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), false);	// Calculate first verse of next chapter
@@ -1934,7 +1941,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endParagraph();
 	}
 
-	scriptureHTML.appendRawText("</body></html>");
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		scriptureHTML.appendRawText("</body></html>");
+	}
 	QString strRawHTML = scriptureHTML.getResult();
 	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
@@ -2006,24 +2015,26 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
 	}
 
-//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
-//						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
-//	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
-//						.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
-	scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-										"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
-										"<title>%1</title><style type=\"text/css\">\n"
-										"body, p, li, .bodyIndent { white-space: pre-wrap; line-height:%3; %2 }\n"
-										".book { font-size:xx-large; font-weight:bold; }\n"
-										".chapter { font-size:x-large; font-weight:bold; }\n"
-										".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										".category { font-size:medium; font-weight:normal; }\n"
-										".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
-										"</style></head><body>\n")
-										.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
-										.arg(strCopyFont)																// Copy Font
-										.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
+//							.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:medium; }\n.book { font-size:xx-large; font-weight:bold; }\n.chapter { font-size:x-large; font-weight:bold; }\n</style></head><body>\n")
+//							.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
+		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+											"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+											"<title>%1</title><style type=\"text/css\">\n"
+											"body, p, li, .bodyIndent { white-space: pre-wrap; line-height:%3; %2 }\n"
+											".book { font-size:xx-large; font-weight:bold; }\n"
+											".chapter { font-size:x-large; font-weight:bold; }\n"
+											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											".category { font-size:medium; font-weight:normal; }\n"
+											".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											".colophon { font-size:medium; font-weight:normal; font-style:italic; }\n"
+											"</style></head><body>\n")
+											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
+											.arg(strCopyFont)																// Copy Font
+											.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+	}
 
 	if (flagsTRO & TRO_AddDividerLineBefore) scriptureHTML.insertHorizontalRule();
 
@@ -2085,7 +2096,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	if (flagsTRO & TRO_UserNotes)
 		scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 
-	scriptureHTML.appendRawText("</body></html>");
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		scriptureHTML.appendRawText("</body></html>");
+	}
 	QString strRawHTML = scriptureHTML.getResult();
 	m_TextDocument.setHtml(strRawHTML);
 	emit changedDocumentText();
