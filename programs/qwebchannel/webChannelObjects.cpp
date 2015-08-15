@@ -108,11 +108,12 @@ void CWebChannelObjects::en_searchResultsReady()
 	emit searchResultsChanged(strResults);
 }
 
-void CWebChannelObjects::gotoIndex(uint32_t ndx)
+void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 {
-	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndx),
+	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndxRel),
 							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
 							CPhraseNavigator::TRO_InnerHTML |
-							CPhraseNavigator::TRO_NoWordAnchors));
-	emit scriptureBrowserRender(strText);
+							CPhraseNavigator::TRO_NoWordAnchors |
+							CPhraseNavigator::TRO_SuppressPrePostChapters));
+	emit scriptureBrowserRender(ndxRel, strText);
 }

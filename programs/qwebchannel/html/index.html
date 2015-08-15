@@ -19,7 +19,12 @@
 				$("html, #tabs").animate({
 					scrollTop: 0
 				}, 200);
-			};
+			}
+			function scrollToAnchor(anAnchor)
+			{
+				var element_to_scroll_to = document.getElementById(anAnchor);
+				element_to_scroll_to.scrollIntoView();
+			}
 			window.onload = function() {
 				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
 				output("Connecting to WebSocket server at " + baseUrl + ".");
@@ -63,11 +68,11 @@
 							scrollTabTop();
 						});
 
-						kjpbs.scriptureBrowserRender.connect(function(strHtmlScripture) {
+						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
 							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
 							$("#tabs").tabs("option", "active", 1);
 							$("#tabs").tabs("refresh");
-							scrollTabTop();
+							scrollToAnchor(ndxRel);
 						});
 
 						output("Connected to WebChannel, ready to send/receive searches!");
