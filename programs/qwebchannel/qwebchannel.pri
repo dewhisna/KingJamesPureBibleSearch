@@ -26,9 +26,9 @@
 		DEFINES += USING_WEBCHANNEL
 
 		WEBFILES += \
-			$$PWD/qwebchannel.js \
-			$$PWD/index.html \
-			$$PWD/error.html
+			$$PWD/html/qwebchannel.js \
+			$$PWD/html/index.html \
+			$$PWD/html/error.html
 
 		webchannelDeploy.files = $$WEBFILES
 		webchannelDeploy.path = .
