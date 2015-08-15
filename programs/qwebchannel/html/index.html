@@ -57,13 +57,13 @@
 
 				socket.onclose = function()
 				{
-					console.error("web channel closed");
-					alert("web channel closed");
+					output("WebChannel Connection Closed");
+					alert("WebChannel Connection Closed");
 				};
 				socket.onerror = function(error)
 				{
-					console.error("web channel error: " + error);
-					alert("web channel error: " + error);
+					output("WebChannel Error: " + error);
+					alert("WebChannel Error: " + error);
 				};
 				socket.onopen = function()
 				{
@@ -164,7 +164,7 @@
 			.superscription { font-size:medium; font-weight:normal; font-style:italic; }
 			.colophon { font-size:medium; font-weight:normal; font-style:italic; }
 
-			.selected { background:yellow; }
+			.selected { background:LightGoldenRodYellow; }
 
 			#output {
 				width: 500px;
