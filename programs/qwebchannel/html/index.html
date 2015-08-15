@@ -83,10 +83,33 @@
 				}
 			}
 			//END SETUP
+
 			function gotoIndex(ndx)
 			{
 				window.kjpbs.gotoIndex(ndx);
 			}
+
+			function checkKey(e) {
+
+				e = e || window.event;
+
+				if (e.altKey) {
+					switch (e.keyCode) {
+						case 37:		// Left arrow
+							$("#tabs").tabs("option", "active", 0);
+							break;
+						case 39:		// Right arrow
+							$("#tabs").tabs("option", "active", 1);
+							break;
+						// Note: up=38, down=40
+						default:
+							return;
+					}
+					e.preventDefault();
+				}
+			}
+			document.onkeydown = checkKey;
+
 		</script>
 		<style type="text/css">
 			html {
