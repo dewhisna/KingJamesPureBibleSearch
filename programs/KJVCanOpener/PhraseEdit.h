@@ -201,10 +201,12 @@ public:
 
 	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords)
 	{
-		setCaseSensitive(aPhraseEntry.caseSensitive());
-		setAccentSensitive(aPhraseEntry.accentSensitive());
-		setExclude(aPhraseEntry.isExcluded());
-		ParsePhrase(aPhraseEntry.text(), bFindWords);
+		if (*this != aPhraseEntry) {		// Only set the phrase if it's different to avoid repeated FindWords() calls
+			setCaseSensitive(aPhraseEntry.caseSensitive());
+			setAccentSensitive(aPhraseEntry.accentSensitive());
+			setExclude(aPhraseEntry.isExcluded());
+			ParsePhrase(aPhraseEntry.text(), bFindWords);
+		}
 	}
 
 	void UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter);
