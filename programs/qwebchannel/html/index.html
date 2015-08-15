@@ -83,6 +83,7 @@
 								return;
 							}
 
+							$("body").css("cursor", "progress");
 							kjpbs.setSearchPhrases(text);
 						}
 
@@ -91,6 +92,8 @@
 							$("#tabs").tabs("option", "active", 0);
 							$("#tabs").tabs("refresh");
 							scrollTabTop();
+							// Wait cursor back off
+							$("body").css("cursor", "default");
 						});
 
 						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
@@ -103,6 +106,8 @@
 							// Select the text from the navigation:
 							$("#" + ndxRel).addClass("selected");
 							$("#" + ndxRel).next().addClass("selected");
+							// Wait cursor back off
+							$("body").css("cursor", "default");
 						});
 
 						bEnableScriptureBrowserTabSwap = false;
@@ -120,6 +125,7 @@
 			function gotoIndex(ndx)
 			{
 				bEnableScriptureBrowserTabSwap = true;
+				$("body").css("cursor", "progress");
 				window.kjpbs.gotoIndex(ndx);
 			}
 
