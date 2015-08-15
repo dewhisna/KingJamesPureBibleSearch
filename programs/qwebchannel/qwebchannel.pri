@@ -26,9 +26,7 @@
 		DEFINES += USING_WEBCHANNEL
 
 		WEBFILES += \
-			$$PWD/html/qwebchannel.js \
-			$$PWD/html/index.html \
-			$$PWD/html/error.html
+			$$PWD/html/*
 
 		webchannelDeploy.files = $$WEBFILES
 		webchannelDeploy.path = .
@@ -46,10 +44,17 @@
 
 		webchannel_build.input = webchannel_copyfiles
 		webchannel_build.output = $$OUT_PWD/${QMAKE_FUNC_FILE_IN_stripSrcDir}
-		webchannel_build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
+		webchannel_build.commands = $$QMAKE_COPY -r ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
 		webchannel_build.name = COPY ${QMAKE_FILE_IN}
 		webchannel_build.CONFIG = no_link target_predeps
 		QMAKE_EXTRA_COMPILERS += webchannel_build
+
+		# Add target for 'clean' so we can also clean the recursed 'jquery' folder:
+		!equals($$PWD, $$OUT_PWD) {
+			jquery_clean.commands = -$(DEL_FILE) -r $${OUT_PWD}/jquery
+			clean.depends = jquery_clean
+			QMAKE_EXTRA_TARGETS += clean jquery_clean
+		}
 
 	}
 
