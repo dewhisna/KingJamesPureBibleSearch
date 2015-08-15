@@ -112,7 +112,22 @@ void CWebChannelObjects::en_searchResultsReady()
 
 void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 {
-	CSearchResultHighlighter srHighlighter(&m_pSearchResults->vlmodel(), false);
+	// Build a subset list of search results that are only in this chapter (which can't be
+	//		any larger than the number of results in this chapter) and use that for doing
+	//		the highlighting so that the VerseRichifier doesn't have to search the whole
+	//		set, as doing so is slow on large searches:
+	TPhraseTagList lstChapterCurrent = m_pSearchResults->phraseNavigator().currentChapterDisplayPhraseTagList(ndxRel);
+	TPhraseTagList lstSearchResultsSubset;
+
+	CSearchResultHighlighter srHighlighterFull(&m_pSearchResults->vlmodel(), false);
+	CHighlighterPhraseTagFwdItr itr = srHighlighterFull.getForwardIterator();
+	while (!itr.isEnd()) {
+		TPhraseTag tagNext = itr.nextTag();
+		if (lstChapterCurrent.intersects(m_pSearchResults->vlmodel().bibleDatabase().data(), tagNext))
+			lstSearchResultsSubset.append(tagNext);
+	}
+
+	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
 	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndxRel),
 							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
 							CPhraseNavigator::TRO_InnerHTML |
