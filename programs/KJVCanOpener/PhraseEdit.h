@@ -489,7 +489,13 @@ public:
 		TRO_Copying = 0x800,						// Text Copying mode (i.e. add selected font from copy option, etc)
 		TRO_ScriptureBrowser = 0x1000,				// Rendering Scripture Browser Text
 		TRO_SearchResults = 0x2000,					// Rendering Search Results Text
-		TRO_InnerHTML = 0x4000						// Generate Inner-HTML Only (i.e. no header and body tags)
+		TRO_InnerHTML = 0x4000,						// Generate Inner-HTML Only (i.e. no header and body tags)
+		TRO_NoWordAnchors = 0x8000,					// Disables per-word anchors and uses verse, chapter, book anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoVerseAnchors = 0x10000,				// Disables per-verse anchors and uses word, chapter, book anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoChapterAnchors = 0x20000,				// Disables per-chapter anchors and uses word, verse, book anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoBookAnchors = 0x40000,				// Disables per-book anchors and uses word, verse, chapter anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoCrossRefAnchors = 0x80000,			// Disables navigation anchors for CrossRefs (superceded by TRO_NoAnchors)
+		TRO_NoFootnoteAnchors = 0x100000			// Disables outputting anchors for Footnotes (superceded by TRO_NoAnchors)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
