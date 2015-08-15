@@ -27,6 +27,7 @@
 
 #include "PersistentSettings.h"
 #include "PhraseEdit.h"
+#include "Highlighter.h"
 
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
@@ -292,6 +293,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				if (m_chrMatchChar == QChar('D')) {
 					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
 				} else if (m_chrMatchChar == QChar('R')) {
+					assert(parseBaton.m_pHighlighter != NULL);
 					// Note: for searchResult, we always have to check the intersection and handle
 					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
@@ -300,16 +302,18 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					ndxWord.setWord(ndxWord.word()+1);
 					if ((parseBaton.m_bOutput) &&
 						(!parseBaton.m_bInSearchResult) &&
-						(parseBaton.m_lstTagsSearchResults.intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						(parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
 						parseBaton.m_strVerseText.append(m_strXlateText);
 						parseBaton.m_bInSearchResult = true;
 					}
 				} else if (m_chrMatchChar == QChar('r')) {
+					assert(parseBaton.m_pHighlighter != NULL);
 					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
 					if ((parseBaton.m_bOutput) &&
 						(parseBaton.m_bInSearchResult) &&
-						(!parseBaton.m_lstTagsSearchResults.intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						((!parseBaton.m_pHighlighter->isContinuous()) ||
+							(!parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
 						parseBaton.m_strVerseText.append(m_strXlateText);
 						parseBaton.m_bInSearchResult = false;
 					}
@@ -327,7 +331,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 }
 
 QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
-										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const TPhraseTagList &tagsSearchResults)
+										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const CBasicHighlighter *pHighlighter)
 {
 	assert(pBibleDatabase != NULL);
 	assert(pVerse != NULL);
@@ -351,9 +355,12 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bAddAnchors);
 
 	QString strTemplate = pVerse->m_strTemplate;
-	if (!tagsSearchResults.isEmpty()) strTemplate.replace(QChar('w'), "Rwr");
+	if ((pHighlighter != NULL) &&
+		(pHighlighter->enabled())) {
+		strTemplate.replace(QChar('w'), "Rwr");
+	}
 
-	CRichifierBaton baton(pBibleDatabase, ndxRelative, strTemplate, pWordCount, tagsSearchResults);
+	CRichifierBaton baton(pBibleDatabase, ndxRelative, strTemplate, pWordCount, pHighlighter);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {

@@ -565,8 +565,12 @@ public:
 #define defaultDocumentToVerseFlags		(CPhraseNavigator::TRO_None)
 	// Returns unaltered raw-HTML text (as opposed to the QTextEdit changes to the HTML):
 	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
-	QString setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
-	QString setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
+	QString setDocumentToChapter(const CRelIndex &ndx,
+								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags),
+								const CBasicHighlighter *pHighlighter = NULL);
+	QString setDocumentToVerse(const CRelIndex &ndx,
+								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags),
+								const CBasicHighlighter *pHighlighter = NULL);
 	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 

@@ -157,6 +157,9 @@ public:
 
 // ============================================================================
 
+// Forward declarations
+class CBasicHighlighter;
+
 class CVerseListItem
 {
 public:
@@ -394,26 +397,26 @@ public:
 	}
 
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags,
-								const TPhraseTagList &tagsSearchResults = TPhraseTagList()) const
+								const CBasicHighlighter *pHighlighter = NULL) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
 #endif
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, tagsSearchResults);
+		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, pHighlighter);
 		return m_strRichTextCache;
 #else
-		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, tagsSearchResults);
+		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, pHighlighter);
 #endif
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
 									const CVerseTextRichifierTags &richifierTags,
-									const TPhraseTagList &tagsSearchResults = TPhraseTagList())
+									const CBasicHighlighter *pHighlighter = NULL)
 	{
 		assert(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
-		return pBibleDatabase->richVerseText(ndx, richifierTags, false, tagsSearchResults);
+		return pBibleDatabase->richVerseText(ndx, richifierTags, false, pHighlighter);
 	}
 
 	void sortPhraseTags()

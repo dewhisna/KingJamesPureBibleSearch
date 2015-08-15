@@ -65,6 +65,7 @@
 
 // Forward declarations:
 class CBibleDatabase;
+class CBasicHighlighter;
 
 // ============================================================================
 
@@ -1137,7 +1138,7 @@ public:
 	QString richVerseText(const CRelIndex &ndxRel,
 							const CVerseTextRichifierTags &tags,
 							bool bAddAnchors = false,
-							const TPhraseTagList &tagsSearchResults = TPhraseTagList()) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+							const CBasicHighlighter *aHighlighter = NULL) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
 #endif

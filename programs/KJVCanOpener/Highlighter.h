@@ -93,6 +93,7 @@ public:
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const = 0;
 	virtual bool enabled() const { return m_bEnabled; }
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const = 0;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const = 0;
 	virtual bool isEmpty() const = 0;
@@ -117,12 +118,13 @@ class CSearchResultHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultHighlighter(CVerseListModel *pVerseListModel, bool bExcludedResults = false, QObject *parent = NULL);
+	explicit CSearchResultHighlighter(const CVerseListModel *pVerseListModel, bool bExcludedResults = false, QObject *parent = NULL);
 	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults = false, QObject *parent = NULL);
 	CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults = false, QObject *parent = NULL);
 	virtual ~CSearchResultHighlighter();
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;
@@ -134,7 +136,7 @@ private slots:
 	void verseListModelDestroyed();
 
 private:
-	CVerseListModel *m_pVerseListModel;
+	const CVerseListModel *m_pVerseListModel;
 	bool m_bExcludedResults;						// True if this highlighter is displaying excluded search results, false if displaying normal search results
 
 	// Guard class to keep me from accidentally accessing non-const functions and
@@ -175,6 +177,7 @@ public:
 	}
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;
@@ -227,6 +230,7 @@ public:
 	}
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
 	virtual bool isEmpty() const;

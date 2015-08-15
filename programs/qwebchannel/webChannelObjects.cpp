@@ -24,6 +24,7 @@
 #include "webChannelObjects.h"
 
 #include "PhraseEdit.h"
+#include "Highlighter.h"
 
 #include <QStringList>
 #include <QTextDocument>
@@ -89,6 +90,7 @@ void CWebChannelObjects::en_searchResultsReady()
 
 		const CVerseListItem &item(m_pSearchResults->vlmodel().data(ndxModel, CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		if (item.verseIndex().isNull()) continue;
+		CSearchResultHighlighter srHighlighter(item.phraseTags());
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord(0);
 		QString strVerse;
@@ -97,7 +99,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
-		strVerse += item.getVerseRichText(richifierTags, item.phraseTags());
+		strVerse += item.getVerseRichText(richifierTags, &srHighlighter);
 		strVerse += "</li><br />";
 		strResults += strVerse;
 	}
@@ -110,10 +112,12 @@ void CWebChannelObjects::en_searchResultsReady()
 
 void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 {
+	CSearchResultHighlighter srHighlighter(&m_pSearchResults->vlmodel(), false);
 	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndxRel),
 							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
 							CPhraseNavigator::TRO_InnerHTML |
 							CPhraseNavigator::TRO_NoWordAnchors |
-							CPhraseNavigator::TRO_SuppressPrePostChapters));
+							CPhraseNavigator::TRO_SuppressPrePostChapters),
+							&srHighlighter);
 	emit scriptureBrowserRender(ndxRel, strText);
 }

@@ -187,13 +187,13 @@ private:
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, int *pWordCount = NULL, const TPhraseTagList &tagsSearchResults = TPhraseTagList())
+		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
 				m_strTemplate(strTemplate),
 				m_nStartWord(ndxRelative.word()),
 				m_pWordCount(pWordCount),
-				m_lstTagsSearchResults(tagsSearchResults),
+				m_pHighlighter(pHighlighter),
 				m_bOutput(false),
 				m_bInSearchResult(false)
 		{
@@ -212,7 +212,7 @@ private:
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		uint32_t m_nStartWord;								// Set to the word to start parse on from ndxRelative on initial call (0 and 1 are both start of verse)
 		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
-		const TPhraseTagList &m_lstTagsSearchResults;		// Search Results to highlight if set
+		const CBasicHighlighter *m_pHighlighter;			// Search Results (or other) word highligher if set
 		bool m_bOutput;										// True when outputting text
 		bool m_bInSearchResult;								// True when we are inside intersection of m_lstTagsSearchResults, f->t triggers writing the begin tag, t->f triggers writing the end tag
 	};
@@ -222,7 +222,7 @@ private:
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false,
-							int *pWordCount = NULL, const TPhraseTagList &tagsSearchResults = TPhraseTagList());
+							int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL);
 
 private:
 	const CVerseTextRichifier *m_pRichNext;
