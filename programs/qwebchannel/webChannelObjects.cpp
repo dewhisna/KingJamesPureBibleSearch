@@ -110,5 +110,9 @@ void CWebChannelObjects::en_searchResultsReady()
 
 void CWebChannelObjects::gotoIndex(uint32_t ndx)
 {
-	emit scriptureBrowserRender(m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndx), CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags | CPhraseNavigator::TRO_InnerHTML)));
+	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndx),
+							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
+							CPhraseNavigator::TRO_InnerHTML |
+							CPhraseNavigator::TRO_NoWordAnchors));
+	emit scriptureBrowserRender(strText);
 }
