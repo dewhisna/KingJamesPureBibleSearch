@@ -8,11 +8,36 @@
 		<script src="jquery/jquery-ui/1.11.4/jquery-ui.js"></script>
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
+			var bEnableScriptureBrowserTabSwap = false;
+
 			//BEGIN SETUP
 			function output(message)
 			{
 				var output = document.getElementById("output");
 				output.innerHTML = output.innerHTML + message + "\n";
+			}
+			function makeRelIndex(book, chapter, verse, word)
+			{
+				return ((book & 0xFF) << 24) |
+						((chapter & 0xFF) << 16) |
+						((verse & 0xFF) << 8) |
+						(word & 0xFF);
+			}
+			function relIndexBook(ndxRel)
+			{
+				return ((ndxRel >> 24) & 0xFF);
+			}
+			function relIndexChapter(ndxRel)
+			{
+				return ((ndxRel >> 16) & 0xFF);
+			}
+			function relIndexVerse(ndxRel)
+			{
+				return ((ndxRel >> 8) & 0xFF);
+			}
+			function relIndexWord(ndxRel)
+			{
+				return (ndxRel & 0xFF);
 			}
 			function scrollTabTop()
 			{
@@ -70,13 +95,21 @@
 
 						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
 							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
-							$("#tabs").tabs("option", "active", 1);
-							$("#tabs").tabs("refresh");
-							scrollToAnchor(ndxRel);
-							// Select the text:
+							if (bEnableScriptureBrowserTabSwap) {
+								$("#tabs").tabs("option", "active", 1);
+								$("#tabs").tabs("refresh");
+								scrollToAnchor(ndxRel);
+							}
+							// Select the text from the navigation:
 							$("#" + ndxRel).addClass("selected");
 							$("#" + ndxRel).next().addClass("selected");
 						});
+
+						bEnableScriptureBrowserTabSwap = false;
+						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0));
+						$("#tabs").tabs("option", "active", 1);
+						$("#tabs").tabs("refresh");
+						scrollTabTop();
 
 						output("Connected to WebChannel, ready to send/receive searches!");
 					});
@@ -86,6 +119,7 @@
 
 			function gotoIndex(ndx)
 			{
+				bEnableScriptureBrowserTabSwap = true;
 				window.kjpbs.gotoIndex(ndx);
 			}
 
@@ -96,10 +130,16 @@
 				if (e.altKey) {
 					switch (e.keyCode) {
 						case 37:		// Left arrow
-							$("#tabs").tabs("option", "active", 0);
+							$("#tabs").tabs("option", "active",
+									(($("#tabs").tabs("option", "active") == 0) ?
+											$("#tabs").tabs("option", "active", 1) :
+											$("#tabs").tabs("option", "active", $("#tabs").tabs("option", "active")-1)));
 							break;
 						case 39:		// Right arrow
-							$("#tabs").tabs("option", "active", 1);
+							$("#tabs").tabs("option", "active",
+									(($("#tabs").tabs("option", "active") == 1) ?
+											$("#tabs").tabs("option", "active", 0) :
+											$("#tabs").tabs("option", "active", $("#tabs").tabs("option", "active")+1)));
 							break;
 						// Note: up=38, down=40
 						default:
