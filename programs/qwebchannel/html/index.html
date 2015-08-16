@@ -9,6 +9,8 @@
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
 			var bEnableScriptureBrowserTabSwap = false;
+			var nSearchPhraseCount = 0;
+			var nSearchPhraseNextID = 0;
 
 			//BEGIN SETUP
 			function output(message)
@@ -72,21 +74,6 @@
 						// make our kjpbs object accessible globally
 						window.kjpbs = channel.objects.kjpbs;
 
-						document.getElementById("searchPhrase").searchPhraseChanged = function() {
-							var input = document.getElementById("searchPhrase");
-							var text = input.value;
-							if (!text) {
-								document.getElementById("searchResults").innerHTML = "";
-								$("#tabs").tabs("option", "active", 0);
-								$("#tabs").tabs("refresh");
-								scrollTabTop();
-								return;
-							}
-
-							$("body").css("cursor", "progress");
-							kjpbs.setSearchPhrases(text);
-						}
-
 						kjpbs.searchResultsChanged.connect(function(strHtmlLiSearchResults) {
 							document.getElementById("searchResults").innerHTML = strHtmlLiSearchResults;
 							$("#tabs").tabs("option", "active", 0);
@@ -110,6 +97,10 @@
 							$("body").css("cursor", "default");
 						});
 
+						kjpbs.setAutoCorrectText.connect(function(strElementID, strAC) {
+							document.getElementById(strElementID+"_AC").innerHTML = "&nbsp;" + strAC;
+						});
+
 						bEnableScriptureBrowserTabSwap = false;
 						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0));
 						$("#tabs").tabs("option", "active", 1);
@@ -121,6 +112,43 @@
 				}
 			}
 			//END SETUP
+
+			function addSearchPhrase() {
+				nSearchPhraseCount = nSearchPhraseCount + 1;
+				nSearchPhraseNextID = nSearchPhraseNextID + 1;
+				var newPhrase = $("#phrases").append(document.createElement('div'));
+				newPhrase.attr("id", "searchPhrase_" + nSearchPhraseNextID);
+				newPhrase.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
+				newPhrase.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(this.id);" />')
+							.on('change keydown paste input', function() { searchPhraseTextChanged(this.id); });
+				$("#tabs").tabs("refresh");
+			}
+
+			function searchPhraseChanged(aSearchPhraseText) {
+				var input = document.getElementById(aSearchPhraseText);
+				var text = input.value;
+				if (!text) {
+					document.getElementById("searchResults").innerHTML = "";
+					$("#tabs").tabs("option", "active", 0);
+					$("#tabs").tabs("refresh");
+					scrollTabTop();
+					return;
+				}
+
+				$("body").css("cursor", "progress");
+				window.kjpbs.setSearchPhrases(text);
+			}
+
+			function searchPhraseTextChanged(aSearchPhrase) {
+				var input = document.getElementById(aSearchPhrase+"_Text");
+				var thePhrase = document.getElementById(aSearchPhrase+"_AC");
+				var text = input.value;
+				if (!text) {
+					thePhrase.innerHTML = "&nbsp;";
+				} else {
+					window.kjpbs.autoCorrect(aSearchPhrase, text, text.length);
+				}
+			}
 
 			function gotoIndex(ndx)
 			{
@@ -155,7 +183,6 @@
 				}
 			}
 			document.onkeydown = checkKey;
-
 		</script>
 		<style type="text/css">
 			html {
@@ -172,13 +199,18 @@
 
 			.selected { background:LightGoldenRodYellow; }
 
+			.searchPhraseAC {
+				width: 500px;
+				margin: 0 10px 0 0;
+			}
+			.searchPhraseText {
+				width: 500px;
+				margin: 0 10px 0 0;
+			}
+
 			#output {
 				width: 500px;
 				height: 75px;
-			}
-			#searchPhrase {
-				width: 500px;
-				margin: 0 10px 0 0;
 			}
 			#searchResults {
 				list-style-type: none;
@@ -208,7 +240,7 @@
 			</ul>
 
 			<div id="search">
-				<input id="searchPhrase" type="text" onchange="javascript:searchPhraseChanged();" />
+				<div id="phrases"></div>
 				<ol id="searchResults"></ol>
 			</div>
 
@@ -219,7 +251,8 @@
 		</div>
 
 		<script>
-		$( "#tabs" ).tabs();
+			$( "#tabs" ).tabs();
+			addSearchPhrase();			// Add initial search phrase
 		</script>
 
 

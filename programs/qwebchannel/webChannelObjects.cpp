@@ -28,8 +28,10 @@
 
 #include <QStringList>
 #include <QTextDocument>
+#include <QTextEdit>
 
-#define DEBUG_WEBCHANNEL 1
+#define DEBUG_WEBCHANNEL_SEARCH 0
+#define DEBUG_WEBCHANNEL_AUTOCORRECT 0
 
 CWebChannelObjects::CWebChannelObjects(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent)
 	:	QObject(pParent)
@@ -50,7 +52,7 @@ CWebChannelObjects::~CWebChannelObjects()
 
 void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 {
-#if DEBUG_WEBCHANNEL
+#if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Received: %s", strPhrases.toUtf8().data());
 #endif
 
@@ -75,13 +77,57 @@ void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 	m_pSearchResults->setParsedPhrases(m_searchResultsData);		// Start processing search -- will block if not multi-threaded, else will exit, and either case searchResultsReady() fires
 }
 
+void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos)
+{
+#if DEBUG_WEBCHANNEL_AUTOCORRECT
+	qDebug("ReceivedAC: %s : \"%s\" : Cursor=%d", strElementID.toUtf8().data(), strPhrase.toUtf8().data(), nCursorPos);
+#endif
+
+	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
+
+	QTextEdit edit(strPhrase);
+	CPhraseCursor cursor(edit.textCursor());
+	cursor.setPosition(nCursorPos);
+	thePhrase.ParsePhrase(cursor, true);
+
+	QString strParsedPhrase;
+
+	for (int nSubPhrase = 0; nSubPhrase < thePhrase.subPhraseCount(); ++nSubPhrase) {
+		if (nSubPhrase) strParsedPhrase += " | ";
+		const CSubPhrase *pSubPhrase = thePhrase.subPhrase(nSubPhrase);
+		int nPhraseSize = pSubPhrase->phraseSize();
+		for (int nWord = 0; nWord < nPhraseSize; ++nWord) {
+			if (nWord) strParsedPhrase += " ";
+			if ((pSubPhrase->GetMatchLevel() <= nWord) &&
+				(pSubPhrase->GetCursorMatchLevel() <= nWord) &&
+				((nWord != pSubPhrase->GetCursorWordPos()) ||
+				 ((!pSubPhrase->GetCursorWord().isEmpty()) && (nWord == pSubPhrase->GetCursorWordPos()))
+				)
+				) {
+				strParsedPhrase += "<span style=\"text-decoration-line: underline line-through; text-decoration-style: wavy; text-decoration-color: red;\">";
+				strParsedPhrase += pSubPhrase->phraseWords().at(nWord);
+				strParsedPhrase += "</span>";
+			} else {
+				strParsedPhrase += pSubPhrase->phraseWords().at(nWord);
+			}
+		}
+	}
+
+#if DEBUG_WEBCHANNEL_AUTOCORRECT
+	qDebug("AC: \"%s\"", strParsedPhrase.toUtf8().data());
+#endif
+
+	emit setAutoCorrectText(strElementID, strParsedPhrase);
+	// TODO : emit setAutoCompleter();
+}
+
 void CWebChannelObjects::en_searchResultsReady()
 {
 	CVerseTextRichifierTags richifierTags;
 	richifierTags.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
 	int nVerses = m_pSearchResults->vlmodel().rowCount();
-#if DEBUG_WEBCHANNEL
+#if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Num Verses Matching = %d", nVerses);
 #endif
 	QString strResults;
@@ -104,7 +150,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		strResults += strVerse;
 	}
 
-#if DEBUG_WEBCHANNEL
+#if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Sending Results");
 #endif
 	emit searchResultsChanged(strResults);
