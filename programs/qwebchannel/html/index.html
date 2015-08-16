@@ -129,6 +129,10 @@
 							document.getElementById(strElementID+"_AC").innerHTML = "&nbsp;" + strAC;
 						});
 
+						kjpbs.setAutoCompleter.connect(function(strElementID, strlstCompleter) {
+							$("#"+strElementID+"_Text").autocomplete("option", "source", strlstCompleter.split(";"));
+						});
+
 						bEnableScriptureBrowserTabSwap = false;
 						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0));
 						$("#tabs").tabs("option", "active", 1);
@@ -149,6 +153,7 @@
 				newPhrase.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				newPhrase.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keyup paste input', function() { searchPhraseTextChanged(this.id); });
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete();
 				$("#tabs").tabs("refresh");
 			}
 

@@ -118,7 +118,21 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 #endif
 
 	emit setAutoCorrectText(strElementID, strParsedPhrase);
-	// TODO : emit setAutoCompleter();
+
+	// TODO : Decide if we need to check against last cursor position to avoid unnecessary updates
+	//			if that's even possible:
+//	if ((thePhrase.GetCursorWordPos() != m_nCursorWord) || (bForceUpdate)) {
+//		m_nCursorWord = thePhrase.GetCursorWordPos();
+
+//		m_ParsedPhrase.nextWordsList();
+	QStringList lstNextWords;
+	lstNextWords.reserve(thePhrase.nextWordsList().size());
+	for (int ndx = 0; ndx < thePhrase.nextWordsList().size(); ++ndx) {
+		lstNextWords.append(thePhrase.nextWordsList().at(ndx).renderedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed words?
+	}
+	if (!lstNextWords.isEmpty()) {
+		emit setAutoCompleter(strElementID, lstNextWords.join(QChar(';')));
+	}
 }
 
 void CWebChannelObjects::en_searchResultsReady()
