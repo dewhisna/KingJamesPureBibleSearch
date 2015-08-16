@@ -119,13 +119,13 @@
 				var newPhrase = $("#phrases").append(document.createElement('div'));
 				newPhrase.attr("id", "searchPhrase_" + nSearchPhraseNextID);
 				newPhrase.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
-				newPhrase.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(this.id);" />')
+				newPhrase.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keydown paste input', function() { searchPhraseTextChanged(this.id); });
 				$("#tabs").tabs("refresh");
 			}
 
-			function searchPhraseChanged(aSearchPhraseText) {
-				var input = document.getElementById(aSearchPhraseText);
+			function searchPhraseChanged(aSearchPhrase) {
+				var input = document.getElementById(aSearchPhrase+"_Text");
 				var text = input.value;
 				if (!text) {
 					document.getElementById("searchResults").innerHTML = "";
