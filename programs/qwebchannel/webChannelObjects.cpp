@@ -126,13 +126,49 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 
 //		m_ParsedPhrase.nextWordsList();
 	QStringList lstNextWords;
+	QString strBasePhrase;
+	int nCurrentSubPhrase = thePhrase.currentSubPhrase();
+	if (nCurrentSubPhrase == -1) return;
+	const CSubPhrase *pCurrentSubPhrase = thePhrase.subPhrase(nCurrentSubPhrase);
+	for (int ndx = 0; ndx < pCurrentSubPhrase->GetCursorWordPos(); ++ndx) {
+		strBasePhrase += pCurrentSubPhrase->phraseWords().at(ndx) + " ";
+	}
+	QString strCursorWord = pCurrentSubPhrase->GetCursorWord();
+	int nPreRegExp = strCursorWord.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+	if (nPreRegExp != -1) strCursorWord = strCursorWord.left(nPreRegExp);
 	lstNextWords.reserve(thePhrase.nextWordsList().size());
 	for (int ndx = 0; ndx < thePhrase.nextWordsList().size(); ++ndx) {
-		lstNextWords.append(thePhrase.nextWordsList().at(ndx).renderedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed words?
+		if (strCursorWord.isEmpty() || (thePhrase.nextWordsList().at(ndx).renderedWord().startsWith(strCursorWord, Qt::CaseInsensitive))) {
+			lstNextWords.append(strBasePhrase + thePhrase.nextWordsList().at(ndx).renderedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed words?
+		}
 	}
-	if (!lstNextWords.isEmpty()) {
+	if (!lstNextWords.isEmpty() /*&& (lstNextWords.size() < 100)*/) {
 		emit setAutoCompleter(strElementID, lstNextWords.join(QChar(';')));
 	}
+}
+
+void CWebChannelObjects::calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos)
+{
+	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
+
+	QTextEdit edit(strPhrase);
+	CPhraseCursor cursor(edit.textCursor());
+	cursor.setPosition(nCursorPos);
+	thePhrase.ParsePhrase(cursor, false);
+	int nCurrentSubPhrase = thePhrase.currentSubPhrase();
+
+	QString strNewPhrase;
+
+	for (int nSubPhrase = 0; nSubPhrase < thePhrase.subPhraseCount(); ++nSubPhrase) {
+		if (nSubPhrase) strNewPhrase += " | ";
+		if (nSubPhrase == nCurrentSubPhrase) {
+			strNewPhrase += strAutoCompleter;
+		} else {
+			strNewPhrase += thePhrase.subPhrase(nSubPhrase)->phrase();
+		}
+	}
+
+	emit updatePhrase(strElementID, strNewPhrase);
 }
 
 void CWebChannelObjects::en_searchResultsReady()

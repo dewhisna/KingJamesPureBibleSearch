@@ -6,6 +6,7 @@
 		<link rel="stylesheet" href="jquery/jquery-ui/1.11.4/themes/start/jquery-ui.css">
 		<script src="jquery/jquery-1.11.3.js"></script>
 		<script src="jquery/jquery-ui/1.11.4/jquery-ui.js"></script>
+		<script src="jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.js"></script>
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
 			var bEnableScriptureBrowserTabSwap = false;
@@ -133,6 +134,10 @@
 							$("#"+strElementID+"_Text").autocomplete("option", "source", strlstCompleter.split(";"));
 						});
 
+						kjpbs.updatePhrase.connect(function(strElementIDText, strNewPhrase) {
+							document.getElementById(strElementIDText).value = strNewPhrase;
+						});
+
 						bEnableScriptureBrowserTabSwap = false;
 						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0));
 						$("#tabs").tabs("option", "active", 1);
@@ -150,12 +155,50 @@
 				nSearchPhraseNextID = nSearchPhraseNextID + 1;
 				var newPhrase = $("#phrases").append(document.createElement('div'));
 				newPhrase.attr("id", "searchPhrase_" + nSearchPhraseNextID);
-				newPhrase.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
-				newPhrase.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
+				var phraseTable = newPhrase.append('<table id="searchPhrase_' + nSearchPhraseNextID + '_Table"></table>');
+				var trInput = phraseTable.append('<tr></tr>');
+				var tdInput = trInput.append('<td></td>');
+				tdInput.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
+				tdInput.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keyup paste input', function() { searchPhraseTextChanged(this.id); });
-				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete();
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete({
+					maxShowItems: 5,
+					minLength: 1,
+					source: [ "" ],
+					select: function(event, ui)
+					{
+						var input = document.getElementById(this.id);
+						window.kjpbs.calcUpdatedPhrase(this.id, input.value, ui.item.value, doGetCaretPosition(input));
+						event.preventDefault();
+						return false;
+					},
+					focus: function(event, ui)
+					{
+						event.preventDefault();
+						return false;
+					}
+				});
+//				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", 0);
+//				$(document).ready(function() {
+//					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keydown click focus", function() {
+//						var input = document.getElementById(this.id);
+//						var nCurPos = doGetCaretPosition(input);
+//						if (nCurPos != $.data("LastCurPos")) {
+//							$.data("LastCurPos", nCurPos);
+//							if (input.value) {
+//								window.kjpbs.autoCorrect($.parent().attr("id"), input.value, nCurPos);
+//							}
+//						}
+//					});
+//				});
 				$("#tabs").tabs("refresh");
 			}
+			$.ui.autocomplete.filter = function (array, term) {
+				var matcher = new RegExp("^|\|" + $.ui.autocomplete.escapeRegex(term), "i");
+				return $.grep(array, function (value) {
+					return matcher.test(value.label || value.value || value);
+				});
+			};
 
 			function searchPhraseChanged(aSearchPhrase) {
 				var input = document.getElementById(aSearchPhrase+"_Text");
@@ -169,6 +212,7 @@
 				}
 
 				$("body").css("cursor", "progress");
+				$("#"+aSearchPhrase+"_Text").autocomplete("close");
 				window.kjpbs.setSearchPhrases(text);
 			}
 

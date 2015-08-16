@@ -49,6 +49,7 @@ public:
 public slots:
 	void setSearchPhrases(const QString &strPhrases);		// Phrases, separated by semicolon, to search for
 	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
+	void calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 
 	void gotoIndex(uint32_t ndxRel);						// Passage to navigate Scripture Browser to
 
@@ -56,6 +57,7 @@ signals:
 	void searchResultsChanged(const QString &strHtmlLiSearchResults);					// Triggered by en_searchResultsReady() when we have data to send to channel
 	void setAutoCorrectText(const QString &strElementID, const QString &strAC);			// Triggered after call to autoCorrect() will return the HTML of the Auto Correct text
 	void setAutoCompleter(const QString &strElementID, const QString &strWordList);		// Triggered after call to autoCorrect() will return a list of words separated by ";"
+	void updatePhrase(const QString &strElementID, const QString &strNewPhrase);		// Triggered after call to calcUpdatedPhrase() to return new phrase with subphrase substituted
 
 	void scriptureBrowserRender(uint32_t ndxRel, const QString &strHtmlScripture);		// Triggered by scripture browser navigation to display rendered text
 
