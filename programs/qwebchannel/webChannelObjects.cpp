@@ -138,13 +138,12 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 	if (nPreRegExp != -1) strCursorWord = strCursorWord.left(nPreRegExp);
 	lstNextWords.reserve(thePhrase.nextWordsList().size());
 	for (int ndx = 0; ndx < thePhrase.nextWordsList().size(); ++ndx) {
-		if (strCursorWord.isEmpty() || (thePhrase.nextWordsList().at(ndx).renderedWord().startsWith(strCursorWord, Qt::CaseInsensitive))) {
+		if ((strCursorWord.isEmpty() && (pCurrentSubPhrase->GetCursorWordPos() > 0)) ||
+			(!strCursorWord.isEmpty() && thePhrase.nextWordsList().at(ndx).renderedWord().startsWith(strCursorWord, Qt::CaseInsensitive))) {
 			lstNextWords.append(strBasePhrase + thePhrase.nextWordsList().at(ndx).renderedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed words?
 		}
 	}
-	if (!lstNextWords.isEmpty() /*&& (lstNextWords.size() < 100)*/) {
-		emit setAutoCompleter(strElementID, lstNextWords.join(QChar(';')));
-	}
+	emit setAutoCompleter(strElementID, lstNextWords.join(QChar(';')));
 }
 
 void CWebChannelObjects::calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos)

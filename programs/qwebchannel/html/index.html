@@ -81,6 +81,12 @@
 				var element_to_scroll_to = document.getElementById(anAnchor);
 				element_to_scroll_to.scrollIntoView();
 			}
+			function closeAllAutoCompleters()
+			{
+				$(".searchPhraseText").each(function( i ) {
+					this.autocomplete("close");
+				});
+			}
 			window.onload = function() {
 				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
 				output("Connecting to WebSocket server at " + baseUrl + ".");
@@ -110,6 +116,7 @@
 							scrollTabTop();
 							// Wait cursor back off
 							$("body").css("cursor", "default");
+							closeAllAutoCompleters();
 						});
 
 						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
@@ -134,8 +141,9 @@
 							$("#"+strElementID+"_Text").autocomplete("option", "source", strlstCompleter.split(";"));
 						});
 
-						kjpbs.updatePhrase.connect(function(strElementIDText, strNewPhrase) {
-							document.getElementById(strElementIDText).value = strNewPhrase;
+						kjpbs.updatePhrase.connect(function(strElementID, strNewPhrase) {
+							document.getElementById(strElementID+"_Text").value = strNewPhrase;
+							searchPhraseChanged(strElementID);
 						});
 
 						bEnableScriptureBrowserTabSwap = false;
@@ -168,7 +176,7 @@
 					select: function(event, ui)
 					{
 						var input = document.getElementById(this.id);
-						window.kjpbs.calcUpdatedPhrase(this.id, input.value, ui.item.value, doGetCaretPosition(input));
+						window.kjpbs.calcUpdatedPhrase(input.parentElement.id, input.value, ui.item.value, doGetCaretPosition(input));
 						event.preventDefault();
 						return false;
 					},
