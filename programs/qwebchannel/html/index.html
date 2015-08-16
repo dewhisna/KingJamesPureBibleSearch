@@ -209,9 +209,14 @@
 			};
 
 			function searchPhraseChanged(aSearchPhrase) {
-				var input = document.getElementById(aSearchPhrase+"_Text");
-				var text = input.value;
-				if (!text) {
+				var phrases = "";
+				$(".searchPhraseText").each(function(i) {
+					if (phrases) {
+						phrases = phrases + ";"
+					}
+					phrases = phrases + this.value;
+				});
+				if (!phrases) {
 					document.getElementById("searchResults").innerHTML = "";
 					$("#tabs").tabs("option", "active", 0);
 					$("#tabs").tabs("refresh");
@@ -221,7 +226,7 @@
 
 				$("body").css("cursor", "progress");
 				$("#"+aSearchPhrase+"_Text").autocomplete("close");
-				window.kjpbs.setSearchPhrases(text);
+				window.kjpbs.setSearchPhrases(phrases);
 			}
 
 			function searchPhraseTextChanged(aSearchPhrase) {
@@ -248,6 +253,15 @@
 
 				if (e.altKey) {
 					switch (e.keyCode) {
+						case 13:		// Enter
+							// If a input box is active, force searchPhraseChanged:
+							if (window.activeElement) {
+								if ($("#"+window.activeElement.id).hasClass("searchPhraseText")) {
+									searchPhraseChanged();
+									return;
+								}
+							}
+							break;
 						case 37:		// Left arrow
 							$("#tabs").tabs("option", "active",
 									(($("#tabs").tabs("option", "active") == 0) ?
