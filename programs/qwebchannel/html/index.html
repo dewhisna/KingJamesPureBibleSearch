@@ -83,8 +83,8 @@
 			}
 			function closeAllAutoCompleters()
 			{
-				$(".searchPhraseText").each(function( i ) {
-					this.autocomplete("close");
+				$(".searchPhraseText").each(function(i) {
+					$("#"+this.id).autocomplete("close");
 				});
 			}
 			window.onload = function() {
