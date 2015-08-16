@@ -47,6 +47,34 @@
 					scrollTop: 0
 				}, 200);
 			}
+			function doGetCaretPosition(oField) {
+				var iCaretPos = 0;
+
+				// IE Support
+				if (document.selection) {
+					// Set focus on the element
+					oField.focus();
+
+					// To get cursor position, get empty selection range
+					var oSel = document.selection.createRange();
+
+					// Move selection start to 0 position
+					oSel.moveStart('character', -oField.value.length);
+
+					// The caret position is selection length
+					iCaretPos = oSel.text.length;
+				}
+				// Firefox support
+				else if (oField.selectionStart || oField.selectionStart == '0') {
+					iCaretPos = ((oField.selectionDirection=='backward') ? oField.selectionStart : oField.selectionEnd);
+				}
+				// Else fallback to field length
+				else {
+					iCaretPos = oField.value.length;
+				}
+
+				return (iCaretPos);
+			}
 			function scrollToAnchor(anAnchor)
 			{
 				var element_to_scroll_to = document.getElementById(anAnchor);
@@ -120,7 +148,7 @@
 				newPhrase.attr("id", "searchPhrase_" + nSearchPhraseNextID);
 				newPhrase.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				newPhrase.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
-							.on('change keydown paste input', function() { searchPhraseTextChanged(this.id); });
+							.on('change keyup paste input', function() { searchPhraseTextChanged(this.id); });
 				$("#tabs").tabs("refresh");
 			}
 
@@ -146,7 +174,7 @@
 				if (!text) {
 					thePhrase.innerHTML = "&nbsp;";
 				} else {
-					window.kjpbs.autoCorrect(aSearchPhrase, text, text.length);
+					window.kjpbs.autoCorrect(aSearchPhrase, text, doGetCaretPosition(input));
 				}
 			}
 
