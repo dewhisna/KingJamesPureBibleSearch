@@ -87,6 +87,18 @@
 					$("#"+this.id).autocomplete("close");
 				});
 			}
+			function enableAllAutoCompleters()
+			{
+				$(".searchPhraseText").each(function(i) {
+					$("#"+this.id).autocomplete("enable");
+				});
+			}
+			function disableAllAutoCompleters()
+			{
+				$(".searchPhraseText").each(function(i) {
+					$("#"+this.id).autocomplete("disable");
+				});
+			}
 			window.onload = function() {
 				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
 				output("Connecting to WebSocket server at " + baseUrl + ".");
@@ -116,6 +128,7 @@
 							scrollTabTop();
 							// Wait cursor back off
 							$("body").css("cursor", "default");
+//							enableAllAutoCompleters();
 							closeAllAutoCompleters();
 						});
 
@@ -163,20 +176,25 @@
 				nSearchPhraseNextID = nSearchPhraseNextID + 1;
 				var newPhrase = $("#phrases").append(document.createElement('div'));
 				newPhrase.attr("id", "searchPhrase_" + nSearchPhraseNextID);
+				newPhrase.addClass("searchPhrase");
 				var phraseTable = newPhrase.append('<table id="searchPhrase_' + nSearchPhraseNextID + '_Table"></table>');
+				var trAC = phraseTable.append('<tr></tr>');
+				var tdAC = trAC.append('<td></td>');
+				trAC.append('<td></td>');
+				tdAC.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				var trInput = phraseTable.append('<tr></tr>');
 				var tdInput = trInput.append('<td></td>');
-				tdInput.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				tdInput.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keyup paste input', function() { searchPhraseTextChanged(this.id); });
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete({
+					delay: 500,
 					maxShowItems: 5,
 					minLength: 1,
 					source: [ "" ],
 					select: function(event, ui)
 					{
 						var input = document.getElementById(this.id);
-						window.kjpbs.calcUpdatedPhrase(input.parentElement.id, input.value, ui.item.value, doGetCaretPosition(input));
+						window.kjpbs.calcUpdatedPhrase($("#"+input.id).parents(".searchPhrase").attr("id"), input.value, ui.item.value, doGetCaretPosition(input));
 						event.preventDefault();
 						return false;
 					},
@@ -186,20 +204,25 @@
 						return false;
 					}
 				});
-//				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", 0);
-//				$(document).ready(function() {
-//					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keydown click focus", function() {
-//						var input = document.getElementById(this.id);
-//						var nCurPos = doGetCaretPosition(input);
-//						if (nCurPos != $.data("LastCurPos")) {
-//							$.data("LastCurPos", nCurPos);
-//							if (input.value) {
-//								window.kjpbs.autoCorrect($.parent().attr("id"), input.value, nCurPos);
-//							}
-//						}
-//					});
-//				});
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", 0);
+				$(document).ready(function() {
+					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click focus", function() {
+						var input = document.getElementById(this.id);
+						var nCurPos = doGetCaretPosition(input);
+						if (nCurPos != $("#"+this.id).data("LastCurPos")) {
+							$("#"+this.id).data("LastCurPos", nCurPos);
+							if (input.value) {
+								window.kjpbs.autoCorrect($("#"+this.id).parents(".searchPhrase").attr("id"), input.value, nCurPos);
+							}
+							$("#"+this.id).autocomplete("close");
+//							closeAllAutoCompleters();
+						}
+					});
+				});
+				var tdBesome = trInput.append('<td></td>');
+				tdBesome.append('<input type="image" value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" style="height:24px;width:24px;" src="edit_clear.png" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
 				$("#tabs").tabs("refresh");
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").focus();
 			}
 			$.ui.autocomplete.filter = function (array, term) {
 				var matcher = new RegExp("^|\|" + $.ui.autocomplete.escapeRegex(term), "i");
@@ -226,6 +249,7 @@
 
 				$("body").css("cursor", "progress");
 				$("#"+aSearchPhrase+"_Text").autocomplete("close");
+//				disableAllAutoCompleters();
 				window.kjpbs.setSearchPhrases(phrases);
 			}
 
@@ -238,6 +262,14 @@
 				} else {
 					window.kjpbs.autoCorrect(aSearchPhrase, text, doGetCaretPosition(input));
 				}
+			}
+
+			function searchPhraseBesome(aSearchPhrase) {
+				var input = document.getElementById(aSearchPhrase+"_Text");
+				input.value = "";
+				searchPhraseTextChanged(aSearchPhrase);
+				searchPhraseChanged(aSearchPhrase);
+				input.focus();
 			}
 
 			function gotoIndex(ndx)
@@ -254,21 +286,26 @@
 				if (e.altKey) {
 					switch (e.keyCode) {
 						case 13:		// Enter
+							closeAllAutoCompleters();
 							// If a input box is active, force searchPhraseChanged:
 							if (window.activeElement) {
 								if ($("#"+window.activeElement.id).hasClass("searchPhraseText")) {
+									$("#"+window.activeElement.id).autocomplete("close");
+									searchPhraseTextChanged($("#"+window.activeElement.id).parents(".searchPhrase").attr("id"));
 									searchPhraseChanged();
-									return;
+									break;
 								}
 							}
-							break;
+							return;
 						case 37:		// Left arrow
+							closeAllAutoCompleters();
 							$("#tabs").tabs("option", "active",
 									(($("#tabs").tabs("option", "active") == 0) ?
 											$("#tabs").tabs("option", "active", 1) :
 											$("#tabs").tabs("option", "active", $("#tabs").tabs("option", "active")-1)));
 							break;
 						case 39:		// Right arrow
+							closeAllAutoCompleters();
 							$("#tabs").tabs("option", "active",
 									(($("#tabs").tabs("option", "active") == 1) ?
 											$("#tabs").tabs("option", "active", 0) :
@@ -281,7 +318,7 @@
 					e.preventDefault();
 				}
 			}
-			document.onkeydown = checkKey;
+			document.onkeyup = checkKey;
 		</script>
 		<style type="text/css">
 			html {
@@ -352,6 +389,8 @@
 		<script>
 			$( "#tabs" ).tabs();
 			addSearchPhrase();			// Add initial search phrase
+			var markup = document.getElementsByTagName('body')[0].innerHTML;
+			alert(markup);
 		</script>
 
 
