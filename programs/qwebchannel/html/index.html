@@ -179,17 +179,29 @@
 				newPhrase.append('<table id="searchPhrase_' + nSearchPhraseNextID + '_Table"></table>');
 				var phraseTable = $("#searchPhrase_" + nSearchPhraseNextID + "_Table");
 				phraseTable.append('<tr></tr>');
-				var trAC = phraseTable.find("tr");
+				var trAC = phraseTable.find("tr").first();
 				trAC.append('<td></td>');
-				var tdAC = trAC.find("td");
 				trAC.append('<td></td>');
+				trAC.append('<td></td>');
+				var tdAC = trAC.find("td").next();
 				tdAC.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				phraseTable.append('<tr></tr>');
-				var trInput = phraseTable.find("tr").next();
+				var trInput = phraseTable.find("tr").first().next();
 				trInput.append('<td></td>');
-				var tdInput = trInput.find("td");
+				trInput.append('<td></td>');
+				trInput.append('<td></td>');
+				var tdBesome = trInput.find("td").first();
+				tdBesome.append('<input type="image" value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" style="height:24px;width:24px;" src="edit_clear.png" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
+				var tdInput = trInput.find("td").first().next();
 				tdInput.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keyup paste input', function() { searchPhraseTextChanged($(this).parents(".searchPhrase").attr("id")); });
+				var tdClose = trInput.find("td").first().next().next();
+				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" style="height:24px;width:24px;" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
+				phraseTable.append('<tr></tr>');
+				var trBreak = phraseTable.find("tr").first().next().next();
+				trBreak.append('<td colspan="3"></td>');
+				var tdBreak = trBreak.find("td").first();
+				tdBreak.append('<hr style="margin: 0px; max-width: 550px;" />');
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete({
 					delay: 500,
 					maxShowItems: 5,
@@ -223,9 +235,6 @@
 						}
 					});
 				});
-				trInput.append('<td></td>');
-				var tdBesome = trInput.find("td").next();
-				tdBesome.append('<input type="image" value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" style="height:24px;width:24px;" src="edit_clear.png" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
 				$("#tabs").tabs("refresh");
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").focus();
 			}
@@ -275,6 +284,22 @@
 				searchPhraseTextChanged(aSearchPhrase);
 				searchPhraseChanged(aSearchPhrase);
 				input.focus();
+			}
+
+			function searchPhraseClose(aSearchPhrase) {
+				if (nSearchPhraseCount <= 1) {
+					// If there's only 1 search phrase left, treat it as a clear instead:
+					searchPhraseBesome(aSearchPhrase);
+				} else {
+					var nextPhrase = $("#"+aSearchPhrase).next();
+					if (!nextPhrase.length) {
+						nextPhrase = $("#"+aSearchPhrase).prev();
+					}
+					$("#"+aSearchPhrase).remove();
+					nSearchPhraseCount = nSearchPhraseCount - 1;
+					searchPhraseChanged();
+					$("#"+nextPhrase.attr("id")+"_Text").focus();
+				}
 			}
 
 			function gotoIndex(ndx)
@@ -342,11 +367,11 @@
 
 			.searchPhraseAC {
 				width: 500px;
-				margin: 0 10px 0 0;
+				margin: 0 5px 0 5px;
 			}
 			.searchPhraseText {
 				width: 500px;
-				margin: 0 10px 0 0;
+				margin: 0 5px 5px 5px;
 			}
 
 			#output {
@@ -381,7 +406,28 @@
 			</ul>
 
 			<div id="search">
-				<div id="phrases"></div>
+				<table id="searchSpec">
+					<tr>
+						<td colspan="3">
+							<div id="searchCriteria"></div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3">
+							<div id="phrases"></div>
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>
+							<div id="searchControls">
+								<button style="width: 550px; margin:0px;" type="button" id="addSearchPhraseButton" onclick="javascript:addSearchPhrase();">Add Search Phrase</button>
+							</div>
+						</td>
+						<td>&nbsp;</td>
+					</tr>
+				</table>
+				<div id="searchResultsSummary"></div>
 				<ol id="searchResults"></ol>
 			</div>
 
@@ -393,6 +439,7 @@
 
 		<script>
 			$( "#tabs" ).tabs();
+			$( "#addSearchPhraseButton" ).button();
 			addSearchPhrase();			// Add initial search phrase
 //			var markup = document.getElementsByTagName('body')[0].innerHTML;
 //			alert(markup);
