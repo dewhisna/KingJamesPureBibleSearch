@@ -22,18 +22,7 @@
 # Build targets:
 /programs/qt-speech/festival/festival/
 /programs/qt-speech/festival/speech_tools/
-/programs/build-qtstyleplugins*
-/programs/build-KJVCanOpener-Qt*local/
-/programs/build-KJVCanOpener-Qt*gcc_64/
-/programs/build-KJVCanOpener-Qt*gcc_x86/
-/programs/build-KJVCanOpener-Qt*android*/
-/programs/build-KJVCanOpener-Qt*win32_kubuntu/
-/programs/build-KJVDataParse*/
-/programs/build-KJVDiff*/
-/programs/build-kjfparse*/
-/programs/build-rv1865parse*/
-/programs/build-eSwordParse*/
-/programs/build-eSwordDecrypt*/
+/programs/build-*/
 /programs/qt-speech/build-*/
 
 # Non-distributed Output Packages:
