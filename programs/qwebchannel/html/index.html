@@ -222,7 +222,7 @@
 				});
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", 0);
 				$(document).ready(function() {
-					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click focus", function() {
+					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click paste focus", function() {
 						var input = document.getElementById(this.id);
 						var nCurPos = doGetCaretPosition(input);
 						if (nCurPos != $("#"+this.id).data("LastCurPos")) {
@@ -348,7 +348,7 @@
 					e.preventDefault();
 				}
 			}
-			document.onkeyup = checkKey;
+			document.onkeydown = checkKey;
 		</script>
 		<style type="text/css">
 			html {
