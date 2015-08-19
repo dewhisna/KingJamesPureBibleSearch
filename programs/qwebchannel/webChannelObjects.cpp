@@ -189,13 +189,12 @@ void CWebChannelObjects::en_searchResultsReady()
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord(0);
 		QString strVerse;
-		strVerse += "<li>";
 		strVerse += QString("<a href=\"javascript:gotoIndex(%1);\">").arg(ndxVerse.index());
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
 		strVerse += item.getVerseRichText(richifierTags, &srHighlighter);
-		strVerse += "</li><br />";
+		strVerse += "<br /><hr />";
 		strResults += strVerse;
 	}
 

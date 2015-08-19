@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>King James Pure Bible Search Standalone Server</title>
 		<link rel="stylesheet" href="jquery/jquery-ui/1.11.4/themes/start/jquery-ui.css">
 		<script src="jquery/jquery-1.11.3.js"></script>
@@ -396,7 +397,7 @@
 			.selected { background:LightGoldenRodYellow; }
 
 			.searchPhrase {
-				max-width: 95%;
+				max-width: 100%;
 			}
 
 			.searchPhraseAC {
@@ -437,12 +438,14 @@
 			}
 			#searchResults {
 				list-style-type: none;
-				width: 95%;
+				width: 100%;
 				min-height: 300px;
 				max-height: auto;
+				margin-left: auto;
+				margin-right: auto;
 			}
 			#scriptureText {
-				width: 90%;
+				width: 100%;
 				min-height: 300px;
 				max-height: auto;
 				margin: 0 auto;
@@ -492,9 +495,22 @@
 							&nbsp;
 						</td>
 					</tr>
+					<tr>
+						<td colspan="3">
+							<hr />
+						</td>
+					</tr>
+					<tr>
+						<td class="expand" colspan="3">
+							<div id="searchResultsSummary"></div>
+						</td>
+					</tr>
+					<tr>
+						<td class="expand" colspan="3">
+							<div id="searchResults"></div>
+						</td>
+					</tr>
 				</table>
-				<div id="searchResultsSummary"></div>
-				<ol id="searchResults"></ol>
 			</div>
 
 			<div id="browser">
