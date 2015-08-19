@@ -176,32 +176,34 @@
 				nSearchPhraseNextID = nSearchPhraseNextID + 1;
 				$("#phrases").append('<div class="searchPhrase" id="searchPhrase_' + nSearchPhraseNextID + '"></div>');
 				var newPhrase = $("#searchPhrase_" + nSearchPhraseNextID);
-				newPhrase.append('<table id="searchPhrase_' + nSearchPhraseNextID + '_Table"></table>');
+				newPhrase.append('<table class="searchPhraseTable" id="searchPhrase_' + nSearchPhraseNextID + '_Table"></table>');
 				var phraseTable = $("#searchPhrase_" + nSearchPhraseNextID + "_Table");
 				phraseTable.append('<tr></tr>');
 				var trAC = phraseTable.find("tr").first();
+				trAC.append('<td class="expand"></td>');
+				trAC.append('<td>&nbsp;</td>');
 				trAC.append('<td></td>');
 				trAC.append('<td></td>');
-				trAC.append('<td></td>');
-				var tdAC = trAC.find("td").next();
+				var tdAC = trAC.find("td").first();
 				tdAC.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				phraseTable.append('<tr></tr>');
 				var trInput = phraseTable.find("tr").first().next();
+				trInput.append('<td class="expand"></td>');
+				trInput.append('<td>&nbsp;</td>');
 				trInput.append('<td></td>');
 				trInput.append('<td></td>');
-				trInput.append('<td></td>');
-				var tdBesome = trInput.find("td").first();
-				tdBesome.append('<input type="image" value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" style="height:24px;width:24px;" src="edit_clear.png" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
-				var tdInput = trInput.find("td").first().next();
-				tdInput.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
+				var tdInput = trInput.find("td").first();
+				tdInput.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keyup paste input', function() { searchPhraseTextChanged($(this).parents(".searchPhrase").attr("id")); });
-				var tdClose = trInput.find("td").first().next().next();
-				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" style="height:24px;width:24px;" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
+				var tdBesome = trInput.find("td").first().next().next();
+				tdBesome.append('<input type="image" value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" src="edit_clear.png" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
+				var tdClose = trInput.find("td").first().next().next().next();
+				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
 				phraseTable.append('<tr></tr>');
 				var trBreak = phraseTable.find("tr").first().next().next();
-				trBreak.append('<td colspan="3"></td>');
+				trBreak.append('<td colspan="4"></td>');
 				var tdBreak = trBreak.find("td").first();
-				tdBreak.append('<hr style="margin: 0px; max-width: 550px;" />');
+				tdBreak.append('<hr class="searchPhraseBreak" />');
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete({
 					delay: 500,
 					maxShowItems: 5,
@@ -356,6 +358,34 @@
 				width: 100%;
 			}
 
+			table.searchPhraseTable
+			{
+				margin-left: auto;
+				margin-right: auto;
+			}
+
+			td.searchPhraseTable {
+				text-align: left;
+				vertical-align: center;
+			}
+
+			td.shrink {
+				width: 1%;
+				white-space: nowrap;
+			}
+
+			td.expand {
+				width: 99%;
+			}
+
+			img {
+				max-width: 100%;
+			}
+
+			input, textarea {
+				max-width: 100%;
+			}
+
 			.book { font-size:xx-large; font-weight:bold; }
 			.chapter { font-size:x-large; font-weight:bold; }
 			.subtitle { font-size:medium; font-weight:normal; font-style:italic; }
@@ -365,22 +395,49 @@
 
 			.selected { background:LightGoldenRodYellow; }
 
+			.searchPhrase {
+				max-width: 90%;
+			}
+
 			.searchPhraseAC {
-				width: 500px;
-				margin: 0 5px 0 5px;
+				margin: 0 5px 0 0;
+				width: 100%;
+				max-width: 100%;
 			}
 			.searchPhraseText {
-				width: 500px;
-				margin: 0 5px 5px 5px;
+				margin: 0 5px 5px 0;
+				width: 100%;
+				max-width: 100%;
+			}
+			.searchPhraseBesome {
+				width: 24px;
+				height: 24px;
+				margin: 0 auto;
+
+			}
+			.searchPhraseClose {
+				width: 24px;
+				height: 24px;
+				margin: 0 auto;
+			}
+			.searchPhraseBreak {
+				max-width: 100%;
+				margin: 0px;
+			}
+
+			#addSearchPhraseButton {
+				margin:0px;
 			}
 
 			#output {
 				width: 500px;
 				height: 75px;
 			}
+			#searchSpec {
+			}
 			#searchResults {
 				list-style-type: none;
-				width: 90%;
+				width: 95%;
 				min-height: 300px;
 				max-height: auto;
 			}
@@ -395,7 +452,7 @@
 	<body>
 		<div id="status">
 			<h1>King James Pure Bible Search</h1>
-			<h2>Standalone Server</h2>
+			<h2>WebChannel Server</h2>
 			<textarea id="output"></textarea><br />
 		</div>
 
@@ -408,23 +465,31 @@
 			<div id="search">
 				<table id="searchSpec">
 					<tr>
-						<td colspan="3">
+						<td class="expand" colspan="2">
 							<div id="searchCriteria"></div>
 						</td>
+						<td class="shrink">
+							&nbsp;
+						</td>
 					</tr>
 					<tr>
-						<td colspan="3">
+						<td class="expand" colspan="2">
 							<div id="phrases"></div>
 						</td>
+						<td class="shrink">
+							&nbsp;
+						</td>
 					</tr>
 					<tr>
-						<td>&nbsp;</td>
-						<td>
+						<td class="shrink">&nbsp;</td>
+						<td class="expand">
 							<div id="searchControls">
-								<button style="width: 550px; margin:0px;" type="button" id="addSearchPhraseButton" onclick="javascript:addSearchPhrase();">Add Search Phrase</button>
+								<button type="button" id="addSearchPhraseButton" onclick="javascript:addSearchPhrase();">Add Search Phrase</button>
 							</div>
 						</td>
-						<td>&nbsp;</td>
+						<td class="shrink">
+							&nbsp;
+						</td>
 					</tr>
 				</table>
 				<div id="searchResultsSummary"></div>
