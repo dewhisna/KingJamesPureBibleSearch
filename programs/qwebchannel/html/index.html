@@ -270,6 +270,7 @@
 				});
 				$("#tabs").tabs("refresh");
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").focus();
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text")[0].scrollIntoView();
 			}
 			$.ui.autocomplete.filter = function (array, term) {
 				var matcher = new RegExp("^|\|" + $.ui.autocomplete.escapeRegex(term), "i");
