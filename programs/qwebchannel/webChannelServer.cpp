@@ -27,7 +27,7 @@
 
 CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPort, QObject *pParent)
 	:	QObject(pParent),
-		m_server("King James Pure Bible Search Standalone Server", QWebSocketServer::NonSecureMode),
+		m_server("King James Pure Bible Search WebChannel Server", QWebSocketServer::NonSecureMode),
 		m_clientWrapper(&m_server)
 {
 	// setup the QWebSocketServer

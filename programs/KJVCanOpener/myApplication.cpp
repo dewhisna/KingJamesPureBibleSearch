@@ -26,7 +26,7 @@
 #include "ReportError.h"
 #include "BusyCursor.h"
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -39,6 +39,10 @@
 
 #ifdef USING_QT_SPEECH
 #include <QUrl>
+#endif
+
+#ifdef USING_WEBCHANNEL
+#include <webChannelObjects.h>
 #endif
 
 #ifdef SHOW_SPLASH_SCREEN
@@ -79,6 +83,10 @@
 
 #include <assert.h>
 
+#ifdef IS_CONSOLE_APP
+#include <iostream>
+#endif
+
 // ============================================================================
 
 QPointer<CMyApplication> g_pMyApplication = NULL;
@@ -86,6 +94,11 @@ QPointer<QMdiArea> g_pMdiArea = NULL;
 
 #ifdef USING_QT_SPEECH
 QPointer<QtSpeech> CMyApplication::m_pSpeech = NULL;
+#endif
+
+#ifdef USING_WEBCHANNEL
+QPointer<CWebChannelServer> CMyApplication::m_pWebChannelServer = NULL;
+QPointer<CWebChannelObjects> CMyApplication::m_pWebChannelObjects = NULL;
 #endif
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
@@ -404,7 +417,7 @@ namespace {
 
 // ============================================================================
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 
 int CMyDaemon::m_sighupFd[2] = { 0, 0 };
 int CMyDaemon::m_sigtermFd[2] = { 0, 0 };
@@ -498,7 +511,11 @@ void CMyDaemon::handleSigHup()
 
 	// do Qt stuff
 	if (!m_pMyApplication.isNull()) {
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
 		m_pMyApplication->closeAllWindows();
+#else
+		m_pMyApplication->exit(0);
+#endif
 	}
 
 	m_psnHup->setEnabled(true);
@@ -513,7 +530,11 @@ void CMyDaemon::handleSigTerm()
 
 	// do Qt stuff
 	if (!m_pMyApplication.isNull()) {
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
 		m_pMyApplication->closeAllWindows();
+#else
+		m_pMyApplication->exit(0);
+#endif
 	}
 
 	m_psnTerm->setEnabled(true);
@@ -526,12 +547,14 @@ void CMyDaemon::handleSigUsr1()
 	ssize_t szRead = ::read(m_sigusr1Fd[1], &tmp, sizeof(tmp));
 	assert(szRead == sizeof(tmp));
 
+#if defined(VNCSERVER)
 	// do Qt stuff
 	QWidget *pParent = NULL;
 	if (!m_pMyApplication.isNull()) {
 		pParent = m_pMyApplication->activeCanOpener();
 	}
 	QMessageBox::warning(pParent, tr("King James Pure Bible Search", "Errors"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.", "Errors"));
+#endif
 
 	m_psnUsr1->setEnabled(true);
 }
@@ -632,6 +655,10 @@ CMyApplication::~CMyApplication()
 	if (QtSpeech::serverSupported()) QtSpeech::disconnectFromServer();
 #endif
 
+#ifdef USING_WEBCHANNEL
+	if (!m_pWebChannelServer.isNull()) delete m_pWebChannelServer.data();
+#endif
+
 #ifdef LOAD_APPLICATION_FONTS
 #ifndef WORKAROUND_QTBUG_34490
 	QFontDatabase::removeAllApplicationFonts();
@@ -679,8 +706,8 @@ void CMyApplication::completeInterAppSplash()
 
 void CMyApplication::setSplashMessage(const QString &strMessage)
 {
-	if (m_pSplash != NULL) {
 #ifdef SHOW_SPLASH_SCREEN
+	if (m_pSplash != NULL) {
 		m_pSplash->clearMessage();
 		const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
@@ -694,10 +721,13 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 										QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 		m_pSplash->repaint();
 		processEvents();
-#else
-		Q_UNUSED(strMessage);
-#endif
 	}
+#elif defined(IS_CONSOLE_APP)
+	std::cout << strMessage.toUtf8().data();
+	std::cout << "\n";
+#else
+	Q_UNUSED(strMessage);
+#endif
 }
 
 // ============================================================================
@@ -1642,6 +1672,37 @@ int CMyApplication::execute(bool bBuildDB)
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesDatabase()), this, SLOT(en_changedUserNotesDatabase()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedNotesFileAutoSaveTime(int)), this, SLOT(en_changedNotesFileAutoSaveTime(int)));
 
+#ifdef USING_WEBCHANNEL
+	// Launch WebChannel:
+	if (!m_strWebChannelHostPort.isEmpty()) {
+		QStringList lstHostPort = m_strWebChannelHostPort.split(QChar(','), QString::KeepEmptyParts);
+		assert(lstHostPort.size() >= 1);
+		quint16 nPort = lstHostPort.at(0).toUInt();
+		if (nPort) {
+			if (lstHostPort.size() == 1) {
+				m_pWebChannelServer = new CWebChannelServer(QHostAddress::Any, nPort, this);
+			} else {
+				m_pWebChannelServer = new CWebChannelServer(QHostAddress(lstHostPort.at(1)), nPort, this);
+			}
+			if (m_pWebChannelServer->isListening()) {
+				m_pWebChannelObjects = new CWebChannelObjects(TBibleDatabaseList::instance()->mainBibleDatabase(), g_pUserNotesDatabase, m_pWebChannelServer);
+				m_pWebChannelServer->registerObject("kjpbs", m_pWebChannelObjects);
+			}
+		} else {
+			displayWarning(m_pSplash, g_constrInitialization, tr("Invalid WebChannel Host Port was specified.", "Errors"));
+		}
+	}
+#else
+	// If user specified a WebChannel Host Port on the command-line and this build doesn't support WebChannel, warn him:
+	if (!m_strWebChannelHostPort.isEmpty()) {
+		displayWarning(m_pSplash, g_constrInitialization, tr("WebChannel Host Port was specified, but this build of King James Pure Bible Search doesn't support WebChannel", "Errors"));
+	}
+#endif
+
+
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
+	// Create the main KJVCanOpener window only if we aren't doing a console webchannel app (i.e. daemon only app)
+
 #ifdef USE_MDI_MAIN_WINDOW
 	g_pMdiArea = new QMdiArea();
 	g_pMdiArea->show();
@@ -1663,6 +1724,8 @@ int CMyApplication::execute(bool bBuildDB)
 	}
 #else
 	createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
+#endif
+
 #endif
 
 	return 0;

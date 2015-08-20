@@ -35,7 +35,13 @@ QT       += core gui xml
 }
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
+# See: https://stackoverflow.com/questions/18666799/how-to-prevent-qmake-from-adding-the-console-subsystem-on-the-linker-command-lin
+testlib:QT.testlib.CONFIG -= console
+
+console:DEFINES += IS_CONSOLE_APP
+
 # Include QWebChannel support on Qt 5.5+, if it's been selected:
+unix:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG += webchannel
 webchannel:include(../qwebchannel/qwebchannel.pri)
 
 !emscripten {
@@ -46,7 +52,7 @@ win32 {
 	CONFIG += rtti
 	CONFIG -= debug_and_release							# Get rid of double debug/release subfolders and do correct shadow build
 	equals(MSVC_VER, "12.0"):QMAKE_LFLAGS_WINDOWS = /SUBSYSTEM:WINDOWS,5.01		# Enable Support for WinXP if we are building with MSVC 2013, as MSVC 2010 already does
-	DEFINES += _USING_V110_SDK71_													# Needed to run on WinXP and use ATL (as needed for QtSpeech)
+	DEFINES += _USING_V110_SDK71_												# Needed to run on WinXP and use ATL (as needed for QtSpeech)
 }
 
 ios {
@@ -82,7 +88,7 @@ android {
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
 
-!android:!ios:!emscripten:!vnc {
+!android:!ios:!emscripten:!vnc:!console {
 	# Select Desired Package:
 	#	SingleApplication
 	#	QtSingleApplication
@@ -91,15 +97,16 @@ include(../grantlee/textdocument/textdocument.pri)
 	SingleApplication {
 		include(../singleapplication/singleapplication.pri)
 		DEFINES += USING_SINGLEAPPLICATION
-		QT += network
+		QT *= network
 	}
 	QtSingleApplication {
 		include(../qtsingleapplication/src/qtsingleapplication.pri)
 		DEFINES += USING_QT_SINGLEAPPLICATION
-		QT += network
+		QT *= network
 	}
 }
-vnc:QT += network
+vnc:QT *= network
+webchannel:QT *= network
 
 QtSpeech {
 	DEFINES += USING_QT_SPEECH
@@ -158,7 +165,7 @@ android:DEFINES += WORKAROUND_QTBUG_35313_35687								# Android QMessageBox dia
 lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS		# Workaround in Qt 4 for the Abstract List Drop Actions issue that causes it to not do drops into other apps without this returning Copy or Move
 
 # Enable Splash Screen:
-!vnc:DEFINES += SHOW_SPLASH_SCREEN
+!vnc:!console:DEFINES += SHOW_SPLASH_SCREEN
 
 # Enabled desired random passage mode:
 # (Pick only one of RANDOM_PASSAGE entries)

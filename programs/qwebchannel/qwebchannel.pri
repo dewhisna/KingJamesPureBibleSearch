@@ -56,6 +56,8 @@
 			QMAKE_EXTRA_TARGETS += clean jquery_clean
 		}
 
+	} else {
+		error("WebChannel support build requires Qt 5.5+")
 	}
 
 }
