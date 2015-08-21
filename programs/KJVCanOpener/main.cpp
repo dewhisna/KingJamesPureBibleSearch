@@ -363,8 +363,14 @@ int main(int argc, char *argv[])
 	pApp->setTTSServerURL(strTTSServerURL);
 	pApp->setWebChannelHostPort(strWebChannelHostPort);
 
-#if defined(EMSCRIPTEN) || defined(VNCSERVER) || defined(USING_WEBCHANNEL)
+#if defined(EMSCRIPTEN) || defined(VNCSERVER)
 	bStealthMode = true;
+#endif
+
+#if defined(USING_WEBCHANNEL)
+	if (!strWebChannelHostPort.isEmpty()) {
+		bStealthMode = true;
+	}
 #endif
 
 #if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
