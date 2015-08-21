@@ -113,19 +113,19 @@
 			}
 			function closeAllAutoCompleters()
 			{
-				$(".searchPhraseText").each(function(i) {
+				$(".searchPhraseText").each(function(i, obj) {
 					$("#"+this.id).autocomplete("close");
 				});
 			}
 			function enableAllAutoCompleters()
 			{
-				$(".searchPhraseText").each(function(i) {
+				$(".searchPhraseText").each(function(i, obj) {
 					$("#"+this.id).autocomplete("enable");
 				});
 			}
 			function disableAllAutoCompleters()
 			{
-				$(".searchPhraseText").each(function(i) {
+				$(".searchPhraseText").each(function(i, obj) {
 					$("#"+this.id).autocomplete("disable");
 				});
 			}
@@ -160,6 +160,7 @@
 							$("body").css("cursor", "default");
 //							enableAllAutoCompleters();
 							closeAllAutoCompleters();
+							disableAllAutoCompleters();
 						});
 
 						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
@@ -178,6 +179,7 @@
 
 						kjpbs.setAutoCorrectText.connect(function(strElementID, strAC) {
 							document.getElementById(strElementID+"_AC").innerHTML = "&nbsp;" + strAC;
+							$("#"+strElementID+"_Text").autocomplete("enable");
 						});
 
 						kjpbs.setAutoCompleter.connect(function(strElementID, strlstCompleter) {
@@ -349,18 +351,6 @@
 
 				if (e.altKey) {
 					switch (e.keyCode) {
-						case 13:		// Enter
-							closeAllAutoCompleters();
-							// If a input box is active, force searchPhraseChanged:
-							if (window.activeElement) {
-								if ($("#"+window.activeElement.id).hasClass("searchPhraseText")) {
-									$("#"+window.activeElement.id).autocomplete("close");
-									searchPhraseTextChanged($("#"+window.activeElement.id).parents(".searchPhrase").attr("id"));
-									searchPhraseChanged();
-									break;
-								}
-							}
-							return;
 						case 37:		// Left arrow
 							closeAllAutoCompleters();
 							$("#tabs").tabs("option", "active",
@@ -380,6 +370,21 @@
 							return;
 					}
 					e.preventDefault();
+				} else {
+					switch (e.keyCode) {
+						case 13:		// Enter
+							closeAllAutoCompleters();
+							// If a input box is active, force searchPhraseChanged:
+							if (document.activeElement) {
+								if ($("#"+document.activeElement.id).hasClass("searchPhraseText")) {
+									$("#"+document.activeElement.id).autocomplete("close");
+									searchPhraseTextChanged($("#"+document.activeElement.id).parents(".searchPhrase").attr("id"));
+									searchPhraseChanged();
+									break;
+								}
+							}
+							return;
+					}
 				}
 			}
 			document.onkeydown = checkKey;
