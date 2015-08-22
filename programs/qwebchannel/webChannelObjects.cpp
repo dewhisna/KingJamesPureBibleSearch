@@ -101,7 +101,7 @@ void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 	m_pSearchResults->setParsedPhrases(m_searchResultsData);		// Start processing search -- will block if not multi-threaded, else will exit, and either case searchResultsReady() fires
 }
 
-void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos)
+void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos)
 {
 #if DEBUG_WEBCHANNEL_AUTOCORRECT
 	qDebug("ReceivedAC: %s : \"%s\" : Cursor=%d", strElementID.toUtf8().data(), strPhrase.toUtf8().data(), nCursorPos);
@@ -113,7 +113,12 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 
 	QTextEdit edit(strPhrase);
 	CPhraseCursor cursor(edit.textCursor());
-	cursor.setPosition(nCursorPos);
+	if (nCursorPos < 0) nCursorPos = 0;
+	// Sometimes html doc sends cursor position outside the bounds of the doc, this is a safe-guard:
+	cursor.movePosition(QTextCursor::End);
+	if (nCursorPos < cursor.position()) {
+		cursor.setPosition(nCursorPos);
+	}
 	thePhrase.ParsePhrase(cursor, true);
 
 	QString strParsedPhrase;
@@ -145,12 +150,37 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 
 	emit setAutoCorrectText(strElementID, strParsedPhrase);
 
-	// TODO : Decide if we need to check against last cursor position to avoid unnecessary updates
-	//			if that's even possible:
-//	if ((thePhrase.GetCursorWordPos() != m_nCursorWord) || (bForceUpdate)) {
-//		m_nCursorWord = thePhrase.GetCursorWordPos();
+	bool bNeedUpdate = false;
 
-//		m_ParsedPhrase.nextWordsList();
+	if ((strLastPhrase == strPhrase) &&
+		(nLastCursorPos == nCursorPos)) return;			// If the text and cursor didn't change, no need to update
+	if ((nLastCursorPos < 0) ||
+		(strLastPhrase != strPhrase)) {
+		bNeedUpdate = true;								// TextChanged or LastCursorPos==-1 => Always update
+		nLastCursorPos = 0;
+	}
+
+	if (!bNeedUpdate) {
+		CParsedPhrase thePhraseLast(m_pSearchResults->vlmodel().bibleDatabase());
+		CPhraseCursor cursorLast(edit.textCursor());
+		cursorLast.movePosition(QTextCursor::End);
+		if (nLastCursorPos <= cursorLast.position()) {
+			cursorLast.setPosition(nLastCursorPos);
+			thePhraseLast.ParsePhrase(cursorLast, false);		// Break phrase into subphrases and calculate cursor word, but don't find word matches as that's redundant
+			if ((thePhraseLast.currentSubPhrase() != thePhrase.currentSubPhrase()) ||
+				(thePhraseLast.GetCursorWordPos() != thePhrase.GetCursorWordPos())) {
+				bNeedUpdate = true;
+			}
+		} else {
+			// If last cursor position was beyond the length of the
+			//		phrase text, an update is automatically needed:
+			bNeedUpdate = true;
+		}
+	}
+	// Avoid unnecessary updates by not sending new completer list if the
+	//		cursor word hasn't changed:
+	if (!bNeedUpdate) return;
+
 	QStringList lstNextWords;
 	QString strBasePhrase;
 	int nCurrentSubPhrase = thePhrase.currentSubPhrase();

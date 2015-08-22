@@ -49,7 +49,7 @@ public slots:
 	void selectBible(const QString &strUUID);
 
 	void setSearchPhrases(const QString &strPhrases);		// Phrases, separated by semicolon, to search for
-	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
+	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 
 	void gotoIndex(uint32_t ndxRel);						// Passage to navigate Scripture Browser to

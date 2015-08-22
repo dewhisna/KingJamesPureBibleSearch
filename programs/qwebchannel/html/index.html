@@ -267,16 +267,19 @@
 						return false;
 					}
 				});
-				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", 0);
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", -1);
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastPhrase", "");
 				$(document).ready(function() {
 					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click paste focus", function() {
 						var input = document.getElementById(this.id);
 						var nCurPos = doGetCaretPosition(input);
-						if (nCurPos != $("#"+this.id).data("LastCurPos")) {
-							$("#"+this.id).data("LastCurPos", nCurPos);
+						if ((nCurPos != $("#"+this.id).data("LastCurPos")) ||
+							(input.value != $("#"+this.id).data("LastPhrase"))) {
 							if (input.value) {
-								window.kjpbs.autoCorrect($("#"+this.id).parents(".searchPhrase").attr("id"), input.value, nCurPos);
+								window.kjpbs.autoCorrect($("#"+this.id).parents(".searchPhrase").attr("id"), input.value, nCurPos, $("#"+this.id).data("LastPhrase"), $("#"+this.id).data("LastCurPos"));
+								$("#"+this.id).data("LastCurPos", nCurPos);
 							}
+							$("#"+this.id).data("LastPhrase", input.value);
 							$("#"+this.id).autocomplete("close");
 //							closeAllAutoCompleters();
 						}
@@ -296,10 +299,12 @@
 			function searchPhraseChanged(aSearchPhrase) {
 				var phrases = "";
 				$(".searchPhraseText").each(function(i) {
-					if (phrases) {
-						phrases = phrases + ";"
+					if (this.value) {
+						if (phrases) {
+							phrases = phrases + ";"
+						}
+						phrases = phrases + this.value;
 					}
-					phrases = phrases + this.value;
 				});
 				if (!phrases) {
 					document.getElementById("searchResults").innerHTML = "";
@@ -321,8 +326,6 @@
 				var text = input.value;
 				if (!text) {
 					thePhrase.innerHTML = "&nbsp;";
-				} else {
-					window.kjpbs.autoCorrect(aSearchPhrase, text, doGetCaretPosition(input));
 				}
 			}
 
