@@ -24,9 +24,8 @@
 #ifndef WEBCHANNEL_OBJECTS_H
 #define WEBCHANNEL_OBJECTS_H
 
-#include <dbstruct.h>
-#include <UserNotesDatabase.h>
-#include <VerseListModel.h>
+#include "dbstruct.h"
+#include "VerseListModel.h"
 #include "headlessSearchResults.h"
 
 #include <QObject>
@@ -43,10 +42,12 @@ class CWebChannelObjects : public QObject
 	Q_OBJECT
 
 public:
-	CWebChannelObjects(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent = NULL);
+	CWebChannelObjects(QObject *pParent = NULL);
 	virtual ~CWebChannelObjects();
 
 public slots:
+	void selectBible(const QString &strUUID);
+
 	void setSearchPhrases(const QString &strPhrases);		// Phrases, separated by semicolon, to search for
 	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
@@ -54,6 +55,8 @@ public slots:
 	void gotoIndex(uint32_t ndxRel);						// Passage to navigate Scripture Browser to
 
 signals:
+	void bibleSelected(bool bSuccess);
+
 	void searchResultsChanged(const QString &strHtmlLiSearchResults);					// Triggered by en_searchResultsReady() when we have data to send to channel
 	void setAutoCorrectText(const QString &strElementID, const QString &strAC);			// Triggered after call to autoCorrect() will return the HTML of the Auto Correct text
 	void setAutoCompleter(const QString &strElementID, const QString &strWordList);		// Triggered after call to autoCorrect() will return a list of words separated by ";"

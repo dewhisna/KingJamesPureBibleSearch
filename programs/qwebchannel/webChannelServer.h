@@ -27,7 +27,38 @@
 #include <QObject>
 #include <QWebSocketServer>
 #include <QWebChannel>
+#include <QMap>
+#include <QPointer>
 #include "websocketclientwrapper.h"
+
+// Forward declarations:
+class CWebChannelObjects;
+
+// ============================================================================
+
+//
+// CWebChannelClient
+//
+class CWebChannelClient : public QObject
+{
+	Q_OBJECT
+
+public:
+	CWebChannelClient(WebSocketTransport* pClient, QObject *pParent = NULL);
+	virtual ~CWebChannelClient();
+
+public slots:
+	void registerObject(const QString &strID, QObject *pObject);
+	void deregisterObject(QObject *pObject);
+
+private:
+	QWebChannel m_channel;
+	QPointer<CWebChannelObjects> m_pWebChannelObjects;
+};
+
+typedef QMap<WebSocketTransport *, QPointer<CWebChannelClient> > TWebChannelClientMap;
+
+// ============================================================================
 
 //
 // CWebChannelServer
@@ -43,15 +74,22 @@ public:
 	bool isListening() const { return m_server.isListening(); }
 	QString url(const QString &strBaseURLGood, const QString &strBaseURLBad) const;		// The Good URL is used if we are listening for connections, the Bad URL is used if not (to direct user to the correct target if our server fails to start)
 
-public slots:
-	void registerObject(const QString &strID, QObject *pObject);
-	void deregisterObject(QObject *pObject);
+	QHostAddress serverAddress() const { return m_server.serverAddress(); }
+	quint16 serverPort() const { return m_server.serverPort(); }
+
+	void close();
+
+private slots:
+	void en_clientConnected(WebSocketTransport* pClient);
+	void en_clientDisconnected(WebSocketTransport* pClient);
 
 protected:
 	QWebSocketServer m_server;						// Server to host i/o
 	WebSocketClientWrapper m_clientWrapper;			// wrap WebSocket clients in QWebChannelAbstractTransport objects
-	QWebChannel m_channel;							// Channel for exposing QObjects to HTML
+	TWebChannelClientMap m_mapChannels;				// Channels for exposing QObjects to HTML to connected clients
 };
+
+// ============================================================================
 
 #endif	// WEBCHANNEL_SERVER_H
 

@@ -151,6 +151,15 @@
 						// make our kjpbs object accessible globally
 						window.kjpbs = channel.objects.kjpbs;
 
+						kjpbs.bibleSelected.connect(function(bSuccess) {
+							if (!bSuccess) {
+								output("Bible failed to load");
+								alert("Specified Bible is Not Currently Available on the Server!");
+							} else {
+								output("Bible Successfully Selected");
+							}
+						});
+
 						kjpbs.searchResultsChanged.connect(function(strHtmlLiSearchResults) {
 							document.getElementById("searchResults").innerHTML = strHtmlLiSearchResults;
 							$("#tabs").tabs("option", "active", 0);
@@ -191,14 +200,17 @@
 							searchPhraseChanged(strElementID);
 						});
 
+						output("Connected to WebChannel, ready to send/receive searches!");
+
+						output("Selecting Bible...");
+						kjpbs.selectBible("85D8A6B0-E670-11E2-A28F-0800200C9A66");
+
 						bEnableScriptureBrowserTabSwap = false;
 						$("#tabs").tabs("option", "active", 1);
 						$("#tabs").tabs("refresh");
 						hideKeyboard();
 						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0));
 						scrollTabTop();
-
-						output("Connected to WebChannel, ready to send/receive searches!");
 					});
 				}
 			}

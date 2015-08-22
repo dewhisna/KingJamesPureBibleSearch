@@ -23,6 +23,7 @@
 
 #include "webChannelObjects.h"
 
+#include "UserNotesDatabase.h"
 #include "PhraseEdit.h"
 #include "Highlighter.h"
 
@@ -33,16 +34,10 @@
 #define DEBUG_WEBCHANNEL_SEARCH 0
 #define DEBUG_WEBCHANNEL_AUTOCORRECT 0
 
-CWebChannelObjects::CWebChannelObjects(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent)
+CWebChannelObjects::CWebChannelObjects(QObject *pParent)
 	:	QObject(pParent)
 {
-	assert(!pBibleDatabase.isNull());
-	assert(!pUserNotesDatabase.isNull());
 
-	m_pSearchResults = new CHeadlessSearchResults(pBibleDatabase, pUserNotesDatabase, this);
-	connect(m_pSearchResults.data(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
-
-	m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
 }
 
 CWebChannelObjects::~CWebChannelObjects()
@@ -50,11 +45,28 @@ CWebChannelObjects::~CWebChannelObjects()
 
 }
 
+void CWebChannelObjects::selectBible(const QString &strUUID)
+{
+	if (!m_pSearchResults.isNull()) delete m_pSearchResults;
+
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+	if (!pBibleDatabase.isNull()) {
+		m_pSearchResults = new CHeadlessSearchResults(pBibleDatabase, g_pUserNotesDatabase, this);
+		connect(m_pSearchResults.data(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
+
+		m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
+	}
+
+	emit bibleSelected(!m_pSearchResults.isNull());
+}
+
 void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 {
 #if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Received: %s", strPhrases.toUtf8().data());
 #endif
+
+	if (m_pSearchResults.isNull()) return;
 
 	QStringList lstPhrases = strPhrases.split(";", QString::SkipEmptyParts);
 	if (lstPhrases.isEmpty()) {
@@ -82,6 +94,8 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 #if DEBUG_WEBCHANNEL_AUTOCORRECT
 	qDebug("ReceivedAC: %s : \"%s\" : Cursor=%d", strElementID.toUtf8().data(), strPhrase.toUtf8().data(), nCursorPos);
 #endif
+
+	if (m_pSearchResults.isNull()) return;
 
 	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
 
@@ -148,6 +162,8 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 
 void CWebChannelObjects::calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos)
 {
+	if (m_pSearchResults.isNull()) return;
+
 	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
 
 	QTextEdit edit(strPhrase);
@@ -172,6 +188,8 @@ void CWebChannelObjects::calcUpdatedPhrase(const QString &strElementID, const QS
 
 void CWebChannelObjects::en_searchResultsReady()
 {
+	assert(!m_pSearchResults.isNull());
+
 	CVerseTextRichifierTags richifierTags;
 	richifierTags.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
@@ -206,6 +224,8 @@ void CWebChannelObjects::en_searchResultsReady()
 
 void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 {
+	if (m_pSearchResults.isNull()) return;
+
 	// Build a subset list of search results that are only in this chapter (which can't be
 	//		any larger than the number of results in this chapter) and use that for doing
 	//		the highlighting so that the VerseRichifier doesn't have to search the whole

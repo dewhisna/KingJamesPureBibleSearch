@@ -41,18 +41,24 @@ QT_BEGIN_NAMESPACE
 class QWebSocket;
 class WebSocketTransport : public QWebChannelAbstractTransport
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit WebSocketTransport(QWebSocket *socket);
-    virtual ~WebSocketTransport();
+	explicit WebSocketTransport(QWebSocket *socket);
+	virtual ~WebSocketTransport();
 
-    void sendMessage(const QJsonObject &message) Q_DECL_OVERRIDE;
+	QWebSocket *socket() const { return m_socket; }
+
+	void sendMessage(const QJsonObject &message) Q_DECL_OVERRIDE;
+
+Q_SIGNALS:
+	void clientDisconnected(WebSocketTransport* pClient);
 
 private Q_SLOTS:
-    void textMessageReceived(const QString &message);
+	void textMessageReceived(const QString &message);
+	void handleDisconnection();
 
 private:
-    QWebSocket *m_socket;
+	QWebSocket *m_socket;
 };
 
 QT_END_NAMESPACE

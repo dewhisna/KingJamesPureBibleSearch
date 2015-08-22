@@ -70,10 +70,6 @@ extern const QString g_constrApplicationID;
 class CKJVCanOpener;
 class QSplashScreen;
 class CMyApplication;
-#ifdef USING_WEBCHANNEL
-class CWebChannelObjects;
-#endif
-
 
 // ============================================================================
 
@@ -281,7 +277,6 @@ protected:
 #endif
 #ifdef USING_WEBCHANNEL
 	static QPointer<CWebChannelServer> m_pWebChannelServer;	// "Global" singletons for WebChannel
-	static QPointer<CWebChannelObjects> m_pWebChannelObjects;
 #endif
 	BIBLE_DESCRIPTOR_ENUM m_nSelectedMainBibleDB;		// Selected (or Default) Main Bible Database descriptor index
 	DICTIONARY_DESCRIPTOR_ENUM m_nSelectedMainDictDB;	// Selected (or Default) Main Dictionary Database descriptor index

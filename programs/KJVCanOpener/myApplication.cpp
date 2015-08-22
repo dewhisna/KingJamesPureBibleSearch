@@ -41,10 +41,6 @@
 #include <QUrl>
 #endif
 
-#ifdef USING_WEBCHANNEL
-#include <webChannelObjects.h>
-#endif
-
 #ifdef SHOW_SPLASH_SCREEN
 #include <QPixmap>
 #include <QSplashScreen>
@@ -98,7 +94,6 @@ QPointer<QtSpeech> CMyApplication::m_pSpeech = NULL;
 
 #ifdef USING_WEBCHANNEL
 QPointer<CWebChannelServer> CMyApplication::m_pWebChannelServer = NULL;
-QPointer<CWebChannelObjects> CMyApplication::m_pWebChannelObjects = NULL;
 #endif
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
@@ -1683,10 +1678,6 @@ int CMyApplication::execute(bool bBuildDB)
 				m_pWebChannelServer = new CWebChannelServer(QHostAddress::Any, nPort, this);
 			} else {
 				m_pWebChannelServer = new CWebChannelServer(QHostAddress(lstHostPort.at(1)), nPort, this);
-			}
-			if (m_pWebChannelServer->isListening()) {
-				m_pWebChannelObjects = new CWebChannelObjects(TBibleDatabaseList::instance()->mainBibleDatabase(), g_pUserNotesDatabase, m_pWebChannelServer);
-				m_pWebChannelServer->registerObject("kjpbs", m_pWebChannelObjects);
 			}
 		} else {
 			displayWarning(m_pSplash, g_constrInitialization, tr("Invalid WebChannel Host Port was specified.", "Errors"));

@@ -438,6 +438,12 @@ int main(int argc, char *argv[])
 		(!pApp->webChannelServer()->isListening())) {
 		std::cerr << "error: Failed to start WebChannel server listening.  Exiting...\n";
 		bDone = true;
+	} else {
+		std::cout << QString("KJPBS-WebChannel (pid=%1) started on interface \"%2\" port \"%3\"\n")
+							.arg(pApp->applicationPid())
+							.arg(pApp->webChannelServer()->serverAddress().toString())
+							.arg(pApp->webChannelServer()->serverPort())
+							.toUtf8().data();
 	}
 #else
 	bDone = true;
@@ -459,6 +465,16 @@ int main(int argc, char *argv[])
 #endif
 		}
 	}
+
+#ifdef USING_WEBCHANNEL
+	// Close web server before we shutdown and tearout Bible Databases, etc,
+	//		if we don't do this, we will crash with a segfault cleaning up the
+	//		CHeadlessSearchResults after the fact:
+	CWebChannelServer *pWebChannelServer = pApp->webChannelServer();
+	if (pWebChannelServer) {
+		pWebChannelServer->close();
+	}
+#endif
 
 	delete pApp;
 #else

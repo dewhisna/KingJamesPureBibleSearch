@@ -24,9 +24,9 @@
 #ifndef HEADLESS_SEARCH_RESULTS_H
 #define HEADLESS_SEARCH_RESULTS_H
 
-#include <dbstruct.h>
-#include <UserNotesDatabase.h>
-#include <VerseListModel.h>
+#include "dbstruct.h"
+#include "UserNotesDatabase.h"
+#include "VerseListModel.h"
 
 #include <QPointer>
 #include <QTextDocument>
@@ -46,7 +46,11 @@ public:
 	virtual ~CHeadlessSearchResults();
 
 	inline const CVerseListModel &vlmodel() const { return m_verseListModel; }
-	CPhraseNavigator &phraseNavigator() const { return *m_pPhraseNavigator; }
+	CPhraseNavigator &phraseNavigator() const
+	{
+		assert(!m_pPhraseNavigator.isNull());
+		return *m_pPhraseNavigator.data();
+	}
 
 public slots:
 	void setParsedPhrases(const CSearchResultsData &searchResultsData);
@@ -57,7 +61,7 @@ signals:
 
 private:
 	CVerseListModel m_verseListModel;
-	CPhraseNavigator *m_pPhraseNavigator;
+	QPointer<CPhraseNavigator> m_pPhraseNavigator;
 	QTextDocument m_scriptureText;
 };
 
