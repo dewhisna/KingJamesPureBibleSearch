@@ -671,6 +671,8 @@ public:
 		QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
 		QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
 
+		const CSearchResultsData &searchResultsData() const { return m_searchResultsData; }
+
 		using TVerseListModelResults::GetVerseCount;
 		using TVerseListModelResults::verseMap;
 	};
@@ -879,6 +881,107 @@ private:
 // ---
 	// Special statics needed for sorting (mutexed in sorting function to be thread-safe):
 	static const TCrossReferenceMap *ms_pCrossRefsMap;
+};
+
+// ============================================================================
+
+//
+// CSearchResultsSummary
+//		Search results summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
+//
+class CSearchResultsSummary
+{
+public:
+	CSearchResultsSummary()
+	{
+		reset();
+	}
+
+	CSearchResultsSummary(const CVerseListModel &verseModel)
+	{
+		setFromVerseListModel(verseModel);
+	}
+
+	CSearchResultsSummary & operator=(const CVerseListModel &src)
+	{
+		setFromVerseListModel(src);
+		return *this;
+	}
+
+	void reset()
+	{
+		m_nSearchOccurrences = 0;
+		m_nSearchVerses = 0;
+		m_nSearchChapters = 0;
+		m_nSearchBooks = 0;
+		m_nNumSearchPhrases = 0;
+		// ----
+		m_nExcludedSearchOccurrences = 0;
+		m_nExcludedSearchVerses = 0;
+		m_nExcludedSearchChapters = 0;
+		m_nExcludedSearchBooks = 0;
+		m_nNumExcludedSearchPhrases = 0;
+		// ----
+		m_SearchCriteria.clear();
+		m_bValid = false;
+	}
+
+	void setFromVerseListModel(const CVerseListModel &verseModel)
+	{
+		m_nSearchOccurrences = verseModel.searchResults(false).GetResultsCount();
+		m_nSearchVerses = verseModel.searchResults(false).GetVerseIndexAndCount().second;
+		m_nSearchChapters = verseModel.searchResults(false).GetChapterIndexAndCount().second;
+		m_nSearchBooks = verseModel.searchResults(false).GetBookIndexAndCount().second;
+		m_nNumSearchPhrases = verseModel.searchResults(false).searchResultsData().m_lstParsedPhrases.size();
+		// ----
+		m_nExcludedSearchOccurrences = verseModel.searchResults(true).GetResultsCount();
+		m_nExcludedSearchVerses = verseModel.searchResults(true).GetVerseIndexAndCount().second;
+		m_nExcludedSearchChapters = verseModel.searchResults(true).GetChapterIndexAndCount().second;
+		m_nExcludedSearchBooks = verseModel.searchResults(true).GetBookIndexAndCount().second;
+		m_nNumExcludedSearchPhrases = verseModel.searchResults(true).searchResultsData().m_lstParsedPhrases.size();
+		// ----
+		m_SearchCriteria = verseModel.searchResults(false).searchResultsData().m_SearchCriteria;		// Should match excluded as well
+		m_bValid = true;
+	}
+
+	QString summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded = false) const;
+	QString summaryCopyText(CBibleDatabasePtr pBibleDatabase) const;
+
+	// ----
+	bool isValid() const { return m_bValid; }
+	// ---- included:
+	int searchOccurrences() const { return m_nSearchOccurrences; }
+	int searchVerses() const { return m_nSearchVerses; }
+	int searchChapters() const { return m_nSearchChapters; }
+	int searchBooks() const { return m_nSearchBooks; }
+	int numSearchPhrases() const { return m_nNumSearchPhrases; }
+	// ---- excluded:
+	int excludedSearchOccurrences() const { return m_nExcludedSearchOccurrences; }
+	int excludedSearchVerses() const { return m_nExcludedSearchVerses; }
+	int excludedSearchChapters() const { return m_nExcludedSearchChapters; }
+	int excludedSearchBooks() const { return m_nExcludedSearchBooks; }
+	int numExcludedSearchPhrases() const { return m_nNumExcludedSearchPhrases; }
+	// ----
+	int numTotalSearchPhrases() const { return m_nNumSearchPhrases + m_nNumExcludedSearchPhrases; }
+	// ----
+	const CSearchCriteria &searchCriteria() const { return m_SearchCriteria; }
+
+private:
+	int m_nSearchOccurrences;
+	int m_nSearchVerses;
+	int m_nSearchChapters;
+	int m_nSearchBooks;
+	// ----
+	int m_nExcludedSearchOccurrences;
+	int m_nExcludedSearchVerses;
+	int m_nExcludedSearchChapters;
+	int m_nExcludedSearchBooks;
+	// ----
+	int m_nNumSearchPhrases;
+	int m_nNumExcludedSearchPhrases;
+	CSearchCriteria m_SearchCriteria;
+	// ----
+	bool m_bValid;						// Set to true when set from a search source
 };
 
 // ============================================================================

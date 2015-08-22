@@ -74,6 +74,12 @@ public:
 
 	virtual ~CSearchCriteria() { }
 
+	void clear()
+	{
+		m_nSearchScopeMode = SSME_UNSCOPED;
+		m_setSearchWithin.clear();
+	}
+
 	bool bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const;
 	bool bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const;
 
