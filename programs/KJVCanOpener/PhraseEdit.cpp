@@ -2486,6 +2486,12 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 	return strRawHTML;
 }
 
+void CPhraseNavigator::clearDocument()
+{
+	m_TextDocument.clear();
+	emit changedDocumentText();
+}
+
 QString CPhraseNavigator::referenceStartingDelimiter()
 {
 	switch (CPersistentSettings::instance()->referenceDelimiterMode()) {

@@ -576,6 +576,8 @@ public:
 	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 
+	void clearDocument();
+
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();
 
