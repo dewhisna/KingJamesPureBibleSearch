@@ -34,6 +34,15 @@
 #define DEBUG_WEBCHANNEL_SEARCH 0
 #define DEBUG_WEBCHANNEL_AUTOCORRECT 0
 
+// ============================================================================
+
+// --------------
+// Search Limits:
+// --------------
+#define MAX_SEARCH_PHRASES 5
+
+// ============================================================================
+
 CWebChannelObjects::CWebChannelObjects(QObject *pParent)
 	:	QObject(pParent)
 {
@@ -69,6 +78,9 @@ void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 	if (m_pSearchResults.isNull()) return;
 
 	QStringList lstPhrases = strPhrases.split(";", QString::SkipEmptyParts);
+	if (lstPhrases.size() > MAX_SEARCH_PHRASES) {
+		lstPhrases.erase(lstPhrases.begin() + MAX_SEARCH_PHRASES, lstPhrases.end());
+	}
 	if (lstPhrases.isEmpty()) {
 		m_searchResultsData.m_lstParsedPhrases.clear();
 		m_lstParsedPhrases.clear();
