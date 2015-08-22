@@ -3220,7 +3220,7 @@ CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
 
 // ============================================================================
 
-QString CSearchResultsSummary::summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded) const
+QString CSearchResultsSummary::summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded, bool bWebChannelHTML) const
 {
 	QString strResults;
 
@@ -3236,10 +3236,18 @@ QString CSearchResultsSummary::summaryDisplayText(CBibleDatabasePtr pBibleDataba
 		if (m_SearchCriteria.withinIsEntireBible(pBibleDatabase, true)) {
 			if (!CPersistentSettings::instance()->hideNotFoundInStatistcs()) {
 				if (m_nSearchOccurrences > 0) {
-					strResults += "\n";
-					strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Verse(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses) + "\n";
-					strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumChp - m_nSearchChapters) + "\n";
-					strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Book(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumBk - m_nSearchBooks);
+					if (bWebChannelHTML) {
+						strResults += "\n<br /><ol style=\"list-style-type: none;\">\n";
+						strResults += "<li>" + CKJVSearchResult::tr("Not found at all in %n Verse(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses) + "</li>\n";
+						strResults += "<li>" + CKJVSearchResult::tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumChp - m_nSearchChapters) + "</li>\n";
+						strResults += "<li>" + CKJVSearchResult::tr("Not found at all in %n Book(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumBk - m_nSearchBooks) + "</li>\n";
+						strResults += "</ol>\n";
+					} else {
+						strResults += "\n";
+						strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Verse(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses) + "\n";
+						strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumChp - m_nSearchChapters) + "\n";
+						strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Book(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumBk - m_nSearchBooks);
+					}
 				}
 			}
 		} else {

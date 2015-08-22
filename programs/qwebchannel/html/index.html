@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>King James Pure Bible Search Standalone Server</title>
+		<title>King James Pure Bible Search WebChannel Server</title>
 		<link rel="stylesheet" href="jquery/jquery-ui/1.11.4/themes/start/jquery-ui.css">
 		<script src="jquery/jquery-1.11.3.js"></script>
 		<script src="jquery/jquery-ui/1.11.4/jquery-ui.js"></script>
@@ -160,8 +160,9 @@
 							}
 						});
 
-						kjpbs.searchResultsChanged.connect(function(strHtmlLiSearchResults) {
-							document.getElementById("searchResults").innerHTML = strHtmlLiSearchResults;
+						kjpbs.searchResultsChanged.connect(function(strHtmlSearchResults, strHtmlSummary) {
+							document.getElementById("searchResults").innerHTML = strHtmlSearchResults;
+							document.getElementById("searchResultsSummary").innerHTML = strHtmlSummary;
 							$("#tabs").tabs("option", "active", 0);
 							$("#tabs").tabs("refresh");
 							scrollTabTop();
@@ -308,6 +309,7 @@
 				});
 				if (!phrases) {
 					document.getElementById("searchResults").innerHTML = "";
+					document.getElementById("searchResultsSummary").innerHTML = "";
 					$("#tabs").tabs("option", "active", 0);
 					$("#tabs").tabs("refresh");
 					scrollTabTop();
@@ -487,6 +489,11 @@
 			}
 			#searchSpec {
 			}
+			#searchResultsSummary {
+				text-align: center;
+				width: 100%;
+				margin: 0 auto;
+			}
 			#searchResults {
 				list-style-type: none;
 				width: 100%;
@@ -547,13 +554,13 @@
 						</td>
 					</tr>
 					<tr>
-						<td colspan="3">
-							<hr />
+						<td class="expand" colspan="3">
+							<div id="searchResultsSummary"></div>
 						</td>
 					</tr>
 					<tr>
-						<td class="expand" colspan="3">
-							<div id="searchResultsSummary"></div>
+						<td colspan="3">
+							<hr />
 						</td>
 					</tr>
 					<tr>

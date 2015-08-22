@@ -944,7 +944,7 @@ public:
 		m_bValid = true;
 	}
 
-	QString summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded = false) const;
+	QString summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded = false, bool bWebChannelHTML = false) const;
 	QString summaryCopyText(CBibleDatabasePtr pBibleDatabase) const;
 
 	// ----

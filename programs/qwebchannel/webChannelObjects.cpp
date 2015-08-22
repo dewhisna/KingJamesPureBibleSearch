@@ -261,7 +261,10 @@ void CWebChannelObjects::en_searchResultsReady()
 #if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Sending Results");
 #endif
-	emit searchResultsChanged(strResults);
+
+	CSearchResultsSummary srs(m_pSearchResults->vlmodel());
+
+	emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pSearchResults->vlmodel().bibleDatabase(), false, true));
 
 	// Free-up memory for other clients:
 	m_lstParsedPhrases.clear();
