@@ -28,6 +28,7 @@
 #include <QWebSocket>
 
 #ifdef IS_CONSOLE_APP
+#include <QDateTime>
 #include <iostream>
 #endif
 
@@ -104,10 +105,11 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 			m_mapChannels.size());
 #endif
 #ifdef IS_CONSOLE_APP
-	std::cout << QString("Connected: \"%1\" (%2) port %3 -- %4 Connections\n")
+	std::cout << QString("Connected: \"%1\" (%2) port %3 at %4 UTC -- %5 Connections\n")
 							.arg(pClient->socket()->peerName())
 							.arg(pClient->socket()->peerAddress().toString())
 							.arg(pClient->socket()->peerPort())
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(m_mapChannels.size())
 							.toUtf8().data();
 #endif
@@ -129,10 +131,11 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 			m_mapChannels.size());
 #endif
 #ifdef IS_CONSOLE_APP
-	std::cout << QString("Disconnected: \"%1\" (%2) port %3 -- %4 Connections\n")
+	std::cout << QString("Disconnected: \"%1\" (%2) port %3 at %4 UTC -- %5 Connections\n")
 							.arg(pClient->socket()->peerName())
 							.arg(pClient->socket()->peerAddress().toString())
 							.arg(pClient->socket()->peerPort())
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(m_mapChannels.size())
 							.toUtf8().data();
 #endif
@@ -161,10 +164,11 @@ void CWebChannelServer::close()
 				nNumConnections);
 #endif
 #ifdef IS_CONSOLE_APP
-	std::cout << QString("Disconnected: \"%1\" (%2) port %3 -- %4 Connections\n")
+	std::cout << QString("Disconnected: \"%1\" (%2) port %3 at %4 UTC -- %5 Connections\n")
 							.arg(itrClientMap.key()->socket()->peerName())
 							.arg(itrClientMap.key()->socket()->peerAddress().toString())
 							.arg(itrClientMap.key()->socket()->peerPort())
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(nNumConnections)
 							.toUtf8().data();
 #endif
