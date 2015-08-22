@@ -232,6 +232,13 @@ void CWebChannelObjects::en_searchResultsReady()
 	qDebug("Sending Results");
 #endif
 	emit searchResultsChanged(strResults);
+
+	// Free-up memory for other clients:
+	m_lstParsedPhrases.clear();
+	m_searchResultsData.m_lstParsedPhrases.clear();
+	// TODO : Figure out how to clear out the VerseListModel without causing
+	//		this function to get run again and send empty results (keeping in
+	//		mind this can be multithreaded).
 }
 
 void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
@@ -261,4 +268,5 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 							CPhraseNavigator::TRO_SuppressPrePostChapters),
 							&srHighlighter);
 	emit scriptureBrowserRender(ndxRel, strText);
+	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
 }
