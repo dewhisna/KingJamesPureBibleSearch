@@ -252,7 +252,18 @@
 				var tdClose = trInput.find("td").first().next().next().next();
 				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
 				phraseTable.append('<tr></tr>');
-				var trBreak = phraseTable.find("tr").first().next().next();
+				var trOpts = phraseTable.find("tr").first().next().next();
+				trOpts.append('<td></td>');
+				trOpts.append('<td>&nbsp;</td>');
+				trOpts.append('<td></td>');
+				trOpts.append('<td></td>');
+				var tdOpts = trOpts.find("td").first();
+				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="CaseSensitive" id="searchPhrase_' + nSearchPhraseNextID + '_CaseSensitive" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Case Sensitive</input>');
+				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="AccentSensitive" id="searchPhrase_' + nSearchPhraseNextID + '_AccentSensitive" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Accent Sensitive</input>');
+				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="Exclude" id="searchPhrase_' + nSearchPhraseNextID + '_Exclude" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Exclude</input>');
+				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="Disable" id="searchPhrase_' + nSearchPhraseNextID + '_Disable" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Disable</input>');
+				phraseTable.append('<tr></tr>');
+				var trBreak = phraseTable.find("tr").first().next().next().next();
 				trBreak.append('<td colspan="4"></td>');
 				var tdBreak = trBreak.find("td").first();
 				tdBreak.append('<hr class="searchPhraseBreak" />');
@@ -310,9 +321,28 @@
 						if (phrases) {
 							phrases = phrases + ";"
 						}
+						// order matters, see CPhraseEntry!
+						if (document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Disable").checked) {
+							phrases = phrases + '\u00AC';
+						}
+						if (document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Exclude").checked) {
+							phrases = phrases + '\u2209';
+						}
+						if (document.getElementById($(this).parents(".searchPhrase").attr("id")+"_AccentSensitive").checked) {
+							phrases = phrases + '\u00A4';
+						}
+						if (document.getElementById($(this).parents(".searchPhrase").attr("id")+"_CaseSensitive").checked) {
+							phrases = phrases + '\u00A7';
+						}
 						phrases = phrases + this.value;
 					}
 				});
+				if (aSearchPhrase) {
+					document.getElementById(aSearchPhrase + "_Text").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
+					document.getElementById(aSearchPhrase + "_CaseSensitive").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
+					document.getElementById(aSearchPhrase + "_AccentSensitive").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
+					document.getElementById(aSearchPhrase + "_Exclude").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
+				}
 				if (!phrases) {
 					document.getElementById("searchResults").innerHTML = "";
 					document.getElementById("searchResultsSummary").innerHTML = "";
@@ -323,9 +353,17 @@
 				}
 
 				$("body").css("cursor", "progress");
-				$("#"+aSearchPhrase+"_Text").autocomplete("close");
+				if (aSearchPhrase) {
+					$("#"+aSearchPhrase+"_Text").autocomplete("close");
+				} else {
+					closeAllAutoCompleters();
+				}
 //				disableAllAutoCompleters();
 				window.kjpbs.setSearchPhrases(phrases);
+			}
+
+			function searchPhraseOptsChanged(aSearchPhrase) {
+				searchPhraseChanged(aSearchPhrase);
 			}
 
 			function searchPhraseTextChanged(aSearchPhrase) {
