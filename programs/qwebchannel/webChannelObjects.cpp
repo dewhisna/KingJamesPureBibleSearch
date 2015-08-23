@@ -43,6 +43,10 @@
 
 // ============================================================================
 
+//
+// CWebChannelObjects
+//
+
 CWebChannelObjects::CWebChannelObjects(QObject *pParent)
 	:	QObject(pParent)
 {
@@ -303,3 +307,35 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 	emit scriptureBrowserRender(ndxRel, strText);
 	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
 }
+
+void CWebChannelObjects::sendBroadcast(const QString &strMessage)
+{
+	if (!strMessage.isEmpty()) emit broadcast(strMessage);
+}
+
+// ============================================================================
+
+//
+// CWebChannelAdminObjects
+//
+
+CWebChannelAdminObjects::CWebChannelAdminObjects(QObject *pParent)
+	:	QObject(pParent),
+		m_strKey("76476F14-F3A9-42AC-9443-4A7445154EC7")
+{
+
+}
+
+CWebChannelAdminObjects::~CWebChannelAdminObjects()
+{
+
+}
+
+void CWebChannelAdminObjects::sendBroadcast(const QString &strKey, const QString &strMessage)
+{
+	if (strKey == m_strKey) {
+		emit broadcast(strMessage);
+	}
+}
+
+// ============================================================================

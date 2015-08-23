@@ -33,6 +33,7 @@
 
 // Forward declarations:
 class CWebChannelObjects;
+class CWebChannelAdminObjects;
 
 // ============================================================================
 
@@ -44,12 +45,19 @@ class CWebChannelClient : public QObject
 	Q_OBJECT
 
 public:
-	CWebChannelClient(WebSocketTransport* pClient, QObject *pParent = NULL);
+	CWebChannelClient(QObject *pParent = NULL);
 	virtual ~CWebChannelClient();
 
 public slots:
 	void registerObject(const QString &strID, QObject *pObject);
 	void deregisterObject(QObject *pObject);
+
+	void sendBroadcast(const QString &strMessage);
+
+protected:
+	friend class CWebChannelServer;
+
+	void connectTo(WebSocketTransport* pClient);
 
 private:
 	QWebChannel m_channel;
@@ -77,7 +85,9 @@ public:
 	QHostAddress serverAddress() const { return m_server.serverAddress(); }
 	quint16 serverPort() const { return m_server.serverPort(); }
 
-	void close();
+public slots:
+	void close();										// Hangup all clients and shutdown server
+	void sendBroadcast(const QString &strMessage);		// Broadcast message to all connected clients
 
 private slots:
 	void en_clientConnected(WebSocketTransport* pClient);
@@ -87,6 +97,7 @@ protected:
 	QWebSocketServer m_server;						// Server to host i/o
 	WebSocketClientWrapper m_clientWrapper;			// wrap WebSocket clients in QWebChannelAbstractTransport objects
 	TWebChannelClientMap m_mapChannels;				// Channels for exposing QObjects to HTML to connected clients
+	QPointer<CWebChannelAdminObjects> m_pWebChannelAdminObjects;		// Admin objects attached to all clients to do "hidden" messaging
 };
 
 // ============================================================================

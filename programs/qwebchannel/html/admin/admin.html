@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>King James Pure Bible Search WebChannel Server Admin</title>
+		<link rel="stylesheet" href="../jquery/jquery-ui/1.11.4/themes/start/jquery-ui.css">
+		<script src="../jquery/jquery-1.11.3.js"></script>
+		<script src="../jquery/jquery-ui/1.11.4/jquery-ui.js"></script>
+		<script src="../jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.js"></script>
+		<script type="text/javascript" src="../qwebchannel.js"></script>
+		<script type="text/javascript">
+			//BEGIN SETUP
+			function output(message)
+			{
+				var output = document.getElementById("output");
+				output.innerHTML = output.innerHTML + message + "\n";
+			}
+			function key()
+			{
+				return "76476F14-F3A9-42AC-9443-4A7445154EC7";
+			}
+			function scrollToAnchor(anAnchor)
+			{
+				var element_to_scroll_to = document.getElementById(anAnchor);
+				element_to_scroll_to.scrollIntoView();
+			}
+			window.onload = function() {
+				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+				output("Connecting to WebSocket server at " + baseUrl + ".");
+				var socket = new WebSocket(baseUrl);
+
+				socket.onclose = function()
+				{
+					output("WebChannel Connection Closed");
+					alert("WebChannel Connection Closed");
+				};
+				socket.onerror = function(error)
+				{
+					output("WebChannel Error: " + error);
+					alert("WebChannel Error: " + error);
+				};
+				socket.onopen = function()
+				{
+					output("WebSocket connected, setting up QWebChannel.");
+					new QWebChannel(socket, function(channel) {
+						// make our mosis object accessible globally
+						window.mosis = channel.objects.mosis;
+
+						output("Connected to WebChannel, ready...");
+
+					});
+				}
+			}
+			//END SETUP
+
+			function sendBroadcast() {
+				var msg = document.getElementById("broadcastMessageText");
+				if (msg.value) {
+					window.mosis.sendBroadcast(key(), msg.value);
+					alert("Broadcast Message Sent:\n\n" + msg.value);
+				}
+			}
+		</script>
+		<style type="text/css">
+			html {
+				height: 100%;
+				width: 100%;
+			}
+
+			#broadcastMessageText {
+				margin: 0 5px 5px 0;
+				width: 500px;
+				max-width: 100%;
+			}
+
+			#output {
+				width: 500px;
+				height: 75px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="status">
+			<h1>King James Pure Bible Search</h1>
+			<h2>WebChannel Server Admin</h2>
+			<textarea id="output"></textarea><br />
+		</div>
+		<br />
+		<hr />
+		<br />
+		<div id="broadcastControls">
+			<label for="broadcastMessageText">Broadcast Message: </label><br />
+			<input class="broadcastMessage" id="broadcastMessageText" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"><br />
+			<button type="button" id="sendBroadcastButton" onclick="javascript:sendBroadcast();">Send Broadcast</button>
+		</div>
+		<script>
+			$( "#sendBroadcastButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+	</body>
+</html>

@@ -31,8 +31,12 @@
 #include <QObject>
 #include <QPointer>
 
+// ============================================================================
+
 // Forward declarations:
 
+
+// ============================================================================
 
 //
 // CWebChannelObjects
@@ -54,6 +58,8 @@ public slots:
 
 	void gotoIndex(uint32_t ndxRel);						// Passage to navigate Scripture Browser to
 
+	void sendBroadcast(const QString &strMessage);			// Transmit broadcast message to connected client (shutdown alert, etc)
+
 signals:
 	void bibleSelected(bool bSuccess);
 
@@ -63,6 +69,8 @@ signals:
 	void updatePhrase(const QString &strElementID, const QString &strNewPhrase);		// Triggered after call to calcUpdatedPhrase() to return new phrase with subphrase substituted
 
 	void scriptureBrowserRender(uint32_t ndxRel, const QString &strHtmlScripture);		// Triggered by scripture browser navigation to display rendered text
+
+	void broadcast(const QString &strMessage);				// Display popup message -- used to send shutdown announcements, etc.
 
 protected:
 
@@ -75,5 +83,30 @@ private:
 	CSearchResultsData m_searchResultsData;					// Data (phrases and criteria) that we are using
 	TSharedParsedPhrasesList m_lstParsedPhrases;			// Phrase parsers
 };
+
+// ============================================================================
+
+//
+// CWebChannelAdminObjects
+//
+class CWebChannelAdminObjects : public QObject
+{
+	Q_OBJECT
+
+public:
+	CWebChannelAdminObjects(QObject *pParent = NULL);
+	virtual ~CWebChannelAdminObjects();
+
+public slots:
+	void sendBroadcast(const QString &strKey, const QString &strMessage);			// Transmit broadcast message to all connected clients (shutdown alert, etc)
+
+signals:
+	void broadcast(const QString &strMessage);				// Display popup message -- used to send shutdown announcements, etc.
+
+private:
+	const QString m_strKey;									// Access Key
+};
+
+// ============================================================================
 
 #endif	// WEBCHANNEL_OBJECTS_H

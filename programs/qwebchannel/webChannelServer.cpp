@@ -36,18 +36,21 @@
 
 // ============================================================================
 
-CWebChannelClient::CWebChannelClient(WebSocketTransport *pClient, QObject *pParent)
+CWebChannelClient::CWebChannelClient(QObject *pParent)
 	:	QObject(pParent)
 {
 	m_pWebChannelObjects = new CWebChannelObjects(this);
 	registerObject("kjpbs", m_pWebChannelObjects);
-
-	m_channel.connectTo(pClient);
 }
 
 CWebChannelClient::~CWebChannelClient()
 {
 
+}
+
+void CWebChannelClient::connectTo(WebSocketTransport* pClient)
+{
+	m_channel.connectTo(pClient);
 }
 
 void CWebChannelClient::registerObject(const QString &strID, QObject *pObject)
@@ -60,6 +63,11 @@ void CWebChannelClient::deregisterObject(QObject *pObject)
 	m_channel.deregisterObject(pObject);
 }
 
+void CWebChannelClient::sendBroadcast(const QString &strMessage)
+{
+	if (!m_pWebChannelObjects.isNull()) m_pWebChannelObjects->sendBroadcast(strMessage);
+}
+
 // ============================================================================
 
 CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPort, QObject *pParent)
@@ -69,6 +77,10 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 {
 	// setup the QWebSocketServer
 	m_server.listen(anAddress, nPort);
+
+	// create the CWebChannelAdminObjects
+	m_pWebChannelAdminObjects = new CWebChannelAdminObjects(this);
+	connect(m_pWebChannelAdminObjects.data(), SIGNAL(broadcast(const QString &)), this, SLOT(sendBroadcast(const QString &)));
 
 	// Handle connections:
 	connect(&m_clientWrapper, SIGNAL(clientConnected(WebSocketTransport*)), this, SLOT(en_clientConnected(WebSocketTransport*)));
@@ -94,7 +106,9 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 	connect(pClient, SIGNAL(clientDisconnected(WebSocketTransport*)), this, SLOT(en_clientDisconnected(WebSocketTransport*)));
 
 	// setup the channel
-	QPointer<CWebChannelClient> pClientChannel = new CWebChannelClient(pClient, this);
+	QPointer<CWebChannelClient> pClientChannel = new CWebChannelClient(this);
+	pClientChannel->registerObject("mosis", m_pWebChannelAdminObjects);
+	pClientChannel->connectTo(pClient);
 	m_mapChannels[pClient] = pClientChannel;
 
 #if DEBUG_WEBCHANNEL_SERVER_CONNECTIONS
@@ -177,6 +191,17 @@ void CWebChannelServer::close()
 		if (!pClientChannel.isNull()) delete pClientChannel;
 	}
 	m_mapChannels.clear();
+}
+
+void CWebChannelServer::sendBroadcast(const QString &strMessage)
+{
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Sending Broadcast Message : %2\n").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).arg(strMessage).toUtf8().data();
+#endif
+	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if (!pClientChannel.isNull()) pClientChannel->sendBroadcast(strMessage);
+	}
 }
 
 // ============================================================================

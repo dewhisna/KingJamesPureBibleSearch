@@ -29,7 +29,7 @@
 			$$PWD/html/*
 
 		webchannelDeploy.files = $$WEBFILES
-		webchannelDeploy.path = .
+		webchannelDeploy.path = ./html
 
 		INSTALLS += webchannelDeploy
 
@@ -43,17 +43,17 @@
 		}
 
 		webchannel_build.input = webchannel_copyfiles
-		webchannel_build.output = $$OUT_PWD/${QMAKE_FUNC_FILE_IN_stripSrcDir}
-		webchannel_build.commands = $$QMAKE_COPY -r ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
+		webchannel_build.output = $$OUT_PWD/html/${QMAKE_FUNC_FILE_IN_stripSrcDir}
+		webchannel_build.commands = $$QMAKE_MKDIR html; $$QMAKE_COPY_DIR ${QMAKE_FILE_IN} html/
 		webchannel_build.name = COPY ${QMAKE_FILE_IN}
 		webchannel_build.CONFIG = no_link target_predeps
 		QMAKE_EXTRA_COMPILERS += webchannel_build
 
-		# Add target for 'clean' so we can also clean the recursed 'jquery' folder:
+		# Add target for 'clean' so we can also clean the recursed 'html' folders:
 		!equals($$PWD, $$OUT_PWD) {
-			jquery_clean.commands = -$(DEL_FILE) -r $${OUT_PWD}/jquery
-			clean.depends = jquery_clean
-			QMAKE_EXTRA_TARGETS += clean jquery_clean
+			html_clean.commands = -$(DEL_FILE) -r $${OUT_PWD}/html
+			clean.depends = html_clean
+			QMAKE_EXTRA_TARGETS += clean html_clean
 		}
 
 	} else {

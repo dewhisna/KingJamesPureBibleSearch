@@ -160,6 +160,12 @@
 							}
 						});
 
+						kjpbs.broadcast.connect(function(strMessage) {
+							if (strMessage) {
+								alert(strMessage);
+							}
+						});
+
 						kjpbs.searchResultsChanged.connect(function(strHtmlSearchResults, strHtmlSummary) {
 							document.getElementById("searchResults").innerHTML = strHtmlSearchResults;
 							document.getElementById("searchResultsSummary").innerHTML = strHtmlSummary;
