@@ -442,11 +442,11 @@ int main(int argc, char *argv[])
 		std::cerr << "error: Failed to start WebChannel server listening.  Exiting...\n";
 		bDone = true;
 	} else {
-		std::cout << QString("KJPBS-WebChannel (pid=%1) started on interface \"%2\" port %3 at %4 UTC\n")
+		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) started on interface \"%3\" port %4\n")
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(pApp->applicationPid())
 							.arg(pApp->webChannelServer()->serverAddress().toString())
 							.arg(pApp->webChannelServer()->serverPort())
-							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.toUtf8().data();
 	}
 #else
@@ -478,9 +478,9 @@ int main(int argc, char *argv[])
 	if (pWebChannelServer) {
 		pWebChannelServer->close();
 #ifdef IS_CONSOLE_APP
-		std::cout << QString("KJPBS-WebChannel (pid=%1) stopped at %2 UTC\n")
-							.arg(pApp->applicationPid())
+		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) stopped\n")
 							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+							.arg(pApp->applicationPid())
 							.toUtf8().data();
 #endif
 	}

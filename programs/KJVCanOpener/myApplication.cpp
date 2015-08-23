@@ -47,6 +47,10 @@
 #include <QElapsedTimer>
 #endif
 
+#ifdef IS_CONSOLE_APP
+#include <QDateTime>
+#endif
+
 #include <QProxyStyle>
 #include <QFont>
 #include <QFontDatabase>
@@ -718,6 +722,7 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 		processEvents();
 	}
 #elif defined(IS_CONSOLE_APP)
+	std::cout << QString("%1 UTC : ").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
 	std::cout << strMessage.toUtf8().data();
 	std::cout << "\n";
 #else
