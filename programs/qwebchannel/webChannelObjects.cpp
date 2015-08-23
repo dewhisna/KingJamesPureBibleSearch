@@ -369,4 +369,16 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 	emit connectionsList(strClients);
 }
 
+void CWebChannelAdminObjects::shutdownServer(const QString &strKey, const QString &strConfirmation)
+{
+	if ((strKey != m_strKey) ||
+		(strConfirmation != "9BF89B76-45B2-46EB-B95C-79D460F702BD")) return;
+
+#ifdef IS_CONSOLE_APP
+	QCoreApplication::exit(0);			// For console-build (i.e. daemon), exit.  Server closing will happen on exit
+#else
+	m_pWebServer->close();				// For GUI build, just close the webserver
+#endif
+}
+
 // ============================================================================

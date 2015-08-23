@@ -69,6 +69,16 @@
 			function getConnections() {
 				window.mosis.getConnectionsList(key());
 			}
+
+			function shutdownServer() {
+				var confirm = document.getElementById("shutdownServerConfirmationText");
+				if ((confirm.value) && (confirm.value == "CONFIRM")) {
+					window.mosis.sendBroadcast(key(), "King James Pure Bible Search WebChannel Server is shutting down...");
+					setTimeout(function(){
+						window.mosis.shutdownServer(key(), "9BF89B76-45B2-46EB-B95C-79D460F702BD");
+					}, 10000);
+				}
+			}
 		</script>
 		<style type="text/css">
 			html {
@@ -77,6 +87,12 @@
 			}
 
 			#broadcastMessageText {
+				margin: 0 5px 5px 0;
+				width: 500px;
+				max-width: 100%;
+			}
+
+			#shutdownServerConfirmationText {
 				margin: 0 5px 5px 0;
 				width: 500px;
 				max-width: 100%;
@@ -115,6 +131,17 @@
 		</div>
 		<script>
 			$( "#getConnectionsButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+		<div id="shutdownControls">
+			<label for="shutdownServerConfirmationText">Shutdown Server (enter "CONFIRM"): </label><br />
+			<input class="shutdownServerConfirmation" id="shutdownServerConfirmationText" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"><br />
+			<button type="button" id="shutdownServerButton" onclick="javascript:shutdownServer();">Shutdown Server</button>
+		</div>
+		<script>
+			$( "#shutdownServerButton" ).button();
 		</script>
 		<br />
 		<hr />

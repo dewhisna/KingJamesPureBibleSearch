@@ -99,7 +99,8 @@ public:
 
 public slots:
 	void sendBroadcast(const QString &strKey, const QString &strMessage);			// Transmit broadcast message to all connected clients (shutdown alert, etc)
-	void getConnectionsList(const QString &strKey);			// Request a list of connected clients
+	void getConnectionsList(const QString &strKey);									// Request a list of connected clients
+	void shutdownServer(const QString &strKey, const QString &strConfirmation);		// Shuts down this server (and exits daemon if a console-build)
 
 signals:
 	void broadcast(const QString &strMessage);					// Display popup message -- used to send shutdown announcements, etc.
