@@ -261,15 +261,12 @@
 				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
 				phraseTable.append('<tr></tr>');
 				var trOpts = phraseTable.find("tr").first().next().next();
-				trOpts.append('<td></td>');
-				trOpts.append('<td>&nbsp;</td>');
-				trOpts.append('<td></td>');
-				trOpts.append('<td></td>');
+				trOpts.append('<td colspan="4"></td>');
 				var tdOpts = trOpts.find("td").first();
-				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="CaseSensitive" id="searchPhrase_' + nSearchPhraseNextID + '_CaseSensitive" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Case Sensitive</input>');
-				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="AccentSensitive" id="searchPhrase_' + nSearchPhraseNextID + '_AccentSensitive" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Accent Sensitive</input>');
-				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="Exclude" id="searchPhrase_' + nSearchPhraseNextID + '_Exclude" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Exclude</input>');
-				tdOpts.append('<input type="checkbox" class="searchPhraseOpts" name="Disable" id="searchPhrase_' + nSearchPhraseNextID + '_Disable" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');">Disable</input>');
+				tdOpts.append('<div class="checkboxitem"><input type="checkbox" class="searchPhraseOpts" name="CaseSensitive" id="searchPhrase_' + nSearchPhraseNextID + '_CaseSensitive" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" /><label for="searchPhrase_' + nSearchPhraseNextID + '_CaseSensitive">Case</label></div>');
+				tdOpts.append('<div class="checkboxitem"><input type="checkbox" class="searchPhraseOpts" name="AccentSensitive" id="searchPhrase_' + nSearchPhraseNextID + '_AccentSensitive" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" /><label for="searchPhrase_' + nSearchPhraseNextID + '_AccentSensitive">Accent</label></div>');
+				tdOpts.append('<div class="checkboxitem"><input type="checkbox" class="searchPhraseOpts" name="Exclude" id="searchPhrase_' + nSearchPhraseNextID + '_Exclude" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" /><label for="searchPhrase_' + nSearchPhraseNextID + '_Exclude">Exclude</label></div>');
+				tdOpts.append('<div class="checkboxitem"><input type="checkbox" class="searchPhraseOpts" name="Disable" id="searchPhrase_' + nSearchPhraseNextID + '_Disable" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" /><label for="searchPhrase_' + nSearchPhraseNextID + '_Disable">Disable</label></div>');
 				phraseTable.append('<tr></tr>');
 				var trBreak = phraseTable.find("tr").first().next().next().next();
 				trBreak.append('<td colspan="4"></td>');
@@ -464,15 +461,31 @@
 				width: 100%;
 			}
 
+			.checkboxitem {
+				white-space: nowrap;
+				display:inline
+			}
+
 			table.searchPhraseTable
 			{
 				margin-left: auto;
 				margin-right: auto;
+				border-collapse: collapse;
+				border-spacing: 0;
+			}
+
+			table.searchSpec
+			{
+				margin-left: auto;
+				margin-right: auto;
+				border-collapse: collapse;
+				border-spacing: 0;
 			}
 
 			td.searchPhraseTable {
 				text-align: left;
 				vertical-align: center;
+				padding:0; margin:0;
 			}
 
 			td.shrink {
@@ -490,6 +503,10 @@
 
 			input, textarea {
 				max-width: 100%;
+			}
+
+			.ui-tabs .ui-tabs-panel {
+				padding: 0;
 			}
 
 			.book { font-size:xx-large; font-weight:bold; }
@@ -540,6 +557,8 @@
 				height: 75px;
 			}
 			#searchSpec {
+				width: 100%;
+				margin: 0 auto;
 			}
 			#searchResultsSummary {
 				text-align: center;
@@ -576,7 +595,7 @@
 			</ul>
 
 			<div id="search">
-				<table id="searchSpec">
+				<table class="searchSpec" id="searchSpec">
 					<tr>
 						<td class="expand" colspan="2">
 							<div id="searchCriteria"></div>
