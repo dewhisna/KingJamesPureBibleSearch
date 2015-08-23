@@ -26,6 +26,7 @@
 #include "websockettransport.h"
 #include <QUrl>
 #include <QWebSocket>
+#include <QCoreApplication>
 
 #ifdef IS_CONSOLE_APP
 #include <QDateTime>
@@ -84,6 +85,17 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 
 	// Handle connections:
 	connect(&m_clientWrapper, SIGNAL(clientConnected(WebSocketTransport*)), this, SLOT(en_clientConnected(WebSocketTransport*)));
+
+#ifdef IS_CONSOLE_APP
+	if (m_server.isListening()) {
+		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) started on interface \"%3\" port %4\n")
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+							.arg(QCoreApplication::applicationPid())
+							.arg(serverAddress().toString())
+							.arg(serverPort())
+							.toUtf8().data();
+	}
+#endif
 }
 
 CWebChannelServer::~CWebChannelServer()
@@ -158,8 +170,13 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 
 void CWebChannelServer::close()
 {
+	bool bSomethingToClose = false;
+
 	// Make server stop listening so we don't get any new connections (eliminate race condition):
-	if (m_server.isListening()) m_server.close();
+	if (m_server.isListening()) {
+		m_server.close();
+		bSomethingToClose = true;
+	}
 
 	// To keep from blowing our iterator, first disconnect the close events from all clients:
 	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
@@ -168,6 +185,7 @@ void CWebChannelServer::close()
 
 	// Now, close them:
 	int nNumConnections = m_mapChannels.size();
+	if (nNumConnections) bSomethingToClose = true;
 	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
 		--nNumConnections;
 #if DEBUG_WEBCHANNEL_SERVER_CONNECTIONS
@@ -191,6 +209,15 @@ void CWebChannelServer::close()
 		if (!pClientChannel.isNull()) delete pClientChannel;
 	}
 	m_mapChannels.clear();
+
+#ifdef IS_CONSOLE_APP
+	if (bSomethingToClose) {
+		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) stopped\n")
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+							.arg(QCoreApplication::applicationPid())
+							.toUtf8().data();
+	}
+#endif
 }
 
 void CWebChannelServer::sendBroadcast(const QString &strMessage)

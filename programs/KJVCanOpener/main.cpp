@@ -50,9 +50,6 @@
 
 #ifdef  USING_WEBCHANNEL
 #include <webChannelServer.h>
-#ifdef IS_CONSOLE_APP
-#include <QDateTime>
-#endif
 #endif
 
 #ifdef Q_OS_WIN
@@ -441,13 +438,6 @@ int main(int argc, char *argv[])
 		(!pApp->webChannelServer()->isListening())) {
 		std::cerr << "error: Failed to start WebChannel server listening.  Exiting...\n";
 		bDone = true;
-	} else {
-		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) started on interface \"%3\" port %4\n")
-							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
-							.arg(pApp->applicationPid())
-							.arg(pApp->webChannelServer()->serverAddress().toString())
-							.arg(pApp->webChannelServer()->serverPort())
-							.toUtf8().data();
 	}
 #else
 	bDone = true;
@@ -477,12 +467,6 @@ int main(int argc, char *argv[])
 	CWebChannelServer *pWebChannelServer = pApp->webChannelServer();
 	if (pWebChannelServer) {
 		pWebChannelServer->close();
-#ifdef IS_CONSOLE_APP
-		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) stopped\n")
-							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
-							.arg(pApp->applicationPid())
-							.toUtf8().data();
-#endif
 	}
 #endif
 
