@@ -85,6 +85,11 @@ public:
 	QHostAddress serverAddress() const { return m_server.serverAddress(); }
 	quint16 serverPort() const { return m_server.serverPort(); }
 
+protected:
+	friend class CWebChannelAdminObjects;
+
+	const TWebChannelClientMap &channelMap() const { return m_mapChannels; }
+
 public slots:
 	void close();										// Hangup all clients and shutdown server
 	void sendBroadcast(const QString &strMessage);		// Broadcast message to all connected clients

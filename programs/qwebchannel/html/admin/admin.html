@@ -47,8 +47,12 @@
 						// make our mosis object accessible globally
 						window.mosis = channel.objects.mosis;
 
-						output("Connected to WebChannel, ready...");
+						mosis.connectionsList.connect(function(strHtmlConnections) {
+							document.getElementById("connectionsList").innerHTML = strHtmlConnections;
+						});
 
+
+						output("Connected to WebChannel, ready...");
 					});
 				}
 			}
@@ -60,6 +64,10 @@
 					window.mosis.sendBroadcast(key(), msg.value);
 					alert("Broadcast Message Sent:\n\n" + msg.value);
 				}
+			}
+
+			function getConnections() {
+				window.mosis.getConnectionsList(key());
 			}
 		</script>
 		<style type="text/css">
@@ -96,6 +104,17 @@
 		</div>
 		<script>
 			$( "#sendBroadcastButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+		<div id="ClientConnections">
+			<div id="connectionsList"></div>
+			<br/>
+			<button type="button" id="getConnectionsButton" onclick="javascript:getConnections();">Get Connections List</button>
+		</div>
+		<script>
+			$( "#getConnectionsButton" ).button();
 		</script>
 		<br />
 		<hr />

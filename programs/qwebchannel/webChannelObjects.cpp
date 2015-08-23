@@ -22,6 +22,8 @@
 ****************************************************************************/
 
 #include "webChannelObjects.h"
+#include "webChannelServer.h"
+#include "websockettransport.h"
 
 #include "UserNotesDatabase.h"
 #include "PhraseEdit.h"
@@ -30,6 +32,7 @@
 #include <QStringList>
 #include <QTextDocument>
 #include <QTextEdit>
+#include <QWebSocket>
 
 #define DEBUG_WEBCHANNEL_SEARCH 0
 #define DEBUG_WEBCHANNEL_AUTOCORRECT 0
@@ -323,9 +326,10 @@ void CWebChannelObjects::sendBroadcast(const QString &strMessage)
 // CWebChannelAdminObjects
 //
 
-CWebChannelAdminObjects::CWebChannelAdminObjects(QObject *pParent)
-	:	QObject(pParent),
-		m_strKey("76476F14-F3A9-42AC-9443-4A7445154EC7")
+CWebChannelAdminObjects::CWebChannelAdminObjects(CWebChannelServer *pWebServerParent)
+	:	QObject(pWebServerParent),
+		m_strKey("76476F14-F3A9-42AC-9443-4A7445154EC7"),
+		m_pWebServer(pWebServerParent)
 {
 
 }
@@ -340,6 +344,29 @@ void CWebChannelAdminObjects::sendBroadcast(const QString &strKey, const QString
 	if (strKey == m_strKey) {
 		emit broadcast(strMessage);
 	}
+}
+
+void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
+{
+	if (strKey != m_strKey) return;
+
+	const TWebChannelClientMap &mapChannels = m_pWebServer->channelMap();
+
+	QString strClients;
+
+	strClients += "<table><thead><tr>\n";
+	strClients += "<th>Name</th><th>IP Address</th><th>Port</th>\n";
+	strClients += "</tr></thead><tbody>\n";
+	for (TWebChannelClientMap::const_iterator itrChannels = mapChannels.constBegin(); itrChannels != mapChannels.constEnd(); ++itrChannels) {
+		strClients += QString("<tr><td>%1</td><td>%2</td><td>%3</td></tr>\n")
+								.arg(itrChannels.key()->socket()->peerName())
+								.arg(itrChannels.key()->socket()->peerAddress().toString())
+								.arg(itrChannels.key()->socket()->peerPort());
+	}
+	strClients += "</tbody></table>\n";
+	strClients += QString("<br/>Connections: %1\n").arg(mapChannels.size());
+
+	emit connectionsList(strClients);
 }
 
 // ============================================================================

@@ -34,7 +34,7 @@
 // ============================================================================
 
 // Forward declarations:
-
+class CWebChannelServer;
 
 // ============================================================================
 
@@ -94,17 +94,20 @@ class CWebChannelAdminObjects : public QObject
 	Q_OBJECT
 
 public:
-	CWebChannelAdminObjects(QObject *pParent = NULL);
+	CWebChannelAdminObjects(CWebChannelServer *pWebServerParent);
 	virtual ~CWebChannelAdminObjects();
 
 public slots:
 	void sendBroadcast(const QString &strKey, const QString &strMessage);			// Transmit broadcast message to all connected clients (shutdown alert, etc)
+	void getConnectionsList(const QString &strKey);			// Request a list of connected clients
 
 signals:
-	void broadcast(const QString &strMessage);				// Display popup message -- used to send shutdown announcements, etc.
+	void broadcast(const QString &strMessage);					// Display popup message -- used to send shutdown announcements, etc.
+	void connectionsList(const QString &strHtmlConnections);	// Returns list of active client connection data as formatted HTML table
 
 private:
 	const QString m_strKey;									// Access Key
+	CWebChannelServer *m_pWebServer;						// Parent pointer (avoids up-cast)
 };
 
 // ============================================================================
