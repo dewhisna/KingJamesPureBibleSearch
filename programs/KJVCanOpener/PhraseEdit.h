@@ -205,6 +205,7 @@ public:
 			setCaseSensitive(aPhraseEntry.caseSensitive());
 			setAccentSensitive(aPhraseEntry.accentSensitive());
 			setExclude(aPhraseEntry.isExcluded());
+			setIsDisabled(aPhraseEntry.isDisabled());
 			ParsePhrase(aPhraseEntry.text(), bFindWords);
 		}
 	}
