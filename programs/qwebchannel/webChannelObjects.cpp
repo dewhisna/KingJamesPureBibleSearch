@@ -89,15 +89,19 @@ void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
 		m_searchResultsData.m_lstParsedPhrases.clear();
 		m_lstParsedPhrases.clear();
 	} else {
+		int ndxUsed = 0;
 		for (int ndx = 0; ndx < lstPhrases.size(); ++ndx) {
-			if (m_lstParsedPhrases.size() <= ndx) {
+			CPhraseEntry aPhraseEntry(lstPhrases.at(ndx));
+			if (aPhraseEntry.isDisabled()) continue;
+			if (m_lstParsedPhrases.size() <= ndxUsed) {
 				m_lstParsedPhrases.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(m_pSearchResults->vlmodel().bibleDatabase())));
 				m_searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.last().data());
 			}
-			assert(ndx < m_searchResultsData.m_lstParsedPhrases.size());
-			m_lstParsedPhrases[ndx]->setFromPhraseEntry(CPhraseEntry(lstPhrases.at(ndx)), true);		// Set each phrase and search it
+			assert(ndxUsed < m_searchResultsData.m_lstParsedPhrases.size());
+			m_lstParsedPhrases[ndxUsed]->setFromPhraseEntry(aPhraseEntry, true);		// Set each phrase and search it
+			++ndxUsed;
 		}
-		for (int ndx = m_lstParsedPhrases.size(); ndx > lstPhrases.size(); --ndx) {
+		for (int ndx = m_lstParsedPhrases.size(); ndx > ndxUsed; --ndx) {
 			m_lstParsedPhrases.removeLast();
 			m_searchResultsData.m_lstParsedPhrases.removeLast();
 		}
