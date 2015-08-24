@@ -168,12 +168,24 @@
 							}
 						});
 
-						kjpbs.searchResultsChanged.connect(function(strHtmlSearchResults, strHtmlSummary) {
+						kjpbs.searchResultsChanged.connect(function(strHtmlSearchResults, strHtmlSummary, strlstOccurrences) {
 							document.getElementById("searchResults").innerHTML = strHtmlSearchResults;
 							document.getElementById("searchResultsSummary").innerHTML = strHtmlSummary;
+
+							var lstOccurrences = strlstOccurrences.split(";");
+							var ndxOccurrences = 0;
+							$(".searchPhraseText").each(function(i) {
+								if ((this.value) &&
+									(!document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Disable").checked) &&
+									(ndxOccurrences < lstOccurrences.length)) {
+									document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Occurrences").innerHTML = lstOccurrences[ndxOccurrences];
+									ndxOccurrences = ndxOccurrences + 1;
+								}
+							});
+
 							$("#tabs").tabs("option", "active", 0);
 							$("#tabs").tabs("refresh");
-							scrollTabTop();
+//							scrollTabTop();
 							// Wait cursor back off
 							$("body").css("cursor", "default");
 //							enableAllAutoCompleters();
@@ -239,7 +251,12 @@
 				newPhrase.append('<table class="searchPhraseTable" id="searchPhrase_' + nSearchPhraseNextID + '_Table"></table>');
 				var phraseTable = $("#searchPhrase_" + nSearchPhraseNextID + "_Table");
 				phraseTable.append('<tr></tr>');
-				var trAC = phraseTable.find("tr").first();
+				var trOccurrences = phraseTable.find("tr").first();
+				trOccurrences.append('<td colspan="4"></td>');
+				var tdOccurrences = trOccurrences.find("td").first();
+				tdOccurrences.append('<label for="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">Number of Occurrences:&nbsp;</label><div class="searchPhraseOccurrences" id="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">N/A</div>');
+				phraseTable.append('<tr></tr>');
+				var trAC = phraseTable.find("tr").first().next();
 				trAC.append('<td class="expand"></td>');
 				trAC.append('<td>&nbsp;</td>');
 				trAC.append('<td></td>');
@@ -247,7 +264,7 @@
 				var tdAC = trAC.find("td").first();
 				tdAC.append('<p class="searchPhraseAC" id="searchPhrase_' + nSearchPhraseNextID + '_AC">&nbsp;</p>');
 				phraseTable.append('<tr></tr>');
-				var trInput = phraseTable.find("tr").first().next();
+				var trInput = phraseTable.find("tr").first().next().next();
 				trInput.append('<td class="expand"></td>');
 				trInput.append('<td>&nbsp;</td>');
 				trInput.append('<td></td>');
@@ -260,7 +277,7 @@
 				var tdClose = trInput.find("td").first().next().next().next();
 				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
 				phraseTable.append('<tr></tr>');
-				var trOpts = phraseTable.find("tr").first().next().next();
+				var trOpts = phraseTable.find("tr").first().next().next().next();
 				trOpts.append('<td colspan="4"></td>');
 				var tdOpts = trOpts.find("td").first();
 				if (($(window).width() < 512) || ($(window).height() < 512)) {
@@ -273,7 +290,7 @@
 				tdOpts.append('<div class="checkboxitem"><input type="checkbox" class="searchPhraseOpts" name="Exclude" id="searchPhrase_' + nSearchPhraseNextID + '_Exclude" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" /><label for="searchPhrase_' + nSearchPhraseNextID + '_Exclude">Exclude</label></div>');
 				tdOpts.append('<div class="checkboxitem"><input type="checkbox" class="searchPhraseOpts" name="Disable" id="searchPhrase_' + nSearchPhraseNextID + '_Disable" onclick="javascript:searchPhraseOptsChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" /><label for="searchPhrase_' + nSearchPhraseNextID + '_Disable">Disable</label></div>');
 				phraseTable.append('<tr></tr>');
-				var trBreak = phraseTable.find("tr").first().next().next().next();
+				var trBreak = phraseTable.find("tr").first().next().next().next().next();
 				trBreak.append('<td colspan="4"></td>');
 				var tdBreak = trBreak.find("td").first();
 				tdBreak.append('<hr class="searchPhraseBreak" />');
@@ -334,6 +351,7 @@
 						// order matters, see CPhraseEntry!
 						if (document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Disable").checked) {
 							phrases = phrases + '\u00AC';
+							document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Occurrences").innerHTML = "N/A";
 						}
 						if (document.getElementById($(this).parents(".searchPhrase").attr("id")+"_Exclude").checked) {
 							phrases = phrases + '\u2209';
@@ -378,10 +396,15 @@
 
 			function searchPhraseTextChanged(aSearchPhrase) {
 				var input = document.getElementById(aSearchPhrase+"_Text");
-				var thePhrase = document.getElementById(aSearchPhrase+"_AC");
-				var text = input.value;
-				if (!text) {
-					thePhrase.innerHTML = "&nbsp;";
+				var theAC = document.getElementById(aSearchPhrase+"_AC");
+				var theOccurrences = document.getElementById(aSearchPhrase+"_Occurrences");
+				if (!input.value) {
+					theAC.innerHTML = "&nbsp;";
+					theOccurrences.innerHTML = "N/A";
+				} else {
+					if (input.value != $("#"+aSearchPhrase+"_Text").data("LastPhrase")) {
+						theOccurrences.innerHTML = "???";
+					}
 				}
 			}
 
@@ -525,6 +548,11 @@
 
 			.searchPhrase {
 				max-width: 100%;
+			}
+
+			.searchPhraseOccurrences {
+				white-space: nowrap;
+				display:inline
 			}
 
 			.searchPhraseAC {

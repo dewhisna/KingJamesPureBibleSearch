@@ -63,7 +63,7 @@ public slots:
 signals:
 	void bibleSelected(bool bSuccess);
 
-	void searchResultsChanged(const QString &strHtmlSearchResults, const QString &strHtmlSummary);			// Triggered by en_searchResultsReady() when we have data to send to channel
+	void searchResultsChanged(const QString &strHtmlSearchResults, const QString &strHtmlSummary, const QString &strlstOccurrences);			// Triggered by en_searchResultsReady() when we have data to send to channel
 	void setAutoCorrectText(const QString &strElementID, const QString &strAC);			// Triggered after call to autoCorrect() will return the HTML of the Auto Correct text
 	void setAutoCompleter(const QString &strElementID, const QString &strWordList);		// Triggered after call to autoCorrect() will return a list of words separated by ";"
 	void updatePhrase(const QString &strElementID, const QString &strNewPhrase);		// Triggered after call to calcUpdatedPhrase() to return new phrase with subphrase substituted

@@ -273,9 +273,19 @@ void CWebChannelObjects::en_searchResultsReady()
 	qDebug("Sending Results");
 #endif
 
+	QString strOccurrences;
+	for (int ndx = 0; ndx < m_lstParsedPhrases.size(); ++ndx) {
+		const CParsedPhrase &parsedPhrase = *m_lstParsedPhrases.at(ndx).data();
+		if (!strOccurrences.isEmpty()) strOccurrences += ";";
+		strOccurrences += QString("%1/%2/%3")
+								.arg(!parsedPhrase.isDisabled() ? (parsedPhrase.isExcluded() ? -parsedPhrase.GetContributingNumberOfMatches() : parsedPhrase.GetContributingNumberOfMatches()) : 0)
+								.arg(parsedPhrase.GetNumberOfMatchesWithin())
+								.arg(parsedPhrase.GetNumberOfMatches());
+	}
+
 	CSearchResultsSummary srs(m_pSearchResults->vlmodel());
 
-	emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pSearchResults->vlmodel().bibleDatabase(), false, true));
+	emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pSearchResults->vlmodel().bibleDatabase(), false, true), strOccurrences);
 
 	// Free-up memory for other clients:
 	m_lstParsedPhrases.clear();
