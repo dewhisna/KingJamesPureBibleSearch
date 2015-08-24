@@ -1,0 +1,3 @@
+[submodule "programs/qwebchannel/html/jquery/jquery-ui/jquery-tree"]
+	path = programs/qwebchannel/html/jquery/jquery-ui/jquery-tree
+	url = git@github.com:dewhisna/jquery-tree.git
