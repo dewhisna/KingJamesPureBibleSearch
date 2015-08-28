@@ -338,6 +338,11 @@ public:
 
 	QModelIndexList getPersistentIndexList() const { return persistentIndexList(); }
 
+#ifdef USING_WEBCHANNEL
+	QString toWebChannelJson() const;
+	QString toWebChannelHtml() const;
+#endif
+
 signals:
 	void changedSearchWithin();
 

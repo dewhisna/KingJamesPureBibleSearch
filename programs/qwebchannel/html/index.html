@@ -8,8 +8,9 @@
 		<script src="jquery/jquery-1.11.3.min.js"></script>
 		<script src="jquery/jquery-ui/1.11.4/jquery-ui.min.js"></script>
 		<script src="jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.min.js"></script>
-		<script src="jquery/jquery-ui/jquery-tree/minified/jquery.tree.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="jquery/jquery-ui/jquery-tree/minified/jquery.tree.min.css" />
+		<link rel="stylesheet" type="text/css" href="jquery/jquery-ui/fancytree/dist/skin-themeroller/ui.fancytree.min.css" />
+		<script src="jquery/jquery-ui/fancytree/dist/jquery.fancytree-all.min.js"></script>
+
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
 			var bEnableScriptureBrowserTabSwap = false;
@@ -162,6 +163,11 @@
 							} else {
 								output("Bible Successfully Selected");
 							}
+						});
+
+						kjpbs.searchWithinModelChanged.connect(function(strJsonSearchWithin) {
+							var tree = $("#searchWithin").fancytree("getTree");
+							tree.reload($.parseJSON(strJsonSearchWithin));
 						});
 
 						kjpbs.broadcast.connect(function(strMessage) {
@@ -633,7 +639,9 @@
 				<table class="searchSpec" id="searchSpec">
 					<tr>
 						<td class="expand">
-							<div id="searchCriteria"></div>
+							<div id="searchCriteria">
+								<div id="searchWithin"></div>
+							</div>
 						</td>
 					</tr>
 					<tr>
@@ -673,8 +681,57 @@
 		</div>
 
 		<script>
+			var initJsonSearchWithin = [ ];
+
 			$( "#tabs" ).tabs();
 			$( "#addSearchPhraseButton" ).button();
+			$( "#searchWithin" ).fancytree({
+				extensions: ["themeroller"],
+				checkbox: true,
+				selectMode: 3,
+				icons: false,
+				tabbable: true,
+				titlesTabbable: true,
+				autoScroll: true,
+				activeVisible: true,
+				minExpandLevel: 2,
+				source: initJsonSearchWithin,
+//				source: { url: "testit.json", cache: false },
+				loadChildren: function(event, ctx) {
+					ctx.node.fixSelection3AfterClick();
+				},
+				select: function(event, data) {
+					// Get a list of all selected nodes, and convert to a key array:
+					var selKeys = $.map(data.tree.getSelectedNodes(), function(node){
+						if (node.key.indexOf("_") === -1) return node.key;
+					});
+					console.log(selKeys.join(","));
+//					$("#echoSelection3").text(selKeys.join(","));
+//
+//					// Get a list of all selected TOP nodes
+//					var selRootNodes = data.tree.getSelectedNodes(true);
+//					// ... and convert to a key array:
+//					var selRootKeys = $.map(selRootNodes, function(node){
+//						return node.key;
+//					});
+//					$("#echoSelectionRootKeys3").text(selRootKeys.join(", "));
+//					$("#echoSelectionRoots3").text(selRootNodes.join(", "));
+				},
+				dblclick: function(event, data) {
+					data.node.toggleSelected();
+				},
+				keydown: function(event, data) {
+					if( event.which === 32 ) {
+						data.node.toggleSelected();
+						return false;
+					}
+				},
+				// The following options are only required, if we have more than one tree on one page:
+				//        initId: "treeData",
+				cookieId: "fancytree-searchWithin",
+				idPrefix: "fancytree-searchWithin-"
+			});
+
 			addSearchPhrase();			// Add initial search phrase
 //			var markup = document.getElementsByTagName('body')[0].innerHTML;
 //			alert(markup);

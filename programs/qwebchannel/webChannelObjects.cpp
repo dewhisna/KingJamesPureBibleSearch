@@ -71,6 +71,8 @@ void CWebChannelObjects::selectBible(const QString &strUUID)
 		connect(m_pSearchResults.data(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
 
 		m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
+		CSearchWithinModel swim(pBibleDatabase, m_searchResultsData.m_SearchCriteria);
+		emit searchWithinModelChanged(swim.toWebChannelJson());
 	}
 
 	emit bibleSelected(!m_pSearchResults.isNull());

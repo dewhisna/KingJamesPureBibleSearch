@@ -34,6 +34,13 @@
 #include <QColor>
 #include <QTextDocument>
 
+#ifdef USING_WEBCHANNEL
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#endif
+
 #include <assert.h>
 
 // ============================================================================
@@ -493,6 +500,99 @@ void CSearchWithinModel::sort(int column, Qt::SortOrder order)
 	Q_UNUSED(order);
 	assert(false);
 }
+
+// ============================================================================
+
+#ifdef USING_WEBCHANNEL
+
+static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, QModelIndex &mdlIndex, int nLevel)
+{
+	if (model.hasChildren(mdlIndex)) {
+		int nRowCount = model.rowCount(mdlIndex);
+		int nRow = 0;
+		while (nRowCount--) {
+			QModelIndex mdlIndexChild = model.index(nRow, 0, mdlIndex);
+			QJsonObject objNode;
+			if (model.hasChildren(mdlIndexChild)) {
+				QJsonArray arrayNode;
+				nodeToJson(model, arrayNode, mdlIndexChild, nLevel+1);
+				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
+				if (nLevel < 2) objNode["expanded"] = "true";
+				objNode["folder"] = "true";
+				objNode["children"] = arrayNode;
+				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
+				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
+				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
+				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = "true";
+				arrayRoot.append(objNode);
+			} else {
+				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
+				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
+				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
+				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
+				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = "true";
+				arrayRoot.append(objNode);
+			}
+			++nRow;
+		}
+	}
+}
+
+QString CSearchWithinModel::toWebChannelJson() const
+{
+	QJsonArray arrayRoot;
+	QModelIndex mdlIndex;
+
+	if (hasChildren(mdlIndex)) {
+		nodeToJson(*this, arrayRoot, mdlIndex, 0);
+	}
+
+	return QJsonDocument(arrayRoot).toJson(QJsonDocument::Compact);
+}
+
+
+static void nodeToHtml(const CSearchWithinModel &model, QString &strResult, QModelIndex &mdlIndex, int nLevel)
+{
+	if (model.hasChildren(mdlIndex)) {
+		strResult += QString("  ").repeated(nLevel*2+1);
+		strResult += "<ul>\n";
+		int nRowCount = model.rowCount(mdlIndex);
+		int nRow = 0;
+		while (nRowCount--) {
+			QModelIndex mdlIndexChild = model.index(nRow, 0, mdlIndex);
+			if (model.hasChildren(mdlIndexChild)) {
+				strResult += QString("  ").repeated(nLevel*2+2);
+				strResult += QString("<li class=\"%1\"><input type=\"checkbox\" /><label>%2</label></li>\n")
+										.arg((nLevel < 2) ? "expanded" : "collapsed")
+										.arg(model.data(mdlIndexChild, Qt::DisplayRole).toString());
+				nodeToHtml(model, strResult, mdlIndexChild, nLevel+1);
+			} else {
+				strResult += QString("  ").repeated(nLevel*2+2);
+				strResult += QString("<li class=\"leaf\"><input type=\"checkbox\" /><label>%1</label></li>\n")
+										.arg(model.data(mdlIndexChild, Qt::DisplayRole).toString());
+			}
+			++nRow;
+		}
+		strResult += QString("  ").repeated(nLevel*2+1);
+		strResult += "</ul>\n";
+	}
+}
+
+QString CSearchWithinModel::toWebChannelHtml() const
+{
+	QString strResult;
+	QModelIndex mdlIndex;
+
+	if (hasChildren(mdlIndex)) {
+		strResult += "<div id=\"searchWithinTree\">\n";
+		nodeToHtml(*this, strResult, mdlIndex, 0);
+		strResult += "</div>\n";
+	}
+
+	return strResult;
+}
+
+#endif
 
 // ============================================================================
 
