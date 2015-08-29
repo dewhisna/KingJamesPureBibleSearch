@@ -402,10 +402,12 @@
 					}
 				});
 				if (aSearchPhrase) {
-					document.getElementById(aSearchPhrase + "_Text").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
-					document.getElementById(aSearchPhrase + "_CaseSensitive").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
-					document.getElementById(aSearchPhrase + "_AccentSensitive").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
-					document.getElementById(aSearchPhrase + "_Exclude").disabled = document.getElementById(aSearchPhrase + "_Disable").checked;
+					var bDisable = document.getElementById(aSearchPhrase + "_Disable").checked;
+					document.getElementById(aSearchPhrase + "_Text").disabled = bDisable;
+					document.getElementById(aSearchPhrase + "_CaseSensitive").disabled = bDisable;
+					document.getElementById(aSearchPhrase + "_AccentSensitive").disabled = bDisable;
+					document.getElementById(aSearchPhrase + "_Exclude").disabled = bDisable;
+					document.getElementById(aSearchPhrase + "_Besome").disabled = bDisable;
 				}
 				if (!phrases) {
 					document.getElementById("searchResults").innerHTML = "";
@@ -454,7 +456,13 @@
 
 			function searchPhraseClose(aSearchPhrase) {
 				if (nSearchPhraseCount <= 1) {
-					// If there's only 1 search phrase left, treat it as a clear instead:
+					// If there's only 1 search phrase left, treat it as a clear instead,
+					//		however, re-enable it if it was disabled and reset other flags
+					//		to treat it like a destroy and re-create:
+					document.getElementById(aSearchPhrase + "_Disable").checked = false;
+					document.getElementById(aSearchPhrase + "_Exclude").checked = false;
+					document.getElementById(aSearchPhrase + "_AccentSensitive").checked = false;
+					document.getElementById(aSearchPhrase + "_CaseSensitive").checked = false;
 					searchPhraseBesome(aSearchPhrase);
 				} else {
 					var nextPhrase = $("#"+aSearchPhrase).next();
