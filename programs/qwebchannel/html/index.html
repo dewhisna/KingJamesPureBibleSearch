@@ -165,9 +165,9 @@
 							}
 						});
 
-						kjpbs.searchWithinModelChanged.connect(function(strJsonSearchWithin) {
-							var tree = $("#searchWithin").fancytree("getTree");
-							tree.reload($.parseJSON(strJsonSearchWithin));
+						kjpbs.searchWithinModelChanged.connect(function(strJsonSearchWithinTree) {
+							var tree = $("#searchWithinTree").fancytree("getTree");
+							tree.reload($.parseJSON(strJsonSearchWithinTree));
 						});
 
 						kjpbs.broadcast.connect(function(strMessage) {
@@ -645,8 +645,15 @@
 						<td class="expand">
 							<div id="searchCriteria">
 								<h3>Search Within</h3>
-								<div id="searchWithin"></div>
+								<div id="searchWithin">
+									<div id="searchWithinTree"></div>
+								</div>
 							</div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<hr />
 						</td>
 					</tr>
 					<tr>
@@ -686,7 +693,7 @@
 		</div>
 
 		<script>
-			var initJsonSearchWithin = [ ];
+			var initJsonSearchWithinTree = [ ];
 
 			$( "#tabs" ).tabs();
 			$( "#addSearchPhraseButton" ).button();
@@ -696,7 +703,7 @@
 				active: false,
 				heightStyle: "content"
 			});
-			$( "#searchWithin" ).fancytree({
+			$( "#searchWithinTree" ).fancytree({
 				extensions: ["themeroller"],
 				checkbox: true,
 				selectMode: 3,
@@ -706,7 +713,7 @@
 				autoScroll: true,
 				activeVisible: true,
 				minExpandLevel: 2,
-				source: initJsonSearchWithin,
+				source: initJsonSearchWithinTree,
 //				source: { url: "testit.json", cache: false },
 //				loadChildren: function(event, ctx) {
 //					ctx.node.fixSelection3AfterClick();
@@ -740,8 +747,8 @@
 				},
 				// The following options are only required, if we have more than one tree on one page:
 				//        initId: "treeData",
-				cookieId: "fancytree-searchWithin",
-				idPrefix: "fancytree-searchWithin-"
+				cookieId: "fancytree-searchWithinTree",
+				idPrefix: "fancytree-searchWithinTree-"
 			});
 
 			addSearchPhrase();			// Add initial search phrase
