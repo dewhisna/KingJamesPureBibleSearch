@@ -78,13 +78,16 @@ void CWebChannelObjects::selectBible(const QString &strUUID)
 	emit bibleSelected(!m_pSearchResults.isNull());
 }
 
-void CWebChannelObjects::setSearchPhrases(const QString &strPhrases)
+void CWebChannelObjects::setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)
 {
 #if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Received: %s", strPhrases.toUtf8().data());
 #endif
 
 	if (m_pSearchResults.isNull()) return;
+
+	m_searchResultsData.m_SearchCriteria.setSearchWithin(m_pSearchResults->vlmodel().bibleDatabase(), strSearchWithin);
+	m_searchResultsData.m_SearchCriteria.setSearchScopeMode(static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(nSearchScope));
 
 	QStringList lstPhrases = strPhrases.split(";", QString::SkipEmptyParts);
 	if (lstPhrases.size() > MAX_SEARCH_PHRASES) {

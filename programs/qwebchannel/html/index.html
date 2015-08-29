@@ -132,6 +132,21 @@
 					$("#"+this.id).autocomplete("disable");
 				});
 			}
+			function getSearchWithin()
+			{
+				var tree = $("#searchWithinTree").fancytree("getTree");
+				var root = tree.getFirstChild();
+
+				if (root && (root.isSelected())) {
+					return ("");			// Empty string means entire Bible (shortcut)
+				} else {
+					// Get a list of all selected nodes in searchWithin tree, and convert to a key array:
+					var selKeys = $.map(tree.getSelectedNodes(), function(node) {
+						if (node.key.indexOf("_") === -1) return node.key;
+					});
+					return (selKeys.join(","));
+				}
+			}
 			window.onload = function() {
 				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
 				output("Connecting to WebSocket server at " + baseUrl + ".");
@@ -397,7 +412,7 @@
 					closeAllAutoCompleters();
 				}
 //				disableAllAutoCompleters();
-				window.kjpbs.setSearchPhrases(phrases);
+				window.kjpbs.setSearchPhrases(phrases, getSearchWithin(), $('#searchScope').val());
 			}
 
 			function searchPhraseOptsChanged(aSearchPhrase) {
@@ -728,7 +743,10 @@
 				active: false,
 				heightStyle: "content"
 			});
-			$( "#searchScope" ).selectmenu({ width : '100%' }).selectmenu("menuWidget").addClass("overflow");
+			$( "#searchScope" ).selectmenu({
+				width : '100%',
+				select: function(event, ui) { searchPhraseChanged(); }
+			}).selectmenu("menuWidget").addClass("overflow");
 			$( "#searchScope" ).selectmenu().data("ui-selectmenu")._renderItem =
 			function( ul, item ) {
 				var li = $( "<li>" )
@@ -775,21 +793,7 @@
 //					ctx.node.fixSelection3FromEndNodes();
 //				},
 				select: function(event, data) {
-					// Get a list of all selected nodes, and convert to a key array:
-					var selKeys = $.map(data.tree.getSelectedNodes(), function(node){
-						if (node.key.indexOf("_") === -1) return node.key;
-					});
-					console.log(selKeys.join(","));
-//					$("#echoSelection3").text(selKeys.join(","));
-//
-//					// Get a list of all selected TOP nodes
-//					var selRootNodes = data.tree.getSelectedNodes(true);
-//					// ... and convert to a key array:
-//					var selRootKeys = $.map(selRootNodes, function(node){
-//						return node.key;
-//					});
-//					$("#echoSelectionRootKeys3").text(selRootKeys.join(", "));
-//					$("#echoSelectionRoots3").text(selRootNodes.join(", "));
+					searchPhraseChanged();
 				},
 				dblclick: function(event, data) {
 					data.node.toggleSelected();
