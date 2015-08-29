@@ -524,15 +524,18 @@ static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, Q
 				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
 				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
 				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = true;
-				arrayRoot.append(objNode);
+				QString strToolTip = model.data(mdlIndexChild, Qt::ToolTipRole).toString();
+				if (!strToolTip.isEmpty()) objNode["tooltip"] = strToolTip;
 			} else {
 				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
 				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
 				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
 				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
 				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = true;
-				arrayRoot.append(objNode);
+				QString strToolTip = model.data(mdlIndexChild, Qt::ToolTipRole).toString();
+				if (!strToolTip.isEmpty()) objNode["tooltip"] = strToolTip;
 			}
+			arrayRoot.append(objNode);
 			++nRow;
 		}
 	}

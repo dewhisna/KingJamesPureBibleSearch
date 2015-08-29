@@ -647,6 +647,16 @@
 								<h3>Search Within</h3>
 								<div id="searchWithin">
 									<div id="searchWithinTree"></div>
+									<label for="searchScope">Search Scope:<br /></label>
+									<select name="searchScope" id="searchScope" title="Select Search Scope">
+										<option value="-1">Anywhere in Selected Search Text (Unscoped)</option>
+										<option value="0">Together in Selected Search Text</option>
+										<option value="1">Same Testament</option>
+										<option value="5">Same Category</option>
+										<option value="2">Same Book</option>
+										<option value="3">Same Chapter</option>
+										<option value="4">Same Verse</option>
+									</select>
 								</div>
 							</div>
 						</td>
@@ -695,6 +705,7 @@
 		<script>
 			var initJsonSearchWithinTree = [ ];
 
+			$(document).tooltip();
 			$( "#tabs" ).tabs();
 			$( "#addSearchPhraseButton" ).button();
 			$( "#searchCriteria" ).accordion({
