@@ -137,7 +137,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
 		m_nChapterScrollbarMode(CSME_NONE),
-		m_nVerseRenderingMode(CPhraseNavigator::VRME_FF),
+		m_nVerseRenderingMode(CPhraseNavigator::VRME_VPL),
 		m_bShowPilcrowMarkers(true),
 		m_nScriptureBrowserLineHeight(1.0),
 		m_nBrowserNavigationPaneMode(BNPME_COMPLETE),
