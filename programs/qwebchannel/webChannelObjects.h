@@ -62,7 +62,7 @@ public slots:
 
 signals:
 	void bibleSelected(bool bSuccess);
-	void searchWithinModelChanged(const QString &strJsonSearchWithinTree);		// Generated after selectBible() call to fill in the searchWithin Tree View
+	void searchWithinModelChanged(const QString &strJsonSearchWithinTree, int nScope);	// Generated after selectBible() call to fill in the searchWithin Tree View
 
 	void searchResultsChanged(const QString &strHtmlSearchResults, const QString &strHtmlSummary, const QString &strlstOccurrences);			// Triggered by en_searchResultsReady() when we have data to send to channel
 	void setAutoCorrectText(const QString &strElementID, const QString &strAC);			// Triggered after call to autoCorrect() will return the HTML of the Auto Correct text

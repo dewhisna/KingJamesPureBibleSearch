@@ -165,9 +165,11 @@
 							}
 						});
 
-						kjpbs.searchWithinModelChanged.connect(function(strJsonSearchWithinTree) {
+						kjpbs.searchWithinModelChanged.connect(function(strJsonSearchWithinTree, nSearchScopeMode) {
 							var tree = $("#searchWithinTree").fancytree("getTree");
 							tree.reload($.parseJSON(strJsonSearchWithinTree));
+							$('#searchScope').val(nSearchScopeMode);
+							$("#searchScope").selectmenu("refresh");
 						});
 
 						kjpbs.broadcast.connect(function(strMessage) {
