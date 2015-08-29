@@ -16,6 +16,7 @@
 			var bEnableScriptureBrowserTabSwap = false;
 			var nSearchPhraseCount = 0;
 			var nSearchPhraseNextID = 0;
+			var ndxBrowserCurrent;				// Current Scripture Browser Index
 
 			//BEGIN SETUP
 			function output(message)
@@ -112,7 +113,8 @@
 			function scrollToAnchor(anAnchor)
 			{
 				var element_to_scroll_to = document.getElementById(anAnchor);
-				element_to_scroll_to.scrollIntoView();
+				if (element_to_scroll_to)
+					element_to_scroll_to.scrollIntoView();
 			}
 			function closeAllAutoCompleters()
 			{
@@ -223,6 +225,7 @@
 						});
 
 						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
+							ndxBrowserCurrent = ndxRel;
 							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
 							if (bEnableScriptureBrowserTabSwap) {
 								$("#tabs").tabs("option", "active", 1);

@@ -326,7 +326,9 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 							CPhraseNavigator::TRO_NoWordAnchors |
 							CPhraseNavigator::TRO_SuppressPrePostChapters),
 							&srHighlighter);
-	emit scriptureBrowserRender(ndxRel, strText);
+	CRelIndex ndxRelNoWord(ndxRel);
+	ndxRelNoWord.setWord(0);										// Since we aren't using word anchors, clear word index so HTML can always find correct anchor
+	emit scriptureBrowserRender(ndxRelNoWord.index(), strText);
 	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
 }
 
