@@ -605,6 +605,12 @@
 				width: 100%;
 				margin: 0 auto;
 			}
+			#searchScope {
+				width: 100%;
+				max-width: 100%;
+				padding: 0;
+				margin: 0 auto;
+			}
 			#searchResultsSummary {
 				text-align: center;
 				width: 100%;
@@ -647,8 +653,8 @@
 								<h3>Search Within</h3>
 								<div id="searchWithin">
 									<div id="searchWithinTree"></div>
-									<label for="searchScope">Search Scope:<br /></label>
-									<select name="searchScope" id="searchScope" title="Select Search Scope">
+									<label style="display: block;" for="searchScope">Search Scope:</label>
+									<select class="searchScope" name="searchScope" id="searchScope" title="Select Search Scope">
 										<option value="-1">Anywhere in Selected Search Text (Unscoped)</option>
 										<option value="0">Together in Selected Search Text</option>
 										<option value="1">Same Testament</option>
@@ -714,6 +720,7 @@
 				active: false,
 				heightStyle: "content"
 			});
+			$( "#searchScope" ).selectmenu({ width : '100%'}).selectmenu("menuWidget").addClass("overflow");
 			$( "#searchWithinTree" ).fancytree({
 				extensions: ["themeroller"],
 				checkbox: true,
