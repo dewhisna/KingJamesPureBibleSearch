@@ -517,20 +517,20 @@ static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, Q
 				QJsonArray arrayNode;
 				nodeToJson(model, arrayNode, mdlIndexChild, nLevel+1);
 				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
-				if (nLevel < 2) objNode["expanded"] = "true";
-				objNode["folder"] = "true";
+				if (nLevel < 2) objNode["expanded"] = true;
+				objNode["folder"] = true;
 				objNode["children"] = arrayNode;
 				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
 				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
 				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
-				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = "true";
+				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = true;
 				arrayRoot.append(objNode);
 			} else {
 				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
 				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
 				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
 				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
-				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = "true";
+				if ((pSearchWithinModelIndex) && (pSearchWithinModelIndex->checkState() != Qt::Unchecked)) objNode["selected"] = true;
 				arrayRoot.append(objNode);
 			}
 			++nRow;
