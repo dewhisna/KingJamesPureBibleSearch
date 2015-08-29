@@ -545,6 +545,10 @@
 				padding: 0;
 			}
 
+			.ui-accordion .ui-accordion-content {
+				padding: 0;
+			}
+
 			.book { font-size:xx-large; font-weight:bold; }
 			.chapter { font-size:x-large; font-weight:bold; }
 			.subtitle { font-size:medium; font-weight:normal; font-style:italic; }
@@ -640,6 +644,7 @@
 					<tr>
 						<td class="expand">
 							<div id="searchCriteria">
+								<h3>Search Within</h3>
 								<div id="searchWithin"></div>
 							</div>
 						</td>
@@ -685,6 +690,12 @@
 
 			$( "#tabs" ).tabs();
 			$( "#addSearchPhraseButton" ).button();
+			$( "#searchCriteria" ).accordion({
+				collapsible: true,
+				animate: 200,
+				active: false,
+				heightStyle: "content"
+			});
 			$( "#searchWithin" ).fancytree({
 				extensions: ["themeroller"],
 				checkbox: true,
