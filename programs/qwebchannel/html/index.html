@@ -726,7 +726,26 @@
 				active: false,
 				heightStyle: "content"
 			});
-			$( "#searchScope" ).selectmenu({ width : '100%'}).selectmenu("menuWidget").addClass("overflow");
+			$( "#searchScope" ).selectmenu({ width : '100%' }).selectmenu("menuWidget").addClass("overflow");
+			$( "#searchScope" ).selectmenu().data("ui-selectmenu")._renderItem =
+			function( ul, item ) {
+				var li = $( "<li>" )
+						.css( "background-color", item.value );
+
+				if ( item.disabled ) {
+					li.addClass( "ui-state-disabled" );
+				}
+
+				this._setText( li, item.label );
+
+				if (item.value == -1)
+					li.attr("title", "Anywhere is an Unscoped Search finding the search phrases indepdendent of one another within the selected text");
+				if (item.value == 0)
+					li.attr("title", "Together is a Scoped Search requiring that all search phrases be found within the selected text");
+
+				return li.appendTo( ul );
+			}
+
 			$( "#searchWithinTree" ).fancytree({
 				extensions: ["themeroller"],
 				checkbox: true,
