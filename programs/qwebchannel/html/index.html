@@ -673,20 +673,20 @@
 					<tr>
 						<td class="expand">
 							<div id="searchCriteria">
-								<h3>Search Within</h3>
 								<div id="searchWithin">
+									<h3>Search Within</h3>
 									<div id="searchWithinTree"></div>
-									<label style="display: block;" for="searchScope">Search Scope:</label>
-									<select class="searchScope" name="searchScope" id="searchScope" title="Select Search Scope">
-										<option value="-1">Anywhere in Selected Text</option>
-										<option value="0">Together in Selected Text</option>
-										<option value="1">Same Testament</option>
-										<option value="5">Same Category</option>
-										<option value="2">Same Book</option>
-										<option value="3">Same Chapter</option>
-										<option value="4">Same Verse</option>
-									</select>
 								</div>
+								<label style="display: block;" for="searchScope">Search Scope:</label>
+								<select class="searchScope" name="searchScope" id="searchScope" title="Select Search Scope">
+									<option value="-1">Anywhere in Selected Text</option>
+									<option value="0">Together in Selected Text</option>
+									<option value="1">Same Testament</option>
+									<option value="5">Same Category</option>
+									<option value="2">Same Book</option>
+									<option value="3">Same Chapter</option>
+									<option value="4">Same Verse</option>
+								</select>
 							</div>
 						</td>
 					</tr>
@@ -737,7 +737,7 @@
 			$(document).tooltip();
 			$( "#tabs" ).tabs();
 			$( "#addSearchPhraseButton" ).button();
-			$( "#searchCriteria" ).accordion({
+			$( "#searchWithin" ).accordion({
 				collapsible: true,
 				animate: 200,
 				active: false,
