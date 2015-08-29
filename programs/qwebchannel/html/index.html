@@ -147,7 +147,7 @@
 					if (selKeys.length > 0) {
 						return (selKeys.join(","));
 					} else {
-						return ("-");		// Special mode for nothing
+						return ("-");		// Special mode for "nothing selected"
 					}
 				}
 			}
@@ -283,7 +283,11 @@
 				var trOccurrences = phraseTable.find("tr").first();
 				trOccurrences.append('<td colspan="4"></td>');
 				var tdOccurrences = trOccurrences.find("td").first();
-				tdOccurrences.append('<label for="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">Number of Occurrences:&nbsp;</label><div class="searchPhraseOccurrences" id="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">N/A</div>');
+				if (($(window).width() < 512) || ($(window).height() < 512)) {
+					tdOccurrences.append('<label for="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">Occurrences:&nbsp;</label><div class="searchPhraseOccurrences" id="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">N/A</div>');
+				} else {
+					tdOccurrences.append('<label for="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">Number of Occurrences:&nbsp;</label><div class="searchPhraseOccurrences" id="searchPhrase_' + nSearchPhraseNextID + '_Occurrences">N/A</div>');
+				}
 				phraseTable.append('<tr></tr>');
 				var trAC = phraseTable.find("tr").first().next();
 				trAC.append('<td class="expand"></td>');
