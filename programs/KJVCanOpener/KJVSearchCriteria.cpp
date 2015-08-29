@@ -516,7 +516,7 @@ static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, Q
 			if (model.hasChildren(mdlIndexChild)) {
 				QJsonArray arrayNode;
 				nodeToJson(model, arrayNode, mdlIndexChild, nLevel+1);
-				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
+				objNode["title"] = model.data(mdlIndexChild, Qt::EditRole).toString();
 				if (nLevel < 2) objNode["expanded"] = true;
 				objNode["folder"] = true;
 				objNode["children"] = arrayNode;
@@ -527,7 +527,7 @@ static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, Q
 				QString strToolTip = model.data(mdlIndexChild, Qt::ToolTipRole).toString();
 				if (!strToolTip.isEmpty()) objNode["tooltip"] = strToolTip;
 			} else {
-				objNode["title"] = model.data(mdlIndexChild, Qt::DisplayRole).toString();
+				objNode["title"] = model.data(mdlIndexChild, Qt::EditRole).toString();
 				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
 				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
 				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
