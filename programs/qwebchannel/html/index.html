@@ -742,6 +742,16 @@
 					li.attr("title", "Anywhere is an Unscoped Search finding the search phrases indepdendent of one another within the selected text");
 				if (item.value == 0)
 					li.attr("title", "Together is a Scoped Search requiring that all search phrases be found within the selected text");
+				if (item.value == 1)
+					li.attr("title", "Same Testament is a Scoped Search requiring that all search phrases be found together in the same Testament within the selected text");
+				if (item.value == 5)
+					li.attr("title", "Same Category is a Scoped Search requiring that all search phrases be found together in the same Category within the selected text");
+				if (item.value == 2)
+					li.attr("title", "Same Book is a Scoped Search requiring that all search phrases be found together in the same Book within the selected text");
+				if (item.value == 3)
+					li.attr("title", "Same Chapter is a Scoped Search requiring that all search phrases be found together in the same Chapter within the selected text");
+				if (item.value == 4)
+					li.attr("title", "Same Verse is a Scoped Search requiring that all search phrases be found together in the same Verse within the selected text");
 
 				return li.appendTo( ul );
 			}
