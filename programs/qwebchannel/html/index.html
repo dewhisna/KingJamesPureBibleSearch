@@ -144,7 +144,11 @@
 					var selKeys = $.map(tree.getSelectedNodes(), function(node) {
 						if (node.key.indexOf("_") === -1) return node.key;
 					});
-					return (selKeys.join(","));
+					if (selKeys.length > 0) {
+						return (selKeys.join(","));
+					} else {
+						return ("-");		// Special mode for nothing
+					}
 				}
 			}
 			window.onload = function() {
