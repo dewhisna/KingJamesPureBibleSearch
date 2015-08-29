@@ -697,9 +697,10 @@
 				minExpandLevel: 2,
 				source: initJsonSearchWithin,
 //				source: { url: "testit.json", cache: false },
-				loadChildren: function(event, ctx) {
-					ctx.node.fixSelection3AfterClick();
-				},
+//				loadChildren: function(event, ctx) {
+//					ctx.node.fixSelection3AfterClick();
+//					ctx.node.fixSelection3FromEndNodes();
+//				},
 				select: function(event, data) {
 					// Get a list of all selected nodes, and convert to a key array:
 					var selKeys = $.map(data.tree.getSelectedNodes(), function(node){
