@@ -366,6 +366,9 @@
 				$("#tabs").tabs("refresh");
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").focus();
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text")[0].scrollIntoView();
+				if (nSearchPhraseCount >= 5) {
+					$( "#addSearchPhraseButton" ).button( "option", "disabled", true );
+				}
 			}
 			$.ui.autocomplete.filter = function (array, term) {
 				var matcher = new RegExp("^|\|" + $.ui.autocomplete.escapeRegex(term), "i");
@@ -462,6 +465,10 @@
 					nSearchPhraseCount = nSearchPhraseCount - 1;
 					searchPhraseChanged();
 					$("#"+nextPhrase.attr("id")+"_Text").focus();
+
+					if (nSearchPhraseCount < 5) {
+						$( "#addSearchPhraseButton" ).button( "option", "disabled", false );
+					}
 				}
 			}
 
