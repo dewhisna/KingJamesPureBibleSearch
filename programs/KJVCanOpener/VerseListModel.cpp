@@ -3237,6 +3237,10 @@ QString CSearchResultsSummary::summaryDisplayText(CBibleDatabasePtr pBibleDataba
 			if (!CPersistentSettings::instance()->hideNotFoundInStatistcs()) {
 				if (m_nSearchOccurrences > 0) {
 					if (bWebChannelHTML) {
+						QString strSearchWithinDescription = m_SearchCriteria.searchWithinDescription(pBibleDatabase);
+						if (!strSearchWithinDescription.isEmpty()) {
+							strResults += " " + CKJVSearchResult::tr("within", "Statistics") + " " + strSearchWithinDescription;
+						}
 						strResults += "<br />\n<br /><span style=\"text-align: center;\">\n";
 						strResults += CKJVSearchResult::tr("Not found at all", "Statistics");
 						strResults += " " + CKJVSearchResult::tr("in %n Verse(s)", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses) +
