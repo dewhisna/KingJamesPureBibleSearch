@@ -740,51 +740,6 @@ private:
 
 // ============================================================================
 
-class TBibleDatabaseSettings
-{
-public:
-	enum HideHyphensOptions {					// <<Bitfields>>
-		HHO_None = 0x0,							// Default for no options (i.e. don't hide anything)
-		HHO_ProperWords = 0x1,					// Hide Hyphens in "Proper Words"
-		HHO_OrdinaryWords = 0x2					// Hide Hyphens in non-"Proper Words"
-	};
-
-	explicit TBibleDatabaseSettings()
-		:	m_bLoadOnStart(false),
-			m_hhoHideHyphens(HHO_None),
-			m_bHyphenSensitive(false)
-	{ }
-
-	bool isValid() const { return true; }
-
-	inline bool operator==(const TBibleDatabaseSettings &other) const {
-		return ((m_bLoadOnStart == other.m_bLoadOnStart) &&
-				(m_hhoHideHyphens == other.m_hhoHideHyphens) &&
-				(m_bHyphenSensitive == other.m_bHyphenSensitive));
-	}
-	inline bool operator!=(const TBibleDatabaseSettings &other) const {
-		return (!operator==(other));
-	}
-
-	bool loadOnStart() const { return m_bLoadOnStart; }
-	void setLoadOnStart(bool bLoadOnStart) { m_bLoadOnStart = bLoadOnStart; }
-
-	unsigned int hideHyphens() const { return m_hhoHideHyphens; }
-	void setHideHyphens(unsigned int nHHO) { m_hhoHideHyphens = nHHO; }
-
-	bool hyphenSensitive() const { return m_bHyphenSensitive; }
-	void setHyphenSensitive(bool bHyphenSensitive) { m_bHyphenSensitive = bHyphenSensitive; }
-
-private:
-	bool m_bLoadOnStart;
-	unsigned int m_hhoHideHyphens;
-	bool m_bHyphenSensitive;
-};
-
-typedef QMap<QString, TBibleDatabaseSettings> TBibleDatabaseSettingsMap;		// Map of Bible UUIDs to settings for saving/preserving
-
-// ============================================================================
-
 // Relative Index and Word Count pair used for highlighting phrases:
 class TPhraseTag
 {
@@ -1009,6 +964,51 @@ struct TPassageTagListSortPredicate {
 		return (s1.relIndex().index() < s2.relIndex().index());
 	}
 };
+
+// ============================================================================
+
+class TBibleDatabaseSettings
+{
+public:
+	enum HideHyphensOptions {					// <<Bitfields>>
+		HHO_None = 0x0,							// Default for no options (i.e. don't hide anything)
+		HHO_ProperWords = 0x1,					// Hide Hyphens in "Proper Words"
+		HHO_OrdinaryWords = 0x2					// Hide Hyphens in non-"Proper Words"
+	};
+
+	explicit TBibleDatabaseSettings()
+		:	m_bLoadOnStart(false),
+			m_hhoHideHyphens(HHO_None),
+			m_bHyphenSensitive(false)
+	{ }
+
+	bool isValid() const { return true; }
+
+	inline bool operator==(const TBibleDatabaseSettings &other) const {
+		return ((m_bLoadOnStart == other.m_bLoadOnStart) &&
+				(m_hhoHideHyphens == other.m_hhoHideHyphens) &&
+				(m_bHyphenSensitive == other.m_bHyphenSensitive));
+	}
+	inline bool operator!=(const TBibleDatabaseSettings &other) const {
+		return (!operator==(other));
+	}
+
+	bool loadOnStart() const { return m_bLoadOnStart; }
+	void setLoadOnStart(bool bLoadOnStart) { m_bLoadOnStart = bLoadOnStart; }
+
+	unsigned int hideHyphens() const { return m_hhoHideHyphens; }
+	void setHideHyphens(unsigned int nHHO) { m_hhoHideHyphens = nHHO; }
+
+	bool hyphenSensitive() const { return m_bHyphenSensitive; }
+	void setHyphenSensitive(bool bHyphenSensitive) { m_bHyphenSensitive = bHyphenSensitive; }
+
+private:
+	bool m_bLoadOnStart;
+	unsigned int m_hhoHideHyphens;
+	bool m_bHyphenSensitive;
+};
+
+typedef QMap<QString, TBibleDatabaseSettings> TBibleDatabaseSettingsMap;		// Map of Bible UUIDs to settings for saving/preserving
 
 // ============================================================================
 
