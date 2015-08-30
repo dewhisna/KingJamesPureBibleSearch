@@ -1475,6 +1475,107 @@ CRelIndex CBibleDatabase::calcRelIndex(
 	return ndxResult;
 }
 
+CRelIndex CBibleDatabase::calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX_MOVE_ENUM nMoveMode) const
+{
+	CRelIndex ndx;
+
+	switch (nMoveMode) {
+		case RIME_Absolute:
+			ndx = ndxStart;
+			break;
+
+		case RIME_Start:
+			ndx = CRelIndex(1, 1, 1, 1);
+			break;
+
+		case RIME_StartOfBook:
+			ndx = CRelIndex(ndxStart.book(), 1, 1, 1);
+			break;
+
+		case RIME_StartOfChapter:
+			ndx = CRelIndex(ndxStart.book(), ndxStart.chapter(), 1, 1);
+			break;
+
+		case RIME_StartOfVerse:
+			ndx = CRelIndex(ndxStart.book(), ndxStart.chapter(), ndxStart.verse(), 1);
+			break;
+
+		case RIME_End:
+			ndx.setBook(bibleEntry().m_nNumBk);
+			ndx.setChapter(bookEntry(ndx)->m_nNumChp);
+			ndx.setVerse(chapterEntry(ndx)->m_nNumVrs);
+			ndx.setWord(verseEntry(ndx)->m_nNumWrd);
+			break;
+
+		case RIME_EndOfBook:
+			ndx.setBook(ndxStart.book());
+			if (bookEntry(ndx)) { ndx.setChapter(bookEntry(ndx)->m_nNumChp); } else { ndx.clear(); }
+			if (chapterEntry(ndx)) { ndx.setVerse(chapterEntry(ndx)->m_nNumVrs); } else { ndx.clear(); }
+			if (verseEntry(ndx)) { ndx.setWord(verseEntry(ndx)->m_nNumWrd); } else { ndx.clear(); }
+			break;
+
+		case RIME_EndOfChapter:
+			ndx.setBook(ndxStart.book());
+			ndx.setChapter(ndxStart.chapter());
+			if (chapterEntry(ndx)) { ndx.setVerse(chapterEntry(ndx)->m_nNumVrs); } else { ndx.clear(); }
+			if (verseEntry(ndx)) { ndx.setWord(verseEntry(ndx)->m_nNumWrd); } else { ndx.clear(); }
+			break;
+
+		case RIME_EndOfVerse:
+			ndx.setBook(ndxStart.book());
+			ndx.setChapter(ndxStart.chapter());
+			ndx.setVerse(ndxStart.verse());
+			if (verseEntry(ndx)) { ndx.setWord(verseEntry(ndx)->m_nNumWrd); } else { ndx.clear(); }
+			break;
+
+		case RIME_PreviousBook:
+			if (ndxStart.book() < 2) break;
+			ndx = CRelIndex(ndxStart.book()-1, 1, 1, 1);
+			break;
+
+		case RIME_PreviousChapter:
+			ndx = calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), 1, 1), true);
+			if (ndx.isSet()) {
+				// The following sets are needed to handle the case of scrolling backward from a missing chapter/verse entry -- for example
+				//		the Additions to Esther in the Apocrypha.  The above calculation will normalize the current location to 10:4 in that
+				//		passage, causing us to goto the 4th verse of the preceding chapter:
+				ndx.setVerse(1);
+				ndx.setWord(1);
+			}
+			break;
+
+		case RIME_PreviousVerse:
+			ndx = calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), ndxStart.verse(), 1), true);
+			break;
+
+		case RIME_PreviousWord:
+			ndx = calcRelIndex(1, 0, 0, 0, 0, ndxStart, true);
+			break;
+
+		case RIME_NextBook:
+			if (ndxStart.book() >= bibleEntry().m_nNumBk) break;
+			ndx = CRelIndex(ndxStart.book()+1, 1, 1, 1);
+			break;
+
+		case RIME_NextChapter:
+			ndx = calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), 1, 1), false);
+			break;
+
+		case RIME_NextVerse:
+			ndx = calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), ndxStart.verse(), 1), false);
+			break;
+
+		case RIME_NextWord:
+			ndx = calcRelIndex(1, 0, 0, 0, 0, ndxStart, false);
+			break;
+
+		default:
+			break;
+	}
+
+	return ndx;
+}
+
 // ============================================================================
 
 TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBibleDatabase) const
@@ -1575,6 +1676,11 @@ const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const
 {
 	if ((nBk < 1) || (nBk > m_lstBooks.size())) return NULL;
 	return &m_lstBooks.at(nBk-1);
+}
+
+const CBookEntry *CBibleDatabase::bookEntry(const CRelIndex &ndx) const
+{
+	return bookEntry(ndx.book());
 }
 
 #ifdef OSIS_PARSER_BUILD

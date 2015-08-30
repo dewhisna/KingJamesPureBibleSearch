@@ -1085,6 +1085,27 @@ public:
 					const CRelIndex &ndxStart = CRelIndex(),
 					bool bReverse = false) const;
 
+	enum RELATIVE_INDEX_MOVE_ENUM {
+		RIME_Absolute = 0,				// Move to Absolute Index or NoMove (default entry for doing no relative calculation except for checking validity)
+		RIME_Start = 1,					// Move to Beginning of the Bible
+		RIME_StartOfBook = 2,			// Move to Beginning of current Book
+		RIME_StartOfChapter = 3,		// Move to Beginning of current Chapter
+		RIME_StartOfVerse = 4,			// Move to Beginning of current Verse
+		RIME_End = 5,					// Move to Ending of the Bible
+		RIME_EndOfBook = 6,				// Move to Ending of current Book
+		RIME_EndOfChapter = 7,			// Move to Ending of current Chapter
+		RIME_EndOfVerse = 8,			// Move to Ending of current Verse
+		RIME_PreviousBook = 9,			// Move Backward one Book (to the start of it)
+		RIME_PreviousChapter = 10,		// Move Backward one Chapter (to the start of it)
+		RIME_PreviousVerse = 11,		// Move Backward one Verse (to the start of it)
+		RIME_PreviousWord = 12,			// Move Backward one Word
+		RIME_NextBook = 13,				// Move Forward one Book (to the start of it)
+		RIME_NextChapter = 14,			// Move Forward one Chapter (to the start of it)
+		RIME_NextVerse = 15,			// Move Forward one Verse (to the start of it)
+		RIME_NextWord = 16				// Move Forward one Word
+	};
+	CRelIndex calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX_MOVE_ENUM nMoveMode) const;	// Calculates new index as per MoveMode.  Returns 0 (Not Set) if result is invalid, such as PreviousBook from Genesis 1, for example.
+
 	unsigned int bookWordCountProper(unsigned int nBook) const;
 	unsigned int chapterWordCountProper(unsigned int nBook, unsigned int nChapter) const;
 
@@ -1094,7 +1115,8 @@ public:
 	}
 	const CTestamentEntry *testamentEntry(uint32_t nTst) const;			// Testament stats/data entry
 	const CBookCategoryEntry *bookCategoryEntry(uint32_t nCat) const;	// Category stats/data entry
-	const CBookEntry *bookEntry(uint32_t nBk) const;					// Book Data or Table of Contents [Books]
+	const CBookEntry *bookEntry(uint32_t nBk) const;					// Book Data or Table of Contents [Book]
+	const CBookEntry *bookEntry(const CRelIndex &ndx) const;			// Book Data or Table of Contents Use CRelIndex:[Book | 0 | 0 | 0]
 #ifdef OSIS_PARSER_BUILD
 	const CChapterEntry *chapterEntry(const CRelIndex &ndx, bool bForceCreate = false) const;		// Chapter Data Use CRelIndex:[Book | Chapter | 0 | 0]
 	const CVerseEntry *verseEntry(const CRelIndex &ndx, bool bForceCreate = false) const;			// Verse Data Entry Use CRelIndex:[Book | Chapter | Verse | 0]
