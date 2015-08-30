@@ -217,6 +217,8 @@ void CWebChannelServer::close()
 							.arg(QCoreApplication::applicationPid())
 							.toUtf8().data();
 	}
+#else
+	Q_UNUSED(bSomethingToClose);
 #endif
 }
 
