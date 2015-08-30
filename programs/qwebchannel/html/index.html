@@ -262,7 +262,7 @@
 						$("#tabs").tabs("option", "active", 1);
 						$("#tabs").tabs("refresh");
 						hideKeyboard();
-						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0));
+						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0), 0);
 						scrollTabTop();
 					});
 
@@ -483,11 +483,11 @@
 				}
 			}
 
-			function gotoIndex(ndx)
+			function gotoIndex(ndx, nMoveMode)
 			{
 				bEnableScriptureBrowserTabSwap = true;
 				$("body").css("cursor", "progress");
-				window.kjpbs.gotoIndex(ndx);
+				window.kjpbs.gotoIndex(ndx, nMoveMode);
 			}
 
 			function checkKey(e) {

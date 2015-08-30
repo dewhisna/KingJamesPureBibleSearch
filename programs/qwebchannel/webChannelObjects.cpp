@@ -265,7 +265,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord(0);
 		QString strVerse;
-		strVerse += QString("<a href=\"javascript:gotoIndex(%1);\">").arg(ndxVerse.index());
+		strVerse += QString("<a href=\"javascript:gotoIndex(%1,0);\">").arg(ndxVerse.index());
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
@@ -300,15 +300,22 @@ void CWebChannelObjects::en_searchResultsReady()
 	//		mind this can be multithreaded).
 }
 
-void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
+void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode)
 {
 	if (m_pSearchResults.isNull()) return;
+
+	CRelIndex ndx(ndxRel);
+	if (!ndx.isSet()) return;
+	if (!m_pSearchResults->vlmodel().bibleDatabase()->completelyContains(TPhraseTag(ndx))) return;
+
+	ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndx, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
+	if (!ndx.isSet()) return;
 
 	// Build a subset list of search results that are only in this chapter (which can't be
 	//		any larger than the number of results in this chapter) and use that for doing
 	//		the highlighting so that the VerseRichifier doesn't have to search the whole
 	//		set, as doing so is slow on large searches:
-	TPhraseTagList lstChapterCurrent = m_pSearchResults->phraseNavigator().currentChapterDisplayPhraseTagList(ndxRel);
+	TPhraseTagList lstChapterCurrent = m_pSearchResults->phraseNavigator().currentChapterDisplayPhraseTagList(ndx);
 	TPhraseTagList lstSearchResultsSubset;
 
 	CSearchResultHighlighter srHighlighterFull(&m_pSearchResults->vlmodel(), false);
@@ -320,15 +327,15 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel)
 	}
 
 	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
-	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(CRelIndex(ndxRel),
+	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(ndx,
 							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
 							CPhraseNavigator::TRO_InnerHTML |
 							CPhraseNavigator::TRO_NoWordAnchors |
 							CPhraseNavigator::TRO_SuppressPrePostChapters),
 							&srHighlighter);
-	CRelIndex ndxRelNoWord(ndxRel);
-	ndxRelNoWord.setWord(0);										// Since we aren't using word anchors, clear word index so HTML can always find correct anchor
-	emit scriptureBrowserRender(ndxRelNoWord.index(), strText);
+
+	ndx.setWord(0);				// Since we aren't using word anchors, clear word index so HTML can always find correct anchor
+	emit scriptureBrowserRender(ndx.index(), strText);
 	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
 }
 
