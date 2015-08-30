@@ -224,7 +224,7 @@
 							disableAllAutoCompleters();
 						});
 
-						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture) {
+						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture, strParam) {
 							ndxBrowserCurrent = ndxRel;
 							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
 							if (bEnableScriptureBrowserTabSwap) {
@@ -232,9 +232,13 @@
 								$("#tabs").tabs("refresh");
 								scrollToAnchor(ndxRel);
 							}
-							// Select the text from the navigation:
-							$("#" + ndxRel).addClass("selected");
-							$("#" + ndxRel).next().addClass("selected");
+							var opts = strParam.split(",");
+							// Select the text from the navigation if 'highlightAnchor' option and anchor is valid:
+							if ($.inArray('highlightAnchor', opts) > -1) {
+								var anchorElement = $("#" + ndxRel);
+								anchorElement.addClass("selected");
+								anchorElement.next().addClass("selected");
+							}
 							// Wait cursor back off
 							$("body").css("cursor", "default");
 						});
@@ -262,7 +266,7 @@
 						$("#tabs").tabs("option", "active", 1);
 						$("#tabs").tabs("refresh");
 						hideKeyboard();
-						kjpbs.gotoIndex(makeRelIndex(1, 1, 0, 0), 0);
+						kjpbs.gotoIndex(0, 1, "");
 						scrollTabTop();
 					});
 
@@ -483,11 +487,16 @@
 				}
 			}
 
-			function gotoIndex(ndx, nMoveMode)
+			function gotoIndex(ndx, nMoveMode, strParam)
 			{
 				bEnableScriptureBrowserTabSwap = true;
 				$("body").css("cursor", "progress");
-				window.kjpbs.gotoIndex(ndx, nMoveMode);
+				window.kjpbs.gotoIndex(ndx, nMoveMode, strParam);
+			}
+
+			function gotoResult(ndx)
+			{
+				gotoIndex(ndx, 0, "highlightAnchor");
 			}
 
 			function checkKey(e) {

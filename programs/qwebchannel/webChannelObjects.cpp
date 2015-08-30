@@ -265,7 +265,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord(0);
 		QString strVerse;
-		strVerse += QString("<a href=\"javascript:gotoIndex(%1,0);\">").arg(ndxVerse.index());
+		strVerse += QString("<a href=\"javascript:gotoResult(%1);\">").arg(ndxVerse.index());
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
@@ -300,16 +300,13 @@ void CWebChannelObjects::en_searchResultsReady()
 	//		mind this can be multithreaded).
 }
 
-void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode)
+void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam)
 {
 	if (m_pSearchResults.isNull()) return;
 
-	CRelIndex ndx(ndxRel);
+	CRelIndex ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndxRel, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
 	if (!ndx.isSet()) return;
 	if (!m_pSearchResults->vlmodel().bibleDatabase()->completelyContains(TPhraseTag(ndx))) return;
-
-	ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndx, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
-	if (!ndx.isSet()) return;
 
 	// Build a subset list of search results that are only in this chapter (which can't be
 	//		any larger than the number of results in this chapter) and use that for doing
@@ -335,7 +332,7 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode)
 							&srHighlighter);
 
 	ndx.setWord(0);				// Since we aren't using word anchors, clear word index so HTML can always find correct anchor
-	emit scriptureBrowserRender(ndx.index(), strText);
+	emit scriptureBrowserRender(ndx.index(), strText, strParam);
 	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
 }
 
