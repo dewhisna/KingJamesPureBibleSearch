@@ -4,3 +4,6 @@
 [submodule "programs/qwebchannel/html/jquery/jquery-ui/fancytree"]
 	path = programs/qwebchannel/html/jquery/jquery-ui/fancytree
 	url = git@github.com:dewhisna/fancytree.git
+[submodule "programs/qwebchannel/html/jquery/jquery-ui/turn.js"]
+	path = programs/qwebchannel/html/jquery/jquery-ui/turn.js
+	url = git@github.com:dewhisna/turn.js.git
