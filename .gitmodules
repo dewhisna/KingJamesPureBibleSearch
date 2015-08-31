@@ -7,6 +7,3 @@
 [submodule "programs/qwebchannel/html/jquery/jquery-ui/turn.js"]
 	path = programs/qwebchannel/html/jquery/jquery-ui/turn.js
 	url = git@github.com:dewhisna/turn.js.git
-[submodule "programs/qwebchannel/html/jquery/jquery-ui/Booklet"]
-	path = programs/qwebchannel/html/jquery/jquery-ui/Booklet
-	url = git@github.com:builtbywill/Booklet.git
