@@ -13,10 +13,10 @@
 
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
-			var bEnableScriptureBrowserTabSwap = false;
 			var nSearchPhraseCount = 0;
 			var nSearchPhraseNextID = 0;
-			var ndxBrowserCurrent;				// Current Scripture Browser Index
+//			var ndxBrowserCurrent;				// Current Scripture Browser Index
+			var nBrowserChapterCurrent = 0;		// Current Scripture Browser Chapter (1 through n, 0 = not init)
 
 			//BEGIN SETUP
 			function output(message)
@@ -225,8 +225,9 @@
 						});
 
 						kjpbs.scriptureBrowserRender.connect(function(nChp, ndxRel, strHtmlScripture, strParam) {
-							ndxBrowserCurrent = ndxRel;
-//							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
+// ndxBrowserCurrent is obsolete (doesn't make much sense) if we employ caching:
+//							ndxBrowserCurrent = ndxRel;
+
 							addPage(nChp, strHtmlScripture);
 
 							var opts = strParam.split(",");
@@ -237,10 +238,12 @@
 							if ($.inArray("noturn", opts) == -1) {
 								turnToPage(nChp);
 
-								if (bEnableScriptureBrowserTabSwap) {
-									$("#tabs").tabs("option", "active", 1);
-									$("#tabs").tabs("refresh");
+								$("#tabs").tabs("option", "active", 1);
+								$("#tabs").tabs("refresh");
+								if ($.inArray("highlightAnchor", opts) > -1) {
 									scrollToAnchor(ndxRel);
+								} else if ($.inArray("scrollTabTop", opts) > -1) {
+									scrollTabTop();
 								}
 							}
 							// Wait cursor back off
@@ -266,12 +269,8 @@
 						output("Selecting Bible...");
 						kjpbs.selectBible("85D8A6B0-E670-11E2-A28F-0800200C9A66");
 
-						bEnableScriptureBrowserTabSwap = false;
-						$("#tabs").tabs("option", "active", 1);
-						$("#tabs").tabs("refresh");
 						hideKeyboard();
-						kjpbs.gotoIndex(0, 1, "");
-						scrollTabTop();
+						kjpbs.gotoIndex(0, 1, "scrollTabTop");
 					});
 
 					// Close heading after 5 seconds to get it out of the way on mobile devices:
@@ -494,7 +493,6 @@
 
 			function gotoIndex(ndx, nMoveMode, strParam)
 			{
-				bEnableScriptureBrowserTabSwap = true;
 				$("body").css("cursor", "progress");
 				window.kjpbs.gotoIndex(ndx, nMoveMode, strParam);
 			}
@@ -592,6 +590,27 @@
 
 			function turnToPage(page) {
 				// TODO : Switch to page
+
+				nBrowserChapterCurrent = page;
+			}
+
+			function navPrevChapter() {
+				if (nBrowserChapterCurrent > 1) {
+					gotoChapter(nBrowserChapterCurrent-1, "scrollTabTop");
+				}
+				document.getElementById("prevChpButton").blur();	// Workaround jqueryui bug
+			}
+
+			function navNextChapter() {
+				if (nBrowserChapterCurrent < 1189) {		// TODO : Get Chapter count from server
+					gotoChapter(nBrowserChapterCurrent+1, "scrollTabTop");
+				}
+				document.getElementById("nextChpButton").blur();	// Workaround jqueryui bug
+			}
+
+			function navLocate() {
+				// TODO : Create navigate dialog
+				document.getElementById("locateButton").blur();	// Workaround jqueryui bug
 			}
 
 		</script>
@@ -857,9 +876,9 @@
 				<input type="checkbox" id="toggle-nav" />
 				<div class="scriptureNav_box">
 					<div id="scriptureNav_buttonset">
-						<button type="button" id="prevChpButton">Prev</button>
-						<button type="button" id="locateButton">Locate</button>
-						<button type="button" id="nextChpButton">Next</button>
+						<button type="button" id="prevChpButton" onclick="javascript:navPrevChapter();">Prev</button>
+						<button type="button" id="locateButton" onclick="javascript:navLocate();">Locate</button>
+						<button type="button" id="nextChpButton" onclick="javascript:navNextChapter();">Next</button>
 					</div>
 				</div>
 			</nav>
