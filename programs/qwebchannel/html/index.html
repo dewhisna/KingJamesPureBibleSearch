@@ -53,6 +53,13 @@
 					field.focus();
 				}, 50);
 			}
+			function waitCursor(bAreBusy) {
+				if (bAreBusy) {
+					$("body").css("cursor", "progress");
+				} else {
+					$("body").css("cursor", "default");
+				}
+			}
 			function makeRelIndex(book, chapter, verse, word)
 			{
 				return ((book & 0xFF) << 24) |
@@ -218,7 +225,7 @@
 							$("#tabs").tabs("refresh");
 //							scrollTabTop();
 							// Wait cursor back off
-							$("body").css("cursor", "default");
+							waitCursor(false);
 //							enableAllAutoCompleters();
 							closeAllAutoCompleters();
 							disableAllAutoCompleters();
@@ -247,7 +254,7 @@
 								}
 							}
 							// Wait cursor back off
-							$("body").css("cursor", "default");
+							waitCursor(false);
 						});
 
 						kjpbs.setAutoCorrectText.connect(function(strElementID, strAC) {
@@ -428,7 +435,7 @@
 					return;
 				}
 
-				$("body").css("cursor", "progress");
+				waitCursor(true);
 				if (aSearchPhrase) {
 					$("#"+aSearchPhrase+"_Text").autocomplete("close");
 				} else {
@@ -493,7 +500,7 @@
 
 			function gotoIndex(ndx, nMoveMode, strParam)
 			{
-				$("body").css("cursor", "progress");
+				waitCursor(true);
 				window.kjpbs.gotoIndex(ndx, nMoveMode, strParam);
 			}
 
