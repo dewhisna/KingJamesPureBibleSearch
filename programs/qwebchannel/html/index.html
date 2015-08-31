@@ -739,91 +739,145 @@
 				min-height: 300px;
 				max-height: auto;
 				margin: 0 auto;
+				margin-bottom: 30px;
+			}
+
+			#scriptureNav_buttonset {
+				text-align: center;
+			}
+
+			#scriptureNav .scriptureNav_box {
+				position: fixed;
+				text-align: center;
+				overflow: hidden;
+				z-index: -1;
+				opacity: 0;
+				width: 100%;
+				height: auto;
+				left: 0px;
+				bottom: 0px;
+				background: rgba(0,0,0,0.4);
+				-webkit-transition: all 0.3s ease-in-out;
+				-moz-transition: all 0.3s ease-in-out;
+				-o-transition: all 0.3s ease-in-out;
+				transition: all 0.3s ease-in-out;
+			}
+			#toggle-nav { display: none; }
+
+			#toggle-nav:checked ~ .scriptureNav_box {
+				opacity: 1;
+				z-index: 400;
+			}
+			#toggle-nav:checked ~ .scriptureNav_box div {
+				-webkit-transform: scale(1);
+				-moz-transform: scale(1);
+				-ms-transform: scale(1);
+				transform: scale(1);
 			}
 		</style>
 	</head>
 	<body>
-		<div id="status">
-			<h1>King James Pure Bible Search</h1>
-			<h2>WebChannel Server</h2>
-			<textarea id="output"></textarea><br />
-		</div>
-
-		<div id="tabs">
-			<ul>
-				<li><a href="#search"><span>Search</span></a></li>
-				<li><a href="#browser"><span>Scripture Browser</span></a></li>
-			</ul>
-
-			<div id="search">
-				<table class="searchSpec" id="searchSpec">
-					<tr>
-						<td class="expand">
-							<div id="searchCriteria">
-								<div id="searchWithin">
-									<h3>Search Within</h3>
-									<div id="searchWithinTree"></div>
-								</div>
-								<label style="display: block;" for="searchScope">Search Scope:</label>
-								<select class="searchScope" name="searchScope" id="searchScope" title="Select Search Scope">
-									<option value="-1">Anywhere in Selected Text</option>
-									<option value="0">Together in Selected Text</option>
-									<option value="1">Same Testament</option>
-									<option value="5">Same Category</option>
-									<option value="2">Same Book</option>
-									<option value="3">Same Chapter</option>
-									<option value="4">Same Verse</option>
-								</select>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<hr />
-						</td>
-					</tr>
-					<tr>
-						<td class="expand">
-							<div id="phrases"></div>
-						</td>
-					</tr>
-					<tr>
-						<td class="expand" style="text-align:center">
-							<div id="searchControls">
-								<button type="button" id="addSearchPhraseButton" onclick="javascript:addSearchPhrase();">Add Search Phrase</button>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td class="expand">
-							<div id="searchResultsSummary"></div>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<hr />
-						</td>
-					</tr>
-					<tr>
-						<td class="expand">
-							<div id="searchResults"></div>
-						</td>
-					</tr>
-				</table>
+		<div id="mainbody">
+			<div id="status">
+				<h1>King James Pure Bible Search</h1>
+				<h2>WebChannel Server</h2>
+				<textarea id="output"></textarea><br />
 			</div>
 
-			<div id="browser">
-				<div id="scriptureBook">
-					<div id="scriptureText" class="scriptureText">
+			<div id="tabs">
+				<ul>
+					<li><a href="#search"><span>Search</span></a></li>
+					<li><a href="#browser"><span>Scripture Browser</span></a></li>
+				</ul>
+
+				<div id="search">
+					<table class="searchSpec" id="searchSpec">
+						<tr>
+							<td class="expand">
+								<div id="searchCriteria">
+									<div id="searchWithin">
+										<h3>Search Within</h3>
+										<div id="searchWithinTree"></div>
+									</div>
+									<label style="display: block;" for="searchScope">Search Scope:</label>
+									<select class="searchScope" name="searchScope" id="searchScope" title="Select Search Scope">
+										<option value="-1">Anywhere in Selected Text</option>
+										<option value="0">Together in Selected Text</option>
+										<option value="1">Same Testament</option>
+										<option value="5">Same Category</option>
+										<option value="2">Same Book</option>
+										<option value="3">Same Chapter</option>
+										<option value="4">Same Verse</option>
+									</select>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<hr />
+							</td>
+						</tr>
+						<tr>
+							<td class="expand">
+								<div id="phrases"></div>
+							</td>
+						</tr>
+						<tr>
+							<td class="expand" style="text-align:center">
+								<div id="searchControls">
+									<button type="button" id="addSearchPhraseButton" onclick="javascript:addSearchPhrase();">Add Search Phrase</button>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="expand">
+								<div id="searchResultsSummary"></div>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<hr />
+							</td>
+						</tr>
+						<tr>
+							<td class="expand">
+								<div id="searchResults"></div>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div id="browser">
+					<div id="scriptureBook">
+						<div id="scriptureText" class="scriptureText"></div>
+					</div>
 				</div>
 			</div>
+			<nav id="scriptureNav">
+				<input type="checkbox" id="toggle-nav" />
+				<div class="scriptureNav_box">
+					<div id="scriptureNav_buttonset">
+						<button type="button" id="prevChpButton">Prev</button>
+						<button type="button" id="locateButton">Locate</button>
+						<button type="button" id="nextChpButton">Next</button>
+					</div>
+				</div>
+			</nav>
 		</div>
 
 		<script>
 			var initJsonSearchWithinTree = [ ];
 
 			$(document).tooltip();
-			$( "#tabs" ).tabs();
+			$( "#tabs" ).tabs({
+				activate: function( event, ui ) {
+					if ($(this).tabs("option", "active") == 0) {
+						document.getElementById("toggle-nav").checked = false;
+					} else {
+						document.getElementById("toggle-nav").checked = true;
+					}
+				}
+			});
 			$( "#addSearchPhraseButton" ).button();
 			$( "#searchWithin" ).accordion({
 				collapsible: true,
@@ -897,6 +951,8 @@
 				cookieId: "fancytree-searchWithinTree",
 				idPrefix: "fancytree-searchWithinTree-"
 			});
+
+			$( "#scriptureNav_buttonset" ).buttonset();
 
 			addSearchPhrase();			// Add initial search phrase
 //			var markup = document.getElementsByTagName('body')[0].innerHTML;
