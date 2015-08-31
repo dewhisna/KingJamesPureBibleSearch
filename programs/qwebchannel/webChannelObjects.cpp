@@ -265,7 +265,10 @@ void CWebChannelObjects::en_searchResultsReady()
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord(0);
 		QString strVerse;
-		strVerse += QString("<a href=\"javascript:gotoResult(%1);\">").arg(ndxVerse.index());
+		strVerse += QString("<a href=\"javascript:gotoResult(%1,%2);\">")
+									.arg(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
+													   CRefCountCalc::RTE_CHAPTER, ndxVerse).ofBible().first)
+									.arg(ndxVerse.index());
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
@@ -332,8 +335,20 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 							&srHighlighter);
 
 	ndx.setWord(0);				// Since we aren't using word anchors, clear word index so HTML can always find correct anchor
-	emit scriptureBrowserRender(ndx.index(), strText, strParam);
+	emit scriptureBrowserRender(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
+											  CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first,
+								ndx.index(),
+								strText,
+								strParam);
 	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
+}
+
+void CWebChannelObjects::gotoChapter(int nChp, const QString &strParam)
+{
+	if (m_pSearchResults.isNull()) return;
+
+	CRelIndex ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(0, 0, nChp, 0, 0);
+	if (ndx.isSet()) gotoIndex(ndx.index(), static_cast<int>(CBibleDatabase::RIME_Absolute), strParam);
 }
 
 void CWebChannelObjects::sendBroadcast(const QString &strMessage)

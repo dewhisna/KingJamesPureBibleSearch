@@ -5,11 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>King James Pure Bible Search WebChannel Server</title>
 		<link rel="stylesheet" type="text/css" href="jquery/jquery-ui/1.11.4/themes/start/jquery-ui.min.css">
-		<script src="jquery/jquery-1.11.3.min.js"></script>
-		<script src="jquery/jquery-ui/1.11.4/jquery-ui.min.js"></script>
-		<script src="jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.min.js"></script>
+		<script type="text/javascript" src="jquery/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="jquery/jquery-ui/1.11.4/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="jquery/jquery-ui/fancytree/dist/skin-themeroller/ui.fancytree.min.css" />
-		<script src="jquery/jquery-ui/fancytree/dist/jquery.fancytree-all.min.js"></script>
+		<script type="text/javascript" src="jquery/jquery-ui/fancytree/dist/jquery.fancytree-all.min.js"></script>
 
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
@@ -224,20 +224,24 @@
 							disableAllAutoCompleters();
 						});
 
-						kjpbs.scriptureBrowserRender.connect(function(ndxRel, strHtmlScripture, strParam) {
+						kjpbs.scriptureBrowserRender.connect(function(nChp, ndxRel, strHtmlScripture, strParam) {
 							ndxBrowserCurrent = ndxRel;
-							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
-							if (bEnableScriptureBrowserTabSwap) {
-								$("#tabs").tabs("option", "active", 1);
-								$("#tabs").tabs("refresh");
-								scrollToAnchor(ndxRel);
-							}
+//							document.getElementById("scriptureText").innerHTML = strHtmlScripture;
+							addPage(nChp, strHtmlScripture);
+
 							var opts = strParam.split(",");
 							// Select the text from the navigation if 'highlightAnchor' option and anchor is valid:
-							if ($.inArray('highlightAnchor', opts) > -1) {
-								var anchorElement = $("#" + ndxRel);
-								anchorElement.addClass("selected");
-								anchorElement.next().addClass("selected");
+							if ($.inArray("highlightAnchor", opts) > -1) {
+								highlightAnchor(ndxRel);
+							}
+							if ($.inArray("noturn", opts) == -1) {
+								turnToPage(nChp);
+
+								if (bEnableScriptureBrowserTabSwap) {
+									$("#tabs").tabs("option", "active", 1);
+									$("#tabs").tabs("refresh");
+									scrollToAnchor(ndxRel);
+								}
 							}
 							// Wait cursor back off
 							$("body").css("cursor", "default");
@@ -432,6 +436,7 @@
 					closeAllAutoCompleters();
 				}
 //				disableAllAutoCompleters();
+				cleanPages();
 				window.kjpbs.setSearchPhrases(phrases, getSearchWithin(), $('#searchScope').val());
 			}
 
@@ -494,9 +499,30 @@
 				window.kjpbs.gotoIndex(ndx, nMoveMode, strParam);
 			}
 
-			function gotoResult(ndx)
+			function gotoResult(nChp, ndxRel)
 			{
-				gotoIndex(ndx, 0, "highlightAnchor");
+				if (havePage(nChp)) {
+					turnToPage(nChp);
+					highlightAnchor(ndxRel);
+				} else {
+					gotoIndex(ndxRel, 0, "highlightAnchor");
+				}
+			}
+
+			function gotoChapter(nChp, strParam)
+			{
+				if (window.kjpbs) {
+					window.kjpbs.gotoChapter(nChp, strParam);
+				}
+			}
+
+			function highlightAnchor(ndxRel)
+			{
+				var anchorElement = $("#" + ndxRel);
+				if (anchorElement) {
+					anchorElement.addClass("selected");
+					anchorElement.next().addClass("selected");
+				}
 			}
 
 			function checkKey(e) {
@@ -542,6 +568,32 @@
 				}
 			}
 			document.onkeydown = checkKey;
+
+			function havePage(page) {
+				return false;
+			}
+
+			// Adds the pages that the "Scripture Book" will need
+			function addPage(page, strText) {
+				if (!havePage(page)) {
+					// TODO : Add page
+					document.getElementById("scriptureText").innerHTML = strText;
+				} else {
+					document.getElementById("scriptureText").innerHTML = strText;
+				}
+			}
+
+			// Clear pages removes the "Scripture Book" content for existing
+			//		pages so they can be refetched (such as search changed
+			//		where the highlighting/markup has changed)
+			function cleanPages() {
+				// TODO : Clear page cache
+			}
+
+			function turnToPage(page) {
+				// TODO : Switch to page
+			}
+
 		</script>
 		<style type="text/css">
 			html {
@@ -682,7 +734,7 @@
 				margin-left: auto;
 				margin-right: auto;
 			}
-			#scriptureText {
+			.scriptureText {
 				width: 100%;
 				min-height: 300px;
 				max-height: auto;
@@ -761,7 +813,8 @@
 			</div>
 
 			<div id="browser">
-				<div id="scriptureText">
+				<div id="scriptureBook">
+					<div id="scriptureText" class="scriptureText">
 				</div>
 			</div>
 		</div>
