@@ -112,8 +112,10 @@ private:
 
 // ============================================================================
 
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 class CMyApplication : public QtSingleApplication
+#elif defined(IS_CONSOLE_APP)
+class CMyApplication : public QCoreApplication
 #else
 class CMyApplication : public QApplication
 #endif

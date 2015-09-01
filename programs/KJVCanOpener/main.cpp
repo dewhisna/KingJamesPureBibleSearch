@@ -153,12 +153,16 @@ int main(int argc, char *argv[])
 
 #endif
 
+#ifndef IS_CONSOLE_APP
+
 #ifdef Q_OS_WIN32
 	pApp->setWindowIcon(QIcon(":/res/bible.ico"));
 #else
 #ifndef Q_OS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
 	pApp->setWindowIcon(QIcon(":/res/bible_48.png"));
 #endif
+#endif
+
 #endif
 
 #if defined(VNCSERVER) && defined(USING_WEBCHANNEL)

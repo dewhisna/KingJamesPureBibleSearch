@@ -33,7 +33,6 @@ QT       += core gui xml
 } else {
 	DEFINES += NOT_USING_SQL
 }
-console:QT -= gui
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 # See: https://stackoverflow.com/questions/18666799/how-to-prevent-qmake-from-adding-the-console-subsystem-on-the-linker-command-lin

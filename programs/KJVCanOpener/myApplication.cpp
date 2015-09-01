@@ -577,8 +577,10 @@ public:
 // ============================================================================
 
 CMyApplication::CMyApplication(int & argc, char ** argv)
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 	:	QtSingleApplication(g_constrApplicationID, argc, argv),
+#elif defined(IS_CONSOLE_APP)
+	:	QCoreApplication(argc, argv),
 #else
 	:	QApplication(argc, argv),
 #endif
@@ -603,7 +605,9 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 #else
 	m_strInitialAppDirPath = applicationDirPath();
 #endif
+#ifndef IS_CONSOLE_APP
 	m_strStartupStyleSheet = styleSheet();
+#endif
 
 	// Setup our SQL/Image and Platform Plugin paths.  Ideally, this would be
 	//	done in main() before instantiating the object in order to make the
@@ -616,6 +620,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	QCoreApplication::addLibraryPath(fiPlugins.absolutePath());
 #endif
 
+#ifndef IS_CONSOLE_APP
 	if (m_strStartupStyleSheet.startsWith(QLatin1String("file:///"))) {
 		// If the startupStyleSheet was a file, read it:
 		m_strStartupStyleSheet.remove(0, 8);
@@ -631,6 +636,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	}
 
 	setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
+#endif
 
 	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
@@ -734,6 +740,7 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 
 void CMyApplication::saveApplicationFontSettings()
 {
+#ifndef IS_CONSOLE_APP
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrMainAppControlGroup);
@@ -741,10 +748,13 @@ void CMyApplication::saveApplicationFontSettings()
 		settings.setValue(constrFontSizeKey, font().pointSize());
 		settings.endGroup();
 	}
+#endif	// IS_CONSOLE_APP
 }
 
 void CMyApplication::restoreApplicationFontSettings()
 {
+#ifndef IS_CONSOLE_APP
+
 	// Setup our default font for our controls:
 #ifdef Q_OS_WIN32
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
@@ -774,6 +784,8 @@ void CMyApplication::restoreApplicationFontSettings()
 	}
 
 	setFont(fntAppControls);
+
+#endif	// IS_CONSOLE_APP
 }
 
 void CMyApplication::setupTextBrightnessStyleHooks()
@@ -854,8 +866,10 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 #if !defined(NOT_USING_EXCEPTIONS) && defined(QT_DEBUG)
 	try {
 #endif
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 		return QtSingleApplication::notify(pReceiver, pEvent);
+#elif defined(IS_CONSOLE_APP)
+		return QCoreApplication::notify(pReceiver, pEvent);
 #else
 		return QApplication::notify(pReceiver, pEvent);
 #endif
@@ -880,8 +894,10 @@ bool CMyApplication::event(QEvent *event) {
 		receivedKJPBSMessage(strMessage);
 		return true;
 	}
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 	return QtSingleApplication::event(event);
+#elif defined(IS_CONSOLE_APP)
+	return QCoreApplication::event(event);
 #else
 	return QApplication::event(event);
 #endif
@@ -927,7 +943,9 @@ void CMyApplication::en_clearingSpeechQueue()
 	//		trying to handle the speechStop button...
 	assert(!m_pSpeech.isNull());
 	if (connect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)), Qt::UniqueConnection)) {
+#ifndef IS_CONSOLE_APP
 		setOverrideCursor(Qt::WaitCursor);
+#endif
 	}
 }
 
@@ -936,7 +954,9 @@ void CMyApplication::en_speechFinished(bool bQueueEmpty)
 	if (bQueueEmpty) {
 		assert(!m_pSpeech.isNull());
 		disconnect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+#ifndef IS_CONSOLE_APP
 		restoreOverrideCursor();
+#endif
 	}
 }
 
@@ -1054,10 +1074,14 @@ void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 		}
 	}
 
+#ifndef IS_CONSOLE_APP
+
 	// The following is needed on Mac to make sure the menu of the
 	//      new KJVCanOpen gets set:
 	if (activeWindow() != static_cast<QWidget *>(pCanOpener))
 			setActiveWindow(pCanOpener);
+
+#endif
 
 	assert(false);
 	m_nLastActivateCanOpener = -1;
@@ -1172,6 +1196,9 @@ void CMyApplication::en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClos
 
 void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 {
+
+#ifndef IS_CONSOLE_APP
+
 	// Note: This code needs to cooperate with the setStyleSheet in the constructor
 	//			of KJVCanOpener that works around QTBUG-13768...
 
@@ -1197,6 +1224,12 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 			m_bUsingCustomStyleSheet = false;
 		}
 	}
+
+#else
+	Q_UNUSED(bInvert);
+	Q_UNUSED(nBrightness);
+#endif	// IS_CONSOLE_APP
+
 }
 
 void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
