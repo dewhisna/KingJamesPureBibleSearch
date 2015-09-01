@@ -66,6 +66,7 @@ void CWebChannelObjects::selectBible(const QString &strUUID)
 	if (!m_pSearchResults.isNull()) delete m_pSearchResults;
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+	QString strBkChpStruct;
 	if (!pBibleDatabase.isNull()) {
 		m_pSearchResults = new CHeadlessSearchResults(pBibleDatabase, g_pUserNotesDatabase, this);
 		connect(m_pSearchResults.data(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
@@ -73,9 +74,10 @@ void CWebChannelObjects::selectBible(const QString &strUUID)
 		m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
 		CSearchWithinModel swim(pBibleDatabase, m_searchResultsData.m_SearchCriteria);
 		emit searchWithinModelChanged(swim.toWebChannelJson(), static_cast<int>(m_searchResultsData.m_SearchCriteria.searchScopeMode()));
+		strBkChpStruct = pBibleDatabase->toJsonBkChpStruct();
 	}
 
-	emit bibleSelected(!m_pSearchResults.isNull());
+	emit bibleSelected(!m_pSearchResults.isNull(), strBkChpStruct);
 }
 
 void CWebChannelObjects::setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)

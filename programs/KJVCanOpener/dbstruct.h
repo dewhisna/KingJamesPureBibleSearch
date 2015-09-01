@@ -1043,6 +1043,10 @@ public:
 
 	void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
 
+#ifdef USING_WEBCHANNEL
+	QString toJsonBkChpStruct() const;		// Generate Book/Chapter Structure as JSON for WebChannel
+#endif
+
 	// CRelIndex Name/Report Functions:
 	QString SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask = RIMASK_ALL, unsigned int nSelectionSize = 1) const;		// Create complete reference statistics report
 	QString PassageReferenceText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse = false) const;		// Creates a reference text string like "Genesis 1:1 [5]"

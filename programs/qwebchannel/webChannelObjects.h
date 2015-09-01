@@ -62,7 +62,7 @@ public slots:
 	void sendBroadcast(const QString &strMessage);			// Transmit broadcast message to connected client (shutdown alert, etc)
 
 signals:
-	void bibleSelected(bool bSuccess);
+	void bibleSelected(bool bSuccess, const QString &strJsonBkChpStruct);				// Generated after selectBible() call to indicate success/fail and to provide the book/chapter layout for navigation (empty if failure)
 	void searchWithinModelChanged(const QString &strJsonSearchWithinTree, int nScope);	// Generated after selectBible() call to fill in the searchWithin Tree View
 
 	void searchResultsChanged(const QString &strHtmlSearchResults, const QString &strHtmlSummary, const QString &strlstOccurrences);			// Triggered by en_searchResultsReady() when we have data to send to channel

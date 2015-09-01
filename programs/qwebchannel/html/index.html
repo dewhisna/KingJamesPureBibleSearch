@@ -17,6 +17,7 @@
 			var nSearchPhraseNextID = 0;
 //			var ndxBrowserCurrent;				// Current Scripture Browser Index
 			var nBrowserChapterCurrent = 0;		// Current Scripture Browser Chapter (1 through n, 0 = not init)
+			var bkChpStruct;					// Book/Chapter layout for navigation
 
 			//BEGIN SETUP
 			function output(message)
@@ -184,12 +185,13 @@
 						// make our kjpbs object accessible globally
 						window.kjpbs = channel.objects.kjpbs;
 
-						kjpbs.bibleSelected.connect(function(bSuccess) {
+						kjpbs.bibleSelected.connect(function(bSuccess, strJsonBkChpStruct) {
 							if (!bSuccess) {
 								output("Bible failed to load");
 								alert("Specified Bible is Not Currently Available on the Server!");
 							} else {
 								output("Bible Successfully Selected");
+								bkChpStruct = $.parseJSON(strJsonBkChpStruct);
 							}
 						});
 

@@ -41,6 +41,13 @@
 #include <QAbstractTextDocumentLayout>
 #include <QTextDocument>
 
+#ifdef USING_WEBCHANNEL
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#endif
+
 #include <assert.h>
 
 // ============================================================================
@@ -788,6 +795,37 @@ CConcordanceEntry::CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, 
 {
 
 }
+
+// ============================================================================
+
+#ifdef USING_WEBCHANNEL
+QString CBibleDatabase::toJsonBkChpStruct() const
+{
+	QJsonObject objBible;
+	objBible["testamentCount"] = static_cast<int>(bibleEntry().m_nNumTst);
+	objBible["bookCount"] = static_cast<int>(bibleEntry().m_nNumBk);
+	objBible["chapterCount"] = static_cast<int>(bibleEntry().m_nNumChp);
+	QJsonArray arrTestaments;
+	for (unsigned int nTst = 1; nTst <= bibleEntry().m_nNumTst; ++nTst) {
+		QJsonObject objTestament;
+		objTestament["name"] = testamentEntry(nTst)->m_strTstName;
+		objTestament["bookCount"] = static_cast<int>(testamentEntry(nTst)->m_nNumBk);
+		objTestament["chapterCount"] = static_cast<int>(testamentEntry(nTst)->m_nNumChp);
+		arrTestaments.append(objTestament);
+	}
+	objBible["testaments"] = arrTestaments;
+	QJsonArray arrBooks;
+	for (unsigned int nBk = 1; nBk <= bibleEntry().m_nNumBk; ++nBk) {
+		QJsonObject objBook;
+		objBook["name"] = bookEntry(nBk)->m_strBkName;
+		objBook["chapterCount"] = static_cast<int>(bookEntry(nBk)->m_nNumChp);
+		arrBooks.append(objBook);
+	}
+	objBible["books"] = arrBooks;
+
+	return QJsonDocument(objBible).toJson(QJsonDocument::Compact);
+}
+#endif
 
 // ============================================================================
 
