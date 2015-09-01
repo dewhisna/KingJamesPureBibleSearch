@@ -611,7 +611,7 @@
 			}
 
 			function navNextChapter() {
-				if (nBrowserChapterCurrent < 1189) {		// TODO : Get Chapter count from server
+				if (nBrowserChapterCurrent < bkChpStruct.chapterCount) {
 					gotoChapter(nBrowserChapterCurrent+1, "scrollTabTop");
 				}
 				document.getElementById("nextChpButton").blur();	// Workaround jqueryui bug
