@@ -33,6 +33,7 @@ QT       += core gui xml
 } else {
 	DEFINES += NOT_USING_SQL
 }
+console:QT -= gui
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 # See: https://stackoverflow.com/questions/18666799/how-to-prevent-qmake-from-adding-the-console-subsystem-on-the-linker-command-lin
@@ -117,8 +118,8 @@ QtSpeech {
 
 # Add the Plastique Style:
 # In Qt4, Plastique is built-in to Qt itself:
-lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
-greaterThan(QT_MAJOR_VERSION,4) {
+!console:lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
+!console:greaterThan(QT_MAJOR_VERSION,4) {
 	static {
 		include(../qtstyleplugins/src/qtstyleplugins.pri)
 		DEFINES += PLASTIQUE_STATIC
@@ -134,7 +135,7 @@ greaterThan(QT_MAJOR_VERSION,4) {
 #	object.  Should probably be there for all platforms to make sure the
 #	accessibility support gets loaded:
 # Was fixed on the Mac in Qt5.3.0 -- having this defined caused a (non-fatal) redundant definition:
-!emscripten:!win32:if(!contains(QT_CONFIG, static) | lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3)):QTPLUGIN += qtaccessiblewidgets
+!console:!emscripten:!win32:if(!contains(QT_CONFIG, static) | lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3)):QTPLUGIN += qtaccessiblewidgets
 
 # Miscellaneous Special-Testing and Cache modes that can be enabled:
 #DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
@@ -179,7 +180,7 @@ DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/
 #DEFINES += ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 
 # Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
-!emscripten:DEFINES += LOAD_APPLICATION_FONTS
+!emscripten:!console:DEFINES += LOAD_APPLICATION_FONTS
 
 # Enable Asynchronous Dialogs
 #if(emscripten | macx):DEFINES += USE_ASYNC_DIALOGS
