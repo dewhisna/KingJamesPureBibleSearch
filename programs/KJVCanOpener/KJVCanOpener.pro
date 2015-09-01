@@ -68,7 +68,7 @@ exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
 
 if(android | ios):DEFINES += IS_MOBILE_APP
 
-!android:!ios:!emscripten:!vnc:!lsb:CONFIG += QtSpeech			# Enable Text-To-Speech support
+!android:!ios:!emscripten:!vnc:!lsb:!nospeech:CONFIG += QtSpeech			# Enable Text-To-Speech support
 
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
