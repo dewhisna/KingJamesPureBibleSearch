@@ -31,7 +31,6 @@
 
 #include <QStringList>
 #include <QTextDocument>
-#include <QTextEdit>
 #include <QWebSocket>
 
 #define DEBUG_WEBCHANNEL_SEARCH 0
@@ -129,8 +128,8 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 
 	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
 
-	QTextEdit edit(strPhrase);
-	CPhraseCursor cursor(edit.textCursor());
+	QTextDocument doc(strPhrase);
+	CPhraseCursor cursor(&doc);
 	if (nCursorPos < 0) nCursorPos = 0;
 	// Sometimes html doc sends cursor position outside the bounds of the doc, this is a safe-guard:
 	cursor.movePosition(QTextCursor::End);
@@ -180,7 +179,7 @@ void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString 
 
 	if (!bNeedUpdate) {
 		CParsedPhrase thePhraseLast(m_pSearchResults->vlmodel().bibleDatabase());
-		CPhraseCursor cursorLast(edit.textCursor());
+		CPhraseCursor cursorLast(&doc);
 		cursorLast.movePosition(QTextCursor::End);
 		if (nLastCursorPos <= cursorLast.position()) {
 			cursorLast.setPosition(nLastCursorPos);
@@ -226,8 +225,8 @@ void CWebChannelObjects::calcUpdatedPhrase(const QString &strElementID, const QS
 
 	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
 
-	QTextEdit edit(strPhrase);
-	CPhraseCursor cursor(edit.textCursor());
+	QTextDocument doc(strPhrase);
+	CPhraseCursor cursor(&doc);
 	cursor.setPosition(nCursorPos);
 	thePhrase.ParsePhrase(cursor, false);
 	int nCurrentSubPhrase = thePhrase.currentSubPhrase();
