@@ -292,6 +292,9 @@
 			//END SETUP
 
 			function addSearchPhrase() {
+				document.getElementById("addSearchPhraseButton").blur();	// Workaround jqueryui bug
+				document.getElementById("addSearchPhraseButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
 				nSearchPhraseCount = nSearchPhraseCount + 1;
 				nSearchPhraseNextID = nSearchPhraseNextID + 1;
 				$("#phrases").append('<div class="searchPhrase" id="searchPhrase_' + nSearchPhraseNextID + '"></div>');
@@ -608,6 +611,7 @@
 					gotoChapter(nBrowserChapterCurrent-1, "scrollTabTop");
 				}
 				document.getElementById("prevChpButton").blur();	// Workaround jqueryui bug
+				document.getElementById("prevChpButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 			}
 
 			function navNextChapter() {
@@ -615,11 +619,13 @@
 					gotoChapter(nBrowserChapterCurrent+1, "scrollTabTop");
 				}
 				document.getElementById("nextChpButton").blur();	// Workaround jqueryui bug
+				document.getElementById("nextChpButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 			}
 
 			function navLocate() {
 				// TODO : Create navigate dialog
 				document.getElementById("locateButton").blur();	// Workaround jqueryui bug
+				document.getElementById("locateButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 			}
 
 		</script>
