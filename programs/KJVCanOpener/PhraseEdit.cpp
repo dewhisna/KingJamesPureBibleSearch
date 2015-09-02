@@ -1272,13 +1272,17 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	assert(!m_pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
 
-	m_TextDocument.clear();
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		m_TextDocument.clear();
+	}
 
 	if (ndx.book() == 0) return QString();
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
@@ -1419,8 +1423,10 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	}
 
 	QString strRawHTML = scriptureHTML.getResult();
-	m_TextDocument.setHtml(strRawHTML);
-	emit changedDocumentText();
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		m_TextDocument.setHtml(strRawHTML);
+		emit changedDocumentText();
+	}
 	return strRawHTML;
 }
 
@@ -1429,13 +1435,17 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	assert(!m_pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
 
-	m_TextDocument.clear();
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		m_TextDocument.clear();
+	}
 
 	if ((ndx.book() == 0) || (ndx.chapter() == 0)) return QString();
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
@@ -1444,13 +1454,17 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
 	if (pChapter == NULL) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
 	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
@@ -1984,8 +1998,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText("</body></html>");
 	}
 	QString strRawHTML = scriptureHTML.getResult();
-	m_TextDocument.setHtml(strRawHTML);
-	emit changedDocumentText();
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		m_TextDocument.setHtml(strRawHTML);
+		emit changedDocumentText();
+	}
 	return strRawHTML;
 }
 
@@ -1993,16 +2009,22 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 {
 	assert(!m_pBibleDatabase.isNull());
 
-	m_TextDocument.clear();
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		m_TextDocument.clear();
+	}
 
 	if (ndx.book() == 0) {
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
@@ -2010,7 +2032,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	if (ndx.chapter() > book.m_nNumChp) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
@@ -2019,7 +2043,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	if (((pChapter != NULL) && (ndx.verse() > pChapter->m_nNumVrs)) ||
 		((pChapter == NULL) && (ndx.verse() != 0))) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 
@@ -2090,7 +2116,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
 	if (pVerse == NULL) {
 		assert(false);
-		emit changedDocumentText();
+		if ((flagsTRO & TRO_InnerHTML) == 0) {
+			emit changedDocumentText();
+		}
 		return QString();
 	}
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
@@ -2142,8 +2170,10 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 		scriptureHTML.appendRawText("</body></html>");
 	}
 	QString strRawHTML = scriptureHTML.getResult();
-	m_TextDocument.setHtml(strRawHTML);
-	emit changedDocumentText();
+	if ((flagsTRO & TRO_InnerHTML) == 0) {
+		m_TextDocument.setHtml(strRawHTML);
+		emit changedDocumentText();
+	}
 	return strRawHTML;
 }
 
