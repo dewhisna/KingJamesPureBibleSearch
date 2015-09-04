@@ -266,9 +266,21 @@ void CWebChannelObjects::en_searchResultsReady()
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord((ndxVerse.isColophon() || ndxVerse.isSuperscription()) ? 1 : 0);		// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
 		QString strVerse;
+		unsigned int nChp = CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
+										  CRefCountCalc::RTE_CHAPTER, ndxVerse).ofBible().first;
+		if (ndxVerse.isColophon()) {
+			// For colophons, find the last chapter of this book, which is where colophons
+			//		are actually printed in the text, as the above calculation will be wrong
+			//		and generally point to the last chapter of the previous book instead:
+			const CBookEntry *pBook = m_pSearchResults->vlmodel().bibleDatabase()->bookEntry(ndxVerse);
+			assert(pBook);
+			if (pBook) {
+				nChp = CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
+									 CRefCountCalc::RTE_CHAPTER, CRelIndex(ndxVerse.book(), pBook->m_nNumChp, 0, 0)).ofBible().first;
+			}
+		}
 		strVerse += QString("<a href=\"javascript:gotoResult(%1,%2);\">")
-									.arg(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
-													   CRefCountCalc::RTE_CHAPTER, ndxVerse).ofBible().first)
+									.arg(nChp)
 									.arg(ndxVerse.index());
 		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
@@ -308,7 +320,14 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 {
 	if (m_pSearchResults.isNull()) return;
 
-	CRelIndex ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndxRel, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
+	CRelIndex ndxRelStart(ndxRel);
+	if (ndxRelStart.isColophon()) {
+		const CBookEntry *pBook = m_pSearchResults->vlmodel().bibleDatabase()->bookEntry(ndxRelStart);
+		if (pBook) {
+			ndxRelStart.setChapter(pBook->m_nNumChp);
+		}
+	}
+	CRelIndex ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndxRelStart, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
 	if (!ndx.isSet()) return;
 	if (!m_pSearchResults->vlmodel().bibleDatabase()->completelyContains(TPhraseTag(ndx))) return;
 
