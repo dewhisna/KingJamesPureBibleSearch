@@ -320,16 +320,19 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 {
 	if (m_pSearchResults.isNull()) return;
 
-	CRelIndex ndxRelStart(ndxRel);
-	if (ndxRelStart.isColophon()) {
-		const CBookEntry *pBook = m_pSearchResults->vlmodel().bibleDatabase()->bookEntry(ndxRelStart);
+	CRelIndex ndx(ndxRel);
+	CRelIndex ndxDecolophonated(ndxRel);
+	if (ndxDecolophonated.isColophon()) {
+		const CBookEntry *pBook = m_pSearchResults->vlmodel().bibleDatabase()->bookEntry(ndxDecolophonated);
 		if (pBook) {
-			ndxRelStart.setChapter(pBook->m_nNumChp);
+			ndxDecolophonated.setChapter(pBook->m_nNumChp);
 		}
 	}
-	CRelIndex ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndxRelStart, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
+	ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndx, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
 	if (!ndx.isSet()) return;
-	if (!m_pSearchResults->vlmodel().bibleDatabase()->completelyContains(TPhraseTag(ndx))) return;
+	ndxDecolophonated = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndxDecolophonated, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
+	if (!ndxDecolophonated.isSet()) return;
+	if (!m_pSearchResults->vlmodel().bibleDatabase()->completelyContains(TPhraseTag(ndxDecolophonated))) return;
 
 	// Build a subset list of search results that are only in this chapter (which can't be
 	//		any larger than the number of results in this chapter) and use that for doing
@@ -347,7 +350,7 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 	}
 
 	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
-	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(ndx,
+	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(ndxDecolophonated,
 							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
 							CPhraseNavigator::TRO_InnerHTML |
 							CPhraseNavigator::TRO_NoWordAnchors |
@@ -356,7 +359,7 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 
 	ndx.setWord((ndx.isColophon() || ndx.isSuperscription()) ? 1 : 0);				// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
 	emit scriptureBrowserRender(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
-											  CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first,
+											  CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first,
 								ndx.index(),
 								strText,
 								strParam);

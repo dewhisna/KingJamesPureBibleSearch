@@ -542,7 +542,9 @@
 				var anchorElement = $("#" + ndxRel);
 				if (anchorElement) {
 					anchorElement.addClass("selected");
-					anchorElement.next().addClass("selected");
+					if (anchorElement.next()) {
+						anchorElement.next().addClass("selected");
+					}
 				}
 			}
 
