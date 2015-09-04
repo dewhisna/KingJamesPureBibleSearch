@@ -498,7 +498,9 @@ public:
 		TRO_NoChapterAnchors = 0x20000,				// Disables per-chapter anchors and uses word, verse, book anchors only (superceded if TRO_NoAnchors is set)
 		TRO_NoBookAnchors = 0x40000,				// Disables per-book anchors and uses word, verse, chapter anchors only (superceded if TRO_NoAnchors is set)
 		TRO_NoCrossRefAnchors = 0x80000,			// Disables navigation anchors for CrossRefs (superceded by TRO_NoAnchors)
-		TRO_NoFootnoteAnchors = 0x100000			// Disables outputting anchors for Footnotes (superceded by TRO_NoAnchors)
+		TRO_NoFootnoteAnchors = 0x100000,			// Disables outputting anchors for Footnotes (superceded by TRO_NoAnchors)
+		TRO_NoColophonAnchors = 0x200000,			// If TRO_NoWordAnchors is used, the entire Colophon will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
+		TRO_NoSuperscriptAnchors = 0x400000			// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 

@@ -1272,6 +1272,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	assert(!m_pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
 
+	bool bTotalColophonAnchor = (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
+
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		m_TextDocument.clear();
 	}
@@ -1402,7 +1404,15 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("colophon");
 		scriptureHTML.beginParagraph();
+		if (bTotalColophonAnchor) {
+			CRelIndex ndxColophon(ndxBook);
+			ndxColophon.setWord(1);
+			scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxColophon.asAnchor()));
+		}
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)));
+		if (bTotalColophonAnchor) {
+			scriptureHTML.appendRawText("</a>");
+		}
 		scriptureHTML.endParagraph();
 		scriptureHTML.endDiv();
 	} else {
@@ -1434,6 +1444,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 {
 	assert(!m_pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
+
+	bool bTotalColophonAnchor = (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
+	bool bTotalSuperscriptionAnchor =  (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoSuperscriptAnchors));
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		m_TextDocument.clear();
@@ -1588,10 +1601,17 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				// Try pseudo-verse (searchable) style first:
 				scriptureHTML.beginDiv("colophon");
 				scriptureHTML.beginParagraph();
+				if (bTotalColophonAnchor) {
+					CRelIndex ndxColophon(relPrev.book(), 0, 0, 1);
+					scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxColophon.asAnchor()));
+				}
 				scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0),
 																			((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
 																			(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
 																			pHighlighter));
+				if (bTotalColophonAnchor) {
+					scriptureHTML.appendRawText("</a>");
+				}
 				scriptureHTML.endParagraph();
 				scriptureHTML.endDiv();
 			} else {
@@ -1680,10 +1700,18 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("superscription");
 		scriptureHTML.beginParagraph();
+		if (bTotalSuperscriptionAnchor) {
+			CRelIndex ndxSuperscription(ndxBookChap);
+			ndxSuperscription.setWord(1);
+			scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxSuperscription.asAnchor()));
+		}
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChap,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
 																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
 																	pHighlighter));
+		if (bTotalSuperscriptionAnchor) {
+			scriptureHTML.appendRawText("</a>");
+		}
 		scriptureHTML.endParagraph();
 		scriptureHTML.endDiv();
 	} else {
@@ -1834,10 +1862,18 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("colophon");
 			scriptureHTML.beginParagraph();
+			if (bTotalColophonAnchor) {
+				CRelIndex ndxColophon(ndxBook);
+				ndxColophon.setWord(1);
+				scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxColophon.asAnchor()));
+			}
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook,
 																		((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
 																		(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
 																		pHighlighter));
+			if (bTotalColophonAnchor) {
+				scriptureHTML.appendRawText("</a>");
+			}
 			scriptureHTML.endParagraph();
 			scriptureHTML.endDiv();
 		} else {
@@ -1929,10 +1965,18 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("superscription");
 			scriptureHTML.beginParagraph();
+			if (bTotalSuperscriptionAnchor) {
+				CRelIndex ndxSuperscription(ndxBookChapNext);
+				ndxSuperscription.setWord(1);
+				scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxSuperscription.asAnchor()));
+			}
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChapNext,
 																		((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
 																		(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
 																		pHighlighter));
+			if (bTotalSuperscriptionAnchor) {
+				scriptureHTML.appendRawText("</a>");
+			}
 			scriptureHTML.endParagraph();
 			scriptureHTML.endDiv();
 		} else {
@@ -2008,6 +2052,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
 {
 	assert(!m_pBibleDatabase.isNull());
+
+	bool bTotalColophonAnchor = (ndx.isColophon() && !(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
+	bool bTotalSuperscriptionAnchor =  (ndx.isSuperscription() && !(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoSuperscriptAnchors));
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		m_TextDocument.clear();
@@ -2148,10 +2195,18 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 //			scriptureHTML.beginDiv("superscription");
 //		}
 //	}
+	if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
+		CRelIndex ndxSuperColo(ndxVerse);
+		ndxSuperColo.setWord(1);
+		scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxSuperColo.asAnchor()));
+	}
 	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx,
 																((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
 																(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
 																pHighlighter));
+	if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
+		scriptureHTML.appendRawText("</a>");
+	}
 //	if (ndx.verse() == 0) {
 //		scriptureHTML.endDiv();
 //	}

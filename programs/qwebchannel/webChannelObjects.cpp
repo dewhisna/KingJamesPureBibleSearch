@@ -264,7 +264,7 @@ void CWebChannelObjects::en_searchResultsReady()
 		if (item.verseIndex().isNull()) continue;
 		CSearchResultHighlighter srHighlighter(item.phraseTags());
 		CRelIndex ndxVerse = item.getIndex();
-		ndxVerse.setWord(0);
+		ndxVerse.setWord((ndxVerse.isColophon() || ndxVerse.isSuperscription()) ? 1 : 0);		// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
 		QString strVerse;
 		strVerse += QString("<a href=\"javascript:gotoResult(%1,%2);\">")
 									.arg(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
@@ -335,7 +335,7 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 							CPhraseNavigator::TRO_SuppressPrePostChapters),
 							&srHighlighter);
 
-	ndx.setWord(0);				// Since we aren't using word anchors, clear word index so HTML can always find correct anchor
+	ndx.setWord((ndx.isColophon() || ndx.isSuperscription()) ? 1 : 0);				// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
 	emit scriptureBrowserRender(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
 											  CRefCountCalc::RTE_CHAPTER, ndx).ofBible().first,
 								ndx.index(),
