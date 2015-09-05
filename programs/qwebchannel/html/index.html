@@ -1120,15 +1120,18 @@
 			// Generate locateDialog:
 			var locateControlsTable = $("#locateControlsTable");
 			if (($(window).width() < 512) || ($(window).height() < 512)) {
-				locateControlsTable.append('<tr><td>Book/Chapter:</td></tr>');
-				locateControlsTable.append('<tr><td><select class="bookSelect" name="bookSelect" id="bookSelect"></select></td></tr>');
-				locateControlsTable.append('<tr><td><select class="chapterSelect" name="chapterSelect" id="chapterSelect"></select></td></tr>');
-				locateControlsTable.append('<tr><td><div class="testamentName" name="testamentName" id="testamentName">&nbsp;</div></td></tr>');
-				locateControlsTable.append('<tr><td><label style="display: block;" for="tstBookSelect">Book:</label><select class="tstBookSelect" name="tstBookSelect" id="tstBookSelect"></select></td></tr>');
-				locateControlsTable.append('<tr><td><label style="display: block;" for="tstChapterSelect">Chapter:</label><select class="tstChapterSelect" name="tstChapterSelect" id="tstChapterSelect"></select></td></tr>');
-				locateControlsTable.append('<tr><td>Entire Bible:</td></tr>');
-				locateControlsTable.append('<tr><td><label style="display: block;" for="bblBookSelect">Book:</label><select class="bblBookSelect" name="bblBookSelect" id="bblBookSelect"></select></td></tr>');
-				locateControlsTable.append('<tr><td><label style="display: block;" for="bblChapterSelect">Chapter:</label><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered">Book/Chapter:</td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><select class="bookSelect" name="bookSelect" id="bookSelect"></select>' +
+											'<select class="chapterSelect" name="chapterSelect" id="chapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><div class="testamentName" name="testamentName" id="testamentName">&nbsp;</div></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="tstBookSelect">Book:</label><select class="tstBookSelect" name="tstBookSelect" id="tstBookSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="tstChapterSelect">Chapter:</label><select class="tstChapterSelect" name="tstChapterSelect" id="tstChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
+				locateControlsTable.append('<tr><td class="centered">Entire Bible:</td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="bblBookSelect">Book:</label><select class="bblBookSelect" name="bblBookSelect" id="bblBookSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="bblChapterSelect">Chapter:</label><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
 			} else {
 				locateControlsTable.append('<tr><td class="shrink">Book/Chapter:</td>' +
