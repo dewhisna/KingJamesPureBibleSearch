@@ -41,7 +41,6 @@
 					field.onfocus = function(){
 						//this timeout of 200ms is nessasary for Android 2.3.x
 						setTimeout(function() {
-
 							field.setAttribute('style', 'display:none;');
 							setTimeout(function() {
 								document.body.removeChild(field);
@@ -52,7 +51,7 @@
 
 					//focusing it
 					field.focus();
-				}, 50);
+				}, 100);
 			}
 			function waitCursor(bAreBusy) {
 				if (bAreBusy) {
@@ -284,13 +283,15 @@
 							searchPhraseChanged(strElementID);
 						});
 
+						window.kjpbs.setUserAgent(navigator.userAgent);
+
 						output("Connected to WebChannel, ready to send/receive searches!");
 
 						output("Selecting Bible...");
-						kjpbs.selectBible("85D8A6B0-E670-11E2-A28F-0800200C9A66");
+						window.kjpbs.selectBible("85D8A6B0-E670-11E2-A28F-0800200C9A66");
+						window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
 
 						hideKeyboard();
-						kjpbs.gotoIndex(0, 1, "scrollTabTop");
 					});
 
 					// Close heading after 5 seconds to get it out of the way on mobile devices:

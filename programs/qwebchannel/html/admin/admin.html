@@ -82,10 +82,11 @@
 						});
 
 						channel.objects.kjpbs.unlock("A609FDFD-BB3C-4BEB-AFDA-9A839F940346");
+						channel.objects.kjpbs.setUserAgent(navigator.userAgent);
 
 						output("Connected to WebChannel, ready...");
-						mosis.getIsListening(key());
-						mosis.getConnectionsList(key());
+						window.mosis.getIsListening(key());
+						window.mosis.getConnectionsList(key());
 					});
 				}
 			}

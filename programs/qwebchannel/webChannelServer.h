@@ -32,6 +32,7 @@
 #include "websocketclientwrapper.h"
 
 // Forward declarations:
+class CWebChannelServer;
 class CWebChannelObjects;
 class CWebChannelAdminObjects;
 
@@ -45,16 +46,18 @@ class CWebChannelClient : public QObject
 	Q_OBJECT
 
 public:
-	CWebChannelClient(QObject *pParent = NULL);
+	CWebChannelClient(CWebChannelServer *pParent);
 	virtual ~CWebChannelClient();
 
 	bool isAdmin() const;
+	QString userAgent() const;
 
 public slots:
 	void registerObject(const QString &strID, QObject *pObject);
 	void deregisterObject(QObject *pObject);
 
 	void sendBroadcast(const QString &strMessage);
+	void setUserAgent();
 
 protected:
 	friend class CWebChannelServer;
@@ -64,6 +67,7 @@ protected:
 private:
 	QWebChannel m_channel;
 	QPointer<CWebChannelObjects> m_pWebChannelObjects;
+	CWebChannelServer *m_pWebChannelServer;
 };
 
 typedef QMap<WebSocketTransport *, QPointer<CWebChannelClient> > TWebChannelClientMap;
@@ -92,6 +96,8 @@ public:
 
 	bool disconnectClient(const QString &strClientIP, const QString &strClientPort);
 	bool sendMessage(const QString &strClientIP, const QString &strClientPort, const QString &strMessage);	// Transmit message to specific client
+
+	void setClientUserAgent(const CWebChannelClient *pClient);
 
 protected:
 	friend class CWebChannelAdminObjects;

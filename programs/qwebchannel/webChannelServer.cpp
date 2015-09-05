@@ -37,9 +37,12 @@
 
 // ============================================================================
 
-CWebChannelClient::CWebChannelClient(QObject *pParent)
-	:	QObject(pParent)
+CWebChannelClient::CWebChannelClient(CWebChannelServer *pParent)
+	:	QObject(pParent),
+		m_pWebChannelServer(pParent)
 {
+	assert(m_pWebChannelServer != NULL);
+
 	m_pWebChannelObjects = new CWebChannelObjects(this);
 	registerObject("kjpbs", m_pWebChannelObjects);
 }
@@ -53,6 +56,12 @@ bool CWebChannelClient::isAdmin() const
 {
 	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->isAdmin();
 	return false;
+}
+
+QString CWebChannelClient::userAgent() const
+{
+	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->userAgent();
+	return QString();
 }
 
 void CWebChannelClient::connectTo(WebSocketTransport* pClient)
@@ -73,6 +82,12 @@ void CWebChannelClient::deregisterObject(QObject *pObject)
 void CWebChannelClient::sendBroadcast(const QString &strMessage)
 {
 	if (!m_pWebChannelObjects.isNull()) m_pWebChannelObjects->sendBroadcast(strMessage);
+}
+
+void CWebChannelClient::setUserAgent()
+{
+	assert(m_pWebChannelServer != NULL);
+	m_pWebChannelServer->setClientUserAgent(this);
 }
 
 // ============================================================================
@@ -271,6 +286,25 @@ bool CWebChannelServer::sendMessage(const QString &strClientIP, const QString &s
 		}
 	}
 	return false;
+}
+
+void CWebChannelServer::setClientUserAgent(const CWebChannelClient *pClient)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+			std::cout << QString("%1 UTC : UserAgent : \"%2\" (%3) port %4 : %5\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.arg(pClientChannel->userAgent())
+									.toUtf8().data();
+#endif
+			break;
+		}
+	}
 }
 
 void CWebChannelServer::stopListening()

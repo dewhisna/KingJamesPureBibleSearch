@@ -34,6 +34,7 @@
 // ============================================================================
 
 // Forward declarations:
+class CWebChannelClient;
 class CWebChannelServer;
 
 // ============================================================================
@@ -46,13 +47,16 @@ class CWebChannelObjects : public QObject
 	Q_OBJECT
 
 public:
-	CWebChannelObjects(QObject *pParent = NULL);
+	CWebChannelObjects(CWebChannelClient *pParent);
 	virtual ~CWebChannelObjects();
 
 	bool isAdmin() const { return m_bIsAdmin; }
+	QString userAgent() const { return m_strUserAgent; }
 
 public slots:
 	void unlock(const QString &strKey);						// Admin unlock
+
+	void setUserAgent(const QString &strUserAgent);			// Set userAgent data for logging
 
 	void selectBible(const QString &strUUID);
 
@@ -78,17 +82,16 @@ signals:
 
 	void broadcast(const QString &strMessage);				// Display popup message -- used to send shutdown announcements, etc.
 
-protected:
-
 protected slots:
 	void en_searchResultsReady();							// Called by verseListModel in CHeadlessSearchResults when results have been updated
-
 
 private:
 	QPointer<CHeadlessSearchResults> m_pSearchResults;		// Search Results that we are controlling
 	CSearchResultsData m_searchResultsData;					// Data (phrases and criteria) that we are using
 	TSharedParsedPhrasesList m_lstParsedPhrases;			// Phrase parsers
 	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
+	QString m_strUserAgent;									// Set to userAgent string from client browser
+	CWebChannelClient *m_pWebChannel;						// Parent channel
 };
 
 // ============================================================================
