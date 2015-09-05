@@ -101,12 +101,20 @@ public:
 
 public slots:
 	void sendBroadcast(const QString &strKey, const QString &strMessage);			// Transmit broadcast message to all connected clients (shutdown alert, etc)
+	void sendMessage(const QString &strKey, const QString &strClientIP, const QString &strClientPort, const QString &strMessage);	// Transmit message to specific client
 	void getConnectionsList(const QString &strKey);									// Request a list of connected clients
 	void shutdownServer(const QString &strKey, const QString &strConfirmation);		// Shuts down this server (and exits daemon if a console-build)
+	void disconnectClient(const QString &strKey, const QString &strClientIP, const QString &strClientPort);
+	void stopListening(const QString &strKey);
+	void startListening(const QString &strKey);
+	void getIsListening(const QString &strKey);
 
 signals:
 	void broadcast(const QString &strMessage);					// Display popup message -- used to send shutdown announcements, etc.
 	void connectionsList(const QString &strHtmlConnections);	// Returns list of active client connection data as formatted HTML table
+	void sendMessageStatus(bool bSuccess, const QString &strClientIP, const QString &strClientPort, const QString &strMessage);
+	void disconnectClientStatus(bool bSuccess, const QString &strClientIP, const QString &strClientPort);
+	void serverListeningStatus(bool bIsListening);
 
 private:
 	const QString m_strKey;									// Access Key

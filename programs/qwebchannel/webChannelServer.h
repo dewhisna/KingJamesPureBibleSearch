@@ -85,6 +85,12 @@ public:
 	QHostAddress serverAddress() const { return m_server.serverAddress(); }
 	quint16 serverPort() const { return m_server.serverPort(); }
 
+	void stopListening();
+	void startListening();
+
+	bool disconnectClient(const QString &strClientIP, const QString &strClientPort);
+	bool sendMessage(const QString &strClientIP, const QString &strClientPort, const QString &strMessage);	// Transmit message to specific client
+
 protected:
 	friend class CWebChannelAdminObjects;
 
@@ -103,6 +109,8 @@ protected:
 	WebSocketClientWrapper m_clientWrapper;			// wrap WebSocket clients in QWebChannelAbstractTransport objects
 	TWebChannelClientMap m_mapChannels;				// Channels for exposing QObjects to HTML to connected clients
 	QPointer<CWebChannelAdminObjects> m_pWebChannelAdminObjects;		// Admin objects attached to all clients to do "hidden" messaging
+	QHostAddress m_HostAddress;
+	quint16 m_nHostPort;
 };
 
 // ============================================================================

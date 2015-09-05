@@ -74,7 +74,9 @@ void CWebChannelClient::sendBroadcast(const QString &strMessage)
 CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPort, QObject *pParent)
 	:	QObject(pParent),
 		m_server("King James Pure Bible Search WebChannel Server", QWebSocketServer::NonSecureMode),
-		m_clientWrapper(&m_server)
+		m_clientWrapper(&m_server),
+		m_HostAddress(anAddress),
+		m_nHostPort(nPort)
 {
 	// setup the QWebSocketServer
 	m_server.listen(anAddress, nPort);
@@ -166,16 +168,21 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 							.toUtf8().data();
 #endif
 	}
+
+#ifdef IS_CONSOLE_APP
+	if (m_mapChannels.isEmpty() && !isListening()) {
+		// If the last client disconnects and the server was already made deaf,
+		//	the exit our daemon or else we'll have a stuck process:
+		QCoreApplication::exit(0);
+	}
+#endif
 }
 
 void CWebChannelServer::close()
 {
-	bool bSomethingToClose = false;
-
 	// Make server stop listening so we don't get any new connections (eliminate race condition):
 	if (m_server.isListening()) {
 		m_server.close();
-		bSomethingToClose = true;
 	}
 
 	// To keep from blowing our iterator, first disconnect the close events from all clients:
@@ -185,7 +192,6 @@ void CWebChannelServer::close()
 
 	// Now, close them:
 	int nNumConnections = m_mapChannels.size();
-	if (nNumConnections) bSomethingToClose = true;
 	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
 		--nNumConnections;
 #if DEBUG_WEBCHANNEL_SERVER_CONNECTIONS
@@ -211,15 +217,23 @@ void CWebChannelServer::close()
 	m_mapChannels.clear();
 
 #ifdef IS_CONSOLE_APP
-	if (bSomethingToClose) {
-		std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) stopped\n")
-							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
-							.arg(QCoreApplication::applicationPid())
-							.toUtf8().data();
-	}
-#else
-	Q_UNUSED(bSomethingToClose);
+	std::cout << QString("%1 UTC : KJPBS-WebChannel (pid=%2) stopped\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(QCoreApplication::applicationPid())
+						.toUtf8().data();
 #endif
+}
+
+bool CWebChannelServer::disconnectClient(const QString &strClientIP, const QString &strClientPort)
+{
+	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
+		if ((itrClientMap.key()->socket()->peerAddress().toString().compare(strClientIP, Qt::CaseInsensitive) == 0) &&
+			(itrClientMap.key()->socket()->peerPort() == strClientPort.toUInt())) {
+			itrClientMap.key()->socket()->close(QWebSocketProtocol::CloseCodeGoingAway, "disconnectClient");
+			return true;
+		}
+	}
+	return false;
 }
 
 void CWebChannelServer::sendBroadcast(const QString &strMessage)
@@ -231,6 +245,36 @@ void CWebChannelServer::sendBroadcast(const QString &strMessage)
 		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
 		if (!pClientChannel.isNull()) pClientChannel->sendBroadcast(strMessage);
 	}
+}
+
+bool CWebChannelServer::sendMessage(const QString &strClientIP, const QString &strClientPort, const QString &strMessage)
+{
+	TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin();
+	do {
+		if ((itrClientMap.key()->socket()->peerAddress().toString().compare(strClientIP, Qt::CaseInsensitive) == 0) &&
+			(itrClientMap.key()->socket()->peerPort() == strClientPort.toUInt())) {
+			break;
+		}
+		++itrClientMap;
+	} while (itrClientMap != m_mapChannels.end());
+	if (itrClientMap != m_mapChannels.end()) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if (!pClientChannel.isNull()) {
+			pClientChannel->sendBroadcast(strMessage);
+			return true;
+		}
+	}
+	return false;
+}
+
+void CWebChannelServer::stopListening()
+{
+	if (m_server.isListening()) m_server.close();
+}
+
+void CWebChannelServer::startListening()
+{
+	if (!m_server.isListening()) m_server.listen(m_HostAddress, m_nHostPort);
 }
 
 // ============================================================================

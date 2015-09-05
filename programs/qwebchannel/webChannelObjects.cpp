@@ -405,6 +405,17 @@ void CWebChannelAdminObjects::sendBroadcast(const QString &strKey, const QString
 	}
 }
 
+void CWebChannelAdminObjects::sendMessage(const QString &strKey, const QString &strClientIP, const QString &strClientPort, const QString &strMessage)
+{
+	if (strKey != m_strKey) return;
+
+	bool bStatus = false;
+	if (!strMessage.isEmpty()) {
+		bStatus = m_pWebServer->sendMessage(strClientIP, strClientPort, strMessage);
+	}
+	emit sendMessageStatus(bStatus, strClientIP, strClientPort, strMessage);
+}
+
 void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 {
 	if (strKey != m_strKey) return;
@@ -417,10 +428,13 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 	strClients += "<th>Name</th><th>IP Address</th><th>Port</th>\n";
 	strClients += "</tr></thead><tbody>\n";
 	for (TWebChannelClientMap::const_iterator itrChannels = mapChannels.constBegin(); itrChannels != mapChannels.constEnd(); ++itrChannels) {
-		strClients += QString("<tr><td>%1</td><td>%2</td><td>%3</td></tr>\n")
-								.arg(itrChannels.key()->socket()->peerName())
-								.arg(itrChannels.key()->socket()->peerAddress().toString())
-								.arg(itrChannels.key()->socket()->peerPort());
+		strClients += QString("<tr><td>%1</td><td>%2</td><td>%3</td>"
+					"<td><button type=\"button\" onclick=\"javascript:sendMessage('%2', '%3');\">Send the Broadcast Message to this client</button></td>"
+					"<td><button type=\"button\" onclick=\"javascript:disconnectClient('%2', '%3');\">Disconnect</button></td>"
+					"</tr>\n")
+					.arg(itrChannels.key()->socket()->peerName())
+					.arg(itrChannels.key()->socket()->peerAddress().toString())
+					.arg(itrChannels.key()->socket()->peerPort());
 	}
 	strClients += "</tbody></table>\n";
 	strClients += QString("<br/>Connections: %1\n").arg(mapChannels.size());
@@ -438,6 +452,37 @@ void CWebChannelAdminObjects::shutdownServer(const QString &strKey, const QStrin
 #else
 	m_pWebServer->close();				// For GUI build, just close the webserver
 #endif
+}
+
+void CWebChannelAdminObjects::disconnectClient(const QString &strKey, const QString &strClientIP, const QString &strClientPort)
+{
+	if (strKey != m_strKey) return;
+
+	bool bStatus = m_pWebServer->disconnectClient(strClientIP, strClientPort);
+	emit disconnectClientStatus(bStatus, strClientIP, strClientPort);
+}
+
+void CWebChannelAdminObjects::stopListening(const QString &strKey)
+{
+	if (strKey != m_strKey) return;
+
+	m_pWebServer->stopListening();
+	getIsListening(strKey);
+}
+
+void CWebChannelAdminObjects::startListening(const QString &strKey)
+{
+	if (strKey != m_strKey) return;
+
+	m_pWebServer->startListening();
+	getIsListening(strKey);
+}
+
+void CWebChannelAdminObjects::getIsListening(const QString &strKey)
+{
+	if (strKey != m_strKey) return;
+
+	emit serverListeningStatus(m_pWebServer->isListening());
 }
 
 // ============================================================================

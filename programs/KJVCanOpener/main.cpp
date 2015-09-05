@@ -442,6 +442,7 @@ int main(int argc, char *argv[])
 		(!pApp->webChannelServer()->isListening())) {
 		std::cerr << "error: Failed to start WebChannel server listening.  Exiting...\n";
 		bDone = true;
+		delete pApp->webChannelServer();		// Get rid of server object so we don't do shutdown log message, since we never started
 	}
 #else
 	bDone = true;

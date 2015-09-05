@@ -58,30 +58,80 @@
 						// make our mosis object accessible globally
 						window.mosis = channel.objects.mosis;
 
+						mosis.serverListeningStatus.connect(function(bIsListening) {
+							document.getElementById("serverStatus").innerHTML = (bIsListening ? "Listening" : "NOT Listening");
+						});
+
 						mosis.connectionsList.connect(function(strHtmlConnections) {
 							document.getElementById("connectionsList").innerHTML = strHtmlConnections;
 						});
 
+						mosis.disconnectClientStatus.connect(function(bSuccess, strClientIP, strClientPort) {
+							if (!bSuccess) {
+								alert("Failed to disconnect: " + strClientIP + ":" + strClientPort);
+							}
+							window.mosis.getConnectionsList(key());
+						});
+
+						mosis.sendMessageStatus.connect(function(bSuccess, strClientIP, strClientPort, strMessage) {
+							if (!bSuccess) {
+								alert("Failed to send message to: " + strClientIP + ":" + strClientPort);
+							} else {
+								alert("Sent To Client: " + strClientIP + ":" + strClientPort + "\n\n" + strMessage);
+							}
+						});
 
 						output("Connected to WebChannel, ready...");
+						mosis.getIsListening(key());
+						mosis.getConnectionsList(key());
 					});
 				}
 			}
 			//END SETUP
 
 			function sendBroadcast() {
-				var msg = document.getElementById("broadcastMessageText");
-				if (msg.value) {
-					window.mosis.sendBroadcast(key(), msg.value);
-					alert("Broadcast Message Sent:\n\n" + msg.value);
+				document.getElementById("sendBroadcastButton").blur();	// Workaround jqueryui bug
+				$("#sendBroadcastButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+				var msg = document.getElementById("broadcastMessageText").value;
+				if (msg) {
+					window.mosis.sendBroadcast(key(), msg);
+					alert("Broadcast Message Sent:\n\n" + msg);
+				}
+			}
+
+			function sendMessage(strIP, strPort) {
+				var msg = document.getElementById('broadcastMessageText').value;
+				if (msg) {
+					window.mosis.sendMessage(key(), strIP, strPort, msg);
+				}
+			}
+
+			function disconnectClient(strIP, strPort) {
+				if (confirm("Really disconnect client: " + strIP + ":" + strPort + " ???")) {
+					window.mosis.disconnectClient(key(), strIP, strPort);
 				}
 			}
 
 			function getConnections() {
+				document.getElementById("getConnectionsButton").blur();	// Workaround jqueryui bug
+				$("#getConnectionsButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
 				window.mosis.getConnectionsList(key());
 			}
 
+			function startListening() {
+				window.mosis.startListening(key());
+			}
+
+			function stopListening() {
+				window.mosis.stopListening(key());
+			}
+
 			function shutdownServer() {
+				document.getElementById("shutdownServerButton").blur();	// Workaround jqueryui bug
+				$("#shutdownServerButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
 				var confirm = document.getElementById("shutdownServerConfirmationText");
 				if ((confirm.value) && (confirm.value == "CONFIRM")) {
 					window.mosis.sendBroadcast(key(), "King James Pure Bible Search WebChannel Server is shutting down...");
@@ -120,6 +170,22 @@
 			<h1>King James Pure Bible Search</h1>
 			<h2>WebChannel Server Admin</h2>
 			<textarea id="output"></textarea><br />
+		</div>
+		<br />
+		<hr />
+		<br />
+		<div id="serverStatusControls">
+			<table>
+				<tr>
+					<td><b>Server Status:</b></td><td><div id="serverStatus"></div></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<button type="button" id="startListeningButton" onclick="javascript:startListening();">Start</button>
+						<button type="button" id="stopListeningButton" onclick="javascript:stopListening();">Stop</button>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<br />
 		<hr />
