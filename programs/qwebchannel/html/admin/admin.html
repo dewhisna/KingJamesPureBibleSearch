@@ -26,7 +26,18 @@
 				element_to_scroll_to.scrollIntoView();
 			}
 			window.onload = function() {
-				var baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+				var baseUrl;
+				var basePort;
+				if ((/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search))) {
+					baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+				} else {
+					if ((/[?&]webChannelPort=([0-9]+)/.exec(location.search))) {
+						basePort = (/[?&]webChannelPort=([0-9]+)/.exec(location.search)[1]);
+					} else {
+						basePort = "9340";
+					}
+					baseUrl = "ws://" + location.host + ":" + basePort;
+				}
 				output("Connecting to WebSocket server at " + baseUrl + ".");
 				var socket = new WebSocket(baseUrl);
 
