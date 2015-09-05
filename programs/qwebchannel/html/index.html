@@ -18,6 +18,7 @@
 //			var ndxBrowserCurrent;				// Current Scripture Browser Index
 			var nBrowserChapterCurrent = 0;		// Current Scripture Browser Chapter (1 through n, 0 = not init)
 			var bkChpStruct;					// Book/Chapter layout for navigation
+			var bDoingLocateUpdate = false;		// Set to true when the drop lists are being updated to avoid circular calls
 
 			//BEGIN SETUP
 			function output(message)
@@ -202,6 +203,7 @@
 							} else {
 								output("Bible Successfully Selected");
 								bkChpStruct = $.parseJSON(strJsonBkChpStruct);
+								setLocateDialogStatic();
 							}
 						});
 
@@ -637,9 +639,102 @@
 			}
 
 			function navLocate() {
-				// TODO : Create navigate dialog
 				document.getElementById("locateButton").blur();	// Workaround jqueryui bug
 				$("#locateButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+				setLocateDialogToChapter(nBrowserChapterCurrent);
+				$( "#locateDialog" ).dialog( "open" );
+			}
+
+			function setLocateDialogStatic()
+			{
+				var bookSelect = document.getElementById("bookSelect");
+				var bblBookSelect = document.getElementById("bblBookSelect");
+				var bblChapterSelect = document.getElementById("bblChapterSelect");
+				bookSelect.options.length = 0;
+				bblBookSelect.options.length = 0;
+				bblChapterSelect.options.length = 0;
+				var nChapter = 1;
+				for (i = 0; i < bkChpStruct.bookCount; i++) {
+					bookSelect.options[bookSelect.options.length] = new Option(bkChpStruct.books[i].name, nChapter);
+					bblBookSelect.options[bblBookSelect.options.length] = new Option(i+1, nChapter);
+					for (j = 0; j < bkChpStruct.books[i].chapterCount; j++) {
+						bblChapterSelect.options[bblChapterSelect.options.length] = new Option(nChapter, nChapter);
+						nChapter = nChapter + 1;
+					}
+				}
+			}
+
+			function setLocateDialogToChapter(nChapterInBible)
+			{
+				if (nChapterInBible == 0) {
+					return;
+				}
+				var nBook;
+				var nBookStartChapter;
+				var nChapterInBook;
+				var nTestament;
+				var nTestamentStartChapter;
+				var nTestamentStartBook;
+				var nChapterInTestament;
+
+				nBook = 1;
+				nBookStartChapter = 1;
+				nChapterInBook = nChapterInBible;
+				for (i = 0; i < bkChpStruct.bookCount; i++) {
+					if (nChapterInBook <= bkChpStruct.books[i].chapterCount) {
+						break;
+					}
+					nBook = nBook + 1;
+					nChapterInBook = nChapterInBook - bkChpStruct.books[i].chapterCount;
+					nBookStartChapter = nBookStartChapter + bkChpStruct.books[i].chapterCount;
+				}
+
+				nTestament = 1;
+				nTestamentStartChapter = 1;
+				nTestamentStartBook = 1;
+				nChapterInTestament = nChapterInBible;
+				for (i = 0; i < bkChpStruct.testamentCount; i++) {
+					if (nChapterInTestament <= bkChpStruct.testaments[i].chapterCount) {
+						break;
+					}
+					nTestament = nTestament + 1;
+					nChapterInTestament = nChapterInTestament - bkChpStruct.testaments[i].chapterCount;
+					nTestamentStartChapter = nTestamentStartChapter + bkChpStruct.testaments[i].chapterCount;
+					nTestamentStartBook = nTestamentStartBook + bkChpStruct.testaments[i].bookCount;
+				}
+
+				$("#testamentName").html(bkChpStruct.testaments[nTestament-1].name);
+
+				var chapterSelect = document.getElementById("chapterSelect");
+				chapterSelect.options.length = 0;
+				for (i = 0; i < bkChpStruct.books[nBook-1].chapterCount; i++) {
+					chapterSelect.options[chapterSelect.options.length] = new Option(i+1, nBookStartChapter+i);
+				}
+
+				var tstBookSelect = document.getElementById("tstBookSelect");
+				var tstChapterSelect = document.getElementById("tstChapterSelect");
+				tstBookSelect.options.length = 0;
+				tstChapterSelect.options.length = 0;
+				var nChapter = nTestamentStartChapter;
+				for (i = 0; i < bkChpStruct.testaments[nTestament-1].bookCount; i++) {
+					tstBookSelect.options[tstBookSelect.options.length] = new Option(i+1, nChapter);
+					nChapter = nChapter + bkChpStruct.books[nTestamentStartBook-1 + i].chapterCount;
+				}
+				for (i = 0; i < bkChpStruct.testaments[nTestament-1].chapterCount; i++) {
+					tstChapterSelect.options[tstChapterSelect.options.length] = new Option(i+1, nTestamentStartChapter+i);
+				}
+
+				bDoingLocateUpdate = true;
+				$("#bookSelect").val(nBookStartChapter);
+				$("#chapterSelect").val(nChapterInBible);
+
+				$("#tstBookSelect").val(nBookStartChapter);
+				$("#tstChapterSelect").val(nChapterInBible);
+
+				$("#bblBookSelect").val(nBookStartChapter);
+				$("#bblChapterSelect").val(nChapterInBible);
+				bDoingLocateUpdate = false;
 			}
 
 		</script>
@@ -685,6 +780,14 @@
 				width: 99%;
 			}
 
+			td.expand2 {
+				width: 49%;
+			}
+
+			td.centered {
+				text-align: center;
+			}
+
 			img {
 				max-width: 100%;
 			}
@@ -699,6 +802,14 @@
 
 			.ui-accordion .ui-accordion-content {
 				padding: 0;
+			}
+
+			.ui-dialog {
+				overflow: visible;
+			}
+			div.ui-selectmenu-open {
+				position: absolute;
+				z-index: 65535;
 			}
 
 			span.fancytree-title {
@@ -896,6 +1007,10 @@
 				</div>
 
 				<div id="browser">
+					<div id="locateDialog" title="Locate">
+						<table class="locateControlsTable" id="locateControlsTable">
+						</table>
+					</div>
 					<div id="scriptureBook">
 						<div id="scriptureText" class="scriptureText"></div>
 					</div>
@@ -919,10 +1034,10 @@
 			$(document).tooltip();
 			$( "#tabs" ).tabs({
 				activate: function( event, ui ) {
-					if ($(this).tabs("option", "active") == 0) {
-						document.getElementById("toggle-nav").checked = false;
-					} else {
+					if ($(this).tabs("option", "active") == 1) {
 						document.getElementById("toggle-nav").checked = true;
+					} else {
+						document.getElementById("toggle-nav").checked = false;
 					}
 				}
 			});
@@ -1001,6 +1116,87 @@
 			});
 
 			$( "#scriptureNav_buttonset" ).buttonset();
+
+			// Generate locateDialog:
+			var locateControlsTable = $("#locateControlsTable");
+			if (($(window).width() < 512) || ($(window).height() < 512)) {
+				locateControlsTable.append('<tr><td>Book/Chapter:</td></tr>');
+				locateControlsTable.append('<tr><td><select class="bookSelect" name="bookSelect" id="bookSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td><select class="chapterSelect" name="chapterSelect" id="chapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td><div class="testamentName" name="testamentName" id="testamentName">&nbsp;</div></td></tr>');
+				locateControlsTable.append('<tr><td><label style="display: block;" for="tstBookSelect">Book:</label><select class="tstBookSelect" name="tstBookSelect" id="tstBookSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td><label style="display: block;" for="tstChapterSelect">Chapter:</label><select class="tstChapterSelect" name="tstChapterSelect" id="tstChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td>Entire Bible:</td></tr>');
+				locateControlsTable.append('<tr><td><label style="display: block;" for="bblBookSelect">Book:</label><select class="bblBookSelect" name="bblBookSelect" id="bblBookSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td><label style="display: block;" for="bblChapterSelect">Chapter:</label><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
+			} else {
+				locateControlsTable.append('<tr><td class="shrink">Book/Chapter:</td>' +
+											'<td class="expand2">&nbsp;</td>' +
+											'<td class="shrink" colspan="2"><div class="testamentName" name="testamentName" id="testamentName">&nbsp;</div></td>' +
+											'<td class="expand2">&nbsp;</td>' +
+											'<td class="shrink" colspan="2">Entire Bible:</td></tr>');
+				locateControlsTable.append('<tr><td class="shrink"><select class="bookSelect" name="bookSelect" id="bookSelect"></optgroup></select></td>' +
+											'<td class="expand2">&nbsp;</td>' +
+											'<td class="shrink"><label style="display: inline;" for="tstBookSelect">Book:</label></td><td><select class="tstBookSelect" name="tstBookSelect" id="tstBookSelect"></select></td>' +
+											'<td class="expand2">&nbsp;</td>' +
+											'<td class="shrink"><label style="display: inline;" for="bblBookSelect">Book:</label></td><td><select class="bblBookSelect" name="bblBookSelect" id="bblBookSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="shrink"><select class="chapterSelect" name="chapterSelect" id="chapterSelect"></select></td>' +
+											'<td class="expand2">&nbsp;</td>' +
+											'<td class="shrink"><label style="display: inline;" for="tstChapterSelect">Chapter:</label></td><td><select class="tstChapterSelect" name="tstChapterSelect" id="tstChapterSelect"></select></td>' +
+											'<td class="expand2">&nbsp;</td>' +
+											'<td class="shrink"><label style="display: inline;" for="bblChapterSelect">Chapter:</label></td><td><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered" colspan="7"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
+			}
+
+			$("#bookSelect").on("change", function() {
+				if (!bDoingLocateUpdate) {
+					setLocateDialogToChapter($("#bookSelect").val());
+				}
+			});
+			$("#chapterSelect").on("change", function() {
+				if (!bDoingLocateUpdate) {
+					setLocateDialogToChapter($("#chapterSelect").val());
+				}
+			});
+			$("#tstBookSelect").on("change", function() {
+				if (!bDoingLocateUpdate) {
+					setLocateDialogToChapter($("#tstBookSelect").val());
+				}
+			});
+			$("#tstChapterSelect").on("change", function() {
+				if (!bDoingLocateUpdate) {
+					setLocateDialogToChapter($("#tstChapterSelect").val());
+				}
+			});
+			$("#bblBookSelect").on("change", function() {
+				if (!bDoingLocateUpdate) {
+					setLocateDialogToChapter($("#bblBookSelect").val());
+				}
+			});
+			$("#bblChapterSelect").on("change", function() {
+				if (!bDoingLocateUpdate) {
+					setLocateDialogToChapter($("#bblChapterSelect").val());
+				}
+			});
+			$("#gotoPassageButton").on("click", function () {
+				gotoChapter($("#bblChapterSelect").val(), "scrollTabTop");
+				$("#locateDialog").dialog("close");
+			});
+
+			$( "#gotoPassageButton" ).button();
+
+			$( "#locateDialog" ).dialog({
+				autoOpen: false,
+				modal: true,
+				width: "auto",
+				open: function( event, ui ) {
+					document.getElementById("toggle-nav").checked = false;
+				},
+				close: function( event, ui ) {
+					document.getElementById("toggle-nav").checked = ($("#tabs").tabs("option", "active") == 1);
+				}
+			});
 
 			addSearchPhrase();			// Add initial search phrase
 //			var markup = document.getElementsByTagName('body')[0].innerHTML;
