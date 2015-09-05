@@ -49,7 +49,11 @@ public:
 	CWebChannelObjects(QObject *pParent = NULL);
 	virtual ~CWebChannelObjects();
 
+	bool isAdmin() const { return m_bIsAdmin; }
+
 public slots:
+	void unlock(const QString &strKey);						// Admin unlock
+
 	void selectBible(const QString &strUUID);
 
 	void setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);		// Phrases, separated by semicolon, to search for.  SearchWithin = comma-separated searchWithinModel keys.  SearchScope = SEARCH_SCOPE_MODE_ENUM value
@@ -84,6 +88,7 @@ private:
 	QPointer<CHeadlessSearchResults> m_pSearchResults;		// Search Results that we are controlling
 	CSearchResultsData m_searchResultsData;					// Data (phrases and criteria) that we are using
 	TSharedParsedPhrasesList m_lstParsedPhrases;			// Phrase parsers
+	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
 };
 
 // ============================================================================

@@ -50,7 +50,8 @@
 //
 
 CWebChannelObjects::CWebChannelObjects(QObject *pParent)
-	:	QObject(pParent)
+	:	QObject(pParent),
+		m_bIsAdmin(false)
 {
 
 }
@@ -58,6 +59,11 @@ CWebChannelObjects::CWebChannelObjects(QObject *pParent)
 CWebChannelObjects::~CWebChannelObjects()
 {
 
+}
+
+void CWebChannelObjects::unlock(const QString &strKey)
+{
+	if (strKey.compare("A609FDFD-BB3C-4BEB-AFDA-9A839F940346") == 0) m_bIsAdmin = true;
 }
 
 void CWebChannelObjects::selectBible(const QString &strUUID)
@@ -428,11 +434,13 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 	strClients += "<th>Name</th><th>IP Address</th><th>Port</th>\n";
 	strClients += "</tr></thead><tbody>\n";
 	for (TWebChannelClientMap::const_iterator itrChannels = mapChannels.constBegin(); itrChannels != mapChannels.constEnd(); ++itrChannels) {
+		QPointer<CWebChannelClient> pClientChannel = itrChannels.value();
+		bool bAdmin = ((!pClientChannel.isNull()) ? pClientChannel->isAdmin() : false);
 		strClients += QString("<tr><td>%1</td><td>%2</td><td>%3</td>"
 					"<td><button type=\"button\" onclick=\"javascript:sendMessage('%2', '%3');\">Send the Broadcast Message to this client</button></td>"
 					"<td><button type=\"button\" onclick=\"javascript:disconnectClient('%2', '%3');\">Disconnect</button></td>"
 					"</tr>\n")
-					.arg(itrChannels.key()->socket()->peerName())
+					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
 					.arg(itrChannels.key()->socket()->peerAddress().toString())
 					.arg(itrChannels.key()->socket()->peerPort());
 	}

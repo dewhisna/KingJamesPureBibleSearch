@@ -48,6 +48,8 @@ public:
 	CWebChannelClient(QObject *pParent = NULL);
 	virtual ~CWebChannelClient();
 
+	bool isAdmin() const;
+
 public slots:
 	void registerObject(const QString &strID, QObject *pObject);
 	void deregisterObject(QObject *pObject);

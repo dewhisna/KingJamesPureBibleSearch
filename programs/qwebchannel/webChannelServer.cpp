@@ -49,6 +49,12 @@ CWebChannelClient::~CWebChannelClient()
 
 }
 
+bool CWebChannelClient::isAdmin() const
+{
+	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->isAdmin();
+	return false;
+}
+
 void CWebChannelClient::connectTo(WebSocketTransport* pClient)
 {
 	m_channel.connectTo(pClient);
