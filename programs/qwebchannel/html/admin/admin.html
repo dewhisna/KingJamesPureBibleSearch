@@ -103,6 +103,10 @@
 				}
 			}
 
+			function clearBroadcastMessage() {
+				$("#broadcastMessageText").val("").focus();
+			}
+
 			function sendMessage(strIP, strPort) {
 				var msg = document.getElementById('broadcastMessageText').value;
 				if (msg) {
@@ -195,7 +199,9 @@
 		<br />
 		<div id="broadcastControls">
 			<label for="broadcastMessageText">Broadcast Message: </label><br />
-			<input class="broadcastMessage" id="broadcastMessageText" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"><br />
+			<input class="broadcastMessage" id="broadcastMessageText" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+			<button type="button" id="broadcastMessageClear" onclick="javascript:clearBroadcastMessage();">Clear</button>
+			<br />
 			<button type="button" id="sendBroadcastButton" onclick="javascript:sendBroadcast();">Send Broadcast</button>
 		</div>
 		<script>
