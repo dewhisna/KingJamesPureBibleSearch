@@ -26,7 +26,8 @@
 
 CHeadlessSearchResults::CHeadlessSearchResults(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent)
 	:	QObject(pParent),
-		m_verseListModel(pBibleDatabase, pUserNotesDatabase)
+		m_verseListModel(pBibleDatabase, pUserNotesDatabase),
+		m_refResolver(pBibleDatabase)
 {
 	m_verseListModel.setViewMode(CVerseListModel::VVME_SEARCH_RESULTS);
 	m_verseListModel.setTreeMode(CVerseListModel::VTME_LIST);
@@ -47,3 +48,7 @@ void CHeadlessSearchResults::setParsedPhrases(const CSearchResultsData &searchRe
 	m_verseListModel.setParsedPhrases(searchResultsData);
 }
 
+TPhraseTag CHeadlessSearchResults::resolvePassageReference(const QString &strPassageReference) const
+{
+	return m_refResolver.resolve(strPassageReference);
+}

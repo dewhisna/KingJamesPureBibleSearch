@@ -19,6 +19,8 @@
 			var nBrowserChapterCurrent = 0;		// Current Scripture Browser Chapter (1 through n, 0 = not init)
 			var bkChpStruct;					// Book/Chapter layout for navigation
 			var bDoingLocateUpdate = false;		// Set to true when the drop lists are being updated to avoid circular calls
+			var ndxPassageReference = 0;		// TPhraseTag relIndex for Passage Reference entered in locateDialog
+			var ndxPassageReferenceCount = 0;	// TPhraseTag nCount for Passage Reference entered in locateDialog
 
 			//BEGIN SETUP
 			function output(message)
@@ -261,7 +263,8 @@
 
 								$("#tabs").tabs("option", "active", 1);
 								$("#tabs").tabs("refresh");
-								if ($.inArray("highlightAnchor", opts) > -1) {
+								if (($.inArray("highlightAnchor", opts) > -1) ||
+									($.inArray("scrollToAnchor", opts) > -1)) {
 									scrollToAnchor(ndxRel);
 								} else if ($.inArray("scrollTabTop", opts) > -1) {
 									scrollTabTop();
@@ -283,6 +286,17 @@
 						kjpbs.updatePhrase.connect(function(strElementID, strNewPhrase) {
 							document.getElementById(strElementID+"_Text").value = strNewPhrase;
 							searchPhraseChanged(strElementID);
+						});
+
+						kjpbs.resolvedPassageReference.connect(function(ndxRel, nCount) {
+							ndxPassageReference = ndxRel;
+							ndxPassageReferenceCount = nCount;
+							if (ndxRel == 0) {
+								$("#passageReference").css("color",  "#FF0000");
+							} else {
+								$("#passageReference").css("color",  "#000000");
+							}
+							$("#gotoPassageButton").button( "option", "disabled", (ndxRel == 0));
 						});
 
 						window.kjpbs.setUserAgent(navigator.userAgent);
@@ -517,6 +531,11 @@
 				}
 			}
 
+			function resolvePassageReference(strPassageReference)
+			{
+				window.kjpbs.resolvePassageReference(strPassageReference);
+			}
+
 			function gotoIndex(ndx, nMoveMode, strParam)
 			{
 				waitCursor(true);
@@ -586,7 +605,10 @@
 									$("#"+document.activeElement.id).autocomplete("close");
 									searchPhraseTextChanged($("#"+document.activeElement.id).parents(".searchPhrase").attr("id"));
 									searchPhraseChanged();
-									break;
+								} else if ($("#"+document.activeElement.id).hasClass("passageReference")) {
+									if (ndxPassageReference != 0) {
+										document.getElementById("gotoPassageButton").click();
+									}
 								}
 							}
 							return;
@@ -642,6 +664,7 @@
 				document.getElementById("locateButton").blur();	// Workaround jqueryui bug
 				$("#locateButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 
+				$("#passageReference").val("");
 				setLocateDialogToChapter(nBrowserChapterCurrent);
 				$( "#locateDialog" ).dialog( "open" );
 			}
@@ -1132,6 +1155,8 @@
 				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="bblBookSelect">Book:</label><select class="bblBookSelect" name="bblBookSelect" id="bblBookSelect"></select></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="bblChapterSelect">Chapter:</label><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><label style="display: block;" for="passageReference">Enter Passage Reference:</label><input class="passageReference" name="passageReference" id="passageReference"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
 			} else {
 				locateControlsTable.append('<tr><td class="shrink">Book/Chapter:</td>' +
@@ -1149,6 +1174,9 @@
 											'<td class="shrink"><label style="display: inline;" for="tstChapterSelect">Chapter:</label></td><td><select class="tstChapterSelect" name="tstChapterSelect" id="tstChapterSelect"></select></td>' +
 											'<td class="expand2">&nbsp;</td>' +
 											'<td class="shrink"><label style="display: inline;" for="bblChapterSelect">Chapter:</label></td><td><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
+				locateControlsTable.append('<tr><td class="centered" colspan="7"><hr /></td></tr>');
+				locateControlsTable.append('<tr><td class="centered" colspan="7"><label style="display: inline;" for="passageReference">Enter Passage Reference:</label><input class="passageReference" name="passageReference" id="passageReference"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input></td></tr>');
+				locateControlsTable.append('<tr><td class="centered" colspan="7"><hr /></td></tr>');
 				locateControlsTable.append('<tr><td class="centered" colspan="7"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
 			}
 
@@ -1182,8 +1210,19 @@
 					setLocateDialogToChapter($("#bblChapterSelect").val());
 				}
 			});
+			$("#passageReference").on('change keyup paste input', function() {
+				if ($(this).val()) {
+					resolvePassageReference($(this).val());
+				}
+				$("#gotoPassageButton").button( "option", "disabled", ($(this).val().length != 0) );	// Disable if we have text, and re-enable after server answers
+			});
+
 			$("#gotoPassageButton").on("click", function () {
-				gotoChapter($("#bblChapterSelect").val(), "scrollTabTop");
+				if (ndxPassageReference != 0) {
+					gotoIndex(ndxPassageReference, 0, ((relIndexVerse(ndxPassageReference) == 1) ? "scrollTabTop" : "scrollToAnchor"));
+				} else {
+					gotoChapter($("#bblChapterSelect").val(), "scrollTabTop");
+				}
 				$("#locateDialog").dialog("close");
 			});
 
@@ -1195,9 +1234,11 @@
 				width: "auto",
 				open: function( event, ui ) {
 					document.getElementById("toggle-nav").checked = false;
+					document.getElementById("passageReference").focus();
 				},
 				close: function( event, ui ) {
 					document.getElementById("toggle-nav").checked = ($("#tabs").tabs("option", "active") == 1);
+					$("#passageReference").val("");
 				}
 			});
 

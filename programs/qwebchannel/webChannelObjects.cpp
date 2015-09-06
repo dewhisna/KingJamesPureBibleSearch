@@ -331,6 +331,14 @@ void CWebChannelObjects::en_searchResultsReady()
 	//		mind this can be multithreaded).
 }
 
+void CWebChannelObjects::resolvePassageReference(const QString &strPassageReference)
+{
+	if (m_pSearchResults.isNull()) return;
+
+	TPhraseTag tagResolved = m_pSearchResults->resolvePassageReference(strPassageReference);
+	emit resolvedPassageReference(tagResolved.relIndex().index(), tagResolved.count());
+}
+
 void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam)
 {
 	if (m_pSearchResults.isNull()) return;

@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "UserNotesDatabase.h"
 #include "VerseListModel.h"
+#include "PassageReferenceWidget.h"
 
 #include <QPointer>
 #include <QTextDocument>
@@ -52,6 +53,8 @@ public:
 		return *m_pPhraseNavigator.data();
 	}
 
+	TPhraseTag resolvePassageReference(const QString &strPassageReference) const;
+
 public slots:
 	void setParsedPhrases(const CSearchResultsData &searchResultsData);
 
@@ -63,6 +66,7 @@ private:
 	CVerseListModel m_verseListModel;
 	QPointer<CPhraseNavigator> m_pPhraseNavigator;
 	QTextDocument m_scriptureText;
+	CPassageReferenceResolver m_refResolver;
 };
 
 #endif	// HEADLESS_SEARCH_RESULTS_H
