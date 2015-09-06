@@ -311,10 +311,10 @@
 					});
 
 					// Close heading after 5 seconds to get it out of the way on mobile devices:
-					setTimeout(function()
-					{
-						document.getElementById("status").style.display = 'none';
-					}, 5000);
+//					setTimeout(function()
+//					{
+//						document.getElementById("status").style.display = 'none';
+//					}, 5000);
 				}
 			}
 			//END SETUP
@@ -769,6 +769,47 @@
 				height: 100%;
 				width: 100%;
 			}
+			#mainbody {
+				opacity: 0;
+				-webkit-transition: all 0.3s ease-in-out;
+				-moz-transition: all 0.3s ease-in-out;
+				-o-transition: all 0.3s ease-in-out;
+				transition: all 0.3s ease-in-out;
+			}
+
+			#splash {
+				position: fixed;
+				text-align: center;
+				vertical-align: center;
+				width: 100%;
+				height: 100%;
+				top: 0px;
+				left: 0px;
+				bottom: 0px;
+				right: 0px;
+				background: rgba(0,0,0,0.7);
+				z-index: 65535;
+				margin: auto;
+				border-spacing: 0;
+				overflow: auto;
+			}
+
+			#splashImage {
+				position: fixed;
+				text-align: center;
+				vertical-align: center;
+				width: 100%;
+				height: auto;
+				top: 0px;
+				left: 0px;
+				bottom: 0px;
+				right: 0px;
+				background: rgba(0,0,0,0.7);
+				z-index: 65535;
+				margin: auto;
+				border-spacing: 0;
+				overflow: auto;
+			}
 
 			.checkboxitem {
 				white-space: nowrap;
@@ -962,8 +1003,11 @@
 		</style>
 	</head>
 	<body>
+		<div id="splash">
+			<img id="splashImage" src="KJPBS_Splash_20130405_194312.jpeg" alt="KJPBS Splash Screen">
+		</div>
 		<div id="mainbody">
-			<div id="status">
+			<div id="status" style="display:none;">
 				<h1>King James Pure Bible Search</h1>
 				<h2>WebChannel Server</h2>
 				<textarea id="output"></textarea><br />
@@ -1248,9 +1292,16 @@
 				}
 			});
 
-			addSearchPhrase();			// Add initial search phrase
 //			var markup = document.getElementsByTagName('body')[0].innerHTML;
 //			alert(markup);
+
+			hideKeyboard();		// Hurry up and get it out of the way of the splash screen
+			$("#splash").delay(2000).fadeOut(2000);
+			$("#mainbody").delay(2000).fadeIn(2000, function() {
+				$("#mainbody").css("opacity", "1");
+			});
+
+			addSearchPhrase();			// Add initial search phrase
 		</script>
 
 
