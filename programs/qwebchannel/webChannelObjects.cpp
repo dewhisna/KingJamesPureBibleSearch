@@ -380,6 +380,11 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 							CPhraseNavigator::TRO_SuppressPrePostChapters),
 							&srHighlighter);
 
+	strText += "<hr />" + m_pSearchResults->phraseNavigator().getToolTip(TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
+																		CSelectionPhraseTagList(),
+																		CPhraseNavigator::TTE_COMPLETE,
+																		false);
+
 	ndx.setWord((ndx.isColophon() || ndx.isSuperscription()) ? 1 : 0);				// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
 	emit scriptureBrowserRender(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
 											  CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first,
