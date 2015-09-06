@@ -665,6 +665,9 @@
 				$("#locateButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 
 				$("#passageReference").val("");
+				ndxPassageReference = 0;
+				ndxPassageReferenceCount = 0;
+				$("#gotoPassageButton").button( "option", "disabled", false );
 				setLocateDialogToChapter(nBrowserChapterCurrent);
 				$( "#locateDialog" ).dialog( "open" );
 			}
