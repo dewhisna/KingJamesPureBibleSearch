@@ -56,6 +56,9 @@
 					field.focus();
 				}, 100);
 			}
+			function isTouchDevice() {
+				return !!('ontouchstart' in window);
+			}
 			function waitCursor(bAreBusy) {
 				if (bAreBusy) {
 					$("body").css("cursor", "progress");
@@ -296,7 +299,6 @@
 							} else {
 								$("#passageReference").css("color",  "#000000");
 							}
-							$("#gotoPassageButton").button( "option", "disabled", (ndxRel == 0));
 						});
 
 						window.kjpbs.setUserAgent(navigator.userAgent);
@@ -414,13 +416,17 @@
 					});
 
 					$(".searchPhraseText").on("focus", function() {
-						if (document.activeElement) {
-							document.activeElement.scrollIntoView();
+						if (isTouchDevice()) {
+							if (document.activeElement) {
+								document.activeElement.scrollIntoView();
+							}
 						}
 					});
 					$(".passageReference").on("focus", function() {
-						if (document.activeElement) {
-							document.activeElement.scrollIntoView();
+						if (isTouchDevice()) {
+							if (document.activeElement) {
+								document.activeElement.scrollIntoView();
+							}
 						}
 					});
 
@@ -680,7 +686,6 @@
 				$("#passageReference").val("");
 				ndxPassageReference = 0;
 				ndxPassageReferenceCount = 0;
-				$("#gotoPassageButton").button( "option", "disabled", false );
 				setLocateDialogToChapter(nBrowserChapterCurrent);
 				$( "#locateDialog" ).dialog( "open" );
 			}
@@ -1277,14 +1282,22 @@
 					ndxPassageReference = 0;
 					ndxPassageReferenceCount = 0;
 				}
-				$("#gotoPassageButton").button( "option", "disabled", ($(this).val().length != 0) );	// Disable if we have text, and re-enable after server answers
 			});
 
 			$("#gotoPassageButton").on("click", function () {
+				document.getElementById("gotoPassageButton").blur();	// Workaround jqueryui bug
+				$("#gotoPassageButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
 				if (ndxPassageReference != 0) {
 					gotoIndex(ndxPassageReference, 0, ((relIndexVerse(ndxPassageReference) == 1) ? "scrollTabTop" : "scrollToAnchor"));
 				} else {
-					gotoChapter($("#bblChapterSelect").val(), "scrollTabTop");
+					if ($("#passageReference").val().length) {
+						alert("That passage reference isn't valid!");
+						$("#passageReference").focus();
+						return;
+					} else {
+						gotoChapter($("#bblChapterSelect").val(), "scrollTabTop");
+					}
 				}
 				$("#locateDialog").dialog("close");
 			});
@@ -1299,7 +1312,7 @@
 					document.getElementById("toggle-nav").checked = false;
 					// Only focus passageReference if on a large screen device, otherwise
 					//		it's very annoying:
-					if (($(window).width() > 512) && ($(window).height() > 512)) {
+					if (!isTouchDevice()) {
 						document.getElementById("passageReference").focus();
 					}
 				},
