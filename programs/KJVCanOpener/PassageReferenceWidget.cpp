@@ -106,9 +106,8 @@ CPassageReferenceWidget::~CPassageReferenceWidget()
 
 void CPassageReferenceWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 {
-	assert(!pBibleDatabase.isNull());
-	m_pBibleDatabase = pBibleDatabase;
-	buildSoundExTables();
+	if (!m_pRefResolver.isNull()) delete m_pRefResolver.data();
+	m_pRefResolver = new CPassageReferenceResolver(pBibleDatabase, this);
 }
 
 bool CPassageReferenceWidget::hasFocusPassageReferenceEditor() const
@@ -174,12 +173,36 @@ void CPassageReferenceWidget::en_setMenuEnables(const QString &strText)
 	m_pActionSelectAll->setEnabled(!strText.isEmpty());
 }
 
-// ============================================================================
-
 void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 {
+	assert(!m_pRefResolver.isNull());		// Run initialize first!
+	if (m_pRefResolver.isNull()) return;
+
+	m_tagPhrase = m_pRefResolver->resolve(strText);
+	if ((m_tagPhrase.relIndex().isSet()) || (strText.trimmed().isEmpty())) {
+		ui.editPassageReference->setStyleSheet(QString());
+	} else {
+		ui.editPassageReference->setStyleSheet(QString("QLineEdit { color:%1; }").arg(QColor("red").name()));
+	}
+
+	emit passageReferenceChanged(m_tagPhrase);
+}
+
+// ============================================================================
+// ============================================================================
+
+CPassageReferenceResolver::CPassageReferenceResolver(CBibleDatabasePtr pBibleDatabase, QObject *pParent)
+	:	QObject(pParent),
+		m_pBibleDatabase(pBibleDatabase)
+{
+	assert(!pBibleDatabase.isNull());
+	buildSoundExTables();
+}
+
+TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference) const
+{
 	assert(!m_pBibleDatabase.isNull());
-	if (m_pBibleDatabase.isNull()) return;
+	if (m_pBibleDatabase.isNull()) return TPhraseTag();
 
 	//	From: http://stackoverflow.com/questions/9974012/php-preg-match-bible-scripture-format
 	//
@@ -257,8 +280,9 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 #define PARSENDX_RANGEEND2		7
 #define PARSENDX_WORD			8
 
-	int nPos = expReference.indexIn(strText);
+	int nPos = expReference.indexIn(strPassageReference);
 	QStringList lstMatches = expReference.capturedTexts();
+	TPhraseTag tagResult;
 
 #if 0
 	qDebug("nPos=%d", nPos);
@@ -269,9 +293,7 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 
 	assert(lstMatches.size() == 9);
 
-	if ((nPos == -1) || (lstMatches.size() != 9)) {
-		m_tagPhrase = TPhraseTag();
-	} else {
+	if ((nPos != -1) && (lstMatches.size() == 9)) {
 		CRelIndex ndxResolved;
 		unsigned int nWordCount = 0;
 		ndxResolved.setBook(resolveBook(lstMatches.at(PARSENDX_PREBOOK), lstMatches.at(PARSENDX_BOOK)));
@@ -334,24 +356,16 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 			(ndxResolved.chapter() != 0) &&
 			(ndxResolved.verse() != 0) &&
 			(ndxResolved.word() != 0)) {
-			m_tagPhrase = TPhraseTag(ndxResolved, nWordCount);
-		} else {
-			m_tagPhrase = TPhraseTag();
+			tagResult = TPhraseTag(ndxResolved, nWordCount);
 		}
 	}
 
-	if ((m_tagPhrase.relIndex().isSet()) || (strText.trimmed().isEmpty())) {
-		ui.editPassageReference->setStyleSheet(QString());
-	} else {
-		ui.editPassageReference->setStyleSheet(QString("QLineEdit { color:%1; }").arg(QColor("red").name()));
-	}
-
-	emit passageReferenceChanged(m_tagPhrase);
+	return tagResult;
 }
 
 // ============================================================================
 
-void CPassageReferenceWidget::buildSoundExTables()
+void CPassageReferenceResolver::buildSoundExTables()
 {
 	assert(!m_pBibleDatabase.isNull());
 	m_lstBookSoundEx.clear();
@@ -377,7 +391,7 @@ void CPassageReferenceWidget::buildSoundExTables()
 	}
 }
 
-uint32_t CPassageReferenceWidget::resolveBook(const QString &strPreBook, const QString &strBook) const
+uint32_t CPassageReferenceResolver::resolveBook(const QString &strPreBook, const QString &strBook) const
 {
 	assert(!m_pBibleDatabase.isNull());
 	QString strBookName = strPreBook.toLower() + strBook.toLower();

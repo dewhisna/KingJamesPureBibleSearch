@@ -29,9 +29,32 @@
 #include <QWidget>
 #include <QList>
 #include <QString>
+#include <QPointer>
 
 // ============================================================================
 
+class CPassageReferenceResolver : public QObject
+{
+	Q_OBJECT
+
+public:
+	CPassageReferenceResolver(CBibleDatabasePtr pBibleDatabase, QObject *pParent = NULL);
+
+	TPhraseTag resolve(const QString &strPassageReference) const;
+
+private:
+	void buildSoundExTables();
+	uint32_t resolveBook(const QString &strPreBook, const QString &strBook) const;
+
+// Data Private:
+private:
+	CBibleDatabasePtr m_pBibleDatabase;
+	QList<QStringList> m_lstBookSoundEx;			// Index of [nBk-1], List of Book SoundEx Value lists.  Each sublist has the SoundEx for the book name as well as all abbreviations
+};
+
+// ============================================================================
+
+// Forward declarations:
 class QMenu;
 class QAction;
 
@@ -40,7 +63,7 @@ class QAction;
 class CPassageReferenceWidget : public QWidget
 {
 	Q_OBJECT
-	
+
 public:
 	explicit CPassageReferenceWidget(QWidget *parent = 0);
 	~CPassageReferenceWidget();
@@ -74,15 +97,10 @@ private slots:
 	void en_setMenuEnables(const QString &strText);
 	void en_PassageReferenceChanged(const QString &strText);
 
-private:
-	void buildSoundExTables();
-	uint32_t resolveBook(const QString &strPreBook, const QString &strBook) const;
-
 // Data Private:
 private:
-	CBibleDatabasePtr m_pBibleDatabase;
 	TPhraseTag m_tagPhrase;
-	QList<QStringList> m_lstBookSoundEx;			// Index of [nBk-1], List of Book SoundEx Value lists.  Each sublist has the SoundEx for the book name as well as all abbreviations
+	QPointer<CPassageReferenceResolver> m_pRefResolver;
 
 // UI Private:
 private:
