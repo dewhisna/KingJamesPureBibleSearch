@@ -1213,6 +1213,9 @@
 			$("#passageReference").on('change keyup paste input', function() {
 				if ($(this).val()) {
 					resolvePassageReference($(this).val());
+				} else {
+					ndxPassageReference = 0;
+					ndxPassageReferenceCount = 0;
 				}
 				$("#gotoPassageButton").button( "option", "disabled", ($(this).val().length != 0) );	// Disable if we have text, and re-enable after server answers
 			});
