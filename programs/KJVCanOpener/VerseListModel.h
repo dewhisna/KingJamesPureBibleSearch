@@ -402,11 +402,33 @@ public:
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
 #endif
+
+		QString strVerseRichText;
+		CRelIndex ndxCurrent = getIndex();
+		bool bExtended = false;			// True if result extends to multiple verses
+		do {
+			if (bExtended) {
+				if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() == getIndex().chapter()) &&
+					(ndxCurrent.verse() != 0)) {
+					strVerseRichText += QString("&nbsp;&nbsp;(%1) ").arg(ndxCurrent.verse());
+				} else if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() != 0) && (ndxCurrent.verse() != 0)) {
+					strVerseRichText += QString("&nbsp;&nbsp;(%1:%2) ").arg(ndxCurrent.chapter()).arg(ndxCurrent.verse());
+				} else {
+					CRelIndex ndxPrint = ndxCurrent;
+					if ((ndxPrint.chapter() != 0) && (ndxPrint.verse() != 0)) ndxPrint.setWord(0);
+					strVerseRichText += QString("&nbsp;&nbsp;(%1) ").arg(m_pBibleDatabase->PassageReferenceText(ndxPrint, true));
+				}
+			}
+			strVerseRichText += getVerseRichText(ndxCurrent, m_pBibleDatabase, richifierTags, pHighlighter);
+			ndxCurrent = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxCurrent, false);		// See if next verse intersects our results of this verse (i.e. spills to next verse)
+			bExtended = true;
+		} while (m_lstTags.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCurrent)));
+
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, pHighlighter);
+		m_strRichTextCache = strVerseRichText
 		return m_strRichTextCache;
 #else
-		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags, pHighlighter);
+		return strVerseRichText;
 #endif
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
