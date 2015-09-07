@@ -301,6 +301,8 @@ void CWebChannelObjects::en_searchResultsReady()
 		strVerse += "</a>";
 		strVerse += " ";
 		strVerse += item.getVerseRichText(richifierTags, &srHighlighter);
+		strVerse += QString("<a href=\"javascript:viewDetails(%1);\"><img src=\"detail.png\" alt=\"Details\" height=\"16\" width=\"16\"></a>")
+								.arg(m_pSearchResults->vlmodel().logicalIndexForModelIndex(ndxModel).index());
 		strVerse += "<br /><hr />";
 		strResults += strVerse;
 	}
@@ -328,7 +330,19 @@ void CWebChannelObjects::en_searchResultsReady()
 	m_searchResultsData.m_lstParsedPhrases.clear();
 	// TODO : Figure out how to clear out the VerseListModel without causing
 	//		this function to get run again and send empty results (keeping in
-	//		mind this can be multithreaded).
+	//		mind this can be multithreaded).  Also, clearing it would preclude
+	//		getSearchResultDetails() from working...
+}
+
+void CWebChannelObjects::getSearchResultDetails(uint32_t ndxLogical)
+{
+	if (m_pSearchResults.isNull()) return;
+
+	QModelIndex mdlIndex = m_pSearchResults->vlmodel().modelIndexForLogicalIndex(ndxLogical);
+	if (mdlIndex.isValid()) {
+		QString strDetails = m_pSearchResults->vlmodel().data(mdlIndex, CVerseListModel::TOOLTIP_ROLE).toString();
+		emit searchResultsDetails(ndxLogical, strDetails);
+	}
 }
 
 void CWebChannelObjects::resolvePassageReference(const QString &strPassageReference)

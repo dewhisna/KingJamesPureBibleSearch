@@ -247,7 +247,10 @@ public:
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
 			for (int ndxPhrase = 0; ndxPhrase < searchResultsData.m_lstParsedPhrases.size(); ++ndxPhrase) {
 				const CParsedPhrase *pPhrase = searchResultsData.m_lstParsedPhrases.at(ndxPhrase);
-				assert(pPhrase != NULL);
+				// Note: This CAN legitimately be NULL if we are intentionally dumping our SearchPhrase
+				//		data.  See CWebChannelObjects::en_searchResultsReady() and the clearing of the
+				//		Parsed Phrases in order to free memory for additional users.  So don't assert here:
+				//assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (verseIndex()->resultsType() != VLMRTE_SEARCH_RESULTS_EXCLUDED) {
 					QString strSearchWithinDescription = searchResultsData.m_SearchCriteria.searchWithinDescription(m_pBibleDatabase);

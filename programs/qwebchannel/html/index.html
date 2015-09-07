@@ -250,6 +250,13 @@
 							disableAllAutoCompleters();
 						});
 
+						kjpbs.searchResultsDetails.connect(function(ndxLogical, strDetails) {
+							if (ndxLogical) {
+								$("#detailsDialog").html(strDetails);
+								$("#detailsDialog").dialog("open");
+							}
+						});
+
 						kjpbs.scriptureBrowserRender.connect(function(nChp, ndxRel, strHtmlScripture, strParam) {
 // ndxBrowserCurrent is obsolete (doesn't make much sense) if we employ caching:
 //							ndxBrowserCurrent = ndxRel;
@@ -568,6 +575,11 @@
 				} else {
 					gotoIndex(ndxRel, 0, "highlightAnchor");
 				}
+			}
+
+			function viewDetails(ndxLogical)
+			{
+				window.kjpbs.getSearchResultDetails(ndxLogical);
 			}
 
 			function gotoChapter(nChp, strParam)
@@ -1038,6 +1050,8 @@
 				</ul>
 
 				<div id="search">
+					<div id="detailsDialog" title="Details">
+					</div>
 					<table class="searchSpec" id="searchSpec">
 						<tr>
 							<td class="expand">
@@ -1303,6 +1317,11 @@
 			});
 
 			$( "#gotoPassageButton" ).button();
+
+			$( "#detailsDialog" ).dialog({
+				autoOpen: false,
+				width: "auto"
+			});
 
 			$( "#locateDialog" ).dialog({
 				autoOpen: false,

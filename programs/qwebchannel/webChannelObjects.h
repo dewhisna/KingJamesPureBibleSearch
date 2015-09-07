@@ -64,6 +64,8 @@ public slots:
 	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 
+	void getSearchResultDetails(uint32_t ndxLogical);		// Requests data for ToolTip (i.e. search results detail) for the specified logical index
+
 	void resolvePassageReference(const QString &strPassageReference);
 
 	void gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam);			// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
@@ -79,6 +81,8 @@ signals:
 	void setAutoCorrectText(const QString &strElementID, const QString &strAC);			// Triggered after call to autoCorrect() will return the HTML of the Auto Correct text
 	void setAutoCompleter(const QString &strElementID, const QString &strWordList);		// Triggered after call to autoCorrect() will return a list of words separated by ";"
 	void updatePhrase(const QString &strElementID, const QString &strNewPhrase);		// Triggered after call to calcUpdatedPhrase() to return new phrase with subphrase substituted
+
+	void searchResultsDetails(uint32_t ndxLogical, const QString &strDetails);			// Triggered after call to getSearchResultDetails() to return search details i.e. tool tip for specified index
 
 	void resolvedPassageReference(uint32_t ndxRel, uint32_t nWordCount);				// Triggered after call to resolvePassageReference with the TPhraseTag equivalent of the passage
 
