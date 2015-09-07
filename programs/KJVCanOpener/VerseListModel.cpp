@@ -27,6 +27,7 @@
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 #include "KJVSearchResult.h"		// Needed for the CKJVSearchResult class to keep the CSearchResultsSummary in the same translation context until we can revamp our translation contexts : TODO: Fix translations and Remove this
+#include "ModelRowForwardIterator.h"
 
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 #include "ThreadedSearchResults.h"
@@ -881,6 +882,25 @@ CRelIndex CVerseListModel::logicalIndexForModelIndex(const QModelIndex &index) c
 	}
 
 	return ndxVerse;
+}
+
+QModelIndex CVerseListModel::modelIndexForLogicalIndex(const CRelIndex &ndxLogical) const
+{
+	if (!ndxLogical.isSet()) return QModelIndex();
+
+	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
+		const TVerseIndex *pVerseIndex = toVerseIndex(*fwdItr);
+		assert(pVerseIndex != NULL);
+
+		CRelIndex ndxVerse = pVerseIndex->relIndex();
+		if (!ndxVerse.isSet()) continue;
+
+		// TODO : Add support for crossrefs??
+
+		if (ndxVerse == ndxLogical) return *fwdItr;
+	}
+
+	return QModelIndex();
 }
 
 CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
