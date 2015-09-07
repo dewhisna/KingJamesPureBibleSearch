@@ -1320,7 +1320,12 @@
 
 			$( "#detailsDialog" ).dialog({
 				autoOpen: false,
-				width: "auto"
+				width: "auto",
+				open: function( event, ui ) {
+					// Blur the close button to get rid of annoying tooltip with it
+					//		from popping up automatically:
+					$(".ui-dialog-titlebar-close").blur();
+				}
 			});
 
 			$( "#locateDialog" ).dialog({
