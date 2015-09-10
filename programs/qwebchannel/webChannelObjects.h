@@ -26,10 +26,9 @@
 
 #include "dbstruct.h"
 #include "VerseListModel.h"
-#include "headlessSearchResults.h"
+#include "webChannelSearchResults.h"
 
 #include <QObject>
-#include <QPointer>
 
 // ============================================================================
 
@@ -54,9 +53,14 @@ public:
 	QString userAgent() const { return m_strUserAgent; }
 
 public slots:
-	void unlock(const QString &strKey);						// Admin unlock
+	// ------------ Directly Handled Slots:
 
+	void unlock(const QString &strKey);						// Admin unlock
 	void setUserAgent(const QString &strUserAgent);			// Set userAgent data for logging
+	void sendBroadcast(const QString &strMessage);			// Transmit broadcast message to connected client (shutdown alert, etc)
+
+
+	// ------------ Threaded Slots:
 
 	void selectBible(const QString &strUUID);
 
@@ -71,9 +75,15 @@ public slots:
 	void gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam);			// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
 	void gotoChapter(int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
 
-	void sendBroadcast(const QString &strMessage);			// Transmit broadcast message to connected client (shutdown alert, etc)
 
 signals:
+	// ------------ Directly Handled Signals:
+
+	void broadcast(const QString &strMessage);				// Display popup message -- used to send shutdown announcements, etc.
+
+
+	// ------------ Threaded Signals:
+
 	void bibleSelected(bool bSuccess, const QString &strJsonBkChpStruct);				// Generated after selectBible() call to indicate success/fail and to provide the book/chapter layout for navigation (empty if failure)
 	void searchWithinModelChanged(const QString &strJsonSearchWithinTree, int nScope);	// Generated after selectBible() call to fill in the searchWithin Tree View
 
@@ -88,15 +98,7 @@ signals:
 
 	void scriptureBrowserRender(int nChp, uint32_t ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
 
-	void broadcast(const QString &strMessage);				// Display popup message -- used to send shutdown announcements, etc.
-
-protected slots:
-	void en_searchResultsReady();							// Called by verseListModel in CHeadlessSearchResults when results have been updated
-
 private:
-	QPointer<CHeadlessSearchResults> m_pSearchResults;		// Search Results that we are controlling
-	CSearchResultsData m_searchResultsData;					// Data (phrases and criteria) that we are using
-	TSharedParsedPhrasesList m_lstParsedPhrases;			// Phrase parsers
 	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
 	QString m_strUserAgent;									// Set to userAgent string from client browser
 	CWebChannelClient *m_pWebChannel;						// Parent channel

@@ -1213,6 +1213,7 @@ private:
 
 Q_DECLARE_METATYPE(CBibleDatabase *)
 typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
+Q_DECLARE_METATYPE(CBibleDatabasePtr)
 
 class  TBibleDatabaseList : public QObject, protected QList<CBibleDatabasePtr>
 {
@@ -1399,6 +1400,7 @@ private:
 
 Q_DECLARE_METATYPE(CDictionaryDatabase *)
 typedef QSharedPointer<CDictionaryDatabase> CDictionaryDatabasePtr;
+Q_DECLARE_METATYPE(CDictionaryDatabasePtr)
 
 class  TDictionaryDatabaseList : public QObject, protected QList<CDictionaryDatabasePtr>
 {

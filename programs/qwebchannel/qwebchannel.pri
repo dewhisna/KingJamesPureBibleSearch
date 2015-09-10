@@ -10,14 +10,14 @@
 		QT *= webchannel websockets
 
 		SOURCES += \
-			$$PWD/headlessSearchResults.cpp \
+			$$PWD/webChannelSearchResults.cpp \
 			$$PWD/webChannelServer.cpp \
 			$$PWD/webChannelObjects.cpp \
 			$$PWD/websocketclientwrapper.cpp \
 			$$PWD/websockettransport.cpp
 
 		HEADERS += \
-			$$PWD/headlessSearchResults.h \
+			$$PWD/webChannelSearchResults.h \
 			$$PWD/webChannelServer.h \
 			$$PWD/webChannelObjects.h \
 			$$PWD/websocketclientwrapper.h \

@@ -32,6 +32,7 @@
 #include <QSharedPointer>
 #include <QIODevice>
 #include <QStringList>
+#include <QMetaType>
 
 #include <assert.h>
 
@@ -383,7 +384,9 @@ private:
 	bool m_bInHighlighterDef;							// Processing <HighlighterDef> tag
 };
 
+Q_DECLARE_METATYPE(CUserNotesDatabase *)
 typedef QSharedPointer<CUserNotesDatabase> CUserNotesDatabasePtr;
+Q_DECLARE_METATYPE(CUserNotesDatabasePtr)
 
 // Currently we only allow a single notes database.  Uncomment this to enable multiple:
 //typedef QList<CUserNotesDatabasePtr> TUserNotesDatabaseList;

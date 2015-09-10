@@ -468,7 +468,7 @@ int main(int argc, char *argv[])
 #ifdef USING_WEBCHANNEL
 	// Close web server before we shutdown and tearout Bible Databases, etc,
 	//		if we don't do this, we will crash with a segfault cleaning up the
-	//		CHeadlessSearchResults after the fact:
+	//		CWebChannelSearchResults after the fact:
 	CWebChannelServer *pWebChannelServer = pApp->webChannelServer();
 	if (pWebChannelServer) {
 		pWebChannelServer->close();

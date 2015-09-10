@@ -1444,6 +1444,9 @@ int CMyApplication::execute(bool bBuildDB)
 	//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
 	qRegisterMetaType<TBibleDatabaseSettings>("TBibleDatabaseSettings");			// Needed to do queued connection of the CPersistentSettings::changedBibleDatabaseSettings()
+	qRegisterMetaType<CBibleDatabasePtr>("CBibleDatabasePtr");						// Needed to do queued connection on WebChannel threads
+	qRegisterMetaType<CDictionaryDatabasePtr>("CDictionaryDatabasePtr");			// Needed to do queued connection on WebChannel threads
+	qRegisterMetaType<CUserNotesDatabasePtr>("CUserNotesDatabasePtr");				// Needed to do queued connection on WebChannel threads
 
 	// Setup Text-To-Speech:
 #ifdef USING_QT_SPEECH

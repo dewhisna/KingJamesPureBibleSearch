@@ -24,24 +24,9 @@
 #include "webChannelObjects.h"
 #include "webChannelServer.h"
 #include "websockettransport.h"
+#include "webChannelSearchResults.h"
 
-#include "UserNotesDatabase.h"
-#include "PhraseEdit.h"
-#include "Highlighter.h"
-
-#include <QStringList>
-#include <QTextDocument>
 #include <QWebSocket>
-
-#define DEBUG_WEBCHANNEL_SEARCH 0
-#define DEBUG_WEBCHANNEL_AUTOCORRECT 0
-
-// ============================================================================
-
-// --------------
-// Search Limits:
-// --------------
-#define MAX_SEARCH_PHRASES 5
 
 // ============================================================================
 
@@ -75,350 +60,51 @@ void CWebChannelObjects::setUserAgent(const QString &strUserAgent)
 	m_pWebChannel->setUserAgent();
 }
 
+void CWebChannelObjects::sendBroadcast(const QString &strMessage)
+{
+	if (!strMessage.isEmpty()) emit broadcast(strMessage);
+}
+
+// ----------------------------------------------------------------------------
+
 void CWebChannelObjects::selectBible(const QString &strUUID)
 {
-	if (!m_pSearchResults.isNull()) delete m_pSearchResults;
-
-	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
-	QString strBkChpStruct;
-	if (!pBibleDatabase.isNull()) {
-		m_pSearchResults = new CHeadlessSearchResults(pBibleDatabase, g_pUserNotesDatabase, this);
-		connect(m_pSearchResults.data(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
-
-		m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
-		CSearchWithinModel swim(pBibleDatabase, m_searchResultsData.m_SearchCriteria);
-		emit searchWithinModelChanged(swim.toWebChannelJson(), static_cast<int>(m_searchResultsData.m_SearchCriteria.searchScopeMode()));
-		strBkChpStruct = pBibleDatabase->toJsonBkChpStruct();
-	}
-
-	emit bibleSelected(!m_pSearchResults.isNull(), strBkChpStruct);
+	CWebChannelThreadController::instance()->selectBible(this, strUUID);
 }
 
 void CWebChannelObjects::setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)
 {
-#if DEBUG_WEBCHANNEL_SEARCH
-	qDebug("Received: %s", strPhrases.toUtf8().data());
-#endif
-
-	if (m_pSearchResults.isNull()) return;
-
-	m_searchResultsData.m_SearchCriteria.setSearchWithin(m_pSearchResults->vlmodel().bibleDatabase(), strSearchWithin);
-	m_searchResultsData.m_SearchCriteria.setSearchScopeMode(static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(nSearchScope));
-
-	QStringList lstPhrases = strPhrases.split(";", QString::SkipEmptyParts);
-	if (lstPhrases.size() > MAX_SEARCH_PHRASES) {
-		lstPhrases.erase(lstPhrases.begin() + MAX_SEARCH_PHRASES, lstPhrases.end());
-	}
-	if (lstPhrases.isEmpty()) {
-		m_searchResultsData.m_lstParsedPhrases.clear();
-		m_lstParsedPhrases.clear();
-	} else {
-		int ndxUsed = 0;
-		for (int ndx = 0; ndx < lstPhrases.size(); ++ndx) {
-			CPhraseEntry aPhraseEntry(lstPhrases.at(ndx));
-			if (aPhraseEntry.isDisabled()) continue;
-			if (m_lstParsedPhrases.size() <= ndxUsed) {
-				m_lstParsedPhrases.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(m_pSearchResults->vlmodel().bibleDatabase())));
-				m_searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.last().data());
-			}
-			assert(ndxUsed < m_searchResultsData.m_lstParsedPhrases.size());
-			m_lstParsedPhrases[ndxUsed]->setFromPhraseEntry(aPhraseEntry, true);		// Set each phrase and search it
-			++ndxUsed;
-		}
-		for (int ndx = m_lstParsedPhrases.size(); ndx > ndxUsed; --ndx) {
-			m_lstParsedPhrases.removeLast();
-			m_searchResultsData.m_lstParsedPhrases.removeLast();
-		}
-	}
-	m_pSearchResults->setParsedPhrases(m_searchResultsData);		// Start processing search -- will block if not multi-threaded, else will exit, and either case searchResultsReady() fires
+	CWebChannelThreadController::instance()->setSearchPhrases(this, strPhrases, strSearchWithin, nSearchScope);
 }
 
 void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos)
 {
-#if DEBUG_WEBCHANNEL_AUTOCORRECT
-	qDebug("ReceivedAC: %s : \"%s\" : Cursor=%d", strElementID.toUtf8().data(), strPhrase.toUtf8().data(), nCursorPos);
-#endif
-
-	if (m_pSearchResults.isNull()) return;
-
-	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
-
-	QTextDocument doc(strPhrase);
-	CPhraseCursor cursor(&doc);
-	if (nCursorPos < 0) nCursorPos = 0;
-	// Sometimes html doc sends cursor position outside the bounds of the doc, this is a safe-guard:
-	cursor.movePosition(QTextCursor::End);
-	if (nCursorPos < cursor.position()) {
-		cursor.setPosition(nCursorPos);
-	}
-	thePhrase.ParsePhrase(cursor, true);
-
-	QString strParsedPhrase;
-
-	for (int nSubPhrase = 0; nSubPhrase < thePhrase.subPhraseCount(); ++nSubPhrase) {
-		if (nSubPhrase) strParsedPhrase += " | ";
-		const CSubPhrase *pSubPhrase = thePhrase.subPhrase(nSubPhrase);
-		int nPhraseSize = pSubPhrase->phraseSize();
-		for (int nWord = 0; nWord < nPhraseSize; ++nWord) {
-			if (nWord) strParsedPhrase += " ";
-			if ((pSubPhrase->GetMatchLevel() <= nWord) &&
-				(pSubPhrase->GetCursorMatchLevel() <= nWord) &&
-				((nWord != pSubPhrase->GetCursorWordPos()) ||
-				 ((!pSubPhrase->GetCursorWord().isEmpty()) && (nWord == pSubPhrase->GetCursorWordPos()))
-				)
-				) {
-				strParsedPhrase += "<span style=\"text-decoration-line: underline line-through; text-decoration-style: wavy; text-decoration-color: red;\">";
-				strParsedPhrase += pSubPhrase->phraseWords().at(nWord);
-				strParsedPhrase += "</span>";
-			} else {
-				strParsedPhrase += pSubPhrase->phraseWords().at(nWord);
-			}
-		}
-	}
-
-#if DEBUG_WEBCHANNEL_AUTOCORRECT
-	qDebug("AC: \"%s\"", strParsedPhrase.toUtf8().data());
-#endif
-
-	emit setAutoCorrectText(strElementID, strParsedPhrase);
-
-	bool bNeedUpdate = false;
-
-	if ((strLastPhrase == strPhrase) &&
-		(nLastCursorPos == nCursorPos)) return;			// If the text and cursor didn't change, no need to update
-	if ((nLastCursorPos < 0) ||
-		(strLastPhrase != strPhrase)) {
-		bNeedUpdate = true;								// TextChanged or LastCursorPos==-1 => Always update
-		nLastCursorPos = 0;
-	}
-
-	if (!bNeedUpdate) {
-		CParsedPhrase thePhraseLast(m_pSearchResults->vlmodel().bibleDatabase());
-		CPhraseCursor cursorLast(&doc);
-		cursorLast.movePosition(QTextCursor::End);
-		if (nLastCursorPos <= cursorLast.position()) {
-			cursorLast.setPosition(nLastCursorPos);
-			thePhraseLast.ParsePhrase(cursorLast, false);		// Break phrase into subphrases and calculate cursor word, but don't find word matches as that's redundant
-			if ((thePhraseLast.currentSubPhrase() != thePhrase.currentSubPhrase()) ||
-				(thePhraseLast.GetCursorWordPos() != thePhrase.GetCursorWordPos())) {
-				bNeedUpdate = true;
-			}
-		} else {
-			// If last cursor position was beyond the length of the
-			//		phrase text, an update is automatically needed:
-			bNeedUpdate = true;
-		}
-	}
-	// Avoid unnecessary updates by not sending new completer list if the
-	//		cursor word hasn't changed:
-	if (!bNeedUpdate) return;
-
-	QStringList lstNextWords;
-	QString strBasePhrase;
-	int nCurrentSubPhrase = thePhrase.currentSubPhrase();
-	if (nCurrentSubPhrase == -1) return;
-	const CSubPhrase *pCurrentSubPhrase = thePhrase.subPhrase(nCurrentSubPhrase);
-	for (int ndx = 0; ndx < pCurrentSubPhrase->GetCursorWordPos(); ++ndx) {
-		strBasePhrase += pCurrentSubPhrase->phraseWords().at(ndx) + " ";
-	}
-	QString strCursorWord = pCurrentSubPhrase->GetCursorWord();
-	int nPreRegExp = strCursorWord.indexOf(QRegExp("[\\[\\]\\*\\?]"));
-	if (nPreRegExp != -1) strCursorWord = strCursorWord.left(nPreRegExp);
-	lstNextWords.reserve(thePhrase.nextWordsList().size());
-	for (int ndx = 0; ndx < thePhrase.nextWordsList().size(); ++ndx) {
-		if ((strCursorWord.isEmpty() && (pCurrentSubPhrase->GetCursorWordPos() > 0)) ||
-			(!strCursorWord.isEmpty() && thePhrase.nextWordsList().at(ndx).decomposedWord().startsWith(strCursorWord, Qt::CaseInsensitive))) {
-			lstNextWords.append(strBasePhrase + thePhrase.nextWordsList().at(ndx).decomposedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed/composed word differences?
-		}
-	}
-	emit setAutoCompleter(strElementID, lstNextWords.join(QChar(';')));
+	CWebChannelThreadController::instance()->autoCorrect(this, strElementID, strPhrase, nCursorPos, strLastPhrase, nLastCursorPos);
 }
 
 void CWebChannelObjects::calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos)
 {
-	if (m_pSearchResults.isNull()) return;
-
-	CParsedPhrase thePhrase(m_pSearchResults->vlmodel().bibleDatabase());
-
-	QTextDocument doc(strPhrase);
-	CPhraseCursor cursor(&doc);
-	cursor.setPosition(nCursorPos);
-	thePhrase.ParsePhrase(cursor, false);
-	int nCurrentSubPhrase = thePhrase.currentSubPhrase();
-
-	QString strNewPhrase;
-
-	for (int nSubPhrase = 0; nSubPhrase < thePhrase.subPhraseCount(); ++nSubPhrase) {
-		if (nSubPhrase) strNewPhrase += " | ";
-		if (nSubPhrase == nCurrentSubPhrase) {
-			strNewPhrase += strAutoCompleter;
-		} else {
-			strNewPhrase += thePhrase.subPhrase(nSubPhrase)->phrase();
-		}
-	}
-
-	emit updatePhrase(strElementID, strNewPhrase);
-}
-
-void CWebChannelObjects::en_searchResultsReady()
-{
-	assert(!m_pSearchResults.isNull());
-
-	CVerseTextRichifierTags richifierTags;
-	richifierTags.setFromPersistentSettings(*CPersistentSettings::instance(), true);
-
-	int nVerses = m_pSearchResults->vlmodel().rowCount();
-#if DEBUG_WEBCHANNEL_SEARCH
-	qDebug("Num Verses Matching = %d", nVerses);
-#endif
-	QString strResults;
-	for (int ndx = 0; ndx < nVerses; ++ndx) {
-		QModelIndex ndxModel = m_pSearchResults->vlmodel().index(ndx);
-
-		const CVerseListItem &item(m_pSearchResults->vlmodel().data(ndxModel, CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
-		if (item.verseIndex().isNull()) continue;
-		CSearchResultHighlighter srHighlighter(item.phraseTags());
-		CRelIndex ndxVerse = item.getIndex();
-		ndxVerse.setWord((ndxVerse.isColophon() || ndxVerse.isSuperscription()) ? 1 : 0);		// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
-		QString strVerse;
-		unsigned int nChp = CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
-										  CRefCountCalc::RTE_CHAPTER, ndxVerse).ofBible().first;
-		if (ndxVerse.isColophon()) {
-			// For colophons, find the last chapter of this book, which is where colophons
-			//		are actually printed in the text, as the above calculation will be wrong
-			//		and generally point to the last chapter of the previous book instead:
-			const CBookEntry *pBook = m_pSearchResults->vlmodel().bibleDatabase()->bookEntry(ndxVerse);
-			assert(pBook);
-			if (pBook) {
-				nChp = CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
-									 CRefCountCalc::RTE_CHAPTER, CRelIndex(ndxVerse.book(), pBook->m_nNumChp, 0, 0)).ofBible().first;
-			}
-		}
-		strVerse += QString("<a href=\"javascript:gotoResult(%1,%2);\">")
-									.arg(nChp)
-									.arg(ndxVerse.index());
-		strVerse += m_pSearchResults->vlmodel().bibleDatabase()->PassageReferenceText(ndxVerse, true);
-		strVerse += "</a>";
-		strVerse += " ";
-		strVerse += item.getVerseRichText(richifierTags, &srHighlighter);
-		strVerse += QString("<a href=\"javascript:viewDetails(%1);\"><img src=\"detail.png\" alt=\"Details\" height=\"16\" width=\"16\"></a>")
-								.arg(m_pSearchResults->vlmodel().logicalIndexForModelIndex(ndxModel).index());
-		strVerse += "<br /><hr />";
-		strResults += strVerse;
-	}
-
-#if DEBUG_WEBCHANNEL_SEARCH
-	qDebug("Sending Results");
-#endif
-
-	QString strOccurrences;
-	for (int ndx = 0; ndx < m_lstParsedPhrases.size(); ++ndx) {
-		const CParsedPhrase &parsedPhrase = *m_lstParsedPhrases.at(ndx).data();
-		if (!strOccurrences.isEmpty()) strOccurrences += ";";
-		strOccurrences += QString("%1/%2/%3")
-								.arg(!parsedPhrase.isDisabled() ? (parsedPhrase.isExcluded() ? -parsedPhrase.GetContributingNumberOfMatches() : parsedPhrase.GetContributingNumberOfMatches()) : 0)
-								.arg(parsedPhrase.GetNumberOfMatchesWithin())
-								.arg(parsedPhrase.GetNumberOfMatches());
-	}
-
-	CSearchResultsSummary srs(m_pSearchResults->vlmodel());
-
-	emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pSearchResults->vlmodel().bibleDatabase(), false, true), strOccurrences);
-
-	// Free-up memory for other clients:
-	m_lstParsedPhrases.clear();
-	m_searchResultsData.m_lstParsedPhrases.clear();
-	// TODO : Figure out how to clear out the VerseListModel without causing
-	//		this function to get run again and send empty results (keeping in
-	//		mind this can be multithreaded).  Also, clearing it would preclude
-	//		getSearchResultDetails() from working...
+	CWebChannelThreadController::instance()->calcUpdatedPhrase(this, strElementID, strPhrase, strAutoCompleter, nCursorPos);
 }
 
 void CWebChannelObjects::getSearchResultDetails(uint32_t ndxLogical)
 {
-	if (m_pSearchResults.isNull()) return;
-
-	QModelIndex mdlIndex = m_pSearchResults->vlmodel().modelIndexForLogicalIndex(ndxLogical);
-	if (mdlIndex.isValid()) {
-		QString strDetails = m_pSearchResults->vlmodel().data(mdlIndex, CVerseListModel::TOOLTIP_ROLE).toString();
-		emit searchResultsDetails(ndxLogical, strDetails);
-	}
+	CWebChannelThreadController::instance()->getSearchResultDetails(this, ndxLogical);
 }
 
 void CWebChannelObjects::resolvePassageReference(const QString &strPassageReference)
 {
-	if (m_pSearchResults.isNull()) return;
-
-	TPhraseTag tagResolved = m_pSearchResults->resolvePassageReference(strPassageReference);
-	emit resolvedPassageReference(tagResolved.relIndex().index(), tagResolved.count());
+	CWebChannelThreadController::instance()->resolvePassageReference(this, strPassageReference);
 }
 
 void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam)
 {
-	if (m_pSearchResults.isNull()) return;
-
-	CRelIndex ndx(ndxRel);
-	CRelIndex ndxDecolophonated(ndxRel);
-	if (ndxDecolophonated.isColophon()) {
-		const CBookEntry *pBook = m_pSearchResults->vlmodel().bibleDatabase()->bookEntry(ndxDecolophonated);
-		if (pBook) {
-			ndxDecolophonated.setChapter(pBook->m_nNumChp);
-		}
-	}
-	ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndx, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
-	if (!ndx.isSet()) return;
-	ndxDecolophonated = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(ndxDecolophonated, static_cast<CBibleDatabase::RELATIVE_INDEX_MOVE_ENUM>(nMoveMode));
-	if (!ndxDecolophonated.isSet()) return;
-	if (!m_pSearchResults->vlmodel().bibleDatabase()->completelyContains(TPhraseTag(ndxDecolophonated))) return;
-
-	// Build a subset list of search results that are only in this chapter (which can't be
-	//		any larger than the number of results in this chapter) and use that for doing
-	//		the highlighting so that the VerseRichifier doesn't have to search the whole
-	//		set, as doing so is slow on large searches:
-	TPhraseTagList lstChapterCurrent = m_pSearchResults->phraseNavigator().currentChapterDisplayPhraseTagList(ndx);
-	TPhraseTagList lstSearchResultsSubset;
-
-	CSearchResultHighlighter srHighlighterFull(&m_pSearchResults->vlmodel(), false);
-	CHighlighterPhraseTagFwdItr itr = srHighlighterFull.getForwardIterator();
-	while (!itr.isEnd()) {
-		TPhraseTag tagNext = itr.nextTag();
-		if (lstChapterCurrent.intersects(m_pSearchResults->vlmodel().bibleDatabase().data(), tagNext))
-			lstSearchResultsSubset.append(tagNext);
-	}
-
-	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
-	QString strText = m_pSearchResults->phraseNavigator().setDocumentToChapter(ndxDecolophonated,
-							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
-							CPhraseNavigator::TRO_InnerHTML |
-							CPhraseNavigator::TRO_NoWordAnchors |
-							CPhraseNavigator::TRO_SuppressPrePostChapters),
-							&srHighlighter);
-
-	strText += "<hr />" + m_pSearchResults->phraseNavigator().getToolTip(TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
-																		CSelectionPhraseTagList(),
-																		CPhraseNavigator::TTE_COMPLETE,
-																		false);
-
-	ndx.setWord((ndx.isColophon() || ndx.isSuperscription()) ? 1 : 0);				// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
-	emit scriptureBrowserRender(CRefCountCalc(m_pSearchResults->vlmodel().bibleDatabase().data(),
-											  CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first,
-								ndx.index(),
-								strText,
-								strParam);
-	m_pSearchResults->phraseNavigator().clearDocument();			// Free-up memory for other clients
+	CWebChannelThreadController::instance()->gotoIndex(this, ndxRel, nMoveMode, strParam);
 }
 
 void CWebChannelObjects::gotoChapter(int nChp, const QString &strParam)
 {
-	if (m_pSearchResults.isNull()) return;
-
-	CRelIndex ndx = m_pSearchResults->vlmodel().bibleDatabase()->calcRelIndex(0, 0, nChp, 0, 0);
-	if (ndx.isSet()) gotoIndex(ndx.index(), static_cast<int>(CBibleDatabase::RIME_Absolute), strParam);
-}
-
-void CWebChannelObjects::sendBroadcast(const QString &strMessage)
-{
-	if (!strMessage.isEmpty()) emit broadcast(strMessage);
+	CWebChannelThreadController::instance()->gotoChapter(this, nChp, strParam);
 }
 
 // ============================================================================
