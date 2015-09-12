@@ -53,6 +53,7 @@ public:
 	bool isAdmin() const { return m_bIsAdmin; }
 	QString userAgent() const { return m_strUserAgent; }
 	int threadIndex() const { return m_nThreadIndex; }
+	QString bibleUUID() const { return m_strBibleUUID; }
 
 private:
 	friend class CWebChannelThreadController;
@@ -108,6 +109,7 @@ private:
 	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
 	QString m_strUserAgent;									// Set to userAgent string from client browser
 	int m_nThreadIndex;										// Thread Index in CWebChannelThreadController
+	QString m_strBibleUUID;									// UUID of currently selected Bible
 	CWebChannelClient *m_pWebChannel;						// Parent channel
 };
 

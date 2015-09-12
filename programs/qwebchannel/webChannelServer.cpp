@@ -70,6 +70,12 @@ int CWebChannelClient::threadIndex() const
 	return -1;
 }
 
+QString CWebChannelClient::bibleUUID() const
+{
+	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->bibleUUID();
+	return QString();
+}
+
 void CWebChannelClient::connectTo(WebSocketTransport* pClient)
 {
 	m_channel.connectTo(pClient);
@@ -100,6 +106,12 @@ void CWebChannelClient::setThreadIndex()
 {
 	assert(m_pWebChannelServer != NULL);
 	m_pWebChannelServer->setClientThreadIndex(this);
+}
+
+void CWebChannelClient::setBibleUUID()
+{
+	assert(m_pWebChannelServer != NULL);
+	m_pWebChannelServer->setClientBibleUUID(this);
 }
 
 // ============================================================================
@@ -325,13 +337,36 @@ void CWebChannelServer::setClientThreadIndex(const CWebChannelClient *pClient)
 		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
 		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
 #ifdef IS_CONSOLE_APP
-	std::cout << QString("%1 UTC : Setting Thread : \"%2\" (%3) port %4 : Index %5\n")
-							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
-							.arg(itrClientMap.key()->socket()->peerName())
-							.arg(itrClientMap.key()->socket()->peerAddress().toString())
-							.arg(itrClientMap.key()->socket()->peerPort())
-							.arg(pClientChannel->threadIndex())
-							.toUtf8().data();
+			std::cout << QString("%1 UTC : Setting Thread : \"%2\" (%3) port %4 : Index %5\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.arg(pClientChannel->threadIndex())
+									.toUtf8().data();
+#endif
+			break;
+		}
+	}
+}
+
+void CWebChannelServer::setClientBibleUUID(const CWebChannelClient *pClient)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+			CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(pClientChannel->bibleUUID());
+			bool bValid = !pBibleDatabase.isNull();
+			std::cout << QString(bValid ?	"%1 UTC : Selected Bible : \"%2\" (%3) port %4 : {%5} %6\n" :
+											"%1 UTC : Selected Bible : \"%2\" (%3) port %4 : invalid/unknown%5%6\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.arg(bValid ? pClientChannel->bibleUUID() : QString())
+									.arg(bValid ? pBibleDatabase->description() : QString())
+									.toUtf8().data();
 #endif
 			break;
 		}

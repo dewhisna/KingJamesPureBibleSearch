@@ -587,24 +587,28 @@ int CWebChannelThreadController::threadWebChannelCount(int nThreadIndex) const
 	return m_lstThreads.at(nThreadIndex)->webChannelCount();
 }
 
-void CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, const QString &strUUID)
+bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, const QString &strUUID)
 {
 	assert(pChannel != NULL);
 
 	destroyWebChannelSearchResults(pChannel);			// Free any existing Bible selected and search results for it
 
+	bool bSuccess = true;
+
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
 	if (!pBibleDatabase.isNull()) {
 		// Note: create calls init on searchResults which will emit bibleSelected signal
-		createWebChannelSearchResults(pChannel, pBibleDatabase, g_pUserNotesDatabase);
+		bSuccess = (createWebChannelSearchResults(pChannel, pBibleDatabase, g_pUserNotesDatabase) != NULL);
 	} else {
-		bool bSuccess = QMetaObject::invokeMethod(pChannel,
-													"bibleSelected",
-													Qt::QueuedConnection,
-													Q_ARG(bool, false),
-													Q_ARG(const QString &, QString()));
+		bSuccess = QMetaObject::invokeMethod(pChannel,
+												"bibleSelected",
+												Qt::QueuedConnection,
+												Q_ARG(bool, false),
+												Q_ARG(const QString &, QString()));
 		assert(bSuccess);
 	}
+
+	return bSuccess;
 }
 
 void CWebChannelThreadController::setSearchPhrases(CWebChannelObjects *pChannel, const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)

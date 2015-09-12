@@ -161,7 +161,7 @@ public:
 
 public:
 	// These functions are called by the CWebChannelObjects slots to process the slot on a particular thread
-	void selectBible(CWebChannelObjects *pChannel, const QString &strUUID);
+	bool selectBible(CWebChannelObjects *pChannel, const QString &strUUID);
 
 	void setSearchPhrases(CWebChannelObjects *pChannel, const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);		// Phrases, separated by semicolon, to search for.  SearchWithin = comma-separated searchWithinModel keys.  SearchScope = SEARCH_SCOPE_MODE_ENUM value
 	void autoCorrect(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list

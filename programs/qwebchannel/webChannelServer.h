@@ -52,6 +52,7 @@ public:
 	bool isAdmin() const;
 	QString userAgent() const;
 	int threadIndex() const;
+	QString bibleUUID() const;
 
 public slots:
 	void registerObject(const QString &strID, QObject *pObject);
@@ -66,6 +67,7 @@ protected:
 	friend class CWebChannelObjects;
 	void setUserAgent();
 	void setThreadIndex();
+	void setBibleUUID();
 
 private:
 	QWebChannel m_channel;
@@ -102,6 +104,7 @@ public:
 
 	void setClientUserAgent(const CWebChannelClient *pClient);
 	void setClientThreadIndex(const CWebChannelClient *pClient);
+	void setClientBibleUUID(const CWebChannelClient *pClient);
 
 protected:
 	friend class CWebChannelAdminObjects;
