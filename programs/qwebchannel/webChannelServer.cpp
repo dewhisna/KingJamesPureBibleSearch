@@ -64,6 +64,12 @@ QString CWebChannelClient::userAgent() const
 	return QString();
 }
 
+int CWebChannelClient::threadIndex() const
+{
+	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->threadIndex();
+	return -1;
+}
+
 void CWebChannelClient::connectTo(WebSocketTransport* pClient)
 {
 	m_channel.connectTo(pClient);
@@ -88,6 +94,12 @@ void CWebChannelClient::setUserAgent()
 {
 	assert(m_pWebChannelServer != NULL);
 	m_pWebChannelServer->setClientUserAgent(this);
+}
+
+void CWebChannelClient::setThreadIndex()
+{
+	assert(m_pWebChannelServer != NULL);
+	m_pWebChannelServer->setClientThreadIndex(this);
 }
 
 // ============================================================================
@@ -301,6 +313,25 @@ void CWebChannelServer::setClientUserAgent(const CWebChannelClient *pClient)
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->userAgent())
 									.toUtf8().data();
+#endif
+			break;
+		}
+	}
+}
+
+void CWebChannelServer::setClientThreadIndex(const CWebChannelClient *pClient)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Setting Thread : \"%2\" (%3) port %4 : Index %5\n")
+							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+							.arg(itrClientMap.key()->socket()->peerName())
+							.arg(itrClientMap.key()->socket()->peerAddress().toString())
+							.arg(itrClientMap.key()->socket()->peerPort())
+							.arg(pClientChannel->threadIndex())
+							.toUtf8().data();
 #endif
 			break;
 		}

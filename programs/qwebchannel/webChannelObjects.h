@@ -35,6 +35,7 @@
 // Forward declarations:
 class CWebChannelClient;
 class CWebChannelServer;
+class CWebChannelThreadController;
 
 // ============================================================================
 
@@ -51,6 +52,11 @@ public:
 
 	bool isAdmin() const { return m_bIsAdmin; }
 	QString userAgent() const { return m_strUserAgent; }
+	int threadIndex() const { return m_nThreadIndex; }
+
+private:
+	friend class CWebChannelThreadController;
+	void setThreadIndex(int nThreadIndex);
 
 public slots:
 	// ------------ Directly Handled Slots:
@@ -101,6 +107,7 @@ signals:
 private:
 	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
 	QString m_strUserAgent;									// Set to userAgent string from client browser
+	int m_nThreadIndex;										// Thread Index in CWebChannelThreadController
 	CWebChannelClient *m_pWebChannel;						// Parent channel
 };
 

@@ -51,18 +51,21 @@ public:
 
 	bool isAdmin() const;
 	QString userAgent() const;
+	int threadIndex() const;
 
 public slots:
 	void registerObject(const QString &strID, QObject *pObject);
 	void deregisterObject(QObject *pObject);
 
 	void sendBroadcast(const QString &strMessage);
-	void setUserAgent();
 
 protected:
 	friend class CWebChannelServer;
-
 	void connectTo(WebSocketTransport* pClient);
+
+	friend class CWebChannelObjects;
+	void setUserAgent();
+	void setThreadIndex();
 
 private:
 	QWebChannel m_channel;
@@ -98,6 +101,7 @@ public:
 	bool sendMessage(const QString &strClientIP, const QString &strClientPort, const QString &strMessage);	// Transmit message to specific client
 
 	void setClientUserAgent(const CWebChannelClient *pClient);
+	void setClientThreadIndex(const CWebChannelClient *pClient);
 
 protected:
 	friend class CWebChannelAdminObjects;

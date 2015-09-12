@@ -37,6 +37,7 @@
 CWebChannelObjects::CWebChannelObjects(CWebChannelClient *pParent)
 	:	QObject(pParent),
 		m_bIsAdmin(false),
+		m_nThreadIndex(-1),
 		m_pWebChannel(pParent)
 {
 	assert(m_pWebChannel != NULL);
@@ -44,7 +45,15 @@ CWebChannelObjects::CWebChannelObjects(CWebChannelClient *pParent)
 
 CWebChannelObjects::~CWebChannelObjects()
 {
+	CWebChannelThreadController::instance()->destroyWebChannelSearchResults(this);
+}
 
+void CWebChannelObjects::setThreadIndex(int nThreadIndex)
+{
+	assert(m_pWebChannel != NULL);
+
+	m_nThreadIndex = nThreadIndex;
+	m_pWebChannel->setThreadIndex();
 }
 
 void CWebChannelObjects::unlock(const QString &strKey)
@@ -153,23 +162,33 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 	QString strClients;
 
 	strClients += "<table><thead><tr>\n";
-	strClients += "<th>Name</th><th>IP Address</th><th>Port</th>\n";
+	strClients += "<th>Name</th><th>IP Address</th><th>Port</th><th>Thread</th><th></th><th></th><th>User Agent</th>\n";
 	strClients += "</tr></thead><tbody>\n";
 	for (TWebChannelClientMap::const_iterator itrChannels = mapChannels.constBegin(); itrChannels != mapChannels.constEnd(); ++itrChannels) {
 		QPointer<CWebChannelClient> pClientChannel = itrChannels.value();
 		bool bAdmin = ((!pClientChannel.isNull()) ? pClientChannel->isAdmin() : false);
-		strClients += QString("<tr><td>%1</td><td>%2</td><td>%3</td>"
+		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:right;\">%4</td>"
 					"<td><button type=\"button\" onclick=\"javascript:sendMessage('%2', '%3');\">Send the Broadcast Message to this client</button></td>"
 					"<td><button type=\"button\" onclick=\"javascript:disconnectClient('%2', '%3');\">Disconnect</button></td>"
-					"<td>%4</td>"
+					"<td>%5</td>"
 					"</tr>\n")
 					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
 					.arg(itrChannels.key()->socket()->peerAddress().toString())
 					.arg(itrChannels.key()->socket()->peerPort())
+					.arg(!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1)
 					.arg(!pClientChannel.isNull() ? pClientChannel->userAgent() : "");
 	}
 	strClients += "</tbody></table>\n";
-	strClients += QString("<br/>Connections: %1\n").arg(mapChannels.size());
+	strClients += QString("<br />Connections: %1<br /><hr /><br />\n").arg(mapChannels.size());
+
+	strClients += QString("Thread Count: %1<br /><br />\n").arg(CWebChannelThreadController::instance()->threadCount());
+	strClients += "<table><thead><tr>\n";
+	strClients += "<th>Thread</th><th>Count</th>\n";
+	strClients += "</tr></thead><tbody style=\"text-align:center;\">\n";
+	for (int ndx = 0; ndx < CWebChannelThreadController::instance()->threadCount(); ++ndx) {
+		strClients += QString("<tr><td>%1</td><td>%2</td></tr>\n").arg(ndx).arg(CWebChannelThreadController::instance()->threadWebChannelCount(ndx));
+	}
+	strClients += "</tbody></table>\n";
 
 	emit connectionsList(strClients);
 }

@@ -156,6 +156,9 @@ public:
 
 	void destroyWebChannelSearchResults(CWebChannelObjects *pChannel);
 
+	int threadCount() const;
+	int threadWebChannelCount(int nThreadIndex) const;
+
 public:
 	// These functions are called by the CWebChannelObjects slots to process the slot on a particular thread
 	void selectBible(CWebChannelObjects *pChannel, const QString &strUUID);
