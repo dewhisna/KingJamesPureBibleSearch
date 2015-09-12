@@ -4,3 +4,6 @@
 [submodule "programs/qwebchannel/html/jquery/jquery-ui/turn.js"]
 	path = programs/qwebchannel/html/jquery/jquery-ui/turn.js
 	url = git@github.com:dewhisna/turn.js.git
+[submodule "programs/qwebchannel/html/jquery/jquery-ui/malihu-custom-scrollbar-plugin"]
+	path = programs/qwebchannel/html/jquery/jquery-ui/malihu-custom-scrollbar-plugin
+	url = git@github.com:dewhisna/malihu-custom-scrollbar-plugin.git
