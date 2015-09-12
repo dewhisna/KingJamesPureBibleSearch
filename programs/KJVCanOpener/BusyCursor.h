@@ -41,12 +41,14 @@ public:
 		:	m_pWidget(pWidget),
 			m_bBusyActive(true)
 	{
+#ifndef IS_CONSOLE_APP
 		if (m_pWidget) {
 			m_originalCursor = m_pWidget->cursor();
 			m_pWidget->setCursor(Qt::WaitCursor);
 		} else {
 			QApplication::setOverrideCursor(Qt::WaitCursor);
 		}
+#endif
 	}
 
 	~CBusyCursor()
@@ -56,6 +58,7 @@ public:
 
 	void earlyRestore()
 	{
+#ifndef IS_CONSOLE_APP
 		if (m_bBusyActive) {
 			if (m_pWidget) {
 				m_pWidget->setCursor(m_originalCursor);
@@ -65,10 +68,13 @@ public:
 
 			m_bBusyActive = false;
 		}
+#endif
 	}
 
 private:
+#ifndef IS_CONSOLE_APP
 	QCursor m_originalCursor;
+#endif
 	QWidget *m_pWidget;
 	bool m_bBusyActive;
 };

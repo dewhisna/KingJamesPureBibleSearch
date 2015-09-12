@@ -596,6 +596,13 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 	bool bSuccess = true;
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+#ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
+	if ((pBibleDatabase.isNull()) && (TBibleDatabaseList::instance()->loadBibleDatabase(strUUID, false))) {
+		pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+		assert(!pBibleDatabase.isNull());
+	}
+#endif
+
 	if (!pBibleDatabase.isNull()) {
 		// Note: create calls init on searchResults which will emit bibleSelected signal
 		bSuccess = (createWebChannelSearchResults(pChannel, pBibleDatabase, g_pUserNotesDatabase) != NULL);

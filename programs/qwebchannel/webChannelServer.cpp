@@ -358,8 +358,8 @@ void CWebChannelServer::setClientBibleUUID(const CWebChannelClient *pClient)
 #ifdef IS_CONSOLE_APP
 			CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(pClientChannel->bibleUUID());
 			bool bValid = !pBibleDatabase.isNull();
-			std::cout << QString(bValid ?	"%1 UTC : Selected Bible : \"%2\" (%3) port %4 : {%5} %6\n" :
-											"%1 UTC : Selected Bible : \"%2\" (%3) port %4 : invalid/unknown%5%6\n")
+			std::cout << QString(bValid ?	"%1 UTC : Select Bible : \"%2\" (%3) port %4 : {%5} %6\n" :
+											"%1 UTC : Select Bible : \"%2\" (%3) port %4 : invalid/unknown%5%6\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
 									.arg(itrClientMap.key()->socket()->peerAddress().toString())
