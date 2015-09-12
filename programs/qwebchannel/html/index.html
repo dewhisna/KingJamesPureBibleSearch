@@ -21,7 +21,7 @@
 			var bDoingLocateUpdate = false;		// Set to true when the drop lists are being updated to avoid circular calls
 			var ndxPassageReference = 0;		// TPhraseTag relIndex for Passage Reference entered in locateDialog
 			var ndxPassageReferenceCount = 0;	// TPhraseTag nCount for Passage Reference entered in locateDialog
-			var strBibleUUID;					// Selected Bible UUID
+			var strBibleUUID = "";				// Selected Bible UUID
 
 			//BEGIN SETUP
 			function output(message)
@@ -704,10 +704,15 @@
 
 			function selectBible()
 			{
+				$("#selectBibleList").selectmenu("widget").blur();
 				if (strBibleUUID != $("#selectBibleList").val()) {
 					waitCursor(true);
 					window.kjpbs.selectBible($("#selectBibleList").val());
-					gotoChapter(nBrowserChapterCurrent, "scrollTabTop");
+					if (nBrowserChapterCurrent > 0) {
+						gotoChapter(nBrowserChapterCurrent, "scrollTabTop");
+					} else {
+						gotoChapter(1, "scrollTabTop");
+					}
 				}
 			}
 
