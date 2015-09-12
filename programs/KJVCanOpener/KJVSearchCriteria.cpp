@@ -297,14 +297,15 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 
 	uint32_t nItem = pSearchWithinModelIndex->itemIndex();
 
-	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
+	if ((role == Qt::DisplayRole) || (role == Qt::EditRole) || (role == CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE)) {
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_WHOLE_BIBLE:
 			{
 				// Search for "Entire Bible".  First try and see if we can translate it in the language of the selected Bible,
 				//		but if not, try in the current language setting
 				QString strEntireBible = tr("Entire Bible", "Scope");
-				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+					(role == SWMDRE_WEBCHANNEL_ROLE)) {
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Entire Bible", "Scope");
@@ -318,7 +319,8 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				// Search for "Colophons".  First try and see if we can translate it in the language of the selected Bible,
 				//		but if not, try in the current language setting
 				QString strColophons = tr("Colophons", "Scope");
-				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+					(role == SWMDRE_WEBCHANNEL_ROLE)) {
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Colophons", "Scope");
@@ -332,7 +334,8 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				// Search for "Superscriptions".  First try and see if we can translate it in the language of the selected Bible,
 				//		but if not, try in the current language setting
 				QString strSuperscriptions = tr("Superscriptions", "Scope");
-				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+					(role == SWMDRE_WEBCHANNEL_ROLE)) {
 					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Superscriptions", "Scope");
@@ -343,7 +346,8 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 			}
 			case CSearchCriteria::SSME_TESTAMENT:
 			{
-				if (role == Qt::DisplayRole) {		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
+					(role == SWMDRE_WEBCHANNEL_ROLE)) {
 					assert(m_pBibleDatabase->testamentEntry(nItem) != NULL);
 					return m_pBibleDatabase->testamentEntry(nItem)->m_strTstName;
 				} else {
@@ -358,6 +362,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);
 				assert(pBookEntry != NULL);
 				QString strBook = pBookEntry->m_strBkName;
+				// role == CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE ignores description like Qt::EditRole
 				if ((role == Qt::DisplayRole) && (!pBookEntry->m_strDesc.isEmpty())) {
 					QTextDocument docBook;
 					strBook = QString("<pre>") + strBook;
@@ -375,9 +380,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				assert(false);
 				break;
 		}
-	}
-
-	if (role == Qt::ToolTipRole) {
+	} else if (role == Qt::ToolTipRole) {
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_COLOPHON:
 				return tr("A Colophon is an inscription at the end of a book\n"
@@ -391,13 +394,9 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 			default:
 				return QString();
 		}
-	}
-
-	if (role == Qt::CheckStateRole) {
+	} else if (role == Qt::CheckStateRole) {
 		return pSearchWithinModelIndex->checkState();
-	}
-
-	if (role == SWMDRE_REL_INDEX_ROLE) {
+	} else if (role == SWMDRE_REL_INDEX_ROLE) {
 		switch (pSearchWithinModelIndex->ssme()) {
 			case CSearchCriteria::SSME_COLOPHON:
 				return QVariant::fromValue(CSearchCriteria::SSI_COLOPHON);
@@ -516,7 +515,7 @@ static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, Q
 			if (model.hasChildren(mdlIndexChild)) {
 				QJsonArray arrayNode;
 				nodeToJson(model, arrayNode, mdlIndexChild, nLevel+1);
-				objNode["title"] = model.data(mdlIndexChild, Qt::EditRole).toString();
+				objNode["title"] = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE).toString();
 				if (nLevel < 2) objNode["expanded"] = true;
 				objNode["folder"] = true;
 				objNode["children"] = arrayNode;
@@ -527,7 +526,7 @@ static void nodeToJson(const CSearchWithinModel &model, QJsonArray &arrayRoot, Q
 				QString strToolTip = model.data(mdlIndexChild, Qt::ToolTipRole).toString();
 				if (!strToolTip.isEmpty()) objNode["tooltip"] = strToolTip;
 			} else {
-				objNode["title"] = model.data(mdlIndexChild, Qt::EditRole).toString();
+				objNode["title"] = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE).toString();
 				CRelIndex relNdx = model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
 				if (relNdx.isSet()) objNode["key"] = relNdx.asAnchor();
 				const CSearchWithinModelIndex *pSearchWithinModelIndex = model.toSearchWithinModelIndex(mdlIndexChild);
@@ -567,12 +566,12 @@ static void nodeToHtml(const CSearchWithinModel &model, QString &strResult, QMod
 				strResult += QString("  ").repeated(nLevel*2+2);
 				strResult += QString("<li class=\"%1\"><input type=\"checkbox\" /><label>%2</label></li>\n")
 										.arg((nLevel < 2) ? "expanded" : "collapsed")
-										.arg(model.data(mdlIndexChild, Qt::DisplayRole).toString());
+										.arg(model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE).toString());
 				nodeToHtml(model, strResult, mdlIndexChild, nLevel+1);
 			} else {
 				strResult += QString("  ").repeated(nLevel*2+2);
 				strResult += QString("<li class=\"leaf\"><input type=\"checkbox\" /><label>%1</label></li>\n")
-										.arg(model.data(mdlIndexChild, Qt::DisplayRole).toString());
+										.arg(model.data(mdlIndexChild, CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE).toString());
 			}
 			++nRow;
 		}

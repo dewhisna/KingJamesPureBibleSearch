@@ -304,7 +304,8 @@ class CSearchWithinModel : public QAbstractItemModel
 
 public:
 	enum SEARCH_WITHIN_MODEL_DATA_ROLES_ENUM {
-		SWMDRE_REL_INDEX_ROLE = Qt::UserRole + 0		// Data role for CRelIndex() for the corresponding item relative index
+		SWMDRE_REL_INDEX_ROLE = Qt::UserRole + 0,		// Data role for CRelIndex() for the corresponding item relative index
+		SWMDRE_WEBCHANNEL_ROLE = Qt::UserRole + 1		// Data role for toWebChannelJson() and toWebChannelHtml() format text
 	};
 
 	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent = 0);
