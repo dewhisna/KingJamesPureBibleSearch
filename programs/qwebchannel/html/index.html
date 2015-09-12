@@ -502,6 +502,8 @@
 					$("#tabs").tabs("option", "active", 0);
 					$("#tabs").tabs("refresh");
 //					scrollTabTop();
+					closeAllAutoCompleters();
+					cleanPages();
 					return;
 				}
 
@@ -710,12 +712,19 @@
 				$("#selectBibleList").selectmenu("widget").blur();
 				if (strBibleUUID != $("#selectBibleList").val()) {
 					waitCursor(true);
+
+					// Clear out the old search since it's not applicable to new database:
+					$(".searchPhraseText").each(function(i) {
+						var phraseID = $("#"+this.id).parents(".searchPhrase").attr("id");
+						this.value = "";
+						searchPhraseTextChanged(phraseID);
+					});
+					searchPhraseChanged("");
+					$("#tabs").tabs("option", "active", 1);		// Switch back to scripture tab
+					$("#tabs").tabs("refresh");
+
 					window.kjpbs.selectBible($("#selectBibleList").val());
-					if (nBrowserChapterCurrent > 0) {
-						gotoChapter(nBrowserChapterCurrent, "scrollTabTop");
-					} else {
-						gotoChapter(1, "scrollTabTop");
-					}
+					window.kjpbs.gotoIndex(0, 1, "scrollTabTop");			// Goto start of Bible text since chapter layout may be different or else it will appear like we didn't load it
 				}
 			}
 
