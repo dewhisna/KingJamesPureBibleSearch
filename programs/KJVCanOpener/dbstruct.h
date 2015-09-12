@@ -1226,6 +1226,9 @@ public:
 	virtual ~TBibleDatabaseList();
 	static TBibleDatabaseList *instance();
 
+#ifdef USING_WEBCHANNEL
+	static QString availableBibleDatabasesAsJson();
+#endif
 	static bool loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
 	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
 	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }

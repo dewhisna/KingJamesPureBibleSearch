@@ -71,6 +71,34 @@ TBibleDatabaseList *TBibleDatabaseList::instance()
 	return &theBibleDatabaseList;
 }
 
+#ifdef USING_WEBCHANNEL
+QString TBibleDatabaseList::availableBibleDatabasesAsJson()
+{
+	QJsonArray arrBibleList;
+	QStringList lstAvailableDatabases = TBibleDatabaseList::instance()->availableBibleDatabasesUUIDs();
+	QString strUUIDDefault;
+	CBibleDatabasePtr pDefaultBible = TBibleDatabaseList::instance()->atUUID(QString());
+	if (!pDefaultBible.isNull()) strUUIDDefault = pDefaultBible->compatibilityUUID();
+	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
+		QJsonObject objBible;
+		objBible["id"] = lstAvailableDatabases.at(ndx);
+		objBible["isDefault"] = ((strUUIDDefault.compare(lstAvailableDatabases.at(ndx), Qt::CaseInsensitive) == 0) ? true : false);
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
+		if (!pBibleDatabase.isNull()) {
+			objBible["name"] = pBibleDatabase->description();
+		} else {
+			BIBLE_DESCRIPTOR_ENUM nBDE = bibleDescriptorFromUUID(lstAvailableDatabases.at(ndx));
+			assert(nBDE != BDE_UNKNOWN);
+			const TBibleDescriptor &bblDesc = bibleDescriptor(nBDE);
+			objBible["name"] = bblDesc.m_strDBDesc;
+		}
+		arrBibleList.append(objBible);
+	}
+
+	return QJsonDocument(arrBibleList).toJson(QJsonDocument::Compact);
+}
+#endif
+
 bool TBibleDatabaseList::loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain, QWidget *pParent)
 {
 	if (nBibleDB == BDE_UNKNOWN) return false;

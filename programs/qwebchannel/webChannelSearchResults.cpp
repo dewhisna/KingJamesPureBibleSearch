@@ -81,7 +81,7 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 	m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
 	CSearchWithinModel swim(pBibleDatabase, m_searchResultsData.m_SearchCriteria);
 	emit searchWithinModelChanged(swim.toWebChannelJson(), static_cast<int>(m_searchResultsData.m_SearchCriteria.searchScopeMode()));
-	emit bibleSelected(true, pBibleDatabase->toJsonBkChpStruct());
+	emit bibleSelected(true, pBibleDatabase->compatibilityUUID(), pBibleDatabase->toJsonBkChpStruct());
 }
 
 CWebChannelSearchResults::~CWebChannelSearchResults()
@@ -505,7 +505,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 
 	m_mapSearchResults[pChannel] = pSearchResults;
 
-	connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &)));
+	connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 	connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 
 	connect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
@@ -561,7 +561,7 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 
 	// In case the other thread is in the process of returning pending calculations, disconnect
 	//		all signals from CWebChannelSearchResults and CWebChannelObjects:
-	disconnect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &)));
+	disconnect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 	disconnect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
@@ -595,6 +595,15 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 
 	bool bSuccess = true;
 
+	// Report list of available texts if selecting default:
+	if (strUUID.isEmpty()) {
+		bSuccess = QMetaObject::invokeMethod(pChannel,
+									"bibleList",
+									Qt::DirectConnection,		// This should make sure the list fires before the default selection propagates
+									Q_ARG(const QString &, TBibleDatabaseList::instance()->availableBibleDatabasesAsJson()));
+		assert(bSuccess);
+	}
+
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
 #ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
 	if ((pBibleDatabase.isNull()) && (TBibleDatabaseList::instance()->loadBibleDatabase(strUUID, false))) {
@@ -611,6 +620,7 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 												"bibleSelected",
 												Qt::QueuedConnection,
 												Q_ARG(bool, false),
+												Q_ARG(const QString &, QString()),
 												Q_ARG(const QString &, QString()));
 		assert(bSuccess);
 	}

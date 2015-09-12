@@ -69,7 +69,7 @@ public slots:
 
 	// ------------ Threaded Slots:
 
-	void selectBible(const QString &strUUID);
+	void selectBible(const QString &strUUID);				// Select particular Bible text (empty string is default)
 
 	void setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);		// Phrases, separated by semicolon, to search for.  SearchWithin = comma-separated searchWithinModel keys.  SearchScope = SEARCH_SCOPE_MODE_ENUM value
 	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
@@ -91,7 +91,8 @@ signals:
 
 	// ------------ Threaded Signals:
 
-	void bibleSelected(bool bSuccess, const QString &strJsonBkChpStruct);				// Generated after selectBible() call to indicate success/fail and to provide the book/chapter layout for navigation (empty if failure)
+	void bibleList(const QString &strJsonBibleList);		// Reports available list of Bible UUIDs after call to selectBible() with default UUID of ("")
+	void bibleSelected(bool bSuccess, const QString &strUUID, const QString &strJsonBkChpStruct);		// Generated after selectBible() call to indicate success/fail and to provide the book/chapter layout for navigation (empty if failure)
 	void searchWithinModelChanged(const QString &strJsonSearchWithinTree, int nScope);	// Generated after selectBible() call to fill in the searchWithin Tree View
 
 	void searchResultsChanged(const QString &strHtmlSearchResults, const QString &strHtmlSummary, const QString &strlstOccurrences);			// Triggered by en_searchResultsReady() when we have data to send to channel

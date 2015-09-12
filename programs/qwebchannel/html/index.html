@@ -21,6 +21,7 @@
 			var bDoingLocateUpdate = false;		// Set to true when the drop lists are being updated to avoid circular calls
 			var ndxPassageReference = 0;		// TPhraseTag relIndex for Passage Reference entered in locateDialog
 			var ndxPassageReferenceCount = 0;	// TPhraseTag nCount for Passage Reference entered in locateDialog
+			var strBibleUUID;					// Selected Bible UUID
 
 			//BEGIN SETUP
 			function output(message)
@@ -201,7 +202,12 @@
 						// make our kjpbs object accessible globally
 						window.kjpbs = channel.objects.kjpbs;
 
-						kjpbs.bibleSelected.connect(function(bSuccess, strJsonBkChpStruct) {
+						kjpbs.bibleList.connect(function(strJsonBibleList) {
+							setBibleList($.parseJSON(strJsonBibleList));
+						});
+
+						kjpbs.bibleSelected.connect(function(bSuccess, strUUID, strJsonBkChpStruct) {
+							waitCursor(false);
 							if (!bSuccess) {
 								output("Bible failed to load");
 								alert("Specified Bible is Not Currently Available on the Server!");
@@ -209,6 +215,9 @@
 								output("Bible Successfully Selected");
 								bkChpStruct = $.parseJSON(strJsonBkChpStruct);
 								setLocateDialogStatic();
+								strBibleUUID = strUUID;
+								$("#selectBibleList").val(strUUID);
+								$("#selectBibleList").selectmenu("refresh");
 							}
 						});
 
@@ -313,7 +322,7 @@
 						output("Connected to WebChannel, ready to send/receive searches!");
 
 						output("Selecting Bible...");
-						window.kjpbs.selectBible("85D8A6B0-E670-11E2-A28F-0800200C9A66");
+						window.kjpbs.selectBible("");
 						window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
 
 						hideKeyboard();
@@ -673,6 +682,33 @@
 				// TODO : Switch to page
 
 				nBrowserChapterCurrent = page;
+			}
+
+			function setBibleList(jsonBibleList) {
+				var selectBibleList = document.getElementById("selectBibleList");
+				var defaultUUID;
+				selectBibleList.options.length = 0;
+				$.each(jsonBibleList, function(index, itemData) {
+					$("<option value='" + itemData.id + "'>" + itemData.name
+						+ "</option>").appendTo("#selectBibleList");
+					if (itemData.isDefault === true) {
+						defaultUUID = itemData.id;
+					}
+				});
+				$("#selectBibleList").selectmenu("refresh");
+				if (defaultUUID) {
+					$("#selectBibleList").val(defaultUUID);
+					$("#selectBibleList").selectmenu("refresh");
+				}
+			}
+
+			function selectBible()
+			{
+				if (strBibleUUID != $("#selectBibleList").val()) {
+					waitCursor(true);
+					window.kjpbs.selectBible($("#selectBibleList").val());
+					gotoChapter(nBrowserChapterCurrent, "scrollTabTop");
+				}
 			}
 
 			function navPrevChapter() {
@@ -1125,6 +1161,8 @@
 						</table>
 					</div>
 					<div id="scriptureBook">
+						<select class="selectBibleList" name="selectBibleList" id="selectBibleList" title="Select Bible Text">
+						</select>
 						<div id="scriptureText" class="scriptureText"></div>
 					</div>
 				</div>
@@ -1163,6 +1201,7 @@
 			});
 			$( "#searchScope" ).selectmenu({
 				width : '100%',
+				style: 'dropdown',
 				select: function(event, ui) { searchPhraseChanged(); }
 			}).selectmenu("menuWidget").addClass("overflow");
 			$( "#searchScope" ).selectmenu().data("ui-selectmenu")._renderItem =
@@ -1356,6 +1395,25 @@
 					$("#passageReference").val("");
 				}
 			});
+
+			$( "#selectBibleList" ).selectmenu({
+				width : '100%',
+				style: 'dropdown',
+				select: function(event, ui) { selectBible(); }
+			}).selectmenu("menuWidget").addClass("overflow");
+			$( "#selectBibleList" ).selectmenu().data("ui-selectmenu")._renderItem =
+			function( ul, item ) {
+				var li = $( "<li>" )
+						.css( "background-color", item.value );
+
+				if ( item.disabled ) {
+					li.addClass( "ui-state-disabled" );
+				}
+
+				this._setText( li, item.label );
+
+				return li.appendTo( ul );
+			}
 
 //			var markup = document.getElementsByTagName('body')[0].innerHTML;
 //			alert(markup);
