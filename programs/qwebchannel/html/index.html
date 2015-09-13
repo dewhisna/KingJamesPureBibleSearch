@@ -31,6 +31,15 @@
 				var output = document.getElementById("output");
 				output.innerHTML = output.innerHTML + message + "\n";
 			}
+			$.fn.isOnScreen = function(){
+				var viewport = {};
+				viewport.top = $(window).scrollTop();
+				viewport.bottom = viewport.top + $(window).height();
+				var bounds = {};
+				bounds.top = this.offset().top;
+				bounds.bottom = bounds.top + this.outerHeight();
+				return ((bounds.top <= viewport.bottom) && (bounds.bottom >= viewport.top));
+			};
 			function hideKeyboard() {
 				if (!isTouchDevice()) return;
 				//this set timeout needed for case when hideKeyborad
@@ -283,6 +292,13 @@
 							if (ndxLogical) {
 								$("#detailsDialog").html(strDetails);
 								$("#detailsDialog").dialog("open");
+								if (!$("#detailsDialog").dialog("widget").isOnScreen()) {
+									$("#detailsDialog").dialog("widget").position({
+										my: "center",
+										at: "center",
+										of: window
+									});
+								}
 							}
 						});
 
