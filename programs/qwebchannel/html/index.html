@@ -206,6 +206,7 @@
 				{
 					bAreConnected = false;
 					document.getElementById("status").style.display = 'block';
+					document.getElementById("mainbody").style.display = 'none';
 					output("WebChannel Connection Closed");
 					alert("WebChannel Connection Closed");
 					$( "#reconnectButton" ).button( "option", "disabled", false );
@@ -215,6 +216,7 @@
 					bAreConnected = false;
 					$( "#reconnectButton" ).button( "option", "disabled", false );
 					document.getElementById("status").style.display = 'block';
+					document.getElementById("mainbody").style.display = 'none';
 					output("WebChannel Error: " + error);
 //					alert("WebChannel Error: " + error);
 				};
@@ -222,6 +224,7 @@
 				{
 					bAreConnected = true;
 					document.getElementById("status").style.display = 'none';
+					document.getElementById("mainbody").style.display = 'block';
 					$( "#reconnectButton" ).button( "option", "disabled", true );
 					output("WebSocket connected, setting up QWebChannel.");
 					new QWebChannel(socket, function(channel) {
@@ -1323,14 +1326,13 @@
 				</p>
 			</div>
 		</div>
+		<div id="status" style="display:none;">
+			<h1>King James Pure Bible Search</h1>
+			<h2>WebChannel Server</h2>
+			<textarea id="output"></textarea><br /><br />
+			<button type="button" id="reconnectButton" onclick="javascript:reconnect();">Reconnect to Server</button><br /><br />
+		</div>
 		<div id="mainbody">
-			<div id="status" style="display:none;">
-				<h1>King James Pure Bible Search</h1>
-				<h2>WebChannel Server</h2>
-				<textarea id="output"></textarea><br /><br />
-				<button type="button" id="reconnectButton" onclick="javascript:reconnect();">Reconnect to Server</button><br /><br /><hr /><br />
-			</div>
-
 			<div id="tabs">
 				<ul>
 					<li><a href="#search"><span>Search</span></a></li>
