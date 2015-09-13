@@ -355,7 +355,7 @@
 
 						kjpbs.updatePhrase.connect(function(strElementID, strNewPhrase) {
 							document.getElementById(strElementID+"_Text").value = strNewPhrase;
-							searchPhraseChanged(strElementID);
+							searchPhraseTextChanged(strElementID);
 						});
 
 						kjpbs.resolvedPassageReference.connect(function(ndxRel, nCount) {
@@ -458,15 +458,21 @@
 				trBreak.append('<td colspan="4"></td>');
 				var tdBreak = trBreak.find("td").first();
 				tdBreak.append('<hr class="searchPhraseBreak" />');
+				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("wasSelect", false);
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").autocomplete({
 					delay: 500,
 					maxShowItems: 5,
 					minLength: 1,
 					source: [ "" ],
+					open: function(event, ui)
+					{
+						$("#"+this.id).data("wasSelect", false);
+						return true;
+					},
 					select: function(event, ui)
 					{
-						var input = document.getElementById(this.id);
-						window.kjpbs.calcUpdatedPhrase($("#"+input.id).parents(".searchPhrase").attr("id"), input.value, ui.item.value, doGetCaretPosition(input));
+						$("#"+this.id).data("wasSelect", true);
+						window.kjpbs.calcUpdatedPhrase($("#"+this.id).parents(".searchPhrase").attr("id"), this.value, ui.item.value, doGetCaretPosition(this));
 						event.preventDefault();
 						return false;
 					},
@@ -475,23 +481,30 @@
 						event.preventDefault();
 						return false;
 					}
+				}).keydown(function(e) {
+					e = e || window.event;
+					if (e.keyCode == 13) {
+						e.preventDefault();
+					}
+				}).keyup(function(e) {
+					e = e || window.event;
+					if (e.keyCode == 13) {
+						if ($("#"+this.id).data("wasSelect") == false) {
+							hideKeyboard();
+							document.activeElement.blur();
+							searchPhraseTextChanged($("#"+this.id).parents(".searchPhrase").attr("id"));
+							searchPhraseChanged();
+						} else {
+							$("#"+this.id).data("wasSelect", false);
+						}
+					}
 				});
+
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", -1);
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastPhrase", "");
 				$(document).ready(function() {
 					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click paste focus blur", function() {
-						var input = document.getElementById(this.id);
-						var nCurPos = doGetCaretPosition(input);
-						if ((nCurPos != $("#"+this.id).data("LastCurPos")) ||
-							(input.value != $("#"+this.id).data("LastPhrase"))) {
-							if (input.value) {
-								window.kjpbs.autoCorrect($("#"+this.id).parents(".searchPhrase").attr("id"), input.value, nCurPos, $("#"+this.id).data("LastPhrase"), $("#"+this.id).data("LastCurPos"));
-								$("#"+this.id).data("LastCurPos", nCurPos);
-							}
-							$("#"+this.id).data("LastPhrase", input.value);
-							$("#"+this.id).autocomplete("close");
-//							closeAllAutoCompleters();
-						}
+						autoCorrect($("#"+this.id).parents(".searchPhrase").attr("id"));
 					});
 
 					$(".searchPhraseText").on("focus", function() {
@@ -523,6 +536,20 @@
 					return matcher.test(value.label || value.value || value);
 				});
 			};
+			function autoCorrect(aSearchPhrase) {
+				var input = document.getElementById(aSearchPhrase+"_Text");
+				var nCurPos = doGetCaretPosition(input);
+				if ((nCurPos != $("#"+aSearchPhrase+"_Text").data("LastCurPos")) ||
+					(input.value != $("#"+aSearchPhrase+"_Text").data("LastPhrase"))) {
+					if (input.value) {
+						window.kjpbs.autoCorrect(aSearchPhrase, input.value, nCurPos, $("#"+aSearchPhrase+"_Text").data("LastPhrase"), $("#"+aSearchPhrase+"_Text").data("LastCurPos"));
+						$("#"+aSearchPhrase+"_Text").data("LastCurPos", nCurPos);
+					}
+					$("#"+aSearchPhrase+"_Text").data("LastPhrase", input.value);
+					$("#"+aSearchPhrase+"_Text").autocomplete("close");
+//					closeAllAutoCompleters();
+				}
+			}
 
 			function searchPhraseChanged(aSearchPhrase) {
 				if (bSearchInProgress) return;
@@ -597,6 +624,7 @@
 					if (input.value != $("#"+aSearchPhrase+"_Text").data("LastPhrase")) {
 						theOccurrences.innerHTML = "???";
 					}
+					autoCorrect(aSearchPhrase);
 				}
 			}
 
@@ -678,7 +706,7 @@
 				}
 			}
 
-			function checkKey(e) {
+			document.onkeydown = function (e) {
 
 				e = e || window.event;
 
@@ -709,13 +737,7 @@
 							closeAllAutoCompleters();
 							// If a input box is active, force searchPhraseChanged:
 							if (document.activeElement && document.activeElement.id) {
-								if ($("#"+document.activeElement.id).hasClass("searchPhraseText")) {
-									$("#"+document.activeElement.id).autocomplete("close");
-									hideKeyboard();
-									searchPhraseTextChanged($("#"+document.activeElement.id).parents(".searchPhrase").attr("id"));
-									searchPhraseChanged();
-									document.activeElement.blur();
-								} else if ($("#"+document.activeElement.id).hasClass("passageReference")) {
+								if ($("#"+document.activeElement.id).hasClass("passageReference")) {
 									if (ndxPassageReference != 0) {
 										document.getElementById("gotoPassageButton").click();
 									}
@@ -725,7 +747,6 @@
 					}
 				}
 			}
-			document.onkeydown = checkKey;
 
 			function havePage(page) {
 				return false;
