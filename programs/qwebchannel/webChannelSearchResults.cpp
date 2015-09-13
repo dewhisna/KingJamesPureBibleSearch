@@ -222,8 +222,8 @@ void CWebChannelSearchResults::autoCorrect(const QString &strElementID, const QS
 	lstNextWords.reserve(thePhrase.nextWordsList().size());
 	for (int ndx = 0; ndx < thePhrase.nextWordsList().size(); ++ndx) {
 		if ((strCursorWord.isEmpty() && (pCurrentSubPhrase->GetCursorWordPos() > 0)) ||
-			(!strCursorWord.isEmpty() && thePhrase.nextWordsList().at(ndx).decomposedWord().startsWith(strCursorWord, Qt::CaseInsensitive))) {
-			lstNextWords.append(strBasePhrase + thePhrase.nextWordsList().at(ndx).decomposedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed/composed word differences?
+			(!strCursorWord.isEmpty() && thePhrase.nextWordsList().at(ndx).renderedWord().startsWith(strCursorWord, Qt::CaseInsensitive))) {
+			lstNextWords.append(strBasePhrase + thePhrase.nextWordsList().at(ndx).renderedWord());		// TODO: Anyway to make jquery-ui autocompleter learn about decomposed/composed word differences?
 		}
 	}
 	emit setAutoCompleter(strElementID, lstNextWords.join(QChar(';')));
