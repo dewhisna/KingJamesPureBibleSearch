@@ -32,6 +32,7 @@
 				output.innerHTML = output.innerHTML + message + "\n";
 			}
 			function hideKeyboard() {
+				if (!isTouchDevice()) return;
 				//this set timeout needed for case when hideKeyborad
 				//is called inside of 'onfocus' event handler
 				setTimeout(function() {
@@ -670,6 +671,8 @@
 									hideKeyboard();
 									searchPhraseTextChanged($("#"+document.activeElement.id).parents(".searchPhrase").attr("id"));
 									searchPhraseChanged();
+									document.activeElement.blur();
+									e.preventDefault();
 								} else if ($("#"+document.activeElement.id).hasClass("passageReference")) {
 									if (ndxPassageReference != 0) {
 										document.getElementById("gotoPassageButton").click();
