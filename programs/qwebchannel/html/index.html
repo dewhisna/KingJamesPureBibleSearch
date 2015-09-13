@@ -705,14 +705,13 @@
 						case 13:		// Enter
 							closeAllAutoCompleters();
 							// If a input box is active, force searchPhraseChanged:
-							if (document.activeElement) {
+							if (document.activeElement && document.activeElement.id) {
 								if ($("#"+document.activeElement.id).hasClass("searchPhraseText")) {
 									$("#"+document.activeElement.id).autocomplete("close");
 									hideKeyboard();
 									searchPhraseTextChanged($("#"+document.activeElement.id).parents(".searchPhrase").attr("id"));
 									searchPhraseChanged();
 									document.activeElement.blur();
-									e.preventDefault();
 								} else if ($("#"+document.activeElement.id).hasClass("passageReference")) {
 									if (ndxPassageReference != 0) {
 										document.getElementById("gotoPassageButton").click();
