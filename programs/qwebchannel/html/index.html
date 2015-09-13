@@ -419,7 +419,7 @@
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastCurPos", -1);
 				$("#searchPhrase_"+nSearchPhraseNextID+"_Text").data("LastPhrase", "");
 				$(document).ready(function() {
-					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click paste focus", function() {
+					$("#searchPhrase_"+nSearchPhraseNextID+"_Text").bind("keyup click paste focus blur", function() {
 						var input = document.getElementById(this.id);
 						var nCurPos = doGetCaretPosition(input);
 						if ((nCurPos != $("#"+this.id).data("LastCurPos")) ||
