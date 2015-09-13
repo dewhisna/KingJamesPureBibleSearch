@@ -23,6 +23,7 @@
 			var ndxPassageReference = 0;		// TPhraseTag relIndex for Passage Reference entered in locateDialog
 			var ndxPassageReferenceCount = 0;	// TPhraseTag nCount for Passage Reference entered in locateDialog
 			var strBibleUUID = "";				// Selected Bible UUID
+			var bSearchInProgress = false;		// Flag to avoid re-entry into setSearchPhrases()
 
 			//BEGIN SETUP
 			function output(message)
@@ -238,8 +239,10 @@
 						});
 
 						kjpbs.searchResultsChanged.connect(function(strHtmlSearchResults, strHtmlSummary, strlstOccurrences) {
-							document.getElementById("searchResults").innerHTML = strHtmlSearchResults;
-							document.getElementById("searchResultsSummary").innerHTML = strHtmlSummary;
+							if (!strBibleUUID || !bSearchInProgress) return;
+
+							$("#searchResults").html(strHtmlSearchResults);
+							$("#searchResultsSummary").html(strHtmlSummary);
 
 							var lstOccurrences = strlstOccurrences.split(";");
 							var ndxOccurrences = 0;
@@ -254,12 +257,25 @@
 
 							$("#tabs").tabs("option", "active", 0);
 							$("#tabs").tabs("refresh");
-//							scrollTabTop();
-							// Wait cursor back off
-							waitCursor(false);
-//							enableAllAutoCompleters();
-							closeAllAutoCompleters();
-							disableAllAutoCompleters();
+						});
+
+						kjpbs.searchResultsAppend.connect(function(strHtmlSearchResults, bLast) {
+							if (!strBibleUUID || !bSearchInProgress) return;
+							if (strHtmlSearchResults) {
+								$("#searchResults").append(strHtmlSearchResults);
+							}
+
+							$("#tabs").tabs("option", "active", 0);
+							$("#tabs").tabs("refresh");
+							if (bLast === true) {
+//								scrollTabTop();
+								// Wait cursor back off
+								waitCursor(false);
+//								enableAllAutoCompleters();
+								closeAllAutoCompleters();
+								disableAllAutoCompleters();
+								bSearchInProgress = false;
+							}
 						});
 
 						kjpbs.searchResultsDetails.connect(function(ndxLogical, strDetails) {
@@ -465,6 +481,9 @@
 			};
 
 			function searchPhraseChanged(aSearchPhrase) {
+				if (bSearchInProgress) return;
+				bSearchInProgress = true;
+
 				var phrases = "";
 				$(".searchPhraseText").each(function(i) {
 					if (this.value) {
@@ -504,6 +523,7 @@
 //					scrollTabTop();
 					closeAllAutoCompleters();
 					cleanPages();
+					bSearchInProgress = false;
 					return;
 				}
 
@@ -647,9 +667,9 @@
 							if (document.activeElement) {
 								if ($("#"+document.activeElement.id).hasClass("searchPhraseText")) {
 									$("#"+document.activeElement.id).autocomplete("close");
+									hideKeyboard();
 									searchPhraseTextChanged($("#"+document.activeElement.id).parents(".searchPhrase").attr("id"));
 									searchPhraseChanged();
-									hideKeyboard();
 								} else if ($("#"+document.activeElement.id).hasClass("passageReference")) {
 									if (ndxPassageReference != 0) {
 										document.getElementById("gotoPassageButton").click();
@@ -711,6 +731,7 @@
 			{
 				$("#selectBibleList").selectmenu("widget").blur();
 				if (strBibleUUID != $("#selectBibleList").val()) {
+					strBibleUUID = "";			// Force search results input to halt, just in case
 					waitCursor(true);
 
 					// Clear out the old search since it's not applicable to new database:
@@ -719,7 +740,8 @@
 						this.value = "";
 						searchPhraseTextChanged(phraseID);
 					});
-					searchPhraseChanged("");
+					bSearchInProgress = false;
+					searchPhraseChanged();
 					$("#tabs").tabs("option", "active", 1);		// Switch back to scripture tab
 					$("#tabs").tabs("refresh");
 

@@ -46,6 +46,7 @@
 // Search Limits:
 // --------------
 #define MAX_SEARCH_PHRASES 5
+#define RESULTS_BATCH_SIZE 7000				// Number of results per batch to send to client
 
 // ============================================================================
 
@@ -261,6 +262,22 @@ void CWebChannelSearchResults::en_searchResultsReady()
 #if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Num Verses Matching = %d", nVerses);
 #endif
+
+	bool bFirstBatch = true;
+	int nCount = 0;
+
+	QString strOccurrences;
+	for (int ndx = 0; ndx < m_lstParsedPhrases.size(); ++ndx) {
+		const CParsedPhrase &parsedPhrase = *m_lstParsedPhrases.at(ndx).data();
+		if (!strOccurrences.isEmpty()) strOccurrences += ";";
+		strOccurrences += QString("%1/%2/%3")
+								.arg(!parsedPhrase.isDisabled() ? (parsedPhrase.isExcluded() ? -parsedPhrase.GetContributingNumberOfMatches() : parsedPhrase.GetContributingNumberOfMatches()) : 0)
+								.arg(parsedPhrase.GetNumberOfMatchesWithin())
+								.arg(parsedPhrase.GetNumberOfMatches());
+	}
+
+	CSearchResultsSummary srs(*m_pVerseListModel);
+
 	QString strResults;
 	for (int ndx = 0; ndx < nVerses; ++ndx) {
 		QModelIndex ndxModel = m_pVerseListModel->index(ndx);
@@ -295,25 +312,29 @@ void CWebChannelSearchResults::en_searchResultsReady()
 								.arg(m_pVerseListModel->logicalIndexForModelIndex(ndxModel).index());
 		strVerse += "<br /><hr />";
 		strResults += strVerse;
+
+		++nCount;
+
+		if (nCount >= RESULTS_BATCH_SIZE) {
+			if (bFirstBatch) {
+				emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pBibleDatabase, false, true), strOccurrences);
+				bFirstBatch = false;
+			} else {
+				emit searchResultsAppend(strResults, (ndx == (nVerses-1)));
+			}
+			strResults.clear();
+			nCount -= RESULTS_BATCH_SIZE;
+		}
 	}
 
-#if DEBUG_WEBCHANNEL_SEARCH
-	qDebug("Sending Results");
-#endif
-
-	QString strOccurrences;
-	for (int ndx = 0; ndx < m_lstParsedPhrases.size(); ++ndx) {
-		const CParsedPhrase &parsedPhrase = *m_lstParsedPhrases.at(ndx).data();
-		if (!strOccurrences.isEmpty()) strOccurrences += ";";
-		strOccurrences += QString("%1/%2/%3")
-								.arg(!parsedPhrase.isDisabled() ? (parsedPhrase.isExcluded() ? -parsedPhrase.GetContributingNumberOfMatches() : parsedPhrase.GetContributingNumberOfMatches()) : 0)
-								.arg(parsedPhrase.GetNumberOfMatchesWithin())
-								.arg(parsedPhrase.GetNumberOfMatches());
+	if (bFirstBatch) {
+		emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pBibleDatabase, false, true), strOccurrences);
+		emit searchResultsAppend(QString(), true);
+	} else {
+		if (nCount) {
+			emit searchResultsAppend(strResults, true);
+		}
 	}
-
-	CSearchResultsSummary srs(*m_pVerseListModel);
-
-	emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pBibleDatabase, false, true), strOccurrences);
 
 	// Free-up memory for other clients:
 	m_lstParsedPhrases.clear();
@@ -509,6 +530,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 	connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 
 	connect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
+	connect(pSearchResults, SIGNAL(searchResultsAppend(const QString &, bool)), pChannel, SIGNAL(searchResultsAppend(const QString &, bool)));
 	connect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
 	connect(pSearchResults, SIGNAL(setAutoCompleter(const QString &, const QString &)), pChannel, SIGNAL(setAutoCompleter(const QString &, const QString &)));
 	connect(pSearchResults, SIGNAL(updatePhrase(const QString &, const QString &)), pChannel, SIGNAL(updatePhrase(const QString &, const QString &)));
@@ -564,6 +586,7 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 	disconnect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 	disconnect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
+	disconnect(pSearchResults, SIGNAL(searchResultsAppend(const QString &, bool)), pChannel, SIGNAL(searchResultsAppend(const QString &, bool)));
 	disconnect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(setAutoCompleter(const QString &, const QString &)), pChannel, SIGNAL(setAutoCompleter(const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(updatePhrase(const QString &, const QString &)), pChannel, SIGNAL(updatePhrase(const QString &, const QString &)));
