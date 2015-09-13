@@ -24,6 +24,7 @@
 			var ndxPassageReferenceCount = 0;	// TPhraseTag nCount for Passage Reference entered in locateDialog
 			var strBibleUUID = "";				// Selected Bible UUID
 			var bSearchInProgress = false;		// Flag to avoid re-entry into setSearchPhrases()
+			var bAreConnected = false;			// True when we are connected to the server (and properly initialized)
 
 			//BEGIN SETUP
 			function output(message)
@@ -74,8 +75,10 @@
 			}
 			function waitCursor(bAreBusy) {
 				if (bAreBusy) {
-					$("#loading-target").loadingOverlay();
-					$("body").css("cursor", "progress");
+					if (bAreConnected) {
+						$("#loading-target").loadingOverlay();
+						$("body").css("cursor", "progress");
+					}
 				} else {
 					$("#loading-target").loadingOverlay("remove");
 					$("body").css("cursor", "default");
@@ -181,7 +184,9 @@
 					}
 				}
 			}
-			window.onload = function() {
+			function establishConnection(bReconnection) {
+				if (bAreConnected) return;
+
 				var baseUrl;
 				var basePort;
 				if ((/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search))) {
@@ -199,18 +204,25 @@
 
 				socket.onclose = function()
 				{
+					bAreConnected = false;
 					document.getElementById("status").style.display = 'block';
 					output("WebChannel Connection Closed");
 					alert("WebChannel Connection Closed");
+					$( "#reconnectButton" ).button( "option", "disabled", false );
 				};
 				socket.onerror = function(error)
 				{
+					bAreConnected = false;
+					$( "#reconnectButton" ).button( "option", "disabled", false );
 					document.getElementById("status").style.display = 'block';
 					output("WebChannel Error: " + error);
-					alert("WebChannel Error: " + error);
+//					alert("WebChannel Error: " + error);
 				};
 				socket.onopen = function()
 				{
+					bAreConnected = true;
+					document.getElementById("status").style.display = 'none';
+					$( "#reconnectButton" ).button( "option", "disabled", true );
 					output("WebSocket connected, setting up QWebChannel.");
 					new QWebChannel(socket, function(channel) {
 						// make our kjpbs object accessible globally
@@ -358,10 +370,12 @@
 						output("Connected to WebChannel, ready to send/receive searches!");
 
 						output("Selecting Bible...");
-						window.kjpbs.selectBible("");
-						window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
+						window.kjpbs.selectBible(strBibleUUID);
 
-						hideKeyboard();
+						if (!bReconnection) {
+							window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
+							hideKeyboard();
+						}
 					});
 
 					// Close heading after 5 seconds to get it out of the way on mobile devices:
@@ -369,6 +383,16 @@
 //					{
 //						document.getElementById("status").style.display = 'none';
 //					}, 5000);
+				}
+			}
+			window.onload = function() {
+				establishConnection(false);
+			}
+			function reconnect() {
+				document.getElementById("reconnectButton").blur();	// Workaround jqueryui bug
+				$("#reconnectButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+				if (!bAreConnected) {
+					establishConnection(true);
 				}
 			}
 			//END SETUP
@@ -1304,7 +1328,8 @@
 			<div id="status" style="display:none;">
 				<h1>King James Pure Bible Search</h1>
 				<h2>WebChannel Server</h2>
-				<textarea id="output"></textarea><br />
+				<textarea id="output"></textarea><br /><br />
+				<button type="button" id="reconnectButton" onclick="javascript:reconnect();">Reconnect to Server</button><br /><br /><hr /><br />
 			</div>
 
 			<div id="tabs">
@@ -1398,6 +1423,8 @@
 
 		<script>
 			var initJsonSearchWithinTree = [ ];
+
+			$( "#reconnectButton" ).button();
 
 			$(document).tooltip();
 			$( "#tabs" ).tabs({
