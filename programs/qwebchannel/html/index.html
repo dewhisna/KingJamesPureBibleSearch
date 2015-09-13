@@ -784,6 +784,8 @@
 						var phraseID = $("#"+this.id).parents(".searchPhrase").attr("id");
 						this.value = "";
 						searchPhraseTextChanged(phraseID);
+						$("#"+this.id).autocomplete("option", "source", [""]);
+						$("#"+this.id).autocomplete("disable");
 					});
 					bSearchInProgress = false;
 					searchPhraseChanged();
