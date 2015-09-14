@@ -383,7 +383,7 @@
 						window.kjpbs.selectBible(strBibleUUID);
 
 						if (!bReconnection) {
-							window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
+							gotoIndex(0, 1, "scrollTabTop");
 							hideKeyboard();
 						}
 					});
@@ -714,6 +714,7 @@
 			function gotoChapter(nChp, strParam)
 			{
 				if (window.kjpbs) {
+					waitCursor(true);
 					window.kjpbs.gotoChapter(nChp, strParam);
 				}
 			}
@@ -772,13 +773,14 @@
 			}
 
 			function havePage(page) {
+				// TODO : Lookup page in cache
 				return false;
 			}
 
 			// Adds the pages that the "Scripture Book" will need
 			function addPage(page, strText) {
 				if (!havePage(page)) {
-					// TODO : Add page
+					// TODO : Add page to cache
 					document.getElementById("scriptureText").innerHTML = strText;
 				} else {
 					document.getElementById("scriptureText").innerHTML = strText;
