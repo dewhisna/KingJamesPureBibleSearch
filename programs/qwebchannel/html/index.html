@@ -373,6 +373,7 @@
 							} else {
 								$("#passageReference").css("color",  "#000000");
 							}
+							$("#passageReference").val( $("#passageReference").val() );
 						});
 
 						window.kjpbs.setUserAgent(navigator.userAgent);
@@ -1656,12 +1657,18 @@
 				}
 			});
 			$("#passageReference").on('change keyup paste input', function() {
+				// Set to invalid reference until we get response from server so
+				//		if there's a delay in getting the response, we aren't
+				//		working on bad data:
+				ndxPassageReference = 0;
+				ndxPassageReferenceCount = 0;
 				if ($(this).val()) {
+					$("#passageReference").css("color",  "#FF0000");
 					resolvePassageReference($(this).val());
 				} else {
-					ndxPassageReference = 0;
-					ndxPassageReferenceCount = 0;
+					$("#passageReference").css("color",  "#000000");
 				}
+				$("#passageReference").val( $("#passageReference").val() );
 			});
 
 			$("#gotoPassageButton").on("click", function () {
