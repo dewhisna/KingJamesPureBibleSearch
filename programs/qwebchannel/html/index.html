@@ -207,6 +207,8 @@
 					bAreConnected = false;
 					document.getElementById("status").style.display = 'block';
 					document.getElementById("mainbody").style.display = 'none';
+					$( "#detailsDialog" ).dialog("close");
+					$( "#locateDialog" ).dialog("close");
 					output("WebChannel Connection Closed");
 					alert("WebChannel Connection Closed");
 					$( "#reconnectButton" ).button( "option", "disabled", false );
