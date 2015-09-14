@@ -506,10 +506,10 @@
 					e = e || window.event;
 					if (e.keyCode == 13) {
 //						if ($("#"+this.id).data("wasSelect") == false) {
-							hideKeyboard();
-							document.activeElement.blur();
-							searchPhraseTextChanged($("#"+this.id).parents(".searchPhrase").attr("id"));
-							searchPhraseChanged();
+//							hideKeyboard();
+//							document.activeElement.blur();
+//							searchPhraseTextChanged($("#"+this.id).parents(".searchPhrase").attr("id"));
+//							searchPhraseChanged();
 //						} else {
 							$("#"+this.id).data("wasSelect", false);
 //						}
@@ -763,7 +763,6 @@
 					switch (e.keyCode) {
 						case 13:		// Enter
 							closeAllAutoCompleters();
-							// If a input box is active, force searchPhraseChanged:
 							if (document.activeElement && document.activeElement.id) {
 								if ($("#"+document.activeElement.id).hasClass("passageReference")) {
 									if (ndxPassageReference != 0) {
@@ -773,6 +772,27 @@
 							}
 							return;
 					}
+				}
+			}
+
+			document.onkeyup = function (e) {
+				e = e || window.event;
+
+				switch (e.keyCode) {
+					case 13:		// Enter
+						closeAllAutoCompleters();
+						// If a input box is active, force searchPhraseChanged:
+						if (document.activeElement && document.activeElement.id) {
+							var strActElemID = document.activeElement.id;
+							if ($("#"+strActElemID).hasClass("searchPhraseText")) {
+								$("#"+strActElemID).autocomplete("close");
+								hideKeyboard();
+								document.activeElement.blur();
+								searchPhraseTextChanged($("#"+strActElemID).parents(".searchPhrase").attr("id"));
+								searchPhraseChanged();
+							}
+						}
+						return;
 				}
 			}
 
