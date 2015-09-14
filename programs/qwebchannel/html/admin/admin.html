@@ -10,6 +10,8 @@
 		<script src="../jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.js"></script>
 		<script type="text/javascript" src="../qwebchannel.js"></script>
 		<script type="text/javascript">
+			var bAreConnected = false;			// True when we are connected to the server (and properly initialized)
+
 			//BEGIN SETUP
 			function output(message)
 			{
@@ -25,7 +27,10 @@
 				var element_to_scroll_to = document.getElementById(anAnchor);
 				element_to_scroll_to.scrollIntoView();
 			}
-			window.onload = function() {
+
+			function establishConnection(bReconnection) {
+				if (bAreConnected) return;
+
 				var baseUrl;
 				var basePort;
 				if ((/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search))) {
@@ -43,16 +48,22 @@
 
 				socket.onclose = function()
 				{
+					bAreConnected = false;
 					output("WebChannel Connection Closed");
 					alert("WebChannel Connection Closed");
+					$( "#reconnectButton" ).button( "option", "disabled", false );
 				};
 				socket.onerror = function(error)
 				{
+					bAreConnected = false;
+					$( "#reconnectButton" ).button( "option", "disabled", false );
 					output("WebChannel Error: " + error);
-					alert("WebChannel Error: " + error);
+//					alert("WebChannel Error: " + error);
 				};
 				socket.onopen = function()
 				{
+					bAreConnected = true;
+					$( "#reconnectButton" ).button( "option", "disabled", true );
 					output("WebSocket connected, setting up QWebChannel.");
 					new QWebChannel(socket, function(channel) {
 						// make our mosis object accessible globally
@@ -88,6 +99,16 @@
 						window.mosis.getIsListening(key());
 						window.mosis.getConnectionsList(key());
 					});
+				}
+			}
+			window.onload = function() {
+				establishConnection(false);
+			}
+			function reconnect() {
+				document.getElementById("reconnectButton").blur();	// Workaround jqueryui bug
+				$("#reconnectButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+				if (!bAreConnected) {
+					establishConnection(true);
 				}
 			}
 			//END SETUP
@@ -176,8 +197,12 @@
 		<div id="status">
 			<h1>King James Pure Bible Search</h1>
 			<h2>WebChannel Server Admin</h2>
-			<textarea id="output"></textarea><br />
+			<textarea id="output"></textarea><br /><br />
+			<button type="button" id="reconnectButton" onclick="javascript:reconnect();">Reconnect to Server</button><br />
 		</div>
+		<script>
+			$( "#reconnectButton" ).button();
+		</script>
 		<br />
 		<hr />
 		<br />
