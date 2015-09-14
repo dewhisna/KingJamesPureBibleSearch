@@ -35,7 +35,6 @@
 #include <QVector>
 #include <QMap>
 #include <QThread>
-#include <QMutex>
 
 // Forward declarations:
 class CPhraseNavigator;
@@ -114,6 +113,7 @@ private:
 };
 
 typedef QMap<CWebChannelObjects *, CWebChannelSearchResults *> TWebChannelSearchResultsMap;
+typedef QMap<CWebChannelSearchResults *, int> TSearchResultsToThreadMap;
 
 // ============================================================================
 
@@ -127,19 +127,7 @@ class CWebChannelThread : public QThread
 public:
 	CWebChannelThread(QObject *pParent = NULL);
 
-	int webChannelCount();
-
 	void attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults);
-
-signals:
-	void webChannelSearchResultsDestroyed(CWebChannelSearchResults *pSearchResults);
-
-private slots:
-	void en_destroyWebChannelSearchResults(QObject *pObject);
-
-private:
-	int m_nNumWebChannels;				// Number of WebChannel clients running on this thread
-	QMutex m_mutex;						// Mutex for locking member data with slots
 };
 
 // ============================================================================
@@ -181,11 +169,13 @@ private:
 	CWebChannelSearchResults *createWebChannelSearchResults(CWebChannelObjects *pChannel,  CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase);
 
 private slots:
-	void en_destroyedWebChannelSearchResults(CWebChannelSearchResults *pSearchResults);
+	void en_destroyedWebChannelSearchResults(QObject *pObject);
 
 private:
 	TWebChannelSearchResultsMap m_mapSearchResults;
+	TSearchResultsToThreadMap m_mapSearchResultsToThread;		// Mapping of Search Result to thread index (used for counting on SearchResult object destruction)
 	QVector<CWebChannelThread *> m_lstThreads;
+	QVector<int> m_lstNumWebChannels;
 };
 
 // ============================================================================

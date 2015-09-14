@@ -30,7 +30,6 @@
 
 #include <QStringList>
 #include <QTextDocument>
-#include <QMutexLocker>
 
 #ifdef IS_CONSOLE_APP
 #include <QDateTime>
@@ -427,35 +426,17 @@ void CWebChannelSearchResults::gotoChapter(int nChp, const QString &strParam)
 //
 
 CWebChannelThread::CWebChannelThread(QObject *pParent)
-	:	QThread(pParent),
-		m_nNumWebChannels(0)
+	:	QThread(pParent)
 {
 
-}
-
-int CWebChannelThread::webChannelCount()
-{
-	QMutexLocker locker(&m_mutex);
-	return m_nNumWebChannels;
 }
 
 void CWebChannelThread::attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults)
 {
-	QMutexLocker locker(&m_mutex);
 	assert(pSearchResults != NULL);
-	++m_nNumWebChannels;
 	pSearchResults->moveToThread(this);
 	connect(this, SIGNAL(finished()), pSearchResults, SLOT(deleteLater()));		// When the thread ends, delete the object since it becomes detached at that point
-	connect(pSearchResults, SIGNAL(destroyed(QObject*)), this, SLOT(en_destroyWebChannelSearchResults(QObject*)), Qt::QueuedConnection);	// Queued to avoid deadlock with mutex
-}
-
-void CWebChannelThread::en_destroyWebChannelSearchResults(QObject *pObject)
-{
-	QMutexLocker locker(&m_mutex);
-	--m_nNumWebChannels;
-	CWebChannelSearchResults *pSearchResults = static_cast<CWebChannelSearchResults *>(pObject);
-	assert(pSearchResults != NULL);
-	emit webChannelSearchResultsDestroyed(pSearchResults);
+	connect(pSearchResults, SIGNAL(destroyed(QObject*)), CWebChannelThreadController::instance(), SLOT(en_destroyedWebChannelSearchResults(QObject*)));
 }
 
 // ============================================================================
@@ -476,16 +457,20 @@ CWebChannelThreadController::CWebChannelThreadController()
 							.toUtf8().data();
 #endif
 
+	m_lstThreads.reserve(nIdealThreads);
+	m_lstNumWebChannels.reserve(nIdealThreads);
 	for (int ndx = 0; ndx < nIdealThreads; ++ndx) {
 		CWebChannelThread *pThread = new CWebChannelThread(this);
 		m_lstThreads.append(pThread);
+		m_lstNumWebChannels.append(0);
 		pThread->start();
-		connect(pThread, SIGNAL(webChannelSearchResultsDestroyed(CWebChannelSearchResults*)), this, SLOT(en_destroyedWebChannelSearchResults(CWebChannelSearchResults*)), Qt::QueuedConnection);	// Queued to avoid deadlock with mutex
 	}
 }
 
 CWebChannelThreadController::~CWebChannelThreadController()
 {
+	m_mapSearchResultsToThread.clear();
+	m_mapSearchResults.clear();
 	for (int ndx = 0; ndx < m_lstThreads.size(); ++ndx) {
 		if (!m_lstThreads.at(ndx)->isFinished()) {
 			m_lstThreads.at(ndx)->quit();
@@ -494,6 +479,7 @@ CWebChannelThreadController::~CWebChannelThreadController()
 		delete m_lstThreads.at(ndx);
 	}
 	m_lstThreads.clear();
+	m_lstNumWebChannels.clear();
 }
 
 CWebChannelThreadController *CWebChannelThreadController::instance()
@@ -507,6 +493,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 	// Select next open thread:
 	int ndxThreadToUse = -1;
 	int nLowCount = -1;
+	assert(m_lstNumWebChannels.size() == m_lstThreads.size());
 	for (int ndx = 0; ndx < m_lstThreads.size(); ++ndx) {
 		if (m_lstThreads.at(ndx) && m_lstThreads.at(ndx)->isRunning()) {
 #if DEBUG_WEBCHANNEL_THREAD_ANALYSIS
@@ -514,12 +501,12 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 	std::cout << QString("%1 UTC : Analyzing Threads : Thread %2, Load=%3\n")
 							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(ndx)
-							.arg(m_lstThreads.at(ndx)->webChannelCount())
+							.arg(m_lstNumWebChannels.at(ndx))
 							.toUtf8().data();
 #endif
 #endif
-			if ((nLowCount == -1) || (m_lstThreads.at(ndx)->webChannelCount() < nLowCount)) {
-				nLowCount = m_lstThreads.at(ndx)->webChannelCount();
+			if ((nLowCount == -1) || (m_lstNumWebChannels.at(ndx) < nLowCount)) {
+				nLowCount = m_lstNumWebChannels.at(ndx);
 				ndxThreadToUse = ndx;
 			}
 		}
@@ -534,6 +521,8 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 	pThread->attachWebChannelSearchResults(pSearchResults);				// MoveToThread -- do this call prior to any connects, etc.
 
 	m_mapSearchResults[pChannel] = pSearchResults;
+	++m_lstNumWebChannels[ndxThreadToUse];
+	m_mapSearchResultsToThread[pSearchResults] = ndxThreadToUse;
 
 	connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 	connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
@@ -561,9 +550,17 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 	return pSearchResults;
 }
 
-void CWebChannelThreadController::en_destroyedWebChannelSearchResults(CWebChannelSearchResults *pSearchResults)
+void CWebChannelThreadController::en_destroyedWebChannelSearchResults(QObject *pObject)
 {
+	CWebChannelSearchResults *pSearchResults = static_cast<CWebChannelSearchResults *>(pObject);
 	assert(pSearchResults != NULL);
+
+	int nThread = m_mapSearchResultsToThread.value(pSearchResults, -1);
+	assert(nThread != -1);
+	if (nThread != -1) {
+		--m_lstNumWebChannels[nThread];
+		m_mapSearchResultsToThread.remove(pSearchResults);
+	}
 
 	CWebChannelObjects *pChannel = NULL;
 	for (TWebChannelSearchResultsMap::const_iterator itrSR = m_mapSearchResults.constBegin(); itrSR != m_mapSearchResults.constEnd(); ++itrSR) {
@@ -575,7 +572,7 @@ void CWebChannelThreadController::en_destroyedWebChannelSearchResults(CWebChanne
 	//			destroyWebChannelSearchResults() rather than a thread finish
 	//			signal, so don't assert on (pChannel != NULL) here.
 
-	if (m_mapSearchResults.remove(pChannel) && (pChannel)) pChannel->setThreadIndex(-1);
+	if (pChannel) m_mapSearchResults.remove(pChannel);
 }
 
 void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObjects *pChannel)
@@ -586,7 +583,7 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 	// Must remove the channel here as selectBible() will call this function to release
 	//		the current object and then create a new one to map to the channel, so we
 	//		should go ahead and deselect it here since the threads are asynchronous:
-	if (m_mapSearchResults.remove(pChannel) && (pChannel)) pChannel->setThreadIndex(-1);
+	if ((pChannel) && m_mapSearchResults.remove(pChannel)) pChannel->setThreadIndex(-1);
 
 	if (pSearchResults == NULL) return;			// Allow a null case here as this function may be called just to ensure disconnection of channel's SearchResults
 
@@ -613,10 +610,9 @@ int CWebChannelThreadController::threadCount() const
 
 int CWebChannelThreadController::threadWebChannelCount(int nThreadIndex) const
 {
-	assert((nThreadIndex >= 0) && (nThreadIndex < m_lstThreads.size()));
-	if ((nThreadIndex < 0) || (nThreadIndex >= m_lstThreads.size())) return 0;
-	if (m_lstThreads.at(nThreadIndex) == NULL) return 0;
-	return m_lstThreads.at(nThreadIndex)->webChannelCount();
+	assert((nThreadIndex >= 0) && (nThreadIndex < m_lstNumWebChannels.size()));
+	if ((nThreadIndex < 0) || (nThreadIndex >= m_lstNumWebChannels.size())) return 0;
+	return m_lstNumWebChannels.at(nThreadIndex);
 }
 
 bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, const QString &strUUID)
