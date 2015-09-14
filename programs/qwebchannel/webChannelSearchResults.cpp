@@ -46,7 +46,7 @@
 // Search Limits:
 // --------------
 #define MAX_SEARCH_PHRASES 5
-#define RESULTS_BATCH_SIZE 7000				// Number of results per batch to send to client
+#define RESULTS_BATCH_SIZE 3000				// Number of results per batch to send to client per page
 
 // ============================================================================
 
@@ -67,6 +67,8 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 
 	m_pBibleDatabase = pBibleDatabase;
 
+	m_nNextResultIndex = 0;
+	m_bSearchInProgress = false;
 	m_searchResultsData.m_lstParsedPhrases.clear();
 	m_lstParsedPhrases.clear();
 	m_scriptureText.clear();
@@ -129,6 +131,9 @@ void CWebChannelSearchResults::setSearchPhrases(const QString &strPhrases, const
 			m_searchResultsData.m_lstParsedPhrases.removeLast();
 		}
 	}
+
+	m_nNextResultIndex = 0;
+	m_bSearchInProgress = true;
 
 	m_pVerseListModel->setParsedPhrases(m_searchResultsData);		// Start processing search -- will block if using command-line multi-threaded search phrase mode, else will exit, and either case searchResultsReady() fires
 }
@@ -258,6 +263,23 @@ void CWebChannelSearchResults::calcUpdatedPhrase(const QString &strElementID, co
 
 void CWebChannelSearchResults::en_searchResultsReady()
 {
+	m_bSearchInProgress = false;
+	getMoreSearchResults();					// Generate first batch (emits both a searchResultsChanged and searchResultsAppend)
+
+	// Free-up memory for other clients:
+	m_lstParsedPhrases.clear();
+	m_searchResultsData.m_lstParsedPhrases.clear();
+	// TODO : Figure out how to clear out the VerseListModel without causing
+	//		this function to get run again and send empty results (keeping in
+	//		mind this can be multithreaded).  Also, clearing it would preclude
+	//		getSearchResultDetails() from working...  Also, doing so would
+	//		break paginations -- so this may not be possible.
+}
+
+void CWebChannelSearchResults::getMoreSearchResults()
+{
+	if (m_bSearchInProgress) return;
+
 	CVerseTextRichifierTags richifierTags;
 	richifierTags.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
@@ -266,7 +288,7 @@ void CWebChannelSearchResults::en_searchResultsReady()
 	qDebug("Num Verses Matching = %d", nVerses);
 #endif
 
-	bool bFirstBatch = true;
+	bool bFirstBatch = (m_nNextResultIndex == 0);
 	int nCount = 0;
 
 	QString strOccurrences;
@@ -282,7 +304,7 @@ void CWebChannelSearchResults::en_searchResultsReady()
 	CSearchResultsSummary srs(*m_pVerseListModel);
 
 	QString strResults;
-	for (int ndx = 0; ndx < nVerses; ++ndx) {
+	for (int ndx = m_nNextResultIndex; ndx < nVerses; ++ndx) {
 		QModelIndex ndxModel = m_pVerseListModel->index(ndx);
 
 		const CVerseListItem &item(m_pVerseListModel->data(ndxModel, CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
@@ -317,35 +339,17 @@ void CWebChannelSearchResults::en_searchResultsReady()
 		strResults += strVerse;
 
 		++nCount;
-
-		if (nCount >= RESULTS_BATCH_SIZE) {
-			if (bFirstBatch) {
-				emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pBibleDatabase, false, true), strOccurrences);
-				bFirstBatch = false;
-			} else {
-				emit searchResultsAppend(strResults, (ndx == (nVerses-1)));
-			}
-			strResults.clear();
-			nCount -= RESULTS_BATCH_SIZE;
-		}
+		if (nCount >= RESULTS_BATCH_SIZE) break;
 	}
+
+	m_nNextResultIndex += nCount;
 
 	if (bFirstBatch) {
 		emit searchResultsChanged(strResults, srs.summaryDisplayText(m_pBibleDatabase, false, true), strOccurrences);
-		emit searchResultsAppend(QString(), true);
+		emit searchResultsAppend(QString(), (m_nNextResultIndex >= nVerses));
 	} else {
-		if (nCount) {
-			emit searchResultsAppend(strResults, true);
-		}
+		emit searchResultsAppend(strResults, (m_nNextResultIndex >= nVerses));
 	}
-
-	// Free-up memory for other clients:
-	m_lstParsedPhrases.clear();
-	m_searchResultsData.m_lstParsedPhrases.clear();
-	// TODO : Figure out how to clear out the VerseListModel without causing
-	//		this function to get run again and send empty results (keeping in
-	//		mind this can be multithreaded).  Also, clearing it would preclude
-	//		getSearchResultDetails() from working...
 }
 
 void CWebChannelSearchResults::getSearchResultDetails(unsigned int ndxLogical)
@@ -672,6 +676,18 @@ void CWebChannelThreadController::setSearchPhrases(CWebChannelObjects *pChannel,
 													Q_ARG(const QString &, strPhrases),
 													Q_ARG(const QString &, strSearchWithin),
 													Q_ARG(int, nSearchScope));
+		assert(bSuccess);
+	}
+}
+
+void CWebChannelThreadController::getMoreSearchResults(CWebChannelObjects *pChannel)
+{
+	assert(pChannel != NULL);
+	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, NULL);
+	if (pSearchResults) {
+		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
+													"getMoreSearchResults",
+													Qt::QueuedConnection);
 		assert(bSuccess);
 	}
 }

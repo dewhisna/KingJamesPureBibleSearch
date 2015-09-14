@@ -296,14 +296,17 @@
 
 							$("#tabs").tabs("option", "active", 0);
 							$("#tabs").tabs("refresh");
+//							scrollTabTop();
+							// Wait cursor back off
+							waitCursor(false);
+//							enableAllAutoCompleters();
+							closeAllAutoCompleters();
+							disableAllAutoCompleters();
+							bSearchInProgress = false;
 							if (bLast === true) {
-//								scrollTabTop();
-								// Wait cursor back off
-								waitCursor(false);
-//								enableAllAutoCompleters();
-								closeAllAutoCompleters();
-								disableAllAutoCompleters();
-								bSearchInProgress = false;
+								document.getElementById("moreSearchResults").style.display = 'none';
+							} else {
+								document.getElementById("moreSearchResults").style.display = 'block';
 							}
 						});
 
@@ -596,6 +599,7 @@
 					document.getElementById(aSearchPhrase + "_Besome").disabled = bDisable;
 				}
 				if (!phrases) {
+					document.getElementById("moreSearchResults").style.display = 'none';
 					document.getElementById("searchResults").innerHTML = "";
 					document.getElementById("searchResultsSummary").innerHTML = "";
 					$("#tabs").tabs("option", "active", 0);
@@ -616,6 +620,16 @@
 //				disableAllAutoCompleters();
 				cleanPages();
 				window.kjpbs.setSearchPhrases(phrases, getSearchWithin(), $('#searchScope').val());
+			}
+
+			function getMoreSearchResults() {
+				document.getElementById("getMoreSearchResultsButton").blur();	// Workaround jqueryui bug
+				$("#getMoreSearchResultsButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+				if (bSearchInProgress) return;
+				bSearchInProgress = true;
+				waitCursor(true);
+				window.kjpbs.getMoreSearchResults();
 			}
 
 			function searchPhraseOptsChanged(aSearchPhrase) {
@@ -1129,6 +1143,13 @@
 				margin:0px;
 			}
 
+			#moreSearchResults {
+				text-align:center;
+			}
+			#getMoreSearchResultsButton {
+				margin:0px;
+			}
+
 			#output {
 				width: 500px;
 				height: 75px;
@@ -1438,6 +1459,9 @@
 						<tr>
 							<td class="expand">
 								<div id="searchResults"></div>
+								<div id="moreSearchResults">
+									<button type="button" id="getMoreSearchResultsButton" onclick="javascript:getMoreSearchResults();">Get More Search Results</button>
+								</div>
 							</td>
 						</tr>
 					</table>
@@ -1704,6 +1728,9 @@
 
 				return li.appendTo( ul );
 			}
+
+			$( "#getMoreSearchResultsButton" ).button();
+			document.getElementById("moreSearchResults").style.display = 'none';
 
 			$("#loading-target").loadingOverlay();
 			$("#loading-target").loadingOverlay("remove");

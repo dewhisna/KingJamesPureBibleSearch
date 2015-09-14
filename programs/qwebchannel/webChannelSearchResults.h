@@ -53,7 +53,9 @@ class CWebChannelSearchResults : public QObject
 	// Creatable only by CWebChannelThreadController
 	friend class CWebChannelThreadController;
 	CWebChannelSearchResults()					// Don't allow parenting as the parent must be in the thread the object is running in
-		:	QObject()
+		:	QObject(),
+			m_nNextResultIndex(0),
+			m_bSearchInProgress(false)
 	{ }
 public:
 	virtual ~CWebChannelSearchResults();
@@ -61,10 +63,11 @@ public:
 public slots:
 	void initialize(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase);
 	void setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);		// Phrases, separated by semicolon, to search for.  SearchWithin = comma-separated searchWithinModel keys.  SearchScope = SEARCH_SCOPE_MODE_ENUM value
+	void getMoreSearchResults();							// Request next page of search results
 	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 
-	void getSearchResultDetails(unsigned int ndxLogical);		// Requests data for ToolTip (i.e. search results detail) for the specified logical index
+	void getSearchResultDetails(unsigned int ndxLogical);	// Requests data for ToolTip (i.e. search results detail) for the specified logical index
 
 	void resolvePassageReference(const QString &strPassageReference);
 
@@ -108,6 +111,8 @@ private:
 	QPointer<CPassageReferenceResolver> m_pRefResolver;
 
 	// Non-QObject:
+	int m_nNextResultIndex;									// Index of next output index when generating output (used for pagination)
+	bool m_bSearchInProgress;								// Set to true while verseListModel is calculating results so that getMoreSearchResults() can be blocked during search
 	CSearchResultsData m_searchResultsData;					// Data (phrases and criteria) that we are using
 	TSharedParsedPhrasesList m_lstParsedPhrases;			// Phrase parsers
 };
@@ -155,6 +160,7 @@ public:
 	bool selectBible(CWebChannelObjects *pChannel, const QString &strUUID);
 
 	void setSearchPhrases(CWebChannelObjects *pChannel, const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);		// Phrases, separated by semicolon, to search for.  SearchWithin = comma-separated searchWithinModel keys.  SearchScope = SEARCH_SCOPE_MODE_ENUM value
+	void getMoreSearchResults(CWebChannelObjects *pChannel);								// Request next page of search results
 	void autoCorrect(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 

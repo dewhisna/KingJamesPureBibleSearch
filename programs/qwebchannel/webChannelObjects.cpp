@@ -93,6 +93,11 @@ void CWebChannelObjects::setSearchPhrases(const QString &strPhrases, const QStri
 	CWebChannelThreadController::instance()->setSearchPhrases(this, strPhrases, strSearchWithin, nSearchScope);
 }
 
+void CWebChannelObjects::getMoreSearchResults()
+{
+	CWebChannelThreadController::instance()->getMoreSearchResults(this);
+}
+
 void CWebChannelObjects::autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos)
 {
 	CWebChannelThreadController::instance()->autoCorrect(this, strElementID, strPhrase, nCursorPos, strLastPhrase, nLastCursorPos);
