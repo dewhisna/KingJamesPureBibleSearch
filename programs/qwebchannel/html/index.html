@@ -1662,11 +1662,11 @@
 				}
 			});
 			$("#passageReference").on('change keyup paste input', function() {
-				// Set to invalid reference until we get response from server so
-				//		if there's a delay in getting the response, we aren't
-				//		working on bad data:
-				ndxPassageReference = 0;
-				ndxPassageReferenceCount = 0;
+				// Can't clear ndxPassageReference here or we'll get into an
+				//		event race condition with the server validating and
+				//		our navigating to the target.  So we'll just have
+				//		to use stale data.  At least color should tell user
+				//		that it won't be right:
 				var strPassRef = $(this).val().trim();
 				if (strPassRef.length) {
 					document.getElementById("passageReference").style.color = "#FF0000";
