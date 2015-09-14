@@ -1290,8 +1290,7 @@
 				pointer-events: none;
 			}
 
-			#css-loading { display: none; }
-			#css-loading:checked ~ .loading .loading-overlay {
+			.loading .loading-overlay {
 				z-index: 65535;
 				position: fixed;
 				top: 0;
@@ -1305,7 +1304,7 @@
 				background: rgba(255, 255, 255, 0.5);
 				text-align: center;
 			}
-			#css-loading:checked ~ .loading .loading-text {
+			.loading .loading-text {
 				font-size: 0.875rem;
 				line-height: 1.3125rem;
 				text-shadow: white 0 0 1em, white 0 0 0.5em, white 0 0 0.25em;
@@ -1314,10 +1313,10 @@
 				text-transform: uppercase;
 				font-weight: bold;
 			}
-			#css-loading:checked ~ .loading .loading-text:after {
-			content: "...";
+			.loading .loading-text:after {
+				content: "...";
 			}
-			#css-loading:checked ~ .loading .loading-spinner {
+			.loading .loading-spinner {
 				position: absolute;
 				top: 50%;
 				bottom: 0;
@@ -1327,7 +1326,7 @@
 				color: #1a1d1d;
 				text-align: center;
 			}
-			#css-loading:checked ~ .loading .loading-icon {
+			.loading .loading-icon {
 				font-size: 4.8125rem;
 				line-height: 5.25rem;
 				text-shadow: rgba(255, 255, 255, 0.75) 0 0 0.5em;
@@ -1338,7 +1337,7 @@
 				display: block;
 				vertical-align: middle;
 			}
-			#css-loading:checked ~ .loading .loading-icon:before {
+			.loading .loading-icon:before {
 				vertical-align: middle;
 				content: "\e000";
 				font-family: "loading-demo";
@@ -1350,7 +1349,6 @@
 		<div id="splash">
 			<img id="splashImage" src="KJPBS_Splash_20130405_194312.jpeg" alt="KJPBS Splash Screen">
 		</div>
-		<input type="checkbox" id="css-loading" />
 		<div id="loading-target" class="loading">
 			<div class="loading-overlay" id="loading-overlay">
 				<p class="loading-spinner">
@@ -1693,7 +1691,6 @@
 				return li.appendTo( ul );
 			}
 
-			document.getElementById("css-loading").checked = true;
 			$("#loading-target").loadingOverlay();
 			$("#loading-target").loadingOverlay("remove");
 
