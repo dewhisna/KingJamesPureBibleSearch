@@ -629,11 +629,13 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 	bool bSuccess = true;
 
 	// Report list of available texts if selecting default:
-	bSuccess = QMetaObject::invokeMethod(pChannel,
-								"bibleList",
-								Qt::DirectConnection,		// This should make sure the list fires before the default selection propagates
-								Q_ARG(const QString &, TBibleDatabaseList::instance()->availableBibleDatabasesAsJson()));
-	assert(bSuccess);
+	if (strUUID.isEmpty()) {
+		bSuccess = QMetaObject::invokeMethod(pChannel,
+									"bibleList",
+									Qt::DirectConnection,		// This should make sure the list fires before the default selection propagates
+									Q_ARG(const QString &, TBibleDatabaseList::instance()->availableBibleDatabasesAsJson()));
+		assert(bSuccess);
+	}
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
 #ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
