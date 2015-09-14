@@ -381,11 +381,13 @@
 
 						output("Connected to WebChannel, ready to send/receive searches!");
 
+						waitCursor(true);		// important for slow connections so UI disables and keeps user from getting us out of sync
+
 						output("Selecting Bible...");
 						window.kjpbs.selectBible(strBibleUUID);
 
 						if (!bReconnection) {
-							gotoIndex(0, 1, "scrollTabTop");
+							window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
 							hideKeyboard();
 						}
 					});
