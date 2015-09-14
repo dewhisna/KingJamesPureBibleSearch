@@ -397,6 +397,11 @@
 				document.getElementById("reconnectButton").blur();	// Workaround jqueryui bug
 				$("#reconnectButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 				if (!bAreConnected) {
+					// Must reset previous search -- even though we aren't actually changing
+					//	Bibles, the server will no longer have the search results when the
+					//	socket drops, meaning the search results details, etc, won't display
+					//	correctly with the old stale data:
+					resetForBibleSelect();
 					establishConnection(true);
 				}
 			}
@@ -795,26 +800,29 @@
 				}
 			}
 
+			function resetForBibleSelect()
+			{
+				// Clear out the old search since it's not applicable to new database:
+				$(".searchPhraseText").each(function(i) {
+					var phraseID = $("#"+this.id).parents(".searchPhrase").attr("id");
+					this.value = "";
+					searchPhraseTextChanged(phraseID);
+					$("#"+this.id).autocomplete("option", "source", [""]);
+					$("#"+this.id).autocomplete("disable");
+				});
+				bSearchInProgress = false;
+				searchPhraseChanged();
+				$("#tabs").tabs("option", "active", 1);		// Switch back to scripture tab
+				$("#tabs").tabs("refresh");
+			}
+
 			function selectBible()
 			{
 				$("#selectBibleList").selectmenu("widget").blur();
 				if (strBibleUUID != $("#selectBibleList").val()) {
 					strBibleUUID = "";			// Force search results input to halt, just in case
 					waitCursor(true);
-
-					// Clear out the old search since it's not applicable to new database:
-					$(".searchPhraseText").each(function(i) {
-						var phraseID = $("#"+this.id).parents(".searchPhrase").attr("id");
-						this.value = "";
-						searchPhraseTextChanged(phraseID);
-						$("#"+this.id).autocomplete("option", "source", [""]);
-						$("#"+this.id).autocomplete("disable");
-					});
-					bSearchInProgress = false;
-					searchPhraseChanged();
-					$("#tabs").tabs("option", "active", 1);		// Switch back to scripture tab
-					$("#tabs").tabs("refresh");
-
+					resetForBibleSelect();
 					window.kjpbs.selectBible($("#selectBibleList").val());
 					window.kjpbs.gotoIndex(0, 1, "scrollTabTop");			// Goto start of Bible text since chapter layout may be different or else it will appear like we didn't load it
 				}
