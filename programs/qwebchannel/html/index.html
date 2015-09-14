@@ -369,11 +369,12 @@
 							ndxPassageReference = ndxRel;
 							ndxPassageReferenceCount = nCount;
 							if (ndxRel == 0) {
-								$("#passageReference").css("color",  "#FF0000");
+								document.getElementById("passageReference").style.color = "#FF0000";
+								document.getElementById("passageReferenceLabel").style.color = "#FF0000";
 							} else {
-								$("#passageReference").css("color",  "#000000");
+								document.getElementById("passageReference").style.color = "#000000";
+								document.getElementById("passageReferenceLabel").style.color = "#000000";
 							}
-							$("#passageReference").val( $("#passageReference").val() );
 						});
 
 						window.kjpbs.setUserAgent(navigator.userAgent);
@@ -868,6 +869,8 @@
 				$("#locateButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
 
 				$("#passageReference").val("");
+				document.getElementById("passageReference").style.color = "#000000";
+				document.getElementById("passageReferenceLabel").style.color = "#000000";
 				ndxPassageReference = 0;
 				ndxPassageReferenceCount = 0;
 				setLocateDialogToChapter(nBrowserChapterCurrent);
@@ -1601,7 +1604,7 @@
 				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="bblBookSelect">Book:</label><select class="bblBookSelect" name="bblBookSelect" id="bblBookSelect"></select></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><label style="display: inline;" for="bblChapterSelect">Chapter:</label><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
-				locateControlsTable.append('<tr><td class="centered"><label style="display: block;" for="passageReference">Enter Passage Reference:</label><input class="passageReference" name="passageReference" id="passageReference"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input></td></tr>');
+				locateControlsTable.append('<tr><td class="centered"><label style="display: block;" id="passageReferenceLabel" for="passageReference">Enter Passage Reference:</label><input class="passageReference" name="passageReference" id="passageReference"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><hr /></td></tr>');
 				locateControlsTable.append('<tr><td class="centered"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
 			} else {
@@ -1621,7 +1624,7 @@
 											'<td class="expand2" style="border-right:1px solid black;">&nbsp;</td>' +
 											'<td class="shrink"><label style="display: inline;" for="bblChapterSelect">Chapter:</label></td><td><select class="bblChapterSelect" name="bblChapterSelect" id="bblChapterSelect"></select></td></tr>');
 				locateControlsTable.append('<tr><td class="centered" colspan="7"><hr /></td></tr>');
-				locateControlsTable.append('<tr><td class="centered" colspan="7"><label style="display: inline;" for="passageReference">Enter Passage Reference:</label><input class="passageReference" name="passageReference" id="passageReference"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input></td></tr>');
+				locateControlsTable.append('<tr><td class="centered" colspan="7"><label style="display: inline;" id="passageReferenceLabel" for="passageReference">Enter Passage Reference:</label><input class="passageReference" name="passageReference" id="passageReference"  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input></td></tr>');
 				locateControlsTable.append('<tr><td class="centered" colspan="7"><hr /></td></tr>');
 				locateControlsTable.append('<tr><td class="centered" colspan="7"><button type="button" id="gotoPassageButton">Go to Passage</button></td></tr>');
 			}
@@ -1662,13 +1665,15 @@
 				//		working on bad data:
 				ndxPassageReference = 0;
 				ndxPassageReferenceCount = 0;
-				if ($(this).val()) {
-					$("#passageReference").css("color",  "#FF0000");
-					resolvePassageReference($(this).val());
+				var strPassRef = $(this).val().trim();
+				if (strPassRef.length) {
+					document.getElementById("passageReference").style.color = "#FF0000";
+					document.getElementById("passageReferenceLabel").style.color = "#FF0000";
+					resolvePassageReference(strPassRef);
 				} else {
-					$("#passageReference").css("color",  "#000000");
+					document.getElementById("passageReference").style.color = "#000000";
+					document.getElementById("passageReferenceLabel").style.color = "#000000";
 				}
-				$("#passageReference").val( $("#passageReference").val() );
 			});
 
 			$("#gotoPassageButton").on("click", function () {
@@ -1678,7 +1683,7 @@
 				if (ndxPassageReference != 0) {
 					gotoIndex(ndxPassageReference, 0, ((relIndexVerse(ndxPassageReference) == 1) ? "scrollTabTop" : "scrollToAnchor"));
 				} else {
-					if ($("#passageReference").val().length) {
+					if ($("#passageReference").val().trim().length) {
 						alert("That passage reference isn't valid!");
 						$("#passageReference").focus();
 						return;
@@ -1716,6 +1721,8 @@
 				close: function( event, ui ) {
 					document.getElementById("toggle-nav").checked = ($("#tabs").tabs("option", "active") == 1);
 					$("#passageReference").val("");
+					document.getElementById("passageReference").style.color = "#000000";
+					document.getElementById("passageReferenceLabel").style.color = "#000000";
 				}
 			});
 
