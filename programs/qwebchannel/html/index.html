@@ -77,10 +77,12 @@
 				if (bAreBusy) {
 					if (bAreConnected) {
 						$("#loading-target").loadingOverlay();
+						document.getElementById("loading-background").style.display = 'block';
 						$("body").css("cursor", "progress");
 					}
 				} else {
 					$("#loading-target").loadingOverlay("remove");
+					document.getElementById("loading-background").style.display = 'none';
 					$("body").css("cursor", "default");
 				}
 			}
@@ -1290,6 +1292,17 @@
 				pointer-events: none;
 			}
 
+			.loading-background {
+				width:100%;
+				height:100%;
+				top:0;
+				margin: 0;
+				background: rgba(0, 0, 0, 0.3);
+				display:none;
+				position: fixed;
+				z-index:1000;
+			}
+
 			.loading .loading-overlay {
 				z-index: 65535;
 				position: fixed;
@@ -1349,6 +1362,7 @@
 		<div id="splash">
 			<img id="splashImage" src="KJPBS_Splash_20130405_194312.jpeg" alt="KJPBS Splash Screen">
 		</div>
+		<div id="loading-background" class="loading-background"></div>
 		<div id="loading-target" class="loading">
 			<div class="loading-overlay" id="loading-overlay">
 				<p class="loading-spinner">
