@@ -35,6 +35,7 @@
 #include <QVector>
 #include <QMap>
 #include <QThread>
+#include <QMutex>
 
 // Forward declarations:
 class CPhraseNavigator;
@@ -52,7 +53,7 @@ class CWebChannelSearchResults : public QObject
 
 	// Creatable only by CWebChannelThreadController
 	friend class CWebChannelThreadController;
-	CWebChannelSearchResults()
+	CWebChannelSearchResults()					// Don't allow parenting as the parent must be in the thread the object is running in
 		:	QObject()
 	{ }
 public:
@@ -138,6 +139,7 @@ private slots:
 
 private:
 	int m_nNumWebChannels;				// Number of WebChannel clients running on this thread
+	QMutex m_mutex;						// Mutex for locking member data with slots
 };
 
 // ============================================================================

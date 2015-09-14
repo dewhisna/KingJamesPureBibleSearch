@@ -30,6 +30,7 @@
 
 #include <QStringList>
 #include <QTextDocument>
+#include <QMutexLocker>
 
 #ifdef IS_CONSOLE_APP
 #include <QDateTime>
@@ -434,15 +435,17 @@ CWebChannelThread::CWebChannelThread(QObject *pParent)
 
 void CWebChannelThread::attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults)
 {
+	QMutexLocker locker(&m_mutex);
 	assert(pSearchResults != NULL);
 	++m_nNumWebChannels;
 	pSearchResults->moveToThread(this);
 	connect(this, SIGNAL(finished()), pSearchResults, SLOT(deleteLater()));		// When the thread ends, delete the object since it becomes detached at that point
-	connect(pSearchResults, SIGNAL(destroyed(QObject*)), this, SLOT(en_destroyWebChannelSearchResults(QObject*)));
+	connect(pSearchResults, SIGNAL(destroyed(QObject*)), this, SLOT(en_destroyWebChannelSearchResults(QObject*)), Qt::QueuedConnection);	// Queued to avoid deadlock with mutex
 }
 
 void CWebChannelThread::en_destroyWebChannelSearchResults(QObject *pObject)
 {
+	QMutexLocker locker(&m_mutex);
 	--m_nNumWebChannels;
 	CWebChannelSearchResults *pSearchResults = static_cast<CWebChannelSearchResults *>(pObject);
 	assert(pSearchResults != NULL);
@@ -471,7 +474,7 @@ CWebChannelThreadController::CWebChannelThreadController()
 		CWebChannelThread *pThread = new CWebChannelThread(this);
 		m_lstThreads.append(pThread);
 		pThread->start();
-		connect(pThread, SIGNAL(webChannelSearchResultsDestroyed(CWebChannelSearchResults*)), this, SLOT(en_destroyedWebChannelSearchResults(CWebChannelSearchResults*)));
+		connect(pThread, SIGNAL(webChannelSearchResultsDestroyed(CWebChannelSearchResults*)), this, SLOT(en_destroyedWebChannelSearchResults(CWebChannelSearchResults*)), Qt::QueuedConnection);	// Queued to avoid deadlock with mutex
 	}
 }
 
@@ -521,7 +524,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 
 	CWebChannelThread *pThread = m_lstThreads.at(ndxThreadToUse);
 
-	CWebChannelSearchResults *pSearchResults = new CWebChannelSearchResults();
+	CWebChannelSearchResults *pSearchResults = new CWebChannelSearchResults();		// No parent as the parent has to be in the target thread!!
 	pThread->attachWebChannelSearchResults(pSearchResults);				// MoveToThread -- do this call prior to any connects, etc.
 
 	m_mapSearchResults[pChannel] = pSearchResults;
