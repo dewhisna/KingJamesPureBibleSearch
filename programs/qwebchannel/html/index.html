@@ -501,14 +501,14 @@
 				}).keyup(function(e) {
 					e = e || window.event;
 					if (e.keyCode == 13) {
-						if ($("#"+this.id).data("wasSelect") == false) {
+//						if ($("#"+this.id).data("wasSelect") == false) {
 							hideKeyboard();
 							document.activeElement.blur();
 							searchPhraseTextChanged($("#"+this.id).parents(".searchPhrase").attr("id"));
 							searchPhraseChanged();
-						} else {
+//						} else {
 							$("#"+this.id).data("wasSelect", false);
-						}
+//						}
 					}
 				});
 
@@ -1318,7 +1318,7 @@
 				height:100%;
 				top:0;
 				margin: 0;
-				background: rgba(0, 0, 0, 0.3);
+				background: rgba(0, 0, 0, 0);
 				display:none;
 				position: fixed;
 				z-index:1000;

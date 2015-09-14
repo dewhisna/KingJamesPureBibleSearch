@@ -46,7 +46,8 @@
 // Search Limits:
 // --------------
 #define MAX_SEARCH_PHRASES 5
-#define RESULTS_BATCH_SIZE 3000				// Number of results per batch to send to client per page
+#define RESULTS_FIRST_BATCH_SIZE 1000		// Number of results for first page batch to send to client
+#define RESULTS_BATCH_SIZE 3000				// Number of results per additional batch to send to client per page
 
 // ============================================================================
 
@@ -339,7 +340,8 @@ void CWebChannelSearchResults::getMoreSearchResults()
 		strResults += strVerse;
 
 		++nCount;
-		if (nCount >= RESULTS_BATCH_SIZE) break;
+		if ((bFirstBatch && (nCount >= RESULTS_FIRST_BATCH_SIZE)) ||
+			(!bFirstBatch && (nCount >= RESULTS_BATCH_SIZE))) break;
 	}
 
 	m_nNextResultIndex += nCount;
