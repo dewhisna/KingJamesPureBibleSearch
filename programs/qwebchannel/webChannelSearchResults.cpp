@@ -61,12 +61,15 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 	assert(!pUserNotesDatabase.isNull());
 
 	// Make sure this is the one and only time calling init, there is no reuse -- delete and start over...
-	assert(m_pBibleDatabase.isNull());
-	assert(m_pVerseListModel.isNull());
-	assert(m_pPhraseNavigator.isNull());
-	assert(m_pRefResolver.isNull());
+	if (!m_pVerseListModel.isNull()) delete m_pVerseListModel;
+	if (!m_pPhraseNavigator.isNull()) delete m_pPhraseNavigator;
+	if (!m_pRefResolver.isNull()) delete m_pRefResolver;
 
 	m_pBibleDatabase = pBibleDatabase;
+
+	m_searchResultsData.m_lstParsedPhrases.clear();
+	m_lstParsedPhrases.clear();
+	m_scriptureText.clear();
 
 	m_pVerseListModel = new CVerseListModel(pBibleDatabase, pUserNotesDatabase, this);
 
@@ -79,7 +82,7 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 	m_pPhraseNavigator = new CPhraseNavigator(pBibleDatabase, m_scriptureText, this);
 	m_pRefResolver = new CPassageReferenceResolver(pBibleDatabase, this);
 
-	m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible
+	m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible, leave scope as previously selected
 	CSearchWithinModel swim(pBibleDatabase, m_searchResultsData.m_SearchCriteria);
 	emit searchWithinModelChanged(swim.toWebChannelJson(), static_cast<int>(m_searchResultsData.m_SearchCriteria.searchScopeMode()));
 	emit bibleSelected(true, pBibleDatabase->compatibilityUUID(), pBibleDatabase->toJsonBkChpStruct());
@@ -490,54 +493,58 @@ CWebChannelThreadController *CWebChannelThreadController::instance()
 
 CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchResults(CWebChannelObjects *pChannel,  CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase)
 {
-	// Select next open thread:
-	int ndxThreadToUse = -1;
-	int nLowCount = -1;
-	assert(m_lstNumWebChannels.size() == m_lstThreads.size());
-	for (int ndx = 0; ndx < m_lstThreads.size(); ++ndx) {
-		if (m_lstThreads.at(ndx) && m_lstThreads.at(ndx)->isRunning()) {
+	assert(pChannel != NULL);
+	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, NULL);
+	if (pSearchResults == NULL) {
+		// Select next open thread:
+		int ndxThreadToUse = -1;
+		int nLowCount = -1;
+		assert(m_lstNumWebChannels.size() == m_lstThreads.size());
+		for (int ndx = 0; ndx < m_lstThreads.size(); ++ndx) {
+			if (m_lstThreads.at(ndx) && m_lstThreads.at(ndx)->isRunning()) {
 #if DEBUG_WEBCHANNEL_THREAD_ANALYSIS
 #ifdef IS_CONSOLE_APP
-	std::cout << QString("%1 UTC : Analyzing Threads : Thread %2, Load=%3\n")
-							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
-							.arg(ndx)
-							.arg(m_lstNumWebChannels.at(ndx))
-							.toUtf8().data();
+		std::cout << QString("%1 UTC : Analyzing Threads : Thread %2, Load=%3\n")
+								.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+								.arg(ndx)
+								.arg(m_lstNumWebChannels.at(ndx))
+								.toUtf8().data();
 #endif
 #endif
-			if ((nLowCount == -1) || (m_lstNumWebChannels.at(ndx) < nLowCount)) {
-				nLowCount = m_lstNumWebChannels.at(ndx);
-				ndxThreadToUse = ndx;
+				if ((nLowCount == -1) || (m_lstNumWebChannels.at(ndx) < nLowCount)) {
+					nLowCount = m_lstNumWebChannels.at(ndx);
+					ndxThreadToUse = ndx;
+				}
 			}
 		}
+		if (ndxThreadToUse == -1) ndxThreadToUse = 0;		// Safeguard in case for some reason all threads are stopped, we'll just queue it on the first since we are guaranteed to have at least one thread (see constructor)
+
+		pChannel->setThreadIndex(ndxThreadToUse);
+
+		CWebChannelThread *pThread = m_lstThreads.at(ndxThreadToUse);
+
+		pSearchResults = new CWebChannelSearchResults();		// No parent as the parent has to be in the target thread!!
+		pThread->attachWebChannelSearchResults(pSearchResults);				// MoveToThread -- do this call prior to any connects, etc.
+
+		m_mapSearchResults[pChannel] = pSearchResults;
+		++m_lstNumWebChannels[ndxThreadToUse];
+		m_mapSearchResultsToThread[pSearchResults] = ndxThreadToUse;
+
+		connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
+		connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
+
+		connect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
+		connect(pSearchResults, SIGNAL(searchResultsAppend(const QString &, bool)), pChannel, SIGNAL(searchResultsAppend(const QString &, bool)));
+		connect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
+		connect(pSearchResults, SIGNAL(setAutoCompleter(const QString &, const QString &)), pChannel, SIGNAL(setAutoCompleter(const QString &, const QString &)));
+		connect(pSearchResults, SIGNAL(updatePhrase(const QString &, const QString &)), pChannel, SIGNAL(updatePhrase(const QString &, const QString &)));
+
+		connect(pSearchResults, SIGNAL(searchResultsDetails(unsigned int, const QString &)), pChannel, SIGNAL(searchResultsDetails(unsigned int, const QString &)));
+
+		connect(pSearchResults, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)), pChannel, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)));
+
+		connect(pSearchResults, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)), pChannel, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)));
 	}
-	if (ndxThreadToUse == -1) ndxThreadToUse = 0;		// Safeguard in case for some reason all threads are stopped, we'll just queue it on the first since we are guaranteed to have at least one thread (see constructor)
-
-	pChannel->setThreadIndex(ndxThreadToUse);
-
-	CWebChannelThread *pThread = m_lstThreads.at(ndxThreadToUse);
-
-	CWebChannelSearchResults *pSearchResults = new CWebChannelSearchResults();		// No parent as the parent has to be in the target thread!!
-	pThread->attachWebChannelSearchResults(pSearchResults);				// MoveToThread -- do this call prior to any connects, etc.
-
-	m_mapSearchResults[pChannel] = pSearchResults;
-	++m_lstNumWebChannels[ndxThreadToUse];
-	m_mapSearchResultsToThread[pSearchResults] = ndxThreadToUse;
-
-	connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
-	connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
-
-	connect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
-	connect(pSearchResults, SIGNAL(searchResultsAppend(const QString &, bool)), pChannel, SIGNAL(searchResultsAppend(const QString &, bool)));
-	connect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
-	connect(pSearchResults, SIGNAL(setAutoCompleter(const QString &, const QString &)), pChannel, SIGNAL(setAutoCompleter(const QString &, const QString &)));
-	connect(pSearchResults, SIGNAL(updatePhrase(const QString &, const QString &)), pChannel, SIGNAL(updatePhrase(const QString &, const QString &)));
-
-	connect(pSearchResults, SIGNAL(searchResultsDetails(unsigned int, const QString &)), pChannel, SIGNAL(searchResultsDetails(unsigned int, const QString &)));
-
-	connect(pSearchResults, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)), pChannel, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)));
-
-	connect(pSearchResults, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)), pChannel, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)));
 
 	// Initialize after connects in case pSearchResults wants to emit any signals during init:
 	bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
@@ -618,8 +625,6 @@ int CWebChannelThreadController::threadWebChannelCount(int nThreadIndex) const
 bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, const QString &strUUID)
 {
 	assert(pChannel != NULL);
-
-	destroyWebChannelSearchResults(pChannel);			// Free any existing Bible selected and search results for it
 
 	bool bSuccess = true;
 
