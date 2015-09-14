@@ -39,6 +39,7 @@
 #define DEBUG_WEBCHANNEL_SEARCH 0
 #define DEBUG_WEBCHANNEL_AUTOCORRECT 0
 #define DEBUG_WEBCHANNEL_THREAD_ANALYSIS 1
+#define MINIMUM_THREAD_COUNT 2					// Minimum number of worker threads to create if ideal number of threads is less than this value or ideal number of threads can't be determined
 
 // ============================================================================
 
@@ -457,7 +458,7 @@ void CWebChannelThread::attachWebChannelSearchResults(CWebChannelSearchResults *
 CWebChannelThreadController::CWebChannelThreadController()
 {
 	int nIdealThreads = QThread::idealThreadCount();
-	if (nIdealThreads < 1) nIdealThreads = 4;			// Default to 4 if number of cores, etc, can't be determined
+	if (nIdealThreads < MINIMUM_THREAD_COUNT) nIdealThreads = MINIMUM_THREAD_COUNT;		// If ideal can't be determined (-1) or is less than 'n', use default
 
 #ifdef IS_CONSOLE_APP
 	std::cout << QString("%1 UTC : Thread Count : %2\n")
