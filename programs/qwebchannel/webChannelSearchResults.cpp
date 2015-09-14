@@ -433,6 +433,12 @@ CWebChannelThread::CWebChannelThread(QObject *pParent)
 
 }
 
+int CWebChannelThread::webChannelCount()
+{
+	QMutexLocker locker(&m_mutex);
+	return m_nNumWebChannels;
+}
+
 void CWebChannelThread::attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults)
 {
 	QMutexLocker locker(&m_mutex);

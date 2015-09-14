@@ -127,7 +127,7 @@ class CWebChannelThread : public QThread
 public:
 	CWebChannelThread(QObject *pParent = NULL);
 
-	int webChannelCount() const { return m_nNumWebChannels; }
+	int webChannelCount();
 
 	void attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults);
 
