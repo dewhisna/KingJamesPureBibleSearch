@@ -177,7 +177,16 @@
 
 			// geolocateIP:
 			function geolocateIP(ip) {
-				$.getJSON("http://www.telize.com/geoip/" + ip + "?callback=?", function(json) {
+				var geoURL;
+				switch ($("#geoLocateSource").val()) {
+					case "0":
+						geoURL = "http://www.telize.com/geoip/" + ip + "?callback=?";
+						break;
+					case "1":
+						geoURL = "https://freegeoip.net/json/" + ip;
+						break;
+				}
+				$.getJSON(geoURL, function(json) {
 					var outputHTML = "<table>";
 					$.each(json, function(k, v) {
 						outputHTML = outputHTML + "<tr><td>" + k + "</td><td>" + v + "</td></tr>";
@@ -226,6 +235,16 @@
 		<script>
 			$( "#reconnectButton" ).button();
 		</script>
+		<br />
+		<hr />
+		<br />
+		<div id="settings">
+			<label for="geoLocateSource" style="display:inline;">GeoLocate Server:</label>
+			<select id="geoLocateSource" value="0">
+				<option value="0">telize.com</option>
+				<option value="1">freegeoip.net</option>
+			</select>
+		</div>
 		<br />
 		<hr />
 		<br />
