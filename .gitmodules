@@ -10,3 +10,6 @@
 [submodule "programs/qwebchannel/html/jquery/jquery-ui/jquery-loading-overlay"]
 	path = programs/qwebchannel/html/jquery/jquery-ui/jquery-loading-overlay
 	url = git@github.com:dewhisna/jquery-loading-overlay.git
+[submodule "programs/qwebchannel/html/jquery/jquery-ui/geolocator"]
+	path = programs/qwebchannel/html/jquery/jquery-ui/geolocator
+	url = git@github.com:dewhisna/geolocator.git
