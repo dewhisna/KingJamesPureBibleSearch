@@ -185,6 +185,9 @@
 					case "1":
 						geoURL = "https://freegeoip.net/json/" + ip;
 						break;
+					case "2":
+						geoURL = "http://geoip.nekudo.com/api/" + ip + "/full";
+						break;
 				}
 				$.getJSON(geoURL, function(json) {
 					var outputHTML = "<table>";
@@ -239,12 +242,19 @@
 		<hr />
 		<br />
 		<div id="settings">
-			<label for="geoLocateSource" style="display:inline;">GeoLocate Server:</label>
+			<label for="geoLocateSource" style="display:block;">GeoLocate Server:</label>
 			<select id="geoLocateSource" value="0">
 				<option value="0">telize.com</option>
 				<option value="1">freegeoip.net</option>
+				<option value="2">nekudo.com</option>
 			</select>
 		</div>
+		<script>
+			$( "#geoLocateSource" ).selectmenu({
+				width : 'auto',
+				style: 'dropdown'
+			}).selectmenu("menuWidget").addClass("overflow");
+		</script>
 		<br />
 		<hr />
 		<br />
