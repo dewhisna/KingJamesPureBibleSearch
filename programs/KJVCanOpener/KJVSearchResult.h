@@ -242,11 +242,11 @@ private:
 class CKJVSearchResult : public QWidget
 {
 	Q_OBJECT
-	
+
 public:
 	CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
 	~CKJVSearchResult();
-	
+
 	inline CVerseListModel::VERSE_VIEW_MODE_ENUM viewMode() const { return m_pSearchResultsTreeView->viewMode(); }
 	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_pSearchResultsTreeView->displayMode(); }
 	inline CVerseListModel::VERSE_TREE_MODE_ENUM treeMode() const { return m_pSearchResultsTreeView->treeMode(); }
@@ -318,20 +318,7 @@ private slots:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	// ----
-	int m_nLastSearchOccurrences;		// Last search summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
-	int m_nLastSearchVerses;
-	int m_nLastSearchChapters;
-	int m_nLastSearchBooks;
-	// ----
-	int m_nLastExcludedSearchOccurrences;
-	int m_nLastExcludedSearchVerses;
-	int m_nLastExcludedSearchChapters;
-	int m_nLastExcludedSearchBooks;
-	// ----
-	bool m_bLastCalcSuccess;
-	// ----
-	int m_nLastSearchNumPhrases;
-	CSearchCriteria m_LastSearchCriteria;
+	CSearchResultsSummary m_SearchResultsSummary;
 
 // UI Private:
 private:

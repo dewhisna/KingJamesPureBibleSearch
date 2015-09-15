@@ -26,6 +26,8 @@
 #include "SearchCompleter.h"
 #include "myApplication.h"
 #include "KJVCanOpener.h"
+#include "KJVSearchResult.h"		// Needed for the CKJVSearchResult class to keep the CSearchResultsSummary in the same translation context until we can revamp our translation contexts : TODO: Fix translations and Remove this
+#include "ModelRowForwardIterator.h"
 
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 #include "ThreadedSearchResults.h"
@@ -98,11 +100,12 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	assert(!pBibleDatabase.isNull());
 	assert(!pUserNotesDatabase.isNull());
 
-	m_private.m_richifierTagsDisplay.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
-	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(CPersistentSettings::instance()->colorWordsOfJesus());
-	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	m_private.m_richifierTagsDisplay.setFromPersistentSettings(*CPersistentSettings::instance(), false);
+	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
-	en_changedCopyOptions();		// Update the m_richifierTagsCopying options
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
 	if (!m_private.m_pUserNotesDatabase.isNull()) {
@@ -879,6 +882,25 @@ CRelIndex CVerseListModel::logicalIndexForModelIndex(const QModelIndex &index) c
 	}
 
 	return ndxVerse;
+}
+
+QModelIndex CVerseListModel::modelIndexForLogicalIndex(const CRelIndex &ndxLogical) const
+{
+	if (!ndxLogical.isSet()) return QModelIndex();
+
+	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
+		const TVerseIndex *pVerseIndex = toVerseIndex(*fwdItr);
+		assert(pVerseIndex != NULL);
+
+		CRelIndex ndxVerse = pVerseIndex->relIndex();
+		if (!ndxVerse.isSet()) continue;
+
+		// TODO : Add support for crossrefs??
+
+		if (ndxVerse == ndxLogical) return *fwdItr;
+	}
+
+	return QModelIndex();
 }
 
 CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
@@ -2663,24 +2685,19 @@ void CVerseListModel::en_WordsOfJesusColorChanged(const QColor &color)
 	m_private.m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
 }
 
+void CVerseListModel::en_SearchResultsColorChanged(const QColor &color)
+{
+	m_private.m_richifierTagsDisplay.setSearchResultsTagsByColor(color);
+}
+
+void CVerseListModel::en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
+{
+	m_private.m_richifierTagsDisplay.setShowPilcrowMarkers(bShowPilcrowMarkers);
+}
+
 void CVerseListModel::en_changedCopyOptions()
 {
-	switch (CPersistentSettings::instance()->transChangeAddWordMode()) {
-		case CPhraseNavigator::TCAWME_NO_MARKING:
-			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString(), QString());
-			break;
-		case CPhraseNavigator::TCAWME_ITALICS:
-			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString("<i>"), QString("</i>"));
-			break;
-		case CPhraseNavigator::TCAWME_BRACKETS:
-			m_private.m_richifierTagsCopying.setTransChangeAddedTags(QString("["), QString("]"));
-			break;
-		default:
-			assert(false);
-			break;
-	}
-
-	m_private.m_richifierTagsCopying.setShowPilcrowMarkers(CPersistentSettings::instance()->copyPilcrowMarkers());
+	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 }
 
 // ----------------------------------------------------------------------------
@@ -3223,3 +3240,106 @@ CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
 
 // ============================================================================
 
+QString CSearchResultsSummary::summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded, bool bWebChannelHTML) const
+{
+	QString strResults;
+
+	// TODO : Fix Translation Contexts Here...
+
+	// ------------------------------------------------------------------------
+
+	if (!bExcluded) {
+		strResults += CKJVSearchResult::tr("Found %n Occurrence(s)", "Statistics", m_nSearchOccurrences) + "\n";
+		strResults += "    " + CKJVSearchResult::tr("in %n Verse(s)", "Statistics", m_nSearchVerses) +
+						" " + CKJVSearchResult::tr("in %n Chapter(s)", "Statistics", m_nSearchChapters) +
+						" " + CKJVSearchResult::tr("in %n Book(s)", "Statistics", m_nSearchBooks);
+		if (m_SearchCriteria.withinIsEntireBible(pBibleDatabase, true)) {
+			if (!CPersistentSettings::instance()->hideNotFoundInStatistcs()) {
+				if (m_nSearchOccurrences > 0) {
+					if (bWebChannelHTML) {
+						QString strSearchWithinDescription = m_SearchCriteria.searchWithinDescription(pBibleDatabase);
+						if (!strSearchWithinDescription.isEmpty()) {
+							strResults += " " + CKJVSearchResult::tr("within", "Statistics") + " " + strSearchWithinDescription;
+						}
+						strResults += "<br />\n<br /><span style=\"text-align: center;\">\n";
+						strResults += CKJVSearchResult::tr("Not found at all", "Statistics");
+						strResults += " " + CKJVSearchResult::tr("in %n Verse(s)", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses) +
+										" " + CKJVSearchResult::tr("in %n Chapter(s)", "Statistics", pBibleDatabase->bibleEntry().m_nNumChp - m_nSearchChapters) +
+										" " + CKJVSearchResult::tr("in %n Book(s)", "Statistics", pBibleDatabase->bibleEntry().m_nNumBk - m_nSearchBooks);
+						strResults += "<br /></span>\n";
+					} else {
+						strResults += "\n";
+						strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Verse(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses) + "\n";
+						strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Chapter(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumChp - m_nSearchChapters) + "\n";
+						strResults += "    " + CKJVSearchResult::tr("Not found at all in %n Book(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumBk - m_nSearchBooks);
+					}
+				}
+			}
+		} else {
+			QString strSearchWithinDescription = m_SearchCriteria.searchWithinDescription(pBibleDatabase);
+			if (!strSearchWithinDescription.isEmpty()) {
+				strResults += " " + CKJVSearchResult::tr("within", "Statistics") + " " + strSearchWithinDescription;
+			}
+		}
+	} else {
+		strResults += CKJVSearchResult::tr("Excluded %n Occurrence(s)", "Statistics", m_nExcludedSearchOccurrences) + "\n";
+		strResults += "    " + CKJVSearchResult::tr("in %n Verse(s)", "Statistics", m_nExcludedSearchVerses) +
+						" " + CKJVSearchResult::tr("in %n Chapter(s)", "Statistics", m_nExcludedSearchChapters) +
+						" " + CKJVSearchResult::tr("in %n Book(s)", "Statistics", m_nExcludedSearchBooks);
+		if (!m_SearchCriteria.withinIsEntireBible(pBibleDatabase)) {
+			QString strSearchWithinDescription = m_SearchCriteria.searchWithinDescription(pBibleDatabase);
+			if (!strSearchWithinDescription.isEmpty()) {
+				strResults += " " + CKJVSearchResult::tr("within", "Statistics") + " " + strSearchWithinDescription;
+			}
+		}
+	}
+
+	// ------------------------------------------------------------------------
+
+	return strResults;
+}
+
+QString CSearchResultsSummary::summaryCopyText(CBibleDatabasePtr pBibleDatabase) const
+{
+	QString strSummary;
+
+	// TODO : Fix Translation Contexts Here...
+
+	if (m_bValid) {
+		strSummary += CKJVSearchResult::tr("Found %n%1Occurrence(s)", "Statistics", m_nSearchOccurrences).arg((numTotalSearchPhrases() > 1) ? (" " + CKJVSearchResult::tr("Combined", "Statistics", m_nSearchOccurrences) + " ") : " ").trimmed();
+		strSummary += (m_SearchCriteria.withinIsEntireBible(pBibleDatabase) ? "" : (" " + CKJVSearchResult::tr("in the Selected Search Text", "Statistics"))) + "\n";
+		strSummary += "    " + CKJVSearchResult::tr("in %n Verse(s)", "Statistics", m_nSearchVerses) + "\n";
+		strSummary += "    " + CKJVSearchResult::tr("in %n Chapter(s)", "Statistics", m_nSearchChapters) + "\n";
+		strSummary += "    " + CKJVSearchResult::tr("in %n Book(s)", "Statistics", m_nSearchBooks) + "\n";
+		if (m_SearchCriteria.withinIsEntireBible(pBibleDatabase, true)) {
+			strSummary += "\n";
+			strSummary += CKJVSearchResult::tr("Not found%1at all in %n Verse(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumVrs - m_nSearchVerses).arg(((numTotalSearchPhrases() > 1) && (m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + CKJVSearchResult::tr("together", "Statistics") + " ") : " ") + "\n";
+			strSummary += CKJVSearchResult::tr("Not found%1at all in %n Chapter(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumChp - m_nSearchChapters).arg(((numTotalSearchPhrases() > 1) && (m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + CKJVSearchResult::tr("together", "Statistics") + " ") : " ") + "\n";
+			strSummary += CKJVSearchResult::tr("Not found%1at all in %n Book(s) of the Bible", "Statistics", pBibleDatabase->bibleEntry().m_nNumBk - m_nSearchBooks).arg(((numTotalSearchPhrases() > 1) && (m_SearchCriteria.searchScopeMode() != CSearchCriteria::SSME_UNSCOPED)) ? (" " + CKJVSearchResult::tr("together", "Statistics") + " ") : " ") + "\n";
+		} else {
+			QString strSearchWithinDescription = m_SearchCriteria.searchWithinDescription(pBibleDatabase);
+			if (!strSearchWithinDescription.isEmpty()) {
+				strSummary += "    " + CKJVSearchResult::tr("within", "Statistics") + " " + strSearchWithinDescription + "\n";
+			}
+		}
+		if (m_nExcludedSearchOccurrences > 0) {
+			strSummary += "\n";
+			strSummary += CKJVSearchResult::tr("Excluded %n%1Occurrence(s)", "Statistics", m_nExcludedSearchOccurrences).arg((numTotalSearchPhrases() > 1) ? (" " + CKJVSearchResult::tr("Combined", "Statistics", m_nExcludedSearchOccurrences) + " ") : " ").trimmed() + "\n";
+			strSummary += "    " + CKJVSearchResult::tr("in %n Verse(s)", "Statistics", m_nExcludedSearchVerses) + "\n";
+			strSummary += "    " + CKJVSearchResult::tr("in %n Chapter(s)", "Statistics", m_nExcludedSearchChapters) + "\n";
+			strSummary += "    " + CKJVSearchResult::tr("in %n Book(s)", "Statistics", m_nExcludedSearchBooks) + "\n";
+			if (!m_SearchCriteria.withinIsEntireBible(pBibleDatabase)) {
+				QString strSearchWithinDescription = m_SearchCriteria.searchWithinDescription(pBibleDatabase);
+				if (!strSearchWithinDescription.isEmpty()) {
+					strSummary += "    " + CKJVSearchResult::tr("within", "Statistics") + " " + strSearchWithinDescription + "\n";
+				}
+			}
+		}
+	} else {
+		strSummary += CKJVSearchResult::tr("Search was incomplete -- too many possible matches", "Statistics") + "\n";
+	}
+
+	return strSummary;
+}
+
+// ============================================================================

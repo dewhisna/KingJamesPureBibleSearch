@@ -157,6 +157,9 @@ public:
 
 // ============================================================================
 
+// Forward declarations
+class CBasicHighlighter;
+
 class CVerseListItem
 {
 public:
@@ -244,7 +247,10 @@ public:
 			strToolTip += m_pBibleDatabase->SearchResultToolTip(ndxTag, RIMASK_WORD);
 			for (int ndxPhrase = 0; ndxPhrase < searchResultsData.m_lstParsedPhrases.size(); ++ndxPhrase) {
 				const CParsedPhrase *pPhrase = searchResultsData.m_lstParsedPhrases.at(ndxPhrase);
-				assert(pPhrase != NULL);
+				// Note: This CAN legitimately be NULL if we are intentionally dumping our SearchPhrase
+				//		data.  See CWebChannelObjects::en_searchResultsReady() and the clearing of the
+				//		Parsed Phrases in order to free memory for additional users.  So don't assert here:
+				//assert(pPhrase != NULL);
 				if (pPhrase == NULL) continue;
 				if (verseIndex()->resultsType() != VLMRTE_SEARCH_RESULTS_EXCLUDED) {
 					QString strSearchWithinDescription = searchResultsData.m_SearchCriteria.searchWithinDescription(m_pBibleDatabase);
@@ -393,24 +399,49 @@ public:
 		return getVerseRichText(plainRichifierTags);
 	}
 
-	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags) const
+	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags,
+								const CBasicHighlighter *pHighlighter = NULL) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
 #endif
+
+		QString strVerseRichText;
+		CRelIndex ndxCurrent = getIndex();
+		bool bExtended = false;			// True if result extends to multiple verses
+		do {
+			if (bExtended) {
+				if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() == getIndex().chapter()) &&
+					(ndxCurrent.verse() != 0)) {
+					strVerseRichText += QString("&nbsp;&nbsp;(%1) ").arg(ndxCurrent.verse());
+				} else if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() != 0) && (ndxCurrent.verse() != 0)) {
+					strVerseRichText += QString("&nbsp;&nbsp;(%1:%2) ").arg(ndxCurrent.chapter()).arg(ndxCurrent.verse());
+				} else {
+					CRelIndex ndxPrint = ndxCurrent;
+					if ((ndxPrint.chapter() != 0) && (ndxPrint.verse() != 0)) ndxPrint.setWord(0);
+					strVerseRichText += QString("&nbsp;&nbsp;(%1) ").arg(m_pBibleDatabase->PassageReferenceText(ndxPrint, true));
+				}
+			}
+			strVerseRichText += getVerseRichText(ndxCurrent, m_pBibleDatabase, richifierTags, pHighlighter);
+			ndxCurrent = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxCurrent, false);		// See if next verse intersects our results of this verse (i.e. spills to next verse)
+			bExtended = true;
+		} while (m_lstTags.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCurrent)));
+
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags);
+		m_strRichTextCache = strVerseRichText
 		return m_strRichTextCache;
 #else
-		return getVerseRichText(getIndex(), m_pBibleDatabase, richifierTags);
+		return strVerseRichText;
 #endif
 	}
-	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase, const CVerseTextRichifierTags &richifierTags)
+	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
+									const CVerseTextRichifierTags &richifierTags,
+									const CBasicHighlighter *pHighlighter = NULL)
 	{
 		assert(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
-		return pBibleDatabase->richVerseText(ndx, richifierTags, false);
+		return pBibleDatabase->richVerseText(ndx, richifierTags, false, pHighlighter);
 	}
 
 	void sortPhraseTags()
@@ -665,6 +696,8 @@ public:
 		QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
 		QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
 
+		const CSearchResultsData &searchResultsData() const { return m_searchResultsData; }
+
 		using TVerseListModelResults::GetVerseCount;
 		using TVerseListModelResults::verseMap;
 	};
@@ -708,6 +741,7 @@ public:
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
 	CRelIndex logicalIndexForModelIndex(const QModelIndex &index) const;
+	QModelIndex modelIndexForLogicalIndex(const CRelIndex &ndxLogical) const;
 	CRelIndex navigationIndexForModelIndex(const QModelIndex &index) const;
 	static CRelIndex navigationIndexFromLogicalIndex(const CRelIndex &ndxLogical);
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
@@ -818,6 +852,8 @@ public slots:
 
 protected slots:
 	void en_WordsOfJesusColorChanged(const QColor &color);
+	void en_SearchResultsColorChanged(const QColor &color);
+	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void en_changedCopyOptions();
 
 	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
@@ -871,6 +907,107 @@ private:
 // ---
 	// Special statics needed for sorting (mutexed in sorting function to be thread-safe):
 	static const TCrossReferenceMap *ms_pCrossRefsMap;
+};
+
+// ============================================================================
+
+//
+// CSearchResultsSummary
+//		Search results summary of 'n' occurrences in 'x' verses in 'y' chapters in 'z' books
+//
+class CSearchResultsSummary
+{
+public:
+	CSearchResultsSummary()
+	{
+		reset();
+	}
+
+	CSearchResultsSummary(const CVerseListModel &verseModel)
+	{
+		setFromVerseListModel(verseModel);
+	}
+
+	CSearchResultsSummary & operator=(const CVerseListModel &src)
+	{
+		setFromVerseListModel(src);
+		return *this;
+	}
+
+	void reset()
+	{
+		m_nSearchOccurrences = 0;
+		m_nSearchVerses = 0;
+		m_nSearchChapters = 0;
+		m_nSearchBooks = 0;
+		m_nNumSearchPhrases = 0;
+		// ----
+		m_nExcludedSearchOccurrences = 0;
+		m_nExcludedSearchVerses = 0;
+		m_nExcludedSearchChapters = 0;
+		m_nExcludedSearchBooks = 0;
+		m_nNumExcludedSearchPhrases = 0;
+		// ----
+		m_SearchCriteria.clear();
+		m_bValid = false;
+	}
+
+	void setFromVerseListModel(const CVerseListModel &verseModel)
+	{
+		m_nSearchOccurrences = verseModel.searchResults(false).GetResultsCount();
+		m_nSearchVerses = verseModel.searchResults(false).GetVerseIndexAndCount().second;
+		m_nSearchChapters = verseModel.searchResults(false).GetChapterIndexAndCount().second;
+		m_nSearchBooks = verseModel.searchResults(false).GetBookIndexAndCount().second;
+		m_nNumSearchPhrases = verseModel.searchResults(false).searchResultsData().m_lstParsedPhrases.size();
+		// ----
+		m_nExcludedSearchOccurrences = verseModel.searchResults(true).GetResultsCount();
+		m_nExcludedSearchVerses = verseModel.searchResults(true).GetVerseIndexAndCount().second;
+		m_nExcludedSearchChapters = verseModel.searchResults(true).GetChapterIndexAndCount().second;
+		m_nExcludedSearchBooks = verseModel.searchResults(true).GetBookIndexAndCount().second;
+		m_nNumExcludedSearchPhrases = verseModel.searchResults(true).searchResultsData().m_lstParsedPhrases.size();
+		// ----
+		m_SearchCriteria = verseModel.searchResults(false).searchResultsData().m_SearchCriteria;		// Should match excluded as well
+		m_bValid = true;
+	}
+
+	QString summaryDisplayText(CBibleDatabasePtr pBibleDatabase, bool bExcluded = false, bool bWebChannelHTML = false) const;
+	QString summaryCopyText(CBibleDatabasePtr pBibleDatabase) const;
+
+	// ----
+	bool isValid() const { return m_bValid; }
+	// ---- included:
+	int searchOccurrences() const { return m_nSearchOccurrences; }
+	int searchVerses() const { return m_nSearchVerses; }
+	int searchChapters() const { return m_nSearchChapters; }
+	int searchBooks() const { return m_nSearchBooks; }
+	int numSearchPhrases() const { return m_nNumSearchPhrases; }
+	// ---- excluded:
+	int excludedSearchOccurrences() const { return m_nExcludedSearchOccurrences; }
+	int excludedSearchVerses() const { return m_nExcludedSearchVerses; }
+	int excludedSearchChapters() const { return m_nExcludedSearchChapters; }
+	int excludedSearchBooks() const { return m_nExcludedSearchBooks; }
+	int numExcludedSearchPhrases() const { return m_nNumExcludedSearchPhrases; }
+	// ----
+	int numTotalSearchPhrases() const { return m_nNumSearchPhrases + m_nNumExcludedSearchPhrases; }
+	// ----
+	const CSearchCriteria &searchCriteria() const { return m_SearchCriteria; }
+
+private:
+	int m_nSearchOccurrences;
+	int m_nSearchVerses;
+	int m_nSearchChapters;
+	int m_nSearchBooks;
+	// ----
+	int m_nExcludedSearchOccurrences;
+	int m_nExcludedSearchVerses;
+	int m_nExcludedSearchChapters;
+	int m_nExcludedSearchBooks;
+	// ----
+	int m_nNumSearchPhrases;
+	int m_nNumExcludedSearchPhrases;
+	CSearchCriteria m_SearchCriteria;
+	// ----
+	bool m_bValid;						// Set to true when set from a search source
 };
 
 // ============================================================================

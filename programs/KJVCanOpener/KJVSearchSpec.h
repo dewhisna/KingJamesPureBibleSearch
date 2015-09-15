@@ -62,7 +62,7 @@ public:
 class CKJVSearchSpec : public QWidget
 {
 	Q_OBJECT
-	
+
 public:
 	explicit CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = 0);
 	virtual ~CKJVSearchSpec();
@@ -88,8 +88,12 @@ public slots:
 	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
 	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
 
-	void setFocusSearchPhrase(int nIndex = 0);
+	CKJVSearchPhraseEdit *addSearchPhrase();
+
+	CKJVSearchPhraseEdit *setFocusSearchPhrase(int nIndex = 0);
 	void setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase);
+
+	int searchPhraseCount() const { return m_lstSearchPhraseEditors.size(); }
 
 	void setSearchResultsUpdateDelay(int nDelay) { m_dlySearchResultsUpdate.setMinimumDelay(nDelay*2); }		// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
 
@@ -101,7 +105,6 @@ public slots:			// Incoming Pass-Through:
 protected slots:
 	void closeAllSearchPhrases();
 
-	CKJVSearchPhraseEdit *addSearchPhrase();
 	void ensureSearchPhraseVisible(int nIndex);
 	void ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase);
 	void en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase);

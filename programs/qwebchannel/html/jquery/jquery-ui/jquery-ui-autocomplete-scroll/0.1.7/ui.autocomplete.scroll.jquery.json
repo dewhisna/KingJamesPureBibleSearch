@@ -1,0 +1,25 @@
+{
+  "name": "ui.autocomplete.scroll",
+  "version": "0.1.7",
+  "title": "Scrollable jQuery UI Autocomplete",
+  "description": "Scrollable jQuery UI Autocomplete Plugin for long items list.",
+  "keywords": [
+    "ui",
+    "autocomplete",
+    "scroll",
+    "list"
+  ],
+  "dependencies": {
+    "jquery": ">=1.6",
+    "jquery-ui": ">=1.9"
+  },
+  "homepage": "http://anseki.github.io/jquery-ui-autocomplete-scroll/",
+  "docs": "http://anseki.github.io/jquery-ui-autocomplete-scroll/",
+  "download": "http://anseki.github.io/jquery-ui-autocomplete-scroll/",
+  "bugs": "https://github.com/anseki/jquery-ui-autocomplete-scroll/issues",
+  "licenses": "MIT",
+  "author": {
+    "name": "anseki",
+    "url": "https://github.com/anseki"
+  }
+}

@@ -46,6 +46,12 @@
 
 #include <assert.h>
 
+#include <iostream>
+
+#ifdef  USING_WEBCHANNEL
+#include <webChannelServer.h>
+#endif
+
 #ifdef Q_OS_WIN
 // Needed to call CreateMutex to lockout installer running while we are:
 #define WIN32_LEAN_AND_MEAN
@@ -122,6 +128,7 @@ int main(int argc, char *argv[])
 
 //	QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 	QString strKJSFile;
+	bool bShowHelp = false;
 	bool bBuildDB = false;
 	bool bStealthMode = false;
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
@@ -135,6 +142,7 @@ int main(int argc, char *argv[])
 #endif
 	QString strStealthSettingsFilename;
 	QString strTTSServerURL;
+	QString strWebChannelHostPort;
 
 	Q_INIT_RESOURCE(KJVCanOpener);
 
@@ -145,12 +153,20 @@ int main(int argc, char *argv[])
 
 #endif
 
+#ifndef IS_CONSOLE_APP
+
 #ifdef Q_OS_WIN32
 	pApp->setWindowIcon(QIcon(":/res/bible.ico"));
 #else
 #ifndef Q_OS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
 	pApp->setWindowIcon(QIcon(":/res/bible_48.png"));
 #endif
+#endif
+
+#endif
+
+#if defined(VNCSERVER) && defined(USING_WEBCHANNEL)
+#error "Can't use WebChannel with VNC!"
 #endif
 
 	QWidget *pSplash = pApp->showSplash();
@@ -162,7 +178,7 @@ int main(int argc, char *argv[])
 	//			exit and InnoSetup actually suggest we leave it open
 #endif
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 	CMyDaemon *pSIGDaemon = new CMyDaemon(pApp);
 	pSIGDaemon->setup_unix_signal_handlers();
 #endif
@@ -174,6 +190,7 @@ int main(int argc, char *argv[])
 	bool bLookingForBibleDB = false;
 	bool bLookingForDictDB = false;
 	bool bLookingForTTSServerURL = false;
+	bool bLookingForWebChannelHostPort = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
 		if (!strArg.startsWith("-")) {
@@ -197,6 +214,9 @@ int main(int argc, char *argv[])
 			} else if (bLookingForTTSServerURL) {
 				strTTSServerURL = strArg;
 				bLookingForTTSServerURL = false;
+			} else if (bLookingForWebChannelHostPort) {
+				strWebChannelHostPort = strArg;
+				bLookingForWebChannelHostPort = false;
 			} else if (strKJSFile.isEmpty()) {
 				strKJSFile = strArg;
 			} else {
@@ -205,8 +225,12 @@ int main(int argc, char *argv[])
 		} else if ((!bLookingForSettings) &&
 					(!bLookingForBibleDB) &&
 					(!bLookingForDictDB) &&
-					(!bLookingForTTSServerURL)) {
-			if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
+					(!bLookingForTTSServerURL) &&
+					(!bLookingForWebChannelHostPort)) {
+			if ((strArg.compare("-h", Qt::CaseInsensitive) == 0) ||
+				(strArg.compare("--help", Qt::CaseInsensitive) == 0)) {
+				bShowHelp = true;
+			} else if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 				bBuildDB = true;
 			} else if (strArg.compare("-bbl", Qt::CaseInsensitive) == 0) {
 				bLookingForBibleDB = true;
@@ -225,6 +249,8 @@ int main(int argc, char *argv[])
 				bSingleThreadedSearchResults = false;
 			} else if (strArg.compare("-TTSServer", Qt::CaseInsensitive) == 0) {
 				bLookingForTTSServerURL = true;
+			} else if (strArg.compare("-webchannel", Qt::CaseInsensitive) == 0) {
+				bLookingForWebChannelHostPort = true;
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
 			}
@@ -245,14 +271,110 @@ int main(int argc, char *argv[])
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Text-To-Speech Server URL, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForTTSServerURL = false;
 			}
+			if (bLookingForWebChannelHostPort) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting WebChannel Host/Port, but but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForWebChannelHostPort = false;
+			}
 		}
+	}
+
+	bool bBadArgs = false;
+	if (bLookingForSettings) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForBibleDB) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor Index, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForDictDB) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor Index, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForTTSServerURL) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Text-To-Speech Server URL, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForWebChannelHostPort) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting WebChannel Host/Port, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bBadArgs) {
+		delete pApp;
+		return -3;
+	}
+
+	if (bShowHelp) {
+		std::cout << "King James Pure Bible Search\n";
+		std::cout << "Usage information:\n\n";
+		std::cout << QString("%1 [options] [<KJSFile>]\n\n").arg(QFileInfo(QApplication::applicationFilePath()).fileName()).toUtf8().data();
+		std::cout << "Where:\n";
+		std::cout << "    [<KJSFile>] = Optional King James Search file to load\n\n";
+		std::cout << "Options\n";
+		std::cout << "-h, --help   = Show this usage information\n\n";
+		std::cout << "-builddb     = Build Bible Database (Requires /data from KJVDataParse)\n\n";
+		std::cout << "-bbl <index> = Bible Database Index to use\n";
+		std::cout << "               (for building or initial search window)\n";
+		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
+			std::cout << QString("    %1 : %2\n").arg(dbNdx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strDBDesc).toUtf8().data();
+		}
+		std::cout << "\n";
+		std::cout << "-dct <indx>  = Dictionary Database Index to use\n";
+		std::cout << "               (for initial search window)\n";
+		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
+			std::cout << QString("    %1 : %2\n").arg(dbNdx).arg(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx)).m_strDBDesc).toUtf8().data();
+		}
+		std::cout << "\n";
+		std::cout << "-stealth     = Don't write settings to system registry, ~/.config,\n";
+		std::cout << "               or ~/Library.  Configuration changes will not be saved\n";
+		std::cout << "               in stealth mode unless you use -settings also, see below.\n\n";
+		std::cout << "-settings <file> = Write settings to the specified filepath.  This option\n";
+		std::cout << "               implies -stealth option above.\n\n";
+		std::cout << "-st, -singlethreaded = Use single-threaded search result generation";
+#if (defined(USE_MULTITHREADED_SEARCH_RESULTS) && defined(INVERT_MULTITHREADED_LOGIC)) || !defined(USE_MULTITHREADED_SEARCH_RESULTS)
+		std::cout << " (default)\n\n";
+#else
+		std::cout << "\n\n";
+#endif
+		std::cout << "-mt, -multithreaded = Use multi-threaded search result generation";
+#if (defined(USE_MULTITHREADED_SEARCH_RESULTS) && !defined(INVERT_MULTITHREADED_LOGIC))
+		std::cout << " (default)\n\n";
+#else
+		std::cout << "\n\n";
+#endif
+		std::cout << "-TTSServer <URL> = Use Speech Server at specified URL\n";
+		std::cout << "               (only applies to builds using text-to-speech server)\n\n";
+		std::cout << "-webchannel <port[,interface]> = Starts WebChannel Server Daemon\n";
+		std::cout << "               Where port is the desired port to listen on\n";
+		std::cout << "               Where interface is one of:\n";
+		std::cout << "                   127.0.0.1 = localhost IPv4\n";
+		std::cout << "                   ::1 = localhost IPv6\n";
+		std::cout << "                   255.255.255.255 = broadcast IPv4 (not advised)\n";
+		std::cout << "                   0.0.0.0 = Any IPv4 interface\n";
+		std::cout << "                   :: = Any IPv6 interface\n";
+		std::cout << "                   Dual stack, Any IPv4 or IPv6 if not specified\n";
+		std::cout << "    examples:\n";
+		std::cout << "        -webchannel 12345,127.0.0.1  (listen localhost, port 12345)\n";
+		std::cout << "        -webchannel 12345            (listen Any IPv4/IPv6, port 12345)\n";
+		std::cout << "        -webchannel 12345,0.0.0.0    (listen Any IPv4, port 12345)\n\n";
+		std::cout << "    (Send SIGHUP or SIGTERM to shutdown server)\n";
+		std::cout << "\n";
+		delete pApp;
+		return 0;
 	}
 
 	pApp->setFileToLoad(strKJSFile);
 	pApp->setTTSServerURL(strTTSServerURL);
+	pApp->setWebChannelHostPort(strWebChannelHostPort);
 
 #if defined(EMSCRIPTEN) || defined(VNCSERVER)
 	bStealthMode = true;
+#endif
+
+#if defined(USING_WEBCHANNEL)
+	if (!strWebChannelHostPort.isEmpty()) {
+		bStealthMode = true;
+	}
 #endif
 
 #if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
@@ -314,21 +436,52 @@ int main(int argc, char *argv[])
 		}
 	}
 
+#ifdef IS_CONSOLE_APP
+#ifdef USING_WEBCHANNEL
+	if ((pApp->webChannelServer() == NULL) ||
+		(!pApp->webChannelServer()->isListening())) {
+		std::cerr << "error: Failed to start WebChannel server listening.  Exiting...\n";
+		bDone = true;
+		delete pApp->webChannelServer();		// Get rid of server object so we don't do shutdown log message, since we never started
+	}
+#else
+	bDone = true;
+#endif
+#endif
+
 	if (nRetVal == 0) {
 		while (!bDone) {
 			nRetVal = pApp->exec();
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
 			if ((nRetVal != 0) || (!pApp->areRestarting())) {
 				bDone = true;
 			} else {
 				pApp->createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 			}
+#else
+			// On console only webchannel apps (i.e. daemon server), don't perform "restart"
+			bDone = true;
+#endif
 		}
 	}
+
+#ifdef USING_WEBCHANNEL
+	// Close web server before we shutdown and tearout Bible Databases, etc,
+	//		if we don't do this, we will crash with a segfault cleaning up the
+	//		CWebChannelSearchResults after the fact:
+	CWebChannelServer *pWebChannelServer = pApp->webChannelServer();
+	if (pWebChannelServer) {
+		pWebChannelServer->close();
+	}
+#endif
 
 	delete pApp;
 #else
 #ifdef USING_QT_SPEECH
 #error "Can't use Qt Speech with Emscripten!"
+#endif
+#ifdef USING_WEBCHANNEL
+#error "Can't use WebChannel with Emscripten!"
 #endif
 	if (pSplash != NULL) {
 		nRetVal = pApp->exec();

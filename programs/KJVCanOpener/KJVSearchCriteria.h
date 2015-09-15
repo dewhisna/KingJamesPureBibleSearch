@@ -74,6 +74,12 @@ public:
 
 	virtual ~CSearchCriteria() { }
 
+	void clear()
+	{
+		m_nSearchScopeMode = SSME_UNSCOPED;
+		m_setSearchWithin.clear();
+	}
+
 	bool bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const;
 	bool bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const;
 
@@ -298,7 +304,8 @@ class CSearchWithinModel : public QAbstractItemModel
 
 public:
 	enum SEARCH_WITHIN_MODEL_DATA_ROLES_ENUM {
-		SWMDRE_REL_INDEX_ROLE = Qt::UserRole + 0		// Data role for CRelIndex() for the corresponding item relative index
+		SWMDRE_REL_INDEX_ROLE = Qt::UserRole + 0,		// Data role for CRelIndex() for the corresponding item relative index
+		SWMDRE_WEBCHANNEL_ROLE = Qt::UserRole + 1		// Data role for toWebChannelJson() and toWebChannelHtml() format text
 	};
 
 	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent = 0);
@@ -331,6 +338,11 @@ public:
 	static void *fromSearchWithinModelIndex(const CSearchWithinModelIndex *pIndex) { return reinterpret_cast<void *>(const_cast<CSearchWithinModelIndex *>(pIndex)); }
 
 	QModelIndexList getPersistentIndexList() const { return persistentIndexList(); }
+
+#ifdef USING_WEBCHANNEL
+	QString toWebChannelJson() const;
+	QString toWebChannelHtml() const;
+#endif
 
 signals:
 	void changedSearchWithin();

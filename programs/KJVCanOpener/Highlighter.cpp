@@ -117,7 +117,7 @@ bool CHighlighterPhraseTagFwdItr::isEnd() const
 
 // ============================================================================
 
-CSearchResultHighlighter::CSearchResultHighlighter(CVerseListModel *pVerseListModel, bool bExcludedResults, QObject *parent)
+CSearchResultHighlighter::CSearchResultHighlighter(const CVerseListModel *pVerseListModel, bool bExcludedResults, QObject *parent)
 	:	CBasicHighlighter(parent),
 		m_pVerseListModel(pVerseListModel),
 		m_bExcludedResults(bExcludedResults)
@@ -179,6 +179,21 @@ QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &
 	}
 
 	return fmtNew;
+}
+
+bool CSearchResultHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
+{
+	assert(pBibleDatabase != NULL);
+
+	if (!enabled()) return false;
+	if (!aTag.relIndex().isSet()) return false;
+
+	CHighlighterPhraseTagFwdItr aItr = getForwardIterator();
+	while (!aItr.isEnd()) {
+		if (aItr.nextTag().intersects(pBibleDatabase, aTag)) return true;
+	}
+
+	return false;
 }
 
 void CSearchResultHighlighter::verseListChanged()
@@ -249,6 +264,11 @@ QTextCharFormat CCursorFollowHighlighter::doHighlighting(const QTextCharFormat &
 	return fmtNew;
 }
 
+bool CCursorFollowHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
+{
+	return m_myPhraseTags.phraseTags().intersects(pBibleDatabase, aTag);
+}
+
 CHighlighterPhraseTagFwdItr CCursorFollowHighlighter::getForwardIterator() const
 {
 	return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
@@ -298,6 +318,11 @@ QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &a
 	}
 
 	return fmtNew;
+}
+
+bool CUserDefinedHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
+{
+	return m_myPhraseTags.phraseTags().intersects(pBibleDatabase, aTag);
 }
 
 CHighlighterPhraseTagFwdItr CUserDefinedHighlighter::getForwardIterator() const

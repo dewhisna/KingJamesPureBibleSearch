@@ -756,6 +756,27 @@ cd ~/Qt/5.5.0-alpha-ios-build
 ../5.5.0-alpha-src/configure -xplatform macx-ios-clang -debug-and-release -prefix /Users/dewhisna/Qt/5.5.0-alpha-ios-run -opensource -confirm-license -qt-zlib -qt-pcre -qt-sql-sqlite -qt-libpng -qt-libjpeg -qt-freetype
 
 
+
+====================
+    Qt 5.5.0
+====================
+
+
+--------------------------
+Qt 5.5.0 -- VNC (DYNAMIC):
+--------------------------
+
+AWS:
+../5.5.0-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake demos -nomake tests -opensource -confirm-license -prefix /home/ubuntu/Qt/5.5.0-vnc-run
+
+
+// Note: Our AWS apparently isn't setup with necessary dev packages for "-icu -fontconfig -libinput -directfb", but proceeding without them, as I'm not sure we need them.
+
+// Note: Qt 5 has dropped QWS to move to QPA.  Not sure if noVNC can be made to work with QPA yet.  This build is specifically
+//	to setup our AWS EC2 to be the server for webchannel.
+
+
+
 ===============================================================================
 ===============================================================================
 

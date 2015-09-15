@@ -163,8 +163,8 @@ public:
 	}
 
 	virtual void ParsePhrase(const QTextCursor &curInsert, bool bFindWords = true);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord (Clears word cache and bFindWords determines if we FindWords() for our BibleDatabase)
-	virtual void ParsePhrase(const QString &strPhrase);			// Parses a fixed phrase (Clears word cache and does NOT call FindWords())
-	virtual void ParsePhrase(const QStringList &lstPhrase);		// Parses a fixed phrase already divided into words (like getSelectedPhrase from CPhraseNavigator) (Clears word cache and does NOT call FindWords())
+	virtual void ParsePhrase(const QString &strPhrase, bool bFindWords = false);		// Parses a fixed phrase (Clears word cache and does NOT call FindWords())
+	virtual void ParsePhrase(const QStringList &lstPhrase, bool bFindWords = false);	// Parses a fixed phrase already divided into words (like getSelectedPhrase from CPhraseNavigator) (Clears word cache and does NOT call FindWords())
 
 	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
 	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
@@ -197,6 +197,17 @@ public:
 	bool operator!=(const CPhraseEntry &src) const
 	{
 		return (!(operator==(src)));
+	}
+
+	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords)
+	{
+		if (*this != aPhraseEntry) {		// Only set the phrase if it's different to avoid repeated FindWords() calls
+			setCaseSensitive(aPhraseEntry.caseSensitive());
+			setAccentSensitive(aPhraseEntry.accentSensitive());
+			setExclude(aPhraseEntry.isExcluded());
+			setIsDisabled(aPhraseEntry.isDisabled());
+			ParsePhrase(aPhraseEntry.text(), bFindWords);
+		}
 	}
 
 	void UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter);
@@ -480,7 +491,16 @@ public:
 		TRO_SuppressPrePostChapters = 0x400,		// Suppress adding pre/post chapter displays
 		TRO_Copying = 0x800,						// Text Copying mode (i.e. add selected font from copy option, etc)
 		TRO_ScriptureBrowser = 0x1000,				// Rendering Scripture Browser Text
-		TRO_SearchResults = 0x2000					// Rendering Search Results Text
+		TRO_SearchResults = 0x2000,					// Rendering Search Results Text
+		TRO_InnerHTML = 0x4000,						// Generate Inner-HTML Only (i.e. no header and body tags)
+		TRO_NoWordAnchors = 0x8000,					// Disables per-word anchors and uses verse, chapter, book anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoVerseAnchors = 0x10000,				// Disables per-verse anchors and uses word, chapter, book anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoChapterAnchors = 0x20000,				// Disables per-chapter anchors and uses word, verse, book anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoBookAnchors = 0x40000,				// Disables per-book anchors and uses word, verse, chapter anchors only (superceded if TRO_NoAnchors is set)
+		TRO_NoCrossRefAnchors = 0x80000,			// Disables navigation anchors for CrossRefs (superceded by TRO_NoAnchors)
+		TRO_NoFootnoteAnchors = 0x100000,			// Disables outputting anchors for Footnotes (superceded by TRO_NoAnchors)
+		TRO_NoColophonAnchors = 0x200000,			// If TRO_NoWordAnchors is used, the entire Colophon will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
+		TRO_NoSuperscriptAnchors = 0x400000			// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
@@ -550,10 +570,16 @@ public:
 #define defaultDocumentToVerseFlags		(CPhraseNavigator::TRO_None)
 	// Returns unaltered raw-HTML text (as opposed to the QTextEdit changes to the HTML):
 	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
-	QString setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags));
-	QString setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags));
+	QString setDocumentToChapter(const CRelIndex &ndx,
+								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags),
+								const CBasicHighlighter *pHighlighter = NULL);
+	QString setDocumentToVerse(const CRelIndex &ndx,
+								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags),
+								const CBasicHighlighter *pHighlighter = NULL);
 	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
+
+	void clearDocument();
 
 	static QString referenceStartingDelimiter();
 	static QString referenceEndingDelimiter();
@@ -577,6 +603,10 @@ protected slots:
 	{
 		m_richifierTagsDisplay.setWordsOfJesusTagsByColor(color);
 		m_richifierTagsCopying.setWordsOfJesusTagsByColor(color);
+	}
+	void en_SearchResultsColorChanged(const QColor &color)
+	{
+		m_richifierTagsDisplay.setSearchResultsTagsByColor(color);
 	}
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers)
 	{

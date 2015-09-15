@@ -667,60 +667,40 @@ void CKJVBrowser::showPassageNavigator()
 void CKJVBrowser::en_Bible_Beginning()
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	gotoIndex(TPhraseTag(CRelIndex(1,1,1,1)));
+	gotoIndex(TPhraseTag(m_pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start)));
 }
 
 void CKJVBrowser::en_Bible_Ending()
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	CRelIndex ndx;
-	ndx.setBook(m_pBibleDatabase->bibleEntry().m_nNumBk);
-	ndx.setChapter(m_pBibleDatabase->bookEntry(ndx.book())->m_nNumChp);
-	ndx.setVerse(m_pBibleDatabase->chapterEntry(ndx)->m_nNumVrs);
-	ndx.setWord(m_pBibleDatabase->verseEntry(ndx)->m_nNumWrd);
-	gotoIndex(TPhraseTag(ndx));
+	gotoIndex(TPhraseTag(m_pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End)));
 }
 
 void CKJVBrowser::en_Book_Backward()
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	if (m_ndxCurrent.book() < 2) return;
-
-	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()-1, 1, 1, 1)));
+	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_PreviousBook);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::en_Book_Forward()
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	if (m_ndxCurrent.book() >= m_pBibleDatabase->bibleEntry().m_nNumBk) return;
-
-	gotoIndex(TPhraseTag(CRelIndex(m_ndxCurrent.book()+1, 1, 1, 1)));
+	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_NextBook);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::en_ChapterBackward()
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), true);
-	if (ndx.isSet()) {
-		// The following sets are needed to handle the case of scrolling backward from a missing chapter/verse entry -- for example
-		//		the Additions to Esther in the Apocrypha.  The above calculation will normalize the current location to 10:4 in that
-		//		passage, causing us to goto the 4th verse of the preceding chapter:
-		ndx.setVerse(1);
-		ndx.setWord(1);
-		gotoIndex(TPhraseTag(ndx));
-	}
+	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_PreviousChapter);
+	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::en_ChapterForward()
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 1), false);
+	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_NextChapter);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 

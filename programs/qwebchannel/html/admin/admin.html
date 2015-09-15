@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>King James Pure Bible Search WebChannel Server Admin</title>
+		<link rel="stylesheet" href="../jquery/jquery-ui/1.11.4/themes/start/jquery-ui.css">
+		<script src="../jquery/jquery-1.11.3.js"></script>
+		<script src="../jquery/jquery-ui/1.11.4/jquery-ui.js"></script>
+		<script src="../jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.js"></script>
+		<script type="text/javascript" src="../qwebchannel.js"></script>
+		<script type="text/javascript">
+			var bAreConnected = false;			// True when we are connected to the server (and properly initialized)
+
+			//BEGIN SETUP
+			function output(message)
+			{
+				var output = document.getElementById("output");
+				output.innerHTML = output.innerHTML + message + "\n";
+			}
+			function key()
+			{
+				return "76476F14-F3A9-42AC-9443-4A7445154EC7";
+			}
+			function scrollToAnchor(anAnchor)
+			{
+				var element_to_scroll_to = document.getElementById(anAnchor);
+				element_to_scroll_to.scrollIntoView();
+			}
+
+			function establishConnection(bReconnection) {
+				if (bAreConnected) return;
+
+				var baseUrl;
+				var basePort;
+				if ((/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search))) {
+					baseUrl = (/[?&]webChannelBaseUrl=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+				} else {
+					if ((/[?&]webChannelPort=([0-9]+)/.exec(location.search))) {
+						basePort = (/[?&]webChannelPort=([0-9]+)/.exec(location.search)[1]);
+					} else {
+						basePort = "9340";
+					}
+					baseUrl = "ws://" + location.host + ":" + basePort;
+				}
+				output("Connecting to WebSocket server at " + baseUrl + ".");
+				var socket = new WebSocket(baseUrl);
+
+				socket.onclose = function()
+				{
+					bAreConnected = false;
+					output("WebChannel Connection Closed");
+					alert("WebChannel Connection Closed");
+					$( "#reconnectButton" ).button( "option", "disabled", false );
+				};
+				socket.onerror = function(error)
+				{
+					bAreConnected = false;
+					$( "#reconnectButton" ).button( "option", "disabled", false );
+					output("WebChannel Error: " + error);
+//					alert("WebChannel Error: " + error);
+				};
+				socket.onopen = function()
+				{
+					bAreConnected = true;
+					$( "#reconnectButton" ).button( "option", "disabled", true );
+					output("WebSocket connected, setting up QWebChannel.");
+					new QWebChannel(socket, function(channel) {
+						// make our mosis object accessible globally
+						window.mosis = channel.objects.mosis;
+
+						mosis.serverListeningStatus.connect(function(bIsListening) {
+							document.getElementById("serverStatus").innerHTML = (bIsListening ? "Listening" : "NOT Listening");
+						});
+
+						mosis.connectionsList.connect(function(strHtmlConnections) {
+							document.getElementById("connectionsList").innerHTML = strHtmlConnections;
+						});
+
+						mosis.disconnectClientStatus.connect(function(bSuccess, strClientIP, strClientPort) {
+							if (!bSuccess) {
+								alert("Failed to disconnect: " + strClientIP + ":" + strClientPort);
+							}
+							window.mosis.getConnectionsList(key());
+						});
+
+						mosis.sendMessageStatus.connect(function(bSuccess, strClientIP, strClientPort, strMessage) {
+							if (!bSuccess) {
+								alert("Failed to send message to: " + strClientIP + ":" + strClientPort);
+							} else {
+								alert("Sent To Client: " + strClientIP + ":" + strClientPort + "\n\n" + strMessage);
+							}
+						});
+
+						channel.objects.kjpbs.unlock("A609FDFD-BB3C-4BEB-AFDA-9A839F940346");
+						channel.objects.kjpbs.setUserAgent(navigator.userAgent);
+
+						output("Connected to WebChannel, ready...");
+						window.mosis.getIsListening(key());
+						window.mosis.getConnectionsList(key());
+					});
+				}
+			}
+			window.onload = function() {
+				establishConnection(false);
+			}
+			function reconnect() {
+				document.getElementById("reconnectButton").blur();	// Workaround jqueryui bug
+				$("#reconnectButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+				if (!bAreConnected) {
+					establishConnection(true);
+				}
+			}
+			//END SETUP
+
+			function sendBroadcast() {
+				document.getElementById("sendBroadcastButton").blur();	// Workaround jqueryui bug
+				$("#sendBroadcastButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+				var msg = document.getElementById("broadcastMessageText").value;
+				if (msg) {
+					window.mosis.sendBroadcast(key(), msg);
+					alert("Broadcast Message Sent:\n\n" + msg);
+				}
+			}
+
+			function clearBroadcastMessage() {
+				$("#broadcastMessageText").val("").focus();
+			}
+
+			function sendMessage(strIP, strPort) {
+				var msg = document.getElementById('broadcastMessageText').value;
+				if (msg) {
+					window.mosis.sendMessage(key(), strIP, strPort, msg);
+				}
+			}
+
+			function disconnectClient(strIP, strPort) {
+				if (confirm("Really disconnect client: " + strIP + ":" + strPort + " ???")) {
+					window.mosis.disconnectClient(key(), strIP, strPort);
+				}
+			}
+
+			function getConnections() {
+				document.getElementById("getConnectionsButton").blur();	// Workaround jqueryui bug
+				$("#getConnectionsButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+				window.mosis.getConnectionsList(key());
+			}
+
+			function startListening() {
+				window.mosis.startListening(key());
+			}
+
+			function stopListening() {
+				window.mosis.stopListening(key());
+			}
+
+			function shutdownServer() {
+				document.getElementById("shutdownServerButton").blur();	// Workaround jqueryui bug
+				$("#shutdownServerButton").removeClass('ui-state-focus ui-state-hover ui-state-active');
+
+				var confirm = document.getElementById("shutdownServerConfirmationText");
+				if ((confirm.value) && (confirm.value == "CONFIRM")) {
+					window.mosis.sendBroadcast(key(), "King James Pure Bible Search WebChannel Server is shutting down...");
+					setTimeout(function(){
+						window.mosis.shutdownServer(key(), "9BF89B76-45B2-46EB-B95C-79D460F702BD");
+					}, 10000);
+				}
+			}
+		</script>
+		<style type="text/css">
+			html {
+				height: 100%;
+				width: 100%;
+			}
+
+			#broadcastMessageText {
+				margin: 0 5px 5px 0;
+				width: 500px;
+				max-width: 100%;
+			}
+
+			#shutdownServerConfirmationText {
+				margin: 0 5px 5px 0;
+				width: 500px;
+				max-width: 100%;
+			}
+
+			#output {
+				width: 500px;
+				height: 75px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="status">
+			<h1>King James Pure Bible Search</h1>
+			<h2>WebChannel Server Admin</h2>
+			<textarea id="output"></textarea><br /><br />
+			<button type="button" id="reconnectButton" onclick="javascript:reconnect();">Reconnect to Server</button><br />
+		</div>
+		<script>
+			$( "#reconnectButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+		<div id="serverStatusControls">
+			<table>
+				<tr>
+					<td><b>Server Status:</b></td><td><div id="serverStatus"></div></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<button type="button" id="startListeningButton" onclick="javascript:startListening();">Start</button>
+						<button type="button" id="stopListeningButton" onclick="javascript:stopListening();">Stop</button>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<br />
+		<hr />
+		<br />
+		<div id="broadcastControls">
+			<label for="broadcastMessageText">Broadcast Message: </label><br />
+			<input class="broadcastMessage" id="broadcastMessageText" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+			<button type="button" id="broadcastMessageClear" onclick="javascript:clearBroadcastMessage();">Clear</button>
+			<br />
+			<button type="button" id="sendBroadcastButton" onclick="javascript:sendBroadcast();">Send Broadcast</button>
+		</div>
+		<script>
+			$( "#sendBroadcastButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+		<div id="ClientConnections">
+			<button type="button" id="getConnectionsButton" onclick="javascript:getConnections();">Get Connections List</button>
+			<br /><br />
+			<div id="connectionsList"></div>
+		</div>
+		<script>
+			$( "#getConnectionsButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+		<div id="shutdownControls">
+			<label for="shutdownServerConfirmationText">Shutdown Server (enter "CONFIRM"): </label><br />
+			<input class="shutdownServerConfirmation" id="shutdownServerConfirmationText" type="text" autocomplete="off" autocorrect="off" autocapitalize="off"><br />
+			<button type="button" id="shutdownServerButton" onclick="javascript:shutdownServer();">Shutdown Server</button>
+		</div>
+		<script>
+			$( "#shutdownServerButton" ).button();
+		</script>
+		<br />
+		<hr />
+		<br />
+	</body>
+</html>

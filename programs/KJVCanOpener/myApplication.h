@@ -42,7 +42,7 @@
 #include <QElapsedTimer>
 #endif
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 #include <QSocketNotifier>
 #endif
 
@@ -52,6 +52,10 @@
 
 #ifdef USING_QT_SPEECH
 #include <QtSpeech>
+#endif
+
+#ifdef USING_WEBCHANNEL
+#include <webChannelServer.h>
 #endif
 
 #ifdef SIGNAL_SPY_DEBUG
@@ -69,7 +73,7 @@ class CMyApplication;
 
 // ============================================================================
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 
 class CMyDaemon : public QObject
 {
@@ -108,8 +112,10 @@ private:
 
 // ============================================================================
 
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 class CMyApplication : public QtSingleApplication
+#elif defined(IS_CONSOLE_APP)
+class CMyApplication : public QCoreApplication
 #else
 class CMyApplication : public QApplication
 #endif
@@ -155,11 +161,18 @@ public:
 	static QtSpeech *speechSynth() { return m_pSpeech.data(); }
 #endif
 
+#ifdef USING_WEBCHANNEL
+	static CWebChannelServer *webChannelServer() { return m_pWebChannelServer.data(); }
+#endif
+
 	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
 	QString startupStyleSheet() const { return m_strStartupStyleSheet; }
 
 	QString ttsServerURL() const { return m_strTTSServerURL; }
 	void setTTSServerURL(const QString &strTTSServerURL) { m_strTTSServerURL = strTTSServerURL; }		// Set before calling execute() so we'll connect to server at startup
+
+	QString webChannelHostPort() const { return m_strWebChannelHostPort; }
+	void setWebChannelHostPort(const QString &strWebChannelHostPort) { m_strWebChannelHostPort = strWebChannelHostPort; }
 
 	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
 
@@ -254,6 +267,7 @@ protected:
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
 	QString m_strTTSServerURL;							// Text-To-Speech server URL for use with Festival, etc. from the command-line "-TTSServer" option
+	QString m_strWebChannelHostPort;					// WebChannel host interface and port to use from the command-line "-webchannel" option
 #ifdef SHOW_SPLASH_SCREEN
 	QElapsedTimer m_splashTimer;
 	QSplashScreen *m_pSplash;							// Splash, used to parent error dialogs -- will be NULL if not doing a splash screen
@@ -262,6 +276,9 @@ protected:
 #endif
 #ifdef USING_QT_SPEECH
 	static QPointer<QtSpeech> m_pSpeech;				// "Global" singleton for Speech
+#endif
+#ifdef USING_WEBCHANNEL
+	static QPointer<CWebChannelServer> m_pWebChannelServer;	// "Global" singletons for WebChannel
 #endif
 	BIBLE_DESCRIPTOR_ENUM m_nSelectedMainBibleDB;		// Selected (or Default) Main Bible Database descriptor index
 	DICTIONARY_DESCRIPTOR_ENUM m_nSelectedMainDictDB;	// Selected (or Default) Main Dictionary Database descriptor index

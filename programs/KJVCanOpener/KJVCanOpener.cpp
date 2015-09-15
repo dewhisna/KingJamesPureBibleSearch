@@ -1696,13 +1696,13 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 		return;
 	}
 
-	int nResult;
-	bool bPromptFilename = false;
-
 	assert(!g_pMyApplication.isNull());
 
 	if (g_pMyApplication->isLastCanOpener()) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		int nResult;
+		bool bPromptFilename = false;
+
 		assert(!g_pUserNotesDatabase.isNull());
 		if (g_pUserNotesDatabase->isDirty()) {
 			// If we don't have a file name, yet made some change to the KJN, prompt them for a path:

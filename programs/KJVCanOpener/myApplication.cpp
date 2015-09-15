@@ -26,7 +26,7 @@
 #include "ReportError.h"
 #include "BusyCursor.h"
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -45,6 +45,10 @@
 #include <QPixmap>
 #include <QSplashScreen>
 #include <QElapsedTimer>
+#endif
+
+#ifdef IS_CONSOLE_APP
+#include <QDateTime>
 #endif
 
 #include <QProxyStyle>
@@ -79,6 +83,10 @@
 
 #include <assert.h>
 
+#ifdef IS_CONSOLE_APP
+#include <iostream>
+#endif
+
 // ============================================================================
 
 QPointer<CMyApplication> g_pMyApplication = NULL;
@@ -86,6 +94,10 @@ QPointer<QMdiArea> g_pMdiArea = NULL;
 
 #ifdef USING_QT_SPEECH
 QPointer<QtSpeech> CMyApplication::m_pSpeech = NULL;
+#endif
+
+#ifdef USING_WEBCHANNEL
+QPointer<CWebChannelServer> CMyApplication::m_pWebChannelServer = NULL;
 #endif
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
@@ -404,7 +416,7 @@ namespace {
 
 // ============================================================================
 
-#ifdef VNCSERVER
+#if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 
 int CMyDaemon::m_sighupFd[2] = { 0, 0 };
 int CMyDaemon::m_sigtermFd[2] = { 0, 0 };
@@ -498,7 +510,11 @@ void CMyDaemon::handleSigHup()
 
 	// do Qt stuff
 	if (!m_pMyApplication.isNull()) {
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
 		m_pMyApplication->closeAllWindows();
+#else
+		m_pMyApplication->exit(0);
+#endif
 	}
 
 	m_psnHup->setEnabled(true);
@@ -513,7 +529,11 @@ void CMyDaemon::handleSigTerm()
 
 	// do Qt stuff
 	if (!m_pMyApplication.isNull()) {
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
 		m_pMyApplication->closeAllWindows();
+#else
+		m_pMyApplication->exit(0);
+#endif
 	}
 
 	m_psnTerm->setEnabled(true);
@@ -526,12 +546,14 @@ void CMyDaemon::handleSigUsr1()
 	ssize_t szRead = ::read(m_sigusr1Fd[1], &tmp, sizeof(tmp));
 	assert(szRead == sizeof(tmp));
 
+#if defined(VNCSERVER)
 	// do Qt stuff
 	QWidget *pParent = NULL;
 	if (!m_pMyApplication.isNull()) {
 		pParent = m_pMyApplication->activeCanOpener();
 	}
 	QMessageBox::warning(pParent, tr("King James Pure Bible Search", "Errors"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.", "Errors"));
+#endif
 
 	m_psnUsr1->setEnabled(true);
 }
@@ -555,8 +577,10 @@ public:
 // ============================================================================
 
 CMyApplication::CMyApplication(int & argc, char ** argv)
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 	:	QtSingleApplication(g_constrApplicationID, argc, argv),
+#elif defined(IS_CONSOLE_APP)
+	:	QCoreApplication(argc, argv),
 #else
 	:	QApplication(argc, argv),
 #endif
@@ -581,7 +605,9 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 #else
 	m_strInitialAppDirPath = applicationDirPath();
 #endif
+#ifndef IS_CONSOLE_APP
 	m_strStartupStyleSheet = styleSheet();
+#endif
 
 	// Setup our SQL/Image and Platform Plugin paths.  Ideally, this would be
 	//	done in main() before instantiating the object in order to make the
@@ -594,6 +620,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	QCoreApplication::addLibraryPath(fiPlugins.absolutePath());
 #endif
 
+#ifndef IS_CONSOLE_APP
 	if (m_strStartupStyleSheet.startsWith(QLatin1String("file:///"))) {
 		// If the startupStyleSheet was a file, read it:
 		m_strStartupStyleSheet.remove(0, 8);
@@ -609,6 +636,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	}
 
 	setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
+#endif
 
 	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
@@ -630,6 +658,10 @@ CMyApplication::~CMyApplication()
 
 #ifdef USING_QT_SPEECH
 	if (QtSpeech::serverSupported()) QtSpeech::disconnectFromServer();
+#endif
+
+#ifdef USING_WEBCHANNEL
+	if (!m_pWebChannelServer.isNull()) delete m_pWebChannelServer.data();
 #endif
 
 #ifdef LOAD_APPLICATION_FONTS
@@ -679,8 +711,8 @@ void CMyApplication::completeInterAppSplash()
 
 void CMyApplication::setSplashMessage(const QString &strMessage)
 {
-	if (m_pSplash != NULL) {
 #ifdef SHOW_SPLASH_SCREEN
+	if (m_pSplash != NULL) {
 		m_pSplash->clearMessage();
 		const QString strOffsetSpace = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
@@ -694,16 +726,21 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 										QString("</b></font></div></body></html>"), Qt::AlignBottom | Qt::AlignLeft);
 		m_pSplash->repaint();
 		processEvents();
-#else
-		Q_UNUSED(strMessage);
-#endif
 	}
+#elif defined(IS_CONSOLE_APP)
+	std::cout << QString("%1 UTC : ").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+	std::cout << strMessage.toUtf8().data();
+	std::cout << "\n";
+#else
+	Q_UNUSED(strMessage);
+#endif
 }
 
 // ============================================================================
 
 void CMyApplication::saveApplicationFontSettings()
 {
+#ifndef IS_CONSOLE_APP
 	if (CPersistentSettings::instance()->settings() != NULL) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrMainAppControlGroup);
@@ -711,10 +748,13 @@ void CMyApplication::saveApplicationFontSettings()
 		settings.setValue(constrFontSizeKey, font().pointSize());
 		settings.endGroup();
 	}
+#endif	// IS_CONSOLE_APP
 }
 
 void CMyApplication::restoreApplicationFontSettings()
 {
+#ifndef IS_CONSOLE_APP
+
 	// Setup our default font for our controls:
 #ifdef Q_OS_WIN32
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
@@ -744,6 +784,8 @@ void CMyApplication::restoreApplicationFontSettings()
 	}
 
 	setFont(fntAppControls);
+
+#endif	// IS_CONSOLE_APP
 }
 
 void CMyApplication::setupTextBrightnessStyleHooks()
@@ -824,8 +866,10 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 #if !defined(NOT_USING_EXCEPTIONS) && defined(QT_DEBUG)
 	try {
 #endif
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 		return QtSingleApplication::notify(pReceiver, pEvent);
+#elif defined(IS_CONSOLE_APP)
+		return QCoreApplication::notify(pReceiver, pEvent);
 #else
 		return QApplication::notify(pReceiver, pEvent);
 #endif
@@ -850,8 +894,10 @@ bool CMyApplication::event(QEvent *event) {
 		receivedKJPBSMessage(strMessage);
 		return true;
 	}
-#ifdef USING_QT_SINGLEAPPLICATION
+#if defined(USING_QT_SINGLEAPPLICATION)
 	return QtSingleApplication::event(event);
+#elif defined(IS_CONSOLE_APP)
+	return QCoreApplication::event(event);
 #else
 	return QApplication::event(event);
 #endif
@@ -897,7 +943,9 @@ void CMyApplication::en_clearingSpeechQueue()
 	//		trying to handle the speechStop button...
 	assert(!m_pSpeech.isNull());
 	if (connect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)), Qt::UniqueConnection)) {
+#ifndef IS_CONSOLE_APP
 		setOverrideCursor(Qt::WaitCursor);
+#endif
 	}
 }
 
@@ -906,7 +954,9 @@ void CMyApplication::en_speechFinished(bool bQueueEmpty)
 	if (bQueueEmpty) {
 		assert(!m_pSpeech.isNull());
 		disconnect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
+#ifndef IS_CONSOLE_APP
 		restoreOverrideCursor();
+#endif
 	}
 }
 
@@ -1024,10 +1074,14 @@ void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 		}
 	}
 
+#ifndef IS_CONSOLE_APP
+
 	// The following is needed on Mac to make sure the menu of the
 	//      new KJVCanOpen gets set:
 	if (activeWindow() != static_cast<QWidget *>(pCanOpener))
 			setActiveWindow(pCanOpener);
+
+#endif
 
 	assert(false);
 	m_nLastActivateCanOpener = -1;
@@ -1142,6 +1196,9 @@ void CMyApplication::en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClos
 
 void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 {
+
+#ifndef IS_CONSOLE_APP
+
 	// Note: This code needs to cooperate with the setStyleSheet in the constructor
 	//			of KJVCanOpener that works around QTBUG-13768...
 
@@ -1167,6 +1224,12 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 			m_bUsingCustomStyleSheet = false;
 		}
 	}
+
+#else
+	Q_UNUSED(bInvert);
+	Q_UNUSED(nBrightness);
+#endif	// IS_CONSOLE_APP
+
 }
 
 void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
@@ -1381,6 +1444,9 @@ int CMyApplication::execute(bool bBuildDB)
 	//	qRegisterMetaTypeStreamOperators<TPhraseTag>("TPhraseTag");
 
 	qRegisterMetaType<TBibleDatabaseSettings>("TBibleDatabaseSettings");			// Needed to do queued connection of the CPersistentSettings::changedBibleDatabaseSettings()
+	qRegisterMetaType<CBibleDatabasePtr>("CBibleDatabasePtr");						// Needed to do queued connection on WebChannel threads
+	qRegisterMetaType<CDictionaryDatabasePtr>("CDictionaryDatabasePtr");			// Needed to do queued connection on WebChannel threads
+	qRegisterMetaType<CUserNotesDatabasePtr>("CUserNotesDatabasePtr");				// Needed to do queued connection on WebChannel threads
 
 	// Setup Text-To-Speech:
 #ifdef USING_QT_SPEECH
@@ -1642,6 +1708,33 @@ int CMyApplication::execute(bool bBuildDB)
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesDatabase()), this, SLOT(en_changedUserNotesDatabase()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedNotesFileAutoSaveTime(int)), this, SLOT(en_changedNotesFileAutoSaveTime(int)));
 
+#ifdef USING_WEBCHANNEL
+	// Launch WebChannel:
+	if (!m_strWebChannelHostPort.isEmpty()) {
+		QStringList lstHostPort = m_strWebChannelHostPort.split(QChar(','), QString::KeepEmptyParts);
+		assert(lstHostPort.size() >= 1);
+		quint16 nPort = lstHostPort.at(0).toUInt();
+		if (nPort) {
+			if (lstHostPort.size() == 1) {
+				m_pWebChannelServer = new CWebChannelServer(QHostAddress::Any, nPort, this);
+			} else {
+				m_pWebChannelServer = new CWebChannelServer(QHostAddress(lstHostPort.at(1)), nPort, this);
+			}
+		} else {
+			displayWarning(m_pSplash, g_constrInitialization, tr("Invalid WebChannel Host Port was specified.", "Errors"));
+		}
+	}
+#else
+	// If user specified a WebChannel Host Port on the command-line and this build doesn't support WebChannel, warn him:
+	if (!m_strWebChannelHostPort.isEmpty()) {
+		displayWarning(m_pSplash, g_constrInitialization, tr("WebChannel Host Port was specified, but this build of King James Pure Bible Search doesn't support WebChannel", "Errors"));
+	}
+#endif
+
+
+#if !defined(IS_CONSOLE_APP) || !defined(USING_WEBCHANNEL)
+	// Create the main KJVCanOpener window only if we aren't doing a console webchannel app (i.e. daemon only app)
+
 #ifdef USE_MDI_MAIN_WINDOW
 	g_pMdiArea = new QMdiArea();
 	g_pMdiArea->show();
@@ -1663,6 +1756,8 @@ int CMyApplication::execute(bool bBuildDB)
 	}
 #else
 	createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
+#endif
+
 #endif
 
 	return 0;

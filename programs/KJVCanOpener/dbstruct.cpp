@@ -41,6 +41,13 @@
 #include <QAbstractTextDocumentLayout>
 #include <QTextDocument>
 
+#ifdef USING_WEBCHANNEL
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonValue>
+#endif
+
 #include <assert.h>
 
 // ============================================================================
@@ -63,6 +70,34 @@ TBibleDatabaseList *TBibleDatabaseList::instance()
 	static TBibleDatabaseList theBibleDatabaseList;
 	return &theBibleDatabaseList;
 }
+
+#ifdef USING_WEBCHANNEL
+QString TBibleDatabaseList::availableBibleDatabasesAsJson()
+{
+	QJsonArray arrBibleList;
+	QStringList lstAvailableDatabases = TBibleDatabaseList::instance()->availableBibleDatabasesUUIDs();
+	QString strUUIDDefault;
+	CBibleDatabasePtr pDefaultBible = TBibleDatabaseList::instance()->atUUID(QString());
+	if (!pDefaultBible.isNull()) strUUIDDefault = pDefaultBible->compatibilityUUID();
+	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
+		QJsonObject objBible;
+		objBible["id"] = lstAvailableDatabases.at(ndx);
+		objBible["isDefault"] = ((strUUIDDefault.compare(lstAvailableDatabases.at(ndx), Qt::CaseInsensitive) == 0) ? true : false);
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
+		if (!pBibleDatabase.isNull()) {
+			objBible["name"] = pBibleDatabase->description();
+		} else {
+			BIBLE_DESCRIPTOR_ENUM nBDE = bibleDescriptorFromUUID(lstAvailableDatabases.at(ndx));
+			assert(nBDE != BDE_UNKNOWN);
+			const TBibleDescriptor &bblDesc = bibleDescriptor(nBDE);
+			objBible["name"] = bblDesc.m_strDBDesc;
+		}
+		arrBibleList.append(objBible);
+	}
+
+	return QJsonDocument(arrBibleList).toJson(QJsonDocument::Compact);
+}
+#endif
 
 bool TBibleDatabaseList::loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain, QWidget *pParent)
 {
@@ -791,6 +826,37 @@ CConcordanceEntry::CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, 
 
 // ============================================================================
 
+#ifdef USING_WEBCHANNEL
+QString CBibleDatabase::toJsonBkChpStruct() const
+{
+	QJsonObject objBible;
+	objBible["testamentCount"] = static_cast<int>(bibleEntry().m_nNumTst);
+	objBible["bookCount"] = static_cast<int>(bibleEntry().m_nNumBk);
+	objBible["chapterCount"] = static_cast<int>(bibleEntry().m_nNumChp);
+	QJsonArray arrTestaments;
+	for (unsigned int nTst = 1; nTst <= bibleEntry().m_nNumTst; ++nTst) {
+		QJsonObject objTestament;
+		objTestament["name"] = testamentEntry(nTst)->m_strTstName;
+		objTestament["bookCount"] = static_cast<int>(testamentEntry(nTst)->m_nNumBk);
+		objTestament["chapterCount"] = static_cast<int>(testamentEntry(nTst)->m_nNumChp);
+		arrTestaments.append(objTestament);
+	}
+	objBible["testaments"] = arrTestaments;
+	QJsonArray arrBooks;
+	for (unsigned int nBk = 1; nBk <= bibleEntry().m_nNumBk; ++nBk) {
+		QJsonObject objBook;
+		objBook["name"] = bookEntry(nBk)->m_strBkName;
+		objBook["chapterCount"] = static_cast<int>(bookEntry(nBk)->m_nNumChp);
+		arrBooks.append(objBook);
+	}
+	objBible["books"] = arrBooks;
+
+	return QJsonDocument(objBible).toJson(QJsonDocument::Compact);
+}
+#endif
+
+// ============================================================================
+
 QString CBibleDatabase::testamentName(const CRelIndex &nRelIndex) const
 {
 	uint32_t nTst = testament(nRelIndex);
@@ -1475,6 +1541,107 @@ CRelIndex CBibleDatabase::calcRelIndex(
 	return ndxResult;
 }
 
+CRelIndex CBibleDatabase::calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX_MOVE_ENUM nMoveMode) const
+{
+	CRelIndex ndx;
+
+	switch (nMoveMode) {
+		case RIME_Absolute:
+			ndx = ndxStart;
+			break;
+
+		case RIME_Start:
+			ndx = CRelIndex(1, 1, 1, 1);
+			break;
+
+		case RIME_StartOfBook:
+			ndx = CRelIndex(ndxStart.book(), 1, 1, 1);
+			break;
+
+		case RIME_StartOfChapter:
+			ndx = CRelIndex(ndxStart.book(), ndxStart.chapter(), 1, 1);
+			break;
+
+		case RIME_StartOfVerse:
+			ndx = CRelIndex(ndxStart.book(), ndxStart.chapter(), ndxStart.verse(), 1);
+			break;
+
+		case RIME_End:
+			ndx.setBook(bibleEntry().m_nNumBk);
+			ndx.setChapter(bookEntry(ndx)->m_nNumChp);
+			ndx.setVerse(chapterEntry(ndx)->m_nNumVrs);
+			ndx.setWord(verseEntry(ndx)->m_nNumWrd);
+			break;
+
+		case RIME_EndOfBook:
+			ndx.setBook(ndxStart.book());
+			if (bookEntry(ndx)) { ndx.setChapter(bookEntry(ndx)->m_nNumChp); } else { ndx.clear(); }
+			if (chapterEntry(ndx)) { ndx.setVerse(chapterEntry(ndx)->m_nNumVrs); } else { ndx.clear(); }
+			if (verseEntry(ndx)) { ndx.setWord(verseEntry(ndx)->m_nNumWrd); } else { ndx.clear(); }
+			break;
+
+		case RIME_EndOfChapter:
+			ndx.setBook(ndxStart.book());
+			ndx.setChapter(ndxStart.chapter());
+			if (chapterEntry(ndx)) { ndx.setVerse(chapterEntry(ndx)->m_nNumVrs); } else { ndx.clear(); }
+			if (verseEntry(ndx)) { ndx.setWord(verseEntry(ndx)->m_nNumWrd); } else { ndx.clear(); }
+			break;
+
+		case RIME_EndOfVerse:
+			ndx.setBook(ndxStart.book());
+			ndx.setChapter(ndxStart.chapter());
+			ndx.setVerse(ndxStart.verse());
+			if (verseEntry(ndx)) { ndx.setWord(verseEntry(ndx)->m_nNumWrd); } else { ndx.clear(); }
+			break;
+
+		case RIME_PreviousBook:
+			if (ndxStart.book() < 2) break;
+			ndx = CRelIndex(ndxStart.book()-1, 1, 1, 1);
+			break;
+
+		case RIME_PreviousChapter:
+			ndx = calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), 1, 1), true);
+			if (ndx.isSet()) {
+				// The following sets are needed to handle the case of scrolling backward from a missing chapter/verse entry -- for example
+				//		the Additions to Esther in the Apocrypha.  The above calculation will normalize the current location to 10:4 in that
+				//		passage, causing us to goto the 4th verse of the preceding chapter:
+				ndx.setVerse(1);
+				ndx.setWord(1);
+			}
+			break;
+
+		case RIME_PreviousVerse:
+			ndx = calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), ndxStart.verse(), 1), true);
+			break;
+
+		case RIME_PreviousWord:
+			ndx = calcRelIndex(1, 0, 0, 0, 0, ndxStart, true);
+			break;
+
+		case RIME_NextBook:
+			if (ndxStart.book() >= bibleEntry().m_nNumBk) break;
+			ndx = CRelIndex(ndxStart.book()+1, 1, 1, 1);
+			break;
+
+		case RIME_NextChapter:
+			ndx = calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), 1, 1), false);
+			break;
+
+		case RIME_NextVerse:
+			ndx = calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxStart.book(), ndxStart.chapter(), ndxStart.verse(), 1), false);
+			break;
+
+		case RIME_NextWord:
+			ndx = calcRelIndex(1, 0, 0, 0, 0, ndxStart, false);
+			break;
+
+		default:
+			break;
+	}
+
+	return ndx;
+}
+
 // ============================================================================
 
 TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBibleDatabase) const
@@ -1575,6 +1742,11 @@ const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const
 {
 	if ((nBk < 1) || (nBk > m_lstBooks.size())) return NULL;
 	return &m_lstBooks.at(nBk-1);
+}
+
+const CBookEntry *CBibleDatabase::bookEntry(const CRelIndex &ndx) const
+{
+	return bookEntry(ndx.book());
 }
 
 #ifdef OSIS_PARSER_BUILD
@@ -1704,7 +1876,7 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	return &(footnote->second);
 }
 
-QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors) const
+QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors, const CBasicHighlighter *aHighlighter) const
 {
 	CRelIndex ndx = ndxRel;
 	ndx.setWord(0);							// We always return the whole verse, not specific words
@@ -1715,10 +1887,10 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
 	TVerseCacheMap::iterator itr = cache.find(ndx);
 	if (itr != cache.end()) return (itr->second);
-	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, aHighlighter);
 	return cache[ndx];
 #else
-	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors);
+	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, aHighlighter);
 #endif
 }
 
@@ -1922,6 +2094,18 @@ void TPhraseTag::setFromPassageTag(const CBibleDatabase *pBibleDatabase, const T
 		}
 		m_nCount = pBibleDatabase->NormalizeIndex(ndxTarget) - pBibleDatabase->NormalizeIndex(ndxStart) + 1;
 	}
+}
+
+QString TPhraseTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
+	assert(pBibleDatabase != NULL);
+
+	if (pBibleDatabase == NULL) return QString();
+	QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
+	if (m_nCount > 1) {
+		uint32_t nNormal = pBibleDatabase->NormalizeIndex(m_RelIndex);
+		strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + m_nCount - 1)));
+	}
+	return strReferenceRangeText;
 }
 
 TTagBoundsPair TPhraseTag::bounds(const CBibleDatabase *pBibleDatabase) const
@@ -2338,6 +2522,21 @@ void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const T
 		m_nVerseCount = (CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, ndxTarget).ofBible().first -
 						CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_VERSE, tagPhrase.relIndex()).ofBible().first) + 1;
 	}
+}
+
+QString TPassageTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
+	assert(pBibleDatabase != NULL);
+
+	if (pBibleDatabase == NULL) return QString();
+	CRelIndex ndxFirst(m_RelIndex);
+	ndxFirst.setWord(0);
+	QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(ndxFirst);
+	if (m_nVerseCount > 1) {
+		CRelIndex ndxLast(pBibleDatabase->calcRelIndex(0, m_nVerseCount-1, 0, 0, 0, ndxFirst));
+		ndxLast.setWord(0);
+		strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(ndxLast);
+	}
+	return strReferenceRangeText;
 }
 
 // ============================================================================

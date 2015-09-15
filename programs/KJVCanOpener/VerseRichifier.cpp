@@ -25,6 +25,10 @@
 #include "dbstruct.h"
 #include "ParseSymbols.h"
 
+#include "PersistentSettings.h"
+#include "PhraseEdit.h"
+#include "Highlighter.h"
+
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
 
@@ -247,7 +251,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 
 	if (m_pVerse != NULL) {
 		lstSplit.reserve(m_pVerse->m_nNumWrd + 1);
-		lstSplit = m_pVerse->m_strTemplate.split(m_chrMatchChar);
+		lstSplit = parseBaton.m_strTemplate.split(m_chrMatchChar);
 		assert(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
 		assert(strNodeIn.isNull());
 	} else {
@@ -288,6 +292,31 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 			} else {
 				if (m_chrMatchChar == QChar('D')) {
 					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
+				} else if (m_chrMatchChar == QChar('R')) {
+					assert(parseBaton.m_pHighlighter != NULL);
+					// Note: for searchResult, we always have to check the intersection and handle
+					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
+					//		for the begin tags and once for the end tags.  Otherwise we don't know when
+					//		to start/stop and which to output:
+					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+					ndxWord.setWord(ndxWord.word()+1);
+					if ((parseBaton.m_bOutput) &&
+						(!parseBaton.m_bInSearchResult) &&
+						(parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						parseBaton.m_strVerseText.append(m_strXlateText);
+						parseBaton.m_bInSearchResult = true;
+					}
+				} else if (m_chrMatchChar == QChar('r')) {
+					assert(parseBaton.m_pHighlighter != NULL);
+					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+					ndxWord.setWord(ndxWord.word()+1);
+					if ((parseBaton.m_bOutput) &&
+						(parseBaton.m_bInSearchResult) &&
+						((!parseBaton.m_pHighlighter->isContinuous()) ||
+							(!parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+						parseBaton.m_strVerseText.append(m_strXlateText);
+						parseBaton.m_bInSearchResult = false;
+					}
 				} else {
 					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(m_strXlateText);
 				}
@@ -302,7 +331,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 }
 
 QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
-										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount)
+										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const CBasicHighlighter *pHighlighter)
 {
 	assert(pBibleDatabase != NULL);
 	assert(pVerse != NULL);
@@ -314,7 +343,9 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	//		tree for every word, we can't reverse it because doing
 	//		so then creates sub-lists of 'w' tags and then we
 	//		no longer know where we are in the list:
-	CVerseTextRichifier rich_d('d', tags.divineNameEnd());
+	CVerseTextRichifier rich_r('r', tags.searchResultsEnd());
+	CVerseTextRichifier rich_R('R', tags.searchResultsBegin(), &rich_r);
+	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_R);
 	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
 	CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
 	CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
@@ -323,7 +354,13 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors) : ""), &rich_J);
 	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bAddAnchors);
 
-	CRichifierBaton baton(pBibleDatabase, ndxRelative, pWordCount);
+	QString strTemplate = pVerse->m_strTemplate;
+	if ((pHighlighter != NULL) &&
+		(pHighlighter->enabled())) {
+		strTemplate.replace(QChar('w'), "Rwr");
+	}
+
+	CRichifierBaton baton(pBibleDatabase, ndxRelative, strTemplate, pWordCount, pHighlighter);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {
@@ -333,6 +370,34 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	richVerseText.parse(baton);
 
 	return baton.m_strVerseText.trimmed();
+}
+
+// ============================================================================
+// ============================================================================
+
+void CVerseTextRichifierTags::setFromPersistentSettings(const CPersistentSettings &aPersistentSettings, bool bCopyOptions)
+{
+	setWordsOfJesusTagsByColor(aPersistentSettings.colorWordsOfJesus());
+	setSearchResultsTagsByColor(aPersistentSettings.colorSearchResults());
+
+	if (bCopyOptions) {
+		switch (aPersistentSettings.transChangeAddWordMode()) {
+			case CPhraseNavigator::TCAWME_NO_MARKING:
+				setTransChangeAddedTags(QString(), QString());
+				break;
+			case CPhraseNavigator::TCAWME_ITALICS:
+				setTransChangeAddedTags(QString("<i>"), QString("</i>"));
+				break;
+			case CPhraseNavigator::TCAWME_BRACKETS:
+				setTransChangeAddedTags(QString("["), QString("]"));
+				break;
+			default:
+				assert(false);
+				break;
+		}
+	}
+
+	setShowPilcrowMarkers(bCopyOptions ? aPersistentSettings.copyPilcrowMarkers() : aPersistentSettings.showPilcrowMarkers());
 }
 
 // ============================================================================
