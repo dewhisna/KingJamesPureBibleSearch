@@ -35,6 +35,7 @@
 class CWebChannelServer;
 class CWebChannelObjects;
 class CWebChannelAdminObjects;
+class CWebChannelGeoLocate;
 
 // ============================================================================
 
@@ -119,6 +120,8 @@ private slots:
 	void en_clientConnected(WebSocketTransport* pClient);
 	void en_clientDisconnected(WebSocketTransport* pClient);
 
+	void setClientLocation(const CWebChannelClient *pClient, const QString &strLocationInfo);
+
 protected:
 	QWebSocketServer m_server;						// Server to host i/o
 	WebSocketClientWrapper m_clientWrapper;			// wrap WebSocket clients in QWebChannelAbstractTransport objects
@@ -126,6 +129,7 @@ protected:
 	QPointer<CWebChannelAdminObjects> m_pWebChannelAdminObjects;		// Admin objects attached to all clients to do "hidden" messaging
 	QHostAddress m_HostAddress;
 	quint16 m_nHostPort;
+	CWebChannelGeoLocate *m_pGeoLocater;
 };
 
 // ============================================================================

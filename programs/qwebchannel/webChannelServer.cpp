@@ -24,6 +24,7 @@
 #include "webChannelServer.h"
 #include "webChannelObjects.h"
 #include "websockettransport.h"
+#include "webChannelGeoLocate.h"
 #include <QUrl>
 #include <QWebSocket>
 #include <QCoreApplication>
@@ -123,6 +124,10 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 		m_HostAddress(anAddress),
 		m_nHostPort(nPort)
 {
+	// TODO : put the GSE_xxx selection in a system configuration setting so it's externally settable:
+	m_pGeoLocater = new CWebChannelGeoLocate(CWebChannelGeoLocate::GSE_TELIZE, this);
+	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &)));
+
 	// setup the QWebSocketServer
 	m_server.listen(anAddress, nPort);
 
@@ -188,6 +193,9 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 							.toUtf8().data();
 	std::cout.flush();
 #endif
+
+	// Trigger GeoLocate:
+	m_pGeoLocater->locate(pClientChannel, pClient->socket()->peerAddress().toString());
 }
 
 void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
@@ -374,6 +382,26 @@ void CWebChannelServer::setClientBibleUUID(const CWebChannelClient *pClient)
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(bValid ? pClientChannel->bibleUUID() : QString())
 									.arg(bValid ? pBibleDatabase->description() : QString())
+									.toUtf8().data();
+			std::cout.flush();
+#endif
+			break;
+		}
+	}
+}
+
+void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, const QString &strLocationInfo)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+			std::cout << QString("%1 UTC : GeoLocate : \"%2\" (%3) port %4 : %5\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.arg(strLocationInfo)
 									.toUtf8().data();
 			std::cout.flush();
 #endif

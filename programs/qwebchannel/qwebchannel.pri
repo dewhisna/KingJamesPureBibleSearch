@@ -13,6 +13,7 @@
 			$$PWD/webChannelSearchResults.cpp \
 			$$PWD/webChannelServer.cpp \
 			$$PWD/webChannelObjects.cpp \
+			$$PWD/webChannelGeoLocate.cpp \
 			$$PWD/websocketclientwrapper.cpp \
 			$$PWD/websockettransport.cpp
 
@@ -20,6 +21,7 @@
 			$$PWD/webChannelSearchResults.h \
 			$$PWD/webChannelServer.h \
 			$$PWD/webChannelObjects.h \
+			$$PWD/webChannelGeoLocate.h \
 			$$PWD/websocketclientwrapper.h \
 			$$PWD/websockettransport.h
 
