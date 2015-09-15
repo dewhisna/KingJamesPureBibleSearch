@@ -113,7 +113,7 @@ CCSVStream &CCSVStream::operator <<(const QString &aString)
 	// if it begins with the characters ID. We'll force quoting of the cell
 	// (so it starts with "ID instead) if this looks like a potential problem.
 	// See http://support.microsoft.com/kb/323626
-	if ((m_stream.device()->pos() == 0) && (aString.left(2) == "ID"))
+	if ((m_stream.device()) && (m_stream.device()->pos() == 0) && (aString.left(2) == "ID"))
 		bForceQuote = true;
 
 	QString strOut = escape(aString, bForceQuote, m_chrDelim);
