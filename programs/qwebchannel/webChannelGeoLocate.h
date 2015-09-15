@@ -35,23 +35,36 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class CWebChannelClient;
 
-typedef QMap<QNetworkReply *, const CWebChannelClient *> TNetworkReplyToChannelMap;
-
 // ============================================================================
 
 class CWebChannelGeoLocate : public QObject
 {
 	Q_OBJECT
 
-public:
+protected:
 	enum GEOLOCATE_SERVER_ENUM {
-		GSE_NONE = 0,
-		GSE_TELIZE = 1,					// Use telize.com
-		GSE_FREEGEOIP = 2,				// Use freegeoip.net
-		GSE_NEKUDO = 3					// Use nekudo.com
+		GSE_NONE = -1,					// Placeholder for startup
+		GSE_TELIZE = 0,					// Use telize.com
+		GSE_FREEGEOIP = 1,				// Use freegeoip.net
+		GSE_NEKUDO = 2,					// Use nekudo.com
+		GSE_END_OF_LIST = 3				// Size of GEOLOCATE_SERVER_ENUM
 	};
 
-	CWebChannelGeoLocate(GEOLOCATE_SERVER_ENUM nLocateServer, QObject *pParent = NULL);
+	struct TGeoLocateClient {			// Client Baton
+		TGeoLocateClient()
+			:	m_pChannel(NULL),
+				m_nLocateServer(GSE_NONE)
+		{ }
+
+		const CWebChannelClient *m_pChannel;
+		QString m_strIPAddress;
+		GEOLOCATE_SERVER_ENUM m_nLocateServer;
+	};
+
+	typedef QMap<QNetworkReply *, TGeoLocateClient> TNetworkReplyToChannelMap;
+
+public:
+	CWebChannelGeoLocate(QObject *pParent = NULL);
 	virtual ~CWebChannelGeoLocate();
 
 public slots:
@@ -61,10 +74,10 @@ signals:
 	void locationInfo(const CWebChannelClient *pChannel, const QString &strLocationInfo);
 
 protected slots:
+	void locateRequest(TGeoLocateClient theClient);
 	void en_requestComplete(QNetworkReply *pReply);
 
 private:
-	GEOLOCATE_SERVER_ENUM m_nLocateServer;
 	QNetworkAccessManager *m_pNetManager;
 	TNetworkReplyToChannelMap m_mapChannels;
 };

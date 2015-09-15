@@ -124,8 +124,7 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 		m_HostAddress(anAddress),
 		m_nHostPort(nPort)
 {
-	// TODO : put the GSE_xxx selection in a system configuration setting so it's externally settable:
-	m_pGeoLocater = new CWebChannelGeoLocate(CWebChannelGeoLocate::GSE_TELIZE, this);
+	m_pGeoLocater = new CWebChannelGeoLocate(this);
 	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &)));
 
 	// setup the QWebSocketServer

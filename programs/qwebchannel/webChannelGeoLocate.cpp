@@ -42,9 +42,8 @@
 
 // ============================================================================
 
-CWebChannelGeoLocate::CWebChannelGeoLocate(GEOLOCATE_SERVER_ENUM nLocateServer, QObject *pParent)
-	:	QObject(pParent),
-		m_nLocateServer(nLocateServer)
+CWebChannelGeoLocate::CWebChannelGeoLocate(QObject *pParent)
+	:	QObject(pParent)
 {
 	m_pNetManager = new QNetworkAccessManager(this);
 	connect(m_pNetManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(en_requestComplete(QNetworkReply*)));
@@ -59,49 +58,64 @@ void CWebChannelGeoLocate::locate(const CWebChannelClient *pChannel, const QStri
 {
 	assert(pChannel != NULL);
 
+	TGeoLocateClient theClient;
+	theClient.m_nLocateServer = GSE_NONE;
+	theClient.m_pChannel = pChannel;
+	theClient.m_strIPAddress = strIPAddress;
+	locateRequest(theClient);
+}
+
+void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
+{
+	theClient.m_nLocateServer = static_cast<GEOLOCATE_SERVER_ENUM>(int(theClient.m_nLocateServer) + 1);
+	if (int(theClient.m_nLocateServer) >= int(GSE_END_OF_LIST)) {
+		emit locationInfo(theClient.m_pChannel, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
+		return;
+	}
+
 	QString strURL;
 
-	switch (m_nLocateServer) {
+	switch (theClient.m_nLocateServer) {
 		case GSE_TELIZE:
-			strURL = QString("http://www.telize.com/geoip/%1").arg(strIPAddress);
+			strURL = QString("http://www.telize.com/geoip/%1").arg(theClient.m_strIPAddress);
 			break;
 
 		case GSE_FREEGEOIP:
-			strURL = QString("https://freegeoip.net/json/%1").arg(strIPAddress);
+			strURL = QString("https://freegeoip.net/json/%1").arg(theClient.m_strIPAddress);
 			break;
 
 		case GSE_NEKUDO:
-			strURL = QString("http://geoip.nekudo.com/api/%1/full").arg(strIPAddress);
+			strURL = QString("http://geoip.nekudo.com/api/%1/full").arg(theClient.m_strIPAddress);
 			break;
 
 		default:
 			break;
 	}
 
-	if (strURL.isEmpty()) return;
+	if (strURL.isEmpty()) {
+		assert(false);			// shouldn't happen unless our sequential host trying mechanism is broken
+		return;
+	}
 
 #if DEBUG_WEBCHANNEL_GEOLOCATE_REQUESTS
 	qDebug("Sending GeoLocate Request to: %s", strURL.toUtf8().data());
 #endif
 
 	QNetworkReply *pReply = m_pNetManager->get(QNetworkRequest(QUrl(strURL)));
-	m_mapChannels[pReply] = pChannel;
+	m_mapChannels[pReply] = theClient;
 }
 
 void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 {
 	assert(pReply != NULL);
-	const CWebChannelClient *pChannel = m_mapChannels.value(pReply, NULL);
-	assert(pChannel != NULL);
-	if (pChannel == NULL) {
-		pReply->deleteLater();
-		return;
-	}
+	TGeoLocateClient theClient = m_mapChannels.value(pReply);
+	m_mapChannels.remove(pReply);
 
 	if (pReply->error() != QNetworkReply::NoError) {
 		// Handle error:
-		emit locationInfo(pChannel, QString("*** Network Error: %1").arg(pReply->errorString()));
+		emit locationInfo(theClient.m_pChannel, QString("*** Network Error: %1").arg(pReply->errorString()));
 		pReply->deleteLater();
+		locateRequest(theClient);		// Try next host
 		return;
 	}
 
@@ -116,11 +130,13 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	QJsonDocument json = QJsonDocument::fromJson(baData, &jsonError);
 	if (jsonError.error != QJsonParseError::NoError) {
 		// Handle error:
-		emit locationInfo(pChannel, QString("*** JSON Error: %1").arg(jsonError.errorString()));
+		emit locationInfo(theClient.m_pChannel, QString("*** JSON Error: %1").arg(jsonError.errorString()));
 		pReply->deleteLater();
+		locateRequest(theClient);		// Try next host
 		return;
 	}
 
+	QString strServer;
 	QString strIP;
 	QString strCountryCode;
 	QString strCountry;
@@ -135,7 +151,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	QString strISP;
 
 	QJsonObject objJson = json.object();
-	switch (m_nLocateServer) {
+	switch (theClient.m_nLocateServer) {
 		case GSE_TELIZE:
 			//		{"dma_code":"0",
 			//		"ip":"12.34.56.78",
@@ -155,6 +171,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 			//		"postal_code":"52403",
 			//		"country_code3":"USA"}
 
+			strServer = "telize.com";
 			strIP = objJson.value("ip").toString();
 			strCountryCode = objJson.value("country_code").toString();
 			strCountry = objJson.value("country").toString();
@@ -182,6 +199,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 			//		"longitude":-91.577,
 			//		"metro_code":637}
 
+			strServer = "freegeoip.net";
 			strIP = objJson.value("ip").toString();
 			strCountryCode = objJson.value("country_code").toString();
 			strCountry = objJson.value("country_name").toString();
@@ -206,6 +224,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 			//		"subdivisions":[{"geoname_id":4862182,"iso_code":"IA","names":{"de":"Iowa","en":"Iowa","es":"Iowa","fr":"Iowa","ja":"\u30a2\u30a4\u30aa\u30ef\u5dde","pt-BR":"Iowa","ru":"\u0410\u0439\u043e\u0432\u0430","zh-CN":"\u827e\u5965\u74e6\u5dde"}}],
 			//		"traits":{"ip_address":"12.34.56.78"}}
 
+			strServer = "nekudo.com";
 			strIP = objJson.value("traits").toObject().value("ip_address").toString();
 			strCountryCode = objJson.value("country").toObject().value("iso_code").toString();
 			if (strCountryCode.isEmpty()) strCountryCode = objJson.value("registered_country").toObject().value("iso_code").toString();
@@ -228,12 +247,16 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 			break;
 	}
 
+	if (strIP.isEmpty()) strIP = theClient.m_strIPAddress;
+
 	CCSVStream csv(&strInformation, QIODevice::WriteOnly);
 	csv << strIP << strCountryCode << strCountry << strRegionCode << strRegion << strCity;
 	csv << strPostalCode << strTimeZone << strLat << strLong << strMetroCode << strISP;
 	// Not caling endLine here since we don't want newline characters (just raw string)
 
-	emit locationInfo(pChannel, strInformation);
+	strInformation = strServer + " : " + strInformation;
+
+	emit locationInfo(theClient.m_pChannel, strInformation);
 	pReply->deleteLater();
 }
 
