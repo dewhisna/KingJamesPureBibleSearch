@@ -75,6 +75,12 @@
 
 						mosis.connectionsList.connect(function(strHtmlConnections) {
 							document.getElementById("connectionsList").innerHTML = strHtmlConnections;
+							$("#connectionsList table:first").attr("id", "connectionsListTable");
+							$("#connectionsListTable thead tr").append("<th>GeoLocate</th>");
+							$("#connectionsListTable tbody tr").each(function(index) {
+								var ip = $(this).find("td").first().next().text().trim();
+								$(this).append('<td><button type="button" onclick="javascript:geolocateIP(\'' + ip + '\');">GeoLocate</button></td>');
+							});
 						});
 
 						mosis.disconnectClientStatus.connect(function(bSuccess, strClientIP, strClientPort) {
@@ -168,6 +174,23 @@
 					}, 10000);
 				}
 			}
+
+			// geolocateIP:
+			function geolocateIP(ip) {
+				$.getJSON("http://www.telize.com/geoip/" + ip + "?callback=?", function(json) {
+					var outputHTML = "<table>";
+					$.each(json, function(k, v) {
+						outputHTML = outputHTML + "<tr><td>" + k + "</td><td>" + v + "</td></tr>";
+					});
+					outputHTML = outputHTML + "</table>";
+					if ((json.latitude) && (json.longitude)) {
+						outputHTML = outputHTML + "<iframe src='http://maps.google.com/maps?z=12&t=m&q=loc:" + json.latitude + "+" + json.longitude + "&output=embed'></iframe>";
+					}
+					$("#geolocateDetailsDialog").html(outputHTML);
+					$("#geolocateDetailsDialog").dialog("open");
+				});
+			}
+
 		</script>
 		<style type="text/css">
 			html {
@@ -240,8 +263,14 @@
 			<br /><br />
 			<div id="connectionsList"></div>
 		</div>
+		<div id="geolocateDetailsDialog" title="GeoLocate Details"></div>
 		<script>
 			$( "#getConnectionsButton" ).button();
+			$( "#geolocateDetailsDialog" ).dialog({
+				autoOpen: false,
+				modal: true,
+				width: "auto"
+			});
 		</script>
 		<br />
 		<hr />
