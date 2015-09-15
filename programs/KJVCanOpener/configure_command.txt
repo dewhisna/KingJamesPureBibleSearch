@@ -762,9 +762,9 @@ cd ~/Qt/5.5.0-alpha-ios-build
 ====================
 
 
---------------------------
-Qt 5.5.0 -- VNC (DYNAMIC):
---------------------------
+-------------------------------------
+Qt 5.5.0 -- VNC/WebChannel (DYNAMIC):
+-------------------------------------
 
 AWS:
 ../5.5.0-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake demos -nomake tests -opensource -confirm-license -prefix /home/ubuntu/Qt/5.5.0-vnc-run
@@ -774,6 +774,19 @@ AWS:
 
 // Note: Qt 5 has dropped QWS to move to QPA.  Not sure if noVNC can be made to work with QPA yet.  This build is specifically
 //	to setup our AWS EC2 to be the server for webchannel.
+
+
+Building Target WebChannel KJPBS using above Qt 5.5.0 build:
+
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
+mkdir -p build-KJVCanOpener-Qt_5_5_0_gcc_64/Release
+cd build-KJVCanOpener-Qt_5_5_0_gcc_64/Release
+~/Qt/5.5.0-vnc-run/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel -o Makefile ../../KJVCanOpener/KJVCanOpener.pro
+make
+sudo cp -r html/* /var/www/webchannel/html/
+cp KingJamesPureBibleSearch ~/webchannel/KJVCanOpener/app/
+
+Must have built ~/Qt/build-wwwidgets4-Qt_5_5_0_vnc/ and ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-qtstyleplugins-5_5_0_webchannel/
 
 
 
