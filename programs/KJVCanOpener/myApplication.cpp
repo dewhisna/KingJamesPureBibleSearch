@@ -731,6 +731,7 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 	std::cout << QString("%1 UTC : ").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
 	std::cout << strMessage.toUtf8().data();
 	std::cout << "\n";
+	std::cout.flush();
 #else
 	Q_UNUSED(strMessage);
 #endif

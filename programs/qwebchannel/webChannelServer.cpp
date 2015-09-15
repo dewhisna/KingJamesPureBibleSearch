@@ -141,6 +141,7 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 							.arg(serverAddress().toString())
 							.arg(serverPort())
 							.toUtf8().data();
+		std::cout.flush();
 	}
 #endif
 }
@@ -185,6 +186,7 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 							.arg(pClient->socket()->peerPort())
 							.arg(m_mapChannels.size())
 							.toUtf8().data();
+	std::cout.flush();
 #endif
 }
 
@@ -211,6 +213,7 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 							.arg(pClient->socket()->peerPort())
 							.arg(m_mapChannels.size())
 							.toUtf8().data();
+	std::cout.flush();
 #endif
 	}
 
@@ -254,6 +257,7 @@ void CWebChannelServer::close()
 							.arg(itrClientMap.key()->socket()->peerPort())
 							.arg(nNumConnections)
 							.toUtf8().data();
+	std::cout.flush();
 #endif
 		itrClientMap.key()->socket()->close(QWebSocketProtocol::CloseCodeGoingAway, "Server shutting down");
 		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
@@ -266,6 +270,7 @@ void CWebChannelServer::close()
 						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 						.arg(QCoreApplication::applicationPid())
 						.toUtf8().data();
+	std::cout.flush();
 #endif
 }
 
@@ -285,6 +290,7 @@ void CWebChannelServer::sendBroadcast(const QString &strMessage)
 {
 #ifdef IS_CONSOLE_APP
 	std::cout << QString("%1 UTC : Sending Broadcast Message : %2\n").arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).arg(strMessage).toUtf8().data();
+	std::cout.flush();
 #endif
 	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
 		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
@@ -325,6 +331,7 @@ void CWebChannelServer::setClientUserAgent(const CWebChannelClient *pClient)
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->userAgent())
 									.toUtf8().data();
+			std::cout.flush();
 #endif
 			break;
 		}
@@ -344,6 +351,7 @@ void CWebChannelServer::setClientThreadIndex(const CWebChannelClient *pClient)
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->threadIndex())
 									.toUtf8().data();
+			std::cout.flush();
 #endif
 			break;
 		}
@@ -367,6 +375,7 @@ void CWebChannelServer::setClientBibleUUID(const CWebChannelClient *pClient)
 									.arg(bValid ? pClientChannel->bibleUUID() : QString())
 									.arg(bValid ? pBibleDatabase->description() : QString())
 									.toUtf8().data();
+			std::cout.flush();
 #endif
 			break;
 		}

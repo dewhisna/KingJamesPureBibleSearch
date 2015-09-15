@@ -465,6 +465,7 @@ CWebChannelThreadController::CWebChannelThreadController()
 							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(nIdealThreads)
 							.toUtf8().data();
+	std::cout.flush();
 #endif
 
 	m_lstThreads.reserve(nIdealThreads);
@@ -516,6 +517,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 								.arg(ndx)
 								.arg(m_lstNumWebChannels.at(ndx))
 								.toUtf8().data();
+		std::cout.flush();
 #endif
 #endif
 				if ((nLowCount == -1) || (m_lstNumWebChannels.at(ndx) < nLowCount)) {
