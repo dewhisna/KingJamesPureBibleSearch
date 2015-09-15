@@ -174,19 +174,15 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 	QString strClients;
 	int nNotSearching = 0;
 
-	strClients += "<table><thead><tr>\n";
-	strClients += "<th>Name</th><th>IP Address</th><th>Port</th><th>Thread</th><th>Bible</th><th></th><th></th><th>User Agent</th>\n";
+	strClients += "<table id=\"connectionsListTable\"><thead><tr>\n";
+	strClients += "<th>Name</th><th>IP Address</th><th>Port</th><th>Thread</th><th>Bible</th><th>User Agent</th>\n";
 	strClients += "</tr></thead><tbody>\n";
 	for (TWebChannelClientMap::const_iterator itrChannels = mapChannels.constBegin(); itrChannels != mapChannels.constEnd(); ++itrChannels) {
 		QPointer<CWebChannelClient> pClientChannel = itrChannels.value();
 		bool bAdmin = ((!pClientChannel.isNull()) ? pClientChannel->isAdmin() : false);
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(!pClientChannel.isNull() ? pClientChannel->bibleUUID() : QString());
 		bool bIsSearching = ((!pBibleDatabase.isNull()) && ((!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1) != -1));
-		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td style=\"white-space:nowrap;\">%5</td>"
-					"<td><button type=\"button\" onclick=\"javascript:sendMessage('%2', '%3');\">Send the Broadcast Message to this client</button></td>"
-					"<td><button type=\"button\" onclick=\"javascript:disconnectClient('%2', '%3');\">Disconnect</button></td>"
-					"<td>%6</td>"
-					"</tr>\n")
+		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td style=\"white-space:nowrap;\">%5</td><td>%6</td></tr>\n")
 					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
 					.arg(itrChannels.key()->socket()->peerAddress().toString())
 					.arg(itrChannels.key()->socket()->peerPort())
