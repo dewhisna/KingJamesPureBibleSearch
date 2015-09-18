@@ -1,0 +1,4 @@
+#!/bin/bash
+
+grep "GeoLocate" /home/ubuntu/webchannel/logs/access* | grep "\\*\\*\\*" --
+

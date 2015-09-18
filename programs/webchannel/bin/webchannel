@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#/home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-Qt_5_5_0_webchannel/Debug/KingJamesPureBibleSearch -webchannel 9340,0.0.0.0  >>/home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-Qt_5_5_0_webchannel/Debug/logs/access.txt 2>>/home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-Qt_5_5_0_webchannel/Debug/logs/errors.txt &
+
+{ { /home/ubuntu/webchannel/KJVCanOpener/app/KingJamesPureBibleSearch -webchannel 9340,0.0.0.0 2>&3 | rotatelogs -f -c '/home/ubuntu/webchannel/logs/access.%Y.%m.%d' 86400; } 3>&1 1>&2 | rotatelogs -f -c '/home/ubuntu/webchannel/logs/errors.%Y.%m.%d' 86400; } &
+

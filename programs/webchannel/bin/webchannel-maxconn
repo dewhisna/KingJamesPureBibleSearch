@@ -1,0 +1,4 @@
+#!/bin/bash
+
+grep Connected /home/ubuntu/webchannel/logs/access.* | grep -o "[0-9]* Connections$" -- | sort -n  | sed -n '$p'
+
