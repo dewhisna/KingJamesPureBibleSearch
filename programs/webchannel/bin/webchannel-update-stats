@@ -1,0 +1,5 @@
+#!/bin/bash
+
+webchannel-geolocate > /home/ubuntu/webchannel/stats/locations.txt
+genkml /home/ubuntu/webchannel/stats/locations.txt /home/ubuntu/webchannel/stats/locations.kml
+
