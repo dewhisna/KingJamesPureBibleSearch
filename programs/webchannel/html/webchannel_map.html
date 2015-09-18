@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<title>Pure Bible Search WebChannel Usage</title>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB3BFGSHjgEoun4nZpBAOsRSyUTqa_y-5Q"></script>
+	<script type="text/javascript">
+
+		var myMap;
+
+		function initMap() {
+			myMap = new google.maps.Map(document.getElementById('map_canvas'), {
+				center: {lat: 41.875696, lng: -87.624207},		// Chicago
+				zoom: 2
+			});
+
+			var zDate = new Date();
+			var webchannelLayer = new google.maps.KmlLayer({
+				url: 'http://webchannel.purebiblesearch.com/webchannel_locations.kml?rev=' + zDate.toISOString(),
+				map: myMap
+			});
+		}
+
+
+		window.onload = function() {
+			initMap();
+		}
+	</script>
+	<style type="text/css">
+		html, body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+		#map_canvas {
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div id="map_canvas"></div>
+</body>
+
+</html>
+

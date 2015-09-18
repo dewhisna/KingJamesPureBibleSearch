@@ -1,0 +1,8 @@
+
+Project: WebChannel
+Project ID: helical-liberty-107218
+API Name: KJPBS_WebChannel
+API Key: AIzaSyB3BFGSHjgEoun4nZpBAOsRSyUTqa_y-5Q
+Referers:  *.purebiblesearch.com
+API: Google Maps
+
