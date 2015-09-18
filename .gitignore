@@ -22,7 +22,7 @@
 # Build targets:
 /programs/qt-speech/festival/festival/
 /programs/qt-speech/festival/speech_tools/
-/programs/build-*/
+/programs/**/build-*/
 /programs/qt-speech/build-*/
 
 # Non-distributed Output Packages:
