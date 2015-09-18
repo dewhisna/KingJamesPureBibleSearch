@@ -1,4 +1,4 @@
 #!/bin/bash
 
-webchannel-geolocate | genkml > /home/ubuntu/webchannel/stats/locations.kml
+/home/ubuntu/bin/webchannel-geolocate | genkml > /home/ubuntu/webchannel/stats/locations.kml
 
