@@ -28,6 +28,7 @@
 #include "dbDescriptors.h"
 #include "DelayedExecutionTimer.h"
 
+#include <QCoreApplication>
 #include <QApplication>
 #include <QMdiArea>
 #include <QEvent>
