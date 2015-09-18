@@ -1,4 +1,4 @@
 #!/bin/bash
 
-grep -h "GeoLocate" /home/ubuntu/webchannel/logs/access* | awk -F ':' '{print $6":"$7}' | sort | uniq | grep -v "\\*\\*\\*" --
+grep -h "GeoLocate" /home/ubuntu/webchannel/logs/access* | awk -F ' : ' '{print $4":"$5}' | sort | uniq | grep -v "\\*\\*\\*" --
 

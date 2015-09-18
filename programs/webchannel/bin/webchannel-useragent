@@ -1,0 +1,4 @@
+#!/bin/bash
+
+grep -h "UserAgent" /home/ubuntu/webchannel/logs/access* | awk -F ' : ' '{print $4}' | sort | uniq
+
