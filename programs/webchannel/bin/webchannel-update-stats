@@ -1,4 +1,8 @@
 #!/bin/bash
 
+# Output geolocate stats:
 /home/ubuntu/bin/webchannel-geolocate | /home/ubuntu/bin/genkml > /home/ubuntu/webchannel/stats/locations.kml
+
+# Output userAgent stats:
+/home/ubuntu/bin/webchannel-useragent > /home/ubuntu/webchannel/stats/useragents.txt
 
