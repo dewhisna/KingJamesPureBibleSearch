@@ -26,10 +26,22 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QtGui/QTextDocument>
 
 #include "../../KJVCanOpener/CSV.h"
 
 #include <iostream>
+
+// ============================================================================
+
+static const QString escape( const QString &s )
+{
+#if QT_VERSION < 0x050000
+	return Qt::escape( s );
+#else
+	return s.toHtmlEscaped();
+#endif
+}
 
 // ============================================================================
 
@@ -135,7 +147,7 @@ int main(int argc, char *argv[])
 		csv >> strPostalCode >> strTimeZone >> strLat >> strLong >> strMetroCode >> strISP;
 
 		tsOut << QString("\t\t<Placemark>\n");
-		tsOut << QString("\t\t\t<name>%1</name>\n").arg(strIP);
+		tsOut << QString("\t\t\t<name>%1</name>\n").arg(escape(strIP));
 		tsOut << QString("\t\t\t<description>\n");
 		QString strDesc;
 		if (!strCity.isEmpty()) strDesc += QString("%1 ").arg(strCity);
@@ -160,8 +172,8 @@ int main(int argc, char *argv[])
 		}
 		if (!strPostalCode.isEmpty()) strDesc += QString("%1 ").arg(strPostalCode);
 		strDesc.remove(QChar('\0'));
-		tsOut << QString("\t\t\t\t%1\n").arg(strDesc);
-		if (!strISP.isEmpty()) tsOut << QString("\t\t\t\t%1\n").arg(strISP.remove(QChar('\0')));
+		tsOut << QString("\t\t\t\t%1\n").arg(escape(strDesc));
+		if (!strISP.isEmpty()) tsOut << QString("\t\t\t\t%1\n").arg(escape(strISP.remove(QChar('\0'))));
 		tsOut << QString("\t\t\t</description>\n");
 		tsOut << QString("\t\t\t<Point>\n");
 		tsOut << QString("\t\t\t\t<coordinates>%1,%2</coordinates>\n").arg(strLong).arg(strLat);
