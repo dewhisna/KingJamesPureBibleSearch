@@ -52,6 +52,8 @@ int main(int argc, char *argv[])
 	QString strFileIn;
 	QString strFileOut;
 	bool bShowHelp = false;
+	bool bUseIPAsName = false;
+	bool bIncludeISP = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg(argv[ndx]);
@@ -69,6 +71,10 @@ int main(int argc, char *argv[])
 				(strArg.compare("--help", Qt::CaseInsensitive) == 0)) {
 				bShowHelp = true;
 				break;
+			} else if (strArg.compare("-i", Qt::CaseSensitive) == 0) {
+				bUseIPAsName = true;
+			} else if (strArg.compare("-s", Qt::CaseSensitive) == 0) {
+				bIncludeISP = true;
 			} else {	// TODO : Add other command-line options
 				bShowHelp = true;
 				break;
@@ -83,6 +89,14 @@ int main(int argc, char *argv[])
 		std::cout << "In-File and Out-File are both optional.  If omitted, stdin and stdout\n";
 		std::cout << "    are used, respectively.  If only one filename is given, it will be\n";
 		std::cout << "    considered the input file (to avoid accidentally overwriting something.\n\n";
+		std::cout << "\n";
+		std::cout << "Options:\n";
+		std::cout << "\n";
+		std::cout << "  -h or --help : Show this help information\n";
+		std::cout << "\n";
+		std::cout << "  -i  :  Include IP Address as the name rather than site description\n";
+		std::cout << "\n";
+		std::cout << "  -s  :  Add Service Provider details to the description\n";
 		std::cout << "\n";
 		return -1;
 	}
@@ -146,9 +160,6 @@ int main(int argc, char *argv[])
 		csv >> strIP >> strCountryCode >> strCountry >> strRegionCode >> strRegion >> strCity;
 		csv >> strPostalCode >> strTimeZone >> strLat >> strLong >> strMetroCode >> strISP;
 
-		tsOut << QString("\t\t<Placemark>\n");
-		tsOut << QString("\t\t\t<name>%1</name>\n").arg(escape(strIP));
-		tsOut << QString("\t\t\t<description>\n");
 		QString strDesc;
 		if (!strCity.isEmpty()) strDesc += QString("%1 ").arg(strCity);
 		if ((strCountryCode == "US") && (!strCity.isEmpty())) {
@@ -172,8 +183,20 @@ int main(int argc, char *argv[])
 		}
 		if (!strPostalCode.isEmpty()) strDesc += QString("%1 ").arg(strPostalCode);
 		strDesc.remove(QChar('\0'));
-		tsOut << QString("\t\t\t\t%1\n").arg(escape(strDesc));
-		if (!strISP.isEmpty()) tsOut << QString("\t\t\t\t%1\n").arg(escape(strISP.remove(QChar('\0'))));
+		strDesc = strDesc.trimmed();
+
+		tsOut << QString("\t\t<Placemark>\n");
+		if (bUseIPAsName) {
+			tsOut << QString("\t\t\t<name>%1</name>\n").arg(escape(strIP));
+		} else {
+			tsOut << QString("\t\t\t<name>%1</name>\n").arg(escape(strDesc));
+		}
+
+		tsOut << QString("\t\t\t<description>\n");
+		if (bUseIPAsName) {
+			tsOut << QString("\t\t\t\t%1\n").arg(escape(strDesc));
+		}
+		if (!strISP.isEmpty() && bIncludeISP) tsOut << QString("\t\t\t\t%1\n").arg(escape(strISP.remove(QChar('\0'))));
 		tsOut << QString("\t\t\t</description>\n");
 		tsOut << QString("\t\t\t<Point>\n");
 		tsOut << QString("\t\t\t\t<coordinates>%1,%2</coordinates>\n").arg(strLong).arg(strLat);
