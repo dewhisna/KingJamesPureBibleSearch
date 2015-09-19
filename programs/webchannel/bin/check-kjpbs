@@ -1,0 +1,14 @@
+#! /bin/bash
+
+case "$(pidof /home/ubuntu/webchannel/KJVCanOpener/app/KingJamesPureBibleSearch | wc -w)" in
+
+0)  echo "*** KJPBS is NOT running:   $(date)" >> /home/ubuntu/webchannel/logs/process.errors
+    /usr/local/bin/aws sns publish --topic-arn arn:aws:sns:us-east-1:164682192160:KJPBS_Process --message "WARNING!  KJPBS is NOT running!  Attempting to restart..."
+    (sleep 300 ; /home/ubuntu/bin/webchannel) &
+    ;;
+1)  # all OK
+    ;;
+*)  echo "*** KJPBS Multiple Instances:  $(date)" >> /home/ubuntu/webchannel/logs/process.errors
+    ;;
+esac
+
