@@ -1,0 +1,4 @@
+#! /bin/bash
+
+echo "Unique visitors: $(webchannel-geolocate | sort | uniq | wc -l)"
+
