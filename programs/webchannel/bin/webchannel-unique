@@ -1,4 +1,4 @@
 #! /bin/bash
 
-echo "Unique visitors: $(webchannel-geolocate | sort | uniq | wc -l)"
+echo "Unique visitors: $(webchannel-geolocate | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' -- | sort | uniq | wc -l)"
 
