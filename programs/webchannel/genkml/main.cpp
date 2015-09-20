@@ -132,6 +132,13 @@ int main(int argc, char *argv[])
 	tsOut << QString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	tsOut << QString("<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\">\n");
 	tsOut << QString("\t<Document>\n");
+	tsOut << QString("\t\t<Style id=\"pinned_scroll\">\n");
+	tsOut << QString("\t\t\t<IconStyle>\n");
+	tsOut << QString("\t\t\t\t<Icon>\n");
+	tsOut << QString("\t\t\t\t\t<href>http://webchannel.purebiblesearch.com/pinned-scroll.png</href>\n");
+	tsOut << QString("\t\t\t\t</Icon>\n");
+	tsOut << QString("\t\t\t</IconStyle>\n");
+	tsOut << QString("\t\t</Style>\n");
 
 	while (!tsIn.atEnd()) {
 		QString strLine = tsIn.readLine().trimmed();
@@ -198,6 +205,7 @@ int main(int argc, char *argv[])
 		}
 		if (!strISP.isEmpty() && bIncludeISP) tsOut << QString("\t\t\t\t%1\n").arg(escape(strISP.remove(QChar('\0'))));
 		tsOut << QString("\t\t\t</description>\n");
+		tsOut << QString("\t\t\t<styleUrl>#pinned_scroll</styleUrl>\n");
 		tsOut << QString("\t\t\t<Point>\n");
 		tsOut << QString("\t\t\t\t<coordinates>%1,%2</coordinates>\n").arg(strLong).arg(strLat);
 		tsOut << QString("\t\t\t</Point>\n");
