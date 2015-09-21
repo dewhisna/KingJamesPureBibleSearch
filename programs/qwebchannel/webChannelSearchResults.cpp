@@ -40,7 +40,7 @@
 
 #define DEBUG_WEBCHANNEL_SEARCH 0
 #define DEBUG_WEBCHANNEL_AUTOCORRECT 0
-#define DEBUG_WEBCHANNEL_THREAD_ANALYSIS 1
+#define DEBUG_WEBCHANNEL_THREAD_ANALYSIS 0
 #define MINIMUM_THREAD_COUNT 2					// Minimum number of worker threads to create if ideal number of threads is less than this value or ideal number of threads can't be determined
 
 // ============================================================================
