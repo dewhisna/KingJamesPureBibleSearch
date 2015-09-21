@@ -469,6 +469,8 @@ void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, cons
 									.arg(strLocationInfo)
 									.toUtf8().data();
 			std::cout.flush();
+#else
+			Q_UNUSED(strLocationInfo);
 #endif
 			break;
 		}
