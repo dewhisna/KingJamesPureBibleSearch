@@ -149,7 +149,7 @@ CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, bool 
 CSearchResultHighlighter::~CSearchResultHighlighter()
 {
 	if (m_pVerseListModel) {
-		m_pVerseListModel->disconnect(this);
+		disconnect(m_pVerseListModel, 0, this, 0);
 		m_pVerseListModel = NULL;
 	}
 }
@@ -207,7 +207,7 @@ void CSearchResultHighlighter::verseListChanged()
 void CSearchResultHighlighter::verseListModelDestroyed()
 {
 	if (m_pVerseListModel) {
-		m_pVerseListModel->disconnect(this);
+		disconnect(m_pVerseListModel, 0, this, 0);
 		m_pVerseListModel = NULL;
 	}
 
