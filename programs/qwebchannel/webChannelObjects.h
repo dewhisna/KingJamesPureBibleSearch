@@ -87,6 +87,7 @@ public slots:
 protected slots:
 	// ------------ Threaded Results Slots:
 	void en_idleStateChanged(bool bIsIdle);
+	void en_killWebChannel();
 
 signals:
 	// ------------ Directly Handled Signals:

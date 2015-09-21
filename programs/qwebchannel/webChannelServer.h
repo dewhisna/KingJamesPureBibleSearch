@@ -69,6 +69,7 @@ protected:
 	friend class CWebChannelObjects;
 	void setThreadIndex();
 	void setIdle();
+	void killWebChannel();
 	void setUserAgent();
 	void setBibleUUID();
 
@@ -107,6 +108,7 @@ public:
 
 	void setClientThreadIndex(const CWebChannelClient *pClient);
 	void setClientIdle(const CWebChannelClient *pClient);
+	void killClient(const CWebChannelClient *pClient);
 	void setClientUserAgent(const CWebChannelClient *pClient);
 	void setClientBibleUUID(const CWebChannelClient *pClient);
 

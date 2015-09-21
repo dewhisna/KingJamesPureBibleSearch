@@ -66,6 +66,12 @@ void CWebChannelObjects::en_idleStateChanged(bool bIsIdle)
 	m_pWebChannel->setIdle();
 }
 
+void CWebChannelObjects::en_killWebChannel()
+{
+	assert(m_pWebChannel != NULL);
+	m_pWebChannel->killWebChannel();
+}
+
 // ----------------------------------------------------------------------------
 
 void CWebChannelObjects::unlock(const QString &strKey)

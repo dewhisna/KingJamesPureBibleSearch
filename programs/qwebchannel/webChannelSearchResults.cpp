@@ -52,6 +52,7 @@
 #define RESULTS_FIRST_BATCH_SIZE 1000		// Number of results for first page batch to send to client
 #define RESULTS_BATCH_SIZE 3000				// Number of results per additional batch to send to client per page
 #define TIME_UNTIL_IDLE 600000				// 10 Minutes (1000 milliseconds/second * 60 seconds/minute * 10 minutes)
+#define TIME_UNTIL_DEAD 3600000				// 60 Minutes (1000 milliseconds/second * 60 seconds/minute * 60 minutes)
 #define RETRIGGER_TIME 250					// Number of milliseconds a function that woke us up gets retriggered after updating search results
 
 // ============================================================================
@@ -66,15 +67,19 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 	assert(!pBibleDatabase.isNull());
 	assert(!pUserNotesDatabase.isNull());
 
-	// Make sure this is the one and only time calling init, there is no reuse -- delete and start over...
+	// If calling init again, delete current data and start over:
 	if (!m_pVerseListModel.isNull()) delete m_pVerseListModel;
 	if (!m_pPhraseNavigator.isNull()) delete m_pPhraseNavigator;
 	if (!m_pRefResolver.isNull()) delete m_pRefResolver;
 
-	// Setup idle timer.  This will be reused:
+	// Setup idle/dead timers.  These will be reused with future inits:
 	if (m_pIdleTimer.isNull()) {
 		m_pIdleTimer = new DelayedExecutionTimer(-1, TIME_UNTIL_IDLE, this);
 		connect(m_pIdleTimer.data(), SIGNAL(triggered()), this, SLOT(en_idleDetected()));
+	}
+	if (m_pDeadTimer.isNull()) {
+		m_pDeadTimer = new DelayedExecutionTimer(-1, TIME_UNTIL_DEAD, this);
+		connect(m_pDeadTimer.data(), SIGNAL(triggered()), this, SLOT(en_deadDetected()));
 	}
 	if (m_pRetriggerGetMoreSearchResults.isNull()) {
 		m_pRetriggerGetMoreSearchResults = new DelayedExecutionTimer(-1, RETRIGGER_TIME, this);
@@ -129,10 +134,14 @@ CWebChannelSearchResults::~CWebChannelSearchResults()
 bool CWebChannelSearchResults::setIdle(bool bIsIdle)
 {
 	assert(!m_pIdleTimer.isNull());
+	assert(!m_pDeadTimer.isNull());
 	bool bCurrentIdle = m_bIsIdle;
 	m_bIsIdle = bIsIdle;
 	if (bCurrentIdle != bIsIdle) emit idleStateChanged(bIsIdle);
-	if (!m_pIdleTimer.isNull()) m_pIdleTimer->trigger();
+	if (!bIsIdle) {
+		if (!m_pIdleTimer.isNull()) m_pIdleTimer->trigger();
+		if (!m_pDeadTimer.isNull()) m_pDeadTimer->trigger();
+	}
 	return (bCurrentIdle != bIsIdle);
 }
 
@@ -162,7 +171,22 @@ void CWebChannelSearchResults::en_idleDetected()
 		m_lstParsedPhrases.clear();
 		m_searchResultsData.m_lstParsedPhrases.clear();
 		m_pVerseListModel->setParsedPhrases(m_searchResultsData);
+	} else {
+		// Otherwise, re-arm the idle timer if we're not already idle, or else we may not fire again if search was in progress:
+		if (!m_pIdleTimer.isNull() && !isIdle()) m_pIdleTimer->trigger();
 	}
+}
+
+void CWebChannelSearchResults::en_deadDetected()
+{
+	// Last chance to see if we are no longer idle or are doing a search:
+	if (m_bSearchInProgress || !isIdle()) {
+		// This path is taken if for some reason dead time is set less than idle time:
+		if (!m_pDeadTimer.isNull()) m_pDeadTimer->trigger();
+		return;
+	}
+
+	emit killWebChannel();
 }
 
 // ----------------------------------------------------------------------------
@@ -672,6 +696,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 		m_mapSearchResultsToThread[pSearchResults] = ndxThreadToUse;
 
 		connect(pSearchResults, SIGNAL(idleStateChanged(bool)), pChannel, SLOT(en_idleStateChanged(bool)));
+		connect(pSearchResults, SIGNAL(killWebChannel()), pChannel, SLOT(en_killWebChannel()));
 
 		connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 		connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
@@ -740,6 +765,7 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 	// In case the other thread is in the process of returning pending calculations, disconnect
 	//		all signals from CWebChannelSearchResults and CWebChannelObjects:
 	disconnect(pSearchResults, SIGNAL(idleStateChanged(bool)), pChannel, SLOT(en_idleStateChanged(bool)));
+	disconnect(pSearchResults, SIGNAL(killWebChannel()), pChannel, SLOT(en_killWebChannel()));
 	disconnect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 	disconnect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));

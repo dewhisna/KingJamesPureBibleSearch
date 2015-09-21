@@ -115,6 +115,12 @@ void CWebChannelClient::setIdle()
 	m_pWebChannelServer->setClientIdle(this);
 }
 
+void CWebChannelClient::killWebChannel()
+{
+	assert(m_pWebChannelServer != NULL);
+	m_pWebChannelServer->killClient(this);
+}
+
 void CWebChannelClient::setUserAgent()
 {
 	assert(m_pWebChannelServer != NULL);
@@ -372,6 +378,26 @@ void CWebChannelServer::setClientIdle(const CWebChannelClient *pClient)
 									.toUtf8().data();
 			std::cout.flush();
 #endif
+			break;
+		}
+	}
+}
+
+void CWebChannelServer::killClient(const CWebChannelClient *pClient)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+			std::cout << QString("%1 UTC : Killing Unresponsive Client : \"%2\" (%3) port %4\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.toUtf8().data();
+			std::cout.flush();
+#endif
+			itrClientMap.key()->socket()->close(QWebSocketProtocol::CloseCodeNormal, "Killing unresponsive client");
 			break;
 		}
 	}

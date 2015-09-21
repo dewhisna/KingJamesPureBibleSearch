@@ -94,9 +94,11 @@ signals:
 	void scriptureBrowserRender(int nChp, unsigned int ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
 
 	void idleStateChanged(bool bIsIdle);					// Triggered when connection either goes idle or wakes up
+	void killWebChannel();									// Kill the WebChannel connection as the client is dead (hasn't responded in the dead-time limit)
 
 private slots:
 	void en_idleDetected();
+	void en_deadDetected();
 	void en_retriggerGotoIndex(const QString &strData);
 
 private:
@@ -123,6 +125,7 @@ private:
 	QTextDocument m_scriptureText;
 	QPointer<CPassageReferenceResolver> m_pRefResolver;
 	QPointer<DelayedExecutionTimer> m_pIdleTimer;
+	QPointer<DelayedExecutionTimer> m_pDeadTimer;
 	QPointer<DelayedExecutionTimer> m_pRetriggerGetMoreSearchResults;
 	QPointer<DelayedExecutionTimer> m_pRetriggerGetSearchResultDetails;
 	QPointer<DelayedExecutionTimer> m_pRetriggerGotoIndex;
