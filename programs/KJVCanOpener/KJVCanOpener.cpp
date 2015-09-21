@@ -342,7 +342,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #ifdef USING_QT_SPEECH
 	// Accelerators: Ctrl-Shift (Meta-Shift on Mac): Y-U-I-O-P (Back-Stop-Pause-Play-Forward)
 	m_pSpeechToolbar = new QToolBar(this);
-	m_pSpeechToolbar->setObjectName(QStringLiteral("speechToolBar"));
+	m_pSpeechToolbar->setObjectName(QLatin1String("speechToolBar"));
 	addToolBar(Qt::TopToolBarArea, m_pSpeechToolbar);
 	m_pSpeechToolbar->setWindowTitle(QApplication::translate("CKJVCanOpener", "Text-To-&Speech Toolbar", 0));	// Keep this in QApplication namespace to be consistent with the ToolBars in the UI file
 
