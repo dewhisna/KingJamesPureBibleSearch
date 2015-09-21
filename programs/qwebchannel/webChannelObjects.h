@@ -53,6 +53,7 @@ public:
 	bool isAdmin() const { return m_bIsAdmin; }
 	QString userAgent() const { return m_strUserAgent; }
 	int threadIndex() const { return m_nThreadIndex; }
+	bool isIdle() const { return m_bIsIdle; }
 	QString bibleUUID() const { return m_strBibleUUID; }
 
 private:
@@ -83,6 +84,9 @@ public slots:
 	void gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam);			// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
 	void gotoChapter(int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
 
+protected slots:
+	// ------------ Threaded Results Slots:
+	void en_idleStateChanged(bool bIsIdle);
 
 signals:
 	// ------------ Directly Handled Signals:
@@ -112,6 +116,7 @@ private:
 	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
 	QString m_strUserAgent;									// Set to userAgent string from client browser
 	int m_nThreadIndex;										// Thread Index in CWebChannelThreadController
+	bool m_bIsIdle;											// True when the client stops interacting for a certain period
 	QString m_strBibleUUID;									// UUID of currently selected Bible
 	CWebChannelClient *m_pWebChannel;						// Parent channel
 };

@@ -53,6 +53,18 @@ CWebChannelClient::~CWebChannelClient()
 
 }
 
+int CWebChannelClient::threadIndex() const
+{
+	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->threadIndex();
+	return -1;
+}
+
+bool CWebChannelClient::isIdle() const
+{
+	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->isIdle();
+	return true;		// So idle it's missing, LOL
+}
+
 bool CWebChannelClient::isAdmin() const
 {
 	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->isAdmin();
@@ -63,12 +75,6 @@ QString CWebChannelClient::userAgent() const
 {
 	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->userAgent();
 	return QString();
-}
-
-int CWebChannelClient::threadIndex() const
-{
-	if (!m_pWebChannelObjects.isNull()) return m_pWebChannelObjects->threadIndex();
-	return -1;
 }
 
 QString CWebChannelClient::bibleUUID() const
@@ -97,16 +103,22 @@ void CWebChannelClient::sendBroadcast(const QString &strMessage)
 	if (!m_pWebChannelObjects.isNull()) m_pWebChannelObjects->sendBroadcast(strMessage);
 }
 
-void CWebChannelClient::setUserAgent()
-{
-	assert(m_pWebChannelServer != NULL);
-	m_pWebChannelServer->setClientUserAgent(this);
-}
-
 void CWebChannelClient::setThreadIndex()
 {
 	assert(m_pWebChannelServer != NULL);
 	m_pWebChannelServer->setClientThreadIndex(this);
+}
+
+void CWebChannelClient::setIdle()
+{
+	assert(m_pWebChannelServer != NULL);
+	m_pWebChannelServer->setClientIdle(this);
+}
+
+void CWebChannelClient::setUserAgent()
+{
+	assert(m_pWebChannelServer != NULL);
+	m_pWebChannelServer->setClientUserAgent(this);
 }
 
 void CWebChannelClient::setBibleUUID()
@@ -325,26 +337,6 @@ bool CWebChannelServer::sendMessage(const QString &strClientIP, const QString &s
 	return false;
 }
 
-void CWebChannelServer::setClientUserAgent(const CWebChannelClient *pClient)
-{
-	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
-		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
-		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
-#ifdef IS_CONSOLE_APP
-			std::cout << QString("%1 UTC : UserAgent : \"%2\" (%3) port %4 : %5\n")
-									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
-									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
-									.arg(itrClientMap.key()->socket()->peerPort())
-									.arg(pClientChannel->userAgent())
-									.toUtf8().data();
-			std::cout.flush();
-#endif
-			break;
-		}
-	}
-}
-
 void CWebChannelServer::setClientThreadIndex(const CWebChannelClient *pClient)
 {
 	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
@@ -357,6 +349,46 @@ void CWebChannelServer::setClientThreadIndex(const CWebChannelClient *pClient)
 									.arg(itrClientMap.key()->socket()->peerAddress().toString())
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->threadIndex())
+									.toUtf8().data();
+			std::cout.flush();
+#endif
+			break;
+		}
+	}
+}
+
+void CWebChannelServer::setClientIdle(const CWebChannelClient *pClient)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+			std::cout << QString("%1 UTC : Idle Status : \"%2\" (%3) port %4 : %5\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.arg(pClientChannel->isIdle() ? "Idle" : "Active")
+									.toUtf8().data();
+			std::cout.flush();
+#endif
+			break;
+		}
+	}
+}
+
+void CWebChannelServer::setClientUserAgent(const CWebChannelClient *pClient)
+{
+	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
+#ifdef IS_CONSOLE_APP
+			std::cout << QString("%1 UTC : UserAgent : \"%2\" (%3) port %4 : %5\n")
+									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+									.arg(itrClientMap.key()->socket()->peerName())
+									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(itrClientMap.key()->socket()->peerPort())
+									.arg(pClientChannel->userAgent())
 									.toUtf8().data();
 			std::cout.flush();
 #endif

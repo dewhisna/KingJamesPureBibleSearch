@@ -27,6 +27,7 @@
 #include "webChannelSearchResults.h"
 
 #include <QWebSocket>
+#include <QVector>
 
 // ============================================================================
 
@@ -38,6 +39,7 @@ CWebChannelObjects::CWebChannelObjects(CWebChannelClient *pParent)
 	:	QObject(pParent),
 		m_bIsAdmin(false),
 		m_nThreadIndex(-1),
+		m_bIsIdle(false),
 		m_pWebChannel(pParent)
 {
 	assert(m_pWebChannel != NULL);
@@ -55,6 +57,16 @@ void CWebChannelObjects::setThreadIndex(int nThreadIndex)
 	m_nThreadIndex = nThreadIndex;
 	m_pWebChannel->setThreadIndex();
 }
+
+void CWebChannelObjects::en_idleStateChanged(bool bIsIdle)
+{
+	assert(m_pWebChannel != NULL);
+
+	m_bIsIdle = bIsIdle;
+	m_pWebChannel->setIdle();
+}
+
+// ----------------------------------------------------------------------------
 
 void CWebChannelObjects::unlock(const QString &strKey)
 {
@@ -174,35 +186,49 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 	QString strClients;
 	int nNotSearching = 0;
 
+	QVector<int> lstThreadActivity;		// Number of Active (non-idle) clients per thread
+
+	lstThreadActivity.resize(CWebChannelThreadController::instance()->threadCount());
+	for (int n = 0; n < CWebChannelThreadController::instance()->threadCount(); ++n) lstThreadActivity[n] = 0;
+
 	strClients += "<table id=\"connectionsListTable\"><thead><tr>\n";
-	strClients += "<th>Name</th><th>IP Address</th><th>Port</th><th>Thread</th><th>Bible</th><th>User Agent</th>\n";
+	strClients += "<th>Name</th><th>IP Address</th><th>Port</th><th>Thread</th><th>Status</th><th>Bible</th><th>User Agent</th>\n";
 	strClients += "</tr></thead><tbody>\n";
 	for (TWebChannelClientMap::const_iterator itrChannels = mapChannels.constBegin(); itrChannels != mapChannels.constEnd(); ++itrChannels) {
 		QPointer<CWebChannelClient> pClientChannel = itrChannels.value();
 		bool bAdmin = ((!pClientChannel.isNull()) ? pClientChannel->isAdmin() : false);
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(!pClientChannel.isNull() ? pClientChannel->bibleUUID() : QString());
 		bool bIsSearching = ((!pBibleDatabase.isNull()) && ((!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1) != -1));
-		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td style=\"white-space:nowrap;\">%5</td><td>%6</td></tr>\n")
+		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td>%5</td><td style=\"white-space:nowrap;\">%6</td><td>%7</td></tr>\n")
 					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
 					.arg(itrChannels.key()->socket()->peerAddress().toString())
 					.arg(itrChannels.key()->socket()->peerPort())
 					.arg(!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1)
+					.arg(!bAdmin ? ((!pClientChannel.isNull() && !pClientChannel->isIdle()) ? "Active" : "Idle") : "n/a")
 					.arg(bIsSearching ? pBibleDatabase->description() : QString())
 					.arg(!pClientChannel.isNull() ? pClientChannel->userAgent() : QString());
-		if ((pClientChannel.isNull()) || (pClientChannel->threadIndex() == -1)) ++nNotSearching;
+		if ((pClientChannel.isNull()) || (pClientChannel->threadIndex() == -1)) {
+			++nNotSearching;
+		} else {
+			if (!pClientChannel->isIdle()) ++lstThreadActivity[pClientChannel->threadIndex()];
+		}
 	}
 	strClients += "</tbody></table>\n";
 	strClients += QString("<br />Connections: %1<br /><hr /><br />\n").arg(mapChannels.size());
 
 	strClients += QString("Thread Count: %1<br /><br />\n").arg(CWebChannelThreadController::instance()->threadCount());
 	strClients += "<table><thead><tr>\n";
-	strClients += "<th>Thread</th><th>Count</th><th></th>\n";
+	strClients += "<th>Thread</th><th style=\"border-left:1px solid black;\">Connections</th><th>Active</th><th>Idle</th>\n";
 	strClients += "</tr></thead><tbody style=\"text-align:center;\">\n";
 	for (int ndx = -1; ndx < CWebChannelThreadController::instance()->threadCount(); ++ndx) {
 		if (ndx != -1) {
-			strClients += QString("<tr><td>%1</td><td>%2</td><td></td></tr>\n").arg(ndx).arg(CWebChannelThreadController::instance()->threadWebChannelCount(ndx));
+			strClients += QString("<tr><td>%1</td><td style=\"border-left:1px solid black;\">%2</td><td>%3</td><td>%4</td></tr>\n")
+										.arg(ndx)
+										.arg(CWebChannelThreadController::instance()->threadWebChannelCount(ndx))
+										.arg(lstThreadActivity.at(ndx))
+										.arg(CWebChannelThreadController::instance()->threadWebChannelCount(ndx) - lstThreadActivity.at(ndx));
 		} else {
-			strClients += QString("<tr><td>%1</td><td>%2</td><td>(Not Searching)</td></tr>\n").arg(ndx).arg(nNotSearching);
+			strClients += QString("<tr><td>%1</td><td style=\"border-left:1px solid black;\">%2</td><td>n/a</td><td>n/a</td></tr>\n").arg(ndx).arg(nNotSearching);
 		}
 	}
 	strClients += "</tbody></table>\n";

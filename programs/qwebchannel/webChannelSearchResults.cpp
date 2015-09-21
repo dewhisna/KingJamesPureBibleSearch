@@ -28,6 +28,8 @@
 #include "PhraseEdit.h"
 #include "Highlighter.h"
 
+#include "CSV.h"
+
 #include <QStringList>
 #include <QTextDocument>
 
@@ -49,6 +51,8 @@
 #define MAX_SEARCH_PHRASES 5
 #define RESULTS_FIRST_BATCH_SIZE 1000		// Number of results for first page batch to send to client
 #define RESULTS_BATCH_SIZE 3000				// Number of results per additional batch to send to client per page
+#define TIME_UNTIL_IDLE 600000				// 10 Minutes (1000 milliseconds/second * 60 seconds/minute * 10 minutes)
+#define RETRIGGER_TIME 250					// Number of milliseconds a function that woke us up gets retriggered after updating search results
 
 // ============================================================================
 
@@ -66,6 +70,29 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 	if (!m_pVerseListModel.isNull()) delete m_pVerseListModel;
 	if (!m_pPhraseNavigator.isNull()) delete m_pPhraseNavigator;
 	if (!m_pRefResolver.isNull()) delete m_pRefResolver;
+
+	// Setup idle timer.  This will be reused:
+	if (m_pIdleTimer.isNull()) {
+		m_pIdleTimer = new DelayedExecutionTimer(-1, TIME_UNTIL_IDLE, this);
+		connect(m_pIdleTimer.data(), SIGNAL(triggered()), this, SLOT(en_idleDetected()));
+	}
+	if (m_pRetriggerGetMoreSearchResults.isNull()) {
+		m_pRetriggerGetMoreSearchResults = new DelayedExecutionTimer(-1, RETRIGGER_TIME, this);
+		connect(m_pRetriggerGetMoreSearchResults.data(), SIGNAL(triggered()), this, SLOT(getMoreSearchResults()));
+	}
+	if (m_pRetriggerGetSearchResultDetails.isNull()) {
+		m_pRetriggerGetSearchResultDetails = new DelayedExecutionTimer(-1, RETRIGGER_TIME, this);
+		connect(m_pRetriggerGetSearchResultDetails.data(), SIGNAL(triggered(unsigned int)), this, SLOT(getSearchResultDetails(unsigned int)));
+	}
+	if (m_pRetriggerGotoIndex.isNull()) {
+		m_pRetriggerGotoIndex = new DelayedExecutionTimer(-1, RETRIGGER_TIME, this);
+		connect(m_pRetriggerGotoIndex.data(), SIGNAL(triggered(const QString &)), this, SLOT(en_retriggerGotoIndex(const QString &)));
+	}
+
+	m_strLastPhrases.clear();
+	m_strLastSearchWithin.clear();
+	m_nLastSearchScope = static_cast<int>(CSearchCriteria::SSME_UNSCOPED);
+	setIdle(false);
 
 	m_pBibleDatabase = pBibleDatabase;
 
@@ -99,11 +126,64 @@ CWebChannelSearchResults::~CWebChannelSearchResults()
 
 // ----------------------------------------------------------------------------
 
+bool CWebChannelSearchResults::setIdle(bool bIsIdle)
+{
+	assert(!m_pIdleTimer.isNull());
+	bool bCurrentIdle = m_bIsIdle;
+	m_bIsIdle = bIsIdle;
+	if (bCurrentIdle != bIsIdle) emit idleStateChanged(bIsIdle);
+	if (!m_pIdleTimer.isNull()) m_pIdleTimer->trigger();
+	return (bCurrentIdle != bIsIdle);
+}
+
+bool CWebChannelSearchResults::wakeUp()
+{
+	if (isIdle()) {
+		// No need to call setIdle() here as setSearchPhrases() will do it for us:
+		internal_setSearchPhrases(m_strLastPhrases, m_strLastSearchWithin, m_nLastSearchScope);
+		return true;
+	}
+	setIdle(false);
+	return false;
+}
+
+void CWebChannelSearchResults::en_idleDetected()
+{
+	if (!m_bSearchInProgress && !isIdle()) {
+		// Set our idle flag and clear results only if we aren't in the
+		//		middle of a search.  We shouldn't be unless the search took more
+		//		time than our timeout, but just in case (yes it means we'll go
+		//		through extra timeout periods)...
+
+		setIdle(true);
+
+		// Clear m_pVerseListModel by initiating a search on nothing.  First, make
+		//	sure our parsed phrases are clear:
+		m_lstParsedPhrases.clear();
+		m_searchResultsData.m_lstParsedPhrases.clear();
+		m_pVerseListModel->setParsedPhrases(m_searchResultsData);
+	}
+}
+
+// ----------------------------------------------------------------------------
+
 void CWebChannelSearchResults::setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)
 {
 #if DEBUG_WEBCHANNEL_SEARCH
 	qDebug("Received: %s", strPhrases.toUtf8().data());
 #endif
+
+	setIdle(false);		// Force set to false so internal_setSearchPhrases() will always do full load from external request, since we aren't regurgitating data
+	internal_setSearchPhrases(strPhrases, strSearchWithin, nSearchScope);
+}
+
+void CWebChannelSearchResults::internal_setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)
+{
+	bool bSameSearch = ((m_strLastPhrases == strPhrases) && (m_strLastSearchWithin == strSearchWithin) && (m_nLastSearchScope == nSearchScope));
+	m_strLastPhrases = strPhrases;
+	m_strLastSearchWithin = strSearchWithin;
+	m_nLastSearchScope = nSearchScope;
+	bool bWasIdle = setIdle(false) && bSameSearch;
 
 	m_searchResultsData.m_SearchCriteria.setSearchWithin(m_pBibleDatabase, strSearchWithin);
 	m_searchResultsData.m_SearchCriteria.setSearchScopeMode(static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(nSearchScope));
@@ -134,7 +214,7 @@ void CWebChannelSearchResults::setSearchPhrases(const QString &strPhrases, const
 		}
 	}
 
-	m_nNextResultIndex = 0;
+	if (!bWasIdle) m_nNextResultIndex = 0;
 	m_bSearchInProgress = true;
 
 	m_pVerseListModel->setParsedPhrases(m_searchResultsData);		// Start processing search -- will block if using command-line multi-threaded search phrase mode, else will exit, and either case searchResultsReady() fires
@@ -146,6 +226,7 @@ void CWebChannelSearchResults::autoCorrect(const QString &strElementID, const QS
 	qDebug("ReceivedAC: %s : \"%s\" : Cursor=%d", strElementID.toUtf8().data(), strPhrase.toUtf8().data(), nCursorPos);
 #endif
 
+	wakeUp();
 	CParsedPhrase thePhrase(m_pBibleDatabase);
 
 	QTextDocument doc(strPhrase);
@@ -241,6 +322,7 @@ void CWebChannelSearchResults::autoCorrect(const QString &strElementID, const QS
 
 void CWebChannelSearchResults::calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos)
 {
+	wakeUp();
 	CParsedPhrase thePhrase(m_pBibleDatabase);
 
 	QTextDocument doc(strPhrase);
@@ -265,22 +347,29 @@ void CWebChannelSearchResults::calcUpdatedPhrase(const QString &strElementID, co
 
 void CWebChannelSearchResults::en_searchResultsReady()
 {
+	bool bPrevSearchInProgress = m_bSearchInProgress;
 	m_bSearchInProgress = false;
-	getMoreSearchResults();					// Generate first batch (emits both a searchResultsChanged and searchResultsAppend)
+	if (isIdle() && !bPrevSearchInProgress) return;					// A transition to idle clears verses by searching for "nothing".  If we are idle, we're done, unless a previous search result was finishing up...
+	if (m_nNextResultIndex == 0) getMoreSearchResults();			// Generate first batch (emits both a searchResultsChanged and searchResultsAppend)
 
 	// Free-up memory for other clients:
 	m_lstParsedPhrases.clear();
 	m_searchResultsData.m_lstParsedPhrases.clear();
-	// TODO : Figure out how to clear out the VerseListModel without causing
-	//		this function to get run again and send empty results (keeping in
-	//		mind this can be multithreaded).  Also, clearing it would preclude
-	//		getSearchResultDetails() from working...  Also, doing so would
-	//		break paginations -- so this may not be possible.
 }
 
 void CWebChannelSearchResults::getMoreSearchResults()
 {
-	if (m_bSearchInProgress) return;
+	// If we fell asleep before this call, restart the search results since the
+	//		previous result will have been tossed.  That will automatically reset
+	//		us back to the previous NextResultIndex:
+	wakeUp();				// This will automatically start a SearchInProgress, fall through to check it.  If it's asynchronous it will still be true...
+
+	// If a search is in-progress (presummably the wakeUp() above), retrigger us if it isn't done yet:
+	if (m_bSearchInProgress) {
+		if (m_nNextResultIndex == 0) return;
+		m_pRetriggerGetMoreSearchResults->trigger();
+		return;
+	}
 
 	CVerseTextRichifierTags richifierTags;
 	richifierTags.setFromPersistentSettings(*CPersistentSettings::instance(), true);
@@ -357,6 +446,17 @@ void CWebChannelSearchResults::getMoreSearchResults()
 
 void CWebChannelSearchResults::getSearchResultDetails(unsigned int ndxLogical)
 {
+	// If we fell asleep before this call, restart the search results since the
+	//		previous result will have been tossed:
+	wakeUp();				// This will automatically start a SearchInProgress, fall through to check it.  If it's asynchronous it will still be true...
+
+	// If a search is in-progress (presummably the wakeUp() above), retrigger us if it isn't done yet:
+	if (m_bSearchInProgress) {
+		if (m_nNextResultIndex == 0) return;
+		m_pRetriggerGetSearchResultDetails->trigger(ndxLogical);
+		return;
+	}
+
 	QModelIndex mdlIndex = m_pVerseListModel->modelIndexForLogicalIndex(ndxLogical);
 	if (mdlIndex.isValid()) {
 		QString strDetails = m_pVerseListModel->data(mdlIndex, CVerseListModel::TOOLTIP_ROLE).toString();
@@ -366,12 +466,39 @@ void CWebChannelSearchResults::getSearchResultDetails(unsigned int ndxLogical)
 
 void CWebChannelSearchResults::resolvePassageReference(const QString &strPassageReference)
 {
+	wakeUp();
 	TPhraseTag tagResolved = m_pRefResolver->resolve(strPassageReference);
 	emit resolvedPassageReference(tagResolved.relIndex().index(), tagResolved.count());
 }
 
+void CWebChannelSearchResults::en_retriggerGotoIndex(const QString &strData)
+{
+	QString strBuffer = strData;
+	QString strNdxRel;
+	QString strMoveMode;
+	QString strParam;
+
+	CCSVStream csv(&strBuffer, QIODevice::ReadOnly);
+	csv >> strNdxRel >> strMoveMode >> strParam;
+	gotoIndex(strNdxRel.toUInt(), strMoveMode.toInt(), strParam);
+}
+
 void CWebChannelSearchResults::gotoIndex(unsigned int ndxRel, int nMoveMode, const QString &strParam)
 {
+	// If we fell asleep before this call, restart the search results since the
+	//		previous result will have been tossed:
+	wakeUp();				// This will automatically start a SearchInProgress, fall through to check it.  If it's asynchronous it will still be true...
+
+	// If a search is in-progress (presummably the wakeUp() above), retrigger us if it isn't done yet:
+	if (m_bSearchInProgress) {
+		if (m_nNextResultIndex == 0) return;
+		QString strData;
+		CCSVStream csv(&strData, QIODevice::WriteOnly);
+		csv << QString("%1").arg(ndxRel) << QString("%1").arg(nMoveMode) << strParam;
+		m_pRetriggerGotoIndex->trigger(strData);
+		return;
+	}
+
 	CRelIndex ndx(ndxRel);
 	CRelIndex ndxDecolophonated(ndxRel);
 	if (ndxDecolophonated.isColophon()) {
@@ -426,7 +553,12 @@ void CWebChannelSearchResults::gotoIndex(unsigned int ndxRel, int nMoveMode, con
 void CWebChannelSearchResults::gotoChapter(int nChp, const QString &strParam)
 {
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(0, 0, nChp, 0, 0);
-	if (ndx.isSet()) gotoIndex(ndx.index(), static_cast<int>(CBibleDatabase::RIME_Absolute), strParam);
+	if (ndx.isSet()) {
+		// Let gotoIndex() do wakeUp() operation
+		gotoIndex(ndx.index(), static_cast<int>(CBibleDatabase::RIME_Absolute), strParam);
+	} else {
+		wakeUp();
+	}
 }
 
 // ============================================================================
@@ -539,6 +671,8 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 		++m_lstNumWebChannels[ndxThreadToUse];
 		m_mapSearchResultsToThread[pSearchResults] = ndxThreadToUse;
 
+		connect(pSearchResults, SIGNAL(idleStateChanged(bool)), pChannel, SLOT(en_idleStateChanged(bool)));
+
 		connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 		connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 
@@ -605,6 +739,7 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 
 	// In case the other thread is in the process of returning pending calculations, disconnect
 	//		all signals from CWebChannelSearchResults and CWebChannelObjects:
+	disconnect(pSearchResults, SIGNAL(idleStateChanged(bool)), pChannel, SLOT(en_idleStateChanged(bool)));
 	disconnect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
 	disconnect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
 	disconnect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));

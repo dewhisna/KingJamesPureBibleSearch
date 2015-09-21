@@ -28,6 +28,7 @@
 #include "UserNotesDatabase.h"
 #include "VerseListModel.h"
 #include "PassageReferenceWidget.h"
+#include "DelayedExecutionTimer.h"
 
 #include <QPointer>
 #include <QString>
@@ -55,7 +56,9 @@ class CWebChannelSearchResults : public QObject
 	CWebChannelSearchResults()					// Don't allow parenting as the parent must be in the thread the object is running in
 		:	QObject(),
 			m_nNextResultIndex(0),
-			m_bSearchInProgress(false)
+			m_bSearchInProgress(false),
+			m_bIsIdle(false),
+			m_nLastSearchScope(-1)
 	{ }
 public:
 	virtual ~CWebChannelSearchResults();
@@ -90,14 +93,24 @@ signals:
 
 	void scriptureBrowserRender(int nChp, unsigned int ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
 
+	void idleStateChanged(bool bIsIdle);					// Triggered when connection either goes idle or wakes up
+
+private slots:
+	void en_idleDetected();
+	void en_retriggerGotoIndex(const QString &strData);
 
 private:
+	void internal_setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);
+
 	CPhraseNavigator &phraseNavigator() const
 	{
 		assert(!m_pPhraseNavigator.isNull());
 		return *m_pPhraseNavigator.data();
 	}
 
+	bool setIdle(bool bIsIdle);								// Returns True if Idle State Changed
+	bool wakeUp();											// Returns True if we were previously asleep (idle)
+	bool isIdle() const { return m_bIsIdle; }
 
 private slots:
 	void en_searchResultsReady();
@@ -109,12 +122,22 @@ private:
 	QPointer<CPhraseNavigator> m_pPhraseNavigator;
 	QTextDocument m_scriptureText;
 	QPointer<CPassageReferenceResolver> m_pRefResolver;
+	QPointer<DelayedExecutionTimer> m_pIdleTimer;
+	QPointer<DelayedExecutionTimer> m_pRetriggerGetMoreSearchResults;
+	QPointer<DelayedExecutionTimer> m_pRetriggerGetSearchResultDetails;
+	QPointer<DelayedExecutionTimer> m_pRetriggerGotoIndex;
 
 	// Non-QObject:
 	int m_nNextResultIndex;									// Index of next output index when generating output (used for pagination)
 	bool m_bSearchInProgress;								// Set to true while verseListModel is calculating results so that getMoreSearchResults() can be blocked during search
+	bool m_bIsIdle;											// Set to true when this client becomes idle
+	// ----
 	CSearchResultsData m_searchResultsData;					// Data (phrases and criteria) that we are using
 	TSharedParsedPhrasesList m_lstParsedPhrases;			// Phrase parsers
+	// ----
+	QString m_strLastPhrases;								// Last set of Search Phrases used to redo search if client wakes up from being idle
+	QString m_strLastSearchWithin;							// Last Search Within Setting used to redo search if client wakes up from being idle
+	int m_nLastSearchScope;									// Last Search Scope value used to redo search if client wakes up from being idle
 };
 
 typedef QMap<CWebChannelObjects *, CWebChannelSearchResults *> TWebChannelSearchResultsMap;

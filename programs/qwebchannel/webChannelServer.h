@@ -50,9 +50,10 @@ public:
 	CWebChannelClient(CWebChannelServer *pParent);
 	virtual ~CWebChannelClient();
 
+	int threadIndex() const;
+	bool isIdle() const;
 	bool isAdmin() const;
 	QString userAgent() const;
-	int threadIndex() const;
 	QString bibleUUID() const;
 
 public slots:
@@ -66,8 +67,9 @@ protected:
 	void connectTo(WebSocketTransport* pClient);
 
 	friend class CWebChannelObjects;
-	void setUserAgent();
 	void setThreadIndex();
+	void setIdle();
+	void setUserAgent();
 	void setBibleUUID();
 
 private:
@@ -103,8 +105,9 @@ public:
 	bool disconnectClient(const QString &strClientIP, const QString &strClientPort);
 	bool sendMessage(const QString &strClientIP, const QString &strClientPort, const QString &strMessage);	// Transmit message to specific client
 
-	void setClientUserAgent(const CWebChannelClient *pClient);
 	void setClientThreadIndex(const CWebChannelClient *pClient);
+	void setClientIdle(const CWebChannelClient *pClient);
+	void setClientUserAgent(const CWebChannelClient *pClient);
 	void setClientBibleUUID(const CWebChannelClient *pClient);
 
 protected:
