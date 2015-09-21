@@ -50,6 +50,7 @@ public:
 	CWebChannelClient(CWebChannelServer *pParent);
 	virtual ~CWebChannelClient();
 
+	QString connectionTime() const;
 	int threadIndex() const;
 	bool isIdle() const;
 	bool isAdmin() const;
@@ -74,6 +75,7 @@ protected:
 	void setBibleUUID();
 
 private:
+	QString m_strConnectionTime;
 	QWebChannel m_channel;
 	QPointer<CWebChannelObjects> m_pWebChannelObjects;
 	CWebChannelServer *m_pWebChannelServer;

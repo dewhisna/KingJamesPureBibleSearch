@@ -29,8 +29,9 @@
 #include <QWebSocket>
 #include <QCoreApplication>
 
-#ifdef IS_CONSOLE_APP
 #include <QDateTime>
+
+#ifdef IS_CONSOLE_APP
 #include <iostream>
 #endif
 
@@ -44,6 +45,8 @@ CWebChannelClient::CWebChannelClient(CWebChannelServer *pParent)
 {
 	assert(m_pWebChannelServer != NULL);
 
+	m_strConnectionTime = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
+
 	m_pWebChannelObjects = new CWebChannelObjects(this);
 	registerObject("kjpbs", m_pWebChannelObjects);
 }
@@ -51,6 +54,11 @@ CWebChannelClient::CWebChannelClient(CWebChannelServer *pParent)
 CWebChannelClient::~CWebChannelClient()
 {
 
+}
+
+QString CWebChannelClient::connectionTime() const
+{
+	return m_strConnectionTime;
 }
 
 int CWebChannelClient::threadIndex() const
