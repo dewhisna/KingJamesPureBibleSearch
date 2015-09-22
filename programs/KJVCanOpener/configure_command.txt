@@ -767,7 +767,7 @@ Qt 5.5.0 -- VNC/WebChannel (DYNAMIC):
 -------------------------------------
 
 AWS:
-../5.5.0-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake demos -nomake tests -opensource -confirm-license -prefix /home/ubuntu/Qt/5.5.0-vnc-run
+../5.5.0-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake tests -opensource -confirm-license -prefix /home/ubuntu/Qt/5.5.0-vnc-run
 
 
 // Note: Our AWS apparently isn't setup with necessary dev packages for "-icu -fontconfig -libinput -directfb", but proceeding without them, as I'm not sure we need them.
@@ -782,7 +782,7 @@ cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
 mkdir -p build-KJVCanOpener-Qt_5_5_0_gcc_64/Release
 cd build-KJVCanOpener-Qt_5_5_0_gcc_64/Release
 ~/Qt/5.5.0-vnc-run/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel -o Makefile ../../KJVCanOpener/KJVCanOpener.pro
-make
+make -j 8
 sudo cp -r html/* /var/www/webchannel/html/
 cp KingJamesPureBibleSearch ~/webchannel/KJVCanOpener/app/
 
@@ -1998,8 +1998,9 @@ sudo apt-get install joe
 sudo apt-get install build-essential
 sudo apt-get build-dep libqt4-dev		<<< build-dep not install!
 sudo apt-get install gperf bison
-sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync0 libxcb-sync0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
+sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
 sudo apt-get install perl python
+sudo apt-get install libwww-perl libdatetime-perl
 sudo apt-get install libfreetype6-dev fontconfig
 sudo apt-get install libjpeg-dev
 sudo apt-get install zlib1g zlib1g-dev
@@ -2009,6 +2010,7 @@ sudo apt-get install patch patchutils
 sudo apt-get install p7zip p7zip-full
 sudo apt-get install unzip zip
 sudo apt-get install subversion
+sudo apt-get install git git-svn
 sudo apt-get install xrdp
 sudo apt-get install xfce4
 sudo apt-get install apache2 apache2-doc apache2-suexec-pristine apache2-suexec-custom apache2-utils
@@ -2018,6 +2020,61 @@ sudo apt-file update
 sudo cpan -i IO::Socket
 sudo cpan -i CGI
 sudo cpan -i Captcha::reCAPTCHA
+
+
+Apache Config Files needing updates:
+------------------------------------
+/etc/apache2/apache2.conf
+/etc/apache2/conf-available/security.conf
+/etc/apache2/conf-available/serve-cgi-bin.conf
+/etc/apache2/sites-available/000-default.conf
+/etc/apache2/sites-available/default-ssl.conf
+/etc/apache2/sites-available/webchannel.conf
+
+
+Apache setup:
+-------------
+sudo a2enmod headers
+sudo a2enmod include
+sudo a2enmod rewrite
+sudo a2enmod cgid
+sudo a2ensite webchannel
+
+
+Checking Apache2 Modules:
+-------------------------
+$ apache2ctl -M
+Loaded Modules:
+ core_module (static)
+ so_module (static)
+ watchdog_module (static)
+ http_module (static)
+ log_config_module (static)
+ logio_module (static)
+ version_module (static)
+ unixd_module (static)
+ access_compat_module (shared)
+ alias_module (shared)
+ auth_basic_module (shared)
+ authn_core_module (shared)
+ authn_file_module (shared)
+ authz_core_module (shared)
+ authz_host_module (shared)
+ authz_user_module (shared)
+ autoindex_module (shared)
+ cgid_module (shared)
+ deflate_module (shared)
+ dir_module (shared)
+ env_module (shared)
+ filter_module (shared)
+ headers_module (shared)
+ include_module (shared)
+ mime_module (shared)
+ mpm_event_module (shared)
+ negotiation_module (shared)
+ rewrite_module (shared)
+ setenvif_module (shared)
+ status_module (shared)
 
 
 Special User Creation:
@@ -2043,6 +2100,281 @@ sudo useradd -r -U -s /bin/false -G kjpbs pbsuser17
 sudo useradd -r -U -s /bin/false -G kjpbs pbsuser18
 sudo useradd -r -U -s /bin/false -G kjpbs pbsuser19
 sudo useradd -r -U -s /bin/false -G kjpbs pbsuser20
+
+
+Setting up sudoers for KJPBS VNC:
+---------------------------------
+Files:
+/etc/sudoers                                   (edit)
+/etc/sudoers.d/91-kjpbs-init-users             (new file)
+
+
+Use: sudo visudo
+
+
+/etc/sudoers:
+-------------
+Add:
+=== BEGIN ===
+Defaults	editor=/usr/bin/joe
+=== END ===
+
+
+/etc/sudoers.d/91-kjpbs-init-users:
+-----------------------------------
+=== BEGIN ===
+
+
+%kjpbs ALL=(%kjpbs) NOPASSWD: ALL
+%www-data ALL=(%kjpbs) NOPASSWD: ALL
+
+
+=== END ====
+
+$ sudo chmod 440 /etc/sudoers.d/91-kjpbs-init-users
+
+(or copy from ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/vnc/sudoers.d/)
+
+
+Setup for www server root:
+--------------------------
+/var/www$ ls
+
+drwxr-xr-x  2 root root 4096 Sep  3 18:55 admin
+drwxr-xr-x  3 root root 4096 Jan  8  2015 cgi-bin
+drwxr-xr-x  3 root root 4096 Feb 25  2014 data
+drwxr-xr-x  3 root root 4096 Sep 21 20:29 html
+drwxr-xr-x  3 root root 4096 Feb 23  2014 KingJamesPureBibleSearch
+lrwxrwxrwx  1 root root   81 Sep 21 20:41 noVNC -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/vnc/noVNC
+drwxr-xr-x  3 root root 4096 Sep  3 19:33 webchannel
+
+
+/var/www$ ls admin/
+total 12
+drwxr-xr-x 2 root root 4096 Sep  3 18:55 .
+drwxr-xr-x 9 root root 4096 Sep 21 08:52 ..
+-rw-r--r-- 1 root root   47 Sep  3 18:55 htpasswd.webchannel-admin
+
+
+/var/www$ ls cgi-bin/
+total 28
+drwxr-xr-x 3 root root 4096 Jan  8  2015 .
+drwxr-xr-x 9 root root 4096 Sep 21 08:52 ..
+-rwxr-xr-x 1 root root 1863 Jan  8  2015 kjpbs_captcha_check.pl
+-rwxr-xr-x 1 root root  462 Feb 24  2014 kjpbs_captcha.pl
+-rw-r--r-- 1 root root 3824 Feb 25  2014 kjpbs_nodes.pl
+-rwxr-xr-x 1 root root  964 Feb 25  2014 kjpbs_status.pl
+drwxr-xr-x 2 root root 4096 Sep 26  2014 testing
+
+
+/var/www$ ls cgi-bin/testing/
+total 48
+drwxr-xr-x 2 root root 4096 Sep 26  2014 .
+drwxr-xr-x 3 root root 4096 Jan  8  2015 ..
+-rwxr-xr-x 1 root root  542 Feb 24  2014 captcha_check.pl
+-rwxr-xr-x 1 root root  418 Feb 24  2014 captcha.pl
+-rw-r--r-- 1 root root 3824 Sep 26  2014 kjpbs_nodes.pl
+-rw-r--r-- 1 root root 3829 Feb 26  2014 kjpbs_nodes_test.pl
+-rwxr-xr-x 1 root root  762 Feb 24  2014 launch_kjpbs.pl
+-rwxr-xr-x 1 root root  602 Feb 23  2014 status.pl
+-rwxr-xr-x 1 root root  767 Feb 26  2014 testit.pl
+-rwxr-xr-x 1 root root 2534 Feb 23  2014 test.pl
+
+
+/var/www$ ls data/
+total 12
+drwxr-xr-x 3 root     root     4096 Feb 25  2014 .
+drwxr-xr-x 9 root     root     4096 Sep 21 08:52 ..
+drwxrwxr-x 2 www-data www-data 4096 Feb 25  2014 kjpbs
+
+
+/var/www$ ls data/kjpbs/
+total 12
+drwxrwxr-x 2 www-data www-data 4096 Feb 25  2014 .
+drwxr-xr-x 3 root     root     4096 Feb 25  2014 ..
+-rw-rw-r-- 1 www-data www-data   25 Feb 25  2014 server_full.txt
+
+( NOTE : Important to make server_full.txt writable by www-data !! )
+
+
+/var/www$ ls html/
+total 144
+drwxr-xr-x 3 root root  4096 Sep 21 20:29 .
+drwxr-xr-x 8 root root  4096 Sep 21 20:41 ..
+-rw-r--r-- 1 root root  1150 Sep 21 08:00 favicon.ico
+-rwxr-xr-x 1 root root  3022 Sep 21 20:29 index_down.html
+-rwxr-xr-x 1 root root 10197 Sep 21 20:29 index.html
+-rwxr-xr-x 1 root root  8598 Sep 21 20:29 index_orig.html
+-rw-r--r-- 1 root root 97410 Sep 21 08:00 KJPBS_Laptop.png
+-rw-r--r-- 1 root root   466 Sep 21 08:00 redirect.html
+drwxr-xr-x 2 root root  4096 Sep 21 08:00 status
+
+( NOTE : Important to make index.html executable for #include of /cgi-bin/kjpbs_captcha.pl !! )
+
+
+/var/www$ ls html/status/
+total 12
+drwxr-xr-x 2 root root 4096 Sep 21 08:00 .
+drwxr-xr-x 3 root root 4096 Sep 21 20:29 ..
+-rwxr-xr-x 1 root root 2002 Sep 21 08:00 index.html
+
+( NOTE : Important to make index.html executable for #include of /cgi-bin/kjpbs_status.pl !! )
+
+
+
+/var/www$ ls KingJamesPureBibleSearch/
+total 12
+drwxr-xr-x 3 root root 4096 Feb 23  2014 .
+drwxr-xr-x 9 root root 4096 Sep 21 08:52 ..
+drwxr-xr-x 3 root root 4096 Sep 21 20:26 KJVCanOpener
+
+/var/www$ ls KingJamesPureBibleSearch/KJVCanOpener/
+total 28
+drwxr-xr-x 3 root root 4096 Sep 21 20:26 .
+drwxr-xr-x 3 root root 4096 Feb 23  2014 ..
+drwxr-xr-x 2 root root 4096 Jan  8  2015 app
+lrwxrwxrwx 1 root root   87 Sep 21 20:24 db -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/db
+lrwxrwxrwx 1 root root   88 Sep 21 20:25 doc -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/doc
+lrwxrwxrwx 1 root root   90 Sep 21 20:26 fonts -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/fonts
+lrwxrwxrwx 1 root root   97 Sep 21 20:26 translations -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations
+
+/var/www$ ls KingJamesPureBibleSearch/KJVCanOpener/app/
+total 6108
+drwxr-xr-x 2 root  root     4096 Jan  8  2015 .
+drwxr-xr-x 3 root  root     4096 Sep 21 20:26 ..
+-rwxr-sr-x 1 kjpbs kjpbs 6245526 Sep 21 20:23 KingJamesPureBibleSearch
+
+( NOTE : Important for set user sticky bit on KingJamesPureBibleSearch executable !! )
+
+
+/var/www$ ls webchannel/
+total 12
+drwxr-xr-x 3 root root 4096 Sep  3 19:33 .
+drwxr-xr-x 8 root root 4096 Sep 21 20:41 ..
+drwxr-xr-x 5 root root 4096 Sep 20 04:28 html
+
+/var/www$ ls webchannel/html/
+total 692
+drwxr-xr-x 5 root root   4096 Sep 20 04:28 .
+drwxr-xr-x 3 root root   4096 Sep  3 19:33 ..
+drwxr-xr-x 2 root root   4096 Sep 15 17:03 admin
+-rw-r--r-- 1 root root    753 Sep 21 09:08 Close.png
+-rw-r--r-- 1 root root   4206 Sep 21 09:08 detail.png
+-rw-r--r-- 1 root root  12635 Sep 21 09:08 edit_clear.png
+-rw-r--r-- 1 root root    404 Sep 21 09:08 error.html
+-rw-r--r-- 1 root root   1150 Sep 18 19:56 favicon.ico
+-rw-r--r-- 1 root root    212 Sep 14 22:15 .htaccess
+-rw-r--r-- 1 root root  62962 Sep 21 09:08 index.html
+drwxr-xr-x 3 root root   4096 Sep 14 22:14 jquery
+-rw-r--r-- 1 root root  34588 Sep 21 09:08 KJPBS_Splash_20130405_194312_320.jpeg
+-rw-r--r-- 1 root root  93843 Sep 21 09:08 KJPBS_Splash_20130405_194312_320.png
+-rw-r--r-- 1 root root  40583 Sep 21 09:08 KJPBS_Splash_20130405_194312_360.jpeg
+-rw-r--r-- 1 root root 115479 Sep 21 09:08 KJPBS_Splash_20130405_194312_360.png
+-rw-r--r-- 1 root root 106152 Sep 21 09:08 KJPBS_Splash_20130405_194312.jpeg
+-rw-r--r-- 1 root root 156973 Sep 20 00:32 pinned-scroll.png
+-rw-r--r-- 1 root root  14808 Sep 21 09:08 qwebchannel.js
+-rw-r--r-- 1 root root     27 Sep 21 09:08 robots.txt
+drwxr-xr-x 4 root root   4096 Sep 14 20:35 testing
+lrwxrwxrwx 1 root root     43 Sep 18 19:31 webchannel_locations.kml -> /home/ubuntu/webchannel/stats/locations.kml
+-rw-r--r-- 1 root root   1063 Sep 20 04:28 webchannel_map.html
+
+
+-------------------------------------------------------------------------------
+
+--------------------------------------
+Setting up vnc and webchannel scripts:
+--------------------------------------
+
+Build genkml:
+-------------
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel
+mkdir -p build-genkml-Qt_5_5_0_gcc_64/Release
+cd build-genkml-Qt_5_5_0_gcc_64/Release
+~/Qt/5.5.0-vnc-run/bin/qmake CONFIG+=release ../../genkml/genkml.pro
+make
+cd ~/bin
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/build-genkml-Qt_5_5_0_gcc_64/Release/genkml genkml
+
+
+webchannel/bin:
+---------------
+cd ~/bin
+
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/check-kjpbs check-kjpbs
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel webchannel
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-geolocate webchannel-geolocate
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-geolocate-errors webchannel-geolocate-errors
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-ipdump webchannel-ipdump
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-maxconn webchannel-maxconn
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-unique webchannel-unique
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-update-stats webchannel-update-stats
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-useragent webchannel-useragent
+
+cd /usr/local
+sudo rmdir bin
+sudo ln -s ~/bin bin
+
+
+AWS CloudWatch Scripts:
+-----------------------
+sudo apt-get install libwww-perl libdatetime-perl   (included in general install list above)
+cd ~/bin
+wget http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip
+unzip CloudWatchMonitoringScripts-1.2.1.zip
+rm CloudWatchMonitoringScripts-1.2.1.zip
+
+Create ~/bin/aws-scripts-mon/awscreds.vncserver with AWS credentials
+
+
+AWS Command Line Interface:
+---------------------------
+https://github.com/aws/aws-cli
+
+curl -O https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
+sudo pip install awscli
+    --OR--
+sudo pip install --upgrade awscli
+
+Verify with:
+aws --version
+
+Configure:
+aws configure
+
+AWS Access Key ID [None]: xxxxxxxxxxxxxx
+AWS Secret Access Key [None]: xxxxxxxxxxxxxxxx
+Default region name [None]: us-east-1
+Default output format [None]: text
+
+
+Setup webchannel:
+-----------------
+mkdir ~/webchannel
+mkdir ~/webchannel/logs
+mkdir ~/webchannel/stats
+mkdir -p ~/webchannel/KJVCanOpener/app
+(compile KJPBS for webchannel)
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-Qt_5_5_0_gcc_64/Release/KingJamesPureBibleSearch ~/webchannel/KJVCanOpener/app/
+cd ~/webchannel/KJVCanOpener
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/db db
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/doc doc
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/fonts fonts
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations translations
+
+
+Setting up crontab:
+-------------------
+crontab -e
+
+
+*/5 * * * * /home/ubuntu/bin/aws-scripts-mon/mon-put-instance-data.pl --mem-used --mem-avail --mem-util --swap-util --swap-used --aws-credential-file=/home/ubuntu/bin/aws-scripts-mon/awscreds.vncserver --from-cron
+0 * * * * /home/ubuntu/bin/webchannel-update-stats
+*/10 * * * * /home/ubuntu/bin/check-kjpbs
+
+Note: check-kjpbs will automatically launch webchannel!
+
+
 
 ===============================================================================
 ===============================================================================
