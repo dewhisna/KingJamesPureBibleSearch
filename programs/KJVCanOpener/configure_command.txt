@@ -2000,6 +2000,7 @@ sudo apt-get build-dep libqt4-dev		<<< build-dep not install!
 sudo apt-get install gperf bison
 sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
 sudo apt-get install perl python
+sudo apt-get install binfmt-support
 sudo apt-get install libwww-perl libdatetime-perl
 sudo apt-get install libfreetype6-dev fontconfig
 sudo apt-get install libjpeg-dev
@@ -2374,6 +2375,202 @@ crontab -e
 
 Note: check-kjpbs will automatically launch webchannel!
 
+
+Setting up MediaDrop
+--------------------
+sudo apt-get install mysql-server mysql-client
+edit /etc/mysql/my.cnf and add the following in [mysqld] before "Basic Settings":
+sudo service mysql restart
+sudo mysql_secure_installation
+	-- Remove anonymous access
+	-- Disallow remote root
+	-- Remove test database
+	-- Reload privileges
+
+sudo apt-get install libjpeg-dev zlib1g-dev libfreetype6-dev libmysqlclient-dev python-dev
+sudo apt-get install python-setuptools python-virtualenv
+sudo apt-get install git
+sudo -i
+cd /usr/include
+ln -s freetype2 freetype
+cd /var/www
+mkdir mediadrop
+cd mediadrop
+virtualenv --distribute --no-site-packages venv
+source venv/bin/activate
+git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mediadrop mediadrop-git
+git remote add github git@github.com:dewhisna/mediadrop.git
+cd mediadrop-git
+python setup.py develop
+cd ..
+paster make-config MediaDrop deployment.ini
+-- NOTE: For MediaDrop 0.10.3 the above should be MediaCore
+chown -R www-data:www-data data/
+mysql -u root -p
+mysql> create database mediadrop_db;
+mysql> grant usage on mediadrop_db.* to mediadrop_user@localhost identified by 'mysecretpassword';
+mysql> grant all privileges on mediadrop_db.* to mediadrop_user@localhost;
+mysql> exit;
+joe deployment.ini
+Set:
+	email_to = you@yourdomain.com
+	host = 0.0.0.0
+	port = 8080
+	sqlalchemy.url = mysql://mediadrop_user:mysecretpassword@localhost/mediadrop_db?charset=utf8&use_unicode=0
+paster setup-app deployment.ini
+chown -R www-data:www-data data/
+mysql -u root -p mediadrop_db < setup_triggers.sql
+
+
+Launch with built-in server:
+paster serve --reload deployment.ini
+
+
+For built-in server, generate mediadrop-start.sh from:
+=== BEGIN ===
+#!/bin/bash
+cd /
+source venv/bin/activate
+cd mediadrop-git
+paster serve --reload deployment.ini
+=== END ===
+
+chmod +x mediadrop-start.sh
+sudo ./mediadrop-start.sh
+
+NOTE:  Use "--daemon" instead of "--reload" above to launch as daemon
+
+
+Hooking MediaDrop into Apache and including Adminer for database maintenance:
+-----------------------------------------------------------------------------
+sudo apt-get install libapache2-mod-wsgi
+sudo a2enmod wsgi
+sudo apt-get install libapache2-mod-xsendfile
+sudo a2enmod xsendfile
+sudo apt-get install adminer
+-- EDIT: apache.conf in /etc/adminer/ (use repository settings)
+cd /etc/apache2
+sudo mkdir conf.d
+cd conf.d/
+sudo ln -s ../../adminer/apache.conf adminer.conf
+cd ../conf-enabled/
+sudo ln -s ../conf.d/adminer.conf adminer.conf
+
+-- Already have created deployment.ini (above)
+-- Deploying to: http://site.example/my_media/
+cd /var/www/mediadrop
+mkdir html
+mkdir mod_wsgi
+cp /var/www/mediadrop/mediadrop-git/deployment-scripts/mod_wsgi/mediadrop.wsgi mod_wsgi/
+-- NOTE: called mediacore.wsgi on MediaDrop versions prior to 0.11
+cp /var/www/mediadrop/mediadrop-git/mediacore/public/crossdomain.xml .      (or copy edit version from repositories)
+-- Edit mediadrop.wsgi:
+	deployment_config = '/var/www/mediadrop/deployment.ini'
+	temp_dir = '/var/www/mediadrop/data/tmp'
+-- Edit httpd.conf (or virtual host mediadrop.conf) replace "my_media" with desired folder alias:
+	# You can tweak the WSGIDaemonProcess directive for performance, but this
+	# will work for now.
+	# Relevant doc pages:
+	#     http://code.google.com/p/modwsgi/wiki/ProcessesAndThreading
+	#     http://code.google.com/p/modwsgi/wiki/ConfigurationDirectives#WSGIDaemonProcess
+	# Hint: pay attention to issues surrounding worker-mpm and prefork-mpm.
+
+	# For best performance the number of processes should equal the number of CPU 
+	# cores (but please note that each process may use about 500 MB RAM).
+	WSGIDaemonProcess mcore \
+	    processes=2 \
+	    threads=1 \
+	    display-name=%{GROUP} \
+	    python-path=/var/www/mediadrop/venv/lib/python2.7/site-packages \
+	    python-eggs=/var/www/mediadrop/data/python-egg-cache
+
+	WSGIProcessGroup mcore
+
+	# Intercept all requests to /media/* and pass them to mediadrop.wsgi
+	WSGIScriptAlias /media /var/www/mediadrop/mod_wsgi/mediacore.wsgi
+
+	# Create an exception for media and podcast image from your data directory
+	AliasMatch ^/media/images/(media|podcasts)(.*) /var/www/mediadrop/data/images/$1$2
+
+	# Create an exception for all static MediaDrop content
+	AliasMatch ^/media/(admin/)?(images|scripts|styles)(.*) /var/www/mediadrop/mediadrop-git/mediacore/public/$1$2$3
+
+	# Create an exception for your custom appearance css and images
+	Alias /media/appearance /var/www/mediadrop/data/appearance
+
+	# Crossdomain
+	Alias /crossdomain.xml /var/www/mediadrop/crossdomain.xml
+
+	<Location /media>
+		Require all granted
+		Order allow,deny
+		allow from all
+	</Location>
+
+	# Make the main mediadrop site content available:
+	<Directory /var/www/mediadrop/html/>
+		Options Includes FollowSymLinks
+		AllowOverride All
+		Require all granted
+		Order allow,deny
+		allow from all
+	</Directory>
+
+
+	# Make the wsgi script accessible
+	<Directory /var/www/mediadrop/mod_wsgi/>
+		Options All
+		AllowOverride All
+		Require all granted
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	# Make the data accessible
+	<Directory /var/www/mediadrop/data/>
+		AllowOverride All
+		Require all granted
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	# Make all the static content accessible
+	<Directory /var/www/mediadrop/mediadrop-git/mediacore/public/*>
+		AllowOverride All
+		Require all granted
+		Order allow,deny
+		Allow from all
+		Options -Indexes
+	</Directory>
+
+
+
+-- Possible Speedups:
+	1) Edit /var/www/mediadrop/deployment.ini and set:
+		static_files = false
+	2) Enable xsendfile:  sudo a2enmod xsendfile
+	   Edit /var/www/mediadrop/deployment.ini and set:
+		files_serve_method = apache_xsendfile
+
+-- If making ANY changes to MediaDrop, make Apache aware by:
+	touch /var/www/mediadrop/mediadrop.wsgi		(or mediacore.wsgi on older versions)
+
+
+
+Headless Transmission setup
+---------------------------
+sudo apt-get install transmission-cli transmission-common transmission-daemon
+sudo service transmission-daemon stop
+Find the settings usually (/etc/transmission-daemon/settings.json or /var/lib/transmission-daemon/info/settings.json):
+	sudo find / -iname settings.json
+sudo joe /etc/transmission-daemon/settings.json
+Set:
+	"download-dir": "your-download-location",
+	"incomplete-dir": "your-download-location",
+	"rpc-password": "password",
+	"rpc-username": "username",
+	"rpc-whitelist": "127.0.0.1,192.168.0.*",
+sudo service transmission-daemon start
 
 
 ===============================================================================
