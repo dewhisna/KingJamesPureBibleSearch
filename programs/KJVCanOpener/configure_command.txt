@@ -2573,6 +2573,108 @@ Set:
 sudo service transmission-daemon start
 
 
+Build ffmpeg engine:
+--------------------
+sudo apt-get install python-magic                        (needed for s3cmd sync when uploading resulting mpegs)
+sudo add-apt-repository ppa:nilarimogard/webupd8         (needed for youtube-dl)
+sudo apt-get update
+sudo apt-get install youtube-dl
+sudo joe /etc/apt/sources.list
+	-- Uncomment following:
+	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+	# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+	# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+	----
+	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
+	# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
+	----
+	# deb http://archive.canonical.com/ubuntu trusty partner
+	# deb-src http://archive.canonical.com/ubuntu trusty partner
+	----
+	# deb http://security.ubuntu.com/ubuntu trusty-security multiverse
+	# deb-src http://security.ubuntu.com/ubuntu trusty-security multiverse
+--------------------
+sudo apt-get update
+sudo apt-file update
+sudo apt-get install ubuntu-restricted-extras
+sudo apt-get update
+--------------------  >>> ffmpeg build:
+sudo apt-get -y --force-yes install autoconf automake build-essential libass-dev libfreetype6-dev \
+  libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev \
+  libxcb-xfixes0-dev pkg-config texi2html zlib1g-dev
+mkdir ~/ffmpeg_sources
+-----
+sudo apt-get install yasm
+----- libx264:
+sudo apt-get install libx264-dev
+----- libx265:
+sudo apt-get install cmake mercurial
+cd ~/ffmpeg_sources
+hg clone https://bitbucket.org/multicoreware/x265
+cd ~/ffmpeg_sources/x265/build/linux
+PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_SHARED:bool=off ../../source
+make
+make install
+make clean
+----- libfdk-aac:
+sudo apt-get install libfdk-aac0 libfdk-aac-dev
+----- libmp3lame:
+sudo apt-get install libmp3lame0 libmp3lame-dev
+----- libopus:
+sudo apt-get install libopus0 libopus-dev
+----- libvpx:
+sudo apt-get install libvpx1 libvpx-dev
+----- ffmpeg:
+cd ~/ffmpeg_sources
+wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
+tar xjvf ffmpeg-snapshot.tar.bz2
+cd ffmpeg
+PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
+  --prefix="$HOME/ffmpeg_build" \
+  --pkg-config-flags="--static" \
+  --extra-cflags="-I$HOME/ffmpeg_build/include" \
+  --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
+  --bindir="$HOME/bin" \
+  --enable-gpl \
+  --enable-libass \
+  --enable-libfdk-aac \
+  --enable-libfreetype \
+  --enable-libmp3lame \
+  --enable-libopus \
+  --enable-libtheora \
+  --enable-libvorbis \
+  --enable-libvpx \
+  --enable-libx264 \
+  --enable-libx265 \
+  --enable-nonfree
+PATH="$HOME/bin:$PATH" make
+make install
+make distclean
+hash -r
+
+---------------------------
+
+Install s3cmd:
+--------------
+cd ~/Downloads/software/aws
+mkdir s3cmd
+cd s3cmd
+Download or copy: s3cmd-1.5.0-beta1.tar.gz
+tar -zxvf s3cmd-1.5.0-beta1.tar.gz
+cd s3cmd-1.5.0-beta1
+sudo python setup.py install
+s3cmd --configure
+
+--------------------------
+
+cd ~/Documents/programs/Bible
+git clone git@github.com:bentasker/HLS-Stream-Creator.git
+cd ~/bin
+ln -s ~/Documents/programs/Bible/HLS-Stream-Creator/HLS-Stream-Creator.sh HLS-Stream-Creator
+
+
+
 ===============================================================================
 ===============================================================================
 
