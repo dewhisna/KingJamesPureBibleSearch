@@ -2017,6 +2017,7 @@ sudo apt-get install xfce4
 sudo apt-get install apache2 apache2-doc apache2-suexec-pristine apache2-suexec-custom apache2-utils
 sudo apt-get install autocutsel           ## <<<< This one isn't really needed!
 sudo apt-get install apt-file
+sudo apt-get install lynx
 sudo apt-file update
 sudo cpan -i IO::Socket
 sudo cpan -i CGI
@@ -2399,8 +2400,8 @@ cd mediadrop
 virtualenv --distribute --no-site-packages venv
 source venv/bin/activate
 git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mediadrop mediadrop-git
-git remote add github git@github.com:dewhisna/mediadrop.git
 cd mediadrop-git
+git remote add github git@github.com:dewhisna/mediadrop.git
 python setup.py develop
 cd ..
 paster make-config MediaDrop deployment.ini
@@ -2556,6 +2557,21 @@ cp /var/www/mediadrop/mediadrop-git/mediacore/public/crossdomain.xml .      (or 
 	touch /var/www/mediadrop/mediadrop.wsgi		(or mediacore.wsgi on older versions)
 
 
+MediaDrop Development Server
+----------------------------
+sudo -i
+cd /var/www/mediadrop
+virtualenv --distribute --no-site-packages venv_dev
+source venv_dev/bin/activate
+git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mediadrop mediadrop-dev
+cd mediadrop-dev
+git remote add github git@github.com:dewhisna/mediadrop.git
+python setup.py develop
+cp /var/www/mediadrop/mod_wsgi/mediacore.wsgi /var/www/mediadrop/mod_wsgi/mediacore_dev.wsgi  (or mediadrop.wsgi on newer)
+-- Edit mediacore_dev.wsgi for new paths
+cp /etc/apache2/sites-available/mediadrop.conf /etc/apache2/sites-available/mediadropdev.conf
+-- Edit mediadropdev.conf (Note wsgi daemon name must be unique)
+
 
 Headless Transmission setup
 ---------------------------
@@ -2665,6 +2681,7 @@ tar -zxvf s3cmd-1.5.0-beta1.tar.gz
 cd s3cmd-1.5.0-beta1
 sudo python setup.py install
 s3cmd --configure
+sudo apt-get install python-magic
 
 --------------------------
 
