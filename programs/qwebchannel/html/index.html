@@ -328,7 +328,7 @@
 // ndxBrowserCurrent is obsolete (doesn't make much sense) if we employ caching:
 //							ndxBrowserCurrent = ndxRel;
 
-							addPage(nChp, strHtmlScripture);
+							addPage(nChp, strHtmlScripture + '<div class="kjpbs_link"><a href="http://www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>');
 
 							var opts = strParam.split(",");
 							// Select the text from the navigation if 'highlightAnchor' option and anchor is valid:
@@ -1184,12 +1184,15 @@
 				margin-left: auto;
 				margin-right: auto;
 			}
+			.kjpbs_link {
+				text-align: center;
+			}
 			.scriptureText {
 				width: 100%;
 				min-height: 300px;
 				max-height: auto;
 				margin: 0 auto;
-				margin-bottom: 30px;
+				margin-bottom: 45px;
 			}
 
 			#scriptureNav_buttonset {
@@ -1461,6 +1464,8 @@
 						<tr>
 							<td>
 								<hr />
+								<div class="kjpbs_link"><a href="http://www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>
+								<hr />
 							</td>
 						</tr>
 						<tr>
@@ -1482,6 +1487,7 @@
 					<div id="scriptureBook">
 						<select class="selectBibleList" name="selectBibleList" id="selectBibleList" title="Select Bible Text">
 						</select>
+						<div class="kjpbs_link"><a href="http://www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>
 						<div id="scriptureText" class="scriptureText"></div>
 					</div>
 				</div>
