@@ -92,6 +92,7 @@ signals:
 	void resolvedPassageReference(unsigned int ndxRel, unsigned int nWordCount);		// Triggered after call to resolvePassageReference with the TPhraseTag equivalent of the passage
 
 	void scriptureBrowserRender(int nChp, unsigned int ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
+	void setBibleAudioURLs(const QString &strURLListJson);								// Triggered by scripture browser navigation to set a list of valid URLs for Bible Audio
 
 	void idleStateChanged(bool bIsIdle);					// Triggered when connection either goes idle or wakes up
 	void killWebChannel();									// Kill the WebChannel connection as the client is dead (hasn't responded in the dead-time limit)

@@ -14,6 +14,7 @@
 			$$PWD/webChannelServer.cpp \
 			$$PWD/webChannelObjects.cpp \
 			$$PWD/webChannelGeoLocate.cpp \
+			$$PWD/webChannelBibleAudio.cpp \
 			$$PWD/websocketclientwrapper.cpp \
 			$$PWD/websockettransport.cpp
 
@@ -22,6 +23,7 @@
 			$$PWD/webChannelServer.h \
 			$$PWD/webChannelObjects.h \
 			$$PWD/webChannelGeoLocate.h \
+			$$PWD/webChannelBibleAudio.h \
 			$$PWD/websocketclientwrapper.h \
 			$$PWD/websockettransport.h
 

@@ -23,6 +23,7 @@
 
 #include "webChannelSearchResults.h"
 #include "webChannelObjects.h"
+#include "webChannelBibleAudio.h"
 
 #include "UserNotesDatabase.h"
 #include "PhraseEdit.h"
@@ -566,11 +567,15 @@ void CWebChannelSearchResults::gotoIndex(unsigned int ndxRel, int nMoveMode, con
 															false);
 
 	ndx.setWord((ndx.isColophon() || ndx.isSuperscription()) ? 1 : 0);				// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors
+
 	emit scriptureBrowserRender(CRefCountCalc(m_pBibleDatabase.data(),
 											  CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first,
 								ndx.index(),
 								strText,
 								strParam);
+
+	emit setBibleAudioURLs(CWebChannelBibleAudio::instance()->urlsForChapterAudio(m_pBibleDatabase, ndx));
+
 	m_pPhraseNavigator->clearDocument();			// Free-up memory for other clients
 }
 
@@ -712,6 +717,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 		connect(pSearchResults, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)), pChannel, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)));
 
 		connect(pSearchResults, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)), pChannel, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)));
+		connect(pSearchResults, SIGNAL(setBibleAudioURLs(const QString &)), pChannel, SIGNAL(setBibleAudioURLs(const QString &)));
 	}
 
 	// Initialize after connects in case pSearchResults wants to emit any signals during init:
@@ -776,6 +782,7 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 	disconnect(pSearchResults, SIGNAL(searchResultsDetails(unsigned int, const QString &)), pChannel, SIGNAL(searchResultsDetails(unsigned int, const QString &)));
 	disconnect(pSearchResults, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)), pChannel, SIGNAL(resolvedPassageReference(unsigned int, unsigned int)));
 	disconnect(pSearchResults, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)), pChannel, SIGNAL(scriptureBrowserRender(int, unsigned int, const QString &, const QString &)));
+	disconnect(pSearchResults, SIGNAL(setBibleAudioURLs(const QString &)), pChannel, SIGNAL(setBibleAudioURLs(const QString &)));
 
 	pSearchResults->deleteLater();
 }

@@ -11,6 +11,8 @@
 		<link rel="stylesheet" type="text/css" href="jquery/jquery-ui/fancytree/dist/skin-themeroller/ui.fancytree.min.css" />
 		<script type="text/javascript" src="jquery/jquery-ui/fancytree/dist/jquery.fancytree-all.min.js"></script>
 		<script type="text/javascript" src="jquery/jquery-ui/jquery-loading-overlay/dist/loading-overlay.min.js"></script>
+		<script type="text/javascript" src="http://videos.dewtronics.com/jwplayer.js"></script>
+		<script>jwplayer.key="SjyxnLsm2h+k3+MmIHXmKCwAy/FbnmxJ5e0j9Q==";</script>
 
 		<script type="text/javascript" src="./qwebchannel.js"></script>
 		<script type="text/javascript">
@@ -25,6 +27,7 @@
 			var strBibleUUID = "";				// Selected Bible UUID
 			var bSearchInProgress = false;		// Flag to avoid re-entry into setSearchPhrases()
 			var bAreConnected = false;			// True when we are connected to the server (and properly initialized)
+			var strLastBibleAudioName = "";		// Last Bible Audio Name selected (used to reselect on chapter change)
 
 			//BEGIN SETUP
 			function output(message)
@@ -349,6 +352,10 @@
 							}
 							// Wait cursor back off
 							waitCursor(false);
+						});
+
+						kjpbs.setBibleAudioURLs.connect(function(strURLListJson) {
+							setBibleAudioList($.parseJSON(strURLListJson));
 						});
 
 						kjpbs.setAutoCorrectText.connect(function(strElementID, strAC) {
@@ -846,6 +853,59 @@
 					resetForBibleSelect();
 					window.kjpbs.selectBible($("#selectBibleList").val());
 					window.kjpbs.gotoIndex(0, 1, "scrollTabTop");			// Goto start of Bible text since chapter layout may be different or else it will appear like we didn't load it
+				}
+			}
+
+			function setBibleAudioList(jsonBibleAudioList) {
+				if (jsonBibleAudioList && jsonBibleAudioList.length) {
+					var defaultAudio = "";
+					document.getElementById("bibleAudio").style.display = 'block';
+					document.getElementById("bibleAudioControls").style.display = 'block';
+
+					var selectBibleAudio = document.getElementById("selectBibleAudio");
+					selectBibleAudio.options.length = 0;
+					$.each(jsonBibleAudioList, function(index, itemData) {
+						$("<option value='" + itemData.url + "'>" + itemData.name
+							+ "</option>").appendTo("#selectBibleAudio");
+						if ((strLastBibleAudioName) && (itemData.name == strLastBibleAudioName)) {
+							defaultAudio = itemData.url;
+						}
+					});
+					if (defaultAudio) {
+						$("#selectBibleAudio").val(defaultAudio);
+					}
+					setBibleAudio();
+				} else {
+					strLastBibleAudioName = "";
+					document.getElementById("bibleAudio").style.display = 'none';
+					document.getElementById("bibleAudioControls").style.display = 'none';
+					jwplayer("bibleAudio").remove();
+				}
+			}
+
+			function setBibleAudio() {
+				var strURL = $("#selectBibleAudio").val();
+				if (strURL) {
+					strLastBibleAudioName = $("#selectBibleAudio").find('option:selected').text();
+					document.getElementById("bibleAudio").style.display = 'block';
+					jwplayer("bibleAudio").setup({
+						file: strURL,
+						displaytitle: true,
+						height: 40,
+						width: "100%",
+						controls: true,
+						mute: false,
+						autostart: false,
+						repeat: false,
+						flashplayer: "http://videos.dewtronics.com/jwplayer.flash.swf",
+						skin: {
+							"name" : "bekle"
+						}
+					});
+				} else {
+					strLastBibleAudioName = "";
+					document.getElementById("bibleAudio").style.display = 'none';
+					jwplayer("bibleAudio").remove();
 				}
 			}
 
@@ -1487,7 +1547,13 @@
 					<div id="scriptureBook">
 						<select class="selectBibleList" name="selectBibleList" id="selectBibleList" title="Select Bible Text">
 						</select>
-						<div class="kjpbs_link"><a href="http://www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>
+						<div id="bibleAudioControls" class="bibleAudio" style="display:none;">
+							<h3>Bible Audio</h3>
+							<div id="bibleAudioContent" class="bibleAudio">
+								<table id="bibleAudioContentTable" style="width:100%;">
+									</table>
+							</div>
+						</div>
 						<div id="scriptureText" class="scriptureText"></div>
 					</div>
 				</div>
@@ -1751,6 +1817,27 @@
 
 				return li.appendTo( ul );
 			}
+
+			$( "#bibleAudioControls" ).accordion({
+				width: "100%",
+				collapsible: true,
+				animate: 200,
+				active: false,
+				heightStyle: "content"
+			});
+			var bibleAudioControlsTable = $("#bibleAudioContentTable");
+			if (($(window).width() < 512) || ($(window).height() < 512)) {
+				bibleAudioControlsTable.append('<tr><td><select class="selectBibleAudio" name="selectBibleAudio" id="selectBibleAudio" title="Select Bible Audio"></select></td></tr>');
+				bibleAudioControlsTable.append('<tr><td class="expand"><div id="bibleAudio" class="bibleAudio" style="display:none;"></div></td></tr>');
+			} else {
+				bibleAudioControlsTable.append('<tr>' +
+						'<td class="shrink"><select class="selectBibleAudio" name="selectBibleAudio" id="selectBibleAudio" title="Select Bible Audio"></select></td>' +
+						'<td class="expand"><div id="bibleAudio" class="bibleAudio" style="display:none;"></div></td>' +
+						'</tr>');
+			}
+			$("#selectBibleAudio").on("change", function() {
+				setBibleAudio();
+			});
 
 			$( "#getMoreSearchResultsButton" ).button();
 			document.getElementById("moreSearchResults").style.display = 'none';

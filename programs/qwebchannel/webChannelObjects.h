@@ -112,6 +112,7 @@ signals:
 	void resolvedPassageReference(uint32_t ndxRel, uint32_t nWordCount);				// Triggered after call to resolvePassageReference with the TPhraseTag equivalent of the passage
 
 	void scriptureBrowserRender(int nChp, uint32_t ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
+	void setBibleAudioURLs(const QString &strURLListJson);								// Triggered by scripture browser navigation to set a list of valid URLs for Bible Audio
 
 private:
 	bool m_bIsAdmin;										// Set to true when we receive an admin unlock()
