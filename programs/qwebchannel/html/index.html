@@ -864,7 +864,7 @@
 
 					var selectBibleAudio = document.getElementById("selectBibleAudio");
 					selectBibleAudio.options.length = 0;
-					$("<option value=''>-- Select Bible Audio --</option>").appendTo("#selectBibleAudio");
+					$("<option value=''>-- None --</option>").appendTo("#selectBibleAudio");
 					$.each(jsonBibleAudioList, function(index, itemData) {
 						$("<option value='" + itemData.url + "'>" + itemData.name
 							+ "</option>").appendTo("#selectBibleAudio");
@@ -1851,17 +1851,18 @@
 			});
 			var bibleAudioControlsTable = $("#bibleAudioContentTable");
 			if (($(window).width() < 512) || ($(window).height() < 512)) {
+				bibleAudioControlsTable.append('<tr><td style="white-space: nowrap;">Select Bible Audio:</td></tr>');
 				bibleAudioControlsTable.append('<tr><td><select class="selectBibleAudio" name="selectBibleAudio" id="selectBibleAudio"></select></td></tr>');
 				bibleAudioControlsTable.append('<tr><td><input type="checkbox" id="bibleAudioPlayNext" /><label for="bibleAudioPlayNext">Auto Play Next Chapter</label></td></tr>');
 				bibleAudioControlsTable.append('<tr><td><label for="bibleAudioSpeed" style="display:inline">Playback Speed:&nbsp;</label><select class="bibleAudioSpeed" name="bibleAudioSpeed" id="bibleAudioSpeed" onchange="javascript:changedBibleAudioSpeed();"></select></td></tr>');
 				bibleAudioControlsTable.append('<tr><td class="expand"><div id="bibleAudio" class="bibleAudio" style="display:none;"></div></td></tr>');
 			} else {
 				bibleAudioControlsTable.append('<tr>' +
-						'<td class="shrink"><select class="selectBibleAudio" name="selectBibleAudio" id="selectBibleAudio"></select></td>' +
+						'<td class="shrink" style="white-space: nowrap;">Select Bible Audio:</td>' +
 						'<td class="expand" style="border-left: 2px solid;"><label for="bibleAudioSpeed" style="display:inline">Playback Speed:&nbsp;</label><select class="bibleAudioSpeed" name="bibleAudioSpeed" id="bibleAudioSpeed" onchange="javascript:changedBibleAudioSpeed();"></select></td>' +
 						'</tr>');
 				bibleAudioControlsTable.append('<tr>' +
-						'<td class="shrink"></td>' +
+						'<td class="shrink"><select class="selectBibleAudio" name="selectBibleAudio" id="selectBibleAudio"></select></td>' +
 						'<td class="expand" style="border-left: 2px solid;"><input type="checkbox" id="bibleAudioPlayNext" /><label for="bibleAudioPlayNext">Auto Play Next Chapter</label></td>' +
 						'</tr>');
 				bibleAudioControlsTable.append('<tr>' +
