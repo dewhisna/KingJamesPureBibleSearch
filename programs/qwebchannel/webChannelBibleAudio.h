@@ -68,6 +68,10 @@
 	Address: P.O. Box 126, La Porte, Texas 77572
 	Free
 
+  Willard Waggoner : http://www.ebibleaudio.com/
+	http://www.ebibleaudio.com/Radio/Default.asp
+	Free
+
   Jon Sherberg and James Earl Jones : http://www.amazon.com/gp/product/1600775845
 	Publisher: Topics Entertainment (October 20, 2009)
 	Language: English
@@ -100,7 +104,8 @@ public:
 		BAS_DAN_WAGNER = 0x10,				// Dan Wagner (Retired California Minister)
 		BAS_STEPHEN_JOHNSTON = 0x20,		// Stephen Johnston Version
 		BAS_CHRISTOPHER_GLYN = 0x40,		// Christopher Glyn Version
-		BAS_SHERBERG_JONES = 0x80,			// Jon Sherberg and James Earl Jones Version
+		BAS_WILLARD_WAGGONER = 0x80,		// Willard Waggoner Version
+		BAS_SHERBERG_JONES = 0x100,			// Jon Sherberg and James Earl Jones Version
 		BAS_ALL = 0xFFFFFFFF
 	};
 	Q_DECLARE_FLAGS(BibleAudioSourcesFlags, BibleAudioSources)
