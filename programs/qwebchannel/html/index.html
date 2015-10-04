@@ -915,7 +915,11 @@
 							onPlay: function() {
 								var bibleAudio = document.getElementById("bibleAudio").querySelector("video");
 								if (bibleAudio) {
+									// HTML5 only
 									bibleAudio.playbackRate = $("#bibleAudioSpeed").val();
+									document.getElementById("bibleAudioSpeed").disabled = false;
+								} else {
+									document.getElementById("bibleAudioSpeed").disabled = true;
 								}
 							},
 							onReady: function() {
@@ -935,7 +939,11 @@
 			function changedBibleAudioSpeed() {
 				var bibleAudio = document.getElementById("bibleAudio").querySelector("video");
 				if (bibleAudio) {
+					// HTML5 only
 					bibleAudio.playbackRate = $("#bibleAudioSpeed").val();
+					document.getElementById("bibleAudioSpeed").disabled = false;
+				} else {
+					document.getElementById("bibleAudioSpeed").disabled = true;
 				}
 			}
 
