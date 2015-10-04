@@ -194,6 +194,78 @@ namespace {
 
 	const QString g_constrScourbyNDURL = "http://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama/%1";
 
+	// Book names as they appear on the Scourby NonDrama recording #2 files:
+	const QString g_arrconstrScourbyND2Books[NUM_BK] = {
+		"Genesis",
+		"Exodus",
+		"Leviticus",
+		"Numbers",
+		"Deuteronomy",
+		"Joshua",
+		"Judges",
+		"Ruth",
+		"I Samuel",
+		"II Samuel",
+		"I Kings",
+		"II Kings",
+		"I Chronicles",
+		"II Chronicles",
+		"Ezra",
+		"Nehemiah",
+		"Esther",
+		"Job",
+		"Psalm",
+		"Proverbs",
+		"Ecclesiastes",
+		"Solomon",
+		"Isaiah",
+		"Jeremiah",
+		"Lamentations",
+		"Ezekiel",
+		"Daniel",
+		"Hosea",
+		"Joel",
+		"Amos",
+		"Obadiah",
+		"Jonah",
+		"Micah",
+		"Nahum",
+		"Habakkuk",
+		"Zephaniah",
+		"Haggai",
+		"Zechariah",
+		"Malachi",
+		"Matthew",
+		"Mark",
+		"Luke",
+		"John",
+		"Acts",
+		"Romans",
+		"I Corinthians",
+		"II Corinthians",
+		"Galatians",
+		"Ephesians",
+		"Philippians",
+		"Colossians",
+		"I Thessalonians",
+		"II Thessalonians",
+		"I Timothy",
+		"II Timothy",
+		"Titus",
+		"Philemon",
+		"Hebrews",
+		"James",
+		"I Peter",
+		"II Peter",
+		"I John",
+		"II John",
+		"III John",
+		"Jude",
+		"Revelation"
+	};
+
+	const QString g_constrScourbyND2URL = "http://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama2/%1";
+
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the Scourby Drama recording files:
@@ -782,31 +854,42 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 				arrBibleAudioList.append(objBibleAudio);
 			}
 
-			// Scourby NonDrama:
-			QString strScourbyNDBkChp = g_arrconstrScourbyNDBooks[nBk-1];
-			switch (nBk) {
-				case OBADIAH_BOOK_NUM:				// No digits
-				case PHILEMON_BOOK_NUM:
-				case _2JOHN_BOOK_NUM:
-				case _3JOHN_BOOK_NUM:
-				case JUDE_BOOK_NUM:
-					break;
-				case ZEPHANIAH_BOOK_NUM:			// 1 Digit
-				case _2PETER_BOOK_NUM:
-					strScourbyNDBkChp += QString(" %1").arg(nChp, 1, 10, QChar('0'));
-					break;
-				case PSALMS_BOOK_NUM:				// 3 Digits
-					strScourbyNDBkChp += QString(" %1").arg(nChp, 3, 10, QChar('0'));
-					break;
-				default:							// 2 Digits
-					strScourbyNDBkChp += QString(" %1").arg(nChp, 2, 10, QChar('0'));
-					break;
-			}
-			strScourbyNDBkChp += ".mp3";
+			// Scourby NonDrama #1:
+//			QString strScourbyNDBkChp = g_arrconstrScourbyNDBooks[nBk-1];
+//			switch (nBk) {
+//				case OBADIAH_BOOK_NUM:				// No digits
+//				case PHILEMON_BOOK_NUM:
+//				case _2JOHN_BOOK_NUM:
+//				case _3JOHN_BOOK_NUM:
+//				case JUDE_BOOK_NUM:
+//					break;
+//				case ZEPHANIAH_BOOK_NUM:			// 1 Digit
+//				case _2PETER_BOOK_NUM:
+//					strScourbyNDBkChp += QString(" %1").arg(nChp, 1, 10, QChar('0'));
+//					break;
+//				case PSALMS_BOOK_NUM:				// 3 Digits
+//					strScourbyNDBkChp += QString(" %1").arg(nChp, 3, 10, QChar('0'));
+//					break;
+//				default:							// 2 Digits
+//					strScourbyNDBkChp += QString(" %1").arg(nChp, 2, 10, QChar('0'));
+//					break;
+//			}
+//			strScourbyNDBkChp += ".mp3";
+//			if (flagsBAS & BAS_SCOURBY_NONDRAMA) {
+//				QJsonObject objBibleAudio;
+//				objBibleAudio["name"] = "Scourby Non-Drama";
+//				objBibleAudio["url"] = QString(QUrl(QString(g_constrScourbyNDURL).arg(strScourbyNDBkChp)).toEncoded());
+//				arrBibleAudioList.append(objBibleAudio);
+//			}
+
+			//Scourby NonDrama #2:
+			QString strScourbyND2 = QString("%1 %2 %3.mp3").arg(nBk, 2, 10, QChar('0'))
+															.arg(g_arrconstrScourbyND2Books[nBk-1])
+															.arg(nChp, 3, 10, QChar('0'));
 			if (flagsBAS & BAS_SCOURBY_NONDRAMA) {
 				QJsonObject objBibleAudio;
 				objBibleAudio["name"] = "Scourby Non-Drama";
-				objBibleAudio["url"] = QString(QUrl(QString(g_constrScourbyNDURL).arg(strScourbyNDBkChp)).toEncoded());
+				objBibleAudio["url"] = QString(QUrl(QString(g_constrScourbyND2URL).arg(strScourbyND2)).toEncoded());
 				arrBibleAudioList.append(objBibleAudio);
 			}
 
