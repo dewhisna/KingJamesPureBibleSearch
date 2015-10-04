@@ -899,7 +899,8 @@
 						controls: true,
 						mute: false,
 						playbackRate: $("#bibleAudioSpeed").val(),
-						autostart: document.getElementById("bibleAudioPlayNext").checked,
+// Note: autostart does NOT work on mobile devices:
+//						autostart: document.getElementById("bibleAudioPlayNext").checked,
 						repeat: false,
 						flashplayer: "http://videos.dewtronics.com/jwplayer.flash.swf",
 						skin: {
@@ -915,6 +916,11 @@
 								var bibleAudio = document.getElementById("bibleAudio").querySelector("video");
 								if (bibleAudio) {
 									bibleAudio.playbackRate = $("#bibleAudioSpeed").val();
+								}
+							},
+							onReady: function() {
+								if (document.getElementById("bibleAudioPlayNext").checked) {
+									this.play(true);
 								}
 							}
 						},
