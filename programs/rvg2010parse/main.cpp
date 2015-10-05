@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 	fileOut.write(QByteArray("<osisText osisIDWork=\"RVG2010\" osisRefWork=\"defaultReferenceScheme\" lang=\"es\">\n\n"));
 	fileOut.write(QByteArray("<header>\n"));
 	fileOut.write(QByteArray("<work osisWork=\"RVG2010\">\n"));
-	fileOut.write(QByteArray("<title>Reina Valera Gómez 2010 (edition 2014-01-26)</title>\n"));
+	fileOut.write(QByteArray("<title>Reina Valera Gómez 2010 (edition 2015-01-20)</title>\n"));
 	fileOut.write(QByteArray("<identifier type=\"OSIS\">Bible.RVG2010</identifier>\n"));
 	fileOut.write(QByteArray("<refSystem>Bible.KJV</refSystem>\n"));
 	fileOut.write(QByteArray("</work>\n"));
