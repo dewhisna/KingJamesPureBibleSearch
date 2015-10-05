@@ -913,10 +913,16 @@
 								}
 							},
 							onPlay: function() {
-								var bibleAudio = document.getElementById("bibleAudio").querySelector("video");
-								if (bibleAudio) {
+								var bibleAudioV = document.getElementById("bibleAudio").querySelector("video");
+								var bibleAudioA = document.getElementById("bibleAudio").querySelector("audio");
+								if (bibleAudioV || bibleAudioA) {
 									// HTML5 only
-									bibleAudio.playbackRate = $("#bibleAudioSpeed").val();
+									if (bibleAudioV) {
+										bibleAudioV.playbackRate = $("#bibleAudioSpeed").val();
+									}
+									if (bibleAudioA) {
+										bibleAudioA.playbackRate = $("#bibleAudioSpeed").val();
+									}
 									document.getElementById("bibleAudioSpeed").disabled = false;
 								} else {
 									document.getElementById("bibleAudioSpeed").disabled = true;
@@ -937,10 +943,16 @@
 			}
 
 			function changedBibleAudioSpeed() {
-				var bibleAudio = document.getElementById("bibleAudio").querySelector("video");
-				if (bibleAudio) {
+				var bibleAudioV = document.getElementById("bibleAudio").querySelector("video");
+				var bibleAudioA = document.getElementById("bibleAudio").querySelector("audio");
+				if (bibleAudioV || bibleAudioA) {
 					// HTML5 only
-					bibleAudio.playbackRate = $("#bibleAudioSpeed").val();
+					if (bibleAudioV) {
+						bibleAudioV.playbackRate = $("#bibleAudioSpeed").val();
+					}
+					if (bibleAudioA) {
+						bibleAudioA.playbackRate = $("#bibleAudioSpeed").val();
+					}
 					document.getElementById("bibleAudioSpeed").disabled = false;
 				} else {
 					document.getElementById("bibleAudioSpeed").disabled = true;
