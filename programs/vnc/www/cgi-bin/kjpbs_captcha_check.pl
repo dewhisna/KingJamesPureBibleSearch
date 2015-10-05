@@ -27,7 +27,15 @@ if ($resolution eq '1024x768') {
 # Limit uncontrolled input and remap Bible indexes accordingly:
 if ($bbl eq '1') {
 } elsif ($bbl eq '2') {
-  $bbl = '14';
+  $bbl = '12';
+} elsif ($bbl eq '3') {
+  $bbl = '8';
+} elsif ($bbl eq '4') {
+  $bbl = '13';
+} elsif ($bbl eq '5') {
+  $bbl = '16';
+} elsif ($bbl eq '6') {
+  $bbl = '7';
 } else {
   $bbl = '1';
 }
