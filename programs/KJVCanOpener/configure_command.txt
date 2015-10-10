@@ -2595,6 +2595,7 @@ sudo apt-get install python-magic                        (needed for s3cmd sync 
 sudo add-apt-repository ppa:nilarimogard/webupd8         (needed for youtube-dl)
 sudo apt-get update
 sudo apt-get install youtube-dl
+sudo apt-get install mediainfo
 sudo joe /etc/apt/sources.list
 	-- Uncomment following:
 	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
@@ -2682,6 +2683,27 @@ cd s3cmd-1.5.0-beta1
 sudo python setup.py install
 s3cmd --configure
 sudo apt-get install python-magic
+
+
+===== ALTERNATIVE (upgrade): =====
+(Note some new versions fail if installed in default '/usr/local/bin'.  Solution
+is to install at '/usr/bin' with the following.  Also make sure python 2.7 is
+installed and is the default):
+
+sudo apt-get install python-pip			<< Must be done first (independently of sudo python get-pip.py)!
+
+cd ~/Downloads/software/aws
+git clone git@github.com:s3tools/s3cmd.git
+cd s3cmd
+git checkout v1.6.0		<< Or other version
+sudo pip uninstall s3cmd
+sudo pip install .
+s3cmd --version
+  >>> If problems with "ImportError: No module named ExitCodes" use:
+  cd s3cmd
+  sudo pip install --install-option="--install-scripts=/usr/bin" .
+  >>> May need to start new shell!
+
 
 --------------------------
 
