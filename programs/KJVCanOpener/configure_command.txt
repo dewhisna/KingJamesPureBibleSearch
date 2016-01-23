@@ -2363,6 +2363,7 @@ ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/doc doc
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/fonts fonts
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations translations
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/geoip geoip
 
 
 Setting up crontab:
@@ -2711,6 +2712,25 @@ cd ~/Documents/programs/Bible
 git clone git@github.com:bentasker/HLS-Stream-Creator.git
 cd ~/bin
 ln -s ~/Documents/programs/Bible/HLS-Stream-Creator/HLS-Stream-Creator.sh HLS-Stream-Creator
+
+
+---------------------------
+---------------------------
+
+Install MaxMindDB for GeoLocate for WebChanne;:
+--------------------------------
+sudo add-apt-repository ppa:maxmind/ppa
+sudo apt-get update
+sudo apt-get install libmaxminddb0 libmaxminddb-dev mmdb-bin geoipupdate
+
+crontab -e
+  ADD:
+  ------------
+    # top of crontab
+    MAILTO=your@email.com
+
+    32 10 * * 6 /usr/bin/geoipupdate -f /home/ubuntu/webchannel/KJVCanOpener/geoip/GeoIP.conf -d /home/ubuntu/webchannel/KJVCanOpener/geoip
+    # end of crontab
 
 
 
