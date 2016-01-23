@@ -67,35 +67,33 @@ void CWebChannelGeoLocate::locate(const CWebChannelClient *pChannel, const QStri
 
 void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 {
-	theClient.m_nLocateServer = static_cast<GEOLOCATE_SERVER_ENUM>(int(theClient.m_nLocateServer) + 1);
-	if (int(theClient.m_nLocateServer) >= int(GSE_END_OF_LIST)) {
-		emit locationInfo(theClient.m_pChannel, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
-		return;
-	}
-
 	QString strURL;
 
-	switch (theClient.m_nLocateServer) {
-		case GSE_TELIZE:
-			strURL = QString("http://www.telize.com/geoip/%1").arg(theClient.m_strIPAddress);
-			break;
+	do {
+		theClient.m_nLocateServer = static_cast<GEOLOCATE_SERVER_ENUM>(int(theClient.m_nLocateServer) + 1);
+		if (int(theClient.m_nLocateServer) >= int(GSE_END_OF_LIST)) {
+			emit locationInfo(theClient.m_pChannel, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
+			return;
+		}
 
-		case GSE_FREEGEOIP:
-			strURL = QString("https://freegeoip.net/json/%1").arg(theClient.m_strIPAddress);
-			break;
+		switch (theClient.m_nLocateServer) {
+			case GSE_TELIZE:
+				// Note: The free-access version of telize.com is now offline indefinitely
+				//strURL = QString("http://www.telize.com/geoip/%1").arg(theClient.m_strIPAddress);
+				break;
 
-		case GSE_NEKUDO:
-			strURL = QString("http://geoip.nekudo.com/api/%1/full").arg(theClient.m_strIPAddress);
-			break;
+			case GSE_FREEGEOIP:
+				strURL = QString("https://freegeoip.net/json/%1").arg(theClient.m_strIPAddress);
+				break;
 
-		default:
-			break;
-	}
+			case GSE_NEKUDO:
+				strURL = QString("http://geoip.nekudo.com/api/%1/full").arg(theClient.m_strIPAddress);
+				break;
 
-	if (strURL.isEmpty()) {
-		assert(false);			// shouldn't happen unless our sequential host trying mechanism is broken
-		return;
-	}
+			default:
+				break;
+		}
+	} while (strURL.isEmpty());
 
 #if DEBUG_WEBCHANNEL_GEOLOCATE_REQUESTS
 	qDebug("Sending GeoLocate Request to: %s", strURL.toUtf8().data());
