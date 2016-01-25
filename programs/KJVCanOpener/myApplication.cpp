@@ -33,6 +33,10 @@
 #include <unistd.h>
 #endif
 
+#if defined(USING_WEBCHANNEL) && defined(USING_MMDB)
+#include <mmdblookup.h>
+#endif
+
 #ifdef USING_SINGLEAPPLICATION
 #include <singleapplication.h>
 #endif
@@ -202,6 +206,10 @@ namespace {
 	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
 	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
+#endif
+
+#ifdef USING_MMDB
+	const char *g_constrMMDBPath = "../../KJVCanOpener/geoip/GeoLite2-City.mmdb";
 #endif
 
 	//////////////////////////////////////////////////////////////////////
@@ -1710,6 +1718,13 @@ int CMyApplication::execute(bool bBuildDB)
 	connect(CPersistentSettings::instance(), SIGNAL(changedNotesFileAutoSaveTime(int)), this, SLOT(en_changedNotesFileAutoSaveTime(int)));
 
 #ifdef USING_WEBCHANNEL
+
+#ifdef USING_MMDB
+	// Setup MMDB Path detail:
+	QFileInfo fiMMDBPath(g_pMyApplication->initialAppDirPath(), g_constrMMDBPath);
+	CMMDBLookup::setMMDBPath(fiMMDBPath.absoluteFilePath());
+#endif
+
 	// Launch WebChannel:
 	if (!m_strWebChannelHostPort.isEmpty()) {
 		QStringList lstHostPort = m_strWebChannelHostPort.split(QChar(','), QString::KeepEmptyParts);

@@ -18,6 +18,9 @@
 			$$PWD/websocketclientwrapper.cpp \
 			$$PWD/websockettransport.cpp
 
+		!nommdb:SOURCES += \
+			$$PWD/mmdblookup.cpp
+
 		HEADERS += \
 			$$PWD/webChannelSearchResults.h \
 			$$PWD/webChannelServer.h \
@@ -27,7 +30,13 @@
 			$$PWD/websocketclientwrapper.h \
 			$$PWD/websockettransport.h
 
+		!nommdb:HEADERS += \
+			$$PWD/mmdblookup.h
+
 		DEFINES += USING_WEBCHANNEL
+		!nommdb:DEFINES += USING_MMDB
+
+		!nommdb:LIBS += -lmaxminddb
 
 		WEBFILES += \
 			$$PWD/html/*

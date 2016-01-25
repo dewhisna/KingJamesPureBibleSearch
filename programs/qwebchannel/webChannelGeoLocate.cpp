@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "webChannelGeoLocate.h"
+#include "mmdblookup.h"
 
 #include "CSV.h"
 
@@ -39,6 +40,7 @@
 #include <assert.h>
 
 #define DEBUG_WEBCHANNEL_GEOLOCATE_REQUESTS 0
+#define DEBUG_WEBCHANNEL_MMDB_REQUESTS 0
 
 // ============================================================================
 
@@ -77,6 +79,12 @@ void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 		}
 
 		switch (theClient.m_nLocateServer) {
+			case GSE_INTERNAL:
+#ifdef USING_MMDB
+				strURL = "internal";
+#endif
+				break;
+
 			case GSE_TELIZE:
 				// Note: The free-access version of telize.com is now offline indefinitely
 				//strURL = QString("http://www.telize.com/geoip/%1").arg(theClient.m_strIPAddress);
@@ -99,17 +107,18 @@ void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 	qDebug("Sending GeoLocate Request to: %s", strURL.toUtf8().data());
 #endif
 
-	QNetworkReply *pReply = m_pNetManager->get(QNetworkRequest(QUrl(strURL)));
+	QNetworkReply *pReply = ((strURL != "internal") ? m_pNetManager->get(QNetworkRequest(QUrl(strURL))) : NULL);
 	m_mapChannels[pReply] = theClient;
+	if ((!pReply) && (theClient.m_nLocateServer == GSE_INTERNAL)) en_requestComplete(NULL);
 }
 
 void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 {
-	assert(pReply != NULL);
 	TGeoLocateClient theClient = m_mapChannels.value(pReply);
 	m_mapChannels.remove(pReply);
+	assert((pReply != NULL) || (theClient.m_nLocateServer == GSE_INTERNAL));
 
-	if (pReply->error() != QNetworkReply::NoError) {
+	if ((pReply) && (pReply->error() != QNetworkReply::NoError)) {
 		// Handle error:
 		emit locationInfo(theClient.m_pChannel, QString("*** Network Error: %1").arg(pReply->errorString()));
 		pReply->deleteLater();
@@ -118,7 +127,25 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	}
 
 	QString strInformation;
-	QByteArray baData = pReply->readAll();
+	QByteArray baData;
+
+	if (theClient.m_nLocateServer != GSE_INTERNAL) {
+		if (pReply) baData = pReply->readAll();
+	} else {
+		CMMDBLookup mmdb;
+		QString strJSON;
+		if (mmdb.lookup(strJSON, theClient.m_strIPAddress)) {
+			baData = strJSON.toUtf8();
+#if DEBUG_WEBCHANNEL_MMDB_REQUESTS
+			qDebug("MMDB Data:\n%s", baData.data());
+#endif
+		} else {
+			emit locationInfo(theClient.m_pChannel, QString("*** Internal MMDB Error: %1").arg(mmdb.lastError()));
+			if (pReply) pReply->deleteLater();		// pReply should be NULL, but include this for completeness/consistency
+			locateRequest(theClient);				// Try next host
+			return;
+		}
+	}
 
 #if DEBUG_WEBCHANNEL_GEOLOCATE_REQUESTS
 	qDebug("Received GeoLocate Data: %s", baData.data());
@@ -129,7 +156,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	if (jsonError.error != QJsonParseError::NoError) {
 		// Handle error:
 		emit locationInfo(theClient.m_pChannel, QString("*** JSON Error: %1").arg(jsonError.errorString()));
-		pReply->deleteLater();
+		if (pReply) pReply->deleteLater();
 		locateRequest(theClient);		// Try next host
 		return;
 	}
@@ -150,6 +177,35 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 
 	QJsonObject objJson = json.object();
 	switch (theClient.m_nLocateServer) {
+		case GSE_INTERNAL:
+			//		{"city":{"geoname_id":4850751,"names":{"en":"Cedar Rapids","ja":"\u30b7\u30fc\u30c0\u30fc\u30e9\u30d4\u30c3\u30ba","ru":"\u0421\u0438\u0434\u0430\u0440-\u0420\u0430\u043f\u0438\u0434\u0441"}},
+			//		"continent":{"code":"NA","geoname_id":6255149,"names":{"de":"Nordamerika","en":"North America","es":"Norteam\u00e9rica","fr":"Am\u00e9rique du Nord","ja":"\u5317\u30a2\u30e1\u30ea\u30ab","pt-BR":"Am\u00e9rica do Norte","ru":"\u0421\u0435\u0432\u0435\u0440\u043d\u0430\u044f \u0410\u043c\u0435\u0440\u0438\u043a\u0430","zh-CN":"\u5317\u7f8e\u6d32"}},
+			//		"country":{"geoname_id":6252001,"iso_code":"US","names":{"de":"USA","en":"United States","es":"Estados Unidos","fr":"\u00c9tats-Unis","ja":"\u30a2\u30e1\u30ea\u30ab\u5408\u8846\u56fd","pt-BR":"Estados Unidos","ru":"\u0421\u0448\u0430","zh-CN":"\u7f8e\u56fd"}},
+			//		"location":{"latitude":41.9731,"longitude":-91.5767,"metro_code":637,"time_zone":"America\/Chicago"},
+			//		"postal":{"code":"52403"},
+			//		"registered_country":{"geoname_id":6252001,"iso_code":"US","names":{"de":"USA","en":"United States","es":"Estados Unidos","fr":"\u00c9tats-Unis","ja":"\u30a2\u30e1\u30ea\u30ab\u5408\u8846\u56fd","pt-BR":"Estados Unidos","ru":"\u0421\u0448\u0430","zh-CN":"\u7f8e\u56fd"}},
+			//		"subdivisions":[{"geoname_id":4862182,"iso_code":"IA","names":{"de":"Iowa","en":"Iowa","es":"Iowa","fr":"Iowa","ja":"\u30a2\u30a4\u30aa\u30ef\u5dde","pt-BR":"Iowa","ru":"\u0410\u0439\u043e\u0432\u0430","zh-CN":"\u827e\u5965\u74e6\u5dde"}}],
+			//		"traits":{"ip_address":"12.34.56.78"}}
+
+			strServer = "internal";
+			strIP = objJson.value("traits").toObject().value("ip_address").toString();
+			strCountryCode = objJson.value("country").toObject().value("iso_code").toString();
+			if (strCountryCode.isEmpty()) strCountryCode = objJson.value("registered_country").toObject().value("iso_code").toString();
+			strCountry = objJson.value("country").toObject().value("names").toObject().value("en").toString();
+			if (strCountry.isEmpty()) strCountry = objJson.value("registered_country").toObject().value("names").toObject().value("en").toString();
+			if (objJson.value("subdivisions").toArray().size()) {
+				strRegionCode = objJson.value("subdivisions").toArray().first().toObject().value("iso_code").toString();
+				strRegion = objJson.value("subdivisions").toArray().first().toObject().value("names").toObject().value("en").toString();
+			}
+			strCity = objJson.value("city").toObject().value("names").toObject().value("en").toString();
+			strPostalCode = objJson.value("postal").toObject().value("code").toString();
+			strTimeZone = objJson.value("location").toObject().value("time_zone").toString();
+			strLat = objJson.value("location").toObject().value("latitude").toVariant().toString();
+			strLong = objJson.value("location").toObject().value("longitude").toVariant().toString();
+			strMetroCode = objJson.value("location").toObject().value("metro_code").toVariant().toString();
+			strISP = QString();					// No ISP string
+			break;
+
 		case GSE_TELIZE:
 			//		{"dma_code":"0",
 			//		"ip":"12.34.56.78",
@@ -255,7 +311,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	strInformation = strServer + " : " + strInformation;
 
 	emit locationInfo(theClient.m_pChannel, strInformation);
-	pReply->deleteLater();
+	if (pReply) pReply->deleteLater();
 }
 
 // ============================================================================

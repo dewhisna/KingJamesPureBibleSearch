@@ -44,10 +44,11 @@ class CWebChannelGeoLocate : public QObject
 protected:
 	enum GEOLOCATE_SERVER_ENUM {
 		GSE_NONE = -1,					// Placeholder for startup
-		GSE_TELIZE = 0,					// Use telize.com
-		GSE_FREEGEOIP = 1,				// Use freegeoip.net
-		GSE_NEKUDO = 2,					// Use nekudo.com
-		GSE_END_OF_LIST = 3				// Size of GEOLOCATE_SERVER_ENUM
+		GSE_INTERNAL = 0,				// Internal MaxMind Database lookup
+		GSE_TELIZE = 1,					// Use telize.com
+		GSE_FREEGEOIP = 2,				// Use freegeoip.net
+		GSE_NEKUDO = 3,					// Use nekudo.com
+		GSE_END_OF_LIST = 4				// Size of GEOLOCATE_SERVER_ENUM
 	};
 
 	struct TGeoLocateClient {			// Client Baton
