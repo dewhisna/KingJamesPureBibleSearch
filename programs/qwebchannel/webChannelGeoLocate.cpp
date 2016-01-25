@@ -107,16 +107,31 @@ void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 	qDebug("Sending GeoLocate Request to: %s", strURL.toUtf8().data());
 #endif
 
-	QNetworkReply *pReply = ((strURL != "internal") ? m_pNetManager->get(QNetworkRequest(QUrl(strURL))) : NULL);
+	// Note: The internal lookup doesn't use a network session, but we can't just
+	//		use NULL for it, because we would have a collision in our map from
+	//		multiple lookups running on various threads.  Instead, we'll create
+	//		a dummy QObject and force pass it as a QNetworkReply with an immediate
+	//		call to en_requestComplete(), which will delete it.  This will keep
+	//		every entry unique when running multiple threads:
+	QNetworkReply *pReply = ((strURL != "internal") ? m_pNetManager->get(QNetworkRequest(QUrl(strURL))) : reinterpret_cast<QNetworkReply*>(new QObject(this)));
 	m_mapChannels[pReply] = theClient;
-	if ((!pReply) && (theClient.m_nLocateServer == GSE_INTERNAL)) en_requestComplete(NULL);
+	if (theClient.m_nLocateServer == GSE_INTERNAL) en_requestComplete(pReply);
 }
 
 void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 {
+	assert(pReply != NULL);
 	TGeoLocateClient theClient = m_mapChannels.value(pReply);
 	m_mapChannels.remove(pReply);
-	assert((pReply != NULL) || (theClient.m_nLocateServer == GSE_INTERNAL));
+
+	// If this is an internal lookup, pReply was used above to resolve our
+	//		map.  But we need to delete and destroy our dummy QObject and
+	//		not treat it as a QNetworkReply:
+	if (theClient.m_nLocateServer == GSE_INTERNAL) {
+		reinterpret_cast<QObject *>(pReply)->deleteLater();
+		pReply = NULL;
+	}
+	// After this point, pReply will either be NULL or a real QNetworkReply object...
 
 	if ((pReply) && (pReply->error() != QNetworkReply::NoError)) {
 		// Handle error:
