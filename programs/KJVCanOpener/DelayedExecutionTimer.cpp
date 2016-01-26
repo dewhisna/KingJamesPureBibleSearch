@@ -22,7 +22,8 @@ DelayedExecutionTimer::DelayedExecutionTimer(int maximumDelay, int minimumDelay,
 	m_maximumDelay(maximumDelay),
 	m_minimumTimer(new QTimer(this)),
 	m_maximumTimer(new QTimer(this)),
-	m_lastInt(0)
+	m_lastInt(0),
+	m_pLastObject(NULL)
 {
 	connect(m_minimumTimer, SIGNAL(timeout()), SLOT(timeout()));
 	connect(m_maximumTimer, SIGNAL(timeout()), SLOT(timeout()));
@@ -34,7 +35,8 @@ DelayedExecutionTimer::DelayedExecutionTimer(QObject* parent):
 	m_maximumDelay(-1),
 	m_minimumTimer(new QTimer(this)),
 	m_maximumTimer(new QTimer(this)),
-	m_lastInt(0)
+	m_lastInt(0),
+	m_pLastObject(NULL)
 {
 	connect(m_minimumTimer, SIGNAL(timeout()), SLOT(timeout()));
 	connect(m_maximumTimer, SIGNAL(timeout()), SLOT(timeout()));
@@ -51,6 +53,7 @@ void DelayedExecutionTimer::timeout()
 	emit triggered(m_lastRelIndex);
 	emit triggered(m_lastPhraseTag);
 	emit triggered(m_lastPassageTag);
+	emit triggered(m_pLastObject);
 }
 
 void DelayedExecutionTimer::untrigger()
@@ -108,5 +111,11 @@ void DelayedExecutionTimer::trigger(const TPhraseTag &tag)
 void DelayedExecutionTimer::trigger(const TPassageTag &tag)
 {
 	m_lastPassageTag = tag;
+	trigger();
+}
+
+void DelayedExecutionTimer::trigger(QObject *pObject)
+{
+	m_pLastObject = pObject;
 	trigger();
 }

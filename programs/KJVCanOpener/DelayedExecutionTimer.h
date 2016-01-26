@@ -87,6 +87,7 @@ signals:
 	void triggered(const CRelIndex &ndx);
 	void triggered(const TPhraseTag &tag);
 	void triggered(const TPassageTag &tag);
+	void triggered(QObject *pObject);
 
 public slots:
 	void trigger();
@@ -96,6 +97,7 @@ public slots:
 	void trigger(const CRelIndex &ndx);
 	void trigger(const TPhraseTag &tag);
 	void trigger(const TPassageTag &tag);
+	void trigger(QObject *pObject);
 
 	void untrigger();
 
@@ -114,6 +116,7 @@ private:
 	CRelIndex m_lastRelIndex;
 	TPhraseTag m_lastPhraseTag;
 	TPassageTag m_lastPassageTag;
+	QObject *m_pLastObject;
 
 	QString m_prefix;
 	QString m_postfix;

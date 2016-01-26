@@ -36,11 +36,15 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <DelayedExecutionTimer.h>
 
 #include <assert.h>
 
 #define DEBUG_WEBCHANNEL_GEOLOCATE_REQUESTS 0
 #define DEBUG_WEBCHANNEL_MMDB_REQUESTS 0
+
+#define INTERNAL_MMDB_RETRY_COUNT 3			// Set to the number of retries for the internal MMDB database (used to retry when database is busy during upgrade)
+#define INTERNAL_MMDB_RETRY_DELAY 30000		// Set to the retry delay in milliseconds
 
 // ============================================================================
 
@@ -64,24 +68,32 @@ void CWebChannelGeoLocate::locate(const CWebChannelClient *pChannel, const QStri
 	theClient.m_nLocateServer = GSE_NONE;
 	theClient.m_pChannel = pChannel;
 	theClient.m_strIPAddress = strIPAddress;
+	theClient.m_nRetries = 0;		// Force loading the first time
 	locateRequest(theClient);
 }
 
 void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 {
 	QString strURL;
+	bool bIsRetry = false;
 
 	do {
-		theClient.m_nLocateServer = static_cast<GEOLOCATE_SERVER_ENUM>(int(theClient.m_nLocateServer) + 1);
-		if (int(theClient.m_nLocateServer) >= int(GSE_END_OF_LIST)) {
-			emit locationInfo(theClient.m_pChannel, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
-			return;
+		if (theClient.m_nRetries == 0) {
+			theClient.m_nLocateServer = static_cast<GEOLOCATE_SERVER_ENUM>(int(theClient.m_nLocateServer) + 1);
+			if (int(theClient.m_nLocateServer) >= int(GSE_END_OF_LIST)) {
+				emit locationInfo(theClient.m_pChannel, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
+				return;
+			}
+		} else {
+			--theClient.m_nRetries;
+			bIsRetry = true;
 		}
 
 		switch (theClient.m_nLocateServer) {
 			case GSE_INTERNAL:
 #ifdef USING_MMDB
 				strURL = "internal";
+				if (!bIsRetry) theClient.m_nRetries = INTERNAL_MMDB_RETRY_COUNT;
 #endif
 				break;
 
@@ -113,9 +125,22 @@ void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 	//		a dummy QObject and force pass it as a QNetworkReply with an immediate
 	//		call to en_requestComplete(), which will delete it.  This will keep
 	//		every entry unique when running multiple threads:
-	QNetworkReply *pReply = ((strURL != "internal") ? m_pNetManager->get(QNetworkRequest(QUrl(strURL))) : reinterpret_cast<QNetworkReply*>(new QObject(this)));
+	bool bIsInternal = (theClient.m_nLocateServer == GSE_INTERNAL);
+	QNetworkReply *pReply = (!bIsInternal ? m_pNetManager->get(QNetworkRequest(QUrl(strURL))) : reinterpret_cast<QNetworkReply*>(new QObject(this)));
 	m_mapChannels[pReply] = theClient;
-	if (theClient.m_nLocateServer == GSE_INTERNAL) en_requestComplete(pReply);
+	if (bIsInternal) {
+		// Create a delayed trigger to launch the actual request.  For initial requests, this is
+		//		set to a tiny 1ms delay, but retries will be by the specified retry delay:
+		DelayedExecutionTimer *pTrigger = new DelayedExecutionTimer(-1, (bIsRetry ? INTERNAL_MMDB_RETRY_DELAY : 1), this);
+		connect(pTrigger, SIGNAL(triggered(QObject*)), this, SLOT(triggerInternalRequest(QObject*)));
+		connect(pTrigger, SIGNAL(triggered()), pTrigger, SLOT(deleteLater()));
+		pTrigger->trigger(pReply);
+	}
+}
+
+void CWebChannelGeoLocate::triggerInternalRequest(QObject *pInternal)
+{
+	en_requestComplete(reinterpret_cast<QNetworkReply*>(pInternal));
 }
 
 void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
@@ -125,8 +150,8 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	m_mapChannels.remove(pReply);
 
 	// If this is an internal lookup, pReply was used above to resolve our
-	//		map.  But we need to delete and destroy our dummy QObject and
-	//		not treat it as a QNetworkReply:
+	//		map.  But we need to delete and destroy our dummy QObject if
+	//		and clear pReply so as not to reat it as a QNetworkReply object:
 	if (theClient.m_nLocateServer == GSE_INTERNAL) {
 		reinterpret_cast<QObject *>(pReply)->deleteLater();
 		pReply = NULL;

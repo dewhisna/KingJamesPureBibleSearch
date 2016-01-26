@@ -54,12 +54,14 @@ protected:
 	struct TGeoLocateClient {			// Client Baton
 		TGeoLocateClient()
 			:	m_pChannel(NULL),
-				m_nLocateServer(GSE_NONE)
+				m_nLocateServer(GSE_NONE),
+				m_nRetries(0)
 		{ }
 
 		const CWebChannelClient *m_pChannel;
 		QString m_strIPAddress;
 		GEOLOCATE_SERVER_ENUM m_nLocateServer;
+		int m_nRetries;					// Number of Retries Remaining (used for multiple retries on internal MMDB database which may be busy during database update)
 	};
 
 	typedef QMap<QNetworkReply *, TGeoLocateClient> TNetworkReplyToChannelMap;
@@ -76,6 +78,7 @@ signals:
 
 protected slots:
 	void locateRequest(TGeoLocateClient theClient);
+	void triggerInternalRequest(QObject *pInternal);
 	void en_requestComplete(QNetworkReply *pReply);
 
 private:
