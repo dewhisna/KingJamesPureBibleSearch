@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QString>
 #include <QMap>
+#include <QJsonDocument>
 
 // ============================================================================
 
@@ -41,7 +42,7 @@ class CWebChannelGeoLocate : public QObject
 {
 	Q_OBJECT
 
-protected:
+public:
 	enum GEOLOCATE_SERVER_ENUM {
 		GSE_NONE = -1,					// Placeholder for startup
 		GSE_INTERNAL = 0,				// Internal MaxMind Database lookup
@@ -64,7 +65,12 @@ protected:
 		int m_nRetries;					// Number of Retries Remaining (used for multiple retries on internal MMDB database which may be busy during database update)
 	};
 
-	typedef QMap<QNetworkReply *, TGeoLocateClient> TNetworkReplyToChannelMap;
+	static QString serverName(const TGeoLocateClient &theClient)
+	{
+		return serverName(theClient.m_nLocateServer);
+	}
+	static QString serverName(GEOLOCATE_SERVER_ENUM nServer);
+	static QString jsonToCSV(const QJsonDocument &json, const TGeoLocateClient &theClient);
 
 public:
 	CWebChannelGeoLocate(QObject *pParent = NULL);
@@ -80,6 +86,9 @@ protected slots:
 	void locateRequest(TGeoLocateClient theClient);
 	void triggerInternalRequest(QObject *pInternal);
 	void en_requestComplete(QNetworkReply *pReply);
+
+protected:
+	typedef QMap<QNetworkReply *, TGeoLocateClient> TNetworkReplyToChannelMap;
 
 private:
 	QNetworkAccessManager *m_pNetManager;
