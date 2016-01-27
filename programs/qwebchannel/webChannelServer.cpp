@@ -488,6 +488,7 @@ void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, cons
 	}
 
 #else
+	Q_UNUSED(pClient);
 	Q_UNUSED(strIPAddress);
 	Q_UNUSED(strLocationInfo);
 #endif
