@@ -74,7 +74,7 @@ public slots:
 	void locate(const CWebChannelClient *pChannel, const QString &strIPAddress);
 
 signals:
-	void locationInfo(const CWebChannelClient *pChannel, const QString &strLocationInfo);
+	void locationInfo(const CWebChannelClient *pChannel, const QString &strIPAddress, const QString &strLocationInfo);
 
 protected slots:
 	void locateRequest(TGeoLocateClient theClient);

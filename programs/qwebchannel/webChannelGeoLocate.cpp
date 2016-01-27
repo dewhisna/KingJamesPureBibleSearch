@@ -81,7 +81,7 @@ void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
 		if (theClient.m_nRetries == 0) {
 			theClient.m_nLocateServer = static_cast<GEOLOCATE_SERVER_ENUM>(int(theClient.m_nLocateServer) + 1);
 			if (int(theClient.m_nLocateServer) >= int(GSE_END_OF_LIST)) {
-				emit locationInfo(theClient.m_pChannel, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
+				emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, QString("*** GeoLocateHosts Error: All GeoLocate servers have failed, out of GeoLocate servers to try"));
 				return;
 			}
 		} else {
@@ -160,7 +160,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 
 	if ((pReply) && (pReply->error() != QNetworkReply::NoError)) {
 		// Handle error:
-		emit locationInfo(theClient.m_pChannel, QString("*** Network Error: %1").arg(pReply->errorString()));
+		emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, QString("*** Network Error: %1").arg(pReply->errorString()));
 		pReply->deleteLater();
 		locateRequest(theClient);		// Try next host
 		return;
@@ -180,7 +180,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 			qDebug("MMDB Data:\n%s", baData.data());
 #endif
 		} else {
-			emit locationInfo(theClient.m_pChannel, QString("*** Internal MMDB Error: %1").arg(mmdb.lastError()));
+			emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, QString("*** Internal MMDB Error: %1").arg(mmdb.lastError()));
 			if (pReply) pReply->deleteLater();		// pReply should be NULL, but include this for completeness/consistency
 			locateRequest(theClient);				// Try next host
 			return;
@@ -195,7 +195,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	QJsonDocument json = QJsonDocument::fromJson(baData, &jsonError);
 	if (jsonError.error != QJsonParseError::NoError) {
 		// Handle error:
-		emit locationInfo(theClient.m_pChannel, QString("*** JSON Error: %1").arg(jsonError.errorString()));
+		emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, QString("*** JSON Error: %1").arg(jsonError.errorString()));
 		if (pReply) pReply->deleteLater();
 		locateRequest(theClient);		// Try next host
 		return;
@@ -350,7 +350,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 
 	strInformation = strServer + " : " + strInformation;
 
-	emit locationInfo(theClient.m_pChannel, strInformation);
+	emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, strInformation);
 	if (pReply) pReply->deleteLater();
 }
 

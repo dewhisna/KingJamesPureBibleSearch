@@ -127,7 +127,7 @@ private slots:
 	void en_clientConnected(WebSocketTransport* pClient);
 	void en_clientDisconnected(WebSocketTransport* pClient);
 
-	void setClientLocation(const CWebChannelClient *pClient, const QString &strLocationInfo);
+	void setClientLocation(const CWebChannelClient *pClient, const QString &strIPAddress, const QString &strLocationInfo);
 
 protected:
 	QWebSocketServer m_server;						// Server to host i/o

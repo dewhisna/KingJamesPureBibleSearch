@@ -151,7 +151,7 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 		m_nHostPort(nPort)
 {
 	m_pGeoLocater = new CWebChannelGeoLocate(this);
-	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &)));
+	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &, const QString &)));
 
 	// setup the QWebSocketServer
 	m_server.listen(anAddress, nPort);
@@ -455,12 +455,16 @@ void CWebChannelServer::setClientBibleUUID(const CWebChannelClient *pClient)
 	}
 }
 
-void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, const QString &strLocationInfo)
+void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, const QString &strIPAddress, const QString &strLocationInfo)
 {
+#ifdef IS_CONSOLE_APP
+
+	bool bFound = false;
+
 	for (TWebChannelClientMap::const_iterator itrClientMap = m_mapChannels.constBegin(); itrClientMap != m_mapChannels.constEnd(); ++itrClientMap) {
 		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
 		if ((!pClientChannel.isNull()) && (pClient == pClientChannel.data())) {
-#ifdef IS_CONSOLE_APP
+			bFound = true;
 			std::cout << QString("%1 UTC : GeoLocate : \"%2\" (%3) port %4 : %5\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
@@ -469,12 +473,24 @@ void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, cons
 									.arg(strLocationInfo)
 									.toUtf8().data();
 			std::cout.flush();
-#else
-			Q_UNUSED(strLocationInfo);
-#endif
 			break;
 		}
 	}
+	if (!bFound) {
+		// If the client disconnected and is no longer in our map, go ahead and log the GeoIP data
+		//		just without the port detail:
+		std::cout << QString("%1 UTC : GeoLocate : \"\" (%2) port 0 : %3\n")
+								.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+								.arg(strIPAddress)
+								.arg(strLocationInfo)
+								.toUtf8().data();
+		std::cout.flush();
+	}
+
+#else
+	Q_UNUSED(strIPAddress);
+	Q_UNUSED(strLocationInfo);
+#endif
 }
 
 void CWebChannelServer::stopListening()
