@@ -253,7 +253,7 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 #ifdef IS_CONSOLE_APP
 	if (m_mapChannels.isEmpty() && !isListening()) {
 		// If the last client disconnects and the server was already made deaf,
-		//	the exit our daemon or else we'll have a stuck process:
+		//	then exit our daemon or else we'll have a stuck process:
 		QCoreApplication::exit(0);
 	}
 #endif

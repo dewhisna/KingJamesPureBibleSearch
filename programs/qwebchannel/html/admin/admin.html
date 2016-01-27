@@ -76,15 +76,24 @@
 						mosis.connectionsList.connect(function(strHtmlConnections) {
 							document.getElementById("connectionsList").innerHTML = strHtmlConnections;
 							$("#connectionsList table:first").attr("id", "connectionsListTable");
+							var tblConn = document.getElementById("connectionsListTable");
 							$("#connectionsListTable thead tr").append("<th>GeoLocate</th>")
 																.append("<th>Message</th>")
 																.append("<th>Disconnect</th>");
-							$("#connectionsListTable tbody tr").each(function(index) {
-								var ip = $(this).find("td").first().next().text().trim();
-								var port = $(this).find("td").first().next().next().text().trim().substring(1);
-								$(this).append('<td><button type="button" onclick="javascript:geolocateIP(\'' + ip + '\');">GeoLocate</button></td>');
-								$(this).append('<td><button type="button" onclick="javascript:sendMessage(\'' + ip + '\', \'' + port + '\');\">Message</button></td>');
-								$(this).append('<td><button type="button" onclick="javascript:disconnectClient(\'' + ip + '\', \'' + port + '\');\">Disconnect</button></td>');
+							$("#connectionsListTable tbody tr").each(function(index, tr) {
+								var ip = $(tr).find("td").first().next().text().trim();
+								var port = $(tr).find("td").first().next().next().text().trim().substring(1);
+								if ($(tr).parentsUntil("table").parent()[0] == tblConn) {
+									if (ip && port) {
+										$(tr).append('<td><button type="button" onclick="javascript:geolocateIP(\'' + ip + '\');">GeoLocate</button></td>');
+										$(tr).append('<td><button type="button" onclick="javascript:sendMessage(\'' + ip + '\', \'' + port + '\');\">Message</button></td>');
+										$(tr).append('<td><button type="button" onclick="javascript:disconnectClient(\'' + ip + '\', \'' + port + '\');\">Disconnect</button></td>');
+									} else {
+										$(tr).append('<td></td>');
+										$(tr).append('<td></td>');
+										$(tr).append('<td></td>');
+									}
+								}
 							});
 						});
 
@@ -209,6 +218,11 @@
 				});
 			}
 
+			// mapLatLong:
+			function mapLatLong(lat, lng) {
+				window.open('http://maps.google.com/maps?z=12&t=m&q=loc:' + lat + '+' + lng + '&output=embed', "GeoLocate Map", "width=800, height=600");
+			}
+
 		</script>
 		<style type="text/css">
 			html {
@@ -259,8 +273,8 @@
 		<br />
 		<div id="settings">
 			<label for="geoLocateSource" style="display:block;">GeoLocate Server:</label>
-			<select id="geoLocateSource" value="0">
-				<option value="0">telize.com</option>
+			<select id="geoLocateSource" value="1">
+<!--				<option value="0">telize.com</option> -->
 				<option value="1">freegeoip.net</option>
 				<option value="2">nekudo.com</option>
 			</select>

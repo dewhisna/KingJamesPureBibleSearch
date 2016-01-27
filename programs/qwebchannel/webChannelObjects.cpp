@@ -26,6 +26,10 @@
 #include "websockettransport.h"
 #include "webChannelSearchResults.h"
 
+#include "webChannelGeoLocate.h"
+#include "mmdblookup.h"
+#include "CSV.h"
+
 #include <QWebSocket>
 #include <QVector>
 
@@ -205,6 +209,54 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 		bool bAdmin = ((!pClientChannel.isNull()) ? pClientChannel->isAdmin() : false);
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(!pClientChannel.isNull() ? pClientChannel->bibleUUID() : QString());
 		bool bIsSearching = ((!pBibleDatabase.isNull()) && ((!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1) != -1));
+		QString strGeoIP;
+#ifdef USING_MMDB
+		CMMDBLookup mmdb;
+		QString strJSON;
+		QByteArray baData;
+		QString strIPAddress = itrChannels.key()->socket()->peerAddress().toString();
+		if (mmdb.lookup(strJSON, strIPAddress)) {
+			baData = strJSON.toUtf8();
+			QJsonParseError jsonError;
+			QJsonDocument json = QJsonDocument::fromJson(baData, &jsonError);
+			if (jsonError.error == QJsonParseError::NoError) {
+				CWebChannelGeoLocate::TGeoLocateClient theClient;
+				theClient.m_nLocateServer = CWebChannelGeoLocate::GSE_INTERNAL;
+				theClient.m_strIPAddress = strIPAddress;
+				QString strCSV = CWebChannelGeoLocate::jsonToCSV(json, theClient);
+				CCSVStream csv(&strCSV, QIODevice::ReadOnly);
+				QString strValue;
+				QString strLat;
+				bool bHaveData = false;
+				strGeoIP = "<table style=\"width:100%;\">";
+				csv >> strValue;			// strIP;
+				csv >> strValue; if (!strValue.isEmpty()) { strGeoIP += "<tr><td style=\"text-align:right;\">CountryCode:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">Country:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">RegionCode:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">Region:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">City:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">PostalCode:</td><td>" + strValue.toHtmlEscaped() + " </td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">TimeZone:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">Latitude:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				strLat = strValue;
+				csv >> strValue;
+				if (!strValue.isEmpty()) {
+					strGeoIP += "<tr><td style=\"text-align:right;\">Longitude:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">";
+					if (!strLat.isEmpty() && !strValue.isEmpty()) {
+						strGeoIP += "<button type=\"button\" onclick=\"javascript:mapLatLong(" + strLat + ", " + strValue + ");\">Display Map</button>";
+					} else {
+						strGeoIP += "&nbsp;";
+					}
+					strGeoIP += "</td></tr>";
+					bHaveData = true;
+				}
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">MetroCode:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				csv >> strValue; if (!strValue.isEmpty()) {  strGeoIP += "<tr><td style=\"text-align:right;\">ISP:</td><td>" + strValue.toHtmlEscaped() + "</td><td style=\"width:99%\">&nbsp;</td></tr>"; bHaveData = true; }
+				strGeoIP += "</table>";
+				if (!bHaveData) strGeoIP.clear();
+			}
+		}
+#endif
 		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td>%5</td><td style=\"text-align:center;\">%6</td><td style=\"white-space:nowrap;\">%7</td><td style=\"white-space:nowrap;\">%8</td></tr>\n")
 					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
 					.arg(itrChannels.key()->socket()->peerAddress().toString())
@@ -213,7 +265,11 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 					.arg(!pClientChannel.isNull() ? pClientChannel->connectionTime() : "")
 					.arg(!bAdmin ? ((!pClientChannel.isNull() && !pClientChannel->isIdle()) ? "Active" : "Idle") : "n/a")
 					.arg(bIsSearching ? pBibleDatabase->description() : QString())
-					.arg(!pClientChannel.isNull() ? pClientChannel->userAgent() : QString());
+					.arg(!pClientChannel.isNull() ? pClientChannel->userAgent().toHtmlEscaped() : QString());
+		if (!strGeoIP.isEmpty()) {
+			strClients += QString("<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>%1</td></tr>\n")
+						.arg(strGeoIP);
+		}
 		if ((pClientChannel.isNull()) || (pClientChannel->threadIndex() == -1)) {
 			++nNotSearching;
 		} else {
