@@ -19,6 +19,9 @@
 .svn
 *.qm
 
+# Keep wwWidgets translations (which are prebuilt, unlike those in 'programs'):
+!/support/wwWidgets/translations/*.qm
+
 # Build targets:
 /programs/qt-speech/festival/festival/
 /programs/qt-speech/festival/speech_tools/
