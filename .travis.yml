@@ -1,0 +1,124 @@
+sudo: required
+dist: trusty
+language: cpp
+
+ #
+ # This is a "reduced" .travis.yml that bypasses building the Qt dependencies, since the global timeout
+ # of travis-ci is too short to actually build that part.  These pieces have been built offline and
+ # made available to the travis server.
+ #
+
+env:
+ # ---------------------
+ # webchannel daemon build ( TODO: Rework this script to use these variables to create a build-matrix):
+ # ---------------------
+ - QT_SRC=$HOME/Qt/5.5.1-src QT_BUILD=$HOME/Qt/5.5.1-build QT_DIR=$HOME/Qt/5.5.1 KJPBS_BUILD=webchannel
+
+compiler:
+ - gcc
+
+# Handle git submodules ourselves (https://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci)
+git:
+  submodules: false
+
+before_install:
+ # ---------------------
+ # Use sed to replace the SSH URL with the public URL, then initialize submodules:
+ # ---------------------
+ - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+ - git submodule update --init --recursive
+ # ---------------------
+ # Install Dependencies:
+ # ---------------------
+ - sudo add-apt-repository -y ppa:maxmind/ppa
+ - sudo apt-get update -qq
+ - sudo apt-get install -qq --yes build-essential
+ - sudo apt-get install -qq --yes libmaxminddb0 libmaxminddb-dev mmdb-bin geoipupdate
+ # Downgrade Wayland support so libqt5* build-deps will resolve (since stock 14.04 LTS isn't Wayland):
+ - sudo apt-get install -qq --yes libopenvg1-mesa
+ # Easiest to slurp in Qt5 build dependencies, since we are building Qt5 as a pre-requisite:
+ - sudo apt-get build-dep -qq --yes libqt5core5a libqt5network5 libqt5widgets5
+ - sudo apt-get install -qq --yes gperf bison
+ # The following should be redundant, as they should be part of the build-dep above, but are essential:
+ - sudo apt-get install -qq --yes libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
+ - sudo apt-get install -qq --yes libfreetype6-dev fontconfig
+ - sudo apt-get install -qq --yes libjpeg-dev
+ - sudo apt-get install -qq --yes zlib1g zlib1g-dev
+ # A few helpers:
+ - sudo apt-get install -qq --yes perl python
+ - sudo apt-get install -qq --yes binfmt-support
+ - sudo apt-get install -qq --yes wget
+
+install:
+ # ---------------------
+ # Source linkage:
+ # ---------------------
+ - mkdir -p ~/Documents/programs/Bible
+ - ln -s $TRAVIS_BUILD_DIR ~/Documents/programs/Bible/KingJamesPureBibleSearch
+ # ---------------------
+ # Build Qt for building KJPBS console mode:
+ # ---------------------
+ - mkdir ~/Qt
+ - cd ~/Qt
+ - wget https://download.qt.io/official_releases/qt/5.5/5.5.1/single/qt-everywhere-opensource-src-5.5.1.tar.xz
+ - tar -xf qt-everywhere-opensource-src-5.5.1.tar.xz
+ - mv qt-everywhere-opensource-src-5.5.1 5.5.1-src
+ # ---------------------
+ # Get prebuilt Qt:
+ # ---------------------
+ - wget http://vnc.purebiblesearch.com/92836656-db29-4b90-bbab-07d098983e70/Qt_5.5.1_gcc_64_webchannel.tar.xz
+ - tar -xf Qt_5.5.1_gcc_64_webchannel.tar.xz
+ - sudo chown -R $USER:$USER 5.5.1/
+ # ---------------------
+ # Link Qt5 Source -> Qt4 Paths used in KJPBS:
+ # ---------------------
+ #- cd $QT_DIR
+ #- mkdir -p src/3rdparty
+ #- cd src/3rdparty/
+ #- cp -r $QT_SRC/qtbase/src/3rdparty/zlib* .
+ #- cd $QT_DIR
+ #- mkdir -p src/gui/mac/qt_menu.nib
+ #- cd src/gui/mac/qt_menu.nib
+ #- cp -r $QT_SRC/qtbase/src/plugins/platforms/cocoa/qt_menu.nib/* .
+ # ---------------------
+ # Build QtStylePlugins:
+ # ---------------------
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs
+ - mkdir build-qtstyleplugins_gcc_64_$KJPBS_BUILD
+ - cd build-qtstyleplugins_gcc_64_$KJPBS_BUILD
+ - $QT_DIR/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
+ - make install
+ # ---------------------
+ # Build wwWidgets:
+ # ---------------------
+ - cd $QT_DIR/..
+ - mkdir -p build-wwwidgets4_gcc_64_$KJPBS_BUILD/Release
+ - cd build-wwwidgets4_gcc_64_$KJPBS_BUILD/Release
+ - $QT_DIR/bin/qmake CONFIG+=release ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
+ - make install
+ - cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm $QT_DIR/translations/
+
+before_script:
+ # ---------------------
+ # Setup KJPBS Build Folder:
+ # ---------------------
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
+ - mkdir -p build-KJVCanOpener_gcc_64_$KJPBS_BUILD/Release
+ - cd build-KJVCanOpener_gcc_64_$KJPBS_BUILD/Release
+
+script:
+ # ---------------------
+ # Configure and Build KJPBS:
+ # ---------------------
+ - $QT_DIR/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel ../../KJVCanOpener/KJVCanOpener.pro
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
+ - ./KingJamesPureBibleSearch --help
+
