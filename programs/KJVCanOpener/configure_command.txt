@@ -789,6 +789,14 @@ cp KingJamesPureBibleSearch ~/webchannel/KJVCanOpener/app/
 Must have built ~/Qt/build-wwwidgets4-Qt_5_5_0_vnc/ and ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-qtstyleplugins-5_5_0_webchannel/
 
 
+====================
+    Qt 5.5.1
+====================
+
+Note: When building for Qt 5.5.1, it seems to be setup for Wayland and so the libinput.h stuff
+is missing when running on stock Kubuntu 14.04, so "-libinput" must be eliminated when doing
+the WebChannel build (not that it was ever needed anyway for the console version).
+
 
 ===============================================================================
 ===============================================================================
@@ -2717,7 +2725,7 @@ ln -s ~/Documents/programs/Bible/HLS-Stream-Creator/HLS-Stream-Creator.sh HLS-St
 ---------------------------
 ---------------------------
 
-Install MaxMindDB for GeoLocate for WebChanne;:
+Install MaxMindDB for GeoLocate for WebChannel:
 --------------------------------
 sudo add-apt-repository ppa:maxmind/ppa
 sudo apt-get update
