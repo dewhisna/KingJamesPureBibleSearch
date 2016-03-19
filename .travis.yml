@@ -1,4 +1,7 @@
+sudo: required
+dist: trusty
 language: cpp
+
 env:
  # webchannel daemon build:
  - QT_SRC=$HOME/Qt/5.5.1-src QT_BUILD=$HOME/Qt/5.5.1-build QT_DIR=$HOME/Qt/5.5.1 KJPBS_BUILD=webchannel
@@ -17,7 +20,7 @@ before_install:
  # Install Dependencies:
  - sudo apt-get update -qq
  - sudo apt-get install -qq --yes build-essential
- - sudo apt-get build-dep -qq --yes libqt5core* libqt5widgets* libqt5network*
+ - sudo apt-get build-dep -qq --yes libqt5core5a libqt5network5 libqt5widgets5
  - sudo apt-get install -qq --yes gperf bison
  - sudo apt-get install -qq --yes libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
  - sudo apt-get install -qq --yes perl python
@@ -40,7 +43,7 @@ install:
  - mkdir 5.5.1-build
  - cd 5.5.1-build
  - ../5.5.1-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake tests -opensource -confirm-license -prefix $HOME/Qt/5.5.1
- - make -j 8
+ - make -j 4
  - make install
  - cd ~/Qt/5.5.1
  - mkdir -p src/3rdparty
