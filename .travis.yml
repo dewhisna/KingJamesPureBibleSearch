@@ -6,7 +6,15 @@ env:
 compiler:
  - gcc
 
+# Handle git submodules ourselves (https://stackoverflow.com/questions/15674064/github-submodule-access-rights-travis-ci)
+git:
+  submodules: false
+
 before_install:
+ # Use sed to replace the SSH URL with the public URL, then initialize submodules
+ - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+ - git submodule update --init --recursive
+ # Install Dependencies:
  - sudo apt-get update -qq
  - sudo apt-get install -qq build-essential
  - sudo apt-get build-dep -qq libqt5core* libqt5widgets* libqt5network*
