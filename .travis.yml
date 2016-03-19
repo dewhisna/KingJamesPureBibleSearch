@@ -1,0 +1,72 @@
+language: cpp
+env:
+ - QT_SRC=$HOME/Qt/5.5.1-src
+ - QT_BUILD=$HOME/Qt/5.5.1-build
+ - QTDIR=$HOME/Qt/5.5.1
+
+compiler:
+ - gcc
+
+before_install:
+ - sudo apt-get update -qq
+ - sudo apt-get install -qq build-essential
+ - sudo apt-get build-dep -qq libqt5core* libqt5widgets* libqt5network*
+ - sudo apt-get install -qq gperf bison
+ - sudo apt-get install -qq libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
+ - sudo apt-get install -qq perl python
+ - sudo apt-get install -qq libfreetype6-dev fontconfig
+ - sudo apt-get install -qq libjpeg-dev
+ - sudo apt-get install -qq zlib1g zlib1g-dev
+ - sudo apt-get install -qq install binfmt-support
+ - sudo apt-get install -qq install lynx
+ - sudo apt-get install -qq install wget
+
+install:
+ # Source:
+ - mkdir -p ~/Documents/programs/Bible
+ - ln -s $TRAVIS_BUILD_DIR ~/Documents/programs/Bible/KingJamesPureBibleSearch
+ # Build Qt for building KJPBS console mode:
+ - mkdir ~/Qt
+ - cd ~/Qt
+ - wget https://download.qt.io/official_releases/qt/5.5/5.5.1/single/qt-everywhere-opensource-src-5.5.1.tar.xz
+ - tar -xvf qt-everywhere-opensource-src-5.5.1.tar.xz
+ - mv qt-everywhere-opensource-src-5.5.1 5.5.1-src
+ - mkdir 5.5.1-build
+ - cd 5.5.1-build
+ - ../5.5.1-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake tests -opensource -confirm-license -prefix $HOME/Qt/5.5.1
+ - make -j 8
+ - make install
+ - cd ~/Qt/5.5.1
+ - mkdir -p src/3rdparty
+ - cd src/3rdparty/
+ - cp -r ~/Qt/5.5.1-src/qtbase/src/3rdparty/zlib* .
+ - cd ~/Qt/5.5.1
+ - mkdir -p src/gui/mac/qt_menu.nib
+ - cd src/gui/mac/qt_menu.nib
+ - cp -r ~/Qt/5.5.1-src/qtbase/src/plugins/platforms/cocoa/qt_menu.nib/* .
+ # Build QtStylePlugins:
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs
+ - mkdir build-qtstyleplugins-5_5_1_gcc_64
+ - cd build-qtstyleplugins-5_5_1_gcc_64
+ - ~/Qt/5.5.1/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
+ - make
+ - make install
+ # Build wwWidgets:
+ - cd ~/Qt
+ - mkdir -p build-wwwidgets4-Qt_5_5_1/Release
+ - cd build-wwwidgets4-Qt_5_5_1/Release
+ - ~/Qt/5.5.1/bin/qmake CONFIG+=release ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
+ - make
+ - make install
+ - cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm ~/Qt/5.5.1/translations/
+
+before_script:
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
+ - mkdir -p build-KJVCanOpener-Qt_5_5_1_gcc_64/Release
+ - cd build-KJVCanOpener-Qt_5_5_1_gcc_64/Release
+
+script:
+ - ~/Qt/5.5.1/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel ../../KJVCanOpener/KJVCanOpener.pro
+ - make
+ - ./KingJamesPureBibleSearch --help
+
