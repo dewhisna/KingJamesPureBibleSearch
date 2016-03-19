@@ -38,12 +38,14 @@ install:
  - mkdir ~/Qt
  - cd ~/Qt
  - wget https://download.qt.io/official_releases/qt/5.5/5.5.1/single/qt-everywhere-opensource-src-5.5.1.tar.xz
- - tar -xvf qt-everywhere-opensource-src-5.5.1.tar.xz
+ - tar -xf qt-everywhere-opensource-src-5.5.1.tar.xz
  - mv qt-everywhere-opensource-src-5.5.1 5.5.1-src
  - mkdir 5.5.1-build
  - cd 5.5.1-build
  - ../5.5.1-src/configure -v -release -qt-zlib -qt-libpng -qt-libjpeg -qt-sql-sqlite -qt-freetype -qt-pcre -qt-xcb -qt-xkbcommon-x11 -libinput -fontconfig -directfb -linuxfb -nomake examples -nomake tests -opensource -confirm-license -prefix $HOME/Qt/5.5.1
- - make -j 4
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
  - make install
  - cd ~/Qt/5.5.1
  - mkdir -p src/3rdparty
@@ -58,14 +60,18 @@ install:
  - mkdir build-qtstyleplugins-5_5_1_gcc_64
  - cd build-qtstyleplugins-5_5_1_gcc_64
  - ~/Qt/5.5.1/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
- - make
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
  - make install
  # Build wwWidgets:
  - cd ~/Qt
  - mkdir -p build-wwwidgets4-Qt_5_5_1/Release
  - cd build-wwwidgets4-Qt_5_5_1/Release
  - ~/Qt/5.5.1/bin/qmake CONFIG+=release ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
- - make
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
  - make install
  - cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm ~/Qt/5.5.1/translations/
 
@@ -76,6 +82,8 @@ before_script:
 
 script:
  - ~/Qt/5.5.1/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel ../../KJVCanOpener/KJVCanOpener.pro
- - make
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4:
+ - ./travis_make_helper.sh
  - ./KingJamesPureBibleSearch --help
 
