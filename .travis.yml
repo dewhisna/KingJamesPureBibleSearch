@@ -1,8 +1,7 @@
 language: cpp
 env:
- - QT_SRC=$HOME/Qt/5.5.1-src
- - QT_BUILD=$HOME/Qt/5.5.1-build
- - QTDIR=$HOME/Qt/5.5.1
+ # webchannel daemon build:
+ - QT_SRC=$HOME/Qt/5.5.1-src QT_BUILD=$HOME/Qt/5.5.1-build QT_DIR=$HOME/Qt/5.5.1 KJPBS_BUILD=webchannel
 
 compiler:
  - gcc
