@@ -207,8 +207,13 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 			break;
 	}
 
-	// Add special End tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
-	if (bAddAnchors) strHebrewPrefix += QString("<a id=\"\"B%1\"\"> </a>").arg(ndx.asAnchor());
+	if (bAddAnchors) {
+		// Add special End tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+		strHebrewPrefix += QString("<a id=\"\"B%1\"\"> </a>").arg(ndx.asAnchor());
+	} else {
+		// Otherwise, just add a space:
+		strHebrewPrefix += " ";
+	}
 
 	return strHebrewPrefix;
 }
