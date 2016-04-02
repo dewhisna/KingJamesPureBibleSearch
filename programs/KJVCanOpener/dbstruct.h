@@ -45,7 +45,6 @@
 #ifndef NOT_USING_SQL
 #include <QSqlDatabase>
 #endif
-#include <QMetaType>
 
 #include <assert.h>
 
