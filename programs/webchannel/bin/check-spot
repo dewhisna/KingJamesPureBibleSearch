@@ -1,0 +1,17 @@
+#! /bin/bash
+
+if curl -s http://169.254.169.254/latest/meta-data/spot/termination-time | grep -q .*T.*Z; then
+    echo "*** Spot Instance is Terminating!:  $(date)" >> /home/ubuntu/webchannel/logs/process.errors
+    /usr/local/bin/aws sns publish --topic-arn arn:aws:sns:us-east-1:164682192160:KJPBS_Process --message "WARNING!  Spot Instance is Terminating!..."
+    case "$(pidof /home/ubuntu/webchannel/KJVCanOpener/app/KingJamesPureBibleSearch | wc -w)" in
+      0)  # Not running?
+          ;;
+      1)  # Shutdown running KJPBS WebChannel
+          echo "*** Halting KJPBS:  $(date)" >> /home/ubuntu/webchannel/logs/process.errors
+          kill -SIGHUP "$(pidof /home/ubuntu/webchannel/KJVCanOpener/app/KingJamesPureBibleSearch)"
+          ;;
+      *)  # Multiple running?
+          ;;
+    esac
+fi
+

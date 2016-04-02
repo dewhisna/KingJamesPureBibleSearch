@@ -2311,6 +2311,7 @@ webchannel/bin:
 cd ~/bin
 
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/check-kjpbs check-kjpbs
+ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/check-spot check-spot
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel webchannel
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-geolocate webchannel-geolocate
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/webchannel/bin/webchannel-geolocate-errors webchannel-geolocate-errors
@@ -2382,6 +2383,7 @@ crontab -e
 */5 * * * * /home/ubuntu/bin/aws-scripts-mon/mon-put-instance-data.pl --mem-used --mem-avail --mem-util --swap-util --swap-used --aws-credential-file=/home/ubuntu/bin/aws-scripts-mon/awscreds.vncserver --from-cron
 0 * * * * /home/ubuntu/bin/webchannel-update-stats
 */10 * * * * /home/ubuntu/bin/check-kjpbs
+*/1 * * * * /home/ubuntu/bin/check-spot
 
 Note: check-kjpbs will automatically launch webchannel!
 
