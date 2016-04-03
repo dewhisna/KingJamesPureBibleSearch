@@ -47,8 +47,14 @@
 #include <QTextCodec>
 #endif
 
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QHostAddress>
+#include <QByteArray>
+
 #include <iostream>
 #include <set>
+#include <assert.h>
 
 QMainWindow *g_pMainWindow = NULL;
 
@@ -67,6 +73,96 @@ namespace {
 
 }	// namespace
 
+// ============================================================================
+
+unsigned int g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_None;
+bool g_bIncludeRef = false;
+bool g_bUseAbbrRef = false;
+bool g_bUseHTML = false;
+bool g_bNoColorizeWordsOfJesus = false;
+bool g_bHideTransChange = false;
+bool g_bTransChangeAsBrackets = false;
+bool g_bHidePilcrows = false;
+bool g_bHidePs119 = false;
+bool g_bAddNewline = false;
+bool g_bQuiet = false;
+
+// ============================================================================
+
+QString doLookup(const QString &strReference)
+{
+	QString strResult;
+
+	if (!g_bQuiet) {
+		std::cerr << QString("Resolving: \"%1\"\n").arg(strReference).toUtf8().data();
+	}
+
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+
+	TPhraseTag tagRefIndex;
+
+	if (strReference.startsWith(QChar('#'))) {
+		tagRefIndex = TPhraseTag(CRelIndex(strReference.mid(1)));
+	} else {
+		CPassageReferenceResolver resolver(pBibleDatabase);
+		tagRefIndex = resolver.resolve(strReference);
+	}
+
+	if (!tagRefIndex.isSet() || !pBibleDatabase->completelyContains(tagRefIndex)) {
+		std::cerr << QString("\n*** ERROR: Bible Database doesn't contain reference \"%1\"!\n").arg(strReference).toUtf8().data();
+		return QString();
+	}
+
+	CVerseTextRichifierTags richifierTags = (g_bUseHTML ? CVerseTextRichifierTags() : CVerseTextPlainRichifierTags());
+	if (g_bNoColorizeWordsOfJesus) richifierTags.setWordsOfJesusTags(QString(), QString());
+	richifierTags.setShowPilcrowMarkers(!g_bHidePilcrows);
+	richifierTags.setAddRichPs119HebrewPrefix(!g_bHidePs119);
+	if (g_bHideTransChange) {
+		richifierTags.setTransChangeAddedTags(QString(), QString());
+	} else if (g_bTransChangeAsBrackets) {
+		richifierTags.setTransChangeAddedTags("[", "]");
+	}
+
+	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
+	bdbSettings.setHideHyphens(g_nHideHyphenOptions);
+	pBibleDatabase->setSettings(bdbSettings);
+
+	if (g_bIncludeRef) {
+		if (g_bUseHTML) strResult += "<b>";
+
+		CRelIndex relIndex = tagRefIndex.relIndex();
+		if (!relIndex.isColophon() && !relIndex.isSuperscription()) relIndex.setWord(0);
+		if (g_bUseAbbrRef) {
+			strResult += pBibleDatabase->PassageReferenceAbbrText(relIndex, true);
+		} else {
+			strResult += pBibleDatabase->PassageReferenceText(relIndex, true);
+		}
+
+		if (!g_bUseHTML) {
+			strResult += ": ";
+		} else {
+			strResult += "</b>";
+			strResult += "&nbsp;";
+		}
+	}
+	CRelIndex relIndexWord1 = tagRefIndex.relIndex();
+	relIndexWord1.setWord(1);
+	const CVerseEntry *pVerse = pBibleDatabase->verseEntry(relIndexWord1);
+	if (pVerse) {
+		strResult += CVerseTextRichifier::parse(relIndexWord1, pBibleDatabase.data(), pVerse, richifierTags);
+	} else {
+		if (!g_bUseHTML) {
+			strResult += "<NULL>";
+		} else {
+			strResult += "&lt;NULL&gt;";
+		}
+	}
+	if (g_bAddNewline) {
+		strResult += "\n";
+	}
+
+	return strResult;
+}
 
 // ============================================================================
 
@@ -90,17 +186,6 @@ int main(int argc, char *argv[])
 	TBibleDescriptor bblDescriptor;
 	QString strReference;
 	bool bUnknownOption = false;
-	unsigned int nHideHyphenOptions = TBibleDatabaseSettings::HHO_None;
-	bool bIncludeRef = false;
-	bool bUseAbbrRef = false;
-	bool bUseHTML = false;
-	bool bNoColorizeWordsOfJesus = false;
-	bool bHideTransChange = false;
-	bool bTransChangeAsBrackets = false;
-	bool bHidePilcrows = false;
-	bool bHidePs119 = false;
-	bool bAddNewline = false;
-	bool bQuiet = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -112,33 +197,33 @@ int main(int argc, char *argv[])
 				strReference = strArg;
 			}
 		} else if (strArg.compare("-h0") == 0) {
-			nHideHyphenOptions = TBibleDatabaseSettings::HHO_None;
+			g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_None;
 		} else if (strArg.compare("-h1") == 0) {
-			nHideHyphenOptions = TBibleDatabaseSettings::HHO_ProperWords;
+			g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_ProperWords;
 		} else if (strArg.compare("-h2") == 0) {
-			nHideHyphenOptions = TBibleDatabaseSettings::HHO_OrdinaryWords;
+			g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_OrdinaryWords;
 		} else if (strArg.compare("-h3") == 0) {
-			nHideHyphenOptions = TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords;
+			g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords;
 		} else if (strArg.compare("-r") == 0) {
-			bIncludeRef = true;
+			g_bIncludeRef = true;
 		} else if (strArg.compare("-a") == 0) {
-			bUseAbbrRef = true;
+			g_bUseAbbrRef = true;
 		} else if (strArg.compare("-m") == 0) {
-			bUseHTML = true;
+			g_bUseHTML = true;
 		} else if (strArg.compare("-j") == 0) {
-			bNoColorizeWordsOfJesus = true;
+			g_bNoColorizeWordsOfJesus = true;
 		} else if (strArg.compare("-t") == 0) {
-			bHideTransChange = true;
+			g_bHideTransChange = true;
 		} else if (strArg.compare("-b") == 0) {
-			bTransChangeAsBrackets = true;
+			g_bTransChangeAsBrackets = true;
 		} else if (strArg.compare("-p") == 0) {
-			bHidePilcrows = true;
+			g_bHidePilcrows = true;
 		} else if (strArg.compare("-119") == 0) {
-			bHidePs119 = true;
+			g_bHidePs119 = true;
 		} else if (strArg.compare("-n") == 0) {
-			bAddNewline = true;
+			g_bAddNewline = true;
 		} else if (strArg.compare("-q") == 0) {
-			bQuiet = true;
+			g_bQuiet = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -173,6 +258,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Reference : Can be #nnnn anchor format or Phrase Ref to parse\n").toUtf8().data();
 		std::cerr << QString("         Examples:  #721620992\n").toUtf8().data();
 		std::cerr << QString("                    \"jn 3:16\"\n\n").toUtf8().data();
+		std::cerr << QString("   OR, use ^pppp to listen on port 'pppp' as a server\n").toUtf8().data();
+		std::cerr << QString("         Example:   ^12345 (listen on port 12345)\n\n").toUtf8().data();
 		return -1;
 	}
 
@@ -185,7 +272,7 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	if (!bQuiet) {
+	if (!g_bQuiet) {
 		std::cerr << QString("Reading database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
 	}
 
@@ -203,75 +290,54 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	if (!bQuiet) {
-		std::cerr << QString("Resolving: \"%1\"\n").arg(strReference).toUtf8().data();
-	}
-
-	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
-
-	TPhraseTag tagRefIndex;
-
-	if (strReference.startsWith(QChar('#'))) {
-		tagRefIndex = TPhraseTag(CRelIndex(strReference.mid(1)));
-	} else {
-		CPassageReferenceResolver resolver(pBibleDatabase);
-		tagRefIndex = resolver.resolve(strReference);
-	}
-
-	if (!tagRefIndex.isSet() || !pBibleDatabase->completelyContains(tagRefIndex)) {
-		std::cerr << QString("\n*** ERROR: Bible Database doesn't contain reference \"%1\"!\n").arg(strReference).toUtf8().data();
-		return -4;
-	}
-
-	CVerseTextRichifierTags richifierTags = (bUseHTML ? CVerseTextRichifierTags() : CVerseTextPlainRichifierTags());
-	if (bNoColorizeWordsOfJesus) richifierTags.setWordsOfJesusTags(QString(), QString());
-	richifierTags.setShowPilcrowMarkers(!bHidePilcrows);
-	richifierTags.setAddRichPs119HebrewPrefix(!bHidePs119);
-	if (bHideTransChange) {
-		richifierTags.setTransChangeAddedTags(QString(), QString());
-	} else if (bTransChangeAsBrackets) {
-		richifierTags.setTransChangeAddedTags("[", "]");
-	}
-
-	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
-	bdbSettings.setHideHyphens(nHideHyphenOptions);
-	pBibleDatabase->setSettings(bdbSettings);
-
-	if (bIncludeRef) {
-		if (bUseHTML) std::cout << "<b>";
-
-		CRelIndex relIndex = tagRefIndex.relIndex();
-		if (!relIndex.isColophon() && !relIndex.isSuperscription()) relIndex.setWord(0);
-		if (bUseAbbrRef) {
-			std::cout << pBibleDatabase->PassageReferenceAbbrText(relIndex, true).toUtf8().data();
-		} else {
-			std::cout << pBibleDatabase->PassageReferenceText(relIndex, true).toUtf8().data();
-		}
-
-		if (!bUseHTML) {
-			std::cout << ": ";
-		} else {
-			std::cout << "</b>";
-			std::cout << "&nbsp;";
-		}
-	}
-	CRelIndex relIndexWord1 = tagRefIndex.relIndex();
-	relIndexWord1.setWord(1);
-	const CVerseEntry *pVerse = pBibleDatabase->verseEntry(relIndexWord1);
-	if (pVerse) {
-		std::cout << CVerseTextRichifier::parse(relIndexWord1, pBibleDatabase.data(), pVerse, richifierTags).toUtf8().data();
-	} else {
-		if (!bUseHTML) {
-			std::cout << "<NULL>";
-		} else {
-			std::cout << "&lt;NULL&gt;";
-		}
-	}
-	if (bAddNewline) {
-		std::cout << "\n";
+	// Handle non-server case:
+	if (!strReference.startsWith(QChar('^'))) {
+		std::cout << doLookup(strReference).toUtf8().data();
+		return 0;
 	}
 
 	// ------------------------------------------------------------------------
+
+	// Run lookup server here:
+	QTcpServer myServer;
+
+	if (!g_bQuiet) {
+		std::cerr << QString("Starting KJVLookup server on port: %1\n").arg(strReference.mid(1)).toUtf8().data();
+	}
+
+	// Force newline in server mode so that client can do a readLine:
+	g_bAddNewline = true;
+
+	if (!myServer.listen(QHostAddress::LocalHost, strReference.mid(1).toUInt())) {
+		std::cerr << QString("*** ERROR: Failed to start KJVLookup on port %1\n%2\n").arg(strReference.mid(1)).arg(myServer.errorString()).toUtf8().data();
+		return -4;
+	}
+
+	if (!myServer.waitForNewConnection(-1)) {
+		std::cerr << QString("*** ERROR: Failed to receive client connection\n%1\n").arg(myServer.errorString()).toUtf8().data();
+		return -5;
+	}
+
+	if (!g_bQuiet) {
+		std::cerr << "Client connected... waiting for read...\n";
+	}
+
+	QTcpSocket *pClient = myServer.nextPendingConnection();
+	assert(pClient);
+	if (pClient) {
+		while (pClient->waitForReadyRead(30000)) {		// Must see commands in 30 second window
+			QByteArray baCommand = pClient->readLine();
+			QString strCommand(baCommand);
+			if (strCommand.startsWith(":lookup:")) {
+				pClient->write(doLookup(strCommand.mid(8).trimmed()).toUtf8());
+				pClient->waitForBytesWritten();		// ?? needed ??
+			} else if (strCommand.startsWith(":quit:")) {
+				break;				// Drop out of loop and drop connection
+			} else {
+				std::cerr << QString("Unknown command received: \"%1\"\n").arg(strCommand).toUtf8().data();
+			}
+		}
+	}
 
 //	return a.exec();
 	return 0;
