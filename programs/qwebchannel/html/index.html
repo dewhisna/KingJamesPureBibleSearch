@@ -460,9 +460,9 @@
 				tdInput.append('<input class="searchPhraseText" id="searchPhrase_' + nSearchPhraseNextID + '_Text" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onchange="javascript:searchPhraseChanged(\'searchPhrase_' + nSearchPhraseNextID + '\');" />')
 							.on('change keyup paste input', function() { searchPhraseTextChanged($(this).parents(".searchPhrase").attr("id")); });
 				var tdBesome = trInput.find("td").first().next().next();
-				tdBesome.append('<input type="image" value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" src="edit_clear.png" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
+				tdBesome.append('<button value="Clear" class="searchPhraseBesome" id="searchPhrase_' + nSearchPhraseNextID + '_Besome" onclick="javascript:searchPhraseBesome(\'searchPhrase_' + nSearchPhraseNextID + '\');"><img height="100%" style="border: none; margin: 0; padding: 0;" src="edit_clear.png" /></button>');
 				var tdClose = trInput.find("td").first().next().next().next();
-				tdClose.append('<input type="image" value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" src="Close.png" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');" />');
+				tdClose.append('<button value="Close" class="searchPhraseClose" id="searchPhrase_' + nSearchPhraseNextID + '_Close" onclick="javascript:searchPhraseClose(\'searchPhrase_' + nSearchPhraseNextID + '\');"><img height="100%" style="border: none; margin: 0; padding: 0;" src="Close.png" /></button>');
 				phraseTable.append('<tr></tr>');
 				var trOpts = phraseTable.find("tr").first().next().next().next();
 				trOpts.append('<td colspan="4"></td>');
@@ -1241,15 +1241,22 @@
 				max-width: 100%;
 			}
 			.searchPhraseBesome {
-				width: 24px;
-				height: 24px;
+				width: 32px;
+				height: 32px;
 				margin: 0 auto;
-
+				background: none;
+				border: 0;
+				box-shadow: none;
+				border-radius: 0px;
 			}
 			.searchPhraseClose {
-				width: 24px;
-				height: 24px;
+				width: 32px;
+				height: 32px;
 				margin: 0 auto;
+				background: none;
+				border: 0;
+				box-shadow: none;
+				border-radius: 0px;
 			}
 			.searchPhraseBreak {
 				max-width: 100%;
