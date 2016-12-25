@@ -18,6 +18,7 @@
 .DS_Store
 .svn
 *.qm
+*.pyc
 
 # Keep wwWidgets translations (which are prebuilt, unlike those in 'programs'):
 !/support/wwWidgets/translations/*.qm
