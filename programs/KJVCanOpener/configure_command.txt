@@ -252,6 +252,16 @@ http://github.com/kanaka/noVNC
 Note: "-platform" should be used above instead of "-xplatform" so that it knows it's a native build and will use local threading support and things like notifyFileSystemWatcher, which Qt won't do correctly if it thinks it's a full cross-compile.  HOWEVER, you must run qmake with "-spec qws/vnc-linux-x86_64-g++" in addition to "CONFIG+=release" and the project file/path so that it properly includes the mkspec to define "vnc" and "VNCSERVER" or else KJPBS won't build correctly!!!
 
 
+Compile KJPBS with:
+
+~/Qt/4.8.5-vnc-run/bin/qmake -spec /home/ubuntu/Qt/4.8.5-vnc-run/mkspecs/qws/vnc-linux-x86_64-g++ CONFIG+=release -o Makefile ../../KJVCanOpener/KJVCanOpener.pro
+make -j 4
+Copy to /var/www/KingJamesPureBibleSearch/KJVCanOpener/app/KingJamesPureBibleSearch with sticky bits:
+-rwxr-sr-x 1 kjpbs kjpbs 6245526 Oct  5  2015 /var/www/KingJamesPureBibleSearch/KJVCanOpener/app/KingJamesPureBibleSearch*
+
+NOTE: If you manually launch KingJamesPureBibleSearch as VNC QWS canvas as a user other than 'pbsuser01', make certain to delete '/tmp/qtembedded-0/' or the noVNC server will fail to launch!!!  Same applies for other user entries!
+
+
 ---- Tested with ----
 
 Building with libvncserver:
@@ -2032,6 +2042,12 @@ sudo cpan -i CGI
 sudo cpan -i Captcha::reCAPTCHA
 
 
+sudo apt-get install novnc								## useful for future migration, but not presently needed since we have self-encapsulated noVNC
+sudo apt install xfce4 xfce4-goodies tightvncserver		## needed for VNC (but not for noVNC setup)
+
+NOTE: If you manually launch KingJamesPureBibleSearch as VNC QWS canvas as a user other than 'pbsuser01', make certain to delete '/tmp/qtembedded-0/' or the noVNC server will fail to launch!!!  Same applies for other user entries!
+
+
 Apache Config Files needing updates:
 ------------------------------------
 /etc/apache2/apache2.conf
@@ -2609,19 +2625,35 @@ sudo apt-get install youtube-dl
 sudo apt-get install mediainfo
 sudo joe /etc/apt/sources.list
 	-- Uncomment following:
-	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
-	# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
-	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
-	# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
-	----
-	# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
-	# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
-	----
-	# deb http://archive.canonical.com/ubuntu trusty partner
-	# deb-src http://archive.canonical.com/ubuntu trusty partner
-	----
-	# deb http://security.ubuntu.com/ubuntu trusty-security multiverse
-	# deb-src http://security.ubuntu.com/ubuntu trusty-security multiverse
+		(14.04 Trusty):
+			# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+			# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty multiverse
+			# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+			# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-updates multiverse
+			----
+			# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
+			# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse
+			----
+			# deb http://archive.canonical.com/ubuntu trusty partner
+			# deb-src http://archive.canonical.com/ubuntu trusty partner
+			----
+			# deb http://security.ubuntu.com/ubuntu trusty-security multiverse
+			# deb-src http://security.ubuntu.com/ubuntu trusty-security multiverse
+			----
+		(16.04 Xenial):
+			# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ xenial multiverse
+			# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ xenial multiverse
+			# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ xenial-updates multiverse
+			# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ xenial-updates multiverse
+			----
+			# deb http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
+			# deb-src http://us-east-1.ec2.archive.ubuntu.com/ubuntu/ xenial-backports main restricted universe multiverse
+			----
+			# deb http://security.ubuntu.com/ubuntu xenial-security main restricted multiverse
+			# deb-src http://security.ubuntu.com/ubuntu xenial-security main
+			# deb http://security.ubuntu.com/ubuntu xenial-security universe
+			# deb-src http://security.ubuntu.com/ubuntu xenial-security universe
+			----
 --------------------
 sudo apt-get update
 sudo apt-file update
@@ -2652,7 +2684,8 @@ sudo apt-get install libmp3lame0 libmp3lame-dev
 ----- libopus:
 sudo apt-get install libopus0 libopus-dev
 ----- libvpx:
-sudo apt-get install libvpx1 libvpx-dev
+sudo apt-get install libvpx1 libvpx-dev		## <<< This is on Ubuntu 14.04 only
+sudo apt-get install libvpx3 libvpx-dev		## <<< This is new package on Ubuntu 16.04
 ----- ffmpeg:
 cd ~/ffmpeg_sources
 wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
@@ -2688,9 +2721,12 @@ Install s3cmd:
 cd ~/Downloads/software/aws
 mkdir s3cmd
 cd s3cmd
-Download or copy: s3cmd-1.5.0-beta1.tar.gz
-tar -zxvf s3cmd-1.5.0-beta1.tar.gz
-cd s3cmd-1.5.0-beta1
+	Download or copy: s3cmd-1.5.0-beta1.tar.gz
+	tar -zxvf s3cmd-1.5.0-beta1.tar.gz
+	cd s3cmd-1.5.0-beta1
+or
+	git clone git@github.com:s3tools/s3cmd.git
+	cd s3cmd
 sudo python setup.py install
 s3cmd --configure
 sudo apt-get install python-magic
