@@ -1885,7 +1885,9 @@ int main(int argc, char *argv[])
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
 		if ((pBook == NULL) || (pBook->m_strTblName.isEmpty())) {
-			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toUtf8().data();
+			QString strBookName = pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0));
+			if (strBookName.isEmpty()) strBookName = g_arrBooks[nBk-1].m_strName;
+			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(strBookName).toUtf8().data();
 			continue;
 		}
 		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
