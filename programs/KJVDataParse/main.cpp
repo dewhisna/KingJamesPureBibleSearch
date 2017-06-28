@@ -534,6 +534,8 @@ public:
 
 	QString parsedUTF8Chars() const { return m_strParsedUTF8Chars; }
 
+	const CBookEntry *addBookToBibleDatabase(unsigned int nBk);
+
 protected:
 	int findAttribute(const QXmlAttributes &attr, const QString &strName) {
 		for (int i = 0; i < attr.count(); ++i) {
@@ -629,11 +631,11 @@ static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
 
 	// note: Shift nBk to be an zero based since book indexes are normally one-based:
 	--nBk;
-	if (static_cast<unsigned int>(nBk) < NUM_BK_OT) {
+	if (nBk < NUM_BK_OT) {
 		nTst = 1;
-	} else if (static_cast<unsigned int>(nBk) < (NUM_BK_OT + NUM_BK_NT)) {
+	} else if (nBk < (NUM_BK_OT + NUM_BK_NT)) {
 		nTst = 2;
-	} else if (static_cast<unsigned int>(nBk) < (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)) {
+	} else if (nBk < (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)) {
 		nTst = 3;
 	} else {
 		nTst = 0;
@@ -641,6 +643,55 @@ static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
 	}
 
 	return nTst;
+}
+
+static unsigned int bookIndexToTestamentBookIndex(unsigned int nBk)
+{
+	// Note: nBk is one-based
+	if (nBk <= NUM_BK_OT) {
+		return nBk;
+	} else if (nBk <= (NUM_BK_OT + NUM_BK_NT)) {
+		return nBk-NUM_BK_OT;
+	} else if (nBk <= (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)) {
+		return nBk-NUM_BK_OT-NUM_BK_NT;
+	} else {
+		return nBk-NUM_BK_OT-NUM_BK_NT-NUM_BK_APOC;
+	}
+}
+
+const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
+{
+	unsigned int nTst = bookIndexToTestamentIndex(nBk);
+
+	// Make nBk 0-based to simplify:
+	--nBk;
+
+	m_pBibleDatabase->m_EntireBible.m_nNumBk++;
+	m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk++;
+	m_pBibleDatabase->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBooks.size())));
+	m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = bookIndexToTestamentBookIndex(nBk+1);
+	m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
+	m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
+	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strOsisAbbr);
+	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), QString::SkipEmptyParts));
+	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
+
+	TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
+	while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
+		if (itrCat->m_strCategoryName.compare(g_arrBooks[nBk].m_strCategory) == 0) break;
+		++itrCat;
+	}
+	if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
+		m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBooks[nBk].m_strCategory));
+		itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
+	}
+	itrCat->m_setBooksNum.insert(nBk+1);
+	m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
+
+	m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
+	m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
+
+	return &m_pBibleDatabase->m_lstBooks[nBk];
 }
 
 bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts)
@@ -933,30 +984,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			nTst = bookIndexToTestamentIndex(nBk+1);
 			m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
 			if (m_ndxCurrent.chapter() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
-				m_pBibleDatabase->m_EntireBible.m_nNumBk++;
-				m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk++;
-				m_pBibleDatabase->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBooks.size())));
-				m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk;
-				m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
-				m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
-				m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strOsisAbbr);
-				m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), QString::SkipEmptyParts));
-				m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
-
-				TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
-				while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
-					if (itrCat->m_strCategoryName.compare(g_arrBooks[nBk].m_strCategory) == 0) break;
-					++itrCat;
-				}
-				if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
-					m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBooks[nBk].m_strCategory));
-					itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
-				}
-				itrCat->m_setBooksNum.insert(nBk+1);
-				m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
-
-				m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
-				m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
+				addBookToBibleDatabase(nBk+1);
 			}
 			assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 			if (m_ndxCurrent.chapter() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
@@ -1884,11 +1912,11 @@ int main(int argc, char *argv[])
 			lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
+		bool bHadBook = true;
 		if ((pBook == NULL) || (pBook->m_strTblName.isEmpty())) {
-			QString strBookName = pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0));
-			if (strBookName.isEmpty()) strBookName = g_arrBooks[nBk-1].m_strName;
-			std::cerr << QString("\n*** ERROR: Module is missing Book : %1\n").arg(strBookName).toUtf8().data();
-			continue;
+			bHadBook = false;
+			pBook = xmlHandler.addBookToBibleDatabase(nBk);
+			std::cerr << QString("\n*** WARNING: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toUtf8().data();
 		}
 		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
 
@@ -1929,7 +1957,7 @@ int main(int argc, char *argv[])
 			Q_UNUSED(bChapterMissing);
 			if ((nChp != 0) && (pChapter == NULL)) {
 				bChapterMissing = true;
-				if (nChp >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse.chapter()) {
+				if ((nChp >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse.chapter()) && (bHadBook)) {
 					std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 				}
 				pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0), true);
@@ -1967,7 +1995,7 @@ int main(int argc, char *argv[])
 				if (pVerse == NULL) {
 					if ((nChp == 0) || (nVrs == 0)) assert(false);
 					bVerseMissing = true;
-					if (CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) {
+					if ((CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) && (bHadBook)) {
 						std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 					}
 					pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0), true);
