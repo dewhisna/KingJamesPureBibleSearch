@@ -1779,4 +1779,14 @@ int CMyApplication::execute(bool bBuildDB)
 	return 0;
 }
 
+// executeEvent is a wrapper for execute() to handle the QTimer::singleShot() calls to
+//		post an quit/exit to the application if execute() returns an error (non-zero) value
+void CMyApplication::executeEvent(bool bBuildDB)
+{
+	int nRetVal = execute(bBuildDB);
+	if (nRetVal != 0) {
+		exit(nRetVal);			// If KJPBS fails to start, exit with an error code
+	}
+}
+
 // ============================================================================

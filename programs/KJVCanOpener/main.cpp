@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
 		nRetVal = pApp->execute(bBuildDB);
 	} else {
 		if (!bBuildDB) {
-			QTimer::singleShot(100, pApp, SLOT(execute()));
+			QTimer::singleShot(100, pApp, SLOT(executeEvent()));
 		} else {
 			nRetVal = pApp->execute(bBuildDB);
 		}
@@ -485,7 +485,7 @@ int main(int argc, char *argv[])
 #endif
 	if (pSplash != NULL) {
 		nRetVal = pApp->exec();
-		QTimer::singleShot(2000, pApp, SLOT(execute()));
+		QTimer::singleShot(2000, pApp, SLOT(executeEvent()));
 	} else {
 		nRetVal = pApp->execute(bBuildDB);
 		if (nRetVal == 0) pApp->exec();

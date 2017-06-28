@@ -210,8 +210,9 @@ public:
 
 	QString createKJPBSMessage(KJPBS_APP_MESSAGE_COMMAND_ENUM nCommand, const QStringList &lstArgs) const;
 
-public slots:
 	int execute(bool bBuildDB = false);
+public slots:
+	void executeEvent(bool bBuildDB = false);
 	void receivedKJPBSMessage(const QString &strMessage);
 	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
 	void activateCanOpener(int ndx) const;
