@@ -495,7 +495,8 @@ public:
 			m_nDelayedPilcrow(CVerseEntry::PTE_NONE),
 			m_strLanguage("en"),
 			m_bNoColophonVerses(false),
-			m_bNoSuperscriptionVerses(false)
+			m_bNoSuperscriptionVerses(false),
+			m_bFoundSegVariant(false)
 	{
 		g_setBooks();
 		g_setTstNames();
@@ -512,8 +513,14 @@ public:
 
 	// Properties:
 	void setNoColophonVerses(bool bNoColophonVerses) { m_bNoColophonVerses = bNoColophonVerses; }
+	bool noColophonVerses() const { return m_bNoColophonVerses; }
 	void setNoSuperscriptionVerses(bool bNoSuperscriptionVerses) { m_bNoSuperscriptionVerses = bNoSuperscriptionVerses; }
+	bool noSuperscriptionVerses() const { return m_bNoSuperscriptionVerses; }
 	void setBracketItalics(bool bBracketItalics) { m_bBracketItalics = bBracketItalics; }
+	bool bracketItalics() const { return m_bBracketItalics; }
+	void setSegVariant(const QString &strSegVariant) { m_strSegVariant = strSegVariant; }
+	QString segVariant() const { return m_strSegVariant; }
+	bool foundSegVariant() const { return m_bFoundSegVariant; }
 
 	// Parsing:
 	QStringList elementNames() const { return m_lstElementNames; }
@@ -622,6 +629,9 @@ private:
 	bool m_bNoColophonVerses;
 	bool m_bNoSuperscriptionVerses;
 	bool m_bBracketItalics;
+	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
+	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
+	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
 };
 
 static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
@@ -1114,6 +1124,18 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		} else {
 			m_nDelayedPilcrow = nPilcrow;
 		}
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
+		// <seg subType="x-1" type="x-variant">
+		ndx = findAttribute(atts, "type");		// TODO : In addition to 'x-variant', add support for full OSIS 'variant', which is currently a work-in-progress
+		if ((ndx != -1) && (atts.value(ndx).compare("x-variant", Qt::CaseInsensitive) == 0)) {
+			ndx = findAttribute(atts, "subType");
+			if (ndx != -1) {
+				m_strCurrentSegVariant = atts.value(ndx);
+				if ((m_strSegVariant.isEmpty()) || (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) == 0)) {
+					m_bFoundSegVariant = true;
+				}
+			}
+		}
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = true;
 		CVerseEntry &verse = activeVerseEntry();
@@ -1230,6 +1252,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		endVerseEntry(m_ndxCurrent);
 	} else if ((m_bInNotes) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = false;
+	} else if (localName.compare("seg", Qt::CaseInsensitive) == 0) {
+		m_strCurrentSegVariant.clear();
 	} else if ((m_bInLemma) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = false;
 		CVerseEntry &verse = activeVerseEntry();
@@ -1269,6 +1293,9 @@ bool COSISXmlHandler::characters(const QString &ch)
 		m_pBibleDatabase->m_strDescription += strTemp;
 	} else if (m_bCaptureLang) {
 		m_strLanguage += strTemp;
+	} else if ((!m_strCurrentSegVariant.isEmpty()) && (!m_strSegVariant.isEmpty()) && (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) != 0)) {
+		// Eat the characters if we are in a <seg> variant other than the one specified to capture,
+		//		and we were actually given a <seg> variant to capture...
 	} else if (m_bInColophon) {
 		assert(m_ndxColophon.isSet());
 		if (m_ndxColophon.isSet()) {
@@ -1732,19 +1759,26 @@ int main(int argc, char *argv[])
 	QString strOSISFilename;
 	QString strInfoFilename;
 	QString strOutputPath;
+	bool bLookingforSegVariant = false;
+	QString strSegVariant;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
 		if (!strArg.startsWith("-")) {
-			++nArgsFound;
-			if (nArgsFound == 1) {
-				nDescriptor = strArg.toInt();
-			} else if (nArgsFound == 2) {
-				strOSISFilename = strArg;
-			} else if (nArgsFound == 3) {
-				strInfoFilename = strArg;
-			} else if (nArgsFound == 4) {
-				strOutputPath = strArg;
+			if (bLookingforSegVariant) {
+				strSegVariant = strArg;
+				bLookingforSegVariant = false;
+			} else {
+				++nArgsFound;
+				if (nArgsFound == 1) {
+					nDescriptor = strArg.toInt();
+				} else if (nArgsFound == 2) {
+					strOSISFilename = strArg;
+				} else if (nArgsFound == 3) {
+					strInfoFilename = strArg;
+				} else if (nArgsFound == 4) {
+					strOutputPath = strArg;
+				}
 			}
 		} else if (strArg.compare("-c") == 0) {
 			bNoColophonVerses = true;
@@ -1752,6 +1786,8 @@ int main(int argc, char *argv[])
 			bNoSuperscriptionVerses = true;
 		} else if (strArg.compare("-i") == 0) {
 			bBracketItalics = true;
+		} else if (strArg.compare("-v") == 0) {
+			bLookingforSegVariant = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -1767,6 +1803,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses\n").toUtf8().data();
 		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses\n").toUtf8().data();
 		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
+		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -1806,6 +1843,7 @@ int main(int argc, char *argv[])
 	xmlHandler.setNoColophonVerses(bNoColophonVerses);
 	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
 	xmlHandler.setBracketItalics(bBracketItalics);
+	xmlHandler.setSegVariant(strSegVariant);
 
 	xmlReader.setContentHandler(&xmlHandler);
 	xmlReader.setErrorHandler(&xmlHandler);
@@ -2305,6 +2343,17 @@ int main(int argc, char *argv[])
 
 	fileWordSummary.close();
 	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+
+	if (strSegVariant.isEmpty() && xmlHandler.foundSegVariant()) {
+		std::cerr << "\n"
+					 "*** WARNING: Text contains seg variant text tags and no variant to parse was specified!\n"
+					 "             Resulting database file will contain all variants run together!!\n\n";
+	} else if (!strSegVariant.isEmpty() && !xmlHandler.foundSegVariant()) {
+		std::cerr << "\n"
+					 "*** WARNING: Specified seg variant wasn't found!  Resulting database file may be missing text!!\n\n";
+	}
 
 	// ------------------------------------------------------------------------
 
