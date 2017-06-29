@@ -1866,6 +1866,7 @@ int main(int argc, char *argv[])
 	QFile fileWords;		// Words CSV being written
 	QFile fileFootnotes;	// Footnotes CSV being written
 	QFile fileWordSummary;	// Words Summary CSV being written
+	QFile filePhrases;		// Default search phrases CSV being written (deprecated)
 
 	QFileInfo fiInfoFile(strInfoFilename);
 	if (!strInfoFilename.isEmpty()) {
@@ -2385,6 +2386,24 @@ int main(int argc, char *argv[])
 	}
 
 	fileFootnotes.close();
+	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+
+	// Phrases are somewhat deprecated.  Write an empty PHRASES file so that the
+	//	KJPBS build will succeed.  The person doing the build can always override
+	//	it with a meaningful phrases file.
+	filePhrases.setFileName(dirOutput.absoluteFilePath("PHRASES.csv"));
+	if (!filePhrases.open(QIODevice::WriteOnly)) {
+		std::cerr << QString("\n\n*** Failed to open Phrases Output File \"%1\"\n").arg(filePhrases.fileName()).toUtf8().data();
+		return -9;
+	}
+	std::cerr << QFileInfo(filePhrases).fileName().toUtf8().data();
+
+	filePhrases.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+	filePhrases.write(QString("Ndx,Phrase,CaseSensitive,AccentSensitive,Exclude\r\n").toUtf8());
+
+	filePhrases.close();
 	std::cerr << "\n";
 
 	// ------------------------------------------------------------------------
