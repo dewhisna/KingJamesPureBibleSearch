@@ -2123,14 +2123,16 @@ int main(int argc, char *argv[])
 				nChapterWordAccum += nVerseWordAccum;		// Book has words of Colophons that aren't part of chapters proper
 			}
 
-			// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
-			fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
-							   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
-							   .arg(pChapter->m_nNumVrs)					// 2
-							   .arg(pChapter->m_nNumWrd)					// 3
-							   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
-							   .arg(nChp)									// 5
-							   .toUtf8());
+			if (pChapter != NULL) {
+				// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
+				fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
+								   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
+								   .arg(pChapter->m_nNumVrs)					// 2
+								   .arg(pChapter->m_nNumWrd)					// 3
+								   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
+								   .arg(nChp)									// 5
+								   .toUtf8());
+			}
 
 		}
 		if (nChapterWordAccum != pBook->m_nNumWrd) {
