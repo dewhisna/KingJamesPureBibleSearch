@@ -495,6 +495,7 @@ public:
 			m_nDelayedPilcrow(CVerseEntry::PTE_NONE),
 			m_strLanguage("en"),
 			m_bNoColophonVerses(false),
+			m_bUseBracketColophons(false),
 			m_bNoSuperscriptionVerses(false),
 			m_bFoundSegVariant(false)
 	{
@@ -514,6 +515,8 @@ public:
 	// Properties:
 	void setNoColophonVerses(bool bNoColophonVerses) { m_bNoColophonVerses = bNoColophonVerses; }
 	bool noColophonVerses() const { return m_bNoColophonVerses; }
+	void setUseBracketColophons(bool bUseBracketColophons) { m_bUseBracketColophons = bUseBracketColophons; }
+	bool useBracketColophons() const { return m_bUseBracketColophons; }
 	void setNoSuperscriptionVerses(bool bNoSuperscriptionVerses) { m_bNoSuperscriptionVerses = bNoSuperscriptionVerses; }
 	bool noSuperscriptionVerses() const { return m_bNoSuperscriptionVerses; }
 	void setBracketItalics(bool bBracketItalics) { m_bBracketItalics = bBracketItalics; }
@@ -627,6 +630,7 @@ private:
 	QString m_strLanguage;
 	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;
+	bool m_bUseBracketColophons;		// Treat "[" and "]" as a colophon marker
 	bool m_bNoSuperscriptionVerses;
 	bool m_bBracketItalics;
 	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
@@ -878,13 +882,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		}
 		if (findAttribute(atts, "sID") != -1) {
 			// Start of open-ended colophon:
-			if (m_bInColophon) {
+			if (m_bInColophon && !m_bUseBracketColophons) {
 				std::cerr << "\n*** Start of open-ended colophon before end of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
 			}
 			startVerseEntry(m_ndxColophon, true);
 		} else if (findAttribute(atts, "eID") != -1) {
 			// End of open-ended colophon:
-			if (!m_bInColophon) {
+			if (!m_bInColophon && !m_bUseBracketColophons) {
 				std::cerr << "\n*** End of open-ended colophon before start of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
 			} else {
 				// We can have nested Words of Jesus with open form:
@@ -1229,7 +1233,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		}
 	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
 		m_bInForeignText = false;
-	} else if ((m_bInColophon) && (!m_bOpenEndedColophon) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInColophon) && (!m_bOpenEndedColophon) && (!m_bUseBracketColophons) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
 		endVerseEntry(m_ndxColophon);
 	} else if ((m_xfteFormatType == XFTE_ZEFANIA) && (!m_bInVerse) && (localName.compare("BIBLEBOOK", Qt::CaseInsensitive) == 0)) {
 		m_ndxCurrent = CRelIndex();
@@ -1296,7 +1300,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 	} else if ((!m_strCurrentSegVariant.isEmpty()) && (!m_strSegVariant.isEmpty()) && (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) != 0)) {
 		// Eat the characters if we are in a <seg> variant other than the one specified to capture,
 		//		and we were actually given a <seg> variant to capture...
-	} else if (m_bInColophon) {
+	} else if (m_bInColophon && !m_bUseBracketColophons) {
 		assert(m_ndxColophon.isSet());
 		if (m_ndxColophon.isSet()) {
 			// TODO : Eventually remove the "footnote" version of colophon?
@@ -1487,7 +1491,53 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 
 	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 
-	if (m_bBracketItalics) {
+	// Do bracket colophons ahead of bracket italics
+	if ((m_bUseBracketColophons) && (nVT == VT_VERSE)) {		// Note: Bracket-Colophons will appear in normal verse text during parsing, not a "real colophon"
+		if (!m_bInColophon) {
+			int ndxStart;
+			int ndxEnd;
+			if ((ndxStart = strTempText.indexOf(QChar('['))) != -1) {
+				ndxEnd = strTempText.mid(ndxStart+1).indexOf(QChar(']'));
+				if (!m_bNoColophonVerses) {
+					m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_bHaveColophon = true;
+					CVerseEntry &colophonVerse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), 0, 0, 0)];
+					colophonVerse.m_strText += strTempText.mid(ndxStart+1).mid(0, ndxEnd);
+				}
+				m_ndxColophon = CRelIndex(relIndex.book(), 0, 0, 0);
+				if (ndxEnd != -1) {
+					m_bInColophon = true;			// Though short lived here, set the flags for endVerseEntry() processing, etc...
+					m_bOpenEndedColophon = true;
+					strTempText = strTempText.mid(0, ndxStart-1) + strTempText.mid(ndxStart+1).mid(ndxEnd+1);
+					endVerseEntry(m_ndxColophon);
+					m_ndxColophon.clear();
+					m_bInColophon = false;
+					m_bOpenEndedColophon = false;
+				} else {
+					strTempText.clear();
+					m_bInColophon = true;
+					m_bOpenEndedColophon = true;
+				}
+			}
+		} else if (m_bInColophon) {
+			int ndxEnd;
+			CVerseEntry &colophonVerse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[m_ndxColophon];
+			if ((ndxEnd = strTempText.indexOf(QChar(']'))) != -1) {
+				if (!m_bNoColophonVerses) {
+					colophonVerse.m_strText += strTempText.mid(0, ndxEnd);
+				}
+				strTempText = strTempText.mid(ndxEnd+1);
+				endVerseEntry(m_ndxColophon);
+				m_ndxColophon.clear();
+				m_bInColophon = false;
+				m_bOpenEndedColophon = false;
+			} else {
+				if (!m_bNoColophonVerses) {
+					colophonVerse.m_strText += strTempText;
+				}
+				strTempText.clear();
+			}
+		}
+	} else if (m_bBracketItalics) {
 		int nItalicRefCount = 0;
 		int ndxStart;
 		int ndxEnd;
@@ -1753,6 +1803,7 @@ int main(int argc, char *argv[])
 	int nArgsFound = 0;
 	bool bUnknownOption = false;
 	bool bNoColophonVerses = false;
+	bool bUseBracketColophons = false;
 	bool bNoSuperscriptionVerses = false;
 	bool bBracketItalics = false;
 	int nDescriptor = -1;
@@ -1782,6 +1833,8 @@ int main(int argc, char *argv[])
 			}
 		} else if (strArg.compare("-c") == 0) {
 			bNoColophonVerses = true;
+		} else if (strArg.compare("-bc") == 0) {
+			bUseBracketColophons = true;
 		} else if (strArg.compare("-s") == 0) {
 			bNoSuperscriptionVerses = true;
 		} else if (strArg.compare("-i") == 0) {
@@ -1801,6 +1854,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("<infofile> is the path/filename to the information file to include\n\n").toUtf8().data();
 		std::cerr << QString("Options\n").toUtf8().data();
 		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses\n").toUtf8().data();
+		std::cerr << QString("    -bc =  Enable Bracket Colophons (such as used in the TR text)\n").toUtf8().data();
+		std::cerr << QString("           (use with -c to find the bracket colophons and remove them)\n").toUtf8().data();
+		std::cerr << QString("           (Note: -bc will take precedence over -i)\n").toUtf8().data();
 		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses\n").toUtf8().data();
 		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
 		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
@@ -1841,6 +1897,7 @@ int main(int argc, char *argv[])
 	COSISXmlHandler xmlHandler(bblDescriptor);
 
 	xmlHandler.setNoColophonVerses(bNoColophonVerses);
+	xmlHandler.setUseBracketColophons(bUseBracketColophons);
 	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
 	xmlHandler.setBracketItalics(bBracketItalics);
 	xmlHandler.setSegVariant(strSegVariant);
