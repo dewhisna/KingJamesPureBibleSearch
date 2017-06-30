@@ -44,7 +44,7 @@ Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
 typedef struct {
 	BibleTypeOptionsFlags m_btoFlags;	// Bible database flags
 	QString m_strWorkID;				// OSIS Work Identifier
-	QString m_strLanguage;				// Two-Character international language ID
+	QString m_strLanguage;				// Two-Character international language ID (note: some language codes are more than 2-characters, like ancient greek is "grc")
 	QString m_strDBName;				// Short Database Name
 	QString m_strDBDesc;				// Long Database Name/Description
 	QString m_strUUID;					// Bible Database UUID
@@ -72,7 +72,10 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_RV1865sbv20140622 = 13,
 	BDE_RVG2010_20140705 = 14,
 	BDE_KJF2015 = 15,
-	BDE_RVG2010_20150120 = 16
+	BDE_RVG2010_20150120 = 16,
+	BDE_TR_20140413_X1 = 17,		// OSIS seg variant x-1 of TR-20140413 OSIS (Stephens 1550)
+	BDE_TR_20140413_X2 = 18,		// OSIS seg variant x-2 of TR-20140413 OSIS (Scrivener 1894)
+	BDE_SPMT_20120627 = 19,
 };
 Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 

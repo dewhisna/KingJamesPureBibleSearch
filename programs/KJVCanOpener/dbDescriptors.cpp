@@ -64,6 +64,9 @@ namespace {
 	const char *constUUID_RVG2010_20140705 =	"92EF65E0-56F0-11E4-8ED6-0800200C9A66";
 	const char *constUUID_KJF2015 =				"36708290-9BB0-11E4-BD06-0800200C9A66";
 	const char *constUUID_RVG2010_20150120 =	"925744F0-6B1B-11E5-A837-0800200C9A66";
+	const char *constUUID_TR_20140413_X1 =		"4D025330-5BAC-11E7-9598-0800200C9A66";
+	const char *constUUID_TR_20140413_X2 =		"4C0C5630-5C77-11E7-9598-0800200C9A66";
+	const char *constUUID_SPMT_20120627 =		"5939EB40-5BAC-11E7-9598-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -108,7 +111,13 @@ namespace {
 		// KJF2015 (Nadine's Work-In-Progress:
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "KJF2015", "fr", QString::fromUtf8("King James Française 2015 Work-In-Progress"), QString::fromUtf8("la Bible King James Française, édition 2015 Work-In-Progress"), constUUID_KJF2015, "bbl-kjf2015-workinprogress.s3db", "bbl-kjf2015-workinprogress.ccdb", constUUID_KJF2015 },
 		// RVG2010-20150120:
-		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RVG2010-20150120", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20150120)"), constUUID_RVG2010_20150120, "bbl-rvg2010-20150120.s3db", "bbl-rvg2010-20150120.ccdb", constUUID_RVG2010 }
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RVG2010-20150120", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20150120)"), constUUID_RVG2010_20150120, "bbl-rvg2010-20150120.s3db", "bbl-rvg2010-20150120.ccdb", constUUID_RVG2010 },
+		// TR-20140413-X1 : OSIS seg variant x-1 of TR-20140413 OSIS (Stephens 1550)
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "TR-20140413-X1", "grc", QString::fromUtf8("Textus Receptus Greek New Testament (Stephens 1550)"), QString::fromUtf8("Textus Receptus Greek New Testament (Stephens 1550) (20140413)"), constUUID_TR_20140413_X1, "bbl-tr-20140413-x1.s3db", "bbl-tr-20140413-x1.ccdb", constUUID_TR_20140413_X1 },
+		// TR-20140413-X2 : OSIS seg variant x-2 of TR-20140413 OSIS (Scrivener 1894)
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "TR-20140413-X2", "grc", QString::fromUtf8("Textus Receptus Greek New Testament (Scrivener 1894)"), QString::fromUtf8("Textus Receptus Greek New Testament (Scrivener 1894) (20140413)"), constUUID_TR_20140413_X2, "bbl-tr-20140413-x2.s3db", "bbl-tr-20140413-x2.ccdb", constUUID_TR_20140413_X2 },
+		// SPMT-20120627:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "SPMT-20120627", "he", QString::fromUtf8("Samaritan Pentateuch Masoretic Text"), QString::fromUtf8("Samaritan Pentateuch Masoretic Text (20120627)"), constUUID_SPMT_20120627, "bbl-spmt-20120627.s3db", "bbl-spmt-20120627.ccdb", constUUID_SPMT_20120627 },
 	};
 
 	//////////////////////////////////////////////////////////////////////
