@@ -619,6 +619,7 @@ bool CReadDatabase::ReadVerseTables()
 			nWrdAccum2 += entryVerse.m_nNumWrd;
 		}
 		for (unsigned int nChp = 1; nChp <= theBook.m_nNumChp; ++nChp) {
+			unsigned int nWrdAccum3 = 0;		// Accum by Verse for each chapter
 			CRelIndex ndxChapter(nBk, nChp, 0, 0);
 			CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxChapter];
 			theChapter.m_nWrdAccum = nWrdAccum;
@@ -628,12 +629,15 @@ bool CReadDatabase::ReadVerseTables()
 				CVerseEntry &entryVerse = mapVerses[ndxChapter];
 				entryVerse.m_nWrdAccum = nWrdAccum;
 				nWrdAccum += entryVerse.m_nNumWrd;
+				nWrdAccum3 += entryVerse.m_nNumWrd;
 			}
 			for (unsigned int nVrs = 1; nVrs <= theChapter.m_nNumVrs; ++nVrs) {
 				CVerseEntry &entryVerse = mapVerses[CRelIndex(nBk, nChp, nVrs, 0)];
 				entryVerse.m_nWrdAccum = nWrdAccum;
 				nWrdAccum += entryVerse.m_nNumWrd;
+				nWrdAccum3 += entryVerse.m_nNumWrd;
 			}
+			assert(nWrdAccum3 == theChapter.m_nNumWrd);		// Quick check to make sure the word count of the verses in the chapter matches the word count for the whole chapter
 		}
 
 // Used for debugging:
