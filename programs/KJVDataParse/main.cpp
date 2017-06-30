@@ -1937,10 +1937,7 @@ int main(int argc, char *argv[])
 	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase form of the Word
 
 	unsigned int nWordAccum = 0;
-	unsigned int nNumBooks = NUM_BK_OT;
-	if (pBibleDatabase->bibleEntry().m_nNumBk > nNumBooks) nNumBooks += NUM_BK_NT;
-	if (pBibleDatabase->bibleEntry().m_nNumBk > nNumBooks) nNumBooks += NUM_BK_APOC;
-	for (unsigned int nBk=1; nBk<=qMin(pBibleDatabase->bibleEntry().m_nNumBk, nNumBooks); ++nBk) {
+	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		if (nBk > NUM_BK) {
 			std::cerr << QString("\n*** WARNING: Module has extra Book : %1\n").arg(nBk).toUtf8().data();
 			lstChapterVerseCounts.push_back(QStringList());
