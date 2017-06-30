@@ -1937,17 +1937,15 @@ int main(int argc, char *argv[])
 	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase form of the Word
 
 	unsigned int nWordAccum = 0;
-	for (unsigned int nBk=1; nBk<=qMax(pBibleDatabase->bibleEntry().m_nNumBk, (NUM_BK_OT + NUM_BK_NT)); ++nBk) {
-		if (nBk > (NUM_BK_OT + NUM_BK_NT)) {
-			if (nBk > NUM_BK) {
-				std::cerr << QString("\n*** ERROR: Module has extra Book : %1\n").arg(nBk).toUtf8().data();
-				lstChapterVerseCounts.push_back(QStringList());
-			} else {
-				// Apocrypha Books:
-				lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
-			}
+	unsigned int nNumBooks = NUM_BK_OT;
+	if (pBibleDatabase->bibleEntry().m_nNumBk > nNumBooks) nNumBooks += NUM_BK_NT;
+	if (pBibleDatabase->bibleEntry().m_nNumBk > nNumBooks) nNumBooks += NUM_BK_APOC;
+	for (unsigned int nBk=1; nBk<=qMin(pBibleDatabase->bibleEntry().m_nNumBk, nNumBooks); ++nBk) {
+		if (nBk > NUM_BK) {
+			std::cerr << QString("\n*** WARNING: Module has extra Book : %1\n").arg(nBk).toUtf8().data();
+			lstChapterVerseCounts.push_back(QStringList());
 		} else {
-			// Normal OT/NT Books:
+			// Predefined books from our list:
 			lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
@@ -1958,21 +1956,6 @@ int main(int argc, char *argv[])
 			std::cerr << QString("\n*** WARNING: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toUtf8().data();
 		}
 		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
-
-		// BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
-		fileBooks.write(QString("%1,%2,%3,\"%4\",%5,%6,%7,%8,%9,\"%10\",\"%11\"\r\n")
-						.arg(nBk)							// 1
-						.arg(pBook->m_nTstBkNdx)			// 2
-						.arg(pBook->m_nTstNdx)				// 3
-						.arg(pBook->m_strBkName)			// 4
-						.arg(pBook->m_lstBkAbbr.join(";"))	// 5
-						.arg(pBook->m_strTblName)			// 6
-						.arg(pBook->m_nNumChp)				// 7
-						.arg(pBook->m_nNumVrs)				// 8
-						.arg(pBook->m_nNumWrd)				// 9
-						.arg(pBibleDatabase->bookCategoryEntry(pBook->m_nCatNdx)->m_strCategoryName)				// 10
-						.arg(pBook->m_strDesc)				// 11
-						.toUtf8());
 
 		fileVerses.setFileName(dirOutput.absoluteFilePath(QString("BOOK_%1_%2.csv").arg(nBk, 2, 10, QChar('0')).arg(pBook->m_strTblName)));
 		if (!fileVerses.open(QIODevice::WriteOnly)) {
@@ -1989,7 +1972,7 @@ int main(int argc, char *argv[])
 		unsigned int nChaptersExpected = qMax(pBook->m_nNumChp, static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()));
 		for (unsigned int nChp=(pBook->m_bHaveColophon ? 0 : 1); nChp<=nChaptersExpected; ++nChp) {
 			if ((nChp != 0) && (nChp > static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()))) {
-				std::cerr << QString("\n*** ERROR: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
+				std::cerr << QString("\n*** WARNING: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			}
 			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : NULL);
 			bool bChapterMissing = false;
@@ -1997,7 +1980,7 @@ int main(int argc, char *argv[])
 			if ((nChp != 0) && (pChapter == NULL)) {
 				bChapterMissing = true;
 				if ((nChp >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse.chapter()) && (bHadBook)) {
-					std::cerr << QString("\n*** ERROR: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
+					std::cerr << QString("\n*** WARNING: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 				}
 				pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0), true);
 				if (pChapter == NULL) {
@@ -2011,15 +1994,6 @@ int main(int argc, char *argv[])
 				(const_cast<CChapterEntry*>(pChapter))->m_nWrdAccum = nWordAccum;
 
 				std::cerr << ".";
-
-				// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
-				fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
-								   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
-								   .arg(pChapter->m_nNumVrs)					// 2
-								   .arg(pChapter->m_nNumWrd)					// 3
-								   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
-								   .arg(nChp)									// 5
-								   .toUtf8());
 			}
 
 //			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
@@ -2027,7 +2001,7 @@ int main(int argc, char *argv[])
 			unsigned int nVersesExpected = ((pChapter != NULL) ? qMax(pChapter->m_nNumVrs, static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0)) : 0);
 			for (unsigned int nVrs=((pChapter != NULL) ? (pChapter->m_bHaveSuperscription ? 0 : 1) : 0); nVrs<=nVersesExpected; ++nVrs) {
 				if ((nVrs != 0) && (nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0))) {
-					std::cerr << QString("\n*** ERROR: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+					std::cerr << QString("\n*** WARNING: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
 				bool bVerseMissing = false;
@@ -2035,7 +2009,7 @@ int main(int argc, char *argv[])
 					if ((nChp == 0) || (nVrs == 0)) assert(false);
 					bVerseMissing = true;
 					if ((CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) && (bHadBook)) {
-						std::cerr << QString("\n*** ERROR: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+						std::cerr << QString("\n*** WARNING: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 					}
 					pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0), true);
 					if (pVerse == NULL) {
@@ -2151,6 +2125,16 @@ int main(int argc, char *argv[])
 			} else {
 				nChapterWordAccum += nVerseWordAccum;		// Book has words of Colophons that aren't part of chapters proper
 			}
+
+			// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
+			fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
+							   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
+							   .arg(pChapter->m_nNumVrs)					// 2
+							   .arg(pChapter->m_nNumWrd)					// 3
+							   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
+							   .arg(nChp)									// 5
+							   .toUtf8());
+
 		}
 		if (nChapterWordAccum != pBook->m_nNumWrd) {
 			std::cerr << QString("\n*** Error: %1 Book Word Count (%2) doesn't match sum of Chapter Word Counts (%3)!\n")
@@ -2165,6 +2149,22 @@ int main(int argc, char *argv[])
 		}
 
 		fileVerses.close();
+
+		// BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
+		fileBooks.write(QString("%1,%2,%3,\"%4\",%5,%6,%7,%8,%9,\"%10\",\"%11\"\r\n")
+						.arg(nBk)							// 1
+						.arg(pBook->m_nTstBkNdx)			// 2
+						.arg(pBook->m_nTstNdx)				// 3
+						.arg(pBook->m_strBkName)			// 4
+						.arg(pBook->m_lstBkAbbr.join(";"))	// 5
+						.arg(pBook->m_strTblName)			// 6
+						.arg(pBook->m_nNumChp)				// 7
+						.arg(pBook->m_nNumVrs)				// 8
+						.arg(pBook->m_nNumWrd)				// 9
+						.arg(pBibleDatabase->bookCategoryEntry(pBook->m_nCatNdx)->m_strCategoryName)				// 10
+						.arg(pBook->m_strDesc)				// 11
+						.toUtf8());
+
 
 		std::cerr << "\n";
 	}
