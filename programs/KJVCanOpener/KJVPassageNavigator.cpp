@@ -178,6 +178,7 @@ void CKJVPassageNavigator::initialize()
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
 		assert(pBook != NULL);
+		if (pBook->m_nNumWrd == 0) continue;		// Skip books that are empty (partial database support)
 		ui.comboBookDirect->addItem(pBook->m_strBkName, ndxBk);
 	}
 
@@ -388,7 +389,7 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	for (unsigned int ndxChp=1; ndxChp<=book.m_nNumChp; ++ndxChp) {
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(ndx.book(), ndxChp, 0, 0));
 		if (pChapter == NULL) continue;
-		if (pChapter->m_nNumVrs == 0) continue;			// Skip chapters that are empty (like additions of Esther in Apocrypha)
+		if (pChapter->m_nNumWrd == 0) continue;			// Skip chapters that are empty (partial database support)
 		ui.comboChapterDirect->addItem(QString("%1").arg(ndxChp), ndxChp);
 	}
 	ui.comboChapterDirect->setCurrentIndex(ui.comboChapterDirect->findData(ndx.chapter()));
@@ -405,7 +406,7 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	for (unsigned int ndxVrs=1; ndxVrs<=chapter.m_nNumVrs; ++ndxVrs) {
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs, 0));
 		if (pVerse == NULL) continue;
-		if (pVerse->m_nNumWrd == 0) continue;		// Skip verses that are empty (like additions of Esther in Apocrypha)
+		if (pVerse->m_nNumWrd == 0) continue;		// Skip verses that are empty (partial database support)
 		ui.comboVerseDirect->addItem(QString("%1").arg(ndxVrs), ndxVrs);
 	}
 	ui.comboVerseDirect->setCurrentIndex(ui.comboVerseDirect->findData(ndx.verse()));
