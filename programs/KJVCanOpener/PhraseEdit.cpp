@@ -2266,6 +2266,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		if (!tagPassage.isSet()) continue;
 		CRelIndex ndxLocalFirst = m_pBibleDatabase->calcRelIndex(tagPassage.relIndex(), CBibleDatabase::RIME_Absolute);
 		if (!ndxLocalFirst.isSet()) continue;	// Above absolute calculation can deem the reference invalid
+		if (ndxLocalFirst != tagPassage.relIndex()) continue;		// If for some reason the above absolute calculation (normalization) changed our reference (i.e. incomplete text database), toss it as it isn't in this database anyway
 		assert(ndxLocalFirst.word() == 1);		// Passages should always begin with the first word of a verse.  Plus this must point to first word so normalize will work correctly
 		CRelIndex ndxLocalLast;
 		if ((ndxLocalFirst.isColophon()) || (ndxLocalFirst.isSuperscription())) {
