@@ -1100,9 +1100,9 @@ bool CReadDatabase::ValidateData()
 	// Check Normalize/Denormalize functions:
 #ifdef TEST_INDEXING
 	for (unsigned int nWrd = 1; nWrd <= m_pBibleDatabase->bibleEntry().m_nNumWrd; ++nWrd) {
-		uint32_t ndxRel = m_pBibleDatabase->DenormalizeIndex(nWrd);
-		if (m_pBibleDatabase->NormalizeIndex(ndxRel) != nWrd) {
-			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Normalize/Denormalize Index Check Failed!\n\nNormal->Relative->Normal:\n%1->%2->%3", "ReadDB").arg(nWrd).arg(ndxRel).arg(m_pBibleDatabase->NormalizeIndex(ndxRel)));
+		CRelIndex ndxRel = m_pBibleDatabase->DenormalizeIndex(nWrd);
+		if (m_pBibleDatabase->NormalizeIndex(ndxRel.index()) != nWrd) {
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Normalize/Denormalize Index Check Failed!\n\nNormal->Relative->Normal:\n%1->%2->%3", "ReadDB").arg(nWrd).arg(ndxRel.index()).arg(m_pBibleDatabase->NormalizeIndex(ndxRel)));
 			assert(false);
 		}
 	}

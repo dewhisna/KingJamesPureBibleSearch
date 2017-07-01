@@ -1000,7 +1000,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 			if (!g_pUserNotesDatabase->highlighterDefinition(pColorButton->highlighterName()).isValid()) continue;
 			if (!g_pUserNotesDatabase->highlighterEnabled(pColorButton->highlighterName())) continue;
 			m_pScriptureBrowser->navigator().doHighlighting(CUserDefinedHighlighter(pColorButton->highlighterName(),
-															TPhraseTag(CRelIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->DenormalizeIndex(nNormalizedIndex)), 5)));
+															TPhraseTag(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->DenormalizeIndex(nNormalizedIndex), 5)));
 			nNormalizedIndex += 7;
 		}
 	}

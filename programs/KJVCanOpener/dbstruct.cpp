@@ -687,7 +687,7 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
 	return nNormalIndex;
 }
 
-uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
+CRelIndex CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 {
 	unsigned int nBk = 0;
 	unsigned int nWrd = nNormalIndex;
@@ -731,7 +731,7 @@ uint32_t CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 	// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
 	if ((nWrd != 1) && (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd)) return 0;
 
-	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
+	return CRelIndex(nBk, nChp, nVrs, nWrd);
 }
 
 #endif
@@ -770,7 +770,7 @@ uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
 	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 }
 
-uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
+CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 {
 	unsigned int nWrd = nNormalIndex;
 
@@ -811,7 +811,7 @@ uint32_t CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 		return 0;
 	}
 
-	return CRelIndex(nBk, nChp, nVrs, nWrd).index();
+	return CRelIndex(nBk, nChp, nVrs, nWrd);
 }
 
 // ============================================================================
@@ -927,7 +927,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		if (nSelectionSize > 1) {
 			strTemp += PassageReferenceText(nRelIndex);
 			strTemp += " - ";
-			strTemp += PassageReferenceText(CRelIndex(DenormalizeIndex(NormalizeIndex(nRelIndex) + nSelectionSize - 1)));
+			strTemp += PassageReferenceText(DenormalizeIndex(NormalizeIndex(nRelIndex) + nSelectionSize - 1));
 			strTemp += " " + QObject::tr("(%1 Words)", "Statistics").arg(nSelectionSize);
 			strTemp += "\n\n";
 		} else {
@@ -1446,7 +1446,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		while (nWord) {
 			--nWord;
 			--ndxWord;
-			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget = DenormalizeIndex(ndxWord);
 			if ((ndxTarget.verse() == 0) ||
 				(ndxTarget.chapter() == 0)) {
 				// If we hit a colophon or superscription, move to the previous verse:
@@ -1456,7 +1456,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 				ndxWord = NormalizeIndex(ndxTarget) - 1;
 			}
 		}
-		ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+		ndxTarget = DenormalizeIndex(ndxWord);
 		nWord = ndxTarget.word();					// nWord = Offset of word into verse so we can traverse from start of verse to start of verse
 		ndxTarget.setWord(1);						// Move to first word of this verse
 		ndxWord = NormalizeIndex(ndxTarget);
@@ -1465,7 +1465,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		while (nVerse) {
 			ndxWord--;				// This will move us to previous verse since we are at word 1 of current verse (see above and below)
 			if (ndxWord == 0) return CRelIndex();
-			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget = DenormalizeIndex(ndxWord);
 			if ((ndxTarget.verse() == 0) ||
 				(ndxTarget.chapter() == 0)) {
 				// If we hit a colophon or superscription, move to the previous verse:
@@ -1473,7 +1473,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 				ndxTarget.setVerse(0);
 				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
 				ndxWord = NormalizeIndex(ndxTarget) - 1;
-				ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+				ndxTarget = DenormalizeIndex(ndxWord);
 			}
 			ndxTarget.setWord(1);	// Move to first word of this verse
 			ndxWord = NormalizeIndex(ndxTarget);
@@ -1488,7 +1488,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		while (nChapter) {
 			ndxWord--;				// This will move us to previous chapter since we are at word 1 of verse 1 (see above and below)
 			if (ndxWord == 0) return CRelIndex();
-			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget = DenormalizeIndex(ndxWord);
 			if ((ndxTarget.verse() == 0) ||
 				(ndxTarget.chapter() == 0)) {
 				// If we hit a colophon or superscription, move to the previous chapter:
@@ -1496,7 +1496,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 				ndxTarget.setVerse(0);
 				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
 				ndxWord = NormalizeIndex(ndxTarget) - 1;
-				ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+				ndxTarget = DenormalizeIndex(ndxWord);
 			}
 			ndxTarget.setVerse(1);	// Move to first word of first verse of this chapter
 			ndxTarget.setWord(1);
@@ -1512,7 +1512,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		while (nBook) {
 			ndxWord--;				// This will move us to previous book since we are at word 1 of verse 1 of chapter 1 (see above and below)
 			if (ndxWord == 0) return CRelIndex();
-			ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+			ndxTarget = DenormalizeIndex(ndxWord);
 			if ((ndxTarget.verse() == 0) ||
 				(ndxTarget.chapter() == 0)) {
 				// If we hit a colophon or superscription, move to the previous book:
@@ -1520,7 +1520,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 				ndxTarget.setVerse(0);
 				if (ndxTarget.chapter() == 1) ndxTarget.setChapter(0);
 				ndxWord = NormalizeIndex(ndxTarget) -1;
-				ndxTarget = CRelIndex(DenormalizeIndex(ndxWord));
+				ndxTarget = DenormalizeIndex(ndxWord);
 			}
 			ndxTarget.setChapter(1);	// Move to first word of first verse of first chapter of this book
 			ndxTarget.setVerse(1);
@@ -1554,7 +1554,7 @@ CRelIndex CBibleDatabase::calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX
 			//		first existing passage at or after the specified index.  Similarly, it should
 			//		work if we are passed a reference for an empty verse or chapter, etc...
 			// This actually gives this mode a meaning other than simply returning ndxStart unaltered.
-			ndx = CRelIndex(DenormalizeIndex(NormalizeIndex(ndxStart)));
+			ndx = DenormalizeIndex(NormalizeIndex(ndxStart));
 			break;
 
 		case RIME_Start:
@@ -2069,7 +2069,7 @@ bool TTagBoundsPair::intersectingTrim(const TTagBoundsPair &tbpSrc)
 
 TPhraseTag::TPhraseTag(const CBibleDatabase *pBibleDatabase, const TTagBoundsPair &tbpSrc)
 {
-	m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.lo()));
+	m_RelIndex = pBibleDatabase->DenormalizeIndex(tbpSrc.lo());
 	m_nCount = (tbpSrc.hi() - tbpSrc.lo() + 1);
 	if ((m_nCount == 1) && (!tbpSrc.hadCount())) m_nCount = 0;
 }
@@ -2110,7 +2110,7 @@ QString TPhraseTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDataba
 	QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
 	if (m_nCount > 1) {
 		uint32_t nNormal = pBibleDatabase->NormalizeIndex(m_RelIndex);
-		strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(CRelIndex(pBibleDatabase->DenormalizeIndex(nNormal + m_nCount - 1)));
+		strReferenceRangeText += " - " + pBibleDatabase->PassageReferenceText(pBibleDatabase->DenormalizeIndex(nNormal + m_nCount - 1));
 	}
 	return strReferenceRangeText;
 }
@@ -2453,7 +2453,7 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 					assert(tbpNew.lo() == (tbpSrc.hi() + 1));		// If we "ran off the database", make sure it's the upper half we are keeping
 					if (tbpNew.lo() == (tbpSrc.hi() + 1)) {
 						CRelIndex ndxUpper = (*itrTags).relIndex();
-						ndxUpper = CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi()));
+						ndxUpper = pBibleDatabase->DenormalizeIndex(tbpSrc.hi());
 						assert(ndxUpper.isSet());
 						ndxUpper = CRelIndex(ndxUpper.book()+1, 1, 1, 1);
 						*itrTags = TPhraseTag(ndxUpper, (*itrTags).count());
@@ -2461,11 +2461,11 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 				}
 			} else {
 				// For the split, make the current be the low half:
-				itrTags->m_RelIndex.setIndex(pBibleDatabase->DenormalizeIndex(tbpRef.lo()));
+				itrTags->m_RelIndex = pBibleDatabase->DenormalizeIndex(tbpRef.lo());
 				itrTags->m_nCount = (tbpSrc.lo() - tbpRef.lo());		// Note, don't include first of cut section
 				int nDistTags = std::distance(begin(), itrTags);		// Save where our iterator is at, since we're about to nuke it
 				// And insert the upper half:
-				CRelIndex ndxUpper = CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi() + 1));
+				CRelIndex ndxUpper = pBibleDatabase->DenormalizeIndex(tbpSrc.hi() + 1);
 				if (!ndxUpper.isSet()) {
 					// Special case for dealing with Highlighters that run off the end of the Bible Database text.
 					//		This can happen in the case of the KJVA Apocrypha text if you highlight the end of
@@ -2478,7 +2478,7 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 					//		than the first word of the next book.  This "work-around" checks for that and manually
 					//		sets it to the next word.  It does make the assumption (and asserts if it fails) that
 					//		the last word of the tbpSrc boundary is still in this database:
-					ndxUpper = CRelIndex(pBibleDatabase->DenormalizeIndex(tbpSrc.hi()));
+					ndxUpper = pBibleDatabase->DenormalizeIndex(tbpSrc.hi());
 					assert(ndxUpper.isSet());
 					ndxUpper = CRelIndex(ndxUpper.book()+1, 1, 1, 1);
 				}

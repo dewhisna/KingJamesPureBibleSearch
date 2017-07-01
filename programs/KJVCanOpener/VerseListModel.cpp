@@ -1925,7 +1925,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 					nWordCount -= nNumWordsInVerse;
 					// Add number of words in verse to find start of next verse:
 					ndxNormalNext += nNumWordsInVerse;
-					ndxNextRelative = CRelIndex(m_private.m_pBibleDatabase->DenormalizeIndex(ndxNormalNext));
+					ndxNextRelative = m_private.m_pBibleDatabase->DenormalizeIndex(ndxNormalNext);
 					assert((ndxNextRelative.word() == 1) ||
 						   (!ndxNextRelative.isSet()));			// We better end up at the first word of the next verse (or out of our text, in cases of cross-database highlighter sharing), or something bad happened
 					if (!ndxNextRelative.isSet()) nWordCount = 0;

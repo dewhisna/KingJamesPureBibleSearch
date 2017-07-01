@@ -2087,11 +2087,11 @@ int main(int argc, char *argv[])
 									 .arg(nBk).arg(nChp).arg(nVrs).arg(nNormal).arg(pVerse->m_nWrdAccum+1).toUtf8().data();
 						assert(nNormal == (pVerse->m_nWrdAccum+1));
 					}
-					uint32_t nDenormal = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+1);
-					if (nDenormal != CRelIndex(nBk, nChp, nVrs, 1).index()) {
+					CRelIndex ndxDenormal = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+1);
+					if (ndxDenormal != CRelIndex(nBk, nChp, nVrs, 1)) {
 						std::cerr << QString("\n*** Error: Denormal for %1  !=  CRelIndex(%2, %3, %4, 1)->%5\n")
-									 .arg(nDenormal).arg(nBk).arg(nChp).arg(nVrs).arg(CRelIndex(nBk, nChp, nVrs, 1).index()).toUtf8().data();
-						assert(nDenormal == CRelIndex(nBk, nChp, nVrs, 1).index());
+									 .arg(ndxDenormal.index()).arg(nBk).arg(nChp).arg(nVrs).arg(CRelIndex(nBk, nChp, nVrs, 1).index()).toUtf8().data();
+						assert(ndxDenormal == CRelIndex(nBk, nChp, nVrs, 1));
 					}
 				} else {
 					if (!bVerseMissing)
@@ -2490,20 +2490,20 @@ int main(int argc, char *argv[])
 									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(nNormalAccum).arg(nNormalNoAccum).toUtf8().data();
 						assert(nNormalAccum == nNormalNoAccum);
 					}
-					uint32_t nDenormalAccum = pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum+nWrd);
-					uint32_t nDenormalNoAccum = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+nWrd);
-					if (nDenormalAccum != nDenormalNoAccum) {
+					CRelIndex ndxDenormalAccum = pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum+nWrd);
+					CRelIndex ndxDenormalNoAccum = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+nWrd);
+					if (ndxDenormalAccum != ndxDenormalNoAccum) {
 						std::cerr << QString("\n*** Error: CRelIndex(%1, %2, %3, %4)->Accum:%5  DenormalAccum->%6 != DenormalNoAccum=%7\n")
-									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(pVerse->m_nWrdAccum+nWrd).arg(nDenormalAccum).arg(nDenormalNoAccum).toUtf8().data();
-						assert(nDenormalAccum == nDenormalNoAccum);
+									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(pVerse->m_nWrdAccum+nWrd).arg(ndxDenormalAccum.index()).arg(ndxDenormalNoAccum.index()).toUtf8().data();
+						assert(ndxDenormalAccum == ndxDenormalNoAccum);
 					}
 					CRelIndex ndxTest = CRelIndex(nBk, nChp, nVrs, nWrd);
 					uint32_t nNormal = pBibleDatabase->NormalizeIndex(ndxTest);
-					uint32_t nDenormal = pBibleDatabase->DenormalizeIndex(nNormal);
-					if (nDenormal != ndxTest.index()) {
+					CRelIndex ndxDenormal = pBibleDatabase->DenormalizeIndex(nNormal);
+					if (ndxDenormal != ndxTest) {
 						std::cerr << QString("\n*** Error: Roundtrip : CRelIndex(%1, %2, %3, %4)=%5 -> Normal=%6 -> Denormal=%7\n")
-									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(ndxTest.index()).arg(nNormal).arg(nDenormal).toUtf8().data();
-						assert(nDenormal == ndxTest.index());
+									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(ndxTest.index()).arg(nNormal).arg(ndxDenormal.index()).toUtf8().data();
+						assert(ndxDenormal == ndxTest);
 					}
 				}
 			}

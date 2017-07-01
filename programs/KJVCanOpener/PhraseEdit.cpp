@@ -410,7 +410,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	for (unsigned int ndxWord=0; ndxWord<subPhrase->m_lstMatchMapping.size(); ++ndxWord) {
 		uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
 		if (ndxNormal > 0)
-			m_cache_lstPhraseTagResults.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
+			m_cache_lstPhraseTagResults.append(TPhraseTag(m_pBibleDatabase->DenormalizeIndex(ndxNormal), subPhrase->phraseSize()));
 	}
 	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
@@ -423,7 +423,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 		lstSubPhraseTags.reserve(subPhrase->m_lstMatchMapping.size());
 		for (unsigned int ndxWord=0; ndxWord<subPhrase->m_lstMatchMapping.size(); ++ndxWord) {
 			uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
-			if (ndxNormal > 0) lstSubPhraseTags.append(TPhraseTag(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormal)), subPhrase->phraseSize()));
+			if (ndxNormal > 0) lstSubPhraseTags.append(TPhraseTag(m_pBibleDatabase->DenormalizeIndex(ndxNormal), subPhrase->phraseSize()));
 		}
 		qSort(lstSubPhraseTags.begin(), lstSubPhraseTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
@@ -1148,7 +1148,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			nStartPos = anchorPosition(ndxRel.asAnchor());
 			if (nStartPos == -1) {
 				ndxNormalStart++;
-				ndxRel = CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart));
+				ndxRel = m_pBibleDatabase->DenormalizeIndex(ndxNormalStart);
 				// Safeguard incase we run off the end.  This is needed, for example, if
 				//		on the last word of the Bible (Rev 22:21 [12]) with the cursor
 				//		tracker visible and the user hits Alt-PgUp to go to the previous
@@ -1202,7 +1202,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			}
 
 			++ndxNormalStart;
-			nStartPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart)).asAnchor());
+			nStartPos = anchorPosition(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart).asAnchor());
 		}
 	}
 
@@ -2917,7 +2917,7 @@ void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 	CRelIndex ndxRel = tag.relIndex();
 	if (ndxRel.isSet()) {
 		int nStartPos = anchorPosition(ndxRel.asAnchor());
-		int nEndPos = anchorPosition(CRelIndex(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxRel) + tag.count() - 1)).asAnchor());
+		int nEndPos = anchorPosition(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxRel) + tag.count() - 1).asAnchor());
 
 		if (nStartPos != -1) {
 			CPhraseCursor myCursor(m_TextEditor.textCursor());

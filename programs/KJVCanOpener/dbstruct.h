@@ -1069,11 +1069,11 @@ public:
 #ifdef OSIS_PARSER_BUILD
 	inline uint32_t NormalizeIndexNoAccum(const CRelIndex &nRelIndex) const { return NormalizeIndexNoAccum(nRelIndex.index()); }
 	uint32_t NormalizeIndexNoAccum(uint32_t nRelIndex) const;
-	uint32_t DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
+	CRelIndex DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
 #endif
 	inline uint32_t NormalizeIndex(const CRelIndex &nRelIndex) const { return NormalizeIndex(nRelIndex.index()); }
 	uint32_t NormalizeIndex(uint32_t nRelIndex) const;
-	uint32_t DenormalizeIndex(uint32_t nNormalIndex) const;
+	CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
 
 	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
 	//			calcRelIndex(1, 1, 666, 0, 1);						// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
