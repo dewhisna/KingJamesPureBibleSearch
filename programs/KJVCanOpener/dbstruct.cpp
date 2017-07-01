@@ -1547,7 +1547,14 @@ CRelIndex CBibleDatabase::calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX
 
 	switch (nMoveMode) {
 		case RIME_Absolute:
-			ndx = ndxStart;
+			// Normalize and denormalize to make the location actually resolve to the first
+			//		existing passage.  For example, if we are called with CRelIndex of [1, 1, 1, 1]
+			//		for Genesis 1:1 [1] and we are in a New Testament only database, this
+			//		round-trip will cause us to instead return Matthew 1:1 [1], since it's our
+			//		first existing passage at or after the specified index.  Similarly, it should
+			//		work if we are passed a reference for an empty verse or chapter, etc...
+			// This actually gives this mode a meaning other than simply returning ndxStart unaltered.
+			ndx = CRelIndex(DenormalizeIndex(NormalizeIndex(ndxStart)));
 			break;
 
 		case RIME_Start:

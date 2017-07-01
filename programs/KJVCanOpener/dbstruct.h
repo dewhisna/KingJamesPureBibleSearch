@@ -1091,7 +1091,7 @@ public:
 	// Note: Changing the following will require updating and redeploying
 	//		of the WebChannel pages, in addition to CKJVBrowser, etc:
 	enum RELATIVE_INDEX_MOVE_ENUM {
-		RIME_Absolute = 0,				// Move to Absolute Index or NoMove (default entry for doing no relative calculation except for checking validity)
+		RIME_Absolute = 0,				// Move to Absolute Index or NoMove (default entry for doing no relative calculation except for checking validity and renormalizing to next valid location)
 		RIME_Start = 1,					// Move to Beginning of the Bible
 		RIME_StartOfBook = 2,			// Move to Beginning of current Book
 		RIME_StartOfChapter = 3,		// Move to Beginning of current Chapter

@@ -1455,7 +1455,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if ((ndx.book() == 0) || (ndx.chapter() == 0)) return QString();
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
-		assert(false);
+		// Note: This condition can happen if we were given an invalid passage to
+		//	render for our database, such as the made-up previews in the settings
+		//	for certain Bible databases:
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -2262,7 +2264,8 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 	for (int ndx = 0; ndx < lstPassageTags.size(); ++ndx) {
 		TPassageTag tagPassage = lstPassageTags.at(ndx);
 		if (!tagPassage.isSet()) continue;
-		CRelIndex ndxLocalFirst = tagPassage.relIndex();
+		CRelIndex ndxLocalFirst = m_pBibleDatabase->calcRelIndex(tagPassage.relIndex(), CBibleDatabase::RIME_Absolute);
+		if (!ndxLocalFirst.isSet()) continue;	// Above absolute calculation can deem the reference invalid
 		assert(ndxLocalFirst.word() == 1);		// Passages should always begin with the first word of a verse.  Plus this must point to first word so normalize will work correctly
 		CRelIndex ndxLocalLast;
 		if ((ndxLocalFirst.isColophon()) || (ndxLocalFirst.isSuperscription())) {
@@ -2270,7 +2273,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		} else {
 			ndxLocalLast = m_pBibleDatabase->calcRelIndex(0, tagPassage.verseCount()-1, 0, 0, 0, ndxLocalFirst);		// Add number of verses to find last verse to output
 		}
-		assert(ndxLocalLast.isSet());
+		if (!ndxLocalLast.isSet()) continue;	// Note: If the passage tag we were given is totally outside of the text of the Bible Database, the calculate ndxLocalLast won't be set, so toss this entry
 		assert(ndxLocalLast.word() == 1);		// Note: When we calculate next verse, we'll automatically resolve to the first word.  Leave it at 1st word so our loop compare will work
 
 		if ((ndxLocalFirst.isColophon()) && (!CPersistentSettings::instance()->copyColophons())) continue;
@@ -2283,6 +2286,10 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 
 		if (!ndxFirst.isSet()) ndxFirst = ndxLocalFirst;
 		ndxLast = ndxLocalLast;
+	}
+	if (!ndxFirst.isSet() || !ndxLast.isSet()) {
+		emit changedDocumentText();
+		return QString();		// If passage totally outside Bible Database, we have nothing to render
 	}
 
 	CScriptureTextHtmlBuilder scriptureHTML;
