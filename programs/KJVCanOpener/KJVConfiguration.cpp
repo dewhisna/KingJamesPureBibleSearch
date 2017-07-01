@@ -1013,6 +1013,9 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CKJVTextFormatConfig", "trumpet", "ConfigurationSearchPreviewKeyword");
 		if (!strTemp.isEmpty()) strTrumpet = strTemp;
+	} else if (m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("grc") == 0) {
+		// Special case for the Greek Textus Receptus texts, since we currently don't have our app translated to Greek
+		strTrumpet = "σαλπι*";
 	}
 	m_previewSearchPhrase.ParsePhrase(strTrumpet);
 	m_previewSearchPhrase.FindWords();
