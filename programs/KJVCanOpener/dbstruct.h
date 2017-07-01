@@ -1067,12 +1067,10 @@ public:
 
 	// CRelIndex Transformation Functions:
 #ifdef OSIS_PARSER_BUILD
-	inline uint32_t NormalizeIndexNoAccum(const CRelIndex &nRelIndex) const { return NormalizeIndexNoAccum(nRelIndex.index()); }
-	uint32_t NormalizeIndexNoAccum(uint32_t nRelIndex) const;
+	uint32_t NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const;
 	CRelIndex DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
 #endif
-	inline uint32_t NormalizeIndex(const CRelIndex &nRelIndex) const { return NormalizeIndex(nRelIndex.index()); }
-	uint32_t NormalizeIndex(uint32_t nRelIndex) const;
+	uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const;
 	CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
 
 	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):

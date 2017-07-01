@@ -639,15 +639,15 @@ QString CFootnoteEntry::plainText(const CBibleDatabase *pBibleDatabase) const
 
 #ifdef OSIS_PARSER_BUILD
 
-uint32_t CBibleDatabase::NormalizeIndexNoAccum(uint32_t nRelIndex) const
+uint32_t CBibleDatabase::NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const
 {
 	uint32_t nNormalIndex = 0;
-	unsigned int nBk = ((nRelIndex >> 24) & 0xFF);
-	unsigned int nChp = ((nRelIndex >> 16) & 0xFF);
-	unsigned int nVrs = ((nRelIndex >> 8) & 0xFF);
-	unsigned int nWrd = (nRelIndex & 0xFF);
+	unsigned int nBk = ndxRelIndex.book();
+	unsigned int nChp = ndxRelIndex.chapter();
+	unsigned int nVrs = ndxRelIndex.verse();
+	unsigned int nWrd = ndxRelIndex.word();
 
-	if (nRelIndex == 0) return 0;
+	if (!ndxRelIndex.isSet()) return 0;
 
 	// Add the number of words for all books prior to the target book:
 	if (nBk == 0) return 0;
@@ -736,14 +736,14 @@ CRelIndex CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 
 #endif
 
-uint32_t CBibleDatabase::NormalizeIndex(uint32_t nRelIndex) const
+uint32_t CBibleDatabase::NormalizeIndex(const CRelIndex &ndxRelIndex) const
 {
-	unsigned int nBk = ((nRelIndex >> 24) & 0xFF);
-	unsigned int nChp = ((nRelIndex >> 16) & 0xFF);
-	unsigned int nVrs = ((nRelIndex >> 8) & 0xFF);
-	unsigned int nWrd = (nRelIndex & 0xFF);
+	unsigned int nBk = ndxRelIndex.book();
+	unsigned int nChp = ndxRelIndex.chapter();
+	unsigned int nVrs = ndxRelIndex.verse();;
+	unsigned int nWrd = ndxRelIndex.word();
 
-	if (nRelIndex == 0) return 0;
+	if (!ndxRelIndex.isSet()) return 0;
 
 	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
