@@ -143,6 +143,7 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 		const CTestamentEntry *pTestamentEntry = m_pBibleDatabase->testamentEntry(nTst);
 		assert(pTestamentEntry != NULL);
 		if (pTestamentEntry == NULL) continue;
+		if (pTestamentEntry->m_nNumWrd == 0) continue;		// Skip testament if it has no words (like a New Testament only database)
 		CSearchWithinModelIndex *pIndexTestament = m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_TESTAMENT, nTst);
 		CSearchWithinModelIndexMap mapCategoryIndexes;
 		for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
@@ -150,6 +151,7 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 			assert(pBookEntry != NULL);
 			if (pBookEntry == NULL) continue;
 			if (pBookEntry->m_nTstNdx != nTst) continue;
+			if (pBookEntry->m_nNumWrd == 0) continue;		// Skip books if it has no words (like a Pentateuch only database)
 			CSearchWithinModelIndexMap::const_iterator itrCategoryIndexes = mapCategoryIndexes.find(pBookEntry->m_nCatNdx);
 			CSearchWithinModelIndex *pIndexCategory = NULL;
 			if (itrCategoryIndexes != mapCategoryIndexes.constEnd()) {
