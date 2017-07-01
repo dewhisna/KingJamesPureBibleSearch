@@ -313,16 +313,17 @@ void CKJVBrowser::initialize()
 	unsigned int nBibleChp = 0;
 	ui.comboBk->clear();
 	ui.comboBibleBk->clear();
+	ui.comboBibleChp->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
 		assert(pBook != NULL);
+		nBibleChp += pBook->m_nNumChp;
+		if (pBook->m_nNumWrd == 0) continue;		// Skip books that are empty (partial database support)
 		ui.comboBk->addItem(pBook->m_strBkName, ndxBk);
 		ui.comboBibleBk->addItem(QString("%1").arg(ndxBk), ndxBk);
-		nBibleChp += pBook->m_nNumChp;
-	}
-	ui.comboBibleChp->clear();
-	for (unsigned int ndxBibleChp=1; ndxBibleChp<=nBibleChp; ++ndxBibleChp) {
-		ui.comboBibleChp->addItem(QString("%1").arg(ndxBibleChp), ndxBibleChp);
+		for (unsigned int ndxBibleChp=nBibleChp-pBook->m_nNumChp+1; ndxBibleChp<=nBibleChp; ++ndxBibleChp) {
+			ui.comboBibleChp->addItem(QString("%1").arg(ndxBibleChp), ndxBibleChp);
+		}
 	}
 
 	// Setup the Chapter Scroller:
@@ -738,20 +739,31 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 	if (strTemp.isEmpty()) strTemp = m_pBibleDatabase->testamentEntry(nTst)->m_strTstName;
 	ui.lblTestament->setText(strTemp + ":");
 
-	for (unsigned int ndxTstBk=1; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
+	unsigned int nTstStartBook = 0;
+	unsigned int nTstStartChp = 0;
+	for (unsigned int ndxTst=1; ndxTst<nTst; ++ndxTst) {
+		nTstStartBook += m_pBibleDatabase->testamentEntry(ndxTst)->m_nNumBk;
+		nTstStartChp += m_pBibleDatabase->testamentEntry(ndxTst)->m_nNumChp;
+	}
+	for (unsigned int ndxTstBk=1, nTstChp=0; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
+		nTstChp += m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumChp;
+		if (m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumWrd == 0) continue;		// Skip empty books to handle partial databases
 		ui.comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);
+		for (unsigned int ndxBkChp=1; ndxBkChp <= m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumChp; ++ndxBkChp) {
+			const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(nTstStartBook+ndxTstBk, ndxBkChp, 0, 0));
+			if (pChapter == NULL) continue;
+			if (pChapter->m_nNumWrd == 0) continue;		// Skip chapters that are empty for partial databases
+			unsigned int ndxTstChp = nTstChp-m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumChp+ndxBkChp;
+			ui.comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
+		}
 	}
 	ui.comboTstBk->setCurrentIndex(ui.comboTstBk->findData(book.m_nTstBkNdx));
 
 	for (unsigned int ndxBkChp=1; ndxBkChp<=book.m_nNumChp; ++ndxBkChp) {
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(m_ndxCurrent.book(), ndxBkChp, 0, 0));
 		if (pChapter == NULL) continue;
-		if (pChapter->m_nNumVrs == 0) continue;			// Skip chapters that are empty (like additions of Esther in Apocrypha)
+		if (pChapter->m_nNumWrd == 0) continue;			// Skip chapters that are empty for partial databases
 		ui.comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
-	}
-
-	for (unsigned int ndxTstChp=1; ndxTstChp<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumChp; ++ndxTstChp) {
-		ui.comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
 	}
 
 	end_update();
