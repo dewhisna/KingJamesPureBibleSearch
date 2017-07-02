@@ -989,7 +989,11 @@ void CKJVCanOpener::initialize()
 {
 	assert(!m_pBibleDatabase.isNull());
 
-	TPhraseTag tag(CRelIndex(1,1,0,0), 0);						// Default for unset key
+	// Default for unset key (Genesis 1 or start of Bible for partial databases):
+	CRelIndex ndxBibleStart = m_pBibleDatabase->calcRelIndex(CRelIndex(1, 1, 0, 0), CBibleDatabase::RIME_Absolute);
+	ndxBibleStart.setVerse(0);		// Select chapter only so browser will display headings
+	ndxBibleStart.setWord(0);
+	TPhraseTag tag(ndxBibleStart, 0);
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if (CPersistentSettings::instance()->settings() != NULL) {
