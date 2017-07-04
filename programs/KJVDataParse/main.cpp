@@ -497,6 +497,8 @@ public:
 			m_bNoColophonVerses(false),
 			m_bUseBracketColophons(false),
 			m_bNoSuperscriptionVerses(false),
+			m_bBracketItalics(false),
+			m_bNoArabicNumeralWords(false),
 			m_bFoundSegVariant(false)
 	{
 		g_setBooks();
@@ -521,6 +523,8 @@ public:
 	bool noSuperscriptionVerses() const { return m_bNoSuperscriptionVerses; }
 	void setBracketItalics(bool bBracketItalics) { m_bBracketItalics = bBracketItalics; }
 	bool bracketItalics() const { return m_bBracketItalics; }
+	void setNoArabicNumeralWords(bool bNoArabicNumeralWords) { m_bNoArabicNumeralWords = bNoArabicNumeralWords; }
+	bool noArabicNumeralWords() const { return m_bNoArabicNumeralWords; }
 	void setSegVariant(const QString &strSegVariant) { m_strSegVariant = strSegVariant; }
 	QString segVariant() const { return m_strSegVariant; }
 	bool foundSegVariant() const { return m_bFoundSegVariant; }
@@ -633,6 +637,7 @@ private:
 	bool m_bUseBracketColophons;		// Treat "[" and "]" as a colophon marker
 	bool m_bNoSuperscriptionVerses;
 	bool m_bBracketItalics;
+	bool m_bNoArabicNumeralWords;		// Skip "words" made entirely of Arabic numerals and don't count them as words
 	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
 	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
@@ -1655,6 +1660,9 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 						 (g_strApostrophes.contains(strRichWord.at(0))))) {
 						// Don't count words that are only a hyphen or apostrophe:
 						verse.m_strTemplate += strRichWord;
+					} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
+						// If we aren't counting Arabic Numerals as words, move them out to the verse template for rendering but not counting:
+						verse.m_strTemplate += strWord;		// It shouldn't matter here if we use Word or RichWord (unlike apostrophes above)
 					} else {
 						QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
 						// Remove trailing hyphens from words and put them in the template.
@@ -1723,6 +1731,9 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			 (g_strApostrophes.contains(strRichWord.at(0))))) {
 			// Don't count words that are only a hyphen or apostrophe:
 			verse.m_strTemplate += strRichWord;
+		} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
+			// If we aren't counting Arabic Numerals as words, move them out to the verse template for rendering but not counting:
+			verse.m_strTemplate += strWord;		// It shouldn't matter here if we use Word or RichWord (unlike apostrophes above)
 		} else {
 			QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
 			// Remove trailing hyphens from words and put them in the template.
@@ -1806,6 +1817,7 @@ int main(int argc, char *argv[])
 	bool bUseBracketColophons = false;
 	bool bNoSuperscriptionVerses = false;
 	bool bBracketItalics = false;
+	bool bNoArabicNumeralWords = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilename;
@@ -1841,6 +1853,8 @@ int main(int argc, char *argv[])
 			bBracketItalics = true;
 		} else if (strArg.compare("-v") == 0) {
 			bLookingforSegVariant = true;
+		} else if (strArg.compare("-n") == 0) {
+			bNoArabicNumeralWords = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -1860,6 +1874,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses\n").toUtf8().data();
 		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
 		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
+		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -1900,6 +1915,7 @@ int main(int argc, char *argv[])
 	xmlHandler.setUseBracketColophons(bUseBracketColophons);
 	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
 	xmlHandler.setBracketItalics(bBracketItalics);
+	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
 	xmlHandler.setSegVariant(strSegVariant);
 
 	xmlReader.setContentHandler(&xmlHandler);
