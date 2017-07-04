@@ -1558,7 +1558,7 @@ CRelIndex CBibleDatabase::calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX
 			break;
 
 		case RIME_Start:
-			ndx = CRelIndex(1, 1, 1, 1);
+			ndx = DenormalizeIndex(NormalizeIndex(CRelIndex(1, 1, 1, 1)));
 			break;
 
 		case RIME_StartOfBook:
