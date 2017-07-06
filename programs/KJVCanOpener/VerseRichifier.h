@@ -49,6 +49,8 @@ public:
 //			m_strDivineNameEnd("</b>")
 			m_strDivineNameBegin("<font size=\"-1\">"),
 			m_strDivineNameEnd("</font>"),
+			m_strInlineNoteBegin("("),
+			m_strInlineNoteEnd(")"),
 			m_strSearchResultsBegin("<font color=\"blue\">"),
 			m_strSearchResultsEnd("</font>"),
 			m_bShowPilcrowMarkers(true)
@@ -105,12 +107,22 @@ public:
 		calcHash();
 	}
 
+	inline QString inlineNoteBegin() const { return m_strInlineNoteBegin; }
+	inline QString inlineNoteEnd() const { return m_strInlineNoteEnd; }
+	void setInlineNoteTags(const QString &strTagBegin, const QString &strTagEnd)
+	{
+		m_strInlineNoteBegin = strTagBegin;
+		m_strInlineNoteEnd = strTagEnd;
+		calcHash();
+	}
+
 	inline QString searchResultsBegin() const { return m_strSearchResultsBegin; }
 	inline QString searchResultsEnd() const { return m_strSearchResultsEnd; }
 	void setSearchResultsTags(const QString &strTagBegin, const QString &strTagEnd)
 	{
 		m_strSearchResultsBegin = strTagBegin;
 		m_strSearchResultsEnd = strTagEnd;
+		calcHash();
 	}
 	void setSearchResultsTagsByColor(const QColor &color)
 	{
@@ -140,6 +152,8 @@ protected:
 						'j' + m_strWordsOfJesusEnd +
 						'D' + m_strDivineNameBegin +
 						'd' + m_strDivineNameEnd +
+						'N' + m_strInlineNoteBegin +
+						'n' + m_strInlineNoteEnd +
 						'R' + m_strSearchResultsBegin +
 						'r' + m_strSearchResultsEnd +
 						(m_bShowPilcrowMarkers ? 'P' : 'p'));
@@ -154,6 +168,8 @@ private:
 	QString m_strWordsOfJesusEnd;
 	QString m_strDivineNameBegin;
 	QString m_strDivineNameEnd;
+	QString m_strInlineNoteBegin;
+	QString m_strInlineNoteEnd;
 	QString m_strSearchResultsBegin;
 	QString m_strSearchResultsEnd;
 	bool m_bShowPilcrowMarkers;

@@ -499,6 +499,7 @@ public:
 			m_bNoSuperscriptionVerses(false),
 			m_bBracketItalics(false),
 			m_bNoArabicNumeralWords(false),
+			m_bInlineFootnotes(false),
 			m_bFoundSegVariant(false)
 	{
 		g_setBooks();
@@ -525,6 +526,8 @@ public:
 	bool bracketItalics() const { return m_bBracketItalics; }
 	void setNoArabicNumeralWords(bool bNoArabicNumeralWords) { m_bNoArabicNumeralWords = bNoArabicNumeralWords; }
 	bool noArabicNumeralWords() const { return m_bNoArabicNumeralWords; }
+	void setInlineFootnotes(bool bInlineFootnotes) { m_bInlineFootnotes = bInlineFootnotes; }
+	bool inlineFootnotes() const { return m_bInlineFootnotes; }
 	void setSegVariant(const QString &strSegVariant) { m_strSegVariant = strSegVariant; }
 	QString segVariant() const { return m_strSegVariant; }
 	bool foundSegVariant() const { return m_bFoundSegVariant; }
@@ -638,6 +641,7 @@ private:
 	bool m_bNoSuperscriptionVerses;
 	bool m_bBracketItalics;
 	bool m_bNoArabicNumeralWords;		// Skip "words" made entirely of Arabic numerals and don't count them as words
+	bool m_bInlineFootnotes;			// True if inlining footnotes as uncounted parentheticals
 	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
 	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
@@ -1105,6 +1109,11 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		}
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = true;
+		if (m_bInlineFootnotes) {
+			CVerseEntry &verse = activeVerseEntry();
+			verse.m_strText += g_chrParseTag;
+			verse.m_lstParseStack.push_back("N:");
+		}
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
 		//	Note: If we already have text on this verse, then set a flag to put the pilcrow on the next verse
 		//			so we can handle the strange <CM> markers used on the German Schlachter text
@@ -1185,6 +1194,8 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	//			R:				-- Search Result Start (reserved placeholder, see VerseRichifier)
 	//			r:				-- Search Result End (reserved placeholder, see VerseRichifier)
 	//			M:				-- Hebrew Psalm 119 Marker
+	//			N:				-- Inline Parenthetical Note Start (inline footnote, not counted as verse text proper)
+	//			n:				-- Inline Parenthetical Note End
 
 
 
@@ -1261,6 +1272,11 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		endVerseEntry(m_ndxCurrent);
 	} else if ((m_bInNotes) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = false;
+		if (m_bInlineFootnotes) {
+			CVerseEntry &verse = activeVerseEntry();
+			verse.m_strText += g_chrParseTag;
+			verse.m_lstParseStack.push_back("n:");
+		}
 	} else if (localName.compare("seg", Qt::CaseInsensitive) == 0) {
 		m_strCurrentSegVariant.clear();
 	} else if ((m_bInLemma) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
@@ -1326,10 +1342,15 @@ bool COSISXmlHandler::characters(const QString &ch)
 		charactersVerseEntry(m_ndxCurrent, strTemp);
 //		std::cout << strTemp.toUtf8().data();
 	} else if (((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (m_bInNotes)) {
-		CRelIndex &ndxActive = activeVerseIndex();
-		CFootnoteEntry &footnote = ((!m_bInLemma) ? m_pBibleDatabase->m_mapFootnotes[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)] :
-													m_pBibleDatabase->m_mapFootnotes[ndxActive]);
-		footnote.setText(footnote.text() + strTemp);
+		if (!m_bInlineFootnotes) {
+			CRelIndex &ndxActive = activeVerseIndex();
+			CFootnoteEntry &footnote = ((!m_bInLemma) ? m_pBibleDatabase->m_mapFootnotes[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)] :
+														m_pBibleDatabase->m_mapFootnotes[ndxActive]);
+			footnote.setText(footnote.text() + strTemp);
+		} else {
+			assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
+			charactersVerseEntry(m_ndxCurrent, strTemp);
+		}
 	}
 
 
@@ -1587,6 +1608,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 
 	unsigned int nWordCount = 0;
 	bool bInWord = false;
+	bool bInlineNote = false;		// True during inline parenthetical footnotes
 	QString strWord;
 	QString strRichWord;
 	QStringList lstWords;
@@ -1630,10 +1652,21 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					//		one, as it makes these more readable:
 					if (verse.m_nPilcrow == CVerseEntry::PTE_NONE)
 						verse.m_nPilcrow = CVerseEntry::PTE_EXTRA;
+				} else if (strOp.compare("N") == 0) {
+					verse.m_strTemplate += "N";
+					bInlineNote = true;
+				} else if (strOp.compare("n") == 0) {
+					verse.m_strTemplate += "n";
+					bInlineNote = false;
 				} else {
 					assert(false);		// Unknown ParseStack Operator!
 				}
 			}
+		} else if (bInlineNote) {
+			CRelIndex &ndxActive = relIndex;
+			ndxActive.setWord(nWordCount+1);
+			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+			footnote.setText(footnote.text() + strTemp.at(0));
 		} else if ((strTemp.at(0).unicode() < 128) ||
 			(g_strNonAsciiNonWordChars.contains(strTemp.at(0))) ||
 			(strTemp.at(0) == g_chrPilcrow) ||
@@ -1818,6 +1851,7 @@ int main(int argc, char *argv[])
 	bool bNoSuperscriptionVerses = false;
 	bool bBracketItalics = false;
 	bool bNoArabicNumeralWords = false;
+	bool bInlineFootnotes = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilename;
@@ -1855,6 +1889,8 @@ int main(int argc, char *argv[])
 			bLookingforSegVariant = true;
 		} else if (strArg.compare("-n") == 0) {
 			bNoArabicNumeralWords = true;
+		} else if (strArg.compare("-f") == 0) {
+			bInlineFootnotes = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -1875,6 +1911,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
 		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
 		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
+		std::cerr << QString("    -f  =  Inline footnotes as Uncounted Parentheticals\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -1916,6 +1953,7 @@ int main(int argc, char *argv[])
 	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
 	xmlHandler.setBracketItalics(bBracketItalics);
 	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
+	xmlHandler.setInlineFootnotes(bInlineFootnotes);
 	xmlHandler.setSegVariant(strSegVariant);
 
 	xmlReader.setContentHandler(&xmlHandler);

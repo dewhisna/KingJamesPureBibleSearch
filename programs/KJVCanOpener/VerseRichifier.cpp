@@ -322,6 +322,17 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 						parseBaton.m_strVerseText.append(m_strXlateText);
 						parseBaton.m_bInSearchResult = false;
 					}
+				} else if (m_chrMatchChar == QChar('N')) {
+					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+					ndxWord.setWord(ndxWord.word()+1);
+					if (ndxWord.word() > 1) parseBaton.m_strVerseText.append(' ');
+					parseBaton.m_strVerseText.append(m_strXlateText);		// Opening '('
+					const CFootnoteEntry *pFootnote = parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
+					assert(pFootnote != NULL);
+					parseBaton.m_strVerseText.append(pFootnote->text());
+				} else if (m_chrMatchChar == QChar('n')) {
+					parseBaton.m_strVerseText.append(m_strXlateText);		// Closing ')'
+					parseBaton.m_strVerseText.append(' ');			// Add separator.  Note that we will trim baton whitespace at the end anyway
 				} else {
 					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(m_strXlateText);
 				}
@@ -350,7 +361,9 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	//		no longer know where we are in the list:
 	CVerseTextRichifier rich_r('r', tags.searchResultsEnd());
 	CVerseTextRichifier rich_R('R', tags.searchResultsBegin(), &rich_r);
-	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_R);
+	CVerseTextRichifier rich_n('n', tags.inlineNoteEnd(), &rich_R);
+	CVerseTextRichifier rich_N('N', tags.inlineNoteBegin(), &rich_n);
+	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_N);
 	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
 	CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
 	CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
