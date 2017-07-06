@@ -67,6 +67,7 @@ namespace {
 	const char *constUUID_TR_20140413_X1 =		"4D025330-5BAC-11E7-9598-0800200C9A66";
 	const char *constUUID_TR_20140413_X2 =		"4C0C5630-5C77-11E7-9598-0800200C9A66";
 	const char *constUUID_SPMT_20120627 =		"5939EB40-5BAC-11E7-9598-0800200C9A66";
+	const char *constUUID_LXX_20080722 =		"4F4BD170-6264-11E7-9598-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -118,6 +119,8 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "TR-20140413-X2", "grc", QString::fromUtf8("Textus Receptus Greek New Testament (Scrivener 1894)"), QString::fromUtf8("Textus Receptus Greek New Testament (Scrivener 1894) (20140413)"), constUUID_TR_20140413_X2, "bbl-tr-20140413-x2.s3db", "bbl-tr-20140413-x2.ccdb", constUUID_TR_20140413_X2 },
 		// SPMT-20120627:
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "SPMT-20120627", "he", QString::fromUtf8("Samaritan Pentateuch Masoretic Text"), QString::fromUtf8("Samaritan Pentateuch Masoretic Text (20120627)"), constUUID_SPMT_20120627, "bbl-spmt-20120627.s3db", "bbl-spmt-20120627.ccdb", constUUID_SPMT_20120627 },
+		// LXX-20080722:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "LXX-20080722", "grc", QString::fromUtf8("LXX Greek Septuagint Old Testament Version 270 BC"), QString::fromUtf8("LXX Greek Septuagint Old Testament Version 270 BC (20080722)"), constUUID_LXX_20080722, "bbl-lxx-20080722.s3db", "bbl-lxx-20080722.ccdb", constUUID_LXX_20080722 },
 	};
 
 	//////////////////////////////////////////////////////////////////////
