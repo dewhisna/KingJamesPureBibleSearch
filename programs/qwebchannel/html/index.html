@@ -390,6 +390,12 @@
 
 						waitCursor(true);		// important for slow connections so UI disables and keeps user from getting us out of sync
 
+						if (!bReconnection) {
+							if ((/[?&]bible=([A-Za-z0-9\-:/\.]+)/.exec(location.search))) {
+								strBibleUUID = (/[?&]bible=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+							}
+						}
+
 						output("Selecting Bible...");
 						window.kjpbs.selectBible(strBibleUUID);
 
