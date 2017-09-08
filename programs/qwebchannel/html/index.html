@@ -394,7 +394,14 @@
 						window.kjpbs.selectBible(strBibleUUID);
 
 						if (!bReconnection) {
-							window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
+							var nOpenChapter;
+
+							if ((/[?&]chapter=([A-Za-z0-9\-:/\.]+)/.exec(location.search))) {
+								nOpenChapter = (/[?&]chapter=([A-Za-z0-9\-:/\.]+)/.exec(location.search)[1]);
+								window.kjpbs.gotoChapter(nOpenChapter, "scrollTabTop");
+							} else {
+								window.kjpbs.gotoIndex(0, 1, "scrollTabTop");
+							}
 							hideKeyboard();
 						}
 					});
