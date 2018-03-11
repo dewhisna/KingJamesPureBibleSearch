@@ -1,0 +1,35 @@
+#!/bin/sh
+
+DIR=$(dirname "$0")
+
+#arecord -D hw:1,1,0 -f cd america1.wav &
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 <XML-basename> [<voice>]"
+	echo ""
+	exit 1
+fi
+
+if [ $# -ge 2 ]; then
+	voice=$2
+else
+	voice='(voice_us1_mbrola)'
+fi
+
+rm $1.wav
+
+for f in `find . -iname "$1*.xml" | sort`
+do
+	parec -d alsa_output.pci-0000_00_1b.0.analog-stereo.monitor --file-format=wav "${f%.*}.wav" &
+	pid=$!
+	echo "${f%.*}"
+	$DIR/../festival/bin/festival <<!
+	$voice
+	(tts_file "$f" 'singing)
+!
+	while s="`pidof audsp`" && [[ "$s" ]]; do sleep 0.5; done
+	kill $pid
+done
+
+ch_wave -o $1.wav -pc longest $1*.wav
+
