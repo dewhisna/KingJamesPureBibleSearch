@@ -1,0 +1,3 @@
+# Ignore pushing the 2.4 Festival source since it's so huge (compared to 2.1)
+2.4/
+
