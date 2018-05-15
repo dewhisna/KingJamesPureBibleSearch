@@ -1121,11 +1121,18 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					std::cerr << ".";
 				}
 
+				bool bPreExisted = ((m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1]).find(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0))
+										!= (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1]).end());
+
 				if (CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0) == g_arrBooks[m_ndxCurrent.book()-1].m_ndxStartingChapterVerse) {
 					for (CRelIndex ndxAddVrs = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 0); ndxAddVrs != m_ndxCurrent; ndxAddVrs.setVerse(ndxAddVrs.verse()+1)) {
 						// Create all intentionally missing verses:
 						(m_pBibleDatabase->m_lstBookVerses[ndxAddVrs.book()-1])[CRelIndex(ndxAddVrs.book(), ndxAddVrs.chapter(), ndxAddVrs.verse(), 0)];
 					}
+				}
+
+				if (bPreExisted) {
+					std::cerr << QString("\n*** Warning: Duplicate Verse Entry: \"%1\"\n").arg(m_pBibleDatabase->PassageReferenceText(m_ndxCurrent)).toUtf8().data();
 				}
 
 				startVerseEntry(m_ndxCurrent, bOpenEnded);
@@ -1447,6 +1454,8 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 		return;
 	}
 
+	bool bPreExisted = ((m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1]).find(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0))
+							!= (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1]).end());
 	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 
 	if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
@@ -1497,15 +1506,17 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	}
 
 	if (nVT == VT_VERSE) {
-		unsigned int nVerseOffset = 1;
-		unsigned int nTst = bookIndexToTestamentIndex(relIndex.book());
-		if (CRelIndex(0, relIndex.chapter(), relIndex.verse(), 0) == g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse) nVerseOffset = g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse.verse();
-		m_pBibleDatabase->m_EntireBible.m_nNumVrs += nVerseOffset;
-		assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
-		m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
-		assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
-		m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_nNumVrs += nVerseOffset;
-		m_pBibleDatabase->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumVrs += nVerseOffset;
+		if (!bPreExisted) {			// Only increment verse counts if this isn't a duplicate (pre-existing) verse.  Otherwise, we'll crash in the word output and summary phase
+			unsigned int nVerseOffset = 1;
+			unsigned int nTst = bookIndexToTestamentIndex(relIndex.book());
+			if (CRelIndex(0, relIndex.chapter(), relIndex.verse(), 0) == g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse) nVerseOffset = g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse.verse();
+			m_pBibleDatabase->m_EntireBible.m_nNumVrs += nVerseOffset;
+			assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
+			m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
+			assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
+			m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_nNumVrs += nVerseOffset;
+			m_pBibleDatabase->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumVrs += nVerseOffset;
+		}
 		if ((relIndex.book() == PSALMS_BOOK_NUM) && (relIndex.chapter() == 119) && (((relIndex.verse()-1)%8) == 0)) {
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("M:");
