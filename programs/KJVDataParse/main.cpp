@@ -1967,7 +1967,7 @@ int main(int argc, char *argv[])
 
 	QDir dirOutput(strOutputPath);
 	if (!dirOutput.exists()) {
-		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.canonicalPath()).toUtf8().data();
+		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.path()).toUtf8().data();
 		return -2;
 	}
 
