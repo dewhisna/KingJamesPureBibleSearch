@@ -68,7 +68,7 @@ namespace {
 	const char *constUUID_TR_20140413_X2 =		"4C0C5630-5C77-11E7-9598-0800200C9A66";
 	const char *constUUID_SPMT_20120627 =		"5939EB40-5BAC-11E7-9598-0800200C9A66";
 	const char *constUUID_LXX_20080722 =		"4F4BD170-6264-11E7-9598-0800200C9A66";
-	const char *constUUID_RV1865sbv20180504 =	"28A10630-5728-11E8-B566-0800200C9A66";
+	const char *constUUID_RV1865mv20180504 =	"28A10630-5728-11E8-B566-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -78,13 +78,13 @@ namespace {
 	//		"The Word" keeps changing (ugh!):
 	const char *constUUID_RVG2010 = constUUID_RVG2010_20140126;
 
-	// Use the RV1865sbv20180504 UUID for the highlighter tag for RV1865sbv 20180504 and
+	// Use the RV1865mv20180504 UUID for the highlighter tag for all RV1865mv, 20180504 and
 	//		newer in general.  Even though they technically aren't compatible.  This will
-	//		exclude the original 20140622 edition, which was only ever published on
+	//		exclude the original sbv20140622 edition, which was only ever published on
 	//		KJPBS WebChannel and shouldn't have any highlighting associated with it.  The
 	//		new versions have insisted on returning to nonstandard versification and this
 	//		UUID will become the "standard" for that highlighter UUID tag:
-	const char *constUUID_RV1865sbv = constUUID_RV1865sbv20180504;
+	const char *constUUID_RV1865mv = constUUID_RV1865mv20180504;
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
@@ -130,8 +130,8 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "SPMT-20120627", "he", QString::fromUtf8("Samaritan Pentateuch Masoretic Text"), QString::fromUtf8("Samaritan Pentateuch Masoretic Text (20120627)"), constUUID_SPMT_20120627, "bbl-spmt-20120627.s3db", "bbl-spmt-20120627.ccdb", constUUID_SPMT_20120627 },
 		// LXX-20080722:
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "LXX-20080722", "grc", QString::fromUtf8("LXX Greek Septuagint Old Testament Version 270 BC"), QString::fromUtf8("LXX Greek Septuagint Old Testament Version 270 BC (20080722)"), constUUID_LXX_20080722, "bbl-lxx-20080722.s3db", "bbl-lxx-20080722.ccdb", constUUID_LXX_20080722 },
-		// RV1865-sbv20180504: (Reina-Valera 1865, from Vince LaRue, Sociedad Bíblica Valera 2018-05-04 Release)
-		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-sbv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Sociedad Bíblica Valera (20180504)"), constUUID_RV1865sbv20180504, "bbl-rv1865sbv20180504.s3db", "bbl-rv1865sbv20180504.ccdb", constUUID_RV1865sbv },
+		// RV1865-mv20180504: (Reina-Valera 1865, from Vince LaRue, Ministerios Valera 1865, 2018-05-04 Release)
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-mv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Ministerios Valera 1865 (20180504)"), constUUID_RV1865mv20180504, "bbl-rv1865mv20180504.s3db", "bbl-rv1865mv20180504.ccdb", constUUID_RV1865mv },
 	};
 
 	//////////////////////////////////////////////////////////////////////
