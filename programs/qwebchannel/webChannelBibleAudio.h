@@ -106,6 +106,7 @@ public:
 		BAS_CHRISTOPHER_GLYN = 0x40,		// Christopher Glyn Version
 		BAS_WILLARD_WAGGONER = 0x80,		// Willard Waggoner Version
 		BAS_SHERBERG_JONES = 0x100,			// Jon Sherberg and James Earl Jones Version
+		BAS_REINA_VALERA_1865 = 0x200,		// Spanish Reina-Valera 1865 Narration
 		BAS_ALL = 0xFFFFFFFF
 	};
 	Q_DECLARE_FLAGS(BibleAudioSourcesFlags, BibleAudioSources)

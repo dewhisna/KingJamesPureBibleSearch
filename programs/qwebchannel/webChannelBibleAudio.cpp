@@ -36,6 +36,8 @@
 namespace {
 
 #define NUM_BK 66
+#define NUM_BK_OT 39
+#define NUM_BK_NT 27
 
 #define NUMBERS_BOOK_NUM 04
 #define PSALMS_BOOK_NUM 19
@@ -782,6 +784,46 @@ namespace {
 
 	// ------------------------------------------------------------------------
 
+	// Reina-Valera 1865:
+	//	Filename format: nnn.BOOKNAME_x.mp3
+	//		nnn = 3-digit Testament Chapter number, 0 filled
+	//		BOOKNAME = Exact bookname as listed below
+	//		x = Book Chapter
+
+	const QString g_arrconstrRV1865Books[NUM_BK_NT] = {
+		"Mateo",
+		"Marcos",
+		"Lucas",
+		"Juan",
+		"Actos",
+		"Romanos",
+		"Primera_Corintios",
+		"Segunda_Corintios",
+		"Gálatas",
+		"Efesios",
+		"Filipenses",
+		"Colosenses",
+		"Primera_Tesalonicenses",
+		"Segunda_Tesalonicenses",
+		"Primera_Timoteo",
+		"Segunda_Timoteo",
+		"Tito",
+		"Filemón",
+		"Hebreos",
+		"Santiago",
+		"Primera_de_Pedro",
+		"Segunda_de_Pedro",
+		"Primera_Epistola_de_San_Juan",
+		"Segunda_Epistola_de_San_Juan",
+		"Tercera_de_Juan",
+		"San_Judas",
+		"Revelación",
+	};
+
+	const QString g_constrRV1865URL = "http://audios.dewtronics.com/ReinaValera1865/%1";
+
+	// ------------------------------------------------------------------------
+
 }	// Namespace
 
 // ============================================================================
@@ -822,6 +864,7 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 		int nBkTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_BOOK, ndxDecolophonated).ofTestament().first;
 		int nBk = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_BOOK, ndxDecolophonated).ofBible().first;
 		int nChp = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBook().first;
+		int nChpTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofTestament().first;
 		int nChpBible = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first;
 
 		bool bKJVValid = (((nTst > 0) && (nTst <= 2)) && (nBkTst != 0) && ((nBk > 0) && (nBk <= NUM_BK)));
@@ -831,6 +874,10 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJV1611).m_strUUID, Qt::CaseInsensitive) != 0) &&
 			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJV1611A).m_strUUID, Qt::CaseInsensitive) != 0))
 			bKJVValid = false;
+
+		bool bRV1865Valid = ((nTst == 2) && ((nBkTst > 0) && (nBkTst <= NUM_BK_NT)));
+		if (pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RV1865mv20180504).m_strUUID, Qt::CaseInsensitive) != 0)
+			bRV1865Valid = false;
 
 		if (bKJVValid) {
 			// Faith Comes By Hearing:
@@ -993,6 +1040,17 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 				QJsonObject objBibleAudio;
 				objBibleAudio["name"] = "Sherberg/Jones";
 				objBibleAudio["url"] = QString(QUrl(QString(g_constrSherbergJonesURL).arg(strSherbergJones)).toEncoded());
+				arrBibleAudioList.append(objBibleAudio);
+			}
+		}
+
+		if (bRV1865Valid) {
+			// Reina-Valera 1865:
+			QString strRVBkChp = QString("%1.%2_%3.mp3").arg(nChpTst, 3, 10, QChar('0')).arg(g_arrconstrRV1865Books[nBkTst-1]).arg(nChp);
+			if (flagsBAS & BAS_REINA_VALERA_1865) {
+				QJsonObject objBibleAudio;
+				objBibleAudio["name"] = "Reina Valera 1865";
+				objBibleAudio["url"] = QString(QUrl(QString(g_constrRV1865URL).arg(strRVBkChp)).toEncoded());
 				arrBibleAudioList.append(objBibleAudio);
 			}
 		}
