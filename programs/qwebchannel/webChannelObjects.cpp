@@ -44,6 +44,7 @@ CWebChannelObjects::CWebChannelObjects(CWebChannelClient *pParent)
 		m_bIsAdmin(false),
 		m_nThreadIndex(-1),
 		m_bIsIdle(false),
+		m_bHasSelectedBible(false),
 		m_pWebChannel(pParent)
 {
 	assert(m_pWebChannel != NULL);
@@ -104,6 +105,7 @@ void CWebChannelObjects::selectBible(const QString &strUUID)
 
 	if (CWebChannelThreadController::instance()->selectBible(this, strUUID)) {
 		m_strBibleUUID = strUUID;
+		m_bHasSelectedBible = true;
 	} else {
 		m_strBibleUUID.clear();
 	}

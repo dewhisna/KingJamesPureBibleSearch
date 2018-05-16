@@ -805,8 +805,8 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 
 	bool bSuccess = true;
 
-	// Report list of available texts if selecting default:
-	if (strUUID.isEmpty()) {
+	// Report list of available texts if we haven't yet selected the Bible on this client (i.e. first selection):
+	if (!pChannel->hasSelectedBible()) {
 		bSuccess = QMetaObject::invokeMethod(pChannel,
 									"bibleList",
 									Qt::DirectConnection,		// This should make sure the list fires before the default selection propagates

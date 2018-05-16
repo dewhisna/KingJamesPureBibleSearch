@@ -56,6 +56,8 @@ public:
 	bool isIdle() const { return m_bIsIdle; }
 	QString bibleUUID() const { return m_strBibleUUID; }
 
+	bool hasSelectedBible() const { return m_bHasSelectedBible; }
+
 private:
 	friend class CWebChannelThreadController;
 	void setThreadIndex(int nThreadIndex);
@@ -119,6 +121,7 @@ private:
 	QString m_strUserAgent;									// Set to userAgent string from client browser
 	int m_nThreadIndex;										// Thread Index in CWebChannelThreadController
 	bool m_bIsIdle;											// True when the client stops interacting for a certain period
+	bool m_bHasSelectedBible;								// Set to true when this client first selects a Bible, used to send list of available Bibles
 	QString m_strBibleUUID;									// UUID of currently selected Bible
 	CWebChannelClient *m_pWebChannel;						// Parent channel
 };
