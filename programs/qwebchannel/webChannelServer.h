@@ -29,6 +29,7 @@
 #include <QWebChannel>
 #include <QMap>
 #include <QPointer>
+#include <QTimer>
 #include "websocketclientwrapper.h"
 
 // Forward declarations:
@@ -47,8 +48,17 @@ class CWebChannelClient : public QObject
 	Q_OBJECT
 
 public:
+	enum WCC_STATE {
+		WCCS_CREATED = 0,		// Initial object created but initialization not complete
+		WCCS_ACTIVE = 1,		// Object alive and active (normal operation)
+		WCCS_DEAD = 2,			// Object initialization believed to have failed, termination is pending after final check
+	};
+
 	CWebChannelClient(CWebChannelServer *pParent);
 	virtual ~CWebChannelClient();
+
+	WCC_STATE channelState() const { return m_nChannelState; }
+	void setChannelState(WCC_STATE nState) { m_nChannelState = nState; }
 
 	QString connectionTime() const;
 	int threadIndex() const;
@@ -75,6 +85,7 @@ protected:
 	void setBibleUUID();
 
 private:
+	WCC_STATE m_nChannelState;
 	QString m_strConnectionTime;
 	QWebChannel m_channel;
 	QPointer<CWebChannelObjects> m_pWebChannelObjects;
@@ -124,6 +135,8 @@ public slots:
 	void sendBroadcast(const QString &strMessage);		// Broadcast message to all connected clients
 
 private slots:
+	void en_checkClientStates();						// Triggered on periodic timer to verify all client states to drop dead connections
+
 	void en_clientConnected(WebSocketTransport* pClient);
 	void en_clientDisconnected(WebSocketTransport* pClient);
 
@@ -137,6 +150,7 @@ protected:
 	QHostAddress m_HostAddress;
 	quint16 m_nHostPort;
 	CWebChannelGeoLocate *m_pGeoLocater;
+	QTimer m_tmrStateCheck;							// Client State Check tick timer
 };
 
 // ============================================================================

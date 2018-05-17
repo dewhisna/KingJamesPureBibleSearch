@@ -37,10 +37,13 @@
 
 #define DEBUG_WEBCHANNEL_SERVER_CONNECTIONS 0
 
+#define CLIENT_STATE_CHECK_RATE			60000			// Check clients every 60 seconds
+
 // ============================================================================
 
 CWebChannelClient::CWebChannelClient(CWebChannelServer *pParent)
 	:	QObject(pParent),
+		m_nChannelState(WCCS_CREATED),
 		m_pWebChannelServer(pParent)
 {
 	assert(m_pWebChannelServer != NULL);
@@ -148,7 +151,8 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 		m_server("King James Pure Bible Search WebChannel Server", QWebSocketServer::NonSecureMode),
 		m_clientWrapper(&m_server),
 		m_HostAddress(anAddress),
-		m_nHostPort(nPort)
+		m_nHostPort(nPort),
+		m_pGeoLocater(NULL)
 {
 	m_pGeoLocater = new CWebChannelGeoLocate(this);
 	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &, const QString &)));
@@ -162,6 +166,10 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 
 	// Handle connections:
 	connect(&m_clientWrapper, SIGNAL(clientConnected(WebSocketTransport*)), this, SLOT(en_clientConnected(WebSocketTransport*)));
+
+	// Handle client state checking:
+	connect(&m_tmrStateCheck, SIGNAL(timeout()), this, SLOT(en_checkClientStates()));
+	m_tmrStateCheck.start(CLIENT_STATE_CHECK_RATE);
 
 #ifdef IS_CONSOLE_APP
 	if (m_server.isListening()) {
@@ -257,6 +265,81 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 		QCoreApplication::exit(0);
 	}
 #endif
+}
+
+void CWebChannelServer::en_checkClientStates()
+{
+	// To keep from blowing away our iterator by closing the socket directly
+	//		in this loop, make a list of clients to disconnect:
+	QList<WebSocketTransport *> lstClientsToDrop;
+
+	// Loop through clients and check status:
+	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
+		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
+		if (!pClientChannel.isNull()) {
+			switch (pClientChannel->channelState()) {
+				case CWebChannelClient::WCCS_DEAD:
+					// If the channel was last deemed as dead, give one final check
+					//	to see if it has become active.  If not, drop the connection:
+					if (!pClientChannel->isAdmin()) {
+						if (pClientChannel->threadIndex() == -1) {
+							// Disconnect and remove dead client:
+							lstClientsToDrop.append(itrClientMap.key());
+						} else {
+							// Client seems to be active now, as it's been assigned to a worker thread, so revive it:
+							pClientChannel->setChannelState(CWebChannelClient::WCCS_ACTIVE);
+						}
+					} else {
+						// Note: Admin connections should never be dead, as it wouldn't be deemed
+						//	admin unless it made it through init.  But if it somehow got tagged as
+						//	dead, move it to active:
+						pClientChannel->setChannelState(CWebChannelClient::WCCS_ACTIVE);
+					}
+					break;
+
+				case CWebChannelClient::WCCS_CREATED:
+					// If the channel was created, see if it's become active (i.e. assigned to
+					//	a worker thread.  If not, move to the dead state to possibly drop next time:
+					if (!pClientChannel->isAdmin()) {
+						if (pClientChannel->threadIndex() == -1) {
+							// If the client object was created, but not assigned to a worker
+							//	thread, then it means that there's a chance the connection (while
+							//	still active) has failed WebChannel registration and initialization.
+							//	Flag as dead to check it next time, and if it's still inactive,
+							//	we'll drop the connection then:
+							pClientChannel->setChannelState(CWebChannelClient::WCCS_DEAD);
+						} else {
+							// Once the connection is assigned to a worker thread, move it to the
+							//	active state.  WebChannel registration and initialization was
+							//	successful and the search objects will be responsible for dropping
+							//	it should it become idle:
+							pClientChannel->setChannelState(CWebChannelClient::WCCS_ACTIVE);
+						}
+					} else {
+						// Note: Admin connections will have (by definition) made it through init
+						//	already, even though it doesn't get assigned to a worker thread.  Therefore,
+						//	move it straight to the active state:
+						pClientChannel->setChannelState(CWebChannelClient::WCCS_ACTIVE);
+					}
+					break;
+
+				case CWebChannelClient::WCCS_ACTIVE:
+					// Leave active clients alone.  The search objects on the worker threads
+					//	will be responsible for dropping inactive users should they stop
+					//	interacting with the server
+					break;
+			}
+		} else {
+			// Disconnect and remove objects that have gotten deleted:
+			lstClientsToDrop.append(itrClientMap.key());
+		}
+	}
+
+	// Close and remove prescribed clients (removal happens in disconnect signal processing):
+	for (int i = 0; i < lstClientsToDrop.size(); ++i) {
+		assert(lstClientsToDrop.at(i) != NULL);
+		lstClientsToDrop.at(i)->socket()->close(QWebSocketProtocol::CloseCodeGoingAway, "disconnectClient");
+	}
 }
 
 void CWebChannelServer::close()

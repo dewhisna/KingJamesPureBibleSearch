@@ -212,6 +212,7 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(!pClientChannel.isNull() ? pClientChannel->bibleUUID() : QString());
 		bool bIsSearching = ((!pBibleDatabase.isNull()) && ((!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1) != -1));
 		QString strGeoIP;
+		QString strStatus;
 #ifdef USING_MMDB
 		CMMDBLookup mmdb;
 		QString strJSON;
@@ -259,13 +260,33 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 			}
 		}
 #endif
+		if (bAdmin) {
+			strStatus = "n/a";
+		} else {
+			if (!pClientChannel.isNull()) {
+				switch (pClientChannel->channelState()) {
+					case CWebChannelClient::WCCS_CREATED:
+						strStatus = "Created";
+						break;
+					case CWebChannelClient::WCCS_ACTIVE:
+						strStatus = (!pClientChannel->isIdle() ? "Active" : "Idle");
+						break;
+					case CWebChannelClient::WCCS_DEAD:
+						strStatus = "Dead";
+						break;
+				}
+			} else {
+				strStatus = "Dropped";
+			}
+		}
+
 		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td>%5</td><td style=\"text-align:center;\">%6</td><td style=\"white-space:nowrap;\">%7</td><td style=\"white-space:nowrap;\">%8</td></tr>\n")
 					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
 					.arg(itrChannels.key()->socket()->peerAddress().toString())
 					.arg(itrChannels.key()->socket()->peerPort())
 					.arg(!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1)
 					.arg(!pClientChannel.isNull() ? pClientChannel->connectionTime() : "")
-					.arg(!bAdmin ? ((!pClientChannel.isNull() && !pClientChannel->isIdle()) ? "Active" : "Idle") : "n/a")
+					.arg(strStatus)
 					.arg(bIsSearching ? pBibleDatabase->description() : QString())
 					.arg(!pClientChannel.isNull() ? pClientChannel->userAgent().toHtmlEscaped() : QString());
 		if (!strGeoIP.isEmpty()) {
