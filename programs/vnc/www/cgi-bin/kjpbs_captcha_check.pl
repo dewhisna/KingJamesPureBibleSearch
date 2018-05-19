@@ -2,17 +2,18 @@
 
 use strict;
 use CGI qw(:standard);
-use Captcha::reCAPTCHA;
+use kjpbs_captcha;
 
 our @services;
 require "kjpbs_nodes.pl";
 
-my $captcha = Captcha::reCAPTCHA->new;
+my $captcha = kjpbs_captcha->new;
 
-my $challenge = param 'recaptcha_challenge_field';
-my $response = param 'recaptcha_response_field';
+my $challenge = cookie('hash');
+my $response = param 'verify';
 my $resolution = param 'resolution';
 my $bbl = param 'bbl';
+my $bible = $bbl;
 
 # Limit uncontrolled input:
 if ($resolution eq '1024x768') {
@@ -26,32 +27,28 @@ if ($resolution eq '1024x768') {
 
 # Limit uncontrolled input and remap Bible indexes accordingly:
 if ($bbl eq '1') {
+  $bible = '1';
 } elsif ($bbl eq '2') {
-  $bbl = '12';
+  $bible = '12';
 } elsif ($bbl eq '3') {
-  $bbl = '8';
+  $bible = '21';
 } elsif ($bbl eq '4') {
-  $bbl = '13';
+  $bible = '16';
 } elsif ($bbl eq '5') {
-  $bbl = '16';
-} elsif ($bbl eq '6') {
-  $bbl = '7';
+  $bible = '7';
 } else {
-  $bbl = '1';
+  $bible = '1';
 }
 
 # Verify Submission
-my $result = $captcha->check_answer(
-  "6Lf3Eu8SAAAAAH10tH_aKL-c6ZAakJj4oBsIjMiv", $ENV{'REMOTE_ADDR'},
-  $challenge, $response
-);
+my $result = $captcha->captcha_verify($challenge, $response);
 
 my $nodeID;
 my $launchURL;
 my $datetimestring;
 
-if ($result->{is_valid}) {
-  $nodeID = launch_node($resolution, $bbl, '60m');
+if ($result) {
+  $nodeID = launch_node($resolution, $bible, '60m');
 
   if ($nodeID > -1) {
     $launchURL = "http://vnc.purebiblesearch.com:" . $services[$nodeID][3];

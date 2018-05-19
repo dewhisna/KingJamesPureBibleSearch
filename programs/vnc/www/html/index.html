@@ -76,13 +76,14 @@ window.onload = function() {
 			<select name="bbl" id="bbl">
 			<option value="1" selected="selected">King James Bible (English)</option>
 			<option value="2">King James 1611 (English)</option>
-			<option value="3">Reina-Valera 1865, Local Church Bible Publishers (Español)</option>
-			<option value="4">Reina-Valera 1865, Sociedad Biblica Valera (Español)</option>
-			<option value="5">Reina-Valera Gómez 2010 (Español)</option>
-			<option value="6">German Unrevidierte Luther Übersetzung von 1545 (Deutsche)</option>
+			<option value="3">Reina-Valera 1865, Ministerios Valera 1865 (20180504) (Español)</option>
+			<option value="4">Reina-Valera Gómez 2010 (Español)</option>
+			<option value="5">German Unrevidierte Luther Übersetzung von 1545 (Deutsche)</option>
 			</select>
 			<h2>Prove that you are a human and not a web bot:</h2>
-			<!--#include virtual="/cgi-bin/kjpbs_captcha.pl" -->
+			<img src="/cgi-bin/kjpbs_captcha.pl?rm=create"><br />
+			<input type="text" name="verify" />
+			<br />
 			<br />
 			<input type="submit" value="Enter the Computer Lab" />
 			</form>
@@ -120,14 +121,16 @@ window.onload = function() {
 			<ul>
 			<li>Works on Windows, Linux, and Mac and other devices sporting a compatible browser and input/output mechanism<br /><br /></li>
 			<li>It does work on Mobile devices, however, it is just as clunky as you'd expect trying to run a desktop app on a mobile device
-				would be.  In other words, you probably won't like using it on mobile devices.<br /><br /></li>
+				would be.  In other words, you probably won't like using it on mobile devices.  For mobile devices,
+				<a href="http://webchannel.purebiblesearch.com/">use the WebChannel version instead</a>.<br /><br /></li>
 			<li>Should work on all modern browsers.  It has been tested in Firefox, Chrome, and Safari, but is believed to run in IE too.<br /><br /></li>
 			<li>Loads quickly but uses LOTS of bandwidth while using it, as you are remotely controlling the computer and constantly transferring
 				a graphical image of its screen, so it's like watching a movie or something.  <b>If you
 				are on a limited data plan and/or pay for data bandwidth, this will consume that data alotment very quickly
-				and/or be very expensive!  You have been warned!</b><br /><br /></li>
+				and/or be very expensive!  You have been warned!</b> For a lower-bandwidth option,
+				<a href="http://webchannel.purebiblesearch.com/">use the WebChannel version instead</a>.<br /><br /></li>
 			<li>Interaction speed is dependent on your internet connection!  If you are on a slow connection, it will be slow!  For
-				slow connections, it's recommended that you <a href="http://www.purebiblesearch.com/online/">use the Emscripten version instead</a>.<br /><br /></li>
+				slow connections, it's recommended that you <a href="http://webchannel.purebiblesearch.com/">use the WebChannel version instead</a>.<br /><br /></li>
 			<li>A limited number of virtual computers can be running at the same time.  If there isn't an open computer, you will
 				see an error message.  Try back again later.  If you continually find it busy, please let me know and I will
 				allocate additional virtual computers.<br /><br /></li>

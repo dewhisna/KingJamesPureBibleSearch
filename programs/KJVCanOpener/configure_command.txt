@@ -2039,7 +2039,8 @@ sudo apt-get install lynx
 sudo apt-file update
 sudo cpan -i IO::Socket
 sudo cpan -i CGI
-sudo cpan -i Captcha::reCAPTCHA
+#  sudo cpan -i Captcha::reCAPTCHA						## No longer needed since Google broke their reCAPTCHA
+sudo apt-get install libcgi-application-plugin-captcha-perl		## This displaces the reCAPTCHA above
 
 
 sudo apt-get install novnc								## useful for future migration, but not presently needed since we have self-encapsulated noVNC
@@ -2186,19 +2187,18 @@ drwxr-xr-x 9 root root 4096 Sep 21 08:52 ..
 total 28
 drwxr-xr-x 3 root root 4096 Jan  8  2015 .
 drwxr-xr-x 9 root root 4096 Sep 21 08:52 ..
--rwxr-xr-x 1 root root 1863 Jan  8  2015 kjpbs_captcha_check.pl
--rwxr-xr-x 1 root root  462 Feb 24  2014 kjpbs_captcha.pl
--rw-r--r-- 1 root root 3824 Feb 25  2014 kjpbs_nodes.pl
--rwxr-xr-x 1 root root  964 Feb 25  2014 kjpbs_status.pl
-drwxr-xr-x 2 root root 4096 Sep 26  2014 testing
+-rwxr-xr-x  1 root root 1897 May 19 17:07 kjpbs_captcha_check.pl*
+-rwxr-xr-x  1 root root   88 May 19 16:45 kjpbs_captcha.pl*
+-rw-r--r--  1 root root  716 May 19 16:45 kjpbs_captcha.pm
+-rw-r--r--  1 root root 3824 Feb 25  2014 kjpbs_nodes.pl
+-rwxr-xr-x  1 root root  964 Feb 25  2014 kjpbs_status.pl*
+drwxr-xr-x  2 root root 4096 Sep 26  2014 testing/
 
 
 /var/www$ ls cgi-bin/testing/
 total 48
 drwxr-xr-x 2 root root 4096 Sep 26  2014 .
 drwxr-xr-x 3 root root 4096 Jan  8  2015 ..
--rwxr-xr-x 1 root root  542 Feb 24  2014 captcha_check.pl
--rwxr-xr-x 1 root root  418 Feb 24  2014 captcha.pl
 -rw-r--r-- 1 root root 3824 Sep 26  2014 kjpbs_nodes.pl
 -rw-r--r-- 1 root root 3829 Feb 26  2014 kjpbs_nodes_test.pl
 -rwxr-xr-x 1 root root  762 Feb 24  2014 launch_kjpbs.pl
@@ -2227,15 +2227,14 @@ drwxr-xr-x 3 root     root     4096 Feb 25  2014 ..
 total 144
 drwxr-xr-x 3 root root  4096 Sep 21 20:29 .
 drwxr-xr-x 8 root root  4096 Sep 21 20:41 ..
--rw-r--r-- 1 root root  1150 Sep 21 08:00 favicon.ico
--rwxr-xr-x 1 root root  3022 Sep 21 20:29 index_down.html
--rwxr-xr-x 1 root root 10197 Sep 21 20:29 index.html
--rwxr-xr-x 1 root root  8598 Sep 21 20:29 index_orig.html
--rw-r--r-- 1 root root 97410 Sep 21 08:00 KJPBS_Laptop.png
--rw-r--r-- 1 root root   466 Sep 21 08:00 redirect.html
-drwxr-xr-x 2 root root  4096 Sep 21 08:00 status
-
-( NOTE : Important to make index.html executable for #include of /cgi-bin/kjpbs_captcha.pl !! )
+drwxr-xr-x  2 root root  4096 Mar 19  2016 92836656-db29-4b90-bbab-07d098983e70/
+-rw-r--r--  1 root root  1150 Sep 21  2015 favicon.ico
+-rw-r--r--  1 root root  3022 Sep 21  2015 index_down.html
+-rw-r--r--  1 root root 10730 May 19 16:33 index.html
+-rwxr-xr-x  1 root root  8598 Sep 21  2015 index_orig.html*
+-rw-r--r--  1 root root 97410 Sep 21  2015 KJPBS_Laptop.png
+-rw-r--r--  1 root root   466 Sep 21  2015 redirect.html
+drwxr-xr-x  2 root root  4096 Sep 21  2015 status/
 
 
 /var/www$ ls html/status/
