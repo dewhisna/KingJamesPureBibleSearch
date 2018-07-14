@@ -1824,7 +1824,7 @@ void CBibleDatabase::setRenderedWords(CWordEntry &aWordEntry) const
 
 int CBibleDatabase::concordanceIndexForWordAtIndex(uint32_t ndxNormal) const
 {
-	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
+	if ((ndxNormal < 1) || (ndxNormal >= m_lstConcordanceMapping.size()))
 		return -1;
 	return m_lstConcordanceMapping.at(ndxNormal);
 }
@@ -1851,7 +1851,7 @@ const CConcordanceEntry *CBibleDatabase::concordanceEntryForWordAtIndex(const CR
 
 QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
 {
-	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
+	if ((ndxNormal < 1) || (ndxNormal >= m_lstConcordanceMapping.size()))
 		return QString();
 
 	if (bAsRendered) {
@@ -1869,8 +1869,8 @@ QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, bool bAsRendered)
 
 QString CBibleDatabase::decomposedWordAtIndex(uint32_t ndxNormal) const
 {
-	assert((ndxNormal >= 1) && (ndxNormal <= m_lstConcordanceMapping.size()));
-	if ((ndxNormal < 1) || (ndxNormal > m_lstConcordanceMapping.size()))
+	assert((ndxNormal >= 1) && (ndxNormal < m_lstConcordanceMapping.size()));
+	if ((ndxNormal < 1) || (ndxNormal >= m_lstConcordanceMapping.size()))
 		return QString();
 
 	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).decomposedWord();
