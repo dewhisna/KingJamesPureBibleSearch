@@ -218,7 +218,11 @@ private:
 	Ui::CKJVSearchCriteriaWidget ui;
 };
 
+#endif
+
 // ============================================================================
+
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_DIFF_BUILD)
 
 class CSearchWithinModelIndex : public QObject
 {

@@ -600,6 +600,8 @@ QString CSearchWithinModel::toWebChannelHtml() const
 
 // ============================================================================
 
+#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+
 CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	QWidget(parent),
 	m_pSearchWithinModel(NULL),
@@ -795,6 +797,8 @@ void CKJVSearchCriteriaWidget::setAdjustDialogElementBrightness(bool bAdjust)
 	Q_UNUSED(bAdjust);
 //	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 }
+
+#endif
 
 // ============================================================================
 

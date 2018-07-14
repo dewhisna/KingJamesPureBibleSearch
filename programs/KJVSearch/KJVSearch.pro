@@ -54,6 +54,8 @@ SOURCES += main.cpp \
 	../KJVCanOpener/dbDescriptors.cpp \
 	../KJVCanOpener/dbstruct.cpp \
 	../KJVCanOpener/Highlighter.cpp \
+	../KJVCanOpener/KJVSearchCriteria.cpp \
+	../KJVCanOpener/ModelRowForwardIterator.cpp \
 	../KJVCanOpener/ParseSymbols.cpp \
 	../KJVCanOpener/PersistentSettings.cpp \
 	../KJVCanOpener/PhraseEdit.cpp \
@@ -73,6 +75,7 @@ HEADERS += \
 	../KJVCanOpener/dbstruct.h \
 	../KJVCanOpener/Highlighter.h \
 	../KJVCanOpener/KJVSearchCriteria.h \
+	../KJVCanOpener/ModelRowForwardIterator.h \
 	../KJVCanOpener/ParseSymbols.h \
 	../KJVCanOpener/PersistentSettings.h \
 	../KJVCanOpener/PhraseEdit.h \
