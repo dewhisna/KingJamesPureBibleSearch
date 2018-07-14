@@ -77,6 +77,8 @@ public:
 
 	void ParsePhrase(const QString &strPhrase);
 	void ParsePhrase(const QStringList &lstPhrase);
+	void AppendPhrase(const QString &strPhrase);
+	void AppendPhrase(const QStringList &lstPhrase);
 
 private:
 	friend class CParsedPhrase;
@@ -161,6 +163,11 @@ public:
 		assert((nIndex >= 0) && (nIndex < m_lstSubPhrases.size()));
 		return m_lstSubPhrases.at(nIndex).data();
 	}
+	void attachSubPhrase(CSubPhrase *pSubPhrase)				// Take ownership of externally created CSubPhrase
+	{
+		if (!m_pBibleDatabase.isNull()) pSubPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+		m_lstSubPhrases.append(QSharedPointer<CSubPhrase>(pSubPhrase));
+	}
 
 	virtual void ParsePhrase(const QTextCursor &curInsert, bool bFindWords = true);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord (Clears word cache and bFindWords determines if we FindWords() for our BibleDatabase)
 	virtual void ParsePhrase(const QString &strPhrase, bool bFindWords = false);		// Parses a fixed phrase (Clears word cache and does NOT call FindWords())
@@ -214,12 +221,19 @@ public:
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
 
-	void FindWords();								// Calls FindWords(subPhrase) with the ActiveSubPhrase
-	void FindWords(CSubPhrase &subPhrase);			// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
+	void FindWords();								// Calls FindWords(subPhrase) on each subphrase
+	void ResumeFindWords();							// Resumes the FindWords() logic without clearing current results -- used for manually adding new words to the end of the phrases only, as an optimization!
 
 	inline const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
 protected:
+	// This one needs to be private because if the subPhrase referenced isn't
+	//	owned by this ParsePhrase object, then you can't get the results back!
+	//	TODO : Consider moving this function to CSubPhrase.  It could almost be
+	//	static now except that it needs m_pBibleDatabase.  CSubPhrase doesn't
+	//	currently have m_pBibleDatabase but maybe it should?
+	void FindWords(CSubPhrase &subPhrase, bool bResume = false);	// Uses m_lstWords and m_nCursorWord to populate m_lstNextWords, m_lstMatchMapping, and m_nLevel
+
 	CBibleDatabasePtr m_pBibleDatabase;
 	mutable TPhraseTagList m_cache_lstPhraseTagResults;		// Cached Denormalized Search Results converted to phrase tags (Set on call to GetPhraseTagSearchResults, cleared on ClearCache)
 	// -------

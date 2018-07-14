@@ -276,6 +276,20 @@ void CSubPhrase::ParsePhrase(const QStringList &lstPhrase)
 	m_nCursorWord = m_lstWords.size();
 }
 
+void CSubPhrase::AppendPhrase(const QString &strPhrase)
+{
+	m_lstWords.append(strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts));
+	m_strCursorWord.clear();
+	m_nCursorWord = m_lstWords.size();
+}
+
+void CSubPhrase::AppendPhrase(const QStringList &lstPhrase)
+{
+	m_lstWords.append(lstPhrase);
+	m_strCursorWord.clear();
+	m_nCursorWord = m_lstWords.size();
+}
+
 // ============================================================================
 
 CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensitive, bool bAccentSensitive, bool bExclude)
@@ -740,19 +754,28 @@ void CParsedPhrase::FindWords()
 		FindWords(*m_lstSubPhrases[ndxSubPhrase]);
 }
 
-void CParsedPhrase::FindWords(CSubPhrase &subPhrase)
+void CParsedPhrase::ResumeFindWords()
+{
+	clearCache();			// Clear cache since it will no longer be valid
+	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase)
+		FindWords(*m_lstSubPhrases[ndxSubPhrase], true);
+}
+
+void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 {
 	assert(!m_pBibleDatabase.isNull());
 
 	int nCursorWord = subPhrase.m_nCursorWord;
 	assert((nCursorWord >= 0) && (nCursorWord <= subPhrase.m_lstWords.size()));
 
-	subPhrase.m_lstMatchMapping.clear();
 	bool bComputedNextWords = false;
-	subPhrase.m_nLevel = 0;
-	subPhrase.m_nCursorLevel = 0;
+	if (!bResume) {
+		subPhrase.m_lstMatchMapping.clear();
+		subPhrase.m_nLevel = 0;
+		subPhrase.m_nCursorLevel = 0;
+	}
 	bool bInFirstWordStar = false;
-	for (int ndx=0; ndx<subPhrase.m_lstWords.size(); ++ndx) {
+	for (int ndx=subPhrase.m_nLevel; ndx<subPhrase.m_lstWords.size(); ++ndx) {
 		if (subPhrase.m_lstWords.at(ndx).isEmpty()) continue;
 
 		QString strCurWordDecomp = CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx), true);
