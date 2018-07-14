@@ -1725,6 +1725,30 @@ TTagBoundsPair CBibleDatabase::bounds() const
 	return TTagBoundsPair(1, m_EntireBible.m_nNumWrd);
 }
 
+TPhraseTag CBibleDatabase::bookPhraseTag(const CRelIndex &nRelIndex) const
+{
+	TPhraseTag aTag(CRelIndex(nRelIndex.book(), 0, 0, 0));
+	const CBookEntry *pBook = bookEntry(aTag.relIndex());
+	if (pBook) aTag.setCount(pBook->m_nNumWrd);
+	return aTag;
+}
+
+TPhraseTag CBibleDatabase::chapterPhraseTag(const CRelIndex &nRelIndex) const
+{
+	TPhraseTag aTag(CRelIndex(nRelIndex.book(), nRelIndex.chapter(), 0, 0));
+	const CChapterEntry *pChapter = chapterEntry(aTag.relIndex());
+	if (pChapter) aTag.setCount(pChapter->m_nNumWrd);
+	return aTag;
+}
+
+TPhraseTag CBibleDatabase::versePhraseTag(const CRelIndex &nRelIndex) const
+{
+	TPhraseTag aTag(CRelIndex(nRelIndex.book(), nRelIndex.chapter(), nRelIndex.verse(), 0));
+	const CVerseEntry *pVerse = verseEntry(aTag.relIndex());
+	if (pVerse) aTag.setCount(pVerse->m_nNumWrd);
+	return aTag;
+}
+
 void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)
 {
 	assert(m_pKJPBSWordScriptureObject != NULL);

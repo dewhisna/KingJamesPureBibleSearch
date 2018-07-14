@@ -1040,6 +1040,10 @@ public:
 	bool completelyContains(const TPhraseTag &aPhraseTag) const;		// Returns true if this Bible database completely contains the specified tag (i.e. none of it lies outside the database text)
 	TTagBoundsPair bounds() const;
 
+	TPhraseTag bookPhraseTag(const CRelIndex &nRelIndex) const;
+	TPhraseTag chapterPhraseTag(const CRelIndex &nRelIndex) const;
+	TPhraseTag versePhraseTag(const CRelIndex &nRelIndex) const;
+
 	void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
 
 #ifdef USING_WEBCHANNEL
