@@ -266,8 +266,8 @@ int main(int argc, char *argv[])
 			std::cerr << ".";
 		}
 		QStringList lstPhrase;
-		for (int nCount = 0; nCount < nMinLen-1; ++nCount) {
-			const CConcordanceEntry *pConcordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(nNormalIndex+nCount);
+		for (int nCount = 1; nCount < nMinLen; ++nCount) {
+			const CConcordanceEntry *pConcordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(nNormalIndex+nCount-1);
 			if (pConcordEntry == NULL) break;
 			if (bCaseSensitive) {
 				lstPhrase.append(pConcordEntry->renderedWord());
@@ -282,13 +282,13 @@ int main(int argc, char *argv[])
 		parsePhrase.attachSubPhrase(pSubPhrase);	//		as the parsePhrase takes ownership OR if calling something like ParsePhrase() which nukes it!
 
 		int nLastOccurrences = nOccurrences;		// Previous phrase search of this entity
-		for (int nCount = nMinLen; nCount < nMaxLen; ++nCount) {
+		for (int nCount = nMinLen; nCount <= nMaxLen; ++nCount) {
 			if (nLastOccurrences < nOccurrences) {
 				// If not enough occurrences were found with less words,
 				//		they surely won't be found with more words:
 				break;
 			}
-			const CConcordanceEntry *pConcordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(nNormalIndex+nCount);
+			const CConcordanceEntry *pConcordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(nNormalIndex+nCount-1);
 			if (pConcordEntry == NULL) break;
 			if (bCaseSensitive) {
 				lstPhrase.append(pConcordEntry->renderedWord());
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 				if (!pBibleDatabase->bookPhraseTag(ndxPhrase).completelyContains(pBibleDatabase.data(), phraseTag)) continue;
 			}
 
-			if ((nCount == nMinLen) && (nCount >= 2)) {
+			if (nCount == nMinLen) {
 				pSubPhrase->ParsePhrase(lstPhrase);		// Must be SubPhrase->ParsePhrase, not parsePhrase->ParsePhrase() or else our SubPhrase object gets deleted!
 				parsePhrase.FindWords();
 			} else {
