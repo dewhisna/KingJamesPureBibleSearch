@@ -41,7 +41,7 @@ testlib:QT.testlib.CONFIG -= console
 console:DEFINES += IS_CONSOLE_APP
 
 # Include QWebChannel support on Qt 5.5+, if it's been selected:
-unix:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG += webchannel
+unix:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG *= webchannel
 webchannel:include(../qwebchannel/qwebchannel.pri)
 
 !emscripten {
@@ -73,7 +73,7 @@ if(android | ios):DEFINES += IS_MOBILE_APP
 #QRegularExpression Qt5->Qt4 experimentation:
 #CONFIG += pcre
 
-unix:!mac:!vnc {
+unix:lsb:!mac:!vnc {
 	CONFIG += static
 	QMAKE_CXXFLAGS += -static
 }
