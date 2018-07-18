@@ -1,0 +1,34 @@
+{
+  "builders": [{
+    "type": "docker",
+    "image": "ubuntu:16.04",
+    "commit": true,
+    "changes": [
+      "USER root",
+      "WORKDIR /root",
+      "EXPOSE 80 443 9340",
+      "LABEL version={{isotime \"200601021504\"}} description=KingJamesPureBibleSearch-command-line-tools",
+      "ONBUILD RUN date",
+      "ENTRYPOINT /bin/bash"
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "ubuntu_update.sh"
+    },
+    {
+      "type": "shell",
+      "script": "docker_build_KJPBS.sh"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-tag",
+      "repository": "localhost:5000/dewtronics/kjpbs-cmd",
+      "tag": "latest",
+      "force": true
+    }
+  ]
+}
+
