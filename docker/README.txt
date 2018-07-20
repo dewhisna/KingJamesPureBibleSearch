@@ -1,12 +1,12 @@
 How to compile KingJamesPureBibleSearch Command-Line Utilities Using a
 Docker Container provisioned by Packer:
 
-1. Installer Docker
+1. Install Docker
 2. Install Packer
-3. Build Docker Image
+3. Build KJPBS Docker Image
 4. Run KJPBS Tools
 
-Tools Built:
+KJPBS Tools Built:
 - KJVLookup
 - KJVSearch
 - KJVPhraseSearch
@@ -14,7 +14,7 @@ Tools Built:
 
 
 ================================================================================
-Installing Docker on Ubuntu
+Installing Docker on Ubuntu (See Docker website for other operating systems)
 ================================================================================
 From: https://docs.docker.com/install/linux/docker-ce/ubuntu/
 
@@ -57,7 +57,7 @@ $ sudo usermod -aG docker your-user
 Verify Installation:
 $ docker run --rm hello-world
 
-==================================================================================
+================================================================================
 
 
 ================================================================================
@@ -70,7 +70,7 @@ https://www.packer.io/downloads.html
 Unzip and:
 $ sudo cp packer /usr/local/bin
 
-==================================================================================
+================================================================================
 
 
 ================================================================================
@@ -83,7 +83,7 @@ $ cd KingJamesPureBibleSearch/docker
 $ packer build packer_docker_KJPBS.json
 (and take a coffee break... this step takes a while)
 
-==================================================================================
+================================================================================
 
 
 ================================================================================
@@ -105,6 +105,6 @@ Run them without any arguments for usage information.
 Enter 'exit' when finished to shutdown the container:
 # exit
 
-==================================================================================
+================================================================================
 
 
