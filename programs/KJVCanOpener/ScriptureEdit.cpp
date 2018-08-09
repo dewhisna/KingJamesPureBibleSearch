@@ -25,7 +25,6 @@
 
 #include "dbstruct.h"
 #include "KJVPassageNavigatorDlg.h"
-#include "QtFindReplaceDialog/dialogs/finddialog.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
@@ -39,6 +38,8 @@
 #include "KJVCanOpener.h"
 
 #include "SearchCompleter.h"
+
+#include <finddialog.h>
 
 #include <assert.h>
 

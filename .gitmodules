@@ -13,3 +13,6 @@
 [submodule "programs/qwebchannel/html/jquery/jquery-ui/geolocator"]
 	path = programs/qwebchannel/html/jquery/jquery-ui/geolocator
 	url = git@github.com:dewhisna/geolocator.git
+[submodule "programs/QtFindReplaceDialog"]
+	path = programs/QtFindReplaceDialog
+	url = git@github.com:dewhisna/QtFindReplaceDialog.git

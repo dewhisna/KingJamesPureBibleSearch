@@ -87,6 +87,7 @@ android {
 
 include(../qtiocompressor/src/qtiocompressor.pri)
 include(../grantlee/textdocument/textdocument.pri)
+include(../QtFindReplaceDialog/qtfindreplacedialog.pri)
 
 !android:!ios:!emscripten:!vnc:!console {
 	# Select Desired Package:
@@ -337,10 +338,6 @@ SOURCES += \
 	PersistentSettings.cpp \
 	PhraseEdit.cpp \
 	PhraseListModel.cpp \
-	QtFindReplaceDialog/dialogs/finddialog.cpp \
-	QtFindReplaceDialog/dialogs/findform.cpp \
-	QtFindReplaceDialog/dialogs/findreplaceform.cpp \
-	QtFindReplaceDialog/dialogs/findreplacedialog.cpp \
 	ReadDB.cpp \
 	ReflowDelegate.cpp \
 	ReportError.cpp \
@@ -402,11 +399,6 @@ HEADERS += \
 	PersistentSettings.h \
 	PhraseEdit.h \
 	PhraseListModel.h \
-	QtFindReplaceDialog/dialogs/finddialog.h \
-	QtFindReplaceDialog/dialogs/findform.h \
-	QtFindReplaceDialog/dialogs/findreplaceform.h \
-	QtFindReplaceDialog/dialogs/findreplacedialog.h \
-	QtFindReplaceDialog/dialogs/findreplace_global.h \
 	ReadDB.h \
 	ReflowDelegate.h \
 	ReportError.h \
@@ -453,9 +445,7 @@ FORMS += \
 	KJVSearchPhraseEdit.ui \
 	KJVSearchSpec.ui \
 	NoteKeywordWidget.ui \
-	PassageReferenceWidget.ui \
-	QtFindReplaceDialog/dialogs/findreplaceform.ui \
-	QtFindReplaceDialog/dialogs/findreplacedialog.ui
+	PassageReferenceWidget.ui
 
 !emscripten:FORMS += \
 	BibleDatabaseInfoDlg.ui \
