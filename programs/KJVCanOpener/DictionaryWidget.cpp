@@ -31,6 +31,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QEvent>
+#include <QAbstractItemView>
 
 #define DICTIONARY_COMPLETER_BUTTON_SIZE_Y 24
 
