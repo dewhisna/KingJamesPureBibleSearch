@@ -426,7 +426,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 		if (ndxNormal > 0)
 			m_cache_lstPhraseTagResults.append(TPhraseTag(m_pBibleDatabase->DenormalizeIndex(ndxNormal), subPhrase->phraseSize()));
 	}
-	qSort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	std::sort(m_cache_lstPhraseTagResults.begin(), m_cache_lstPhraseTagResults.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
 	// Intersecting insert the other subphrases:
 	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
@@ -439,7 +439,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 			uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
 			if (ndxNormal > 0) lstSubPhraseTags.append(TPhraseTag(m_pBibleDatabase->DenormalizeIndex(ndxNormal), subPhrase->phraseSize()));
 		}
-		qSort(lstSubPhraseTags.begin(), lstSubPhraseTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+		std::sort(lstSubPhraseTags.begin(), lstSubPhraseTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 
 		m_cache_lstPhraseTagResults.intersectingInsert(m_pBibleDatabase.data(), lstSubPhraseTags);
 	}
@@ -473,7 +473,7 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 		}
 		lstMatchingPhrasesSort.append(QPair<QString, int>(lstPhraseWordsDecomposed.join(QChar(' ')), ndx));
 	}
-	qSort(lstMatchingPhrasesSort.begin(), lstMatchingPhrasesSort.end(), ascendingLessThanMatchingPhrases);
+	std::sort(lstMatchingPhrasesSort.begin(), lstMatchingPhrasesSort.end(), ascendingLessThanMatchingPhrases);
 
 	QStringList lstMatchingPhrases;
 	lstMatchingPhrases.reserve(lstTags.size());
@@ -897,7 +897,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 						subPhrase.m_lstNextWords.append(nextWordEntry);
 					}
 
-					qSort(subPhrase.m_lstNextWords.begin(), subPhrase.m_lstNextWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
+					std::sort(subPhrase.m_lstNextWords.begin(), subPhrase.m_lstNextWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
 					bComputedNextWords = true;
 				} else {
 					subPhrase.m_lstNextWords = m_pBibleDatabase->concordanceWordList();

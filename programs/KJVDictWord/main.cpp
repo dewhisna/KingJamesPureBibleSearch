@@ -35,6 +35,7 @@
 #include <assert.h>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 namespace {
 	const char *g_constrKJVDatabaseFilename = "../../KJVCanOpener/db/kjvtext.s3db";
@@ -166,7 +167,7 @@ int main(int argc, char *argv[])
 	}
 	queryKJVData.finish();
 
-	qSort(lstKJVWords);
+	std::sort(lstKJVWords.begin(), lstKJVWords.end());
 
 	std::cout << "KJVWord,DictWord\n";
 	for (int ndx = 0; ndx < lstKJVWords.size(); ++ndx) {

@@ -29,6 +29,8 @@
 #include <QStyle>
 #include <QStyleOptionComboBox>
 
+#include <algorithm>
+
 // ============================================================================
 
 CNoteKeywordModel::CNoteKeywordModel(QObject *pParent)
@@ -195,9 +197,9 @@ void CNoteKeywordModel::sort(int /* column */, Qt::SortOrder order)
 		list.append(QPair<CNoteKeywordModelItemData, int>(m_lstKeywordData.at(i), i));
 
 	if (order == Qt::AscendingOrder)
-		qSort(list.begin(), list.end(), ascendingLessThan);
+		std::sort(list.begin(), list.end(), ascendingLessThan);
 	else
-		qSort(list.begin(), list.end(), decendingLessThan);
+		std::sort(list.begin(), list.end(), decendingLessThan);
 
 	m_lstKeywordData.clear();
 	m_lstKeywordData.reserve(list.size());

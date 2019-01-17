@@ -47,6 +47,8 @@
 #include <QSharedPointer>
 #include <QMimeData>
 
+#include <algorithm>
+
 #include <assert.h>
 
 // ============================================================================
@@ -446,7 +448,7 @@ public:
 
 	void sortPhraseTags()
 	{
-		qSort(m_lstTags.begin(), m_lstTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
+		std::sort(m_lstTags.begin(), m_lstTags.end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	}
 
 private:

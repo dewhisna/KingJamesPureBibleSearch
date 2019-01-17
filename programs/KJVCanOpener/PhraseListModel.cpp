@@ -26,6 +26,8 @@
 #include <QVector>
 #include <QModelIndexList>
 
+#include <algorithm>
+
 // ============================================================================
 
 CPhraseListModel::CPhraseListModel(QObject *parent) :
@@ -147,9 +149,9 @@ void CPhraseListModel::sort(int /* column */, Qt::SortOrder order)
 		list.append(QPair<CPhraseEntry, int>(m_lstPhrases.at(i), i));
 
 	if (order == Qt::AscendingOrder)
-		qSort(list.begin(), list.end(), ascendingLessThan);
+		std::sort(list.begin(), list.end(), ascendingLessThan);
 	else
-		qSort(list.begin(), list.end(), decendingLessThan);
+		std::sort(list.begin(), list.end(), decendingLessThan);
 
 	m_lstPhrases.clear();
 	QVector<int> forwarding(list.count());

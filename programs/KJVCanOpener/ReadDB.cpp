@@ -55,6 +55,8 @@
 #include <QTextStream>
 #endif
 
+#include <algorithm>
+
 // ============================================================================
 
 namespace {
@@ -811,8 +813,8 @@ bool CReadDatabase::ReadWordsTable()
 
 	// Sort all of our word forms since the alternates may sort different with
 	//		with respect to the other words:
-	qSort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
-	qSort(m_pBibleDatabase->m_lstConcordanceWords.begin(), m_pBibleDatabase->m_lstConcordanceWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
+	std::sort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
+	std::sort(m_pBibleDatabase->m_lstConcordanceWords.begin(), m_pBibleDatabase->m_lstConcordanceWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
 
 	assert(m_pBibleDatabase->m_lstWordList.size() == static_cast<int>(m_pBibleDatabase->m_mapWordList.size()));
 
@@ -1189,7 +1191,7 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 	for (TDictionaryWordListMap::const_iterator itrWordList = m_pDictionaryDatabase->m_mapWordDefinitions.begin(); itrWordList != m_pDictionaryDatabase->m_mapWordDefinitions.end(); ++itrWordList) {
 		m_pDictionaryDatabase->m_lstWordList.append(itrWordList->first);
 	}
-	qSort(m_pDictionaryDatabase->m_lstWordList.begin(), m_pDictionaryDatabase->m_lstWordList.end());
+	std::sort(m_pDictionaryDatabase->m_lstWordList.begin(), m_pDictionaryDatabase->m_lstWordList.end());
 
 	return true;
 }

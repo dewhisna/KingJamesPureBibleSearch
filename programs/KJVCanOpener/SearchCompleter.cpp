@@ -34,6 +34,8 @@
 
 #include <assert.h>
 
+#include <algorithm>
+
 // ============================================================================
 
 class TBasicWordHelper
@@ -747,7 +749,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 				++nFirstWord;
 			}
 
-			qSort(lstMatches.begin(), lstMatches.end());
+			std::sort(lstMatches.begin(), lstMatches.end());
 
 			// Remove Duplicates:
 			m_lstMatchedIndexes.reserve(lstMatches.size());

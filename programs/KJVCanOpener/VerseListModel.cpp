@@ -69,9 +69,9 @@ static bool decendingLessThanVLI(const CVerseListItem &s1, const CVerseListItem 
 void sortVerseList(CVerseList &aVerseList, Qt::SortOrder order)
 {
 	if (order == Qt::AscendingOrder)
-		qSort(aVerseList.begin(), aVerseList.end(), ascendingLessThanVLI);
+		std::sort(aVerseList.begin(), aVerseList.end(), ascendingLessThanVLI);
 	else
-		qSort(aVerseList.begin(), aVerseList.end(), decendingLessThanVLI);
+		std::sort(aVerseList.begin(), aVerseList.end(), decendingLessThanVLI);
 }
 
 // ============================================================================
@@ -1052,17 +1052,17 @@ void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseC
 				case VCOE_SELECTED:
 					break;
 				case VCOE_BIBLE_ASCENDING:
-					qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
+					std::sort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
 					break;
 				case VCOE_BIBLE_DESCENDING:
-					qSort(lstIndexes.begin(), lstIndexes.end(), descendingLessThanXRefTargets);
+					std::sort(lstIndexes.begin(), lstIndexes.end(), descendingLessThanXRefTargets);
 					break;
 				default:
 					assert(false);
 					break;
 			}
 		} else {
-			qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
+			std::sort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanXRefTargets);
 		}
 	} else {
 		if (bUseCopySortOption) {
@@ -1070,14 +1070,14 @@ void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseC
 				case VCOE_SELECTED:
 					break;
 				case VCOE_BIBLE_ASCENDING:
-					qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
+					std::sort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
 					break;
 				case VCOE_BIBLE_DESCENDING:
-					qSort(lstIndexes.begin(), lstIndexes.end(), descendingLessThanModelIndex);
+					std::sort(lstIndexes.begin(), lstIndexes.end(), descendingLessThanModelIndex);
 					break;
 			}
 		} else {
-			qSort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
+			std::sort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
 		}
 	}
 	ms_pCrossRefsMap = NULL;
@@ -1197,9 +1197,9 @@ void CVerseListModel::sort(int /* column */, Qt::SortOrder order)
 		list.append(QPair<CVerseListItem, int>(m_lstVerses.at(i), i));
 
 	if (order == Qt::AscendingOrder)
-		qSort(list.begin(), list.end(), ascendingLessThan);
+		std::sort(list.begin(), list.end(), ascendingLessThan);
 	else
-		qSort(list.begin(), list.end(), decendingLessThan);
+		std::sort(list.begin(), list.end(), decendingLessThan);
 
 	m_lstVerses.clear();
 	QVector<int> forwarding(list.count());

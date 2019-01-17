@@ -49,6 +49,7 @@
 
 #include <iostream>
 #include <set>
+#include <algorithm>
 
 QMainWindow *g_pMainWindow = NULL;
 
@@ -353,7 +354,7 @@ int main(int argc, char *argv[])
 	}
 
 	lstOverallResults.removeDuplicates();
-	qSort(lstOverallResults.begin(), lstOverallResults.end(), ascendingLessThan);
+	std::sort(lstOverallResults.begin(), lstOverallResults.end(), ascendingLessThan);
 
 	std::cerr << QString("\n\nFound %1 phrases having %2 occurrences:\n").arg(lstOverallResults.size()).arg(nOccurrences).toUtf8().data();
 	QString strLastOutput;

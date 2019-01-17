@@ -26,6 +26,8 @@
 #include <QVector>
 #include <QModelIndexList>
 
+#include <algorithm>
+
 CSearchPhraseListModel::CSearchPhraseListModel(QObject *parent) :
 	QAbstractListModel(parent)
 {
@@ -142,9 +144,9 @@ void CSearchPhraseListModel::sort(int /* column */, Qt::SortOrder order)
 		list.append(QPair<CKJVSearchPhraseEdit*, int>(m_lstPhraseEditors.at(i), i));
 
 	if (order == Qt::AscendingOrder)
-		qSort(list.begin(), list.end(), ascendingLessThan);
+		std::sort(list.begin(), list.end(), ascendingLessThan);
 	else
-		qSort(list.begin(), list.end(), decendingLessThan);
+		std::sort(list.begin(), list.end(), decendingLessThan);
 
 	m_lstPhraseEditors.clear();
 	QVector<int> forwarding(list.count());

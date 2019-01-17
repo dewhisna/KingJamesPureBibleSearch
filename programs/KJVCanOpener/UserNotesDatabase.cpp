@@ -903,7 +903,7 @@ void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase,
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName] = lstTags;
-	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	std::sort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
@@ -921,7 +921,7 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 	for (TPhraseTagList::const_iterator itrTags = lstTags.constBegin(); itrTags != lstTags.constEnd(); ++itrTags) {
 		(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase.data(), *itrTags);
 	}
-	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	std::sort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();
@@ -937,7 +937,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	(m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase.data(), aTag);
-	qSort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
+	std::sort((m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].begin(), (m_mapHighlighterTags[strUUID])[strUserDefinedHighlighterName].end(), TPhraseTagListSortPredicate::ascendingLessThan);
 	m_bIsDirty = true;
 	emit highlighterTagsChanged(pBibleDatabase, strUserDefinedHighlighterName);
 	emit changedUserNotesDatabase();

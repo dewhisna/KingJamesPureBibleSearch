@@ -52,6 +52,7 @@
 
 #include <iostream>
 #include <set>
+#include <algorithm>
 
 // ============================================================================
 
@@ -603,7 +604,7 @@ int main(int argc, char *argv[])
 				}
 				lstWordDiffs1.append(strWord);
 			}
-			qSort(lstWordDiffs1.begin(), lstWordDiffs1.end(), TWordDiffEntryListSortPredicate::ascendingLessThanWordCaseInsensitive);
+			std::sort(lstWordDiffs1.begin(), lstWordDiffs1.end(), TWordDiffEntryListSortPredicate::ascendingLessThanWordCaseInsensitive);
 			TWordDiffEntryList_removeDuplicates(lstWordDiffs1);
 
 			TWordDiffEntryList lstWordDiffs2;
@@ -620,7 +621,7 @@ int main(int argc, char *argv[])
 				}
 				lstWordDiffs2.append(strWord);
 			}
-			qSort(lstWordDiffs2.begin(), lstWordDiffs2.end(), TWordDiffEntryListSortPredicate::ascendingLessThanWordCaseInsensitive);
+			std::sort(lstWordDiffs2.begin(), lstWordDiffs2.end(), TWordDiffEntryListSortPredicate::ascendingLessThanWordCaseInsensitive);
 			TWordDiffEntryList_removeDuplicates(lstWordDiffs2);
 
 			TWordDiffEntryList::const_iterator itrWordEntry1 = lstWordDiffs1.constBegin();
