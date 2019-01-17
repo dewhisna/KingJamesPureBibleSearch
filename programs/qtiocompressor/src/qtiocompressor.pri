@@ -31,5 +31,13 @@ android|ios {
 macx {
 	greaterThan(QT_MAJOR_VERSION,4):include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
 }
+!android:!ios:!macx {
+	!contains(QT_CONFIG, system-zlib) {
+		include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
+	} else {
+		if(unix|win32-g++*):LIBS += -lz
+		else:               LIBS += zdll.lib
+	}
+}
 
 }
