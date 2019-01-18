@@ -329,6 +329,7 @@ void QwwLongSpinBox::stepBy(int steps) {
  * \brief   Validates the spinbox \a input with cursor at position \a pos
  */
 QValidator::State QwwLongSpinBox::validate(QString & input, int & pos) const {
+	Q_UNUSED(pos);
     QString tinput = input;
     if (!prefix().isEmpty() && tinput.startsWith(prefix()))
         tinput.remove(0, prefix().size());

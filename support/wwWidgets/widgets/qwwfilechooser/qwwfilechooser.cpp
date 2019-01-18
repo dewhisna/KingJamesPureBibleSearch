@@ -95,6 +95,7 @@ QwwFileChooser::QwwFileChooser(QWidget *parent) : QwwButtonLineEdit(*new QwwFile
     int mar = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, &opt, this);
     int siz = style()->pixelMetric(QStyle::PM_SmallIconSize, &opt, this);
 #if QT_VERSION >=0x040500
+	Q_UNUSED(mar);
     setTextMargins(siz+2, 0, 0, 0);
 #else
     setStyleSheet(QString("QwwFileChooser {padding-left: %1px;}").arg(mar+siz+2));
@@ -264,6 +265,7 @@ void QwwFileChooser::chooseFile() {
  */
 QSize QwwFileChooser::sizeHint() const {
     Q_D(const QwwFileChooser);
+	Q_UNUSED(d);
     return QLineEdit::sizeHint() + QSize(button()->sizeHint().width(), 0);
 }
 
@@ -272,6 +274,7 @@ QSize QwwFileChooser::sizeHint() const {
  */
 QSize QwwFileChooser::minimumSizeHint() const {
     Q_D(const QwwFileChooser);
+	Q_UNUSED(d);
     return QLineEdit::minimumSizeHint() + QSize(button()->sizeHint().width(), 0);
 }
 

@@ -341,6 +341,7 @@ void QwwTwoColorIndicator::dragMoveEvent(QDragMoveEvent *ev) {
         if (col.isValid())
             acc = true;
     } else ev->ignore();
+	Q_UNUSED(acc);
     if (d->foregroundRect().intersects(ev->answerRect())) {
         ev->acceptProposedAction();
         ev->accept(d->foregroundRect());

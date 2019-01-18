@@ -93,6 +93,7 @@ int QwwTextSpinBox::valueFromText(const QString & text) const {
  * \internal
  */
 QValidator::State QwwTextSpinBox::validate(QString & input, int & pos) const {
+	Q_UNUSED(pos);
     foreach(QString str, strings()) {
         if (str==input) return QValidator::Acceptable;
         if (str.contains(input)) return QValidator::Intermediate;

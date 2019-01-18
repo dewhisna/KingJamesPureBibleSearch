@@ -367,6 +367,7 @@ QString QwwNavigationBar::widgetLabel(int index) const {
  */
 void QwwNavigationBar::setWidgetLabel(int index, const QString &label) {
     Q_D(QwwNavigationBar);
+	Q_UNUSED(d);
     QPushButton *b = const_cast<QPushButton*>(button(index));
     if (!b)
         return;
