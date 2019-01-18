@@ -61,7 +61,7 @@ public:
     void setRememberPassword(bool r);
 public slots:
     void setHost(const QString &);
-    void setUser(const QString &user, const QString &pass=QString::null);
+    void setUser(const QString &user, const QString &pass=QString());
 private:
     WW_DECLARE_PRIVATE(QwwLoginBox);
 };

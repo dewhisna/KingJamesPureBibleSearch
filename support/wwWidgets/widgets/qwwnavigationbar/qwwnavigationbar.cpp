@@ -274,7 +274,7 @@ void QwwNavigationBar::removeWidget(int index) {
         d->topButton->setText(b->text());
         d->topButton->setIcon(b->icon());
     } else {
-        d->topButton->setText(QString::null);
+        d->topButton->setText(QString());
         d->topButton->setIcon(QIcon());
     }
 }

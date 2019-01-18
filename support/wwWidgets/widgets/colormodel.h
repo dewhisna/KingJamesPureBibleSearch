@@ -26,8 +26,8 @@ public:
     ColorModel(QObject *parent=0);
     QModelIndex contains(const QColor &c);
     ColorModel *clone(QObject *par=0) const;
-    QModelIndex addColor(const QColor &c, const QString &name=QString::null);
-    QModelIndex insertColor(int index, const QColor &c, const QString &name=QString::null);
+    QModelIndex addColor(const QColor &c, const QString &name=QString());
+    QModelIndex insertColor(int index, const QColor &c, const QString &name=QString());
 };
 
 #endif

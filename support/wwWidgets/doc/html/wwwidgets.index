@@ -488,7 +488,7 @@
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="addColor" fullname="QwwColorButton::addColor" href="qwwcolorbutton.html#addColor" location="qwwcolorbutton.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addColor(const QColor &amp; color, const QString &amp; name)">
                 <parameter left="const QColor &amp;" right="" name="color" default=""/>
-                <parameter left="const QString &amp;" right="" name="name" default="QString::null"/>
+                <parameter left="const QString &amp;" right="" name="name" default="QString()"/>
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="clear" fullname="QwwColorButton::clear" href="qwwcolorbutton.html#clear" location="qwwcolorbutton.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="clear()"/>
             <function access="public" threadsafety="unspecified" status="commendable" name="colors" fullname="QwwColorButton::colors" href="qwwcolorbutton.html#colors-prop" location="qwwcolorbutton.cpp" virtual="non" meta="plain" const="true" static="false" overload="false" associated-property="colors" type="QStringList" signature="colors() const"/>
@@ -905,7 +905,7 @@
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="setUser" fullname="QwwLoginBox::setUser" href="qwwloginbox.html#setUser" location="qwwloginbox.h" virtual="non" meta="slot" const="false" static="false" overload="false" type="void" signature="setUser(const QString &amp; user, const QString &amp; password)">
                 <parameter left="const QString &amp;" right="" name="user" default=""/>
-                <parameter left="const QString &amp;" right="" name="password" default="QString::null"/>
+                <parameter left="const QString &amp;" right="" name="password" default="QString()"/>
             </function>
         </class>
         <class access="public" threadsafety="unspecified" status="main" name="QwwRichTextEdit" href="qwwrichtextedit.html" location="qwwrichtextedit.h" bases="QTextEdit" module="wwWidgets">
@@ -1068,23 +1068,23 @@
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="addWidget" fullname="QwwNavigationBar::addWidget" href="qwwnavigationbar.html#addWidget-2" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="addWidget(QWidget * child, const QString &amp; label)">
                 <parameter left="QWidget *" right="" name="child" default=""/>
-                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="addWidget" fullname="QwwNavigationBar::addWidget" href="qwwnavigationbar.html#addWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="addWidget(QWidget * child, const QIcon &amp; icon, const QString &amp; label)">
                 <parameter left="QWidget *" right="" name="child" default=""/>
                 <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
-                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="insertWidget" fullname="QwwNavigationBar::insertWidget" href="qwwnavigationbar.html#insertWidget-2" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="true" overload-number="2" type="void" signature="insertWidget(int index, QWidget * child, const QString &amp; label)">
                 <parameter left="int" right="" name="index" default=""/>
                 <parameter left="QWidget *" right="" name="child" default=""/>
-                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="insertWidget" fullname="QwwNavigationBar::insertWidget" href="qwwnavigationbar.html#insertWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="insertWidget(int index, QWidget * child, const QIcon &amp; icon, const QString &amp; label)">
                 <parameter left="int" right="" name="index" default=""/>
                 <parameter left="QWidget *" right="" name="child" default=""/>
                 <parameter left="const QIcon &amp;" right="" name="icon" default=""/>
-                <parameter left="const QString &amp;" right="" name="label" default="QString::null"/>
+                <parameter left="const QString &amp;" right="" name="label" default="QString()"/>
             </function>
             <function access="public" threadsafety="unspecified" status="commendable" name="removeWidget" fullname="QwwNavigationBar::removeWidget" href="qwwnavigationbar.html#removeWidget" location="qwwnavigationbar.h" virtual="non" meta="plain" const="false" static="false" overload="false" type="void" signature="removeWidget(int index)">
                 <parameter left="int" right="" name="index" default=""/>

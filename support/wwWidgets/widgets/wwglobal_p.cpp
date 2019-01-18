@@ -20,7 +20,7 @@ QString wwFindStandardColorName(const QColor &c){
         if(tmp==c)
             return name;
     }
-    return QString::null;
+    return QString();
 }
 
 ColorDrag::ColorDrag(QWidget *source, const QColor &color, const QString &name) : QDrag(source) {

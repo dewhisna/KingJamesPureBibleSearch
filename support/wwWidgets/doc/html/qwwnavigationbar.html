@@ -38,13 +38,13 @@
 <h2>Public Functions</h2>
 <table class="alignedsummary" border="0" cellpadding="0" cellspacing="0" width="100%">
 <tr><td class="memItemLeft" align="right" valign="top"></td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#QwwNavigationBar">QwwNavigationBar</a></b> ( QWidget * <i>parent</i> = 0 )</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#addWidget">addWidget</a></b> ( QWidget * <i>child</i>, const QIcon &amp; <i>icon</i>, const QString &amp; <i>label</i> = QString::null )</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#addWidget-2">addWidget</a></b> ( QWidget * <i>child</i>, const QString &amp; <i>label</i> = QString::null )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#addWidget">addWidget</a></b> ( QWidget * <i>child</i>, const QIcon &amp; <i>icon</i>, const QString &amp; <i>label</i> = QString() )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#addWidget-2">addWidget</a></b> ( QWidget * <i>child</i>, const QString &amp; <i>label</i> = QString() )</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">const QPushButton * </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#button">button</a></b> ( int <i>index</i> ) const</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#currentIndex-prop">currentIndex</a></b> () const</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">int </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#indexOf">indexOf</a></b> ( QWidget * <i>widget</i> ) const</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#insertWidget">insertWidget</a></b> ( int <i>index</i>, QWidget * <i>child</i>, const QIcon &amp; <i>icon</i>, const QString &amp; <i>label</i> = QString::null )</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#insertWidget-2">insertWidget</a></b> ( int <i>index</i>, QWidget * <i>child</i>, const QString &amp; <i>label</i> = QString::null )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#insertWidget">insertWidget</a></b> ( int <i>index</i>, QWidget * <i>child</i>, const QIcon &amp; <i>icon</i>, const QString &amp; <i>label</i> = QString() )</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#insertWidget-2">insertWidget</a></b> ( int <i>index</i>, QWidget * <i>child</i>, const QString &amp; <i>label</i> = QString() )</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#removeWidget">removeWidget</a></b> ( int <i>index</i> )</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#setCurrentWidget">setCurrentWidget</a></b> ( QWidget * <i>widget</i> )</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">void </td><td class="memItemRight" valign="bottom"><b><a href="qwwnavigationbar.html#setWidgetIcon">setWidgetIcon</a></b> ( int <i>index</i>, const QIcon &amp; <i>icon</i> )</td></tr>
@@ -137,9 +137,9 @@
 <h2>Member Function Documentation</h2>
 <h3 class="fn"><a name="QwwNavigationBar"></a>QwwNavigationBar::QwwNavigationBar ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>parent</i> = 0 )</h3>
 <p>Constructs a navigation bar widget with a given <i>parent</i></p>
-<h3 class="fn"><a name="addWidget"></a>void QwwNavigationBar::addWidget ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qicon.html">QIcon</a> &amp; <i>icon</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString::null )</h3>
+<h3 class="fn"><a name="addWidget"></a>void QwwNavigationBar::addWidget ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qicon.html">QIcon</a> &amp; <i>icon</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString() )</h3>
 <p>Adds <i>child</i> with <i>icon</i> and <i>label</i> to the navigation bar at the last position.</p>
-<h3 class="fn"><a name="addWidget-2"></a>void QwwNavigationBar::addWidget ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString::null )</h3>
+<h3 class="fn"><a name="addWidget-2"></a>void QwwNavigationBar::addWidget ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString() )</h3>
 <p>This is an overloaded function.</p>
 <h3 class="fn"><a name="button"></a>const <a href="http://qt.nokia.com/doc/4.7/qpushbutton.html">QPushButton</a> * QwwNavigationBar::button ( int <i>index</i> ) const</h3>
 <p>Returns pointer to a button associated with a child under <i>index</i></p>
@@ -148,9 +148,9 @@
 <h3 class="fn"><a name="eventFilter"></a>bool QwwNavigationBar::eventFilter ( <a href="http://qt.nokia.com/doc/4.7/qobject.html">QObject</a> *, <a href="http://qt.nokia.com/doc/4.7/qevent.html">QEvent</a> * )&nbsp;&nbsp;<tt> [virtual protected]</tt></h3>
 <h3 class="fn"><a name="indexOf"></a>int QwwNavigationBar::indexOf ( <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>widget</i> ) const</h3>
 <p>Returns an index of <i>widget</i> in the navigation bar</p>
-<h3 class="fn"><a name="insertWidget"></a>void QwwNavigationBar::insertWidget ( int <i>index</i>, <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qicon.html">QIcon</a> &amp; <i>icon</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString::null )</h3>
+<h3 class="fn"><a name="insertWidget"></a>void QwwNavigationBar::insertWidget ( int <i>index</i>, <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qicon.html">QIcon</a> &amp; <i>icon</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString() )</h3>
 <p>Inserts widget specified by <i>child</i> with <i>icon</i> and <i>label</i> to the navigation bar under position <i>index</i></p>
-<h3 class="fn"><a name="insertWidget-2"></a>void QwwNavigationBar::insertWidget ( int <i>index</i>, <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString::null )</h3>
+<h3 class="fn"><a name="insertWidget-2"></a>void QwwNavigationBar::insertWidget ( int <i>index</i>, <a href="http://qt.nokia.com/doc/4.7/qwidget.html">QWidget</a> * <i>child</i>, const <a href="http://qt.nokia.com/doc/4.7/qstring.html">QString</a> &amp; <i>label</i> = QString() )</h3>
 <p>This is an overloaded function.</p>
 <h3 class="fn"><a name="removeWidget"></a>void QwwNavigationBar::removeWidget ( int <i>index</i> )</h3>
 <p>Removes widget specified by <i>index</i> from the navigation bar</p>

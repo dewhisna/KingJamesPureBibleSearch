@@ -125,7 +125,7 @@ QString wwSheetExtension::name() const {
 QString wwSheetExtension::propertyName(int index) const {
 //     int myindex = other() ? other()->count() : 0;
 //     if (index>=myindex) return names().at(index-myindex);
-//     return other() ? other()->propertyName(index) : QString::null;
+//     return other() ? other()->propertyName(index) : QString();
 if (index >= beginCount() && index < beginCount() + names().count())
         return names().at(index - beginCount());
     int newIndex = index < beginCount() ? index : index - names().count();
