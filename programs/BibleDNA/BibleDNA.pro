@@ -30,6 +30,7 @@ DEFINES *= QT_DEPRECATED_WARNINGS
 #DEFINES *= QT_DISABLE_DEPRECATED_BEFORE=0x060000		# disables all the APIs deprecated before Qt 6.0.0
 
 DEFINES *= KJV_SEARCH_BUILD				# Piggyback on the Search Build
+DEFINES *= USE_EXTENDED_INDEXES
 DEFINES *= NOT_USING_SQL
 DEFINES *= NO_PERSISTENT_SETTINGS
 console:DEFINES += IS_CONSOLE_APP
@@ -55,10 +56,12 @@ DEFINES *= QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         MainWindow.cpp \
+		BibleText.cpp \
 		HebrewLetters.cpp
 
 HEADERS += \
         MainWindow.h \
+		BibleText.h \
 		HebrewLetters.h
 
 !console:FORMS += \
