@@ -814,6 +814,106 @@ CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 	return CRelIndex(nBk, nChp, nVrs, nWrd);
 }
 
+#ifdef USE_EXTENDED_INDEXES
+uint32_t CBibleDatabase::NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const
+{
+	unsigned int nBk = ndxRelIndex.book();
+	unsigned int nChp = ndxRelIndex.chapter();
+	unsigned int nVrs = ndxRelIndex.verse();;
+	unsigned int nWrd = ndxRelIndex.word();
+	uint32_t nLtr = ndxRelIndex.letter();
+	uint32_t nWordNormal = 0;
+
+	if (!ndxRelIndex.isSet()) return 0;
+
+	if (nBk == 0) return 0;
+	if (nBk > m_lstBooks.size()) return 0;
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
+	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
+	if (nWrd == 0) nWrd = 1;
+	if (nLtr == 0) nLtr = 1;
+	if (nChp > 0) {
+		// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
+		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
+		if ((nVrs == 1) && (nWrd == 1)) {
+			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
+				nWordNormal = (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
+						(m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
+				goto NormalizeIndexEx_completter;
+			}
+			nWordNormal = (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+			goto NormalizeIndexEx_completter;
+		}
+		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+	} else {
+		if (nVrs != 0) return 0;
+	}
+	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
+
+	nWordNormal = ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
+
+NormalizeIndexEx_completter:
+	if (nLtr > concordanceEntryForWordAtIndex(nWordNormal)->letterCount()) return 0;
+	uint64_t nLetterNormal = (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	while (--nWrd) {		// Add letters of previous words (order is reversed)
+		nLetterNormal += concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
+	}
+	return (nLetterNormal + nLtr);
+}
+
+CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
+{
+	uint32_t nLtr = nNormalIndex;
+
+	if (nLtr == 0) return 0;
+
+	unsigned int nBk = m_lstBooks.size();
+	while ((nBk > 0) && (nLtr <= m_lstBooks.at(nBk-1).m_nLtrAccum)) {
+		nBk--;
+	}
+	if (nBk == 0) {
+		assert(false);
+		return 0;
+	}
+
+	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;
+	while ((nChp > 0) && (nLtr <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum)) {
+		nChp--;
+	}
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
+		assert(false);
+		return 0;
+	}
+
+	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
+	while ((nVrs > 0) && (nLtr <= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum)) {
+		nVrs--;
+	}
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
+		assert(false);
+		return 0;
+	}
+
+	nLtr -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	unsigned int nWrd = 1;
+	while (nWrd <= m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+		uint32_t nWrdLtrCount = concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
+		if (nLtr <= nWrdLtrCount) break;
+		nLtr -= nWrdLtrCount;
+		++nWrd;
+	}
+	if (nWrd > m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+		// We can get here if the caller is addressing one word beyond the end-of-the-text, for example,
+		//		and this has always been defined as "0" (out-of-bounds or not-set), just like the "0"
+		//		at the beginning of the text. (so don't assert here)
+		return 0;
+	}
+
+	return CRelIndexEx(nBk, nChp, nVrs, nWrd, nLtr);
+}
+#endif
+
 // ============================================================================
 
 CConcordanceEntry::CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, int nAltWordIndex, int nIndex)

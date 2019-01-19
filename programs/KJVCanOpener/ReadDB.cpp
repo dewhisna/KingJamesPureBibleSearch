@@ -1287,6 +1287,61 @@ bool CReadDatabase::readBibleStub()
 		(!ReadFOOTNOTESTable()) ||
 		(!ReadPHRASESTable()) ||
 		(!ValidateData())) return false;
+#ifdef USE_EXTENDED_INDEXES
+	// Build Letter counts.  Do this here after reading the
+	//	tables because the Letter Counts aren't stored in
+	//	the other tables and can't be computed until the
+	//	WordsTable is read:
+	uint32_t nLtrCount = 0;
+	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
+		CBookEntry &theBook = m_pBibleDatabase->m_lstBooks[nBk-1];
+		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
+
+		theBook.m_nLtrAccum = nLtrCount;
+		if (theBook.m_bHaveColophon) {
+			// Handle Colophon separately, as there won't be a real chapter 0 to index:
+			CVerseEntry &theVerse = mapVerses[CRelIndex(nBk, 0, 0, 0)];
+
+			theVerse.m_nLtrAccum = nLtrCount;
+			for (unsigned int nWrd = 1; nWrd <= theVerse.m_nNumWrd; ++nWrd) {
+				CRelIndex ndxBkWrd(nBk, 0, 0, nWrd);
+				const CConcordanceEntry *pConcordanceEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(ndxBkWrd);
+				if (pConcordanceEntry == NULL) continue;
+				theVerse.m_nNumLtr += pConcordanceEntry->letterCount();
+			}
+			nLtrCount += theVerse.m_nNumLtr;
+			theBook.m_nNumLtr += theVerse.m_nNumLtr;
+		}
+		for (unsigned int nChp = 1; nChp <= theBook.m_nNumChp; ++nChp) {
+			CRelIndex ndxBkChp(nBk, nChp, 0, 0);
+			if (m_pBibleDatabase->m_mapChapters.find(ndxBkChp) == m_pBibleDatabase->m_mapChapters.end()) continue;
+			CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxBkChp];
+
+			theChapter.m_nLtrAccum = nLtrCount;
+			for (unsigned int nVrs = (theChapter.m_bHaveSuperscription ? 0 : 1);
+					nVrs <= theChapter.m_nNumVrs; ++nVrs) {
+				CRelIndex ndxBkChpVrs(nBk, nChp, nVrs, 0);
+				if (mapVerses.find(ndxBkChpVrs) == mapVerses.end()) continue;
+				CVerseEntry &theVerse = mapVerses[ndxBkChpVrs];
+
+				theVerse.m_nLtrAccum = nLtrCount;
+				for (unsigned int nWrd = 1; nWrd <= theVerse.m_nNumWrd; ++nWrd) {
+					CRelIndex ndxBkChpVrsWrd(nBk, nChp, nVrs, nWrd);
+					const CConcordanceEntry *pConcordanceEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(ndxBkChpVrsWrd);
+					if (pConcordanceEntry == NULL) continue;
+					theVerse.m_nNumLtr += pConcordanceEntry->letterCount();
+				}
+				nLtrCount += theVerse.m_nNumLtr;
+				theChapter.m_nNumLtr += theVerse.m_nNumLtr;
+			}
+
+			theBook.m_nNumLtr += theChapter.m_nNumLtr;
+		}
+
+		m_pBibleDatabase->m_lstTestaments[theBook.m_nTstNdx-1].m_nNumLtr += theBook.m_nNumLtr;
+	}
+	m_pBibleDatabase->m_EntireBible.m_nNumLtr = nLtrCount;
+#endif
 	return true;
 }
 

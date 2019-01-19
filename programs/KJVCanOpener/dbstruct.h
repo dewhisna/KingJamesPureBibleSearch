@@ -174,6 +174,60 @@ Q_DECLARE_METATYPE(CRelIndex)
 
 // ============================================================================
 
+#ifdef USE_EXTENDED_INDEXES
+class CRelIndexEx : public CRelIndex {
+public:
+	CRelIndexEx(const CRelIndexEx &ndx)
+		:	CRelIndex(ndx.index()),
+			m_ndxEx(ndx.m_ndxEx)
+	{
+	}
+	CRelIndexEx(uint64_t ndxEx = 0)
+	{
+		setIndexEx(ndxEx);
+	}
+	CRelIndexEx(const QString &strAnchor)
+		:	CRelIndex(strAnchor),
+			m_ndxEx(1)
+	{
+	}
+	CRelIndexEx(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd, uint32_t nLtr)
+	{
+		setIndexEx(nBk, nChp, nVrs, nWrd, nLtr);
+	}
+	~CRelIndexEx() { }
+
+	static uint32_t maxLetterCount() { return 0xFFFFFFFF; }
+	inline uint32_t letter() const { return m_ndxEx; }
+	inline void setLetter(uint32_t nLtr) {
+		m_ndxEx = nLtr;
+	}
+
+	inline bool isSet() const { return ((CRelIndex::isSet()) || (m_ndxEx != 0)); }
+	inline void clear() { CRelIndex::clear(); m_ndxEx =0; }
+
+	inline uint64_t indexEx() const
+	{
+		return ((static_cast<uint64_t>(index()) << 32) || static_cast<uint64_t>(m_ndxEx));
+	}
+	inline void setIndexEx(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd, uint32_t nLtr)
+	{
+		setIndex(nBk, nChp, nVrs, nWrd);
+		m_ndxEx = nLtr;
+	}
+	inline void setIndexEx(uint64_t ndx)
+	{
+		setIndex(static_cast<uint32_t>(ndx >> 32));
+		m_ndxEx = static_cast<uint32_t>(ndx & 0xFFFFFFFF);
+	}
+
+private:
+	uint32_t m_ndxEx;				// Extended portion of index
+};
+#endif
+
+// ============================================================================
+
 // Pair representing X (first) of Y (second) things:
 class TCountOf : public QPair<unsigned int, unsigned int>
 {
@@ -304,6 +358,9 @@ public:
 		m_nNumChp(0),
 		m_nNumVrs(0),
 		m_nNumWrd(0)
+#ifdef USE_EXTENDED_INDEXES
+		,m_nNumLtr(0)
+#endif
 	{ }
 	~CTestamentEntry() { }
 
@@ -312,6 +369,9 @@ public:
 	unsigned int m_nNumChp;		// Number of Chapters in this testament
 	unsigned int m_nNumVrs;		// Number of Verses in this testament
 	unsigned int m_nNumWrd;		// Number of Words in this testament
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t m_nNumLtr;		// Number of Letters in this testament
+#endif
 };
 
 typedef std::vector<CTestamentEntry> TTestamentList;		// Index by nTst-1
@@ -361,6 +421,10 @@ public:
 		m_nNumVrs(0),
 		m_nNumWrd(0),
 		m_nWrdAccum(0),
+#ifdef USE_EXTENDED_INDEXES
+		m_nNumLtr(0),
+		m_nLtrAccum(0),
+#endif
 		m_bHaveColophon(false)
 	{ }
 	~CBookEntry() { }
@@ -375,6 +439,10 @@ public:
 	unsigned int m_nNumVrs;		// Number of verses in this book
 	unsigned int m_nNumWrd;		// Number of words in this book
 	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this book
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t m_nNumLtr;			// Number of letters in this book
+	uint32_t m_nLtrAccum;		// Number of accumulated letters prior to, but not including this book
+#endif
 	QString m_strDesc;			// Description (subtitle)
 
 	bool m_bHaveColophon;		// True if this book has a Colophon pseudo-verse (will be indexed as [nBk|0|0|0] in the TVerseEntryMap, ie. nChp==0, nVrs==0)
@@ -393,6 +461,10 @@ public:
 	:   m_nNumVrs(0),
 		m_nNumWrd(0),
 		m_nWrdAccum(0),
+#ifdef USE_EXTENDED_INDEXES
+		m_nNumLtr(0),
+		m_nLtrAccum(0),
+#endif
 		m_bHaveSuperscription(false)
 	{ }
 	~CChapterEntry() { }
@@ -400,6 +472,10 @@ public:
 	unsigned int m_nNumVrs;		// Number of verses in this chapter
 	unsigned int m_nNumWrd;		// Number of words in this chapter
 	unsigned int m_nWrdAccum;	// Number of accumulated words prior to, but not including this chapter
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t m_nNumLtr;			// Number of letters in this chapter
+	uint32_t m_nLtrAccum;		// Number of accumulated letters prior to, but not including this chapter
+#endif
 
 	bool m_bHaveSuperscription;	// True if this chapter has a Superscription pseudo-verse (will be indexed as [nBk|nChp|0|0] in the TVerseEntryMap, ie. nVrs==0)
 };
@@ -423,12 +499,20 @@ public:
 	CVerseEntry()
 	:   m_nNumWrd(0),
 		m_nWrdAccum(0),
+#ifdef USE_EXTENDED_INDEXES
+		m_nNumLtr(0),
+		m_nLtrAccum(0),
+#endif
 		m_nPilcrow(PTE_NONE)
 	{ }
 	~CVerseEntry() { }
 
 	unsigned int m_nNumWrd;			// Number of words in this verse
 	unsigned int m_nWrdAccum;		// Number of accumulated words prior to, but not including this verse
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t m_nNumLtr;				// Number of letters in this verse
+	uint32_t m_nLtrAccum;			// Number of accumulated letters prior to, but not including this verse
+#endif
 	PILCROW_TYPE_ENUM m_nPilcrow;	// Start of verse Pilcrow Flag (and Pilcrow type)
 	QString m_strTemplate;			// Rich Text Creation Template
 
@@ -530,6 +614,32 @@ public:
 	virtual const QString &renderedWord() const { return m_itrEntryWord->second.m_lstRenderedAltWords.at(m_nAltWordIndex); }
 	inline bool isProperWord() const { return m_itrEntryWord->second.m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
+
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t letterCount() const
+	{
+		const QString &strWord = word();
+		uint32_t nCount = 0;
+		for (int i=0; i<strWord.size(); ++i) {
+			if (strWord.at(i).isLetter()) ++nCount;
+		}
+
+		return nCount;
+	}
+	QChar letter(uint32_t nLtr) const		// one-originated nLtr lookup of letter (to follow pattern of CRelIndex)
+	{
+		const QString &strWord = word();
+		if (nLtr == 0) return QChar();
+		--nLtr;					// one-originated
+		for (int i=0; i<strWord.size(); ++i) {
+			if (strWord.at(i).isLetter()) {
+				if (nLtr == 0) return strWord.at(i);
+				--nLtr;
+			}
+		}
+		return QChar();
+	}
+#endif
 
 	inline bool operator==(const CConcordanceEntry &src) const
 	{
@@ -1076,6 +1186,10 @@ public:
 #endif
 	uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const;
 	CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const;
+	CRelIndexEx DenormalizeIndexEx(uint32_t nNormalIndex) const;
+#endif
 
 	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
 	//			calcRelIndex(1, 1, 666, 0, 1);						// Returns (21,7,1,1) or Ecclesiastes 7:1 [1], Word 1 of Verse 1 of Chapter 666 of the Bible
