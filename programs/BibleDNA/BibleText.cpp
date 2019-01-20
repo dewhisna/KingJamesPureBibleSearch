@@ -14,7 +14,7 @@
 // ============================================================================
 
 namespace {
-	const char *g_constrBibleDatabasePath = "../../../KJVCanOpener/db/";
+	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 
 	const BIBLE_DESCRIPTOR_ENUM g_SPMT_BibleDescriptor = BDE_SPMT_20120627;
 }

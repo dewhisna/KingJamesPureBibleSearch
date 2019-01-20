@@ -7,6 +7,8 @@
 
 #include <QString>
 
+#include <utility>		// std::pair
+
 // ============================================================================
 
 class CHebrewLetters
@@ -31,7 +33,7 @@ public:
 		HEBNDX_Samekh		= 14,
 		HEBNDX_Ayin			= 15,
 		HEBNDX_Pe			= 16,
-		HEBNDX_Tsade		= 17,
+		HEBNDX_Tsadi		= 17,
 		HEBNDX_Qof			= 18,
 		HEBNDX_Resh			= 19,
 		HEBNDX_Shin			= 20,
@@ -40,12 +42,25 @@ public:
 		HEBNDX_MemFinal		= 23,
 		HEBNDX_NunFinal		= 24,
 		HEBNDX_PeFinal		= 25,
-		HEBNDX_TsadeFinal	= 26,
+		HEBNDX_TsadiFinal	= 26,
+		HEBNDX_COUNT		= 27
 	};
 
-	HEB_LTR_NDX indexOfLetter(const QString &strLetter) const;
-	QString letterForIndex(HEB_LTR_NDX nIndex) const;
+	struct THebrewLetterBase3Pairing {		// Pairing structure for each Hebrew Letter
+		HEB_LTR_NDX m_nPairedLetter;		// Letter it's paired with, for example Bet<->Yod
+		bool m_bSelf;						// 'True' if it's a letter only paired with itself, like Alef
+		int m_nIndex;						// Unique 0-originated Index of the pairing, used for counting pairing statistics.  Each unique pair has a different index, and is repeated for the unpaired letters
+	};
 
+	static constexpr int numberOfLetterPairs = 9;			// 18 of the letters form 9 pairs
+	static constexpr int numberOfUnpairedLetters = 9;		// 9 letters are only self-paired
+
+	static HEB_LTR_NDX indexOfLetter(const QChar &chrLetter);
+	static QChar letterForIndex(HEB_LTR_NDX nIndex);
+	static const THebrewLetterBase3Pairing &base3pairing(HEB_LTR_NDX nIndex);
+	typedef std::pair<HEB_LTR_NDX, HEB_LTR_NDX> TLetterPair;
+	static TLetterPair base3LetterPairFromIndex(int nIndex);
+	static HEB_LTR_NDX base3LetterUnpairedFromIndex(int nIndex);
 };
 
 // ============================================================================
