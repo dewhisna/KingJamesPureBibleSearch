@@ -628,7 +628,12 @@ public:
 	}
 	QChar letter(uint32_t nLtr) const		// one-originated nLtr lookup of letter (to follow pattern of CRelIndex)
 	{
-		const QString &strWord = word();
+		// Note: This function returns the decomposed base-form for the letter,
+		//	as generally needed by search/analysis consumers.  However, an
+		//	alternate variation for future consideration would be to return
+		//	a QString instead containing the full-form entity.  Currently,
+		//	this is only used in BibleDNA:
+		QString strWord = word().normalized(QString::NormalizationForm_D);
 		if (nLtr == 0) return QChar();
 		--nLtr;					// one-originated
 		for (int i=0; i<strWord.size(); ++i) {
