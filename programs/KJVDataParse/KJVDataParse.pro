@@ -55,7 +55,8 @@ TRANSLATIONS += \
 		translations/kjvdataparse.en.ts \
 		translations/kjvdataparse.fr.ts \
 		translations/kjvdataparse.es.ts \
-		translations/kjvdataparse.de.ts
+		translations/kjvdataparse.de.ts \
+		translations/kjvdataparse.ru.ts
 
 SOURCES += main.cpp \
 	../KJVCanOpener/BuildDB.cpp \

@@ -5,31 +5,31 @@
 <context>
     <name>CHighlighterButtons</name>
     <message>
-        <location filename="../../KJVCanOpener/Highlighter.cpp" line="433"/>
+        <location filename="../../KJVCanOpener/Highlighter.cpp" line="458"/>
         <source>&amp;Highlight/Unhighlight Verse (Search Results) with Tool #%1</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/Highlighter.cpp" line="435"/>
+        <location filename="../../KJVCanOpener/Highlighter.cpp" line="460"/>
         <source>&amp;Highlight/Unhighlight Passage with Tool #%1</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/Highlighter.cpp" line="442"/>
+        <location filename="../../KJVCanOpener/Highlighter.cpp" line="467"/>
         <source>Highlighter Tool #%1</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/Highlighter.cpp" line="444"/>
+        <location filename="../../KJVCanOpener/Highlighter.cpp" line="469"/>
         <source>Ctrl+Click to highlight only the Search Result Text</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/Highlighter.cpp" line="448"/>
+        <location filename="../../KJVCanOpener/Highlighter.cpp" line="473"/>
         <source>Highlight/Unhighlight the selected passage with Highlighter Tool #%1</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -38,63 +38,63 @@
 <context>
     <name>CPhraseNavigator</name>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1256"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1259"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1417"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1420"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1318"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1321"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1511"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1514"/>
         <source>Category:</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1426"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1429"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1520"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1523"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2019"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2202"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2021"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2204"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2178"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2179"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2293"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2382"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2383"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2497"/>
         <source>Superscription</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2879"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3089"/>
         <source>Word:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2884"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3094"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2913"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2920"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2926"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3123"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3130"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3136"/>
         <source>contains:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2914"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3124"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -102,8 +102,8 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2915"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2921"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3125"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3131"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -111,9 +111,9 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2916"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2922"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2927"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3126"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3132"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3137"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -121,7 +121,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2935"/>
+        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3145"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -738,27 +738,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="61"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="63"/>
         <source>Reading Database</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="125"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="144"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="127"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="146"/>
         <source>Bad Record in Database, expected at least %1 field(s):
 &quot;%2&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="139"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="141"/>
         <source>Unexpected end of Bible CCDatabase file</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="191"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="193"/>
         <source>Invalid %1 section header in CCDatabase
 
 %2</source>
@@ -766,81 +766,81 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="201"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="203"/>
         <source>Table Lookup for &quot;%1&quot; Failed!
 %2</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="206"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="208"/>
         <source>Unable to find &quot;%1&quot; Table in database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="315"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="317"/>
         <source>Table Lookup for &quot;DBInfo&quot; Failed!
 %1</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="320"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="322"/>
         <source>Unable to find &quot;DBInfo&quot; Table in database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="331"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="333"/>
         <source>Invalid Bible Database DBInfo Index</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="344"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="346"/>
         <source>No database reading DBInfo</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="352"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="354"/>
         <source>Invalid Database Header/DBInfo record</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="355"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="357"/>
         <source>Unsupported KJPBS Database Version %1</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="358"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="360"/>
         <source>Invalid Database Header/DBInfo record for the version (%1) it specifies</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="361"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="363"/>
         <source>Invalid Bible Database Compatibility UUID</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="364"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="366"/>
         <source>Invalid Bible Database Language Identifier</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="367"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="369"/>
         <source>Invalid Bible Database Name</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="731"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="737"/>
         <source>Non-unique decomposed word entry error in WORDS table!
 
 Word: &quot;%1&quot; with Word: &quot;%2&quot;</source>
@@ -848,31 +848,31 @@ Word: &quot;%1&quot; with Word: &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="764"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="770"/>
         <source>Mismatch Word Counts for &quot;%1&quot; AltWords=%2, AltWordCounts=%3</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="769"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="775"/>
         <source>Bad AltWordCounts for &quot;%1&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="775"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="781"/>
         <source>Bad word indexes for &quot;%1&quot;</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="781"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="787"/>
         <source>Index/Count consistency error in WORDS table!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="833"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="839"/>
         <source>Invalid WORDS mapping.  Check database integrity!
 
 Word: &quot;%1&quot;  Index: %2</source>
@@ -880,68 +880,68 @@ Word: &quot;%1&quot;  Index: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="997"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1003"/>
         <source>Error: Book List and Table of Contents have different sizes!
 Check the database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1004"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1010"/>
         <source>Error: Book &quot;%1&quot; (%2) References Invalid Testament %3</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1044"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1050"/>
         <source>Error: Book &quot;%1&quot; (%2) Chapter %3 contains %4 Verses, expected %5 Verses!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1049"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1055"/>
         <source>Error: Book &quot;%1&quot; (%2) Chapter %3 contains %4 Words, expected %5 Words!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1055"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1061"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Chapters, expected %4 Chapters!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1060"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1066"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Verses, expected %4 Verses!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1065"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1071"/>
         <source>Error: Book &quot;%1&quot; (%2) contains %3 Words, expected %4 Words!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1076"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1082"/>
         <source>Error: Word List contains %1 indexes, expected %2!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1082"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1088"/>
         <source>Error: Word List contains %1 indexes, but Concordance Mapping contains %2 entries!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1092"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1098"/>
         <source>Error: Overall Bible Entry Data Counts are inconsistent!  Check database!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1101"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1107"/>
         <source>Normalize/Denormalize Index Check Failed!
 
 Normal-&gt;Relative-&gt;Normal:
@@ -950,38 +950,38 @@ Normal-&gt;Relative-&gt;Normal:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1141"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1147"/>
         <source>Unable to find Dictionary information record!</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1230"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1236"/>
         <source>Warning: Couldn&apos;t find CC database file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1322"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1324"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1413"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1415"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1383"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1385"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1474"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1476"/>
         <source>Error: Couldn&apos;t open CC database file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1329"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1420"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1390"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1481"/>
         <source>Error: Failed to open i/o compressor for file &quot;%1&quot;.</source>
         <comment>ReadDB</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1363"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1365"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1442"/>
-        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1444"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1424"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1426"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1503"/>
+        <location filename="../../KJVCanOpener/ReadDB.cpp" line="1505"/>
         <source>Error: Couldn&apos;t open SQL database file &quot;%1&quot;.
 
 %2</source>
@@ -996,86 +996,86 @@ Normal-&gt;Relative-&gt;Normal:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="861"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1031"/>
         <source>(%1 Words)</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="872"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1042"/>
         <source>Book:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="874"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="891"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="912"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="937"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1044"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1061"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1082"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1107"/>
         <source>%1 of %2 of Bible</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="877"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="894"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="900"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="915"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="921"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="924"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="940"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="946"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="949"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="952"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1047"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1064"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1070"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1085"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1091"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1094"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1110"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1116"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1119"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1122"/>
         <source>%1 of %2 of %3</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="889"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1059"/>
         <source>Chapter:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="910"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1080"/>
         <source>Verse:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="965"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="967"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="990"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="992"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1135"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1137"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1160"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1162"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="973"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="975"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="998"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1000"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1143"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1145"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1168"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1170"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="935"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1105"/>
         <source>Word/Phrase:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="961"/>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="986"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1131"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="1156"/>
         <source>&lt;Invalid Reference&gt;</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.h" line="324"/>
+        <location filename="../../KJVCanOpener/dbstruct.h" line="384"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>Toda la Biblia</translation>
@@ -1126,13 +1126,13 @@ Normal-&gt;Relative-&gt;Normal:
 <context>
     <name>TBibleDatabaseList</name>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="75"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="110"/>
         <source>Load Bible Database</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="75"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="110"/>
         <source>Failed to Read and Validate Bible Database!
 %1
 Check Installation!</source>
@@ -1143,13 +1143,13 @@ Check Installation!</source>
 <context>
     <name>TDictionaryDatabaseList</name>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="339"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="378"/>
         <source>Load Dictionary Database</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbstruct.cpp" line="339"/>
+        <location filename="../../KJVCanOpener/dbstruct.cpp" line="378"/>
         <source>Failed to Read and Validate Dictionary Database!
 %1
 Check Installation!</source>
@@ -2619,19 +2619,19 @@ Check Installation!</source>
 <context>
     <name>xc_dbDescriptors</name>
     <message>
-        <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="182"/>
+        <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="232"/>
         <source>Old Testament</source>
         <comment>testament_names</comment>
         <translation>Antiguo Testamento</translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="183"/>
+        <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="233"/>
         <source>New Testament</source>
         <comment>testament_names</comment>
         <translation>Nuevo Testamento</translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="184"/>
+        <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="234"/>
         <source>Apocrypha/Deuterocanon</source>
         <comment>testament_names</comment>
         <translation>Libros Apócrifos/Deuterocanónicos</translation>
