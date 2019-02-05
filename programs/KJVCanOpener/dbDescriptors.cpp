@@ -69,6 +69,7 @@ namespace {
 	const char *constUUID_SPMT_20120627 =		"5939EB40-5BAC-11E7-9598-0800200C9A66";
 	const char *constUUID_LXX_20080722 =		"4F4BD170-6264-11E7-9598-0800200C9A66";
 	const char *constUUID_RV1865mv20180504 =	"28A10630-5728-11E8-B566-0800200C9A66";
+	const char *constUUID_RUSSYNODAL_20101106 =	"B5F0F4C0-28E5-11E9-B56E-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -132,6 +133,8 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "LXX-20080722", "grc", QString::fromUtf8("LXX Greek Septuagint Old Testament Version 270 BC"), QString::fromUtf8("LXX Greek Septuagint Old Testament Version 270 BC (20080722)"), constUUID_LXX_20080722, "bbl-lxx-20080722.s3db", "bbl-lxx-20080722.ccdb", constUUID_LXX_20080722 },
 		// RV1865-mv20180504: (Reina-Valera 1865, from Vince LaRue, Ministerios Valera 1865, 2018-05-04 Release)
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-mv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Ministerios Valera 1865 (20180504)"), constUUID_RV1865mv20180504, "bbl-rv1865mv20180504.s3db", "bbl-rv1865mv20180504.ccdb", constUUID_RV1865mv },
+		// RUSSYNODAL_20101106 (1876 Russian Synodal Bible):
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL_20101106 },
 	};
 
 	//////////////////////////////////////////////////////////////////////
