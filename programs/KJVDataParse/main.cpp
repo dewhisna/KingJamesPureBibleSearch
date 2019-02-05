@@ -501,6 +501,7 @@ public:
 			m_bBracketItalics(false),
 			m_bNoArabicNumeralWords(false),
 			m_bInlineFootnotes(false),
+			m_bExcludeDeuterocanonical(false),
 			m_bFoundSegVariant(false)
 	{
 		g_setBooks();
@@ -529,6 +530,8 @@ public:
 	bool noArabicNumeralWords() const { return m_bNoArabicNumeralWords; }
 	void setInlineFootnotes(bool bInlineFootnotes) { m_bInlineFootnotes = bInlineFootnotes; }
 	bool inlineFootnotes() const { return m_bInlineFootnotes; }
+	void setExcludeDeuterocanonical(bool bExcludeDeuterocanonical) { m_bExcludeDeuterocanonical = bExcludeDeuterocanonical; }
+	bool excludeDeuterocanonical() const { return m_bExcludeDeuterocanonical; }
 	void setSegVariant(const QString &strSegVariant) { m_strSegVariant = strSegVariant; }
 	QString segVariant() const { return m_strSegVariant; }
 	bool foundSegVariant() const { return m_bFoundSegVariant; }
@@ -644,6 +647,7 @@ private:
 	bool m_bBracketItalics;
 	bool m_bNoArabicNumeralWords;		// Skip "words" made entirely of Arabic numerals and don't count them as words
 	bool m_bInlineFootnotes;			// True if inlining footnotes as uncounted parentheticals
+	bool m_bExcludeDeuterocanonical;	// Exclude Apocrypha/Deuterocanonical Text
 	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
 	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
@@ -682,6 +686,13 @@ static unsigned int bookIndexToTestamentBookIndex(unsigned int nBk)
 	} else {
 		return nBk-NUM_BK_OT-NUM_BK_NT-NUM_BK_APOC;
 	}
+}
+
+static bool bookIsDeuterocanonical(unsigned int nBk)
+{
+	// Note: nBk is one-based
+	if (nBk > (NUM_BK_OT + NUM_BK_NT)) return true;
+	return false;
 }
 
 const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
@@ -877,15 +888,19 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 				m_ndxColophon = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 			} else {
-				bool bOK = true;
-				unsigned int nChp = 0;
-				unsigned int nVrs = 0;
-				m_ndxColophon = CRelIndex(nBk+1, 0, 0, 0);
-				if ((lstOsisID.size() >= 2) && ((nChp = lstOsisID.at(1).toUInt(&bOK)) != 0) && (bOK)) {
-					m_ndxColophon.setChapter(nChp);
-					if ((lstOsisID.size() >= 3) && ((nVrs = lstOsisID.at(2).toUInt(&bOK)) != 0) && (bOK)) {
-						m_ndxColophon.setVerse(nVrs);
+				if (!m_bExcludeDeuterocanonical || !bookIsDeuterocanonical(nBk+1)) {
+					bool bOK = true;
+					unsigned int nChp = 0;
+					unsigned int nVrs = 0;
+					m_ndxColophon = CRelIndex(nBk+1, 0, 0, 0);
+					if ((lstOsisID.size() >= 2) && ((nChp = lstOsisID.at(1).toUInt(&bOK)) != 0) && (bOK)) {
+						m_ndxColophon.setChapter(nChp);
+						if ((lstOsisID.size() >= 3) && ((nVrs = lstOsisID.at(2).toUInt(&bOK)) != 0) && (bOK)) {
+							m_ndxColophon.setVerse(nVrs);
+						}
 					}
+				} else {
+					nBk = -1;
 				}
 			}
 		} else {
@@ -949,17 +964,29 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			}
 		}
 		if (nBk != -1) {
-			std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data() << "\n";
-			// note: nBk is index into array, not book number:
-			nTst = bookIndexToTestamentIndex(nBk+1);
-			while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
-				CTestamentEntry aTestament(g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()]);
-				m_pBibleDatabase->m_EntireBible.m_nNumTst++;
-				m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
-				std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
+			if (bookIsDeuterocanonical(nBk+1) && m_bExcludeDeuterocanonical) {
+				if ((localName.compare("div", Qt::CaseInsensitive) != 0) ||
+					((localName.compare("div", Qt::CaseInsensitive) == 0) &&
+					 (findAttribute(atts, "eID") == -1))) {
+					// Don't log this if this is a <div> tag with "eID" set, as
+					//	we will have already written it for "sID":
+					std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data();
+					std::cerr << "  >>> Skipping Deuterocanonical Book\n";
+				}
+				nBk = -1;
+			} else {
+				std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data() << "\n";
+				// note: nBk is index into array, not book number:
+				nTst = bookIndexToTestamentIndex(nBk+1);
+				while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
+					CTestamentEntry aTestament(g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()]);
+					m_pBibleDatabase->m_EntireBible.m_nNumTst++;
+					m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
+					std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
+				}
+				if (m_xfteFormatType == XFTE_ZEFANIA) m_ndxCurrent.setBook(nBk+1);
 			}
 		}
-		if (m_xfteFormatType == XFTE_ZEFANIA) m_ndxCurrent.setBook(nBk+1);
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("paragraph", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "sID");			// Paragraph Starts are tagged with sID, Paragraph Ends are tagged with eID -- we only care about the starts for our Pilcrows -- example text: Reina-Valera 1909
 		if (ndx != -1) {
@@ -976,11 +1003,11 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		// Note: Coming into this function, either ndxCurrent isn't set and we set both book and chapter (OSIS) or book only is set and we set chapter (ZEFANIA)
 		if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = findAttribute(atts, "eID")) != -1)) {
 			// End of open-ended chapter:
-			if (m_ndxCurrent.chapter() == 0) {
+			if ((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() == 0)) {
 				std::cerr << "\n*** End of open-ended chapter before start of chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
 			}
 			m_bOpenEndedChapter = false;
-			// At the end of closed-form, leave the chpater number set (indicating bInChapter) and process closing in the endElement for this end-tag.  But don't start new chapter here
+			// At the end of closed-form, leave the chapter number set (indicating bInChapter) and process closing in the endElement for this end-tag.  But don't start new chapter here
 		} else {
 			if (m_xfteFormatType == XFTE_OSIS) {
 				ndx = findAttribute(atts, "osisID");
@@ -990,20 +1017,24 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 						m_ndxCurrent = CRelIndex();
 						std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 					} else {
-						if (findAttribute(atts, "sID") != -1) {
-							// Start of open-ended chapter:
-							if (m_ndxCurrent.chapter()) {
-								std::cerr << "\n*** Start of open-ended chapter before end of chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+						if (!m_bExcludeDeuterocanonical || !bookIsDeuterocanonical(nBk+1)) {
+							if (findAttribute(atts, "sID") != -1) {
+								// Start of open-ended chapter:
+								if (m_ndxCurrent.chapter()) {
+									std::cerr << "\n*** Start of open-ended chapter before end of chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+								}
+								m_bOpenEndedChapter = true;
+							} else {
+								// Standard Closed-Form chapter:
+								if (m_bOpenEndedChapter) {
+									std::cerr << "\n*** Mixing open-ended and closed form chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
+								}
+								m_bOpenEndedChapter = false;
 							}
-							m_bOpenEndedChapter = true;
+							m_ndxCurrent = CRelIndex(nBk+1, lstOsisID.at(1).toUInt(), 0, 0);
 						} else {
-							// Standard Closed-Form chapter:
-							if (m_bOpenEndedChapter) {
-								std::cerr << "\n*** Mixing open-ended and closed form chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
-							}
-							m_bOpenEndedChapter = false;
+							nBk = -1;
 						}
-						m_ndxCurrent = CRelIndex(nBk+1, lstOsisID.at(1).toUInt(), 0, 0);
 					}
 				} else {
 					m_ndxCurrent = CRelIndex();
@@ -1285,12 +1316,14 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 	} else if ((m_xfteFormatType == XFTE_ZEFANIA) && (!m_bInVerse) && (localName.compare("BIBLEBOOK", Qt::CaseInsensitive) == 0)) {
 		m_ndxCurrent = CRelIndex();
 	} else if ((!m_bInVerse) && (localName.compare("chapter", Qt::CaseInsensitive) == 0) && (!m_bOpenEndedChapter)) {
+		if (m_ndxCurrent.book() != 0) {
+			std::cerr << "\n";
+		}
 		if (m_xfteFormatType == XFTE_OSIS) {
 			m_ndxCurrent = CRelIndex();
 		} else if (m_xfteFormatType == XFTE_ZEFANIA) {
 			m_ndxCurrent = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 		}
-		std::cerr << "\n";
 // Technically, we shouldn't have a chapter inside verse, but some modules use it as a special inner marking (like FrePGR, for example):
 //		assert(m_bInVerse == false);
 //		if (m_bInVerse) {
@@ -1887,6 +1920,7 @@ int main(int argc, char *argv[])
 	bool bBracketItalics = false;
 	bool bNoArabicNumeralWords = false;
 	bool bInlineFootnotes = false;
+	bool bExcludeDeuterocanonical = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilename;
@@ -1926,6 +1960,8 @@ int main(int argc, char *argv[])
 			bNoArabicNumeralWords = true;
 		} else if (strArg.compare("-f") == 0) {
 			bInlineFootnotes = true;
+		} else if (strArg.compare("-x") == 0) {
+			bExcludeDeuterocanonical = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -1947,6 +1983,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
 		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
 		std::cerr << QString("    -f  =  Inline footnotes as Uncounted Parentheticals\n").toUtf8().data();
+		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -1989,6 +2026,7 @@ int main(int argc, char *argv[])
 	xmlHandler.setBracketItalics(bBracketItalics);
 	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
 	xmlHandler.setInlineFootnotes(bInlineFootnotes);
+	xmlHandler.setExcludeDeuterocanonical(bExcludeDeuterocanonical);
 	xmlHandler.setSegVariant(strSegVariant);
 
 	xmlReader.setContentHandler(&xmlHandler);
