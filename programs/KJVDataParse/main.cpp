@@ -547,14 +547,15 @@ public:
 	QStringList elementNames() const { return m_lstElementNames; }
 	QStringList attrNames() const { return m_lstAttrNames; }
 
-	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts);
-	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-	virtual bool characters(const QString &ch);
-	virtual bool error(const QXmlParseException &exception);
-	virtual QString errorString() const
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts) override;
+	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
+	virtual bool characters(const QString &ch) override;
+	virtual bool error(const QXmlParseException &exception) override;
+	virtual QString errorString() const override
 	{
 		return (!m_strErrorString.isEmpty() ? m_strErrorString : QXmlDefaultHandler::errorString());
 	}
+	virtual bool endDocument() override;
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
@@ -1439,6 +1440,11 @@ bool COSISXmlHandler::characters(const QString &ch)
 bool COSISXmlHandler::error(const QXmlParseException &exception)
 {
 	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
+	return true;
+}
+
+bool COSISXmlHandler::endDocument()
+{
 	return true;
 }
 

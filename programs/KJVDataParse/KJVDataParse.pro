@@ -29,6 +29,9 @@
 
 QT       += core gui xml
 
+CONFIG	+= c++11		# This works on Qt5+ only
+lessThan(QT_MAJOR_VERSION,5):QMAKE_CXXFLAGS += -std=c++11		# manual workaround for Qt 4
+
 # Workaround QTBUG-30594 (was fixed in 4.8.5):
 equals(QT_MAJOR_VERSION,4):equals(QT_MINOR_VERSION,8):lessThan(QT_PATCH_VERSION,5):QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 
