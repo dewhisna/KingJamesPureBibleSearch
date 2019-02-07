@@ -486,6 +486,7 @@ public:
 			m_bInLemma(false),
 			m_bInTransChangeAdded(false),
 			m_bInNotes(false),
+			m_bInBracketNotes(false),
 			m_bInColophon(false),
 			m_bOpenEndedColophon(false),
 			m_bInSuperscription(false),
@@ -501,6 +502,8 @@ public:
 			m_bBracketItalics(false),
 			m_bNoArabicNumeralWords(false),
 			m_bInlineFootnotes(false),
+			m_bUseBracketFootnotes(false),
+			m_bUseBracketFootnotesExcluded(false),
 			m_bExcludeDeuterocanonical(false),
 			m_bFoundSegVariant(false)
 	{
@@ -530,6 +533,10 @@ public:
 	bool noArabicNumeralWords() const { return m_bNoArabicNumeralWords; }
 	void setInlineFootnotes(bool bInlineFootnotes) { m_bInlineFootnotes = bInlineFootnotes; }
 	bool inlineFootnotes() const { return m_bInlineFootnotes; }
+	void setUseBracketFootnotes(bool bUseBracketFootnotes) { m_bUseBracketFootnotes = bUseBracketFootnotes; }
+	bool useBracketFootnotes() const { return m_bUseBracketFootnotes; }
+	void setUseBracketFootnotesExcluded(bool bUseBracketFootnotesExcluded) { m_bUseBracketFootnotesExcluded = bUseBracketFootnotesExcluded; }
+	bool useBracketFootnotesExcluded() const { return m_bUseBracketFootnotesExcluded; }
 	void setExcludeDeuterocanonical(bool bExcludeDeuterocanonical) { m_bExcludeDeuterocanonical = bExcludeDeuterocanonical; }
 	bool excludeDeuterocanonical() const { return m_bExcludeDeuterocanonical; }
 	void setSegVariant(const QString &strSegVariant) { m_strSegVariant = strSegVariant; }
@@ -628,6 +635,7 @@ private:
 	bool m_bInLemma;
 	bool m_bInTransChangeAdded;
 	bool m_bInNotes;
+	bool m_bInBracketNotes;
 	bool m_bInColophon;
 	bool m_bOpenEndedColophon;				// Open-ended colophons use sID/eID attributes in <div /> tags to start stop them rather than enclosing the whole colophon in a single specific <div></div> section
 	bool m_bInSuperscription;
@@ -647,6 +655,8 @@ private:
 	bool m_bBracketItalics;
 	bool m_bNoArabicNumeralWords;		// Skip "words" made entirely of Arabic numerals and don't count them as words
 	bool m_bInlineFootnotes;			// True if inlining footnotes as uncounted parentheticals
+	bool m_bUseBracketFootnotes;		// True if treating "[" and "]" as inline footnote markers
+	bool m_bUseBracketFootnotesExcluded;// True if treating "[" and "]" as inline footnote markers and excluding them (m_bUseBracketFootnotes will also be true)
 	bool m_bExcludeDeuterocanonical;	// Exclude Apocrypha/Deuterocanonical Text
 	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
 	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
@@ -1319,6 +1329,8 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		if (m_ndxCurrent.book() != 0) {
 			std::cerr << "\n";
 		}
+		if (m_bInBracketNotes) std::cerr << "\n*** Error: Missing end of Bracketed Footnotes within chapter\n";
+		m_bInBracketNotes = false;
 		if (m_xfteFormatType == XFTE_OSIS) {
 			m_ndxCurrent = CRelIndex();
 		} else if (m_xfteFormatType == XFTE_ZEFANIA) {
@@ -1538,6 +1550,13 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 		m_bOpenEndedSuperscription = false;
 	}
 
+	if (m_bInBracketNotes) {
+		// If still within BracketNotes from previous verse,
+		//	extended it into this one:
+		verse.m_strText.append(g_chrParseTag);
+		verse.m_lstParseStack.push_back("N:");
+	}
+
 	if (nVT == VT_VERSE) {
 		if (!bPreExisted) {			// Only increment verse counts if this isn't a duplicate (pre-existing) verse.  Otherwise, we'll crash in the word output and summary phase
 			unsigned int nVerseOffset = 1;
@@ -1585,8 +1604,38 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 
 	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 
-	// Do bracket colophons ahead of bracket italics
-	if ((m_bUseBracketColophons) && (nVT == VT_VERSE)) {		// Note: Bracket-Colophons will appear in normal verse text during parsing, not a "real colophon"
+	// Do bracket footnotes ahead of bracket colophons
+	if (m_bUseBracketFootnotes) {		// Note: Bracket-Footnotes will appear in normal verse text during parsing
+		int nBracketRefCount = 0;
+		int ndxStart;
+		int ndxEnd;
+		while (m_bInBracketNotes || ((ndxStart = strTempText.indexOf(QChar('['))) != -1)) {		// If continued from previous verse or starting in this verse
+			if (!m_bInBracketNotes) {
+				strTempText.replace(ndxStart, 1, g_chrParseTag);
+				verse.m_lstParseStack.push_back("N:");
+			} else {
+				// Here if this is a continuation from a previous entry.  If
+				//	so, the starting parse tag will have already been written.
+				//	In this case, set up to find the ending:
+				ndxStart = -1;		// Set to -1 so end search is correct below
+				m_bInBracketNotes = false;		// Clear flag to break out of this loop
+			}
+			++nBracketRefCount;
+			ndxEnd = strTempText.indexOf(QChar(']'), ndxStart+1);
+			if (ndxEnd != -1) {
+				strTempText.replace(ndxEnd, 1, g_chrParseTag);
+				verse.m_lstParseStack.push_back("n:");
+				--nBracketRefCount;
+			}
+		}
+		if (nBracketRefCount) m_bInBracketNotes = true;		// Keep it set if still in bracketing
+		// Allow one marker carryover without warning:
+		if ((nBracketRefCount > 1) || (strTempText.contains(QChar('['))) || (strTempText.contains(QChar(']')))) {
+			std::cerr << "\n*** Warning: Mismatched Bracket-Footnote Markers\n";
+		}
+	} else
+	  // Do bracket colophons ahead of bracket italics
+	  if ((m_bUseBracketColophons) && (nVT == VT_VERSE)) {		// Note: Bracket-Colophons will appear in normal verse text during parsing, not a "real colophon"
 		if (!m_bInColophon) {
 			int ndxStart;
 			int ndxEnd;
@@ -1674,9 +1723,16 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 	QString strTemp = verse.m_strText;
 
+	if (m_bInBracketNotes) {
+		// If BracketNotes crosses verse boundary, put matching
+		//	tag at the end of the verse:
+		strTemp.append(g_chrParseTag);
+		verse.m_lstParseStack.push_back("n:");
+	}
+
 	unsigned int nWordCount = 0;
 	bool bInWord = false;
-	bool bInlineNote = false;		// True during inline parenthetical footnotes
+	bool bInlineNote = m_bInBracketNotes;		// True during inline parenthetical footnotes (initial state is rollover from previous verse)
 	QString strWord;
 	QString strRichWord;
 	QStringList lstWords;
@@ -1721,10 +1777,23 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					if (verse.m_nPilcrow == CVerseEntry::PTE_NONE)
 						verse.m_nPilcrow = CVerseEntry::PTE_EXTRA;
 				} else if (strOp.compare("N") == 0) {
-					verse.m_strTemplate += "N";
+					if (!m_bUseBracketFootnotes ||
+						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
+						verse.m_strTemplate += "N";
+					} else {
+						// If not outputting the inline note, remove the
+						//	extra from the text that preceeded it:
+						if (!verse.m_strTemplate.isEmpty() &&
+							verse.m_strTemplate.at(verse.m_strTemplate.size()-1).isSpace()) {
+							verse.m_strTemplate = verse.m_strTemplate.left(verse.m_strTemplate.size()-1);
+						}
+					}
 					bInlineNote = true;
 				} else if (strOp.compare("n") == 0) {
-					verse.m_strTemplate += "n";
+					if (!m_bUseBracketFootnotes ||
+						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
+						verse.m_strTemplate += "n";
+					}
 					bInlineNote = false;
 				} else {
 					assert(false);		// Unknown ParseStack Operator!
@@ -1889,8 +1958,10 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 		m_bInVerse = false;
 	} else if (nVT == VT_SUPERSCRIPTION) {
 		m_bInSuperscription = false;
+		m_bInBracketNotes = false;			// Don't carry bracketed footnotes across superscription boundary
 	} else if (nVT == VT_COLOPHON) {
 		m_bInColophon = false;
+		m_bInBracketNotes = false;			// Don't carry bracketed footnotes across colophon boundary
 	}
 }
 
@@ -1920,6 +1991,8 @@ int main(int argc, char *argv[])
 	bool bBracketItalics = false;
 	bool bNoArabicNumeralWords = false;
 	bool bInlineFootnotes = false;
+	bool bUseBracketFootnotes = false;
+	bool bUseBracketFootnotesExcluded = false;
 	bool bExcludeDeuterocanonical = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
@@ -1960,6 +2033,11 @@ int main(int argc, char *argv[])
 			bNoArabicNumeralWords = true;
 		} else if (strArg.compare("-f") == 0) {
 			bInlineFootnotes = true;
+		} else if (strArg.compare("-bf") == 0) {
+			bUseBracketFootnotes = true;
+		} else if (strArg.compare("-bfx") == 0) {
+			bUseBracketFootnotes = true;
+			bUseBracketFootnotesExcluded = true;
 		} else if (strArg.compare("-x") == 0) {
 			bExcludeDeuterocanonical = true;
 		} else {
@@ -1983,6 +2061,10 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
 		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
 		std::cerr << QString("    -f  =  Inline footnotes as Uncounted Parentheticals\n").toUtf8().data();
+		std::cerr << QString("    -bf =  Enable Bracket Inline Footnotes (such as used in the RusSynodal)\n").toUtf8().data();
+		std::cerr << QString("           (Note: -bf will take precedence over -i and -bc)\n").toUtf8().data();
+		std::cerr << QString("    -bfx=  Enable Bracket Inline Footnotes and Exclude them\n").toUtf8().data();
+		std::cerr << QString("           (Identical to -bf, but excludes them.)\n").toUtf8().data();
 		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
@@ -2026,6 +2108,8 @@ int main(int argc, char *argv[])
 	xmlHandler.setBracketItalics(bBracketItalics);
 	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
 	xmlHandler.setInlineFootnotes(bInlineFootnotes);
+	xmlHandler.setUseBracketFootnotes(bUseBracketFootnotes);
+	xmlHandler.setUseBracketFootnotesExcluded(bUseBracketFootnotesExcluded);
 	xmlHandler.setExcludeDeuterocanonical(bExcludeDeuterocanonical);
 	xmlHandler.setSegVariant(strSegVariant);
 
