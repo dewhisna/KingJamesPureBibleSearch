@@ -1187,7 +1187,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("N:");
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
 		//	Note: If we already have text on this verse, then set a flag to put the pilcrow on the next verse
 		//			so we can handle the strange <CM> markers used on the German Schlachter text
 		//
@@ -1215,7 +1215,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		} else {
 			m_nDelayedPilcrow = nPilcrow;
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
 		// <seg subType="x-1" type="x-variant">
 		ndx = findAttribute(atts, "type");		// TODO : In addition to 'x-variant', add support for full OSIS 'variant', which is currently a work-in-progress
 		if ((ndx != -1) && (atts.value(ndx).compare("x-variant", Qt::CaseInsensitive) == 0)) {
@@ -1227,20 +1227,27 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				}
 			}
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("L:" + stringifyAttributes(atts));
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) &&
+			   (!m_bInNotes) &&	// Note: Allow transChangeAdded inside of inline bracketed notes
+			   ((localName.compare("transChange", Qt::CaseInsensitive) == 0) ||
+				(localName.compare("hi", Qt::CaseInsensitive) == 0))) {
 		ndx = findAttribute(atts, "type");
-		if ((ndx != -1) && (atts.value(ndx).compare("added", Qt::CaseInsensitive) == 0)) {
+		if ((ndx != -1) &&
+			(((localName.compare("transChange", Qt::CaseInsensitive) == 0) &&
+			  (atts.value(ndx).compare("added", Qt::CaseInsensitive) == 0)) ||		// <transChange type="added">
+			 ((localName.compare("hi", Qt::CaseInsensitive) == 0) &&
+			  (atts.value(ndx).compare("italic", Qt::CaseInsensitive) == 0)))) {	// <hi type="italic">
 			m_bInTransChangeAdded = true;
 			CVerseEntry &verse = activeVerseEntry();
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("T:");
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "who");
 		if ((ndx != -1) && (atts.value(ndx).compare("Jesus", Qt::CaseInsensitive) == 0)) {
 			m_bInWordsOfJesus = true;
@@ -1248,7 +1255,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("J:");
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
 		m_bInDivineName = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
@@ -1361,7 +1368,9 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("l:");
-	} else if ((m_bInTransChangeAdded) && (localName.compare("transChange", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_bInTransChangeAdded) &&
+			   ((localName.compare("transChange", Qt::CaseInsensitive) == 0) ||
+				(localName.compare("hi", Qt::CaseInsensitive) == 0))) {
 		m_bInTransChangeAdded = false;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
@@ -1764,9 +1773,25 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				} else if (strOp.compare("l") == 0) {
 					// TODO : End Lemma
 				} else if (strOp.compare("T") == 0) {
-					verse.m_strTemplate += "T";
+					if (!bInlineNote) {
+						verse.m_strTemplate += "T";
+					} else {
+						// Convert TransChangeAdded in inline notes to brackets:
+						CRelIndex &ndxActive = relIndex;
+						ndxActive.setWord(nWordCount+1);
+						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+						footnote.setText(footnote.text() + QChar('['));
+					}
 				} else if (strOp.compare("t") == 0) {
-					verse.m_strTemplate += "t";
+					if (!bInlineNote) {
+						verse.m_strTemplate += "t";
+					} else {
+						// Convert TransChangeAdded in inline notes to brackets:
+						CRelIndex &ndxActive = relIndex;
+						ndxActive.setWord(nWordCount+1);
+						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+						footnote.setText(footnote.text() + QChar(']'));
+					}
 				} else if (strOp.compare("J") == 0) {
 					verse.m_strTemplate += "J";
 				} else if (strOp.compare("j") == 0) {
