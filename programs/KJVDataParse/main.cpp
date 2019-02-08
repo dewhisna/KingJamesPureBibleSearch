@@ -1747,7 +1747,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 
 	unsigned int nWordCount = 0;
 	bool bInWord = false;
-	bool bInlineNote = m_bInBracketNotes;		// True during inline parenthetical footnotes (initial state is rollover from previous verse)
+	bool bInlineNote = false;
 	QString strWord;
 	QString strRichWord;
 	QStringList lstWords;
