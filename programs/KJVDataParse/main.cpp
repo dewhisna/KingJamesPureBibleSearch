@@ -2356,8 +2356,17 @@ int main(int argc, char *argv[])
 						assert(ndxDenormal == CRelIndex(nBk, nChp, nVrs, 1));
 					}
 				} else {
-					if (!bVerseMissing)
-						std::cerr << QString("\n*** Warning: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+					if (!bVerseMissing) {
+						if (nVrs == 0) {
+							if (nChp == 0) {
+								std::cerr << QString("\n*** Warning: Colophon has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+							} else {
+								std::cerr << QString("\n*** Warning: Superscription has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+							}
+						} else {
+							std::cerr << QString("\n*** Warning: Verse has no text: %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+						}
+					}
 				}
 
 //				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');
