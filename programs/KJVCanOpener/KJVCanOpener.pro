@@ -287,7 +287,8 @@ TRANSLATIONS += \
 	translations/kjpbs.en.ts \
 	translations/kjpbs.fr.ts \
 	translations/kjpbs.es.ts \
-	translations/kjpbs.de.ts
+	translations/kjpbs.de.ts \
+	translations/kjpbs.ru.ts
 
 # Qt Translation Files:
 # Define these in a new name so that lupdate, etc, won't pick them up, since they
@@ -300,13 +301,15 @@ greaterThan(QT_MAJOR_VERSION,4) {
 	TRANSLATIONS_QT += \
 		translations/qtbase_fr.ts \
 		translations/qtbase_es.ts \
-		translations/qtbase_de.ts
+		translations/qtbase_de.ts \
+		translations/qtbase_ru.ts
 		# English is native and doesn't have a separate translation file
 } else {
 	TRANSLATIONS_QT += \
 		translations/qt_fr.ts \
 		translations/qt_es.ts \
-		translations/qt_de.ts
+		translations/qt_de.ts \
+		translations/qt_ru.ts
 		# English is native and doesn't have a separate translation file
 }
 

@@ -1179,13 +1179,13 @@ Check Installation!</source>
         <location filename="../main.cpp" line="182"/>
         <source>Law</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Закон</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="178"/>
         <source>The First Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первая книга Моисея</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="179"/>
@@ -1203,7 +1203,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="179"/>
         <source>The Second Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Вторая книга Моисея</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="180"/>
@@ -1221,7 +1221,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="180"/>
         <source>The Third Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Третья книга Моисея</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="181"/>
@@ -1239,7 +1239,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="181"/>
         <source>The Fourth Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Четвертая книга Моисея</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="182"/>
@@ -1257,7 +1257,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="182"/>
         <source>The Fifth Book of Moses</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Пятая книга Моисея</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="183"/>
@@ -1286,7 +1286,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="194"/>
         <source>OT Narative</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ветхий Завет Повествование</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="184"/>
@@ -1328,7 +1328,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="186"/>
         <source>The First Book of Samuel Otherwise Called, The First Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первая книга царей, обычно называемая первой книгой Самуила</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="187"/>
@@ -1346,7 +1346,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="187"/>
         <source>The Second Book of Samuel Otherwise Called, The Second Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Вторая книга царей, обычно называемая второй книгой Самуила</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="188"/>
@@ -1364,7 +1364,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="188"/>
         <source>The First Book of the Kings Commonly Called, The Third Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Третья книга королей, обычно называемая первой книгой королей</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="189"/>
@@ -1382,7 +1382,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="189"/>
         <source>The Second Book of the Kings Commonly Called, The Fourth Book of the Kings</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Четвертая книга королей, обычно называемая второй книгой королей</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="190"/>
@@ -1400,7 +1400,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="190"/>
         <source>The First Book of the Chronicles</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первая книга Паралипоменон</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="191"/>
@@ -1418,7 +1418,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="191"/>
         <source>The Second Book of the Chronicles</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Вторая книга Паралипоменон</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="192"/>
@@ -1476,7 +1476,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="199"/>
         <source>Wisdom</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Мудрость</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="196"/>
@@ -1518,7 +1518,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="198"/>
         <source>Ecclesiastes; Or, The Preacher</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Екклесиаст или Проповедник</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="199"/>
@@ -1552,13 +1552,13 @@ Check Installation!</source>
         <location filename="../main.cpp" line="204"/>
         <source>Major Prophets</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Главные Пророки</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="200"/>
         <source>The Book of the Prophet Isaiah</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Книга пророка Исаии</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="201"/>
@@ -1576,7 +1576,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="201"/>
         <source>The Book of the Prophet Jeremiah</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Книга пророка Иеремия</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="202"/>
@@ -1594,7 +1594,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="202"/>
         <source>The Lamentations of Jeremiah</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Плач Иеремии</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="203"/>
@@ -1612,7 +1612,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="203"/>
         <source>The Book of the Prophet Ezekiel</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Книга пророка Иезекииля</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="204"/>
@@ -1630,7 +1630,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="204"/>
         <source>The Book of &lt;i&gt;the Prophet&lt;/i&gt; Daniel</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Книга Пророка Даниила</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="205"/>
@@ -1659,7 +1659,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="216"/>
         <source>Minor Prophets</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Малые Пророки</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="206"/>
@@ -1813,13 +1813,13 @@ Check Installation!</source>
         <location filename="../main.cpp" line="222"/>
         <source>NT Narative</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Новый Завет Повествование</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="218"/>
         <source>The Gospel According to Saint Matthew</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Евангелие от святого Матфея</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="219"/>
@@ -1837,7 +1837,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="219"/>
         <source>The Gospel According to Saint Mark</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Евангелие от святого Марка</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="220"/>
@@ -1855,7 +1855,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="220"/>
         <source>The Gospel According to Saint Luke</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Евангелие от святого Луки</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="221"/>
@@ -1873,7 +1873,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="221"/>
         <source>The Gospel According to Saint John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Евангелие от Иоанна</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="222"/>
@@ -1891,7 +1891,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="222"/>
         <source>The Acts of the Apostles</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Деяния Апостолов</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="223"/>
@@ -1922,13 +1922,13 @@ Check Installation!</source>
         <location filename="../main.cpp" line="236"/>
         <source>Pauline Epistles</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Полин Послания</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="223"/>
         <source>The Epistle of Paul the Apostle to the Romans</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание апостола Павла к римлянам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="224"/>
@@ -1946,7 +1946,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="224"/>
         <source>The First Epistle of Paul the Apostle to the Corinthians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первое послание апостола Павла к Коринфянам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="225"/>
@@ -1964,7 +1964,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="225"/>
         <source>The Second Epistle of Paul the Apostle to the Corinthians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Второе послание апостола Павла к Коринфянам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="226"/>
@@ -1982,7 +1982,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="226"/>
         <source>The Epistle of Paul the Apostle to the Galatians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание апостола Павла к Галатам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="227"/>
@@ -2000,7 +2000,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="227"/>
         <source>The Epistle of Paul the Apostle to the Ephesians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание апостола Павла к Ефесянам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="228"/>
@@ -2018,7 +2018,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="228"/>
         <source>The Epistle of Paul the Apostle to the Philippians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание апостола Павла к Филиппийцам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="229"/>
@@ -2036,7 +2036,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="229"/>
         <source>The Epistle of Paul the Apostle to the Colossians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание апостола Павла к Колоссянам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="230"/>
@@ -2054,7 +2054,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="230"/>
         <source>The First Epistle of Paul the Apostle to the Thessalonians</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первое послание апостола Павла к Фессалоникийцам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="231"/>
@@ -2072,7 +2072,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="231"/>
         <source>The Second Epistle of Paul the Apostle to the Thessalonains</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Второе послание апостола Павла к Фессалоникийцам</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="232"/>
@@ -2090,7 +2090,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="232"/>
         <source>The First Epistle of Paul the Apostle to Timothy</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первое послание апостола Павла к Тимофею</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="233"/>
@@ -2108,7 +2108,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="233"/>
         <source>The Second Epistle of Paul the Apostle to Timothy</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Второе послание апостола Павла к Тимофею</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="234"/>
@@ -2126,7 +2126,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="234"/>
         <source>The Epistle of Paul to Titus</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание Павла к Титу</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="235"/>
@@ -2144,7 +2144,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="235"/>
         <source>The Epistle of Paul to Philemon</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание Павла Филимону</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="236"/>
@@ -2162,7 +2162,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="236"/>
         <source>The Epistle of Paul the Apostle to the Hebrews</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Послание апостола Павла к Евреям</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="237"/>
@@ -2186,13 +2186,13 @@ Check Installation!</source>
         <location filename="../main.cpp" line="243"/>
         <source>General Epistles</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Общие послания</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="237"/>
         <source>The General Epistle of James</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Общее послание Иакова</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="238"/>
@@ -2210,7 +2210,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="238"/>
         <source>The First General Epistle of Peter</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первое общее послание Петра</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="239"/>
@@ -2228,7 +2228,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="239"/>
         <source>The Second General Epistle of Peter</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Второе общее послание Петра</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="240"/>
@@ -2246,7 +2246,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="240"/>
         <source>The First General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Первое общее послание Иоанна</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="241"/>
@@ -2264,7 +2264,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="241"/>
         <source>The Second General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Второе общее послание Иоанна</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="242"/>
@@ -2282,7 +2282,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="242"/>
         <source>The Third General Epistle of John</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Третье общее послание Иоанна</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="243"/>
@@ -2300,7 +2300,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="243"/>
         <source>The General Epistle of Jude</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Общее послание Иуды</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="244"/>
@@ -2318,13 +2318,13 @@ Check Installation!</source>
         <location filename="../main.cpp" line="244"/>
         <source>Apocalyptic Epistle</source>
         <comment>bookcategory</comment>
-        <translation type="unfinished"></translation>
+        <translation>Апокалиптическое Послание</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="244"/>
         <source>The Revelation of Jesus Christ</source>
         <comment>bookdesc</comment>
-        <translation type="unfinished"></translation>
+        <translation>Откровение Иисуса Христа</translation>
     </message>
     <message>
         <location filename="../main.cpp" line="246"/>
@@ -2622,13 +2622,13 @@ Check Installation!</source>
         <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="232"/>
         <source>Old Testament</source>
         <comment>testament_names</comment>
-        <translation type="unfinished"></translation>
+        <translation>Ветхий Завет</translation>
     </message>
     <message>
         <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="233"/>
         <source>New Testament</source>
         <comment>testament_names</comment>
-        <translation type="unfinished"></translation>
+        <translation>Новый Завет</translation>
     </message>
     <message>
         <location filename="../../KJVCanOpener/dbDescriptors.cpp" line="234"/>
