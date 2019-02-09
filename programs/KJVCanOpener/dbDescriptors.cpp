@@ -134,7 +134,7 @@ namespace {
 		// RV1865-mv20180504: (Reina-Valera 1865, from Vince LaRue, Ministerios Valera 1865, 2018-05-04 Release)
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-mv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Ministerios Valera 1865 (20180504)"), constUUID_RV1865mv20180504, "bbl-rv1865mv20180504.s3db", "bbl-rv1865mv20180504.ccdb", constUUID_RV1865mv },
 		// RUSSYNODAL_20101106 (1876 Russian Synodal Bible):
-		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL_20101106 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20101106a)"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL_20101106 },
 	};
 
 	//////////////////////////////////////////////////////////////////////
