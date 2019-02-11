@@ -668,7 +668,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					(m_private.m_nViewMode != CVerseListModel::VVME_USERNOTES) &&
 					(m_private.m_nViewMode != CVerseListModel::VVME_CROSSREFS)) {
 					QString strChapter = QString("%1").arg(ndxRel.chapter());
-					if (ndxRel.chapter() == 0) strChapter = tr("Colophon", "Scope");
+					if (ndxRel.chapter() == 0) strChapter = m_private.m_pBibleDatabase->translatedColophonString();
 					dataGenHTML.appendLiteralText(QString("{%1} (%2) %3 %4")
 													.arg(nVerses)
 													.arg(nResults)

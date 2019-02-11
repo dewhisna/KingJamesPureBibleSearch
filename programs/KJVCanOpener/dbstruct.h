@@ -1152,6 +1152,9 @@ public:
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
 	QString highlighterUUID() const { return m_strHighlighterUUID; }
 
+	QString translatedColophonString() const;
+	QString translatedSuperscriptionString() const;
+
 	bool completelyContains(const TPhraseTag &aPhraseTag) const;		// Returns true if this Bible database completely contains the specified tag (i.e. none of it lies outside the database text)
 	TTagBoundsPair bounds() const;
 

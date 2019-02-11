@@ -2199,9 +2199,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 		scriptureHTML.appendLiteralText(QString(" %1:%2 ").arg(ndx.chapter()).arg(ndx.verse()));
 	} else {
 		if (ndx.chapter() == 0) {
-			scriptureHTML.appendLiteralText(" " + tr("Colophon", "Statistics") + " ");
+			scriptureHTML.appendLiteralText(" " + m_pBibleDatabase->translatedColophonString() + " ");
 		} else {
-			scriptureHTML.appendLiteralText(QString(" %1 %2 ").arg(ndx.chapter()).arg(tr("Superscription", "Statistics")));
+			scriptureHTML.appendLiteralText(QString(" %1 %2 ").arg(ndx.chapter()).arg(m_pBibleDatabase->translatedSuperscriptionString()));
 		}
 	}
 	scriptureHTML.endBold();
@@ -2379,8 +2379,8 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 					strReference += QString("%1 %2:%3-%4")
 											.arg(strBookNameFirst)
 											.arg(ndxFirst.chapter())
-											.arg((!ndxFirst.isSuperscription()) ? QString("%1").arg(ndxFirst.verse()) : tr("Superscription", "Scope"))
-											.arg((!ndxLast.isSuperscription()) ? QString("%1").arg(ndxLast.verse()) : tr("Superscription", "Scope"));
+											.arg((!ndxFirst.isSuperscription()) ? QString("%1").arg(ndxFirst.verse()) : m_pBibleDatabase->translatedSuperscriptionString())
+											.arg((!ndxLast.isSuperscription()) ? QString("%1").arg(ndxLast.verse()) : m_pBibleDatabase->translatedSuperscriptionString());
 				} else {
 					assert(false);		// Colophons (chapter==0) can't have superscriptions or verses
 				}
@@ -2494,7 +2494,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 																					 m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), (((ndx.isColophon()) || (ndx.isSuperscription())) ? 1 : 0)), true))
 												.arg(referenceEndingDelimiter());
 				QString strChapterVerse = m_pBibleDatabase->PassageReferenceText(CRelIndex((((ndx.isColophon()) || (ndx.isSuperscription())) ? ndx.book() : 0), ndx.chapter(), ndx.verse(), (((ndx.isColophon()) || (ndx.isSuperscription())) ? 1 : 0)), true);
-				QString strVerse = ((!ndx.isSuperscription()) ? QString("%1").arg(ndx.verse()) : tr("Superscription", "Scope"));
+				QString strVerse = ((!ndx.isSuperscription()) ? QString("%1").arg(ndx.verse()) : m_pBibleDatabase->translatedSuperscriptionString());
 				switch (CPersistentSettings::instance()->verseNumberDelimiterMode()) {
 					case RDME_NO_NUMBER:
 						break;

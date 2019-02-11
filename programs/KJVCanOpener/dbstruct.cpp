@@ -33,6 +33,7 @@
 #include "ReportError.h"
 #include "PersistentSettings.h"
 #include "BusyCursor.h"
+#include "Translator.h"
 
 #include <QtAlgorithms>
 #include <QSet>
@@ -1126,23 +1127,49 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 	return strTemp;
 }
 
+QString CBibleDatabase::translatedColophonString() const
+{
+	// Search for "Colophon".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strColophon = QObject::tr("Colophon", "Statistics");
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(language());
+	if (!pTranslator.isNull()) {
+		QString strTemp = pTranslator->translatorApp().translate("QObject", "Colophon", "Statistics");
+		if (!strTemp.isEmpty()) strColophon = strTemp;
+	}
+	return strColophon;
+}
+
+QString CBibleDatabase::translatedSuperscriptionString() const
+{
+	// Search for "Superscriptions".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strSuperscription = QObject::tr("Superscription", "Statistics");
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(language());
+	if (!pTranslator.isNull()) {
+		QString strTemp = pTranslator->translatorApp().translate("QObject", "Superscription", "Statistics");
+		if (!strTemp.isEmpty()) strSuperscription = strTemp;
+	}
+	return strSuperscription;
+}
+
 QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse) const
 {
 	if (!nRelIndex.isSet()) return QObject::tr("<Invalid Reference>", "Statistics");
 	QString strBookName = bookName(nRelIndex);
 	if (nRelIndex.chapter() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2 [%3]").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2 [%3]").arg(!strBookName.isEmpty() ? " " : QString()).arg(translatedColophonString()).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2").arg(!strBookName.isEmpty() ? " " : QString()).arg(translatedColophonString()) : QString());
 		}
 	}
 	if (!strBookName.isEmpty()) strBookName += " ";
 	if (nRelIndex.verse() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Superscription", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(translatedSuperscriptionString()).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Superscription", "Statistics")) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(translatedSuperscriptionString()) : QString());
 		}
 	}
 	if (nRelIndex.word() == 0) {
@@ -1157,17 +1184,17 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndex &nRelIndex, boo
 	QString strBookName = bookNameAbbr(nRelIndex);
 	if (nRelIndex.chapter() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2 [%3]").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2 [%3]").arg(!strBookName.isEmpty() ? " " : QString()).arg(translatedColophonString()).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2").arg(!strBookName.isEmpty() ? " " : QString()).arg(QObject::tr("Colophon", "Statistics")) : QString());
+			return QString("%1%2").arg(strBookName).arg((nRelIndex.word() != 0) ? QString("%1%2").arg(!strBookName.isEmpty() ? " " : QString()).arg(translatedColophonString()) : QString());
 		}
 	}
 	if (!strBookName.isEmpty()) strBookName += " ";
 	if (nRelIndex.verse() == 0) {
 		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(QObject::tr("Superscription", "Statistics")).arg(nRelIndex.word()) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1 [%2]").arg(translatedSuperscriptionString()).arg(nRelIndex.word()) : QString());
 		} else {
-			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(QObject::tr("Superscription", "Statistics")) : QString());
+			return QString("%1%2%3").arg(strBookName).arg(nRelIndex.chapter()).arg((nRelIndex.word() != 0) ? QString(" %1").arg(translatedSuperscriptionString()) : QString());
 		}
 	}
 	if (nRelIndex.word() == 0) {
