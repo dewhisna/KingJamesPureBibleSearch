@@ -49,9 +49,11 @@
 
 #if __cplusplus > 199711L
 #include <random>
+#include <chrono>
 #define USE_STD_RANDOM						// Use std::default_random_engine instead of stdlib rand() functions
 #else
 #include <stdlib.h>
+#include <time.h>
 #endif
 
 #include <QMenu>
@@ -300,7 +302,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.setupUi(this);
 
 	// Seed our random number generator for launching random passages:
-	srand(QTime::currentTime().elapsed());
+	srand(time(NULL));
 
 	QAction *pAction;
 
@@ -2577,7 +2579,7 @@ void CKJVCanOpener::en_gotoRandomPassage()
 	CRelIndex ndxPassage;
 
 #ifdef USE_STD_RANDOM
-	static std::default_random_engine generator;
+	static std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 #endif
 
 	bool bDone = false;
