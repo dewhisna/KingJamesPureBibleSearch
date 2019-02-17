@@ -225,42 +225,6 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	pScroller->grabGesture(this, QScroller::LeftMouseButtonGesture);
 #endif
 
-	CVerseListModel *pModel = new CVerseListModel(pBibleDatabase, pUserNotesDatabase, this);
-#ifdef MODELTEST
-	new ModelTest(pModel, this);
-#endif
-	QAbstractItemModel *pOldModel = model();
-	setModel(pModel);
-	assert(pModel == vlmodel());
-	if (pOldModel) delete pOldModel;
-	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) ||
-						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
-	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
-	setRootIsDecorated(bDecorateRoot);
-	setDragDropMode(QAbstractItemView::DragDrop);
-
-#ifndef IS_MOBILE_APP
-	m_pReflowDelegate = new CReflowDelegate(this, true, true);
-#else
-	// The reflow delegate doesn't get along well with QScroller on mobile devices (probably a bug
-	//		on the mobile ports of Qt).  It seems to be assuming some things about item height that
-	//		isn't true.  So, when we are processing touch gestures, we need to disable the reflow delegate:
-	m_pReflowDelegate = new CReflowDelegate(this, true, !CPersistentSettings::instance()->touchGesturesEnabled());
-#endif
-	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
-	m_pReflowDelegate->setItemDelegate(pDelegate);
-	QAbstractItemDelegate *pOldDelegate = itemDelegate();
-	setItemDelegate(m_pReflowDelegate);
-	if (pOldDelegate) delete pOldDelegate;
-	m_pReflowDelegate->setFakeSizeHintRowCount((vlmodel()->displayMode() != CVerseListModel::VDME_HEADING) ? 4 : 1);
-
-	// Setup Default Font and TextBrightness:
-	setFontSearchResults(CPersistentSettings::instance()->fontSearchResults());
-	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
-
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), this, SLOT(setFontSearchResults(const QFont &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
-
 	// Setup our Context Menu:
 	m_pEditMenu = new QMenu(tr("&Edit", "MainMenu"), this);
 	m_pEditMenuLocal = new QMenu(tr("&Edit", "MainMenu"), this);
@@ -323,6 +287,54 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	// ----
 
 	m_pStatusAction = new QAction(this);
+
+	//
+	// Setup the CVerseListModel:
+	//	Note: This has to be done AFTER creating the menu details above
+	//	because on some platforms (e.g. Windows with Qt 5.6.3), the setModel()
+	//	call below can trigger a call to selectionChanged(), and since our
+	//	selectionChanged() handler expects the above menu pointers to be
+	//	set, we will crash if we setup the model before setting those
+	//	pointers!!
+	//
+	CVerseListModel *pModel = new CVerseListModel(pBibleDatabase, pUserNotesDatabase, this);
+#ifdef MODELTEST
+	new ModelTest(pModel, this);
+#endif
+	QAbstractItemModel *pOldModel = model();
+	setModel(pModel);
+	assert(pModel == vlmodel());
+	if (pOldModel) delete pOldModel;
+	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) ||
+						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
+	if ((vlmodel()->viewMode() == CVerseListModel::VVME_CROSSREFS) && (vlmodel()->singleCrossRefSourceIndex().isSet())) bDecorateRoot = false;
+	setRootIsDecorated(bDecorateRoot);
+	setDragDropMode(QAbstractItemView::DragDrop);
+
+#ifndef IS_MOBILE_APP
+	m_pReflowDelegate = new CReflowDelegate(this, true, true);
+#else
+	// The reflow delegate doesn't get along well with QScroller on mobile devices (probably a bug
+	//		on the mobile ports of Qt).  It seems to be assuming some things about item height that
+	//		isn't true.  So, when we are processing touch gestures, we need to disable the reflow delegate:
+	m_pReflowDelegate = new CReflowDelegate(this, true, !CPersistentSettings::instance()->touchGesturesEnabled());
+#endif
+	CVerseListDelegate *pDelegate = new CVerseListDelegate(*vlmodel(), this);
+	m_pReflowDelegate->setItemDelegate(pDelegate);
+	QAbstractItemDelegate *pOldDelegate = itemDelegate();
+	setItemDelegate(m_pReflowDelegate);
+	if (pOldDelegate) delete pOldDelegate;
+	m_pReflowDelegate->setFakeSizeHintRowCount((vlmodel()->displayMode() != CVerseListModel::VDME_HEADING) ? 4 : 1);
+
+	// Setup Default Font and TextBrightness:
+	//	Note: This has to be done AFTER setting up the vlmodel above or
+	//	else we will assert or segfault for not having a model object
+	//	to set the font on:
+	setFontSearchResults(CPersistentSettings::instance()->fontSearchResults());
+	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), this, SLOT(setFontSearchResults(const QFont &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 #ifdef USING_QT_SPEECH
 	assert(!g_pMyApplication.isNull());
