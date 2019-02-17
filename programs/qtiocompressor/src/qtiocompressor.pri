@@ -8,7 +8,11 @@ DEPENDPATH += $$PWD
 # We need to find zlib.h. If it's not in the system includes, this will
 # find the one includes with Qt, assuming a developer-style "in-place" install.
 # Otherwise, edit this to point at the directory where zlib.h resides.
-INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/zlib
+exists($$[QT_INSTALL_PREFIX]/include/QtZlib/zlib.h) {
+	INCLUDEPATH += $$[QT_INSTALL_PREFIX]/include/QtZlib
+} else {
+	INCLUDEPATH += $$[QT_INSTALL_PREFIX]/src/3rdparty/zlib
+}
 
 qtiocompressor-uselib:!qtiocompressor-buildlib {
     LIBS += -L$$QTIOCOMPRESSOR_LIBDIR -l$$QTIOCOMPRESSOR_LIBNAME
@@ -33,7 +37,9 @@ macx {
 }
 !android:!ios:!macx {
 	!contains(QT_CONFIG, system-zlib) {
-		include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
+		!contains(QT_CONFIG, zlib) {
+			include($$[QT_INSTALL_PREFIX]/src/3rdparty/zlib.pri)
+		}
 	} else {
 		if(unix|win32-g++*):LIBS += -lz
 		else:               LIBS += zdll.lib
