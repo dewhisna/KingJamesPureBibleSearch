@@ -520,19 +520,20 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 	!isEmpty(TRANSLATIONS_WWWIDGETS4_QM) {
 		translationDeploy.files += $$TRANSLATIONS_WWWIDGETS4_QM
 	}
-	exists($$[QT_INSTALL_BINS]/lrelease) {
+	# Note: Disabling on Windows due to command-line too long with nmake/msbuild (grrr)
+	!win32:if (exists($$[QT_INSTALL_BINS]/lrelease) | exists($$[QT_INSTALL_BINS]/lrelease.exe)) {
 		translation_build.output = $$translationDeploy.files
 		translation_build.target = $$translationDeploy.files
 		translation_build.input = $$translation_source.files
 		translation_build.depends = $$translation_source.files
 #		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
-		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
+		translation_build.commands = $$quote($$shell_path($$[QT_INSTALL_BINS]/lrelease) $$translation_source.files $$escape_expand(\\n\\t))
 		translation_build.CONFIG = no_link
 		QMAKE_EXTRA_TARGETS += translation_build $$translation_source.files
 		QMAKE_EXTRA_COMPILERS += translation_build
 		POST_TARGETDEPS +=  $$translation_source.files
 #		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
-		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
+		QMAKE_POST_LINK += $$quote($$shell_path($$[QT_INSTALL_BINS]/lrelease) $$translation_source.files $$escape_expand(\\n\\t))
 		for(f, TRANSLATIONS_WWWIDGETS4_QM):QMAKE_POST_LINK += $$quote(cp $$f ../../KJVCanOpener/translations/$$basename(f) $$escape_expand(\\n\\t))
 	} else {
 		message("Can't build translations!  Using previously built translations if possible")
@@ -810,9 +811,7 @@ win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
 # For Windows:
 # Be sure to define environment variables for:
 #			VCINSTALLDIR	(ex:  C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\)
-#			QTDIR			(ex:  C:\Qt\5.3.1-msvc2013-opengl\5.3\msvc2013_opengl)
-#
-# Add: "%QTDIR%/bin" to %PATH%
+#				(this should happen when vcvars is called)
 #
 	WINBUILD = $${PWD}/winbuild
 
@@ -898,19 +897,29 @@ win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
 			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\app $$escape_expand(\\n\\t))
 			QMAKE_POST_LINK += $$quote(copy /y $${TARGET}.exe $$shell_path($${WINBUILD})\\KJVCanOpener\\app $$escape_expand(\\n\\t))
 			contains(QTPLUGIN, qplastiquestyle) {
-				QMAKE_POST_LINK += $$quote(mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\styles $$escape_expand(\\n\\t))
-				QMAKE_POST_LINK += $$quote(copy $$shell_path($$[QT_INSTALL_PLUGINS])\\styles\\qplastiquestyle.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\styles\\ $$escape_expand(\\n\\t))
+				QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\styles $$escape_expand(\\n\\t))
+				QMAKE_POST_LINK += $$quote(copy /y $$shell_path($$[QT_INSTALL_PLUGINS])\\styles\\qplastiquestyle.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\styles\\ $$escape_expand(\\n\\t))
 			}
-			QMAKE_POST_LINK += $$quote(windeployqt --release --no-compiler-runtime $${TARGET}.exe $$escape_expand(\\n\\t))		# Their compiler runtime deploy copies the exe not the dlls!
-			QMAKE_POST_LINK += $$quote(move accessible $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(move bearer $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(move iconengines $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(move imageformats $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(move platforms $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))			# platforms must be in app folder!
-			QMAKE_POST_LINK += $$quote(move sqldrivers $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\ $$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(copy $$shell_path($$[QT_INSTALL_LIBS])\\wwwidgets4.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))
-			QMAKE_POST_LINK += $$quote(move *.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))
-#			QMAKE_POST_LINK += $$quote(move *.qm $$shell_path($${WINBUILD})\\KJVCanOpener\translations\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote($$shell_path($$[QT_INSTALL_BINS]/windeployqt) --release --no-compiler-runtime $${TARGET}.exe $$escape_expand(\\n\\t))		# Their compiler runtime deploy copies the exe not the dlls!
+			exists($$[QT_INSTALL_PLUGINS]/accessible) {
+				QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\accessible $$escape_expand(\\n\\t))
+				QMAKE_POST_LINK += $$quote(copy /y accessible\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\accessible\\ $$escape_expand(\\n\\t))
+			}
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\bearer $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y bearer\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\bearer\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\iconengines $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y iconengines\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\iconengines\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\imageformats $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y imageformats\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\imageformats\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\platforms $$escape_expand(\\n\\t))			# platforms must be in app folder!
+			QMAKE_POST_LINK += $$quote(copy /y platforms\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\platforms\\ $$escape_expand(\\n\\t))			# platforms must be in app folder!
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\sqldrivers $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y sqldrivers\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\plugins\\sqldrivers\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y $$shell_path($$[QT_INSTALL_LIBS])\\wwwidgets4.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y *.dll $$shell_path($${WINBUILD})\\KJVCanOpener\\app\\ $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(-mkdir $$shell_path($${WINBUILD})\\KJVCanOpener\\translations $$escape_expand(\\n\\t))
+			QMAKE_POST_LINK += $$quote(copy /y translations\\* $$shell_path($${WINBUILD})\\KJVCanOpener\\translations\\ $$escape_expand(\\n\\t))
+#			QMAKE_POST_LINK += $$quote(copy /y *.qm $$shell_path($${WINBUILD})\\KJVCanOpener\\translations\\ $$escape_expand(\\n\\t))
 		} else {
 			error("Can't deploy KJPBS/Qt Bundle!")
 		}
