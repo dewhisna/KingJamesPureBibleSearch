@@ -89,6 +89,9 @@ int main(int argc, char *argv[])
 	TBibleDescriptor bblDescriptor;
 	QString strPhrase;
 	bool bUnknownOption = false;
+	bool bConstrainBooks = false;
+	bool bConstrainChapters = false;
+	bool bConstrainVerses = false;
 	bool bCaseSensitive = false;
 	bool bAccentSensitive = false;
 	bool bHyphenSensitive = false;
@@ -108,6 +111,12 @@ int main(int argc, char *argv[])
 			} else if (nArgsFound == 2) {
 				strPhrase = strArg;
 			}
+		} else if (strArg.compare("-cb") == 0) {
+			bConstrainBooks = true;
+		} else if (strArg.compare("-cc") == 0) {
+			bConstrainChapters = true;
+		} else if (strArg.compare("-cv") == 0) {
+			bConstrainVerses = true;
 		} else if (strArg.compare("-c") == 0) {
 			bCaseSensitive = true;
 		} else if (strArg.compare("-a") == 0) {
@@ -139,6 +148,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Reads the specified database, searches for the specified Phrase\n").toUtf8().data();
 		std::cerr << QString("    and outputs Normal Indexes for all found matching references\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
+		std::cerr << QString("  -cb =  Constrain to whole books\n").toUtf8().data();
+		std::cerr << QString("  -cc =  Constrain to whole chapters (implies '-b')\n").toUtf8().data();
+		std::cerr << QString("  -cv =  Constrain to whole verses (implies '-b' and '-c')\n").toUtf8().data();
 		std::cerr << QString("  -c  =  Case-Sensitive\n").toUtf8().data();
 		std::cerr << QString("  -a  =  Accent-Sensitive\n").toUtf8().data();
 		std::cerr << QString("  -y  =  Hyphen-Sensitive\n").toUtf8().data();
@@ -212,6 +224,29 @@ int main(int argc, char *argv[])
 				}
 			}
 			relIndexLast = relIndex;
+		}
+	}
+
+	for (int ndx = 0; ndx < lstResults.size(); ++ndx) {
+		bool bRemove = false;
+		if (!pBibleDatabase->completelyContains(lstResults.at(ndx))) {
+			bRemove = true;
+		} else if (bConstrainVerses) {
+			if (!pBibleDatabase->versePhraseTag(lstResults.at(ndx).relIndex()).completelyContains(pBibleDatabase.data(), lstResults.at(ndx))) {
+				bRemove = true;
+			}
+		} else if (bConstrainChapters) {
+			if (!pBibleDatabase->chapterPhraseTag(lstResults.at(ndx).relIndex()).completelyContains(pBibleDatabase.data(), lstResults.at(ndx))) {
+				bRemove = true;
+			}
+		} else if (bConstrainBooks) {
+			if (!pBibleDatabase->bookPhraseTag(lstResults.at(ndx).relIndex()).completelyContains(pBibleDatabase.data(), lstResults.at(ndx))) {
+				bRemove = true;
+			}
+		}
+		if (bRemove) {
+			lstResults.removeAt(ndx);
+			--ndx;
 		}
 	}
 
