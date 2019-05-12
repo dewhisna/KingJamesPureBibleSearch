@@ -277,8 +277,12 @@ int main(int argc, char *argv[])
 		}
 		if (nBkNew > NUM_BK) continue;
 		unsigned int nChpNew = ((strOsisParts.size() > 1) ? (strOsisParts.at(1).toUInt()) : 0);
-		if (nChpNew == 0) continue;
+		bool bIsColophon = ((strOsisParts.size() > 1) ? (strOsisParts.at(1).compare("c", Qt::CaseInsensitive) == 0) : false);
+		if (bIsColophon) nChpNew = 0;
+		if ((nChpNew == 0) && (!bIsColophon)) continue;
 		unsigned int nVrsNew = ((strOsisParts.size() > 2) ? (strOsisParts.at(2).toUInt()) : 0);
+		bool bIsSuperscription = ((strOsisParts.size() > 2) ? (strOsisParts.at(2).compare("s", Qt::CaseInsensitive) == 0) : false);
+		if (bIsSuperscription || bIsColophon) nVrsNew = 0;
 
 		while (nBk < nBkNew) {
 			QStringList lstCounts;
@@ -300,6 +304,7 @@ int main(int argc, char *argv[])
 				fileOut.write(QString("</chapter>\n").toUtf8());
 			}
 			nChp = 0;
+
 			if (nBk) {
 				std::cout << QString("\n").toUtf8().data();
 				fileOut.write(QString("</div>\n").toUtf8());
@@ -309,7 +314,6 @@ int main(int argc, char *argv[])
 
 			fileOut.write(QString("<div type=\"book\" osisID=\"%1\">\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).toUtf8());
 		}
-
 
 		while (nChp < nChpNew) {
 			if (nVrs) {
@@ -324,8 +328,18 @@ int main(int argc, char *argv[])
 
 			fileOut.write(QString("<chapter osisID=\"%1.%2\">\n").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).toUtf8());
 		}
+		if (bIsSuperscription) {
+			fileOut.write(QString("<title canonical=\"true\" type=\"psalm\">%1</title>\n")
+							.arg(convertVerseText(strLine.trimmed())).toUtf8());
+		}
 
 		if (nVrsNew != nVrs) {
+			if (bIsColophon) {
+				fileOut.write(QString("<div osisID=\"%1.c\" type=\"colophon\">%2</div>")
+								.arg(g_arrBooks[nBk-1].m_strOsisAbbr)
+								.arg(convertVerseText(strLine.trimmed())).toUtf8());
+			}
+
 			if (nVrs) {
 				fileOut.write(QString("</verse>\n").toUtf8());
 			}
@@ -338,22 +352,6 @@ int main(int argc, char *argv[])
 		if (nVrs == 0) continue;
 
 		fileOut.write(convertVerseText(strLine.trimmed()).toUtf8());
-
-// TODO : Handle Superscriptions and Colophons
-//
-//		if (strLine.at(0) == QChar('^')) {
-//			fileOut.write(QString("<title canonical=\"true\" subType=\"x-preverse\" type=\"section\">%1 </title>").arg(convertVerseText(strLine.mid(1).trimmed())).toUtf8());
-//		} else if (strLine.at(0) == QChar('@')) {
-//			//<div osisID="Heb.c" type="colophon">Written to the Hebrews from Italy by Timothy.</div>
-//			if (!strVerseText.isEmpty()) {
-//				fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nVrs).arg(convertVerseText(strVerseText)).toUtf8());
-//				strVerseText.clear();
-//				fileOut.write(QString("<div osisID=\"%1.c\" type=\"colophon\">%2</div>").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(convertVerseText(strLine.mid(1).trimmed())).toUtf8());
-//				fileOut.write(QString("</verse>\n").toUtf8());
-//			} else {
-//				assert(false);			// Colophon tags are always following a verse!
-//			}
-
 	}
 	if (nVrs != 0) fileOut.write(QString("</verse>\n").toUtf8());
 	if (nChp != 0) fileOut.write(QString("</chapter>\n").toUtf8());
