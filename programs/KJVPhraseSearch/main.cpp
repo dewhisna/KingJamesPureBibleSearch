@@ -254,8 +254,16 @@ int main(int argc, char *argv[])
 	while (nNormalIndex <= pBibleDatabase->bibleEntry().m_nNumWrd) {
 		CRelIndex ndxPhrase(pBibleDatabase->DenormalizeIndex(nNormalIndex));
 		if (!searchCriteria.indexIsWithin(CRelIndex(ndxPhrase.book(), 0, 0, 0))) {
-			nNormalIndex = pBibleDatabase->NormalizeIndex(CRelIndex(ndxPhrase.book()+1, 0, 0, 0));
-			continue;	// Skip entire books we aren't searching
+			// Skip entire books we aren't searching:
+			uint32_t nNewNormal = pBibleDatabase->NormalizeIndex(CRelIndex(ndxPhrase.book()+1, 0, 0, 0));
+			if (nNewNormal > nNormalIndex) {
+				nNormalIndex = nNewNormal;
+			} else {
+				// If we are at the end of the text, set the index to one beyond
+				//	so we don't loop ad infinitum
+				nNormalIndex = pBibleDatabase->bibleEntry().m_nNumWrd + 1;
+			}
+			continue;
 		}
 		if (nBk != ndxPhrase.book()) {
 			nBk = ndxPhrase.book();
