@@ -527,13 +527,21 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		translation_build.input = $$translation_source.files
 		translation_build.depends = $$translation_source.files
 #		translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
-		translation_build.commands = $$quote($$shell_path($$[QT_INSTALL_BINS]/lrelease) $$translation_source.files $$escape_expand(\\n\\t))
+		greaterThan(QT_MAJOR_VERSION,4) {
+			translation_build.commands = $$quote($$shell_path($$[QT_INSTALL_BINS]/lrelease) $$translation_source.files $$escape_expand(\\n\\t))
+		} else {
+			translation_build.commands = $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
+		}
 		translation_build.CONFIG = no_link
 		QMAKE_EXTRA_TARGETS += translation_build $$translation_source.files
 		QMAKE_EXTRA_COMPILERS += translation_build
 		POST_TARGETDEPS +=  $$translation_source.files
 #		QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$_PRO_FILE_$$escape_expand(\\n\\t))
-		QMAKE_POST_LINK += $$quote($$shell_path($$[QT_INSTALL_BINS]/lrelease) $$translation_source.files $$escape_expand(\\n\\t))
+		greaterThan(QT_MAJOR_VERSION,4) {
+			QMAKE_POST_LINK += $$quote($$shell_path($$[QT_INSTALL_BINS]/lrelease) $$translation_source.files $$escape_expand(\\n\\t))
+		} else {
+			QMAKE_POST_LINK += $$quote($$[QT_INSTALL_BINS]/lrelease $$translation_source.files $$escape_expand(\\n\\t))
+		}
 		for(f, TRANSLATIONS_WWWIDGETS4_QM):QMAKE_POST_LINK += $$quote(cp $$f ../../KJVCanOpener/translations/$$basename(f) $$escape_expand(\\n\\t))
 	} else {
 		message("Can't build translations!  Using previously built translations if possible")
