@@ -234,7 +234,7 @@ no-pkg-config
 ----------------------------------------------------
 
 --------------------------
-Qt 4.8.5 -- VNC (DYNAMIC):
+Qt 4.8.5 -- VNC (DYNAMIC):   14.04 Trusy and 16.04 Xenial Only!
 --------------------------
 
 Requires PATCHED Qt source!
@@ -331,6 +331,81 @@ Make with:  make -j 32
 
 Add this:
 no-pkg-config
+
+
+===============================================================================
+===============================================================================
+
+
+--------------------------
+Qt 4.8.7 -- VNC (DYNAMIC):   18.04 Bionic Only!
+--------------------------
+
+Requires PATCHED Qt source!
+Requires openssl 1.0.x dev library instead of 1.1.x (see notes in EC2 setup)
+
+cd ~/Qt
+tar -zxvf qt-everywhere-opensource-src-4.8.7.tar.gz
+mv qt-everywhere-opensource-src-4.8.7 4.8.7-src
+cd 4.8.7-src
+patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/Qt_4_8_5_vnc.patch	## <<< Note: 4.8.5 patch works for 4.8.7
+cd ~/Qt
+mkdir 4.8.7-vnc
+cd 4.8.7-vnc
+../4.8.7-src/configure -platform qws/vnc-linux-x86_64-g++ -opensource -release -embedded -stl -qt-gfx-linuxfb -qt-gfx-qvfb -qt-gfx-vnc -qt-zlib -qt-libtiff -qt-libpng -qt-libmng -qt-libjpeg -qt-sql-sqlite -openssl -no-nis -no-cups -depths 8,16,18,32 -qt-kbd-tty -qt-kbd-qvfb -qt-kbd-linuxinput -qt-mouse-linuxinput -qt-mouse-qvfb -qt-mouse-pc -fontconfig -no-phonon -no-dbus -no-opengl -no-qt3support -no-accessibility -no-javascript-jit -no-script -no-scripttools -no-webkit -no-xmlpatterns -no-svg -nomake examples -nomake demos -nomake tests -confirm-license -prefix /home/ubuntu/Qt/4.8.7-vnc-run
+rm -rf src/3rdparty/webkit/
+make -j4
+make install
+
+Source Dependencies:
+--------------------
+cd $$[QT_INSTALL_PREFIX]
+mkdir -p src/3rdparty
+cd src/3rdparty/
+cp -r <Qt-Source-Folder>/src/3rdparty/zlib* .
+cd $$[QT_INSTALL_PREFIX]
+mkdir -p src/gui/mac/qt_menu.nib
+cd src/gui/mac/qt_menu.nib/
+cp <Qt-Source-Folder>/src/gui/mac/qt_menu.nib/* .
+
+
+Use with modified noVNC from:
+http://github.com/kanaka/noVNC
+(see checkin on "purebiblesearch")
+
+Note: "-platform" should be used above instead of "-xplatform" so that it knows it's a native build and will use local threading support and things like notifyFileSystemWatcher, which Qt won't do correctly if it thinks it's a full cross-compile.  HOWEVER, you must run qmake with "-spec qws/vnc-linux-x86_64-g++" in addition to "CONFIG+=release" and the project file/path so that it properly includes the mkspec to define "vnc" and "VNCSERVER" or else KJPBS won't build correctly!!!
+
+
+Compile wwWidgets with:
+-----------------------
+mkdir -p ~/Qt/build-wwwidgets4-Qt_4_8_7_vnc/Release/
+cd ~/Qt/build-wwwidgets4-Qt_4_8_7_vnc/Release/
+~/Qt/4.8.7-vnc-run/bin/qmake -spec /home/ubuntu/Qt/4.8.7-vnc-run/mkspecs/qws/vnc-linux-x86_64-g++ CONFIG+=release -o Makefile ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
+make
+make install
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm ~/Qt/4.8.7-vnc-run/translations/
+
+
+qtstyleplugin:
+--------------
+Note: There is no qtstyleplugin neededfor Qt 4.x!
+
+
+Compile KJPBS with:
+-------------------
+NOTE: First clean *.qm from ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations/
+
+cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs
+mkdir -p build-KJVCanOpener-Qt_4_8_7_vnc_gcc_64/Release
+cd build-KJVCanOpener-Qt_4_8_7_vnc_gcc_64/Release/
+~/Qt/4.8.7-vnc-run/bin/qmake -spec /home/ubuntu/Qt/4.8.7-vnc-run/mkspecs/qws/vnc-linux-x86_64-g++ CONFIG+=release -o Makefile ../../KJVCanOpener/KJVCanOpener.pro
+make -j 4
+Copy to /var/www/KingJamesPureBibleSearch/KJVCanOpener/app/KingJamesPureBibleSearch with sticky bits:
+-rwxr-sr-x 1 kjpbs kjpbs 6245526 Oct  5  2015 /var/www/KingJamesPureBibleSearch/KJVCanOpener/app/KingJamesPureBibleSearch*
+
+Copy ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations/*.qm to /var/www/KingJamesPureBibleSearch/KJVCanOpener/translations/
+
+NOTE: If you manually launch KingJamesPureBibleSearch as VNC QWS canvas as a user other than 'pbsuser01', make certain to delete '/tmp/qtembedded-0/' or the noVNC server will fail to launch!!!  Same applies for other user entries!
 
 
 ===============================================================================
@@ -2014,7 +2089,7 @@ Setting up EC2 instance:
 sudo apt-get update
 sudo apt-get install joe
 sudo apt-get install build-essential
-sudo apt-get build-dep libqt4-dev		<<< build-dep not install!
+sudo apt-get build-dep libqt4-dev		<<< build-dep not install! <<<  Use "qt4-x11" on 18.04 Bionic
 sudo apt-get install gperf bison
 sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
 sudo apt-get install perl python
@@ -2023,7 +2098,8 @@ sudo apt-get install libwww-perl libdatetime-perl
 sudo apt-get install libfreetype6-dev fontconfig
 sudo apt-get install libjpeg-dev
 sudo apt-get install zlib1g zlib1g-dev
-sudo apt-get install libssl-dev
+sudo apt-get install libssl-dev			## See below for 18.04 Bionic!
+sudo apt-get install libssl1.0-dev		## <<<<<<<<< Qt 4.8.7 (and maybe 5.5.0) needs OpenSSL 1.0.x API/ABI NOT the newer 1.1.x on 18.04 Bionic!!
 sudo apt-get install pkg-config
 sudo apt-get install patch patchutils
 sudo apt-get install p7zip p7zip-full
@@ -2041,6 +2117,9 @@ sudo cpan -i IO::Socket
 sudo cpan -i CGI
 #  sudo cpan -i Captcha::reCAPTCHA						## No longer needed since Google broke their reCAPTCHA
 sudo apt-get install libcgi-application-plugin-captcha-perl		## This displaces the reCAPTCHA above
+
+sudo apt-get install libapache2-mod-wsgi			## wsgi and xsendfile are needed for mediadrop
+sudo apt-get install libapache2-mod-xsendfile
 
 
 sudo apt-get install novnc								## useful for future migration, but not presently needed since we have self-encapsulated noVNC
@@ -2065,6 +2144,8 @@ sudo a2enmod headers
 sudo a2enmod include
 sudo a2enmod rewrite
 sudo a2enmod cgid
+sudo a2enmod wsgi					## wsgi and xsendfile are needed for mediadrop
+sudo a2enmod xsendfile
 sudo a2ensite webchannel
 
 
@@ -2099,9 +2180,12 @@ Loaded Modules:
  mime_module (shared)
  mpm_event_module (shared)
  negotiation_module (shared)
+ reqtimeout_module (shared)
  rewrite_module (shared)
  setenvif_module (shared)
  status_module (shared)
+ wsgi_module (shared)
+ xsendfile_module (shared)
 
 
 Special User Creation:
@@ -2261,7 +2345,7 @@ drwxr-xr-x 2 root root 4096 Jan  8  2015 app
 lrwxrwxrwx 1 root root   87 Sep 21 20:24 db -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/db
 lrwxrwxrwx 1 root root   88 Sep 21 20:25 doc -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/doc
 lrwxrwxrwx 1 root root   90 Sep 21 20:26 fonts -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/fonts
-lrwxrwxrwx 1 root root   97 Sep 21 20:26 translations -> /home/ubuntu/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations
+drwxr-xr-x 2 root root 4096 Jul 14 19:00 translations/
 
 /var/www$ ls KingJamesPureBibleSearch/KJVCanOpener/app/
 total 6108
@@ -2270,6 +2354,24 @@ drwxr-xr-x 3 root  root     4096 Sep 21 20:26 ..
 -rwxr-sr-x 1 kjpbs kjpbs 6245526 Sep 21 20:23 KingJamesPureBibleSearch
 
 ( NOTE : Important for set user sticky bit on KingJamesPureBibleSearch executable !! )
+
+/var/www$ ls KingJamesPureBibleSearch/KJVCanOpener/translations/
+total 1592
+drwxr-xr-x 2 root root   4096 Jul 14 19:01 ./
+drwxr-xr-x 4 root root   4096 Jul 14 19:00 ../
+-rw-r--r-- 1 root root 149936 Jul 14 19:01 kjpbs.de.qm
+-rw-r--r-- 1 root root 164396 Jul 14 19:01 kjpbs.en.qm
+-rw-r--r-- 1 root root 158684 Jul 14 19:01 kjpbs.es.qm
+-rw-r--r-- 1 root root 159600 Jul 14 19:01 kjpbs.fr.qm
+-rw-r--r-- 1 root root   2721 Jul 14 19:01 kjpbs.ru.qm
+-rw-r--r-- 1 root root 325046 Jul 14 19:01 qt_de.qm
+-rw-r--r-- 1 root root  82411 Jul 14 19:01 qt_es.qm
+-rw-r--r-- 1 root root 255133 Jul 14 19:01 qt_fr.qm
+-rw-r--r-- 1 root root 288364 Jul 14 19:01 qt_ru.qm
+-rw-r--r-- 1 root root   1764 Jul 14 19:01 wwwidgets_de.qm
+-rw-r--r-- 1 root root   1588 Jul 14 19:01 wwwidgets_en.qm
+-rw-r--r-- 1 root root   1728 Jul 14 19:01 wwwidgets_es.qm
+-rw-r--r-- 1 root root   1740 Jul 14 19:01 wwwidgets_fr.qm
 
 
 /var/www$ ls webchannel/
@@ -2399,6 +2501,8 @@ crontab -e
 0 * * * * /home/ubuntu/bin/webchannel-update-stats
 */10 * * * * /home/ubuntu/bin/check-kjpbs
 */1 * * * * /home/ubuntu/bin/check-spot
+*/5 * * * * /home/ubuntu/bin/sermonstream 666
+32 10 * * 6 /usr/bin/geoipupdate -f /home/ubuntu/webchannel/KJVCanOpener/geoip/GeoIP.conf -d /home/ubuntu/webchannel/KJVCanOpener/geoip
 
 Note: check-kjpbs will automatically launch webchannel!
 
@@ -2406,7 +2510,7 @@ Note: check-kjpbs will automatically launch webchannel!
 Setting up MediaDrop
 --------------------
 sudo apt-get install mysql-server mysql-client
-edit /etc/mysql/my.cnf and add the following in [mysqld] before "Basic Settings":
+edit /etc/mysql/my.cnf and add the following in [mysqld] before "Basic Settings":		<<<< ???? lost in 16.04 or 18.04 ????
 sudo service mysql restart
 sudo mysql_secure_installation
 	-- Remove anonymous access
@@ -2428,7 +2532,7 @@ source venv/bin/activate
 git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mediadrop mediadrop-git
 cd mediadrop-git
 git remote add github git@github.com:dewhisna/mediadrop.git
-python setup.py develop
+python setup.py develop --allow-hosts=static.mediadrop.video,static.mediadrop.net,*.pypi.org,pypi.org,*.pythonhosted.org
 cd ..
 paster make-config MediaDrop deployment.ini
 -- NOTE: For MediaDrop 0.10.3 the above should be MediaCore
@@ -2452,6 +2556,7 @@ mysql -u root -p mediadrop_db < setup_triggers.sql
 Launch with built-in server:
 paster serve --reload deployment.ini
 
+UGH!!!
 
 For built-in server, generate mediadrop-start.sh from:
 === BEGIN ===
@@ -2653,6 +2758,9 @@ sudo joe /etc/apt/sources.list
 			# deb http://security.ubuntu.com/ubuntu xenial-security universe
 			# deb-src http://security.ubuntu.com/ubuntu xenial-security universe
 			----
+		(16.04 Xenial):
+			# Just uncomment all deb-src lines! -- this was already needed in the ec2 "sudo apt-get build-dep qt4-x11"
+			----
 --------------------
 sudo apt-get update
 sudo apt-file update
@@ -2665,6 +2773,7 @@ sudo apt-get -y --force-yes install autoconf automake build-essential libass-dev
 mkdir ~/ffmpeg_sources
 -----
 sudo apt-get install yasm
+sudo apt-get install nasm
 ----- libx264:
 sudo apt-get install libx264-dev
 ----- libx265:
@@ -2677,7 +2786,8 @@ make
 make install
 make clean
 ----- libfdk-aac:
-sudo apt-get install libfdk-aac0 libfdk-aac-dev
+sudo apt-get install libfdk-aac0 libfdk-aac-dev		## <<< This is on Ubuntu 14.04 and 16.04 only
+sudo apt-get install libfdk-aac1 libfdk-aac-dev		## <<< This is new package on Ubuntu 18.04
 ----- libmp3lame:
 sudo apt-get install libmp3lame0 libmp3lame-dev
 ----- libopus:
@@ -2685,6 +2795,7 @@ sudo apt-get install libopus0 libopus-dev
 ----- libvpx:
 sudo apt-get install libvpx1 libvpx-dev		## <<< This is on Ubuntu 14.04 only
 sudo apt-get install libvpx3 libvpx-dev		## <<< This is new package on Ubuntu 16.04
+sudo apt-get install libvpx5 libvpx-dev		## <<< This is new package on Ubuntu 18.04
 ----- ffmpeg:
 cd ~/ffmpeg_sources
 wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
@@ -2693,6 +2804,7 @@ cd ffmpeg
 PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure \
   --prefix="$HOME/ffmpeg_build" \
   --pkg-config-flags="--static" \
+  --extra-libs=-lpthread \
   --extra-cflags="-I$HOME/ffmpeg_build/include" \
   --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
   --bindir="$HOME/bin" \
