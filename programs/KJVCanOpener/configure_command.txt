@@ -2092,6 +2092,7 @@ sudo apt-get install build-essential
 sudo apt-get build-dep libqt4-dev		<<< build-dep not install! <<<  Use "qt4-x11" on 18.04 Bionic
 sudo apt-get install gperf bison
 sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
+sudo apt-get install checkinstall libc6-dev libexpat1-dev libgl1-mesa-dev libqt4-dev libavcodec-dev libavutil-dev		<<< Needed on Desktop GUI devel only for 18.04 Bionic?
 sudo apt-get install perl python
 sudo apt-get install binfmt-support
 sudo apt-get install libwww-perl libdatetime-perl
