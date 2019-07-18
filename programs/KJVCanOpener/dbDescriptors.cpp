@@ -70,6 +70,8 @@ namespace {
 	const char *constUUID_LXX_20080722 =		"4F4BD170-6264-11E7-9598-0800200C9A66";
 	const char *constUUID_RV1865mv20180504 =	"28A10630-5728-11E8-B566-0800200C9A66";
 	const char *constUUID_RUSSYNODAL_20101106 =	"B5F0F4C0-28E5-11E9-B56E-0800200C9A66";
+	const char *constUUID_ASV_20061025 =		"6DA72D40-A830-11E9-B475-0800200C9A66";
+	const char *constUUID_ISV_20100807 =		"7C305670-A830-11E9-B475-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -135,6 +137,10 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-mv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Ministerios Valera 1865 (20180504)"), constUUID_RV1865mv20180504, "bbl-rv1865mv20180504.s3db", "bbl-rv1865mv20180504.ccdb", constUUID_RV1865mv },
 		// RUSSYNODAL_20101106 (1876 Russian Synodal Bible):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20101106a)"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL_20101106 },
+		// American Standard Version (1901):
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ASV_1901_20061025", "en", QString::fromUtf8("American Standard Version (1901)"), QString::fromUtf8("American Standard Version (1901) (20061025)"), constUUID_ASV_20061025, "bbl-asv1901-20061025.s3db", "bbl-asv1901-20061025.ccdb", constUUID_ASV_20061025 },
+		// International Standard Version (2001):
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ISV_2001_20100807", "en", QString::fromUtf8("International Standard Version (2001)"), QString::fromUtf8("International Standard Version (2001) (20100807)"), constUUID_ISV_20100807, "bbl-isv2001-20100807.s3db", "bbl-isv2001-20100807.ccdb", constUUID_ISV_20100807 },
 	};
 
 	//////////////////////////////////////////////////////////////////////

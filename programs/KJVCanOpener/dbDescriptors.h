@@ -79,6 +79,8 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_LXX_20080722 = 20,
 	BDE_RV1865mv20180504 = 21,
 	BDE_RUSSYNODAL_20101106 = 22,
+	BDE_ASV_20061025 = 23,			// Other Translation for comparative studies
+	BDE_ISV_20100807 = 24,			// Other Translation for comparative studies
 };
 Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 
