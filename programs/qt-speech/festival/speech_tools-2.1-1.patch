@@ -1,0 +1,21 @@
+diff -rupN a/speech_tools/siod/siod.cc b/speech_tools/siod/siod.cc
+--- a/speech_tools/siod/siod.cc	2010-11-05 10:10:37.000000000 -0500
++++ b/speech_tools/siod/siod.cc	2019-07-16 21:33:25.324521891 -0500
+@@ -459,7 +459,7 @@ char **siod_variable_generator(char *tex
+     matches = walloc(char *,siod_llength(lmatches)+1);
+     for (l=lmatches,i=0; l; l=cdr(l),i++)
+ 	matches[i] = wstrdup(PNAME(car(l)));
+-    matches[i] = '\0';
++    matches[i] = NULL;
+ 
+     return matches;
+ }
+@@ -498,7 +498,7 @@ char **siod_command_generator (char *tex
+     matches = walloc(char *,siod_llength(lmatches)+1);
+     for (l=lmatches,i=0; l; l=cdr(l),i++)
+ 	matches[i] = wstrdup(PNAME(car(l)));
+-    matches[i] = '\0';
++    matches[i] = NULL;
+ 
+     return matches;
+ }

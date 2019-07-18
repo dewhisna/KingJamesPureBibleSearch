@@ -35,6 +35,9 @@ tar -zxf 2.1/speech_tools-2.1-release.tar.gz
 echo "Patching speech_tools for gcc 4.8.2:"
 patch -p1 < speech_tools-2.1.patch
 
+echo "Patching speech_tools for gcc 7.4.0:"
+patch -p1 < speech_tools-2.1-1.patch
+
 echo "Building speech_tools:"
 cd speech_tools
 ./configure
