@@ -1,3 +1,7 @@
 # Ignore pushing the 2.4 Festival source since it's so huge (compared to 2.1)
 2.4/
 
+# Ignore pushing the 2.5 Festival source sinec it's so huge (compared to 2.1
+# and 2.4)
+2.5/
+
