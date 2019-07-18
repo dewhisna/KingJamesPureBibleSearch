@@ -157,6 +157,22 @@ public:
 		return (index() != ndx.index());
 	}
 
+	static CRelIndex navigationIndexFromLogicalIndex(const CRelIndex &ndxLogical)
+	{
+		CRelIndex ndxVerse = ndxLogical;
+
+		if (ndxVerse.isSet()) {
+			if (((ndxVerse.chapter() == 0) || (ndxVerse.verse() == 0)) &&
+				(ndxVerse.word() == 0)) {
+				if (ndxVerse.chapter() == 0) ndxVerse.setChapter(1);
+				ndxVerse.setVerse(1);
+				ndxVerse.setWord(1);
+			}
+		}
+
+		return ndxVerse;
+	}
+
 private:
 	uint32_t m_ndx;
 };

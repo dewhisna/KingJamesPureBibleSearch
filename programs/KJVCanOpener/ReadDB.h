@@ -28,7 +28,8 @@
 #include <QSqlDatabase>
 #endif
 
-#include <QWidget>
+class QWidget;		// Include QWidget only as forward declaration for non-gui apps
+
 #include <QByteArray>
 #include <QString>
 #include <QScopedPointer>

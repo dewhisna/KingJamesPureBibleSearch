@@ -29,8 +29,11 @@
 #include <QString>
 #include <QStringRef>
 #include <QRegExp>
-#include <QAbstractItemView>
 #include <QTimer>
+
+#ifndef IS_CONSOLE_APP
+#include <QAbstractItemView>
+#endif
 
 #include <assert.h>
 
@@ -328,6 +331,8 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 
 // ============================================================================
 
+#ifndef IS_CONSOLE_APP
+
 CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent)
 	:	CSearchStringListModel(parent),
 		m_pDictionaryDatabase(pDictionary),
@@ -400,7 +405,11 @@ void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 //	emit modelChanged();
 }
 
+#endif
+
 // ============================================================================
+
+#ifndef IS_CONSOLE_APP
 
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
@@ -499,8 +508,8 @@ void CSearchCompleter::selectFirstMatchString()
 	QModelIndex indexFirstDecomposedWord = soundExFilterModel()->firstMatchStringIndex(false);
 
 	switch (completionFilterMode()) {
-		case CSearchCompleter::SCFME_NORMAL:
-		case CSearchCompleter::SCFME_SOUNDEX:
+		case SCFME_NORMAL:
+		case SCFME_SOUNDEX:
 			if (indexFirstComposedWord.isValid()) {
 				int nCompCount = completionModel()->rowCount();
 				for (int nComp = 0; nComp < nCompCount; ++nComp) {
@@ -516,7 +525,7 @@ void CSearchCompleter::selectFirstMatchString()
 				for (int nComp = 0; nComp < nCompCount; ++nComp) {
 					QModelIndex ndxComp = completionModel()->index(nComp, 0);
 					if (ndxComp.data(Qt::EditRole).toString().compare(indexFirstDecomposedWord.data(Qt::EditRole).toString()) == 0) {
-						if (completionFilterMode() == CSearchCompleter::SCFME_SOUNDEX) {
+						if (completionFilterMode() == SCFME_SOUNDEX) {
 							setCompletionPrefix(indexFirstDecomposedWord.data(Qt::DisplayRole).toString());		// Force assert a selection prefix or else it won't select it in this mode
 						}
 						popup()->setCurrentIndex(ndxComp);
@@ -526,7 +535,7 @@ void CSearchCompleter::selectFirstMatchString()
 				}
 			}
 			break;
-		case CSearchCompleter::SCFME_UNFILTERED:
+		case SCFME_UNFILTERED:
 			if (indexFirstComposedWord.isValid()) {
 				popup()->setCurrentIndex(indexFirstComposedWord);
 			} else if (indexFirstDecomposedWord.isValid()) {
@@ -550,6 +559,8 @@ void CSearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 	assert(m_pSearchStringListModel != NULL);
 	m_pSearchStringListModel->setWordsFromPhrase(bForceUpdate);
 }
+
+#endif
 
 // ============================================================================
 

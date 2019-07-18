@@ -25,12 +25,13 @@
 
 #include <QDebug>
 
-#if defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD) || defined(KJV_DIFF_BUILD) || defined(IS_CONSOLE_APP)
+#if defined(IS_CONSOLE_APP)
 #include <iostream>
 #endif
 
 // ============================================================================
 
+#ifndef IS_CONSOLE_APP
 
 QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
 										   QMessageBox::StandardButtons nButtons,
@@ -38,12 +39,6 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 {
 #if defined(EMSCRIPTEN)
 	qDebug("warning: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
-	Q_UNUSED(pParent);
-	Q_UNUSED(nButtons);
-	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
-	return QMessageBox::Ok;
-#elif defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD) || defined(KJV_DIFF_BUILD) || defined(IS_CONSOLE_APP)
-	std::cerr << QString::fromUtf8("warning: %1: %2\n").arg(strTitle).arg(strText).toUtf8().data();
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
@@ -60,7 +55,20 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 	return displayWarning(pParent, strTitle, strText, QMessageBox::StandardButtons(nButton0 | nButton1), nButton1);
 }
 
+#else
+
+void displayWarning(void *pParent, const QString &strTitle, const QString &strText)
+{
+	std::cerr << QString::fromUtf8("warning: %1: %2\n").arg(strTitle).arg(strText).toUtf8().data();
+	Q_UNUSED(pParent);
+}
+
+#endif
+
+
 // ----------------------------------------------------------------------------
+
+#ifndef IS_CONSOLE_APP
 
 QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
 												QMessageBox::StandardButtons nButtons,
@@ -68,12 +76,6 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 {
 #if defined(EMSCRIPTEN)
 	qDebug("information: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
-	Q_UNUSED(pParent);
-	Q_UNUSED(nButtons);
-	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
-	return QMessageBox::Ok;
-#elif defined(OSIS_PARSER_BUILD) || defined(KJV_SEARCH_BUILD) || defined(KJV_DIFF_BUILD) || defined(IS_CONSOLE_APP)
-	std::cerr << QString::fromUtf8("information: %1: %2\n").arg(strTitle).arg(strText).toUtf8().data();
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
@@ -89,5 +91,15 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 {
 	return displayInformation(pParent, strTitle, strText, QMessageBox::StandardButtons(nButton0 | nButton1), nButton1);
 }
+
+#else
+
+void displayInformation(void *pParent, const QString &strTitle, const QString &strText)
+{
+	std::cerr << QString::fromUtf8("information: %1: %2\n").arg(strTitle).arg(strText).toUtf8().data();
+	Q_UNUSED(pParent);
+}
+
+#endif
 
 // ============================================================================

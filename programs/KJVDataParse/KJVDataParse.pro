@@ -62,7 +62,6 @@ TRANSLATIONS += \
 		translations/kjvdataparse.ru.ts
 
 SOURCES += main.cpp \
-	../KJVCanOpener/BuildDB.cpp \
 	../KJVCanOpener/CSV.cpp \
 	../KJVCanOpener/dbDescriptors.cpp \
 	../KJVCanOpener/dbstruct.cpp \
@@ -81,7 +80,6 @@ SOURCES += main.cpp \
 
 HEADERS += \
 	xc_KJVDataParse.h \
-	../KJVCanOpener/BuildDB.h \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/dbDescriptors.h \
 	../KJVCanOpener/dbstruct.h \

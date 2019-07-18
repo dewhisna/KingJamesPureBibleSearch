@@ -745,7 +745,6 @@ public:
 	CRelIndex logicalIndexForModelIndex(const QModelIndex &index) const;
 	QModelIndex modelIndexForLogicalIndex(const CRelIndex &ndxLogical) const;
 	CRelIndex navigationIndexForModelIndex(const QModelIndex &index) const;
-	static CRelIndex navigationIndexFromLogicalIndex(const CRelIndex &ndxLogical);
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
 	void sortModelIndexList(QModelIndexList &lstIndexes, bool bUseCopySortOption) const;				// Sorts a list of model indexes for the current set of model settings

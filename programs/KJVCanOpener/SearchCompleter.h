@@ -26,16 +26,19 @@
 
 #include "dbstruct.h"
 
-#include <QWidget>
 #include <QString>
 #include <QVariant>
 #include <QModelIndex>
-#include <QCompleter>
 #include <QAbstractListModel>
 #include <QList>
 #include <QMap>
 #include <QStringList>
+
+#ifndef IS_CONSOLE_APP
+#include <QWidget>
+#include <QCompleter>
 #include <QTextEdit>
+#endif
 
 // ============================================================================
 
@@ -124,6 +127,8 @@ private:
 
 // ============================================================================
 
+#ifndef IS_CONSOLE_APP
+
 class CSearchDictionaryListModel : public CSearchStringListModel
 {
 	Q_OBJECT
@@ -150,6 +155,8 @@ private:
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
 	const QTextEdit &m_editorWord;
 };
+
+#endif
 
 // ============================================================================
 
@@ -223,6 +230,21 @@ private:
 
 // ============================================================================
 
+
+#ifdef IS_CONSOLE_APP
+
+class CSearchCompleter
+{
+public:
+	enum SEARCH_COMPLETION_FILTER_MODE_ENUM {
+		SCFME_NORMAL = 0,
+		SCFME_UNFILTERED = 1,
+		SCFME_SOUNDEX = 2
+	};
+};
+
+#else
+
 class CSearchCompleter : public QCompleter
 {
 	Q_OBJECT
@@ -258,6 +280,8 @@ private:
 	CSoundExSearchCompleterFilter *m_pSoundExFilterModel;
 	QString m_strFilterMatchString;
 };
+
+#endif
 
 // ============================================================================
 

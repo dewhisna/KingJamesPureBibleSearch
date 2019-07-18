@@ -29,12 +29,15 @@
 #include <QString>
 #include <QStringList>
 #include <QObject>
-#include <QWidget>
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QList>
 #include <QMap>
+
+#ifndef IS_CONSOLE_APP
+#include <QWidget>
+#endif
 
 // ============================================================================
 
@@ -164,7 +167,7 @@ private:
 
 // ============================================================================
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#ifndef IS_CONSOLE_APP
 
 #include "ui_KJVSearchCriteria.h"
 

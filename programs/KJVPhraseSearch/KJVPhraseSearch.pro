@@ -49,7 +49,6 @@ CODECFORTR  = UTF-8
 ###############################################################################
 
 SOURCES += main.cpp \
-	../KJVCanOpener/BuildDB.cpp \
 	../KJVCanOpener/CSV.cpp \
 	../KJVCanOpener/dbDescriptors.cpp \
 	../KJVCanOpener/dbstruct.cpp \
@@ -69,7 +68,6 @@ SOURCES += main.cpp \
 	../KJVCanOpener/VerseRichifier.cpp
 
 HEADERS += \
-	../KJVCanOpener/BuildDB.h \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/dbDescriptors.h \
 	../KJVCanOpener/dbstruct.h \

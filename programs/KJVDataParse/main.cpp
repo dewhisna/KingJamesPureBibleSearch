@@ -23,7 +23,6 @@
 
 #include "../KJVCanOpener/dbstruct.h"
 #include "../KJVCanOpener/dbDescriptors.h"
-#include "../KJVCanOpener/BuildDB.h"
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/SearchCompleter.h"
@@ -34,7 +33,6 @@
 #include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QObject>
-#include <QMainWindow>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -53,8 +51,6 @@
 #define CHECK_INDEXES 0
 
 const unsigned int VERSION = 10000;		// Version 1.0.0
-
-QMainWindow *g_pMainWindow = NULL;
 
 #define NUM_BK 80u				// Total Books Defined
 #define NUM_BK_OT 39u			// Total Books in Old Testament

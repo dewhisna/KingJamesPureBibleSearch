@@ -1020,7 +1020,7 @@ void CKJVCanOpener::initialize()
 	// If there is no selection to highlight, default to the first sub-entity
 	//		of the index specified:
 	if (tag.count() == 0) {
-		tag.relIndex() = CVerseListModel::navigationIndexFromLogicalIndex(tag.relIndex());
+		tag.relIndex() = CRelIndex::navigationIndexFromLogicalIndex(tag.relIndex());
 	}
 
 	m_pBrowserWidget->gotoIndex(tag);

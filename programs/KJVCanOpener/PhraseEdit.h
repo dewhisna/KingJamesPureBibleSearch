@@ -30,7 +30,6 @@
 
 #include <QFlags>
 #include <QTextDocument>
-#include <QTextEdit>
 #include <QTextCursor>
 #include <QString>
 #include <QStringList>
@@ -38,6 +37,10 @@
 #include <QHelpEvent>
 #include <QList>
 #include <QSharedPointer>
+
+#ifndef IS_CONSOLE_APP
+#include <QTextEdit>
+#endif
 
 #include <assert.h>
 
@@ -641,6 +644,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(CPhraseNavigator::TextRenderOptionFlags)
 
 // ============================================================================
 
+#ifndef IS_CONSOLE_APP
+
 class CPhraseEditNavigator : public CPhraseNavigator
 {
 	Q_OBJECT
@@ -669,6 +674,8 @@ private:
 	QTextEdit &m_TextEditor;
 	bool m_bUseToolTipEdit;			// True = Use CToolTipEdit instead of QToolTip
 };
+
+#endif
 
 // ============================================================================
 

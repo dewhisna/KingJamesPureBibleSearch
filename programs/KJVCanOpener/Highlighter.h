@@ -29,7 +29,7 @@
 #include <QObject>
 #include <QTextCharFormat>
 #include <QList>
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#ifndef IS_CONSOLE_APP
 #include <QKeySequence>
 #include <QToolBar>
 #include <QToolButton>
@@ -38,10 +38,10 @@
 #include <QWidgetAction>
 #include <QMouseEvent>
 #include <QShortcutEvent>
-#endif
 #include <QIcon>
 #include <QPointer>
 #include <QMenu>
+#endif
 
 // ============================================================================
 
@@ -261,7 +261,7 @@ private:
 // ============================================================================
 // ============================================================================
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#ifndef IS_CONSOLE_APP
 
 #define MAX_HIGHLIGHTER_NAME_SIZE 40				// Maximum number of characters in Highlighter Names
 

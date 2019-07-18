@@ -905,23 +905,7 @@ QModelIndex CVerseListModel::modelIndexForLogicalIndex(const CRelIndex &ndxLogic
 
 CRelIndex CVerseListModel::navigationIndexForModelIndex(const QModelIndex &index) const
 {
-	return navigationIndexFromLogicalIndex(logicalIndexForModelIndex(index));
-}
-
-CRelIndex CVerseListModel::navigationIndexFromLogicalIndex(const CRelIndex &ndxLogical)
-{
-	CRelIndex ndxVerse = ndxLogical;
-
-	if (ndxVerse.isSet()) {
-		if (((ndxVerse.chapter() == 0) || (ndxVerse.verse() == 0)) &&
-			(ndxVerse.word() == 0)) {
-			if (ndxVerse.chapter() == 0) ndxVerse.setChapter(1);
-			ndxVerse.setVerse(1);
-			ndxVerse.setWord(1);
-		}
-	}
-
-	return ndxVerse;
+	return CRelIndex::navigationIndexFromLogicalIndex(logicalIndexForModelIndex(index));
 }
 
 bool CVerseListModel::setData(const QModelIndex &index, const QVariant &value, int role)

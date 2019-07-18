@@ -24,13 +24,16 @@
 #ifndef BUSY_CURSOR_H
 #define BUSY_CURSOR_H
 
+class QWidget;		// Forward declaration for non-gui apps
+#ifndef IS_CONSOLE_APP
 #include <QApplication>
 #include <QWidget>
 #include <QCursor>
+#endif
+
 #include <QObject>
 #include <QPoint>
 #include <QString>
-#include <QWidget>
 
 // ============================================================================
 

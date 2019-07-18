@@ -28,7 +28,9 @@
 #endif
 
 #include <QCoreApplication>
+#ifndef IS_CONSOLE_APP
 #include <QApplication>
+#endif
 
 #include <assert.h>
 

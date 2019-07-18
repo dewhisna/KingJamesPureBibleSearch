@@ -27,7 +27,6 @@
 #include "ScriptureDocument.h"
 #include "Translator.h"
 #include "dbDescriptors.h"
-#include "VerseListModel.h"
 
 #include "BusyCursor.h"
 
@@ -600,7 +599,7 @@ QString CSearchWithinModel::toWebChannelHtml() const
 
 // ============================================================================
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#ifndef IS_CONSOLE_APP
 
 CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	QWidget(parent),
@@ -700,7 +699,7 @@ void CKJVSearchCriteriaWidget::en_SearchWithinItemActivated(const QModelIndex &i
 		if ((ndxReference.isSet()) &&
 			(ndxReference != CSearchCriteria::SSI_COLOPHON) &&
 			(ndxReference != CSearchCriteria::SSI_SUPERSCRIPTION)) {
-			emit gotoIndex(CVerseListModel::navigationIndexFromLogicalIndex(ndxReference));
+			emit gotoIndex(CRelIndex::navigationIndexFromLogicalIndex(ndxReference));
 		}
 	}
 }

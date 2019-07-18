@@ -54,18 +54,18 @@ DEFINES *= QT_DEPRECATED_WARNINGS
 ###############################################################################
 
 SOURCES += \
-        main.cpp \
-        MainWindow.cpp \
+		main.cpp \
+		MainWindow.cpp \
 		BibleText.cpp \
 		HebrewLetters.cpp
 
 HEADERS += \
-        MainWindow.h \
+		MainWindow.h \
 		BibleText.h \
 		HebrewLetters.h
 
 !console:FORMS += \
-        MainWindow.ui
+		MainWindow.ui
 
 ###############################################################################
 
@@ -120,6 +120,10 @@ HEADERS += \
 
 buildKJVDatabase:HEADERS += \
 	$$PATH_TO_KJPBS/BuildDB.h
+
+FORMS += \
+	$$PATH_TO_KJPBS/KJVSearchCriteria.ui
+
 
 ###############################################################################
 

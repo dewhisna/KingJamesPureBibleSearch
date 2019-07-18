@@ -24,12 +24,15 @@
 #ifndef REPORT_ERROR_H
 #define REPORT_ERROR_H
 
-#include <QWidget>
+#ifndef IS_CONSOLE_APP
 #include <QMessageBox>
+#endif
+
 #include <QString>
 
 // ============================================================================
 
+#ifndef IS_CONSOLE_APP
 
 extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
 													QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
@@ -40,8 +43,15 @@ extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QStrin
 													QMessageBox::StandardButton nButton0,
 													QMessageBox::StandardButton nButton1);
 
+#else
+
+extern void displayWarning(void *pParent, const QString &strTitle, const QString &strText);
+
+#endif
 
 // ------------------------------------
+
+#ifndef IS_CONSOLE_APP
 
 extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
 														QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
@@ -50,6 +60,12 @@ extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QS
 extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
 														QMessageBox::StandardButton nButton0,
 														QMessageBox::StandardButton nButton1);
+
+#else
+
+extern void displayInformation(void *pParent, const QString &strTitle, const QString &strText);
+
+#endif
 
 // ============================================================================
 

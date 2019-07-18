@@ -28,9 +28,10 @@
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#include "SearchCompleter.h"
+#ifndef IS_CONSOLE_APP
 #include "ToolTipEdit.h"
-#include "myApplication.h"
+#include <QToolTip>
 #endif
 #include "Translator.h"
 
@@ -38,7 +39,6 @@
 #include <QTextCharFormat>
 #include <QTextBlock>
 #include <QTextFragment>
-#include <QToolTip>
 #include <QPair>
 #include <QSet>
 
@@ -576,8 +576,10 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchComplet
 {
 	ParsePhrase(curInsert);
 	FindWords();
+#ifndef IS_CONSOLE_APP
 	aCompleter.setFilterMatchString();
 	aCompleter.setWordsFromPhrase();
+#endif
 }
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)
@@ -2921,6 +2923,8 @@ void CPhraseNavigator::removeAnchors()
 
 // ============================================================================
 
+#ifndef IS_CONSOLE_APP
+
 void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {
 	assert(!m_pBibleDatabase.isNull());
@@ -3151,6 +3155,8 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 
 	return strToolTip;
 }
+
+#endif
 
 // ============================================================================
 

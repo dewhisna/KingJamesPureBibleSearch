@@ -30,7 +30,7 @@
 #include <QVariant>
 #include <QBrush>
 #include <QTextFormat>
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#ifndef IS_CONSOLE_APP
 #include <QPixmap>
 #include <QBitmap>
 #include <QPainter>
@@ -355,7 +355,7 @@ void CUserDefinedHighlighter::clearPhraseTags()
 // ============================================================================
 // ============================================================================
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#ifndef IS_CONSOLE_APP
 
 CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	:	QObject(pParent),

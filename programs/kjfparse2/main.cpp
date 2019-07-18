@@ -38,7 +38,19 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QByteArray>
+#if QT_VERSION < 0x050000
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
+
+static inline QString htmlEscape(const QString &aString)
+{
+	return Qt::escape(aString);
+}
+#else
+static inline QString htmlEscape(const QString &aString)
+{
+	return aString.toHtmlEscaped();
+}
+#endif
 
 #include <assert.h>
 
@@ -199,7 +211,7 @@ TBook g_arrBooks[NUM_BK] =
 
 static QString convertVerseText(const QString &strVerseText)
 {
-	QString strTemp = Qt::escape(strVerseText);			// Need to do this first since we are replacing with some XML text
+	QString strTemp = htmlEscape(strVerseText);			// Need to do this first since we are replacing with some XML text
 
 	// Convert Pilcrows:
 	strTemp.replace(QString::fromUtf8("¶ "), QString::fromUtf8("¶"));		// Eliminate extra space on pilcrows
