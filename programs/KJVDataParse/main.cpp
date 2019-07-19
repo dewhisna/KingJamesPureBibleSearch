@@ -494,7 +494,9 @@ public:
 			m_strLanguage("en"),
 			m_bNoColophonVerses(false),
 			m_bUseBracketColophons(false),
+			m_bDisableColophons(false),
 			m_bNoSuperscriptionVerses(false),
+			m_bDisableSuperscriptions(false),
 			m_bBracketItalics(false),
 			m_bNoArabicNumeralWords(false),
 			m_bInlineFootnotes(false),
@@ -521,8 +523,12 @@ public:
 	bool noColophonVerses() const { return m_bNoColophonVerses; }
 	void setUseBracketColophons(bool bUseBracketColophons) { m_bUseBracketColophons = bUseBracketColophons; }
 	bool useBracketColophons() const { return m_bUseBracketColophons; }
+	void setDisableColophons(bool bDisableColophons) { m_bDisableColophons = bDisableColophons; }
+	bool disableColophons() const { return m_bDisableColophons; }
 	void setNoSuperscriptionVerses(bool bNoSuperscriptionVerses) { m_bNoSuperscriptionVerses = bNoSuperscriptionVerses; }
 	bool noSuperscriptionVerses() const { return m_bNoSuperscriptionVerses; }
+	void setDisableSuperscriptions(bool bDisableSuperscriptions) { m_bDisableSuperscriptions = bDisableSuperscriptions; }
+	bool disableSuperscriptions() const { return m_bDisableSuperscriptions; }
 	void setBracketItalics(bool bBracketItalics) { m_bBracketItalics = bBracketItalics; }
 	bool bracketItalics() const { return m_bBracketItalics; }
 	void setNoArabicNumeralWords(bool bNoArabicNumeralWords) { m_bNoArabicNumeralWords = bNoArabicNumeralWords; }
@@ -646,9 +652,11 @@ private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	QString m_strLanguage;
 	QStringList m_lstOsisBookList;
-	bool m_bNoColophonVerses;
+	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
 	bool m_bUseBracketColophons;		// Treat "[" and "]" as a colophon marker
-	bool m_bNoSuperscriptionVerses;
+	bool m_bDisableColophons;			// Disable all colophon output (both pseudo-verses and footnote version)
+	bool m_bNoSuperscriptionVerses;		// Note: This is superscriptions as "pseudo-verses" only not superscriptions in general, which are also written as footnotes
+	bool m_bDisableSuperscriptions;		// Disable all superscription output (both pseudo-verses and footnote version)
 	bool m_bBracketItalics;
 	bool m_bNoArabicNumeralWords;		// Skip "words" made entirely of Arabic numerals and don't count them as words
 	bool m_bInlineFootnotes;			// True if inlining footnotes as uncounted parentheticals
@@ -1183,7 +1191,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("N:");
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
+			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
 		//	Note: If we already have text on this verse, then set a flag to put the pilcrow on the next verse
 		//			so we can handle the strange <CM> markers used on the German Schlachter text
 		//
@@ -1211,7 +1222,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		} else {
 			m_nDelayedPilcrow = nPilcrow;
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
+			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
 		// <seg subType="x-1" type="x-variant">
 		ndx = findAttribute(atts, "type");		// TODO : In addition to 'x-variant', add support for full OSIS 'variant', which is currently a work-in-progress
 		if ((ndx != -1) && (atts.value(ndx).compare("x-variant", Qt::CaseInsensitive) == 0)) {
@@ -1223,12 +1237,17 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				}
 			}
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
+			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
 		verse.m_lstParseStack.push_back("L:" + stringifyAttributes(atts));
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) &&
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
 			   (!m_bInNotes) &&	// Note: Allow transChangeAdded inside of inline bracketed notes
 			   ((localName.compare("transChange", Qt::CaseInsensitive) == 0) ||
 				(localName.compare("hi", Qt::CaseInsensitive) == 0))) {
@@ -1243,7 +1262,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("T:");
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
+			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		ndx = findAttribute(atts, "who");
 		if ((ndx != -1) && (atts.value(ndx).compare("Jesus", Qt::CaseInsensitive) == 0)) {
 			m_bInWordsOfJesus = true;
@@ -1251,7 +1273,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			verse.m_strText += g_chrParseTag;
 			verse.m_lstParseStack.push_back("J:");
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
+			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
 		m_bInDivineName = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
@@ -1404,34 +1429,40 @@ bool COSISXmlHandler::characters(const QString &ch)
 		// Eat the characters if we are in a <seg> variant other than the one specified to capture,
 		//		and we were actually given a <seg> variant to capture...
 	} else if (m_bInColophon && !m_bUseBracketColophons) {
-		assert(m_ndxColophon.isSet());
-		if (m_ndxColophon.isSet()) {
-			// TODO : Eventually remove the "footnote" version of colophon?
-			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
-			footnote.setText(footnote.text() + strTemp);
+		if (!m_bDisableColophons) {
+			assert(m_ndxColophon.isSet());
+			if (m_ndxColophon.isSet()) {
+				// TODO : Eventually remove the "footnote" version of colophon?
+				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
+				footnote.setText(footnote.text() + strTemp);
+			}
+			charactersVerseEntry(m_ndxColophon, strTemp);
 		}
-		charactersVerseEntry(m_ndxColophon, strTemp);
 	} else if ((m_bInSuperscription) && (!m_bInForeignText)) {
-		assert(m_ndxSuperscription.isSet());
-		if (m_ndxSuperscription.isSet()) {
-			// TODO : Eventually remove the "footnote" version of superscription?
-			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxSuperscription];
-			footnote.setText(footnote.text() + strTemp);
+		if (!m_bDisableSuperscriptions) {
+			assert(m_ndxSuperscription.isSet());
+			if (m_ndxSuperscription.isSet()) {
+				// TODO : Eventually remove the "footnote" version of superscription?
+				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxSuperscription];
+				footnote.setText(footnote.text() + strTemp);
+			}
+			charactersVerseEntry(m_ndxSuperscription, strTemp);
 		}
-		charactersVerseEntry(m_ndxSuperscription, strTemp);
 	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInForeignText)) {
 		assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
 		charactersVerseEntry(m_ndxCurrent, strTemp);
 //		std::cout << strTemp.toUtf8().data();
-	} else if (((m_bInVerse) || (m_bInColophon) || (m_bInSuperscription)) && (m_bInNotes)) {
+	} else if (((m_bInVerse) || (m_bInColophon && !m_bDisableColophons) || (m_bInSuperscription && !m_bDisableSuperscriptions)) && (m_bInNotes)) {
 		if (!m_bInlineFootnotes) {
 			CRelIndex &ndxActive = activeVerseIndex();
 			CFootnoteEntry &footnote = ((!m_bInLemma) ? m_pBibleDatabase->m_mapFootnotes[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)] :
 														m_pBibleDatabase->m_mapFootnotes[ndxActive]);
 			footnote.setText(footnote.text() + strTemp);
 		} else {
-			assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
-			charactersVerseEntry(m_ndxCurrent, strTemp);
+			if (m_bInVerse || (m_bInColophon && !m_bNoColophonVerses) || (m_bInSuperscription && !m_bNoSuperscriptionVerses)) {
+				assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
+				charactersVerseEntry(m_ndxCurrent, strTemp);
+			}
 		}
 	}
 
@@ -1479,7 +1510,7 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
 	m_bInDivineName = false;
 
-	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) {
+	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses || m_bDisableColophons)) {
 		if (!m_bOpenEndedColophon) {
 			if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
 			m_bInWordsOfJesus = false;
@@ -1494,20 +1525,31 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 
 		return;
 	}
-	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) {
-		if (!m_bOpenEndedSuperscription) {
-			if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
-			m_bInWordsOfJesus = false;
+
+	if (nVT == VT_SUPERSCRIPTION) {
+		bool bLocalDisableSuperscription = false;
+		if ((m_ndxCurrent.verse() != 0) && (m_ndxCurrent.verse() != 1)) {
+			// Note: Some texts use "in-chapter titles" to break the chapter
+			//	into subdivisions.  These are not superscriptions, so only
+			//	allow superscriptions if we are at the top of the chapter
+			//	itself or in the first verse, such as verse 1 preverse text:
+			bLocalDisableSuperscription = true;
 		}
+		if (bLocalDisableSuperscription || m_bNoSuperscriptionVerses || m_bDisableSuperscriptions) {
+			if (!m_bOpenEndedSuperscription) {
+				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+				m_bInWordsOfJesus = false;
+			}
 
-		if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
-		m_bInColophon = false;
-		m_bOpenEndedColophon = false;
+			if (m_bInColophon) std::cerr << "\n*** Error: Missing end of Colophon\n";
+			m_bInColophon = false;
+			m_bOpenEndedColophon = false;
 
-		m_bInSuperscription = true;
-		if (bOpenEnded) m_bOpenEndedSuperscription = true;
+			m_bInSuperscription = true;
+			if (bOpenEnded) m_bOpenEndedSuperscription = true;
 
-		return;
+			return;
+		}
 	}
 
 	bool bPreExisted = ((m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1]).find(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0))
@@ -1603,8 +1645,20 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 		nVT = ((relIndex.chapter() == 0) ? VT_COLOPHON : VT_SUPERSCRIPTION);
 	}
 
-	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) return;
-	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) return;
+	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses || m_bDisableColophons)) {
+		return;
+	}
+	if (nVT == VT_SUPERSCRIPTION) {
+		bool bLocalDisableSuperscription = false;
+		if ((m_ndxCurrent.verse() != 0) && (m_ndxCurrent.verse() != 1)) {
+			// Note: Some texts use "in-chapter titles" to break the chapter
+			//	into subdivisions.  These are not superscriptions, so only
+			//	allow superscriptions if we are at the top of the chapter
+			//	itself or in the first verse, such as verse 1 preverse text:
+			bLocalDisableSuperscription = true;
+		}
+		if (bLocalDisableSuperscription || m_bNoSuperscriptionVerses || m_bDisableSuperscriptions) return;
+	}
 
 	assert(!strText.contains(g_chrParseTag, Qt::CaseInsensitive));
 	if (strText.contains(g_chrParseTag, Qt::CaseInsensitive)) {
@@ -1722,13 +1776,23 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 		nVT = ((relIndex.chapter() == 0) ? VT_COLOPHON : VT_SUPERSCRIPTION);
 	}
 
-	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses)) {
+	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses || m_bDisableColophons)) {
 		m_bInColophon = false;
 		return;
 	}
-	if ((nVT == VT_SUPERSCRIPTION) && (m_bNoSuperscriptionVerses)) {
-		m_bInSuperscription = false;
-		return;
+	if (nVT == VT_SUPERSCRIPTION) {
+		bool bLocalDisableSuperscription = false;
+		if ((m_ndxCurrent.verse() != 0) && (m_ndxCurrent.verse() != 1)) {
+			// Note: Some texts use "in-chapter titles" to break the chapter
+			//	into subdivisions.  These are not superscriptions, so only
+			//	allow superscriptions if we are at the top of the chapter
+			//	itself or in the first verse, such as verse 1 preverse text:
+			bLocalDisableSuperscription = true;
+		}
+		if (bLocalDisableSuperscription || m_bNoSuperscriptionVerses || m_bDisableSuperscriptions) {
+			m_bInSuperscription = false;
+			return;
+		}
 	}
 
 	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
@@ -1747,6 +1811,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 	QString strWord;
 	QString strRichWord;
 	QStringList lstWords;
+
 	QStringList lstRichWords;
 	bool bHaveDoneTemplateWord = false;				// Used to tag words crossing parse-stack boundary (i.e. half the word is inside the parse operator and half is outside, like the word "inasmuch")
 	while (!strTemp.isEmpty()) {
@@ -2014,7 +2079,9 @@ int main(int argc, char *argv[])
 	bool bUnknownOption = false;
 	bool bNoColophonVerses = false;
 	bool bUseBracketColophons = false;
+	bool bDisableColophons = false;
 	bool bNoSuperscriptionVerses = false;
+	bool bDisableSuperscriptions = false;
 	bool bBracketItalics = false;
 	bool bNoArabicNumeralWords = false;
 	bool bInlineFootnotes = false;
@@ -2050,8 +2117,12 @@ int main(int argc, char *argv[])
 			bNoColophonVerses = true;
 		} else if (strArg.compare("-bc") == 0) {
 			bUseBracketColophons = true;
+		} else if (strArg.compare("-cd") == 0) {
+			bDisableColophons = true;
 		} else if (strArg.compare("-s") == 0) {
 			bNoSuperscriptionVerses = true;
+		} else if (strArg.compare("-sd") == 0) {
+			bDisableSuperscriptions = true;
 		} else if (strArg.compare("-i") == 0) {
 			bBracketItalics = true;
 		} else if (strArg.compare("-v") == 0) {
@@ -2079,11 +2150,13 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    necessary to import into KJPBS into <datafile-path>\n\n").toUtf8().data();
 		std::cerr << QString("<infofile> is the path/filename to the information file to include\n\n").toUtf8().data();
 		std::cerr << QString("Options\n").toUtf8().data();
-		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses\n").toUtf8().data();
+		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses (only as footnotes)\n").toUtf8().data();
 		std::cerr << QString("    -bc =  Enable Bracket Colophons (such as used in the TR text)\n").toUtf8().data();
 		std::cerr << QString("           (use with -c to find the bracket colophons and remove them)\n").toUtf8().data();
 		std::cerr << QString("           (Note: -bc will take precedence over -i)\n").toUtf8().data();
-		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses\n").toUtf8().data();
+		std::cerr << QString("    -cd =  Disable all Colophon generation (pseudo-verses and footnote form)\n").toUtf8().data();
+		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses (only as footnotes)\n").toUtf8().data();
+		std::cerr << QString("    -sd =  Disable all Superscription generation (pseudo-verses and footnote form)\n").toUtf8().data();
 		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
 		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
 		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
@@ -2131,7 +2204,9 @@ int main(int argc, char *argv[])
 
 	xmlHandler.setNoColophonVerses(bNoColophonVerses);
 	xmlHandler.setUseBracketColophons(bUseBracketColophons);
+	xmlHandler.setDisableColophons(bDisableColophons);
 	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
+	xmlHandler.setDisableSuperscriptions(bDisableSuperscriptions);
 	xmlHandler.setBracketItalics(bBracketItalics);
 	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
 	xmlHandler.setInlineFootnotes(bInlineFootnotes);
