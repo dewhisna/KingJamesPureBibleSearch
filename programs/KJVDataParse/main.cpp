@@ -1797,6 +1797,9 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 	unsigned int nWordCount = 0;
 	bool bInWord = false;
 	bool bInlineNote = false;
+	CRelIndex ndxLastFootnoteActive = relIndex;
+	CRelIndex ndxFootnoteActive = relIndex;
+	ndxFootnoteActive.setWord(nWordCount+1);
 	QString strWord;
 	QString strRichWord;
 	QStringList lstWords;
@@ -1810,6 +1813,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			if (bInWord) {
 				if (!bHaveDoneTemplateWord) {
 					++nWordCount;
+					ndxFootnoteActive.setWord(nWordCount+1);
 					verse.m_strTemplate += QString("w");
 				}
 				bHaveDoneTemplateWord = true;
@@ -1830,9 +1834,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 						verse.m_strTemplate += "T";
 					} else {
 						// Convert TransChangeAdded in footnotes to brackets:
-						CRelIndex &ndxActive = relIndex;
-						ndxActive.setWord(nWordCount+1);
-						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxFootnoteActive];
 						footnote.setText(footnote.text() + QChar('['));
 					}
 				} else if (strOp.compare("t") == 0) {
@@ -1840,9 +1842,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 						verse.m_strTemplate += "t";
 					} else {
 						// Convert TransChangeAdded in footnotes to brackets:
-						CRelIndex &ndxActive = relIndex;
-						ndxActive.setWord(nWordCount+1);
-						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxFootnoteActive];
 						footnote.setText(footnote.text() + QChar(']'));
 					}
 				} else if (strOp.compare("J") == 0) {
@@ -1863,7 +1863,9 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				} else if (strOp.compare("N") == 0) {
 					if ((!m_bUseBracketFootnotes && m_bInlineFootnotes) ||
 						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
-						verse.m_strTemplate += "N";
+						if (ndxFootnoteActive != ndxLastFootnoteActive) {
+							verse.m_strTemplate += "N";
+						}
 					} else {
 						// If not outputting the inline note, remove the
 						//	extra space from the text that preceeded it:
@@ -1879,26 +1881,26 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					//	be jammed up against the first.  This is necessary
 					//	for texts, like the KJV-1769, where multiple study
 					//	notes exists back-to-back at the end of a verse:
-					CRelIndex &ndxActive = relIndex;
-					ndxActive.setWord(nWordCount+1);
-					CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+					CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxFootnoteActive];
 					if (!footnote.text().isEmpty()) {
 						footnote.setText(footnote.text() + "; ");
 					}
 				} else if (strOp.compare("n") == 0) {
 					if ((!m_bUseBracketFootnotes && m_bInlineFootnotes) ||
 						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
-						verse.m_strTemplate += "n";
+						if (ndxFootnoteActive != ndxLastFootnoteActive) {
+							verse.m_strTemplate += "n";
+						}
 					}
 					bInlineNote = false;
+
+					ndxLastFootnoteActive = ndxFootnoteActive;
 				} else {
 					assert(false);		// Unknown ParseStack Operator!
 				}
 			}
 		} else if (bInlineNote) {
-			CRelIndex &ndxActive = relIndex;
-			ndxActive.setWord(nWordCount+1);
-			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+			CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxFootnoteActive];
 			footnote.setText(footnote.text() + strTemp.at(0));
 		} else if ((strTemp.at(0).unicode() < 128) ||
 			(g_strNonAsciiNonWordChars.contains(strTemp.at(0))) ||
@@ -1942,6 +1944,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 						if (!strRichWord.isEmpty()) {
 							if (!bHaveDoneTemplateWord) {
 								nWordCount++;
+								ndxFootnoteActive.setWord(nWordCount+1);
 								verse.m_strTemplate += QString("w");
 							}
 							relIndex.setWord(verse.m_nNumWrd + nWordCount);
@@ -2015,6 +2018,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			if (!strRichWord.isEmpty()) {
 				if (!bHaveDoneTemplateWord) {
 					nWordCount++;
+					ndxFootnoteActive.setWord(nWordCount+1);
 					verse.m_strTemplate += QString("w");
 				}
 				relIndex.setWord(verse.m_nNumWrd + nWordCount);
