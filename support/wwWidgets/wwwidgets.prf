@@ -24,7 +24,11 @@ mac {
 		debug:LIBS += -lwwwidgets4d
 		release:LIBS += -lwwwidgets4
 	} else {
-		LIBS += -lwwwidgets4
+		CONFIG(release, debug|release) {
+			release:LIBS += -L$$[QT_INSTALL_LIBS] -lwwwidgets4
+		} else {
+			debug:LIBS += -L$$[QT_INSTALL_LIBS] -lwwwidgets4d
+		}
 	}
 }
 

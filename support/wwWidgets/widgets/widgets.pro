@@ -1,6 +1,6 @@
 include(../wwwidgets_utils.pri)
 
-linux-g++|linux-g++-64:CONFIG(release, debug|release):QMAKE_STRIP = strip
+linux-g++|linux-g++-32|linux-g++-64:CONFIG(release, debug|release):QMAKE_STRIP = strip
 
 HEADERS += wwglobal.h wwglobal_p.h colormodel.h
 SOURCES += wwglobal_p.cpp colormodel.cpp
@@ -8,8 +8,8 @@ SOURCES += wwglobal_p.cpp colormodel.cpp
 QT += core gui
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
-linux-g++|linux-g++-64 {
-	CONFIG += static debug_and_release separate_debug_info
+linux-g++|linux-g++-32|linux-g++-64 {
+	CONFIG += static separate_debug_info
 #	CONFIG += debug_and_release separate_debug_info
 } else {
 	# For Cocoa-static:
@@ -25,7 +25,15 @@ INCLUDEPATH += .
 
 TEMPLATE = lib
 CONFIG += warn_on
-TARGET = $$qtLibraryTarget(wwwidgets4)
+linux-g++|linux-g++-32|linux-g++-64 {
+	CONFIG(release, debug|release) {
+		TARGET = $$qtLibraryTarget(wwwidgets4)
+	} else {
+		TARGET = $$qtLibraryTarget(wwwidgets4d)
+	}
+} else {
+	TARGET = $$qtLibraryTarget(wwwidgets4)
+}
 
 message("Target:" $$TARGET)
 
