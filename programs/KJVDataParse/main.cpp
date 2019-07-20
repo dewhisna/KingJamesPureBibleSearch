@@ -1186,11 +1186,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		}
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = true;
-		if (m_bInlineFootnotes) {
-			CVerseEntry &verse = activeVerseEntry();
-			verse.m_strText += g_chrParseTag;
-			verse.m_lstParseStack.push_back("N:");
-		}
+		CVerseEntry &verse = activeVerseEntry();
+		verse.m_strText += g_chrParseTag;
+		verse.m_lstParseStack.push_back("N:");
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
@@ -1377,11 +1375,9 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		endVerseEntry(m_ndxCurrent);
 	} else if ((m_bInNotes) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = false;
-		if (m_bInlineFootnotes) {
-			CVerseEntry &verse = activeVerseEntry();
-			verse.m_strText += g_chrParseTag;
-			verse.m_lstParseStack.push_back("n:");
-		}
+		CVerseEntry &verse = activeVerseEntry();
+		verse.m_strText += g_chrParseTag;
+		verse.m_lstParseStack.push_back("n:");
 	} else if (localName.compare("seg", Qt::CaseInsensitive) == 0) {
 		m_strCurrentSegVariant.clear();
 	} else if ((m_bInLemma) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
@@ -1453,16 +1449,9 @@ bool COSISXmlHandler::characters(const QString &ch)
 		charactersVerseEntry(m_ndxCurrent, strTemp);
 //		std::cout << strTemp.toUtf8().data();
 	} else if (((m_bInVerse) || (m_bInColophon && !m_bDisableColophons) || (m_bInSuperscription && !m_bDisableSuperscriptions)) && (m_bInNotes)) {
-		if (!m_bInlineFootnotes) {
-			CRelIndex &ndxActive = activeVerseIndex();
-			CFootnoteEntry &footnote = ((!m_bInLemma) ? m_pBibleDatabase->m_mapFootnotes[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)] :
-														m_pBibleDatabase->m_mapFootnotes[ndxActive]);
-			footnote.setText(footnote.text() + strTemp);
-		} else {
-			if (m_bInVerse || (m_bInColophon && !m_bNoColophonVerses) || (m_bInSuperscription && !m_bNoSuperscriptionVerses)) {
-				assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
-				charactersVerseEntry(m_ndxCurrent, strTemp);
-			}
+		if (m_bInVerse || (m_bInColophon && !m_bNoColophonVerses) || (m_bInSuperscription && !m_bNoSuperscriptionVerses)) {
+			assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
+			charactersVerseEntry(m_ndxCurrent, strTemp);
 		}
 	}
 
@@ -1840,7 +1829,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					if (!bInlineNote) {
 						verse.m_strTemplate += "T";
 					} else {
-						// Convert TransChangeAdded in inline notes to brackets:
+						// Convert TransChangeAdded in footnotes to brackets:
 						CRelIndex &ndxActive = relIndex;
 						ndxActive.setWord(nWordCount+1);
 						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
@@ -1850,7 +1839,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					if (!bInlineNote) {
 						verse.m_strTemplate += "t";
 					} else {
-						// Convert TransChangeAdded in inline notes to brackets:
+						// Convert TransChangeAdded in footnotes to brackets:
 						CRelIndex &ndxActive = relIndex;
 						ndxActive.setWord(nWordCount+1);
 						CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
@@ -1872,12 +1861,12 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					if (verse.m_nPilcrow == CVerseEntry::PTE_NONE)
 						verse.m_nPilcrow = CVerseEntry::PTE_EXTRA;
 				} else if (strOp.compare("N") == 0) {
-					if (!m_bUseBracketFootnotes ||
+					if ((!m_bUseBracketFootnotes && m_bInlineFootnotes) ||
 						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
 						verse.m_strTemplate += "N";
 					} else {
 						// If not outputting the inline note, remove the
-						//	extra from the text that preceeded it:
+						//	extra space from the text that preceeded it:
 						if (!verse.m_strTemplate.isEmpty() &&
 							verse.m_strTemplate.at(verse.m_strTemplate.size()-1).isSpace()) {
 							verse.m_strTemplate = verse.m_strTemplate.left(verse.m_strTemplate.size()-1);
@@ -1885,7 +1874,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					}
 					bInlineNote = true;
 				} else if (strOp.compare("n") == 0) {
-					if (!m_bUseBracketFootnotes ||
+					if ((!m_bUseBracketFootnotes && m_bInlineFootnotes) ||
 						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
 						verse.m_strTemplate += "n";
 					}
@@ -2169,9 +2158,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
 		std::cerr << QString("    -f  =  Inline footnotes as Uncounted Parentheticals\n").toUtf8().data();
 		std::cerr << QString("    -bf =  Enable Bracket Inline Footnotes (such as used in the RusSynodal)\n").toUtf8().data();
-		std::cerr << QString("           (Note: -bf will take precedence over -i and -bc)\n").toUtf8().data();
+		std::cerr << QString("           (Note: -bf will take precedence over -i and -bc, and implies -f)\n").toUtf8().data();
 		std::cerr << QString("    -bfx=  Enable Bracket Inline Footnotes and Exclude them\n").toUtf8().data();
-		std::cerr << QString("           (Identical to -bf, but excludes them.)\n").toUtf8().data();
+		std::cerr << QString("           (Identical to -bf, but excludes them, and overrides -f)\n").toUtf8().data();
 		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
