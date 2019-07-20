@@ -1873,6 +1873,18 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 						}
 					}
 					bInlineNote = true;
+
+					// If the active footnote index already has text, add a
+					//	separator so that this next footnote starting won't
+					//	be jammed up against the first.  This is necessary
+					//	for texts, like the KJV-1769, where multiple study
+					//	notes exists back-to-back at the end of a verse:
+					CRelIndex &ndxActive = relIndex;
+					ndxActive.setWord(nWordCount+1);
+					CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxActive];
+					if (!footnote.text().isEmpty()) {
+						footnote.setText(footnote.text() + "; ");
+					}
 				} else if (strOp.compare("n") == 0) {
 					if ((!m_bUseBracketFootnotes && m_bInlineFootnotes) ||
 						(m_bUseBracketFootnotes && !m_bUseBracketFootnotesExcluded)) {
