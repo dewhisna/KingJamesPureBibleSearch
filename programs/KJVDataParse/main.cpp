@@ -2366,19 +2366,21 @@ int main(int argc, char *argv[])
 			// Remove empty non-canonical verses that got added posthumous during parsing
 			//	that are trailing at the end of the chapter (leave any in the middle of
 			//	the chapter, as they are placeholders):
-			for (unsigned int nVrs=nVersesExpected; nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0); --nVrs) {
-				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
-				if ((pVerse != NULL) && (pVerse->m_nNumWrd == 0) && (pVerse->m_strTemplate.trimmed().isEmpty())) {
-					// Ideally, we would also delete the verse here from pBibleDatabase->m_lstBookVerses,
-					//	but that's a private member, and since we are using the counts to output the
-					//	verses below, rather than the extents of that member, we can simply decrement
-					//	the counts and it will be correctly removed when writing:
-					std::cerr << QString("\n*** Removing empty extra verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
-					(const_cast<CBookEntry*>(pBook))->m_nNumVrs--;
-					(const_cast<CChapterEntry*>(pChapter))->m_nNumVrs--;
-					nVersesExpected--;		// This count is used for the loop below, so it needs decrementing too
-				} else {
-					break;		// Stop when we find the first one that isn't empty as any other empties are needed as placeholders
+			if (nChp > 0) {		// Do this only for non-colophons
+				for (unsigned int nVrs=nVersesExpected; nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0); --nVrs) {
+					const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
+					if ((pVerse != NULL) && (pVerse->m_nNumWrd == 0) && (pVerse->m_strTemplate.trimmed().isEmpty())) {
+						// Ideally, we would also delete the verse here from pBibleDatabase->m_lstBookVerses,
+						//	but that's a private member, and since we are using the counts to output the
+						//	verses below, rather than the extents of that member, we can simply decrement
+						//	the counts and it will be correctly removed when writing:
+						std::cerr << QString("\n*** Removing empty extra verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
+						(const_cast<CBookEntry*>(pBook))->m_nNumVrs--;
+						(const_cast<CChapterEntry*>(pChapter))->m_nNumVrs--;
+						nVersesExpected--;		// This count is used for the loop below, so it needs decrementing too
+					} else {
+						break;		// Stop when we find the first one that isn't empty as any other empties are needed as placeholders
+					}
 				}
 			}
 
