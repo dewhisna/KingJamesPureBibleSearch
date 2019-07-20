@@ -34,7 +34,7 @@
 #include <QModelIndex>
 #include <QApplication>
 #include <QStyle>
-#include <QStyleOptionViewItemV4>
+#include <QStyleOptionViewItem>
 #include <QPalette>
 #include <QSize>
 #include <QRect>
@@ -52,7 +52,7 @@ CVerseListDelegate::CVerseListDelegate(CVerseListModel &model, QObject *parent)
 {
 }
 
-void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4 &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const
+void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4_t &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const
 {
 	assert(index.isValid());
 
@@ -110,7 +110,7 @@ int CVerseListDelegate::indentationForIndex(const QModelIndex &index) const
 
 void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	QStyleOptionViewItemV4 optionV4 = option;
+	QStyleOptionViewItemV4_t optionV4 = option;
 	QStyle* style = (optionV4.widget ? optionV4.widget->style() : QApplication::style());
 
 	initStyleOption(&optionV4, index);
@@ -184,7 +184,7 @@ void CVerseListDelegate::paint(QPainter * painter, const QStyleOptionViewItem &o
 
 QSize CVerseListDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	QStyleOptionViewItemV4 optionV4 = option;
+	QStyleOptionViewItemV4_t optionV4 = option;
 	QStyle* style = (optionV4.widget ? optionV4.widget->style() : QApplication::style());
 
 	initStyleOption(&optionV4, index);

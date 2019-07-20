@@ -29,6 +29,8 @@
 #include <QTextDocumentFragment>
 #include <QAbstractItemView>
 
+#include "Qt_QStyleOption_stub.h"
+
 #if QT_VERSION < 0x050000
 #include <QInputContext>
 #endif
@@ -176,8 +178,12 @@ QSize CSingleLineTextEdit::sizeHint() const
 {
 	QFontMetrics fm(font());
 	int h = qMax(fm.height(), 14) + 4;
+#if QT_VERSION >= 0x050B00
+	int w = fm.horizontalAdvance(QLatin1Char('x')) * 17 + 4;
+#else
 	int w = fm.width(QLatin1Char('x')) * 17 + 4;
-	QStyleOptionFrameV2 opt;
+#endif
+	QStyleOptionFrameV2_t opt;
 	opt.initFrom(this);
 	QSize szHint = style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
 											 expandedTo(QApplication::globalStrut()), this);
@@ -253,6 +259,9 @@ void CSingleLineTextEdit::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Return:
 			emit enterTriggered();
 			// fall-through to the event-ignore() so we can still process it for the completer logic
+#ifdef __GNUC__
+			[[gnu::fallthrough]];
+#endif
 		case Qt::Key_Escape:
 		case Qt::Key_Tab:
 		case Qt::Key_Control:			// Control is needed here to keep Ctrl-Home/Ctrl-End used in the QCompleter from trigger redoing the QCompleter in setupCompleter()

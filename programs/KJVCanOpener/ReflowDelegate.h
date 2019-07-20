@@ -29,6 +29,7 @@
 #include <QAbstractItemView>
 #include <QPointer>
 #include <QTimer>
+#include "Qt_QStyleOption_stub.h"
 
 #include "ModelRowForwardIterator.h"
 
@@ -125,7 +126,7 @@ private:
 	};
 
 	void layoutRow(const QStyleOptionViewItem &option, const QModelIndex &index, QSize *pSizeHint = NULL, QVector<QSize> *pVecSZColumns = NULL, SIZE_HINT_CACHE_MODE_ENUM nSizeHintMode = SHCME_ComputeIfNeeded) const;
-	QStyleOptionViewItemV4 viewOptions(const QModelIndex &index);
+	QStyleOptionViewItemV4_t viewOptions(const QModelIndex &index);
 
 	QTreeView *parentView() const;
 	bool eventFilter(QObject *o, QEvent *e);

@@ -35,6 +35,8 @@
 #include <QTreeView>
 #include <QHelpEvent>
 
+#include "Qt_QStyleOption_stub.h"
+
 class CVerseListDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
@@ -51,7 +53,7 @@ public slots:
 	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index);
 
 protected:
-	void SetDocumentText(const QStyleOptionViewItemV4 &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const;
+	void SetDocumentText(const QStyleOptionViewItemV4_t &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const;
 	int indentationForIndex(const QModelIndex &index) const;
 
 	QTreeView* parentView() const { return static_cast<QTreeView*>(QObject::parent()); }

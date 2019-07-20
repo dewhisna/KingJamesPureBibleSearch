@@ -379,7 +379,7 @@ void CReflowDelegate::reflowViewport()
 		// but it's only used for other delegate's sizeHints, and those *should* already all be cached from
 		// real view calls to our sizeHint() and paint() (which did get a complete option).
 		// So it ought to be close enough:
-		QStyleOptionViewItemV4 option = viewOptions(*itr);
+		QStyleOptionViewItemV4_t option = viewOptions(*itr);
 
 		// If we are now past the bottom of the viewport, quit since the rest aren't visible yet:
 		if (option.rect.top() > rcVisible.bottom()) break;
@@ -500,14 +500,14 @@ bool CReflowDelegate::helpEvent(QHelpEvent* event, QAbstractItemView* view, cons
 	return retval;
 }
 
-QStyleOptionViewItemV4 CReflowDelegate::viewOptions(const QModelIndex &index)
+QStyleOptionViewItemV4_t CReflowDelegate::viewOptions(const QModelIndex &index)
 {
 	class CSneakyItemView : public QTreeView {
 	public:
 		QStyleOptionViewItem viewOptions() const { return QTreeView::viewOptions(); }
-		QStyleOptionViewItemV4 viewOptionsV4() const {
+		QStyleOptionViewItemV4_t viewOptionsV4() const {
 			// based on QAbstractItemViewPrivate::viewOptionsV4():
-			QStyleOptionViewItemV4 option = viewOptions();
+			QStyleOptionViewItemV4_t option = viewOptions();
 			if (this->wordWrap()) option.features = QStyleOptionViewItemV2::WrapText;
 			option.locale = locale();
 			option.locale.setNumberOptions(QLocale::OmitGroupSeparator);
@@ -518,7 +518,7 @@ QStyleOptionViewItemV4 CReflowDelegate::viewOptions(const QModelIndex &index)
 
 	QTreeView *pView = parentView();
 	assert(pView != NULL);
-	QStyleOptionViewItemV4 option = static_cast<CSneakyItemView *>(pView)->viewOptionsV4();
+	QStyleOptionViewItemV4_t option = static_cast<CSneakyItemView *>(pView)->viewOptionsV4();
 	option.rect = pView->visualRect(index);
 	return option;
 }

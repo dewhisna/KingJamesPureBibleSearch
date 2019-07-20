@@ -2676,7 +2676,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 	myCursor.moveCursorWordStart();
 	nPosFirstWordStart = myCursor.position();
 	while ((myCursor.position() <= (nPosLast+1)) && (!nIndexFirst.isSet())) {
-		strAnchorName = myCursor.charFormat().anchorName();
+		strAnchorName = myCursor.charFormat().anchorNames().value(0);
 
 		nIndexFirst = CRelIndex(strAnchorName);
 		// If we haven't hit an anchor for an actual word within a verse, we can't be selecting
@@ -2700,7 +2700,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 	uint32_t nNormPrev = 0;
 	CRelIndex ndxPrev;
 	while (myCursor.position() >= nPosFirstWordStart) {
-		strAnchorName = myCursor.charFormat().anchorName();
+		strAnchorName = myCursor.charFormat().anchorNames().value(0);
 		CRelIndex ndxCurrent = CRelIndex(strAnchorName);
 
 		uint32_t nNormCurrent = m_pBibleDatabase->NormalizeIndex(ndxCurrent);
@@ -2769,7 +2769,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 	if (!nIndexFirst.isSet()) {
 		myCursor.setPosition(nPosFirst);
 		while (!nIndexFirst.isSet()) {
-			nIndexFirst = CRelIndex(myCursor.charFormat().anchorName());
+			nIndexFirst = CRelIndex(myCursor.charFormat().anchorNames().value(0));
 			if (!myCursor.moveCursorCharLeft()) break;
 		}
 	}

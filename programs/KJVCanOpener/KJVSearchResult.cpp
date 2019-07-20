@@ -58,7 +58,7 @@
 #include <QDrag>
 #include <QPainter>
 #include <QStyle>
-#include <QStyleOptionViewItemV4>
+#include "Qt_QStyleOption_stub.h"
 #include <QList>
 #include <QPair>
 #include <QMessageBox>
@@ -1233,7 +1233,7 @@ void CSearchResultsTreeView::setTextBrightness(bool bInvert, int nBrightness)
 
 QStyleOptionViewItem CSearchResultsTreeView::viewOptions() const
 {
-	QStyleOptionViewItemV4 optionV4 = QTreeView::viewOptions();
+	QStyleOptionViewItemV4_t optionV4 = QTreeView::viewOptions();
 
 	QColor clrForeground = CPersistentSettings::textForegroundColor(m_bInvertTextBrightness, m_nTextBrightness);
 	QColor clrBackground = CPersistentSettings::textBackgroundColor(m_bInvertTextBrightness, m_nTextBrightness);
@@ -1324,7 +1324,7 @@ QPixmap CSearchResultsTreeView::renderToPixmap(const QModelIndexList &lstIndexes
 	QPainter painter(&pixmap);
 	painter.setOpacity(0.5);
 
-	QStyleOptionViewItemV4 option = viewOptions();
+	QStyleOptionViewItemV4_t option = viewOptions();
 //    if (wrapItemText)
 //        option.features = QStyleOptionViewItemV2::WrapText;
 	option.locale = locale();

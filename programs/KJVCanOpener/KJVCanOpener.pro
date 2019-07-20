@@ -413,6 +413,7 @@ HEADERS += \
 	PersistentSettings.h \
 	PhraseEdit.h \
 	PhraseListModel.h \
+	Qt_QStyleOption_stub.h \
 	ReadDB.h \
 	ReflowDelegate.h \
 	ReportError.h \
