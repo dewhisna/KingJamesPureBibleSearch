@@ -34,7 +34,6 @@
 #include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QObject>
-#include <QMainWindow>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -50,8 +49,6 @@
 #include <iostream>
 #include <set>
 #include <algorithm>
-
-QMainWindow *g_pMainWindow = NULL;
 
 #define NUM_BK 80u				// Total Books Defined
 #define NUM_BK_OT 39u			// Total Books in Old Testament

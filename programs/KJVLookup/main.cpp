@@ -34,7 +34,6 @@
 #include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QObject>
-#include <QMainWindow>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -55,8 +54,6 @@
 #include <iostream>
 #include <set>
 #include <assert.h>
-
-QMainWindow *g_pMainWindow = NULL;
 
 namespace {
 	//////////////////////////////////////////////////////////////////////

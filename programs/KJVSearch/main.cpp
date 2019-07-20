@@ -33,7 +33,6 @@
 #include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QObject>
-#include <QMainWindow>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -48,8 +47,6 @@
 
 #include <iostream>
 #include <set>
-
-QMainWindow *g_pMainWindow = NULL;
 
 namespace {
 	//////////////////////////////////////////////////////////////////////

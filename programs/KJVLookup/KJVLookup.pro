@@ -89,6 +89,7 @@ HEADERS += \
 	../KJVCanOpener/VerseRichifier.h
 
 FORMS += \
+	../KJVCanOpener/KJVSearchCriteria.ui  \
 	../KJVCanOpener/PassageReferenceWidget.ui
 
 ###############################################################################

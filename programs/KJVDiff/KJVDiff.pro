@@ -29,8 +29,6 @@
 
 QT       += core gui xml
 
-greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
-
 # Workaround QTBUG-30594 (was fixed in 4.8.5):
 equals(QT_MAJOR_VERSION,4):equals(QT_MINOR_VERSION,8):lessThan(QT_PATCH_VERSION,5):QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 
