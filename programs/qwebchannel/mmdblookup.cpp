@@ -44,7 +44,6 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <libio.h>
 #include <assert.h>
 
 #include <QDateTime>
@@ -470,8 +469,8 @@ QString CMMDBLookup::getMetaDataDetail() const
 		strMetaData += "    Description:\n";
 	}
 	for (size_t i = 0; i < m_pMMDB->metadata.description.count; ++i) {
-		QString("      %1:   %2\n")	.arg(m_pMMDB->metadata.description.descriptions[i]->language)
-									.arg(m_pMMDB->metadata.description.descriptions[i]->description);
+		strMetaData += QString("      %1:   %2\n")	.arg(m_pMMDB->metadata.description.descriptions[i]->language)
+													.arg(m_pMMDB->metadata.description.descriptions[i]->description);
 	}
 	strMetaData += QChar('\n');
 
