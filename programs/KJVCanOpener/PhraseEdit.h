@@ -38,7 +38,7 @@
 #include <QList>
 #include <QSharedPointer>
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QTextEdit>
 #endif
 
@@ -644,7 +644,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(CPhraseNavigator::TextRenderOptionFlags)
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 class CPhraseEditNavigator : public CPhraseNavigator
 {

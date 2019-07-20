@@ -35,7 +35,7 @@
 #include <QList>
 #include <QMap>
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QWidget>
 #endif
 
@@ -167,7 +167,7 @@ private:
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 #include "ui_KJVSearchCriteria.h"
 

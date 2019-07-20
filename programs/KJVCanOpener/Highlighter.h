@@ -29,7 +29,7 @@
 #include <QObject>
 #include <QTextCharFormat>
 #include <QList>
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QKeySequence>
 #include <QToolBar>
 #include <QToolButton>
@@ -261,7 +261,7 @@ private:
 // ============================================================================
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 #define MAX_HIGHLIGHTER_NAME_SIZE 40				// Maximum number of characters in Highlighter Names
 

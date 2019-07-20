@@ -34,7 +34,7 @@
 #include <QMap>
 #include <QStringList>
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QWidget>
 #include <QCompleter>
 #include <QTextEdit>
@@ -127,7 +127,7 @@ private:
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 class CSearchDictionaryListModel : public CSearchStringListModel
 {
@@ -231,7 +231,7 @@ private:
 // ============================================================================
 
 
-#ifdef IS_CONSOLE_APP
+#ifndef QT_WIDGETS_LIB
 
 class CSearchCompleter
 {

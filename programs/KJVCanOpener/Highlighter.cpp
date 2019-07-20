@@ -30,7 +30,7 @@
 #include <QVariant>
 #include <QBrush>
 #include <QTextFormat>
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QPixmap>
 #include <QBitmap>
 #include <QPainter>
@@ -355,7 +355,7 @@ void CUserDefinedHighlighter::clearPhraseTags()
 // ============================================================================
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	:	QObject(pParent),

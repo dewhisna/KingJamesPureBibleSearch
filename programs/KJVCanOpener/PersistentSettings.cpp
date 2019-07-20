@@ -28,7 +28,7 @@
 #endif
 
 #include <QCoreApplication>
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QApplication>
 #endif
 

@@ -29,7 +29,7 @@
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
 #include "SearchCompleter.h"
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include "ToolTipEdit.h"
 #include <QToolTip>
 #endif
@@ -576,7 +576,7 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchComplet
 {
 	ParsePhrase(curInsert);
 	FindWords();
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 	aCompleter.setFilterMatchString();
 	aCompleter.setWordsFromPhrase();
 #endif
@@ -2923,7 +2923,7 @@ void CPhraseNavigator::removeAnchors()
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {

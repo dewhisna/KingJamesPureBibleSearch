@@ -31,7 +31,7 @@
 #include <QRegExp>
 #include <QTimer>
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 #include <QAbstractItemView>
 #endif
 
@@ -331,7 +331,7 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent)
 	:	CSearchStringListModel(parent),
@@ -409,7 +409,7 @@ void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),

@@ -599,7 +599,7 @@ QString CSearchWithinModel::toWebChannelHtml() const
 
 // ============================================================================
 
-#ifndef IS_CONSOLE_APP
+#ifdef QT_WIDGETS_LIB
 
 CKJVSearchCriteriaWidget::CKJVSearchCriteriaWidget(QWidget *parent) :
 	QWidget(parent),
