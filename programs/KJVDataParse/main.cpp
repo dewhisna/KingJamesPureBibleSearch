@@ -1819,7 +1819,10 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 		bool bIsApostrophe = g_strApostrophes.contains(strTemp.at(0));
 		if (strTemp.at(0) == g_chrParseTag) {
 			if (bInWord) {
-				if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
+				if (!bHaveDoneTemplateWord) {
+					++nWordCount;
+					verse.m_strTemplate += QString("w");
+				}
 				bHaveDoneTemplateWord = true;
 			}
 			assert(!verse.m_lstParseStack.isEmpty());
@@ -1936,9 +1939,11 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 							strWord = strWord.left(strWord.size()-1);
 						}
 						if (!strRichWord.isEmpty()) {
-							nWordCount++;
+							if (!bHaveDoneTemplateWord) {
+								nWordCount++;
+								verse.m_strTemplate += QString("w");
+							}
 							relIndex.setWord(verse.m_nNumWrd + nWordCount);
-							if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
 							lstWords.append(strWord);
 							lstRichWords.append(strRichWord);
 						}
@@ -2007,9 +2012,11 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				strWord = strWord.left(strWord.size()-1);
 			}
 			if (!strRichWord.isEmpty()) {
-				nWordCount++;
+				if (!bHaveDoneTemplateWord) {
+					nWordCount++;
+					verse.m_strTemplate += QString("w");
+				}
 				relIndex.setWord(verse.m_nNumWrd + nWordCount);
-				if (!bHaveDoneTemplateWord) verse.m_strTemplate += QString("w");
 				lstWords.append(strWord);
 				lstRichWords.append(strRichWord);
 			}
