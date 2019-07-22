@@ -41,14 +41,8 @@ before_install:
  - sudo apt-get install -qq --yes libmaxminddb0 libmaxminddb-dev mmdb-bin geoipupdate
  - sudo apt-get install -qq --yes libgl1-mesa-dev
  # Easiest to slurp in Qt5 build dependencies, since we are building Qt5 as a pre-requisite:
- - sudo apt-get build-dep -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5
- # The following should be redundant, as they should be part of the build-dep above, but are essential:
- - sudo apt-get install -qq --yes libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
- - sudo apt-get install -qq --yes libfreetype6-dev fontconfig
- - sudo apt-get install -qq --yes libjpeg-dev
- - sudo apt-get install -qq --yes zlib1g zlib1g-dev
- # libssl-dev is needed, but let build-dep above resolve it as some older Qt's need libssl1.0-dev instead
- # sudo apt-get install -qq --yes libssl-dev
+ # sudo apt-get build-dep -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5
+ - sudo apt-get install -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5
  # A few helpers:
  - sudo apt-get install -qq --yes perl python
  - sudo apt-get install -qq --yes binfmt-support
@@ -89,7 +83,7 @@ install:
  - cd build-qtstyleplugins_$KJPBS_BUILD
  - $QT_DIR/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  - make install
  # ---------------------
@@ -100,7 +94,7 @@ install:
  - cd build-wwwidgets4_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  - make install
  - cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm $QT_DIR/translations/
@@ -126,7 +120,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release CONFIG+=nospeech ../../KJVCanOpener/KJVCanOpener.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't run the GUI version on Travis as there is no display for QXcbConnection to connect to
  # ./KingJamesPureBibleSearch --help
@@ -137,7 +131,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel ../../KJVCanOpener/KJVCanOpener.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  - ./KingJamesPureBibleSearch --help
 
@@ -147,7 +141,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDataParse_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVDataParse/KJVDataParse.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVDataParse
@@ -158,7 +152,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDictWord_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVDictWord/KJVDictWord.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVDictWord
@@ -169,7 +163,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDiff_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVDiff/KJVDiff.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVDiff
@@ -180,7 +174,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVLookup_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVLookup/KJVLookup.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVLookup
@@ -191,7 +185,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVPhraseSearch/KJVPhraseSearch.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVPhraseSearch
@@ -202,7 +196,7 @@ script:
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVSearch_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVSearch/KJVSearch.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
- # make -j 4:
+ # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVSearch
