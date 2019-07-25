@@ -89,7 +89,7 @@ install:
  # ---------------------
  # Build wwWidgets:
  # ---------------------
- - cd $QT_DIR/..
+ - cd $HOME/Qt
  - mkdir -p build-wwwidgets4_$KJPBS_BUILD/Release
  - cd build-wwwidgets4_$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
