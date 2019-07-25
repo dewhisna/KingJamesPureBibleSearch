@@ -1,15 +1,16 @@
 {
   "builders": [{
     "type": "docker",
-    "image": "ubuntu:16.04",
+    "image": "ubuntu:18.04",
     "commit": true,
     "changes": [
       "USER root",
-      "WORKDIR /root",
-      "EXPOSE 80 443 9340",
-      "LABEL version={{isotime \"200601021504\"}} description=KingJamesPureBibleSearch-command-line-tools",
+      "WORKDIR /home/kjpbs",
+      "EXPOSE 80 443 3389 5900 9340",
+      "LABEL version={{isotime \"200601021504\"}} description=KingJamesPureBibleSearch",
       "ONBUILD RUN date",
-      "ENTRYPOINT /bin/bash"
+      "CMD [\"/bin/systemctl\", \"init\"]",
+      "ENTRYPOINT [\"\"]"
     ]
   }],
   "provisioners": [
@@ -25,7 +26,7 @@
   "post-processors": [
     {
       "type": "docker-tag",
-      "repository": "localhost:5000/dewtronics/kjpbs-cmd",
+      "repository": "localhost:5000/dewtronics/kjpbs",
       "tag": "latest",
       "force": true
     }
