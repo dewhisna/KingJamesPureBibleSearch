@@ -294,7 +294,7 @@ $ sudo systemctl stop xrdp
 $ sudo systemctl stop xrdp-sesman
 
 Then start the xrdp server with:
-$ sudo /etc/init.d/xrdp
+$ sudo /etc/init.d/xrdp start
 
 Now when you check the system processes, you should see both listed.
 
@@ -310,7 +310,7 @@ the initial password for 'kjpbs' in the container is an empty string, so leave
 it blank (unless you manually changed it with the 'passwd' command in the container).
 
 It's recommended that you use at least a 1280x1024 display size setting on your
-RDP client (or larger).  Once logged in, select to create the 'default' taskbar
+RDP client (or larger).  Once logged in, select to create the 'default' panel config
 and you'll be looking at the Xubuntu Xfce desktop.  Most of the applications listed
 in the menu will NOT work.  So don't be surprised if you get an error when you
 select them.  This Docker Container Image is quite sparse and only contains the
