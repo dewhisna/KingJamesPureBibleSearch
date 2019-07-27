@@ -790,13 +790,14 @@ void CParsedPhrase::FindWords()
 
 void CParsedPhrase::ResumeFindWords()
 {
-	clearCache();			// Clear cache since it will no longer be valid
 	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase)
 		FindWords(*m_lstSubPhrases[ndxSubPhrase], true);
 }
 
 void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 {
+	clearCache();			// Clear cache since it will no longer be valid
+
 	assert(!m_pBibleDatabase.isNull());
 
 	int nCursorWord = subPhrase.m_nCursorWord;
