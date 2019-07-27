@@ -284,8 +284,6 @@ int main(int argc, char *argv[])
 
 		// Start with new CParsedPhrase object so that cache is clear for this search cycle:
 		CParsedPhrase parsePhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive);
-		CSubPhrase *pSubPhrase = new CSubPhrase;	// Warning: This object gets deleted when the above parsePhrase does
-		parsePhrase.attachSubPhrase(pSubPhrase);	//		as the parsePhrase takes ownership OR if calling something like ParsePhrase() which nukes it!
 
 		int nLastOccurrences = nOccurrences;		// Previous phrase search of this entity
 		for (int nCount = nMinLen; nCount <= nMaxLen; ++nCount) {
@@ -313,10 +311,12 @@ int main(int argc, char *argv[])
 			}
 
 			if (nCount == nMinLen) {
-				pSubPhrase->ParsePhrase(lstPhrase);		// Must be SubPhrase->ParsePhrase, not parsePhrase->ParsePhrase() or else our SubPhrase object gets deleted!
+				// It's slightly faster to call ParsePhrase on the subphrase directly
+				//	than use the parsePhrase.ParsePhrase(lstPhrase, true);
+				parsePhrase.primarySubPhrase()->ParsePhrase(lstPhrase);
 				parsePhrase.FindWords();
 			} else {
-				pSubPhrase->AppendPhrase(lstPhrase.last());
+				parsePhrase.primarySubPhrase()->AppendPhrase(lstPhrase.last());
 				parsePhrase.ResumeFindWords();
 			}
 

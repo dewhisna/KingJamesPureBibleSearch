@@ -60,6 +60,7 @@ public:
 	CSubPhrase();
 	CSubPhrase(const CSubPhrase &aSrc);
 	~CSubPhrase();
+	CSubPhrase &operator =(const CSubPhrase &aSrc);
 
 	int GetMatchLevel() const;
 	int GetCursorMatchLevel() const;
@@ -166,10 +167,9 @@ public:
 		assert((nIndex >= 0) && (nIndex < m_lstSubPhrases.size()));
 		return m_lstSubPhrases.at(nIndex).data();
 	}
-	void attachSubPhrase(CSubPhrase *pSubPhrase)				// Take ownership of externally created CSubPhrase
+	QSharedPointer<CSubPhrase> primarySubPhrase() const
 	{
-		if (!m_pBibleDatabase.isNull()) pSubPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
-		m_lstSubPhrases.append(QSharedPointer<CSubPhrase>(pSubPhrase));
+		return m_pPrimarySubPhrase;
 	}
 
 	virtual void ParsePhrase(const QTextCursor &curInsert, bool bFindWords = true);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord (Clears word cache and bFindWords determines if we FindWords() for our BibleDatabase)
@@ -230,6 +230,17 @@ public:
 	inline const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
 protected:
+	QSharedPointer<CSubPhrase> attachSubPhrase(CSubPhrase *pSubPhrase)				// Take ownership of externally created CSubPhrase
+	{
+		return attachSubPhrase(QSharedPointer<CSubPhrase>(pSubPhrase));
+	}
+	QSharedPointer<CSubPhrase> attachSubPhrase(const QSharedPointer<CSubPhrase> &pSubPhrase)
+	{
+		if (!m_pBibleDatabase.isNull()) pSubPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+		m_lstSubPhrases.append(QSharedPointer<CSubPhrase>(pSubPhrase));
+		return m_lstSubPhrases.last();
+	}
+
 	// This one needs to be private because if the subPhrase referenced isn't
 	//	owned by this ParsePhrase object, then you can't get the results back!
 	//	TODO : Consider moving this function to CSubPhrase.  It could almost be
@@ -251,6 +262,7 @@ protected:
 
 	int m_nActiveSubPhrase;
 	TSubPhraseList m_lstSubPhrases;
+	QSharedPointer<CSubPhrase> m_pPrimarySubPhrase;			// Kept as the first and foremost SubPhrase in m_lstSubPhrases
 
 	mutable bool m_bHasChanged;								// Flag to detect text/setting changed, set by CPhraseLineEdit child object via phraseChanged() signal, cleared on thread copy operation -- used for multithreading phrase change detection
 	mutable QList< CParsedPhrasePtr * > m_lstSmartPointers;	// Smart pointers to work like QPointer for non-QObject

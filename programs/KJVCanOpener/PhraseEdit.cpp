@@ -137,6 +137,18 @@ CSubPhrase::CSubPhrase(const CSubPhrase &aSrc)
 
 }
 
+CSubPhrase &CSubPhrase::operator =(const CSubPhrase &aSrc)
+{
+	m_nLevel = aSrc.m_nLevel;
+	m_lstMatchMapping = aSrc.m_lstMatchMapping;
+	m_nCursorLevel = aSrc.m_nCursorLevel;
+	m_lstNextWords = aSrc.m_lstNextWords;
+	m_lstWords = aSrc.m_lstWords;
+	m_nCursorWord = aSrc.m_nCursorWord;
+	m_strCursorWord = aSrc.m_strCursorWord;
+	return *this;
+}
+
 CSubPhrase::~CSubPhrase()
 {
 
@@ -302,11 +314,12 @@ CParsedPhrase::CParsedPhrase(CBibleDatabasePtr pBibleDatabase, bool bCaseSensiti
 		m_nActiveSubPhrase(-1),
 		m_bHasChanged(false)
 {
-
+	m_pPrimarySubPhrase = attachSubPhrase(new CSubPhrase);
 }
 
 CParsedPhrase::CParsedPhrase(const CParsedPhrase &aSrc)
 {
+	m_pPrimarySubPhrase = attachSubPhrase(new CSubPhrase);
 	*this = aSrc;
 }
 
@@ -320,10 +333,17 @@ CParsedPhrase &CParsedPhrase::operator=(const CParsedPhrase &aSrc)
 	m_bExclude = aSrc.m_bExclude;
 	m_nActiveSubPhrase = aSrc.m_nActiveSubPhrase;
 
+	m_lstSubPhrases.clear();
 	for (int ndx = 0; ndx < aSrc.m_lstSubPhrases.size(); ++ndx) {
-		QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase(*aSrc.m_lstSubPhrases.at(ndx).data()));
-		m_lstSubPhrases.append(subPhrase);
+		QSharedPointer<CSubPhrase> subPhrase;
+		if (ndx == 0) {
+			subPhrase = attachSubPhrase(m_pPrimarySubPhrase);
+		} else {
+			subPhrase = attachSubPhrase(new CSubPhrase);
+		}
+		*subPhrase = *aSrc.m_lstSubPhrases.at(ndx).data();
 	}
+	assert(!m_lstSubPhrases.isEmpty());
 
 	m_bHasChanged = false;
 
@@ -400,7 +420,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	assert(!m_pBibleDatabase.isNull());
 
 	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
-	if (m_lstSubPhrases.size() == 0) return m_cache_lstPhraseTagResults;
+	if (m_lstSubPhrases.isEmpty()) return m_cache_lstPhraseTagResults;		// This condition should never happen since we always have m_pPrimarySubPhrase in the list
 
 	// Find the overall largest reserve size to calculate and find the index of
 	//		the subphrase with the largest number of results.  We'll start with
@@ -579,6 +599,8 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchComplet
 #ifdef QT_WIDGETS_LIB
 	aCompleter.setFilterMatchString();
 	aCompleter.setWordsFromPhrase();
+#else
+	Q_UNUSED(aCompleter);
 #endif
 }
 
@@ -641,7 +663,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	}
 
 	ParsePhrase(strComplete);
-	assert(m_lstSubPhrases.size() > 0);
+	assert(!m_lstSubPhrases.isEmpty());
 
 	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
 	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
@@ -712,11 +734,15 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase, bool bFindWords)
 	m_lstSubPhrases.clear();
 	m_lstSubPhrases.reserve(lstPhrases.size());
 	for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
-		QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase);
-		if (!m_pBibleDatabase.isNull()) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+		QSharedPointer<CSubPhrase> subPhrase;
+		if (ndx == 0) {
+			subPhrase = attachSubPhrase(m_pPrimarySubPhrase);
+		} else {
+			subPhrase = attachSubPhrase(new CSubPhrase);
+		}
 		subPhrase->ParsePhrase(lstPhrases.at(ndx));
-		m_lstSubPhrases.append(subPhrase);
 	}
+	assert(!m_lstSubPhrases.isEmpty());
 
 	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
 	if (bFindWords) FindWords();
@@ -738,13 +764,19 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase, bool bFindWords)
 			lstSubPhrase.append(lstPhrase.at(ndxWord));
 		}
 		if (!lstSubPhrase.isEmpty()) {
-			QSharedPointer<CSubPhrase> subPhrase(new CSubPhrase);
-			if (!m_pBibleDatabase.isNull()) subPhrase->m_lstNextWords = m_pBibleDatabase->concordanceWordList();
+			QSharedPointer<CSubPhrase> subPhrase;
+			if (m_lstSubPhrases.isEmpty()) {
+				subPhrase = attachSubPhrase(m_pPrimarySubPhrase);
+			} else {
+				subPhrase = attachSubPhrase(new CSubPhrase);
+			}
 			subPhrase->ParsePhrase(lstSubPhrase);
-			m_lstSubPhrases.append(subPhrase);
 		}
 		if (ndxFrom != -1) ++ndxFrom;			// Skip the 'OR'
 	}
+
+	assert(!m_lstSubPhrases.isEmpty());			// Should have inserted a phrase above
+	if (m_lstSubPhrases.isEmpty()) attachSubPhrase(m_pPrimarySubPhrase);	// Failsafe
 
 	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
 	if (bFindWords) FindWords();
