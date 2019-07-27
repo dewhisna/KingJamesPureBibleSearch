@@ -737,7 +737,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	// Make sure any pending updates are complete:
 	phraseEditor()->processPendingUpdateCompleter();
 
-	m_phraseEntry.setFromPhrase(pPhrase);
+	m_phraseEntry.setFromPhrase(*pPhrase);
 	setPhraseButtonEnables();
 
 	// If last time, this phrase didn't have anything meaningful, if it still doesn't

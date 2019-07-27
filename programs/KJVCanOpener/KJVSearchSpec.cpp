@@ -459,8 +459,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 			(!pPhrase->isDuplicate()) &&
 			(!pPhrase->isDisabled())) {
 			nNumPhrases++;
-			CPhraseEntry entry;
-			entry.setFromPhrase(pPhrase);
+			CPhraseEntry entry(*pPhrase);
 			TPhraseOccurrenceInfo poiUsage;
 			poiUsage.m_nNumMatches = pPhrase->GetNumberOfMatches();
 			poiUsage.m_nNumMatchesWithin = pPhrase->GetNumberOfMatchesWithin();

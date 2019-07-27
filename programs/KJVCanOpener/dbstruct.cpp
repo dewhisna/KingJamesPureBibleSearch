@@ -498,6 +498,11 @@ CPhraseEntry::CPhraseEntry(const QString &strEncodedText, const QVariant &varExt
 	setTextEncoded(strEncodedText);
 }
 
+CPhraseEntry::CPhraseEntry(const CParsedPhrase &aPhrase)
+{
+	setFromPhrase(aPhrase);
+}
+
 CPhraseEntry::~CPhraseEntry()
 {
 
@@ -513,17 +518,14 @@ void CPhraseEntry::clear()
 	m_varExtraInfo.clear();
 }
 
-void CPhraseEntry::setFromPhrase(const CParsedPhrase *pPhrase)
+void CPhraseEntry::setFromPhrase(const CParsedPhrase &aPhrase)
 {
-	assert(pPhrase != NULL);
-	if (pPhrase == NULL) return;
-
 	clear();
-	m_strPhrase = pPhrase->phrase();
-	m_bCaseSensitive = pPhrase->isCaseSensitive();
-	m_bAccentSensitive = pPhrase->isAccentSensitive();
-	m_bExclude = pPhrase->isExcluded();
-	m_bDisabled = pPhrase->isDisabled();
+	m_strPhrase = aPhrase.phrase();
+	m_bCaseSensitive = aPhrase.isCaseSensitive();
+	m_bAccentSensitive = aPhrase.isAccentSensitive();
+	m_bExclude = aPhrase.isExcluded();
+	m_bDisabled = aPhrase.isDisabled();
 }
 
 QString CPhraseEntry::textEncoded() const

@@ -748,11 +748,12 @@ class CPhraseEntry
 {
 public:
 	CPhraseEntry(const QString &strEncodedText = QString(), const QVariant &varExtraInfo = QVariant());
+	CPhraseEntry(const CParsedPhrase &aPhrase);
 	~CPhraseEntry();
 
 	void clear();
 
-	void setFromPhrase(const CParsedPhrase *pPhrase);
+	void setFromPhrase(const CParsedPhrase &aPhrase);
 
 	inline const QString &text() const { return m_strPhrase; }
 	QString textEncoded() const;
