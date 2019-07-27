@@ -104,6 +104,18 @@ public:
 		}
 		return (m_setSearchWithin.find(CRelIndex(ndxRel.book(), 0, 0, 0)) != m_setSearchWithin.end());
 	}
+	bool phraseIsCompletelyWithin(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &phraseTag) const
+	{
+		assert(!pBibleDatabase.isNull());
+		TTagBoundsPair phraseBounds(phraseTag.bounds(pBibleDatabase.data()));
+		CRelIndex ndxLo = pBibleDatabase->DenormalizeIndex(phraseBounds.lo());
+		CRelIndex ndxHi = pBibleDatabase->DenormalizeIndex(phraseBounds.hi());
+		bool bIsWithin = indexIsWithin(ndxLo) && indexIsWithin(ndxHi);		// This to handle Superscriptions and Colophons
+		for (uint32_t nBk = ndxLo.book(); ((nBk <= ndxHi.book()) && (bIsWithin)); ++nBk) {
+			if (!indexIsWithin(CRelIndex(nBk, 0, 0, 0))) bIsWithin = false;
+		}
+		return bIsWithin;
+	}
 	bool withinIsPseudoVerseOnly() const
 	{
 		bool bColophon = (m_setSearchWithin.find(SSI_COLOPHON) != m_setSearchWithin.end());
