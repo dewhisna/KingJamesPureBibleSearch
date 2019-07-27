@@ -1,0 +1,514 @@
+/****************************************************************************
+**
+** Copyright (C) 2019 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************/
+
+#include "../KJVCanOpener/dbstruct.h"
+#include "../KJVCanOpener/dbDescriptors.h"
+#include "../KJVCanOpener/ReadDB.h"
+#include "../KJVCanOpener/ParseSymbols.h"
+#include "../KJVCanOpener/VerseRichifier.h"
+#include "../KJVCanOpener/SearchCompleter.h"
+#include "../KJVCanOpener/PhraseEdit.h"
+#include "../KJVCanOpener/Translator.h"
+#include "../KJVCanOpener/KJVSearchCriteria.h"
+
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QString>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QList>
+#include <QMap>
+#include <QHash>
+
+#if QT_VERSION < 0x050000
+#include <QTextCodec>
+#endif
+
+#include <iostream>
+#include <set>
+#include <algorithm>
+#include <vector>
+
+#define NUM_BK 80u				// Total Books Defined
+#define NUM_BK_OT 39u			// Total Books in Old Testament
+#define NUM_BK_NT 27u			// Total Books in New Testament
+#define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
+#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
+
+namespace {
+	//////////////////////////////////////////////////////////////////////
+	// File-scoped constants
+	//////////////////////////////////////////////////////////////////////
+
+	const unsigned int VERSION = 10000;		// Version 1.0.0
+
+	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
+
+	// Use translations from the main app:
+	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
+	const char *g_constrTranslationFilenamePrefix = "kjpbs";
+
+}	// namespace
+
+
+// ============================================================================
+
+class CMyPhraseSearch;
+typedef QHash<CPhraseEntry, CMyPhraseSearch> CSearchPhraseCacheHash;
+CSearchPhraseCacheHash g_hashSearchPhraseCache;			// Keep searches already performed so we don't repeat them
+
+class CMyPhraseSearch : public CParsedPhrase
+{
+public:
+	CMyPhraseSearch(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), uint32_t nNormalIndex = 0, bool bCaseSensitive = false, bool bAccentSensitive = false)
+		:	CParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive),
+			m_nNormalIndex(nNormalIndex),
+			m_nTargetLength(0)
+	{
+	}
+
+	CMyPhraseSearch(const CMyPhraseSearch &aPhraseSearch)
+		:	CParsedPhrase(aPhraseSearch.m_pBibleDatabase, aPhraseSearch.m_bCaseSensitive, aPhraseSearch.m_bAccentSensitive),
+			m_nNormalIndex(aPhraseSearch.m_nNormalIndex),
+			m_nTargetLength(0)
+	{
+
+	}
+
+	CMyPhraseSearch &operator =(const CMyPhraseSearch &aPhraseSearch)
+	{
+		m_pBibleDatabase = aPhraseSearch.m_pBibleDatabase;
+		m_nNormalIndex = aPhraseSearch.m_nNormalIndex;
+		m_nTargetLength = aPhraseSearch.m_nTargetLength;
+		return *this;
+	}
+
+	virtual ~CMyPhraseSearch()
+	{ }
+
+	int nextPhraseLength()
+	{
+		assert(!m_pBibleDatabase.isNull());
+		const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+m_nTargetLength);
+		if (pConcordEntry == NULL) return m_nTargetLength;
+
+		if (m_nTargetLength == 0) {
+			primarySubPhrase()->ParsePhrase(pConcordEntry->renderedWord());
+		} else {
+			primarySubPhrase()->AppendPhrase(pConcordEntry->renderedWord());
+		}
+
+		CPhraseEntry phraseEntry(*this);
+		CSearchPhraseCacheHash::const_iterator itrCache = g_hashSearchPhraseCache.find(phraseEntry);
+		if (itrCache != g_hashSearchPhraseCache.constEnd()) {
+			*this = *itrCache;
+		} else {
+			ClearWithinPhraseTagSearchResults();
+			if (m_nTargetLength == 0) {
+				FindWords();
+			} else {
+				ResumeFindWords();
+			}
+		}
+
+		++m_nTargetLength;
+		return m_nTargetLength;
+	}
+
+	int targetLength() const { return m_nTargetLength; }
+
+	bool hasConverged(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible) const
+			// Note: bSearchWithinIsEntireBible is only an optimization to keep from
+			//		having to calculate it from the searchCriteria itself:
+	{
+		assert(!m_pBibleDatabase.isNull());
+		// If we've only found one possible match OR if this phrase
+		//	isn't within the searchCriteria, then consider it converged:
+		TPhraseTag tagPhrase(m_pBibleDatabase->DenormalizeIndex(m_nNormalIndex), m_nTargetLength);
+		bool bIsContained = ((bSearchWithinIsEntireBible) ?
+								(m_pBibleDatabase->completelyContains(tagPhrase)) :
+								(searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, tagPhrase)));
+		return ((bIsContained && (!isCaseSensitive() && !isAccentSensitive() && (GetNumberOfMatches() <= 1)))
+				|| !bIsContained);
+	}
+
+	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible)
+			// Note: bSearchWithinIsEntireBible is only an optimization to keep from
+			//		having to calculate it from the searchCriteria itself:
+	{
+		assert(!m_pBibleDatabase.isNull());
+		const TPhraseTagList &lstPhraseTags = GetPhraseTagSearchResults();
+		TPhraseTagList &lstWithinPhraseTags = GetWithinPhraseTagSearchResultsNonConst();
+		if (!lstWithinPhraseTags.isEmpty()) return;
+
+		if (bSearchWithinIsEntireBible) {
+			lstWithinPhraseTags = lstPhraseTags;
+			return;
+		}
+
+		lstWithinPhraseTags.reserve(lstPhraseTags.size());
+		for (TPhraseTagList::const_iterator itrTags = lstPhraseTags.constBegin(); itrTags != lstPhraseTags.constEnd(); ++itrTags) {
+			if (searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, *itrTags)) lstWithinPhraseTags.append(*itrTags);
+		}
+	}
+
+protected:
+	uint32_t m_nNormalIndex;
+	int m_nTargetLength = 0;
+};
+
+typedef QList<CMyPhraseSearch> CMyPhraseSearchList;
+
+// ============================================================================
+
+static QString renderResult(const CPhraseEntry &phraseEntry)
+{
+	return QString("%1%2%3")
+			.arg(phraseEntry.caseSensitive() ? "" : "*")
+			.arg(phraseEntry.accentSensitive() ? "^" : "")
+			.arg(phraseEntry.caseSensitive() ? phraseEntry.text() : phraseEntry.text().toLower());
+}
+
+// ============================================================================
+
+int main(int argc, char *argv[])
+{
+	QCoreApplication a(argc, argv);
+	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+
+#if QT_VERSION < 0x050000
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+#endif
+
+	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
+	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
+
+	// Load translations and set main application based on our locale:
+	CTranslatorList::instance()->setApplicationLanguage();
+
+	// ------------------------------------------------------------------------
+
+	int nBibleDescriptor = -1;
+	int nPhraseCount = 1;
+	int nModulus = 2;
+	int nArgsFound = 0;
+	TBibleDescriptor bblDescriptor;
+	bool bUnknownOption = false;
+	bool bHyphenSensitive = false;
+	bool bCaseSensitive = false;
+	bool bAccentSensitive = false;
+//	bool bConstrainBooks = false;
+//	bool bConstrainChapters = false;
+//	bool bConstrainVerses = false;
+	CSearchCriteria searchCriteria;
+	TRelativeIndexSet setSearchWithin;
+	bool bSearchWithinIsEntireBible = true;
+
+	// Default to searching Entire Bible:
+	for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
+		setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+	}
+	setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
+	setSearchWithin.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+
+	for (int ndx = 1; ndx < argc; ++ndx) {
+		QString strArg = QString::fromUtf8(argv[ndx]);
+		if (!strArg.startsWith("-")) {
+			++nArgsFound;
+			if (nArgsFound == 1) {
+				nBibleDescriptor = strArg.toInt();
+			} else if (nArgsFound == 2) {
+				nPhraseCount = strArg.toInt();
+				if (nPhraseCount < 1) {
+					std::cerr << QString("*** Limiting Phrase Count to a minimum of 1\n").toUtf8().data();
+					nPhraseCount = 1;
+				}
+			} else if (nArgsFound == 3) {
+				nModulus = strArg.toInt();
+				if (nModulus < 2) {
+					std::cerr << QString("*** Limiting Modulus to a minimum of 2\n").toUtf8().data();
+					nModulus = 2;
+				}
+			} else {
+				bUnknownOption = true;
+			}
+		} else if (strArg.compare("-pc") == 0) {
+			bCaseSensitive = true;
+		} else if (strArg.compare("-pa") == 0) {
+			bAccentSensitive = true;
+		} else if (strArg.compare("-ph") == 0) {
+			bHyphenSensitive = true;
+		} else if (strArg.compare("-sc") == 0) {
+			setSearchWithin.erase(CSearchCriteria::SSI_COLOPHON);
+			bSearchWithinIsEntireBible = false;
+		} else if (strArg.compare("-ss") == 0) {
+			setSearchWithin.erase(CSearchCriteria::SSI_SUPERSCRIPTION);
+			bSearchWithinIsEntireBible = false;
+		} else if (strArg.compare("-so") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_OT; ++nBk) {
+				setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+			}
+			bSearchWithinIsEntireBible = false;
+		} else if (strArg.compare("-sn") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_NT; ++nBk) {
+				setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+			}
+			bSearchWithinIsEntireBible = false;
+		} else if (strArg.startsWith("-s")) {
+			unsigned int nBk = strArg.mid(2).toUInt();
+			setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+			bSearchWithinIsEntireBible = false;
+		} else {
+			bUnknownOption = true;
+		}
+	}
+
+	if ((nArgsFound != 3) || (bUnknownOption)) {
+		std::cerr << QString("KJVSumThing Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <Bible-UUID-Index> <Phrase-Count> <Modulus-Value>\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Reads the specified Bible Database and Searches for n-consecutive\n").toUtf8().data();
+		std::cerr << QString("    phrases of varying length whose combined occurrence-count is\n").toUtf8().data();
+		std::cerr << QString("    an even modulus of the specified Modulus-Value.\n").toUtf8().data();
+		std::cerr << QString("Options are:\n").toUtf8().data();
+		std::cerr << QString("  -pc =  Cycle Case-Sensitivity when compared (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -pa =  Cycle Accent-Sensitivity when compared (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -ph =  Phrases are Hyphen-Sensitive when compared (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
+		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
+		std::cerr << QString("  -so =  Skip Old Testament\n").toUtf8().data();
+		std::cerr << QString("  -sn =  Skip New Testament\n").toUtf8().data();
+		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
+		std::cerr << QString("           (Default is to search the Entire Bible)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Bible-UUID-Index:\n").toUtf8().data();
+		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
+			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBDesc).toUtf8().data();
+		}
+		std::cerr << "\n";
+		std::cerr << QString("Phrase-Count : Number of consecutive phrases searched (>=1)\n").toUtf8().data();
+		std::cerr << QString("Modulus : Occurrence Count Modulus to find (>=2)\n").toUtf8().data();
+		return -1;
+	}
+
+	if ((nBibleDescriptor >= 0) && (static_cast<unsigned int>(nBibleDescriptor) < bibleDescriptorCount())) {
+		bblDescriptor = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nBibleDescriptor));
+	} else {
+		std::cerr << "Unknown Bible-UUID-Index\n";
+		return -1;
+	}
+
+	// ------------------------------------------------------------------------
+
+	QFileInfo fiBblDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
+
+	CReadDatabase rdbMain(fiBblDBPath.absoluteFilePath(), QString(), NULL);
+
+	std::cerr << QString("Reading Bible Database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
+	if (!rdbMain.haveBibleDatabaseFiles(bblDescriptor)) {
+		std::cerr << QString("\n*** ERROR: Unable to locate Bible Database Files!\n").toUtf8().data();
+		return -2;
+	}
+	if (!rdbMain.ReadBibleDatabase(bblDescriptor, true)) {
+		std::cerr << QString("\n*** ERROR: Failed to Read the Bible Database!\n").toUtf8().data();
+		return -3;
+	}
+
+	// ------------------------------------------------------------------------
+
+	std::cerr << QString("Searching for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2:\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
+
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+
+	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
+	bdbSettings.setHyphenSensitive(bHyphenSensitive);
+	pBibleDatabase->setSettings(bdbSettings);
+
+	searchCriteria.setSearchWithin(setSearchWithin);
+
+	// ------------------------------------------------------------------------
+
+	// Go through the entire Bible selecting n-consecutive known phrases from
+	//	the given text, increasing the size of each phrase until its contributing
+	//	occurrence count decreases to '1'.  Add the occurrence counts of the
+	//	consecutive phrases together, and save ones that are an even modulus of
+	//	the specified Modulus-Value:
+
+	// lstOverallResults is a list of results lists.  There will be
+	//		"nPhraseCount" entries each containing an equal number of
+	//		CPhraseList lists for results that match the modulus:
+	QList<CPhraseList> lstOverallResults;
+	for (int i = 0; i < nPhraseCount; ++i) {
+		lstOverallResults.push_back(CPhraseList());
+	}
+	bool bNeedNewline = false;			// For output beautification
+
+	uint32_t nNormalIndex = 1;
+	uint32_t nBk = 0;
+	uint32_t nChp = 0;
+	while (nNormalIndex <= pBibleDatabase->bibleEntry().m_nNumWrd) {
+		CRelIndex ndxPhrase(pBibleDatabase->DenormalizeIndex(nNormalIndex));
+		if (!searchCriteria.indexIsWithin(CRelIndex(ndxPhrase.book(), 0, 0, 0))) {
+			// Skip entire books we aren't searching:
+			uint32_t nNewNormal = pBibleDatabase->NormalizeIndex(CRelIndex(ndxPhrase.book()+1, 0, 0, 0));
+			if (nNewNormal > nNormalIndex) {
+				nNormalIndex = nNewNormal;
+			} else {
+				// If we are at the end of the text, set the index to one beyond
+				//	so we don't loop ad infinitum
+				nNormalIndex = pBibleDatabase->bibleEntry().m_nNumWrd + 1;
+			}
+			continue;
+		}
+		if (nBk != ndxPhrase.book()) {
+			nBk = ndxPhrase.book();
+			nChp = 0;
+			std::cerr << "\n" << pBibleDatabase->bookName(ndxPhrase).toUtf8().data();
+		}
+		if (nChp != ndxPhrase.chapter()) {
+			nChp = ndxPhrase.chapter();
+			std::cerr << ".";
+			bNeedNewline = true;
+		}
+
+		CMyPhraseSearchList lstSearchPhrases;
+
+		bool bSearchConverged = false;		// Set to 'true' when all phrases have converged to a single occurrence
+
+		while (!bSearchConverged) {
+			if (lstSearchPhrases.isEmpty()) {
+				// First time at this Bible Word Index, start all new search phrases:
+				for (int ndxNext = 0; ndxNext < nPhraseCount; ++ndxNext) {
+					// Start with these running at the bCaseSensitive==true and bAccentSensitive==true if
+					//		we are going to parse the cases with and without those.  We start with them
+					//		set because those will always yield the same or less occurrences than without
+					//		them set.  So start with the set, and clear them in subsequent rounds:
+					if (ndxNext == 0) {
+						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex,
+																bCaseSensitive, bAccentSensitive));
+					} else {
+						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
+																bCaseSensitive, bAccentSensitive));
+					}
+					lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
+				}
+			} else {
+				// Bump last phrase that hasn't converged.  When it converges,
+				//	bump the phrase before it and restart the phrases after it.
+				CMyPhraseSearchList::iterator itrLastNonconverged = lstSearchPhrases.end()-1;	// This is safe because minimum nPhraseCount is 1
+				for (; itrLastNonconverged != lstSearchPhrases.begin(); --itrLastNonconverged) {
+					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) break;
+				}
+				//	First, exhaust all combinations of AccentSensitive and CaseSensitive:
+				if (itrLastNonconverged->isAccentSensitive()) {
+					itrLastNonconverged->setAccentSensitive(false);
+					itrLastNonconverged->FindWords();
+				} else if (itrLastNonconverged->isCaseSensitive()) {
+					itrLastNonconverged->setCaseSensitive(false);
+					if (bAccentSensitive) itrLastNonconverged->setAccentSensitive(true);
+					itrLastNonconverged->FindWords();
+				} else {
+					// Here we need to see if we've reached convergence, and if not
+					//	we must bump it and everything after us must start over in
+					//	their new word positions:
+					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) {
+						// Not converged so bump it:
+						itrLastNonconverged->setAccentSensitive(bAccentSensitive);
+						itrLastNonconverged->setCaseSensitive(bCaseSensitive);
+						itrLastNonconverged->nextPhraseLength();	// Set the search phrase, bump length, and perform search
+						// Remove the trailing phrases that have all converged:
+						int ndxLastNonconverged = (itrLastNonconverged-lstSearchPhrases.begin());
+						for (int ndxNext = lstSearchPhrases.size(); ndxNext > (ndxLastNonconverged+1); --ndxNext) {
+							lstSearchPhrases.removeLast();
+						}
+						// Add new search phrases after this one starting them over
+						//	on their new word positions:
+						for (int ndxNext = ndxLastNonconverged+1; ndxNext < nPhraseCount; ++ndxNext) {
+							lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
+																	bCaseSensitive, bAccentSensitive));
+							lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
+						}
+					} else {
+						// If the "LastNonconverged" was already converged, it
+						//	means we are on the first phrase of the list and
+						//	the search has completely converged:
+						bSearchConverged = true;
+					}
+				}
+			}
+
+//{
+//	std::cerr << "\n";
+//	for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+//		if (ndx) std::cerr << " / ";
+//		CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+//		std::cerr << renderResult(phraseEntry).toUtf8().data();
+//	}
+//	std::cerr << "\n";
+//}
+
+			// At this point, we have a list of Search Phrases that have valid
+			//	search results.  We should now sum-up the results and see if it's
+			//	an even modulus of our modulus-value.  If so, we should add the
+			//	results to the output:
+			unsigned int nTotalMatches = 0;
+			for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+				lstSearchPhrases[ndx].buildWithinResultsInParsedPhrase(searchCriteria, bSearchWithinIsEntireBible);
+				nTotalMatches += lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin();
+
+				CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+				g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
+			}
+			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
+				if (bNeedNewline) {
+					std::cerr << "\n";
+					bNeedNewline = false;
+				}
+				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+					if (ndx) std::cerr << " / ";
+					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+					lstOverallResults[ndx].append(phraseEntry);
+
+					std::cerr << renderResult(phraseEntry).toUtf8().data();
+				}
+				std::cerr << QString(" (%1 * %2)\n").arg(nTotalMatches/nModulus).arg(nModulus).toUtf8().data();
+			}
+		}
+
+		++nNormalIndex;
+	}
+	if (bNeedNewline) {
+		std::cerr << "\n";
+	}
+
+	// TODO :
+	//	Remove duplicates from results and output
+	//	final results
+
+
+	// ------------------------------------------------------------------------
+
+//	return a.exec();
+	return 0;
+}
