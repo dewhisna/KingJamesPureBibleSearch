@@ -140,7 +140,7 @@ public:
 		CParsedPhrase::ResumeFindWords();
 	}
 
-	void nextPhraseLength()
+	bool nextPhraseLength()
 	{
 		assert(!m_pBibleDatabase.isNull());
 
@@ -151,7 +151,7 @@ public:
 				const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+ndx);
 				if (pConcordEntry == NULL) {
 					m_bSensitivityOptionsChanged = false;
-					return;
+					return false;
 				}
 				// If this isn't a case-sensitive search, go ahead and convert
 				//		to lower-case here so that the hash-cache gets more hits
@@ -160,7 +160,7 @@ public:
 			primarySubPhrase()->ParsePhrase(lstPhrase);
 		} else {
 			const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+m_nTargetLength);
-			if (pConcordEntry == NULL) return;
+			if (pConcordEntry == NULL) return false;
 			primarySubPhrase()->AppendPhrase(isCaseSensitive() ? pConcordEntry->renderedWord() : pConcordEntry->renderedWord().toLower());
 		}
 
@@ -186,6 +186,7 @@ public:
 		m_bSensitivityOptionsChanged = false;
 
 		++m_nTargetLength;
+		return true;
 	}
 
 	int targetLength() const { return m_nTargetLength; }
@@ -201,6 +202,7 @@ public:
 		bool bIsContained = ((bSearchWithinIsEntireBible) ?
 								(m_pBibleDatabase->completelyContains(tagPhrase)) :
 								(searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, tagPhrase)));
+		if ((m_nNormalIndex + m_nTargetLength) > m_pBibleDatabase->bibleEntry().m_nNumWrd) bIsContained = false;
 		return ((bIsContained && (!isCaseSensitive() && !isAccentSensitive() && (GetNumberOfMatches() <= 1)))
 				|| !bIsContained);
 	}
@@ -563,7 +565,12 @@ int main(int argc, char *argv[])
 						// Not converged so bump it:
 						itrLastNonconverged->setAccentSensitive(bAccentSensitive);
 						itrLastNonconverged->setCaseSensitive(bCaseSensitive);
-						itrLastNonconverged->nextPhraseLength();	// Set the search phrase, bump length, and perform search
+						if (!itrLastNonconverged->nextPhraseLength()) {	// Set the search phrase, bump length, and perform search
+							// If we hit the end of the text and our last phrase
+							//	hasn't converged, pretend that it has so we'll
+							//	bail out of our loop:
+							bSearchConverged = true;
+						}
 						// Remove the trailing phrases that have all converged:
 						int ndxLastNonconverged = (itrLastNonconverged-lstSearchPhrases.begin());
 						for (int ndxNext = lstSearchPhrases.size(); ndxNext > (ndxLastNonconverged+1); --ndxNext) {
