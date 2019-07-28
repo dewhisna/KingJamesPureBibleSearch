@@ -291,7 +291,7 @@ static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseLis
 		//	have the same results for the same phrase:
 		assert(lst1.at(ndx).extraInfo().toInt() == lst2.at(ndx).extraInfo().toInt());
 	}
-	return true;
+	return false;
 }
 
 static bool ascendingLessThanModulusFirst(const CPhraseList &lst1, const CPhraseList &lst2)
