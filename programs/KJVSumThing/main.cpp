@@ -136,19 +136,28 @@ public:
 		CParsedPhrase::ResumeFindWords();
 	}
 
-	int nextPhraseLength()
+	void nextPhraseLength()
 	{
 		assert(!m_pBibleDatabase.isNull());
-		const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+m_nTargetLength);
-		if (pConcordEntry == NULL) {
-			m_bSensitivityOptionsChanged = false;
-			return m_nTargetLength;
-		}
 
-		if (m_nTargetLength == 0) {
-			primarySubPhrase()->ParsePhrase(pConcordEntry->renderedWord());
+		if (m_bSensitivityOptionsChanged) {
+			QStringList lstPhrase;
+			lstPhrase.reserve(m_nTargetLength+1);
+			for (int ndx = 0; ndx < m_nTargetLength+1; ++ndx) {
+				const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+ndx);
+				if (pConcordEntry == NULL) {
+					m_bSensitivityOptionsChanged = false;
+					return;
+				}
+				// If this isn't a case-sensitive search, go ahead and convert
+				//		to lower-case here so that the hash-cache gets more hits
+				lstPhrase.append(isCaseSensitive() ? pConcordEntry->renderedWord() : pConcordEntry->renderedWord().toLower());
+			}
+			primarySubPhrase()->ParsePhrase(lstPhrase);
 		} else {
-			primarySubPhrase()->AppendPhrase(pConcordEntry->renderedWord());
+			const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+m_nTargetLength);
+			if (pConcordEntry == NULL) return;
+			primarySubPhrase()->AppendPhrase(isCaseSensitive() ? pConcordEntry->renderedWord() : pConcordEntry->renderedWord().toLower());
 		}
 
 		CPhraseEntry phraseEntry(*this);
@@ -161,14 +170,13 @@ public:
 		} else {
 			if ((m_nTargetLength == 0) || m_bSensitivityOptionsChanged) {
 				FindWords();
-				m_bSensitivityOptionsChanged = false;
 			} else {
 				ResumeFindWords();
 			}
 		}
+		m_bSensitivityOptionsChanged = false;
 
 		++m_nTargetLength;
-		return m_nTargetLength;
 	}
 
 	int targetLength() const { return m_nTargetLength; }
@@ -567,6 +575,16 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
+
+//{
+//	std::cerr << "\n";
+//	for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+//		if (ndx) std::cerr << " / ";
+//		CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+//		std::cerr << renderResult(phraseEntry).toUtf8().data();
+//	}
+//	std::cerr << "\n";
+//}
 
 			// At this point, we have a list of Search Phrases that have valid
 			//	search results.  We should now sum-up the results and see if it's
