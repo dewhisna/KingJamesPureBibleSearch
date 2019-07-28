@@ -36,10 +36,12 @@
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
+#include <QRegExp>
 #include <QSharedPointer>
 #include <QList>
 #include <QMap>
 #include <QHash>
+#include <QVariant>
 
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
@@ -184,10 +186,75 @@ typedef QList<CMyPhraseSearch> CMyPhraseSearchList;
 
 static QString renderResult(const CPhraseEntry &phraseEntry)
 {
-	return QString("%1%2%3")
+	return QString("%1%2(%3)")
 			.arg(phraseEntry.caseSensitive() ? "" : "*")
 			.arg(phraseEntry.accentSensitive() ? "^" : "")
 			.arg(phraseEntry.caseSensitive() ? phraseEntry.text() : phraseEntry.text().toLower());
+}
+
+static QString renderResult(const CPhraseList &lstResult, int nModulus)
+{
+	QString strResult;
+	int nTotalMatches = 0;
+
+	for (int ndx = 0; ndx < lstResult.size(); ++ndx) {
+		if (ndx) strResult += " / ";
+		strResult += renderResult(lstResult.at(ndx));
+		nTotalMatches += lstResult.at(ndx).extraInfo().toInt();
+	}
+
+	strResult += QString(" [%1 * %2]").arg(nTotalMatches/nModulus).arg(nModulus);
+
+	return strResult;
+}
+
+static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseList &lst2)
+{
+	assert(lst1.size() == lst2.size());
+	for (int ndx = 0; ndx < lst1.size(); ++ndx) {
+		// Sort Accent ahead of Case:
+		if (lst1.at(ndx).accentSensitive() != lst2.at(ndx).accentSensitive()) {
+			return lst1.at(ndx).accentSensitive();
+		}
+		if (lst1.at(ndx).caseSensitive() != lst2.at(ndx).caseSensitive()) {
+			return lst1.at(ndx).caseSensitive();
+		}
+
+		QString strPhrase1 = lst1.at(ndx).caseSensitive() ? lst1.at(ndx).text() : lst1.at(ndx).text().toLower();
+		QString strPhrase2 = lst2.at(ndx).caseSensitive() ? lst2.at(ndx).text() : lst2.at(ndx).text().toLower();
+		QStringList lstPhrase1 = strPhrase1.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+		QStringList lstPhrase2 = strPhrase2.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+
+		if (lstPhrase1.size() < lstPhrase2.size()) return true;
+		if (lstPhrase1.size() > lstPhrase2.size()) return false;
+
+		for (int nWord = 0; nWord < lstPhrase1.size(); ++nWord) {
+			int nTextComp = lstPhrase1.at(nWord).compare(lstPhrase2.at(nWord));
+			if (nTextComp < 0) return true;
+			if (nTextComp > 0) return false;
+		}
+
+		// If they are identical, it means we found a duplicate entry in our
+		//	list (which can happen by finding the same phrase again later).
+		//	But, the occurrence count had better be the same since we should
+		//	have the same results for the same phrase:
+		assert(lst1.at(ndx).extraInfo().toInt() == lst2.at(ndx).extraInfo().toInt());
+	}
+	return true;
+}
+
+static bool ascendingLessThanModulusFirst(const CPhraseList &lst1, const CPhraseList &lst2)
+{
+	assert(lst1.size() == lst2.size());
+	int nCounts1 = 0;
+	int nCounts2 = 0;
+	for (int ndx = 0; ndx < lst1.size(); ++ndx) {
+		nCounts1 += lst1.at(ndx).extraInfo().toInt();
+		nCounts2 += lst2.at(ndx).extraInfo().toInt();
+	}
+	if (nCounts1 < nCounts2) return true;
+	if (nCounts1 > nCounts2) return false;
+	return ascendingLessThanTextFirst(lst1, lst2);		// Sort by text if the modulus result is the same
 }
 
 // ============================================================================
@@ -221,6 +288,8 @@ int main(int argc, char *argv[])
 //	bool bConstrainBooks = false;
 //	bool bConstrainChapters = false;
 //	bool bConstrainVerses = false;
+	bool bOrderByModulus = false;
+	bool bVerbose = false;
 	CSearchCriteria searchCriteria;
 	TRelativeIndexSet setSearchWithin;
 	bool bSearchWithinIsEntireBible = true;
@@ -279,6 +348,10 @@ int main(int argc, char *argv[])
 			unsigned int nBk = strArg.mid(2).toUInt();
 			setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
 			bSearchWithinIsEntireBible = false;
+		} else if (strArg.compare("-om") == 0) {
+			bOrderByModulus = true;
+		} else if (strArg.compare("-v") == 0) {
+			bVerbose = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -301,6 +374,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -sn =  Skip New Testament\n").toUtf8().data();
 		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
 		std::cerr << QString("           (Default is to search the Entire Bible)\n").toUtf8().data();
+		std::cerr << QString("  -om =  Output ordered by modulus multiplicand first\n").toUtf8().data();
+		std::cerr << QString("           (Default is to order by text value first)\n").toUtf8().data();
+		std::cerr << QString("   -v =  Verbose display while searching (to stderr)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Bible-UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -356,12 +432,12 @@ int main(int argc, char *argv[])
 	//	the specified Modulus-Value:
 
 	// lstOverallResults is a list of results lists.  There will be
-	//		"nPhraseCount" entries each containing an equal number of
-	//		CPhraseList lists for results that match the modulus:
+	//		"nPhraseCount" entries in each CPhraseList in this list and an
+	//		entry in the outer QList for each result that matches the modulus.
+	//		The extraInfo member of each CPhraseEntry in the CPhraseList
+	//		will contain the NumberOfMataches for for that phrase and is
+	//		the count of results within the search criteria only:
 	QList<CPhraseList> lstOverallResults;
-	for (int i = 0; i < nPhraseCount; ++i) {
-		lstOverallResults.push_back(CPhraseList());
-	}
 	bool bNeedNewline = false;			// For output beautification
 
 	uint32_t nNormalIndex = 1;
@@ -458,16 +534,6 @@ int main(int argc, char *argv[])
 				}
 			}
 
-//{
-//	std::cerr << "\n";
-//	for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
-//		if (ndx) std::cerr << " / ";
-//		CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-//		std::cerr << renderResult(phraseEntry).toUtf8().data();
-//	}
-//	std::cerr << "\n";
-//}
-
 			// At this point, we have a list of Search Phrases that have valid
 			//	search results.  We should now sum-up the results and see if it's
 			//	an even modulus of our modulus-value.  If so, we should add the
@@ -481,18 +547,23 @@ int main(int argc, char *argv[])
 				g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
 			}
 			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
-				if (bNeedNewline) {
+				if (bNeedNewline && bVerbose) {
 					std::cerr << "\n";
 					bNeedNewline = false;
 				}
-				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
-					if (ndx) std::cerr << " / ";
-					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-					lstOverallResults[ndx].append(phraseEntry);
 
-					std::cerr << renderResult(phraseEntry).toUtf8().data();
+				CPhraseList lstResult;
+				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+					phraseEntry.setExtraInfo(QVariant(lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin()));
+					lstResult.append(phraseEntry);
 				}
-				std::cerr << QString(" (%1 * %2)\n").arg(nTotalMatches/nModulus).arg(nModulus).toUtf8().data();
+				lstOverallResults.append(lstResult);
+
+				if (bVerbose) {
+					std::cerr << renderResult(lstResult, nModulus).toUtf8().data();
+					std::cerr << "\n";
+				}
 			}
 		}
 
@@ -502,10 +573,36 @@ int main(int argc, char *argv[])
 		std::cerr << "\n";
 	}
 
-	// TODO :
-	//	Remove duplicates from results and output
-	//	final results
+	// Sort results:
+	if (bVerbose) std::cerr << "Sorting...\n";
+	std::sort(lstOverallResults.begin(), lstOverallResults.end(),
+				bOrderByModulus ? ascendingLessThanModulusFirst : ascendingLessThanTextFirst);
 
+	// Remove Duplicates:
+	if (bVerbose) std::cerr << "\nRemoving Duplicates...\n";
+	for (int ndx = 0; ndx < lstOverallResults.size()-1; ++ndx) {
+		// Since we just sorted them, we already know that @ndx < @ndx+1,
+		//	so if we compare and find that @ndx+1 < @ndx, then we know
+		//	that they are equal and must be duplicates
+		bool bSame = (bOrderByModulus ?
+						ascendingLessThanModulusFirst(lstOverallResults.at(ndx+1), lstOverallResults.at(ndx)) :
+						ascendingLessThanTextFirst(lstOverallResults.at(ndx+1), lstOverallResults.at(ndx)));
+		if (bSame) {
+			if (bVerbose) {
+				std::cerr << "    " << renderResult(lstOverallResults.at(ndx), nModulus).toUtf8().data() << "    and    "
+									<< renderResult(lstOverallResults.at(ndx+1), nModulus).toUtf8().data() << "\n";
+			}
+			lstOverallResults.removeAt(ndx+1);
+		}
+	}
+
+	// Print Final Results:
+	std::cerr << QString("\nFound %1 unique solutions having a Modulus of %2:\n").arg(lstOverallResults.size()).arg(nModulus).toUtf8().data();
+
+	for (int ndx = 0; ndx < lstOverallResults.size(); ++ndx) {
+		std::cout << renderResult(lstOverallResults.at(ndx), nModulus).toUtf8().data();
+		std::cout << "\n";
+	}
 
 	// ------------------------------------------------------------------------
 
