@@ -824,10 +824,10 @@ Q_DECLARE_METATYPE(CPhraseEntry)
 class CPhraseList : public QList<CPhraseEntry>
 {
 public:
-	inline CPhraseList() { }
-	inline explicit CPhraseList(const CPhraseEntry &i) { append(i); }
+	inline CPhraseList() : QList<CPhraseEntry>() { }
+	inline explicit CPhraseList(const CPhraseEntry &i) : QList<CPhraseEntry>() { append(i); }
 	inline CPhraseList(const CPhraseList &l) : QList<CPhraseEntry>(l) { }
-	inline CPhraseList(const QList<CPhraseEntry> &l) : QList<CPhraseEntry>(l) { }
+	inline CPhraseList &operator =(const CPhraseList &l) { QList<CPhraseEntry>::operator =(l); return *this; }
 
 	int removeDuplicates();
 };
