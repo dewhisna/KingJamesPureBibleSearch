@@ -224,8 +224,8 @@ public:
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
 
-	void FindWords();								// Calls FindWords(subPhrase) on each subphrase
-	void ResumeFindWords();							// Resumes the FindWords() logic without clearing current results -- used for manually adding new words to the end of the phrases only, as an optimization!
+	virtual void FindWords();						// Calls FindWords(subPhrase) on each subphrase
+	virtual void ResumeFindWords();					// Resumes the FindWords() logic without clearing current results -- used for manually adding new words to the end of the phrases only, as an optimization!
 
 	inline const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 

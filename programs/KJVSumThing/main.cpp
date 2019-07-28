@@ -109,6 +109,18 @@ public:
 	virtual ~CMyPhraseSearch()
 	{ }
 
+	virtual void FindWords() override
+	{
+		ClearWithinPhraseTagSearchResults();
+		CParsedPhrase::FindWords();
+	}
+
+	virtual void ResumeFindWords() override
+	{
+		ClearWithinPhraseTagSearchResults();
+		CParsedPhrase::ResumeFindWords();
+	}
+
 	int nextPhraseLength()
 	{
 		assert(!m_pBibleDatabase.isNull());
@@ -126,7 +138,6 @@ public:
 		if (itrCache != g_hashSearchPhraseCache.constEnd()) {
 			*this = *itrCache;
 		} else {
-			ClearWithinPhraseTagSearchResults();
 			if (m_nTargetLength == 0) {
 				FindWords();
 			} else {
@@ -229,7 +240,7 @@ static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseLis
 		if (lstPhrase1.size() > lstPhrase2.size()) return false;
 
 		for (int nWord = 0; nWord < lstPhrase1.size(); ++nWord) {
-			int nTextComp = lstPhrase1.at(nWord).compare(lstPhrase2.at(nWord));
+			int nTextComp = lstPhrase1.at(nWord).compare(lstPhrase2.at(nWord), Qt::CaseSensitive);
 			if (nTextComp < 0) return true;
 			if (nTextComp > 0) return false;
 		}
