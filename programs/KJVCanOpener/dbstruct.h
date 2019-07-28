@@ -32,6 +32,7 @@
 #include <map>
 #include <set>
 #include <algorithm>
+#include <numeric>
 #include <stdint.h>
 #include <QString>
 #include <QStringList>
@@ -796,6 +797,19 @@ public:
 	static const QChar encCharExclude() { return QChar(0x2209); }				// Not an Element of = Exclude
 	static const QChar encCharDisabled() { return QChar(0xAC); }				// Not Sign = Disable flag
 
+	// From Qt 5.13.0 QtPrivate in qhashfunctions.h
+	struct QHashCombineCommutative {
+		// QHashCombine is a good hash combiner, but is not commutative,
+		// ie. it depends on the order of the input elements. That is
+		// usually what we want: {0,1,3} should hash differently than
+		// {1,3,0}. Except when it isn't (e.g. for QSet and
+		// QHash). Therefore, provide a commutative combiner, too.
+		typedef uint result_type;
+		template <typename T>
+		Q_DECL_CONSTEXPR result_type operator()(uint seed, const T &t) const Q_DECL_NOEXCEPT_EXPR(noexcept(qHash(t)))
+		{ return seed + qHash(t); } // don't use xor!
+	};
+
 private:
 	bool m_bCaseSensitive;
 	bool m_bAccentSensitive;
@@ -818,11 +832,11 @@ public:
 	int removeDuplicates();
 };
 
-inline uint qHash(const CPhraseEntry &key)
+Q_DECL_CONST_FUNCTION Q_DECL_PURE_FUNCTION inline uint qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
 {
 	// Note: Aren't hashing "disable" because it doesn't affect the main key value equality
-	uint nHash = (qHash(key.text()) << 3) + (key.caseSensitive() ? 4 : 0) + (key.accentSensitive() ? 2 : 0) + (key.isExcluded() ? 1 : 0);
-	return nHash;
+	std::vector<uint> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };
+	return std::accumulate(vctHashes.begin(), vctHashes.end(), seed, CPhraseEntry::QHashCombineCommutative());
 }
 
 // ============================================================================
