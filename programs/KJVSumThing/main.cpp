@@ -58,6 +58,8 @@
 #define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
 #define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
+#define DEBUG_MODE 0			// Set to 1 to enable debug output
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
@@ -583,15 +585,17 @@ int main(int argc, char *argv[])
 				}
 			}
 
-//{
-//	std::cerr << "\n";
-//	for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
-//		if (ndx) std::cerr << " / ";
-//		CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-//		std::cerr << renderResult(phraseEntry).toUtf8().data();
-//	}
-//	std::cerr << "\n";
-//}
+#if DEBUG_MODE
+			{
+				if (bNeedNewline) std::cerr << "\n";
+				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+					if (ndx) std::cerr << " / ";
+					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+					std::cerr << renderResult(phraseEntry).toUtf8().data();
+				}
+				std::cerr << "\n";
+			}
+#endif
 
 			// At this point, we have a list of Search Phrases that have valid
 			//	search results.  We should now sum-up the results and see if it's
