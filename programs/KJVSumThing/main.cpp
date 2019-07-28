@@ -92,12 +92,9 @@ public:
 	}
 
 	CMyPhraseSearch(const CMyPhraseSearch &aPhraseSearch)
-		:	CParsedPhrase(aPhraseSearch.m_pBibleDatabase, aPhraseSearch.m_bCaseSensitive, aPhraseSearch.m_bAccentSensitive),
-			m_nNormalIndex(aPhraseSearch.m_nNormalIndex),
-			m_nTargetLength(0),
-			m_bSensitivityOptionsChanged(false)
+		:	CParsedPhrase(aPhraseSearch.m_pBibleDatabase, aPhraseSearch.m_bCaseSensitive, aPhraseSearch.m_bAccentSensitive)
 	{
-
+		*this = aPhraseSearch;
 	}
 
 	CMyPhraseSearch &operator =(const CMyPhraseSearch &aPhraseSearch)
@@ -106,6 +103,11 @@ public:
 		m_nNormalIndex = aPhraseSearch.m_nNormalIndex;
 		m_nTargetLength = aPhraseSearch.m_nTargetLength;
 		m_bSensitivityOptionsChanged = aPhraseSearch.m_bSensitivityOptionsChanged;
+		CParsedPhrase::operator =(aPhraseSearch);
+
+		// Sneak the cache results across the copy too:
+		m_cache_lstPhraseTagResults = aPhraseSearch.m_cache_lstPhraseTagResults;
+		m_lstWithinPhraseTagResults = aPhraseSearch.m_lstWithinPhraseTagResults;
 		return *this;
 	}
 
@@ -163,7 +165,12 @@ public:
 		CPhraseEntry phraseEntry(*this);
 		CSearchPhraseCacheHash::const_iterator itrCache = g_hashSearchPhraseCache.find(phraseEntry);
 		if (itrCache != g_hashSearchPhraseCache.constEnd()) {
+			uint32_t nSaveNormalIndex = m_nNormalIndex;		// Must save our index so we don't relocate to the cached location
+			int nSaveTargetLength = m_nTargetLength;		// Use for comparison.  The cache had better be at the same level!
 			*this = *itrCache;
+			m_nNormalIndex = nSaveNormalIndex;
+			assert(m_nTargetLength == (nSaveTargetLength+1));	// Compare to +1 since we will be incrementing it below
+			m_nTargetLength = nSaveTargetLength;			// Restore so we don't over increment below
 			// Note: Since the object was previously stored in the cache
 			//	after calling this function, m_bSensitivityOptionsChanged
 			//	will already be false in the cached copy
