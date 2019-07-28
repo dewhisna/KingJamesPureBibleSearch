@@ -86,14 +86,16 @@ public:
 	CMyPhraseSearch(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), uint32_t nNormalIndex = 0, bool bCaseSensitive = false, bool bAccentSensitive = false)
 		:	CParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive),
 			m_nNormalIndex(nNormalIndex),
-			m_nTargetLength(0)
+			m_nTargetLength(0),
+			m_bSensitivityOptionsChanged(false)
 	{
 	}
 
 	CMyPhraseSearch(const CMyPhraseSearch &aPhraseSearch)
 		:	CParsedPhrase(aPhraseSearch.m_pBibleDatabase, aPhraseSearch.m_bCaseSensitive, aPhraseSearch.m_bAccentSensitive),
 			m_nNormalIndex(aPhraseSearch.m_nNormalIndex),
-			m_nTargetLength(0)
+			m_nTargetLength(0),
+			m_bSensitivityOptionsChanged(false)
 	{
 
 	}
@@ -103,11 +105,24 @@ public:
 		m_pBibleDatabase = aPhraseSearch.m_pBibleDatabase;
 		m_nNormalIndex = aPhraseSearch.m_nNormalIndex;
 		m_nTargetLength = aPhraseSearch.m_nTargetLength;
+		m_bSensitivityOptionsChanged = aPhraseSearch.m_bSensitivityOptionsChanged;
 		return *this;
 	}
 
 	virtual ~CMyPhraseSearch()
 	{ }
+
+	virtual void setCaseSensitive(bool bCaseSensitive) override
+	{
+		CParsedPhrase::setCaseSensitive(bCaseSensitive);
+		m_bSensitivityOptionsChanged = true;
+	}
+
+	virtual void setAccentSensitive(bool bAccentSensitive) override
+	{
+		CParsedPhrase::setAccentSensitive(bAccentSensitive);
+		m_bSensitivityOptionsChanged = true;
+	}
 
 	virtual void FindWords() override
 	{
@@ -125,7 +140,10 @@ public:
 	{
 		assert(!m_pBibleDatabase.isNull());
 		const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+m_nTargetLength);
-		if (pConcordEntry == NULL) return m_nTargetLength;
+		if (pConcordEntry == NULL) {
+			m_bSensitivityOptionsChanged = false;
+			return m_nTargetLength;
+		}
 
 		if (m_nTargetLength == 0) {
 			primarySubPhrase()->ParsePhrase(pConcordEntry->renderedWord());
@@ -137,9 +155,13 @@ public:
 		CSearchPhraseCacheHash::const_iterator itrCache = g_hashSearchPhraseCache.find(phraseEntry);
 		if (itrCache != g_hashSearchPhraseCache.constEnd()) {
 			*this = *itrCache;
+			// Note: Since the object was previously stored in the cache
+			//	after calling this function, m_bSensitivityOptionsChanged
+			//	will already be false in the cached copy
 		} else {
-			if (m_nTargetLength == 0) {
+			if ((m_nTargetLength == 0) || m_bSensitivityOptionsChanged) {
 				FindWords();
+				m_bSensitivityOptionsChanged = false;
 			} else {
 				ResumeFindWords();
 			}
@@ -189,6 +211,7 @@ public:
 protected:
 	uint32_t m_nNormalIndex;
 	int m_nTargetLength = 0;
+	bool m_bSensitivityOptionsChanged = false;
 };
 
 typedef QList<CMyPhraseSearch> CMyPhraseSearchList;
