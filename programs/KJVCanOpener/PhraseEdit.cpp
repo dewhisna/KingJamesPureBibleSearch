@@ -274,6 +274,14 @@ unsigned int CSubPhrase::GetNumberOfMatches() const
 	return m_lstMatchMapping.size();
 }
 
+void CSubPhrase::ClearPhase()
+{
+	m_lstWords.clear();
+	m_strCursorWord.clear();
+	m_nCursorWord = -1;
+	// Note: m_nLevel and m_nCursorLevel get cleared in FindWord()
+}
+
 void CSubPhrase::ParsePhrase(const QString &strPhrase)
 {
 	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
@@ -337,6 +345,7 @@ CParsedPhrase &CParsedPhrase::operator=(const CParsedPhrase &aSrc)
 	for (int ndx = 0; ndx < aSrc.m_lstSubPhrases.size(); ++ndx) {
 		QSharedPointer<CSubPhrase> subPhrase;
 		if (ndx == 0) {
+			m_pPrimarySubPhrase->ClearPhase();
 			subPhrase = attachSubPhrase(m_pPrimarySubPhrase);
 		} else {
 			subPhrase = attachSubPhrase(new CSubPhrase);
@@ -736,6 +745,7 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase, bool bFindWords)
 	for (int ndx=0; ndx<lstPhrases.size(); ++ndx) {
 		QSharedPointer<CSubPhrase> subPhrase;
 		if (ndx == 0) {
+			m_pPrimarySubPhrase->ClearPhase();
 			subPhrase = attachSubPhrase(m_pPrimarySubPhrase);
 		} else {
 			subPhrase = attachSubPhrase(new CSubPhrase);
@@ -766,6 +776,7 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase, bool bFindWords)
 		if (!lstSubPhrase.isEmpty()) {
 			QSharedPointer<CSubPhrase> subPhrase;
 			if (m_lstSubPhrases.isEmpty()) {
+				m_pPrimarySubPhrase->ClearPhase();
 				subPhrase = attachSubPhrase(m_pPrimarySubPhrase);
 			} else {
 				subPhrase = attachSubPhrase(new CSubPhrase);

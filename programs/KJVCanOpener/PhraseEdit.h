@@ -79,6 +79,7 @@ public:
 	bool isCompleteMatch() const;
 	unsigned int GetNumberOfMatches() const;
 
+	void ClearPhase();
 	void ParsePhrase(const QString &strPhrase);
 	void ParsePhrase(const QStringList &lstPhrase);
 	void AppendPhrase(const QString &strPhrase);
