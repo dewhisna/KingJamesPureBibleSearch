@@ -14,7 +14,7 @@ env:
  # ---------------------
  # webchannel daemon build ( TODO: Rework this script to use these variables to create a build-matrix):
  # ---------------------
- - QT_DIR=$HOME/Qt/5.13.0/5.13.0/gcc_64 KJPBS_BUILD=gcc_64
+ - QT_DIR=$HOME/Qt/5.13.0/5.13.0/gcc_64 KJPBS_BUILD=Qt_5_13_0_gcc_64
 
 compiler:
  - gcc
@@ -79,8 +79,8 @@ install:
  # Build QtStylePlugins:
  # ---------------------
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs
- - mkdir -p build-qtstyleplugins_$KJPBS_BUILD
- - cd build-qtstyleplugins_$KJPBS_BUILD
+ - mkdir -p build-qtstyleplugins-$KJPBS_BUILD
+ - cd build-qtstyleplugins-$KJPBS_BUILD
  - $QT_DIR/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -90,8 +90,8 @@ install:
  # Build wwWidgets:
  # ---------------------
  - cd $HOME/Qt
- - mkdir -p build-wwwidgets4_$KJPBS_BUILD/Release
- - cd build-wwwidgets4_$KJPBS_BUILD/Release
+ - mkdir -p build-wwwidgets4-$KJPBS_BUILD/Release
+ - cd build-wwwidgets4-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -104,20 +104,21 @@ before_script:
  # Setup KJPBS Build Folders:
  # ---------------------
  - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
- - mkdir -p build-KJVCanOpener_$KJPBS_BUILD/Release
- - mkdir -p build-KJVCanOpener_webchannel_$KJPBS_BUILD/Release
- - mkdir -p build-KJVDataParse_$KJPBS_BUILD/Release
- - mkdir -p build-KJVDictWord_$KJPBS_BUILD/Release
- - mkdir -p build-KJVDiff_$KJPBS_BUILD/Release
- - mkdir -p build-KJVLookup_$KJPBS_BUILD/Release
- - mkdir -p build-KJVPhraseSearch_$KJPBS_BUILD/Release
- - mkdir -p build-KJVSearch_$KJPBS_BUILD/Release
+ - mkdir -p build-KJVCanOpener-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVCanOpener_webchannel-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVDataParse-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVDictWord-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVDiff-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVLookup-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVPhraseSearch-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVSearch-$KJPBS_BUILD/Release
+ - mkdir -p build-KJVSumThing-$KJPBS_BUILD/Release
 
 script:
  # ---------------------
  # Configure and Build KJPBS GUI:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release CONFIG+=nospeech ../../KJVCanOpener/KJVCanOpener.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -128,7 +129,7 @@ script:
  # ---------------------
  # Configure and Build KJPBS WebChannel:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel ../../KJVCanOpener/KJVCanOpener.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -138,7 +139,7 @@ script:
  # ---------------------
  # Configure and Build KJVDataParse:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDataParse_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDataParse-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVDataParse/KJVDataParse.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -149,7 +150,7 @@ script:
  # ---------------------
  # Configure and Build KJVDictWord:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDictWord_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDictWord-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVDictWord/KJVDictWord.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -160,7 +161,7 @@ script:
  # ---------------------
  # Configure and Build KJVDiff:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDiff_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVDiff-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVDiff/KJVDiff.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -171,7 +172,7 @@ script:
  # ---------------------
  # Configure and Build KJVLookup:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVLookup_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVLookup-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVLookup/KJVLookup.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -182,7 +183,7 @@ script:
  # ---------------------
  # Configure and Build KJVPhraseSearch:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVPhraseSearch/KJVPhraseSearch.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
@@ -193,12 +194,23 @@ script:
  # ---------------------
  # Configure and Build KJVSearch:
  # ---------------------
- - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVSearch_$KJPBS_BUILD/Release
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVSearch-$KJPBS_BUILD/Release
  - $QT_DIR/bin/qmake CONFIG+=release ../../KJVSearch/KJVSearch.pro
  - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
  # make -j 4
  - ./travis_make_helper.sh
  # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
  # ./KJVSearch
+
+ # ---------------------
+ # Configure and Build KJVSumThing:
+ # ---------------------
+ - cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/build-KJVSumThing-$KJPBS_BUILD/Release
+ - $QT_DIR/bin/qmake CONFIG+=release ../../KJVSumThing/KJVSumThing.pro
+ - cp $TRAVIS_BUILD_DIR/travis_make_helper.sh .
+ # make -j 4
+ - ./travis_make_helper.sh
+ # Don't actually run this on Travis yet, as usage output is to stderr and return code is -1
+ # ./KJVSumThing
 
 

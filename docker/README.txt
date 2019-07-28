@@ -14,6 +14,7 @@ KJPBS Tools Built:
 - KJVLookup
 - KJVPhraseSearch
 - KJVSearch
+- KJVSumThing
 - webchannel
 
 
@@ -132,6 +133,8 @@ $ KJVLookup 1 "John 3:16"
 $ KJVSearch -h -t 1 "Word of God"
 
 $ KJVPhraseSearch -sc 1 13
+
+$ KJVSumThing -sc -om 1 1 37
 
 Run these commands without any arguments for usage information and help
 instructions.
