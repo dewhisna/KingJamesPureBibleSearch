@@ -237,22 +237,34 @@ typedef QList<CMyPhraseSearch> CMyPhraseSearchList;
 
 // ============================================================================
 
-static QString renderResult(const CPhraseEntry &phraseEntry)
+class CRenderFormat
 {
-	return QString("%1%2(%3)")
+public:
+	void setIncludePerPhraseOccurrenceNumbers(bool bValue) { m_bIncludePerPhraseOccurrenceNumbers = bValue; }
+	bool includePerPhraseOccurrenceNumbers() const { return m_bIncludePerPhraseOccurrenceNumbers; }
+
+private:
+	bool m_bIncludePerPhraseOccurrenceNumbers = false;
+};
+
+static QString renderResult(const CRenderFormat &aFormat, const CPhraseEntry &phraseEntry)
+{
+	return QString("%1%2(%3)%4")
 			.arg(phraseEntry.caseSensitive() ? "" : "*")
 			.arg(phraseEntry.accentSensitive() ? "^" : "")
-			.arg(phraseEntry.caseSensitive() ? phraseEntry.text() : phraseEntry.text().toLower());
+			.arg(phraseEntry.caseSensitive() ? phraseEntry.text() : phraseEntry.text().toLower())
+			.arg(aFormat.includePerPhraseOccurrenceNumbers() ?
+					 QString(" [%1]").arg(phraseEntry.extraInfo().toInt()) : QString());
 }
 
-static QString renderResult(const CPhraseList &lstResult, int nModulus)
+static QString renderResult(const CRenderFormat &aFormat, const CPhraseList &lstResult, int nModulus)
 {
 	QString strResult;
 	int nTotalMatches = 0;
 
 	for (int ndx = 0; ndx < lstResult.size(); ++ndx) {
 		if (ndx) strResult += " / ";
-		strResult += renderResult(lstResult.at(ndx));
+		strResult += renderResult(aFormat, lstResult.at(ndx));
 		nTotalMatches += lstResult.at(ndx).extraInfo().toInt();
 	}
 
@@ -343,6 +355,7 @@ int main(int argc, char *argv[])
 //	bool bConstrainVerses = false;
 	bool bInvertCriteria = false;
 	bool bOrderByModulus = false;
+	CRenderFormat fmtRender;
 	bool bVerbose = false;
 	CSearchCriteria searchCriteria;
 	TRelativeIndexSet setSearchWithin;
@@ -436,6 +449,8 @@ int main(int argc, char *argv[])
 
 		} else if (strArg.compare("-om") == 0) {
 			bOrderByModulus = true;
+		} else if (strArg.compare("-fn") == 0) {
+			fmtRender.setIncludePerPhraseOccurrenceNumbers(true);
 		} else if (strArg.compare("-v") == 0) {
 			bVerbose = true;
 		} else {
@@ -452,8 +467,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    an even modulus of the specified Modulus-Value.\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
-		std::cerr << QString("  -pc =  Cycle Case-Sensitivity when compared (default=false)\n").toUtf8().data();
-		std::cerr << QString("  -pa =  Cycle Accent-Sensitivity when compared (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -pc =  Cycle Phrase Case-Sensitivity when compared (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -pa =  Cycle Phrase Accent-Sensitivity when compared (default=false)\n").toUtf8().data();
 		std::cerr << QString("  -ph =  Phrases are Hyphen-Sensitive when compared (default=false)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Search Criteria:\n").toUtf8().data();
@@ -471,6 +486,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Output:\n").toUtf8().data();
 		std::cerr << QString("  -om =  Output ordered by modulus multiplicand first\n").toUtf8().data();
 		std::cerr << QString("           (Default is to order by text value first)\n").toUtf8().data();
+		std::cerr << QString("  -fn =  Format: Include Per-Phrase Occurrence Count Numbers\n").toUtf8().data();
 		std::cerr << QString("   -v =  Verbose display while searching (to stderr)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Bible-UUID-Index:\n").toUtf8().data();
@@ -642,7 +658,7 @@ int main(int argc, char *argv[])
 				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
 					if (ndx) std::cerr << " / ";
 					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-					std::cerr << renderResult(phraseEntry).toUtf8().data();
+					std::cerr << renderResult(fmtRender, phraseEntry).toUtf8().data();
 				}
 				std::cerr << "\n";
 			}
@@ -675,7 +691,7 @@ int main(int argc, char *argv[])
 				lstOverallResults.append(lstResult);
 
 				if (bVerbose) {
-					std::cerr << renderResult(lstResult, nModulus).toUtf8().data();
+					std::cerr << renderResult(fmtRender, lstResult, nModulus).toUtf8().data();
 					std::cerr << "\n";
 				}
 			}
@@ -705,8 +721,8 @@ int main(int argc, char *argv[])
 						!ascendingLessThanTextFirst(lstOverallResults.at(ndx), lstOverallResults.at(ndx+1)));
 		if (bSame) {
 			if (bVerbose) {
-				std::cerr << "    " << renderResult(lstOverallResults.at(ndx), nModulus).toUtf8().data() << "    and    "
-									<< renderResult(lstOverallResults.at(ndx+1), nModulus).toUtf8().data() << "\n";
+				std::cerr << "    " << renderResult(fmtRender, lstOverallResults.at(ndx), nModulus).toUtf8().data() << "    and    "
+									<< renderResult(fmtRender, lstOverallResults.at(ndx+1), nModulus).toUtf8().data() << "\n";
 			}
 			lstOverallResults.removeAt(ndx+1);
 			--ndx;			// Decrement the index so we will compare the new one in this slot with the next one
@@ -717,7 +733,7 @@ int main(int argc, char *argv[])
 	std::cerr << QString("\nFound %1 unique solutions having a Modulus of %2:\n").arg(lstOverallResults.size()).arg(nModulus).toUtf8().data();
 
 	for (int ndx = 0; ndx < lstOverallResults.size(); ++ndx) {
-		std::cout << renderResult(lstOverallResults.at(ndx), nModulus).toUtf8().data();
+		std::cout << renderResult(fmtRender, lstOverallResults.at(ndx), nModulus).toUtf8().data();
 		std::cout << "\n";
 	}
 
