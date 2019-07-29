@@ -118,14 +118,14 @@ public:
 
 	virtual void setCaseSensitive(bool bCaseSensitive) override
 	{
+		m_bSensitivityOptionsChanged = (isCaseSensitive() != bCaseSensitive);
 		CParsedPhrase::setCaseSensitive(bCaseSensitive);
-		m_bSensitivityOptionsChanged = true;
 	}
 
 	virtual void setAccentSensitive(bool bAccentSensitive) override
 	{
+		m_bSensitivityOptionsChanged = (isAccentSensitive() != bAccentSensitive);
 		CParsedPhrase::setAccentSensitive(bAccentSensitive);
-		m_bSensitivityOptionsChanged = true;
 	}
 
 	virtual void FindWords() override
