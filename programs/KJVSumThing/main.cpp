@@ -652,17 +652,20 @@ int main(int argc, char *argv[])
 	if (bVerbose) std::cerr << "\nRemoving Duplicates...\n";
 	for (int ndx = 0; ndx < lstOverallResults.size()-1; ++ndx) {
 		// Since we just sorted them, we already know that @ndx < @ndx+1,
-		//	so if we compare and find that @ndx+1 < @ndx, then we know
-		//	that they are equal and must be duplicates
+		//	OR @ndx == @ndx+1.  Since the sort functions are strict weak
+		//	ordering, it will return false for > or >=.  So if we compare
+		//	@ndx < @ndx+1 and it returns false, then @ndx must be the
+		//	same as @ndx+1, and are thus duplicates
 		bool bSame = (bOrderByModulus ?
-						ascendingLessThanModulusFirst(lstOverallResults.at(ndx+1), lstOverallResults.at(ndx)) :
-						ascendingLessThanTextFirst(lstOverallResults.at(ndx+1), lstOverallResults.at(ndx)));
+						!ascendingLessThanModulusFirst(lstOverallResults.at(ndx), lstOverallResults.at(ndx+1)) :
+						!ascendingLessThanTextFirst(lstOverallResults.at(ndx), lstOverallResults.at(ndx+1)));
 		if (bSame) {
 			if (bVerbose) {
 				std::cerr << "    " << renderResult(lstOverallResults.at(ndx), nModulus).toUtf8().data() << "    and    "
 									<< renderResult(lstOverallResults.at(ndx+1), nModulus).toUtf8().data() << "\n";
 			}
 			lstOverallResults.removeAt(ndx+1);
+			--ndx;			// Decrement the index so we will compare the new one in this slot with the next one
 		}
 	}
 
