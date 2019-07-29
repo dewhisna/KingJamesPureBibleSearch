@@ -58,7 +58,7 @@
 #define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
 #define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
-constexpr int MIN_SEARCH_WITHIN_CACHE_LIMIT = 100;		// Minimum number of results needed before caching a search phrase
+constexpr int MIN_SEARCH_WITHIN_CACHE_LIMIT = 10;		// Minimum number of results needed before caching a search phrase
 
 #define DEBUG_MODE 0			// Set to 1 to enable debug output
 
@@ -87,11 +87,14 @@ CSearchPhraseCacheHash g_hashSearchPhraseCache;			// Keep searches already perfo
 class CMyPhraseSearch : public CParsedPhrase
 {
 public:
-	CMyPhraseSearch(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), uint32_t nNormalIndex = 0, bool bCaseSensitive = false, bool bAccentSensitive = false)
+	CMyPhraseSearch(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), uint32_t nNormalIndex = 0, bool bCaseSensitive = false, bool bAccentSensitive = false,
+							bool bTogglingCaseSensitivity = false, bool bTogglingAccentSensitivity = false)
 		:	CParsedPhrase(pBibleDatabase, bCaseSensitive, bAccentSensitive),
 			m_nNormalIndex(nNormalIndex),
 			m_nTargetLength(0),
-			m_bSensitivityOptionsChanged(false)
+			m_bSensitivityOptionsChanged(false),
+			m_bTogglingCaseSensitivity(bTogglingCaseSensitivity),
+			m_bTogglingAccentSensitivity(bTogglingAccentSensitivity)
 	{
 	}
 
@@ -107,6 +110,8 @@ public:
 		m_nNormalIndex = aPhraseSearch.m_nNormalIndex;
 		m_nTargetLength = aPhraseSearch.m_nTargetLength;
 		m_bSensitivityOptionsChanged = aPhraseSearch.m_bSensitivityOptionsChanged;
+		m_bTogglingCaseSensitivity = aPhraseSearch.m_bTogglingCaseSensitivity;
+		m_bTogglingAccentSensitivity = aPhraseSearch.m_bTogglingAccentSensitivity;
 		CParsedPhrase::operator =(aPhraseSearch);
 
 		// Sneak the cache results across the copy too:
@@ -193,7 +198,7 @@ public:
 
 	int targetLength() const { return m_nTargetLength; }
 
-	bool hasConverged(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible) const
+	bool hasConverged(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible, bool bConvergeWithSensitivity) const
 			// Note: bSearchWithinIsEntireBible is only an optimization to keep from
 			//		having to calculate it from the searchCriteria itself:
 	{
@@ -205,8 +210,12 @@ public:
 								(m_pBibleDatabase->completelyContains(tagPhrase)) :
 								(searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, tagPhrase)));
 		if ((m_nNormalIndex + m_nTargetLength) > m_pBibleDatabase->bibleEntry().m_nNumWrd) bIsContained = false;
-		return ((bIsContained && (!isCaseSensitive() && !isAccentSensitive() && (GetNumberOfMatches() <= 1)))
-				|| !bIsContained);
+		if (!bConvergeWithSensitivity || !bIsContained) {
+			return (!bIsContained || (bIsContained && (GetNumberOfMatches() <= 1)));
+		}
+		bool bCase = !m_bTogglingCaseSensitivity || (m_bTogglingCaseSensitivity && !isCaseSensitive());
+		bool bAccent = !m_bTogglingAccentSensitivity || (m_bTogglingAccentSensitivity && !isAccentSensitive());
+		return (bCase && bAccent && (GetNumberOfMatches() <= 1));
 	}
 
 	void buildWithinResultsInParsedPhrase(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible)
@@ -233,6 +242,8 @@ protected:
 	uint32_t m_nNormalIndex;
 	int m_nTargetLength = 0;
 	bool m_bSensitivityOptionsChanged = false;
+	bool m_bTogglingCaseSensitivity = false;
+	bool m_bTogglingAccentSensitivity = false;
 };
 
 typedef QList<CMyPhraseSearch> CMyPhraseSearchList;
@@ -625,11 +636,13 @@ int main(int argc, char *argv[])
 					if (ndxNext == 0) {
 						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex,
 																(bToggleCaseSensitive || bPreserveCaseSensitive),
-																(bToggleAccentSensitive || bPreserveAccentSensitive)));
+																(bToggleAccentSensitive || bPreserveAccentSensitive),
+																bToggleCaseSensitive, bToggleAccentSensitive));
 					} else {
 						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
 																(bToggleCaseSensitive || bPreserveCaseSensitive),
-																(bToggleAccentSensitive || bPreserveAccentSensitive)));
+																(bToggleAccentSensitive || bPreserveAccentSensitive),
+																bToggleCaseSensitive, bToggleAccentSensitive));
 					}
 					lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
 				}
@@ -638,7 +651,7 @@ int main(int argc, char *argv[])
 				//	bump the phrase before it and restart the phrases after it.
 				CMyPhraseSearchList::iterator itrLastNonconverged = lstSearchPhrases.end()-1;	// This is safe because minimum nPhraseCount is 1
 				for (; itrLastNonconverged != lstSearchPhrases.begin(); --itrLastNonconverged) {
-					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) break;
+					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible, true)) break;
 				}
 				//	First, exhaust all combinations of AccentSensitive and CaseSensitive:
 				if (bToggleAccentSensitive && itrLastNonconverged->isAccentSensitive()) {
@@ -652,7 +665,7 @@ int main(int argc, char *argv[])
 					// Here we need to see if we've reached convergence, and if not
 					//	we must bump it and everything after us must start over in
 					//	their new word positions:
-					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) {
+					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible, false)) {
 						// Not converged so bump it:
 						if (bToggleAccentSensitive) {		// check flag instead of call so we don't clear the search results if not changing
 							itrLastNonconverged->setAccentSensitive(bToggleAccentSensitive);
@@ -676,7 +689,8 @@ int main(int argc, char *argv[])
 						for (int ndxNext = ndxLastNonconverged+1; ndxNext < nPhraseCount; ++ndxNext) {
 							lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
 																	(bToggleCaseSensitive || bPreserveCaseSensitive),
-																	(bToggleAccentSensitive || bPreserveAccentSensitive)));
+																	(bToggleAccentSensitive || bPreserveAccentSensitive),
+																	bToggleCaseSensitive, bToggleAccentSensitive));
 							lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
 						}
 					} else {
