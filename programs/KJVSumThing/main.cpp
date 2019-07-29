@@ -58,6 +58,8 @@
 #define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
 #define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
+constexpr int MIN_SEARCH_WITHIN_CACHE_LIMIT = 100;		// Minimum number of results needed before caching a search phrase
+
 #define DEBUG_MODE 0			// Set to 1 to enable debug output
 
 namespace {
@@ -716,8 +718,10 @@ int main(int argc, char *argv[])
 				lstSearchPhrases[ndx].buildWithinResultsInParsedPhrase(searchCriteria, bSearchWithinIsEntireBible);
 				nTotalMatches += lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin();
 
-				CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-				g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
+				if (lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin() > MIN_SEARCH_WITHIN_CACHE_LIMIT) {
+					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+					g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
+				}
 			}
 			if (bNoAccentOrCase && (nTotalMatches < static_cast<unsigned int>(nModulus))) {
 				// If the maximum search (i.e. no accent/case) yields a result
