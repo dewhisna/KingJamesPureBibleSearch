@@ -525,8 +525,6 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	std::cerr << QString("Searching for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2:\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
-
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
 	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
@@ -535,6 +533,10 @@ int main(int argc, char *argv[])
 
 	searchCriteria.setSearchWithin(setSearchWithin);
 	bSearchWithinIsEntireBible = searchCriteria.withinIsEntireBible(pBibleDatabase, false);
+
+	std::cerr << "\n";
+	std::cerr << QString("Searching within %1\n").arg(searchCriteria.searchWithinDescription(pBibleDatabase)).toUtf8().data();
+	std::cerr << QString("for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2:\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
 
 	// ------------------------------------------------------------------------
 
