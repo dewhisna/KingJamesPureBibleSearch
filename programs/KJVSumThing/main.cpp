@@ -341,6 +341,7 @@ int main(int argc, char *argv[])
 //	bool bConstrainBooks = false;
 //	bool bConstrainChapters = false;
 //	bool bConstrainVerses = false;
+	bool bInvertCriteria = false;
 	bool bOrderByModulus = false;
 	bool bVerbose = false;
 	CSearchCriteria searchCriteria;
@@ -382,25 +383,57 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-ph") == 0) {
 			bHyphenSensitive = true;
 		} else if (strArg.compare("-sc") == 0) {
-			setSearchWithin.erase(CSearchCriteria::SSI_COLOPHON);
-			bSearchWithinIsEntireBible = false;
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
+			} else {
+				setSearchWithin.erase(CSearchCriteria::SSI_COLOPHON);
+			}
 		} else if (strArg.compare("-ss") == 0) {
-			setSearchWithin.erase(CSearchCriteria::SSI_SUPERSCRIPTION);
-			bSearchWithinIsEntireBible = false;
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+			} else {
+				setSearchWithin.erase(CSearchCriteria::SSI_SUPERSCRIPTION);
+			}
 		} else if (strArg.compare("-so") == 0) {
 			for (unsigned int nBk = 1; nBk <= NUM_BK_OT; ++nBk) {
-				setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+				}
 			}
-			bSearchWithinIsEntireBible = false;
 		} else if (strArg.compare("-sn") == 0) {
 			for (unsigned int nBk = 1; nBk <= NUM_BK_NT; ++nBk) {
-				setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				}
 			}
-			bSearchWithinIsEntireBible = false;
 		} else if (strArg.startsWith("-s")) {
 			unsigned int nBk = strArg.mid(2).toUInt();
-			setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
-			bSearchWithinIsEntireBible = false;
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+			} else {
+				setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+			}
+		} else if (strArg.compare("-i") == 0) {
+			bInvertCriteria = true;
+
+			// Invert the current selection:
+			TRelativeIndexSet setInvert;
+			for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
+				if (setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == setSearchWithin.end()) {
+					setInvert.insert(CRelIndex(nBk, 0, 0, 0));
+				}
+			}
+			if (setSearchWithin.find(CSearchCriteria::SSI_COLOPHON) == setSearchWithin.end())
+				setInvert.insert(CSearchCriteria::SSI_COLOPHON);
+			if (setSearchWithin.find(CSearchCriteria::SSI_SUPERSCRIPTION) == setSearchWithin.end())
+				setInvert.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+
+			setSearchWithin = setInvert;
+
 		} else if (strArg.compare("-om") == 0) {
 			bOrderByModulus = true;
 		} else if (strArg.compare("-v") == 0) {
@@ -417,16 +450,25 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Reads the specified Bible Database and Searches for n-consecutive\n").toUtf8().data();
 		std::cerr << QString("    phrases of varying length whose combined occurrence-count is\n").toUtf8().data();
 		std::cerr << QString("    an even modulus of the specified Modulus-Value.\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -pc =  Cycle Case-Sensitivity when compared (default=false)\n").toUtf8().data();
 		std::cerr << QString("  -pa =  Cycle Accent-Sensitivity when compared (default=false)\n").toUtf8().data();
 		std::cerr << QString("  -ph =  Phrases are Hyphen-Sensitive when compared (default=false)\n").toUtf8().data();
-		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
-		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
-		std::cerr << QString("  -so =  Skip Old Testament\n").toUtf8().data();
-		std::cerr << QString("  -sn =  Skip New Testament\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Search Criteria:\n").toUtf8().data();
+		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
+		std::cerr << QString("  -sc =  Skip Colophons (or Search Colophons if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -ss =  Skip Superscriptions (or Search Superscriptions if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -so =  Skip Old Testament (or Search Old Testament if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sn =  Skip New Testament (or Search New Testament if -i is used)\n").toUtf8().data();
 		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
-		std::cerr << QString("           (Default is to search the Entire Bible)\n").toUtf8().data();
+		std::cerr << QString("           (or Search Book 'N' if -i is used)\n").toUtf8().data();
+		std::cerr << QString("   -i =  Invert search criteria so that the default is to search\n").toUtf8().data();
+		std::cerr << QString("           none of the Bible except when -sX options are used to\n").toUtf8().data();
+		std::cerr << QString("           select a specific Book or Testament, etc.\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Output:\n").toUtf8().data();
 		std::cerr << QString("  -om =  Output ordered by modulus multiplicand first\n").toUtf8().data();
 		std::cerr << QString("           (Default is to order by text value first)\n").toUtf8().data();
 		std::cerr << QString("   -v =  Verbose display while searching (to stderr)\n").toUtf8().data();
@@ -438,6 +480,7 @@ int main(int argc, char *argv[])
 		std::cerr << "\n";
 		std::cerr << QString("Phrase-Count : Number of consecutive phrases searched (>=1)\n").toUtf8().data();
 		std::cerr << QString("Modulus : Occurrence Count Modulus to find (>=2)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		return -1;
 	}
 
@@ -475,6 +518,7 @@ int main(int argc, char *argv[])
 	pBibleDatabase->setSettings(bdbSettings);
 
 	searchCriteria.setSearchWithin(setSearchWithin);
+	bSearchWithinIsEntireBible = searchCriteria.withinIsEntireBible(pBibleDatabase, false);
 
 	// ------------------------------------------------------------------------
 
