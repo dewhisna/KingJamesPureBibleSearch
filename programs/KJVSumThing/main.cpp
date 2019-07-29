@@ -652,6 +652,12 @@ int main(int argc, char *argv[])
 				}
 			}
 
+			bool bNoAccentOrCase = true;		// True if all search phrases are ignoring accent and case this cycle
+			for (int ndx = 0; (bNoAccentOrCase && (ndx < lstSearchPhrases.size())); ++ndx) {
+				if (lstSearchPhrases.at(ndx).isCaseSensitive() || lstSearchPhrases.at(ndx).isAccentSensitive())
+					bNoAccentOrCase = false;
+			}
+
 #if DEBUG_MODE
 			{
 				if (bNeedNewline) std::cerr << "\n";
@@ -676,7 +682,11 @@ int main(int argc, char *argv[])
 				CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
 				g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
 			}
-			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
+			if (bNoAccentOrCase && (nTotalMatches < static_cast<unsigned int>(nModulus))) {
+				// If the maximum search (i.e. no accent/case) yields a result
+				//	less than the modulus, this search pass has converged:
+				bSearchConverged = true;
+			} else if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
 				if (bNeedNewline && bVerbose) {
 					std::cerr << "\n";
 					bNeedNewline = false;
@@ -695,7 +705,7 @@ int main(int argc, char *argv[])
 					std::cerr << "\n";
 				}
 			}
-		}
+		}	// while !bSearchConverged
 
 		++nNormalIndex;
 	}
