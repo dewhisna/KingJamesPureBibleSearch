@@ -347,9 +347,11 @@ int main(int argc, char *argv[])
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
 	bool bUnknownOption = false;
-	bool bHyphenSensitive = false;
-	bool bCaseSensitive = false;
-	bool bAccentSensitive = false;
+	bool bPreserveHyphenSensitive = false;
+	bool bPreserveCaseSensitive = false;
+	bool bPreserveAccentSensitive = false;
+	bool bToggleCaseSensitive = false;
+	bool bToggleAccentSensitive = false;
 //	bool bConstrainBooks = false;
 //	bool bConstrainChapters = false;
 //	bool bConstrainVerses = false;
@@ -390,11 +392,15 @@ int main(int argc, char *argv[])
 				bUnknownOption = true;
 			}
 		} else if (strArg.compare("-pc") == 0) {
-			bCaseSensitive = true;
+			bPreserveCaseSensitive = true;
 		} else if (strArg.compare("-pa") == 0) {
-			bAccentSensitive = true;
+			bPreserveAccentSensitive = true;
 		} else if (strArg.compare("-ph") == 0) {
-			bHyphenSensitive = true;
+			bPreserveHyphenSensitive = true;
+		} else if (strArg.compare("-tc") == 0) {
+			bToggleCaseSensitive = true;
+		} else if (strArg.compare("-ta") == 0) {
+			bToggleAccentSensitive = true;
 		} else if (strArg.compare("-sc") == 0) {
 			if (bInvertCriteria) {
 				setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
@@ -458,6 +464,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (bToggleCaseSensitive) bPreserveCaseSensitive = false;
+	if (bToggleAccentSensitive) bPreserveAccentSensitive = false;
+
 	if ((nArgsFound != 3) || (bUnknownOption)) {
 		std::cerr << QString("KJVSumThing Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <Bible-UUID-Index> <Phrase-Count> <Modulus-Value>\n").arg(argv[0]).toUtf8().data();
@@ -467,9 +476,12 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    an even modulus of the specified Modulus-Value.\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
-		std::cerr << QString("  -pc =  Cycle Phrase Case-Sensitivity when compared (default=false)\n").toUtf8().data();
-		std::cerr << QString("  -pa =  Cycle Phrase Accent-Sensitivity when compared (default=false)\n").toUtf8().data();
-		std::cerr << QString("  -ph =  Phrases are Hyphen-Sensitive when compared (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -pc =  Preserve Phrase Case-Sensitivity when comparing (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -pa =  Preserve Phrase Accent-Sensitivity when comparing (default=false)\n").toUtf8().data();
+		std::cerr << QString("  -ph =  Preserve Hyphens when comparing (default=false)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("  -tc =  Toggle Phrase Case-Sensitivity when comparing (default=false, overrides -pc)\n").toUtf8().data();
+		std::cerr << QString("  -ta =  Toggle Phrase Accent-Sensitivity when comparing (default=false, overrides -pa)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Search Criteria:\n").toUtf8().data();
 		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
@@ -528,7 +540,7 @@ int main(int argc, char *argv[])
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
 	TBibleDatabaseSettings bdbSettings = pBibleDatabase->settings();
-	bdbSettings.setHyphenSensitive(bHyphenSensitive);
+	bdbSettings.setHyphenSensitive(bPreserveHyphenSensitive);
 	pBibleDatabase->setSettings(bdbSettings);
 
 	searchCriteria.setSearchWithin(setSearchWithin);
@@ -536,7 +548,20 @@ int main(int argc, char *argv[])
 
 	std::cerr << "\n";
 	std::cerr << QString("Searching within %1\n").arg(searchCriteria.searchWithinDescription(pBibleDatabase)).toUtf8().data();
-	std::cerr << QString("for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2:\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
+	std::cerr << QString("for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
+	if (bToggleCaseSensitive) {
+		std::cerr << QString("while toggling case-sensitivity\n").toUtf8().data();
+	} else if (bPreserveCaseSensitive) {
+		std::cerr << QString("while preserving case-sensitivity\n").toUtf8().data();
+	}
+	if (bToggleAccentSensitive) {
+		std::cerr << QString("while toggling accent-sensitivity\n").toUtf8().data();
+	} else if (bPreserveAccentSensitive) {
+		std::cerr << QString("while preserving accent-sensitivity\n").toUtf8().data();
+	}
+	if (bPreserveHyphenSensitive) {
+		std::cerr << QString("while preserving hyphenated words\n").toUtf8().data();
+	}
 
 	// ------------------------------------------------------------------------
 
@@ -597,10 +622,12 @@ int main(int argc, char *argv[])
 					//		them set.  So start with the set, and clear them in subsequent rounds:
 					if (ndxNext == 0) {
 						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex,
-																bCaseSensitive, bAccentSensitive));
+																(bToggleCaseSensitive || bPreserveCaseSensitive),
+																(bToggleAccentSensitive || bPreserveAccentSensitive)));
 					} else {
 						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
-																bCaseSensitive, bAccentSensitive));
+																(bToggleCaseSensitive || bPreserveCaseSensitive),
+																(bToggleAccentSensitive || bPreserveAccentSensitive)));
 					}
 					lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
 				}
@@ -612,12 +639,12 @@ int main(int argc, char *argv[])
 					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) break;
 				}
 				//	First, exhaust all combinations of AccentSensitive and CaseSensitive:
-				if (itrLastNonconverged->isAccentSensitive()) {
+				if (bToggleAccentSensitive && itrLastNonconverged->isAccentSensitive()) {
 					itrLastNonconverged->setAccentSensitive(false);
 					itrLastNonconverged->FindWords();
-				} else if (itrLastNonconverged->isCaseSensitive()) {
+				} else if (bToggleCaseSensitive && itrLastNonconverged->isCaseSensitive()) {
 					itrLastNonconverged->setCaseSensitive(false);
-					if (bAccentSensitive) itrLastNonconverged->setAccentSensitive(true);
+					if (bToggleAccentSensitive) itrLastNonconverged->setAccentSensitive(true);
 					itrLastNonconverged->FindWords();
 				} else {
 					// Here we need to see if we've reached convergence, and if not
@@ -625,8 +652,12 @@ int main(int argc, char *argv[])
 					//	their new word positions:
 					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) {
 						// Not converged so bump it:
-						itrLastNonconverged->setAccentSensitive(bAccentSensitive);
-						itrLastNonconverged->setCaseSensitive(bCaseSensitive);
+						if (bToggleAccentSensitive) {		// check flag instead of call so we don't clear the search results if not changing
+							itrLastNonconverged->setAccentSensitive(bToggleAccentSensitive);
+						}
+						if (bToggleCaseSensitive) {			// check flag instead of call so we don't clear the search results if not changing
+							itrLastNonconverged->setCaseSensitive(bToggleCaseSensitive);
+						}
 						if (!itrLastNonconverged->nextPhraseLength()) {	// Set the search phrase, bump length, and perform search
 							// If we hit the end of the text and our last phrase
 							//	hasn't converged, pretend that it has so we'll
@@ -642,7 +673,8 @@ int main(int argc, char *argv[])
 						//	on their new word positions:
 						for (int ndxNext = ndxLastNonconverged+1; ndxNext < nPhraseCount; ++ndxNext) {
 							lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
-																	bCaseSensitive, bAccentSensitive));
+																	(bToggleCaseSensitive || bPreserveCaseSensitive),
+																	(bToggleAccentSensitive || bPreserveAccentSensitive)));
 							lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
 						}
 					} else {
@@ -654,10 +686,13 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			bool bNoAccentOrCase = true;		// True if all search phrases are ignoring accent and case this cycle
-			for (int ndx = 0; (bNoAccentOrCase && (ndx < lstSearchPhrases.size())); ++ndx) {
-				if (lstSearchPhrases.at(ndx).isCaseSensitive() || lstSearchPhrases.at(ndx).isAccentSensitive())
-					bNoAccentOrCase = false;
+			bool bNoAccentOrCase = true;		// True if all search phrases are ignoring accent and case this cycle or aren't toggling it
+			if (bToggleAccentSensitive || bToggleCaseSensitive) {
+				for (int ndx = 0; (bNoAccentOrCase && (ndx < lstSearchPhrases.size())); ++ndx) {
+					if ((lstSearchPhrases.at(ndx).isAccentSensitive() && bToggleAccentSensitive) ||
+						(lstSearchPhrases.at(ndx).isCaseSensitive() && bToggleCaseSensitive))
+						bNoAccentOrCase = false;
+				}
 			}
 
 #if DEBUG_MODE
