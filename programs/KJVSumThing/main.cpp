@@ -198,7 +198,7 @@ public:
 
 	int targetLength() const { return m_nTargetLength; }
 
-	bool hasConverged(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible, bool bConvergeWithSensitivity) const
+	bool hasConverged(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible) const
 			// Note: bSearchWithinIsEntireBible is only an optimization to keep from
 			//		having to calculate it from the searchCriteria itself:
 	{
@@ -210,9 +210,9 @@ public:
 								(m_pBibleDatabase->completelyContains(tagPhrase)) :
 								(searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, tagPhrase)));
 		if ((m_nNormalIndex + m_nTargetLength) > m_pBibleDatabase->bibleEntry().m_nNumWrd) bIsContained = false;
-		if (!bConvergeWithSensitivity || !bIsContained) {
-			return (!bIsContained || (bIsContained && (GetNumberOfMatches() <= 1)));
-		}
+
+		if (!bIsContained) return true;
+
 		bool bCase = !m_bTogglingCaseSensitivity || (m_bTogglingCaseSensitivity && !isCaseSensitive());
 		bool bAccent = !m_bTogglingAccentSensitivity || (m_bTogglingAccentSensitivity && !isAccentSensitive());
 		return (bCase && bAccent && (GetNumberOfMatches() <= 1));
@@ -651,13 +651,17 @@ int main(int argc, char *argv[])
 				//	bump the phrase before it and restart the phrases after it.
 				CMyPhraseSearchList::iterator itrLastNonconverged = lstSearchPhrases.end()-1;	// This is safe because minimum nPhraseCount is 1
 				for (; itrLastNonconverged != lstSearchPhrases.begin(); --itrLastNonconverged) {
-					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible, true)) break;
+					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible)) break;
 				}
+				// If itrLastNonconverged hit lstSearchPhrases.begin() above, we don't know
+				//	for sure if it's converged or not.  So we need to run the accent/case
+				//	toggling, etc, on it if it hasn't:
+				bool bLastConverged = itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible);
 				//	First, exhaust all combinations of AccentSensitive and CaseSensitive:
-				if (bToggleAccentSensitive && itrLastNonconverged->isAccentSensitive()) {
+				if (!bLastConverged && bToggleAccentSensitive && itrLastNonconverged->isAccentSensitive()) {
 					itrLastNonconverged->setAccentSensitive(false);
 					itrLastNonconverged->FindWords();
-				} else if (bToggleCaseSensitive && itrLastNonconverged->isCaseSensitive()) {
+				} else if (!bLastConverged && bToggleCaseSensitive && itrLastNonconverged->isCaseSensitive()) {
 					itrLastNonconverged->setCaseSensitive(false);
 					if (bToggleAccentSensitive) itrLastNonconverged->setAccentSensitive(true);
 					itrLastNonconverged->FindWords();
@@ -665,7 +669,7 @@ int main(int argc, char *argv[])
 					// Here we need to see if we've reached convergence, and if not
 					//	we must bump it and everything after us must start over in
 					//	their new word positions:
-					if (!itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible, false)) {
+					if (!bLastConverged) {
 						// Not converged so bump it:
 						if (bToggleAccentSensitive) {		// check flag instead of call so we don't clear the search results if not changing
 							itrLastNonconverged->setAccentSensitive(bToggleAccentSensitive);
