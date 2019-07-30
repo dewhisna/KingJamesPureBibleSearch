@@ -196,6 +196,7 @@ public:
 		return true;
 	}
 
+	uint32_t normalIndex() const { return m_nNormalIndex; }
 	int targetLength() const { return m_nTargetLength; }
 
 	bool hasConverged(const CSearchCriteria &searchCriteria, bool bSearchWithinIsEntireBible) const
@@ -639,7 +640,7 @@ int main(int argc, char *argv[])
 																(bToggleAccentSensitive || bPreserveAccentSensitive),
 																bToggleCaseSensitive, bToggleAccentSensitive));
 					} else {
-						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
+						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, lstSearchPhrases.at(ndxNext-1).normalIndex() + lstSearchPhrases.at(ndxNext-1).targetLength(),
 																(bToggleCaseSensitive || bPreserveCaseSensitive),
 																(bToggleAccentSensitive || bPreserveAccentSensitive),
 																bToggleCaseSensitive, bToggleAccentSensitive));
@@ -691,7 +692,7 @@ int main(int argc, char *argv[])
 						// Add new search phrases after this one starting them over
 						//	on their new word positions:
 						for (int ndxNext = ndxLastNonconverged+1; ndxNext < nPhraseCount; ++ndxNext) {
-							lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, nNormalIndex + lstSearchPhrases.at(ndxNext-1).targetLength(),
+							lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, lstSearchPhrases.at(ndxNext-1).normalIndex() + lstSearchPhrases.at(ndxNext-1).targetLength(),
 																	(bToggleCaseSensitive || bPreserveCaseSensitive),
 																	(bToggleAccentSensitive || bPreserveAccentSensitive),
 																	bToggleCaseSensitive, bToggleAccentSensitive));
