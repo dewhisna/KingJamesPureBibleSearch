@@ -147,6 +147,50 @@ public:
 		CParsedPhrase::ResumeFindWords();
 	}
 
+	bool samePhraseLength()
+	{
+		assert(m_nTargetLength != 0);
+		assert(!m_pBibleDatabase.isNull());
+
+		if (m_bSensitivityOptionsChanged) {
+			QStringList lstPhrase;
+			lstPhrase.reserve(m_nTargetLength);
+			for (int ndx = 0; ndx < m_nTargetLength; ++ndx) {
+				const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+ndx);
+				if (pConcordEntry == NULL) {
+					m_bSensitivityOptionsChanged = false;
+					return false;
+				}
+				// If this isn't a case-sensitive search, go ahead and convert
+				//		to lower-case here so that the hash-cache gets more hits
+				lstPhrase.append(isCaseSensitive() ? pConcordEntry->renderedWord() : pConcordEntry->renderedWord().toLower());
+			}
+			primarySubPhrase()->ParsePhrase(lstPhrase);
+		}
+
+		CPhraseEntry phraseEntry(*this);
+		CSearchPhraseCacheHash::const_iterator itrCache = g_hashSearchPhraseCache.find(phraseEntry);
+		if (itrCache != g_hashSearchPhraseCache.constEnd()) {
+			uint32_t nSaveNormalIndex = m_nNormalIndex;		// Must save our index so we don't relocate to the cached location
+			int nSaveTargetLength = m_nTargetLength;		// Use for comparison.  The cache had better be at the same level!
+			*this = *itrCache;
+			m_nNormalIndex = nSaveNormalIndex;
+			assert(m_nTargetLength == nSaveTargetLength);
+			// Note: Since the object was previously stored in the cache
+			//	after calling this function, m_bSensitivityOptionsChanged
+			//	will already be false in the cached copy
+		} else {
+			if (m_bSensitivityOptionsChanged) {
+				FindWords();
+			} else {
+				ResumeFindWords();
+			}
+		}
+		m_bSensitivityOptionsChanged = false;
+
+		return true;
+	}
+
 	bool nextPhraseLength()
 	{
 		assert(!m_pBibleDatabase.isNull());
@@ -664,12 +708,12 @@ int main(int argc, char *argv[])
 				//	First, exhaust all combinations of AccentSensitive and CaseSensitive:
 				if (!bLastConverged && bToggleAccentSensitive && itrLastNonconverged->isAccentSensitive()) {
 					itrLastNonconverged->setAccentSensitive(false);
-					itrLastNonconverged->FindWords();
+					itrLastNonconverged->samePhraseLength();	// Reset the search phrase and perform search
 					if (ndxLastNonconverged != ndxPrevLastNonconverged) bNeedToDropTrailingPhrases = true;
 				} else if (!bLastConverged && bToggleCaseSensitive && itrLastNonconverged->isCaseSensitive()) {
 					itrLastNonconverged->setCaseSensitive(false);
 					if (bToggleAccentSensitive) itrLastNonconverged->setAccentSensitive(true);
-					itrLastNonconverged->FindWords();
+					itrLastNonconverged->samePhraseLength();	// Reset the search phrase and perform search
 					if (ndxLastNonconverged != ndxPrevLastNonconverged) bNeedToDropTrailingPhrases = true;
 				} else {
 					// Here we need to see if we've reached convergence, and if not
