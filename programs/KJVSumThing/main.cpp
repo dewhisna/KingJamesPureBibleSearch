@@ -625,6 +625,7 @@ int main(int argc, char *argv[])
 		CMyPhraseSearchList lstSearchPhrases;
 
 		bool bSearchConverged = false;		// Set to 'true' when all phrases have converged to a single occurrence
+		int ndxPrevLastNonconverged = nPhraseCount-1;		// Previous last non-converged index to detect changing of converged index to drop trailing phrases if starting over sensitivity toggles
 
 		while (!bSearchConverged) {
 			if (lstSearchPhrases.isEmpty()) {
@@ -658,14 +659,18 @@ int main(int argc, char *argv[])
 				//	for sure if it's converged or not.  So we need to run the accent/case
 				//	toggling, etc, on it if it hasn't:
 				bool bLastConverged = itrLastNonconverged->hasConverged(searchCriteria, bSearchWithinIsEntireBible);
+				int ndxLastNonconverged = (itrLastNonconverged-lstSearchPhrases.begin());
+				bool bNeedToDropTrailingPhrases = false;
 				//	First, exhaust all combinations of AccentSensitive and CaseSensitive:
 				if (!bLastConverged && bToggleAccentSensitive && itrLastNonconverged->isAccentSensitive()) {
 					itrLastNonconverged->setAccentSensitive(false);
 					itrLastNonconverged->FindWords();
+					if (ndxLastNonconverged != ndxPrevLastNonconverged) bNeedToDropTrailingPhrases = true;
 				} else if (!bLastConverged && bToggleCaseSensitive && itrLastNonconverged->isCaseSensitive()) {
 					itrLastNonconverged->setCaseSensitive(false);
 					if (bToggleAccentSensitive) itrLastNonconverged->setAccentSensitive(true);
 					itrLastNonconverged->FindWords();
+					if (ndxLastNonconverged != ndxPrevLastNonconverged) bNeedToDropTrailingPhrases = true;
 				} else {
 					// Here we need to see if we've reached convergence, and if not
 					//	we must bump it and everything after us must start over in
@@ -684,20 +689,7 @@ int main(int argc, char *argv[])
 							//	bail out of our loop:
 							bSearchConverged = true;
 						}
-						// Remove the trailing phrases that have all converged:
-						int ndxLastNonconverged = (itrLastNonconverged-lstSearchPhrases.begin());
-						for (int ndxNext = lstSearchPhrases.size(); ndxNext > (ndxLastNonconverged+1); --ndxNext) {
-							lstSearchPhrases.removeLast();
-						}
-						// Add new search phrases after this one starting them over
-						//	on their new word positions:
-						for (int ndxNext = ndxLastNonconverged+1; ndxNext < nPhraseCount; ++ndxNext) {
-							lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, lstSearchPhrases.at(ndxNext-1).normalIndex() + lstSearchPhrases.at(ndxNext-1).targetLength(),
-																	(bToggleCaseSensitive || bPreserveCaseSensitive),
-																	(bToggleAccentSensitive || bPreserveAccentSensitive),
-																	bToggleCaseSensitive, bToggleAccentSensitive));
-							lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
-						}
+						bNeedToDropTrailingPhrases = true;		// Always drop trailing phrases if increasing word count
 					} else {
 						// If the "LastNonconverged" was already converged, it
 						//	means we are on the first phrase of the list and
@@ -705,6 +697,23 @@ int main(int argc, char *argv[])
 						bSearchConverged = true;
 					}
 				}
+				if (bNeedToDropTrailingPhrases) {
+					// Remove the trailing phrases that have all converged:
+					for (int ndxNext = lstSearchPhrases.size(); ndxNext > (ndxLastNonconverged+1); --ndxNext) {
+						lstSearchPhrases.removeLast();
+					}
+					// Add new search phrases after this one starting them over
+					//	on their new word positions:
+					for (int ndxNext = ndxLastNonconverged+1; ndxNext < nPhraseCount; ++ndxNext) {
+						lstSearchPhrases.append(CMyPhraseSearch(pBibleDatabase, lstSearchPhrases.at(ndxNext-1).normalIndex() + lstSearchPhrases.at(ndxNext-1).targetLength(),
+																(bToggleCaseSensitive || bPreserveCaseSensitive),
+																(bToggleAccentSensitive || bPreserveAccentSensitive),
+																bToggleCaseSensitive, bToggleAccentSensitive));
+						lstSearchPhrases.last().nextPhraseLength();		// Set the search phrase, bump length, and perform search
+					}
+				}
+
+				ndxPrevLastNonconverged = ndxLastNonconverged;
 			}
 
 			bool bNoAccentOrCase = true;		// True if all search phrases are ignoring accent and case this cycle or aren't toggling it
