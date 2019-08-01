@@ -85,11 +85,11 @@ QString CSearchCriteria::searchWithinDescription(CBibleDatabasePtr pBibleDatabas
 	return modelSearchWithin.searchWithinDescription();
 }
 
-QString CSearchCriteria::searchScopeDescription() const
+QString CSearchCriteria::searchScopeDescription(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM ssmeScope)
 {
 	QString strScope;
 
-	switch (m_nSearchScopeMode) {
+	switch (ssmeScope) {
 		case (SSME_UNSCOPED):
 			strScope = QObject::tr("anywhere", "Scope");
 			break;
@@ -116,6 +116,11 @@ QString CSearchCriteria::searchScopeDescription() const
 	}
 
 	return strScope;
+}
+
+QString CSearchCriteria::searchScopeDescription() const
+{
+	return searchScopeDescription(m_nSearchScopeMode);
 }
 
 // ============================================================================

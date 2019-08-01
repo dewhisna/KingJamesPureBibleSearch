@@ -170,6 +170,7 @@ public:
 		return lstIndexes.join(QString(","));
 	}
 	QString searchWithinDescription(CBibleDatabasePtr pBibleDatabase) const;
+	static QString searchScopeDescription(SEARCH_SCOPE_MODE_ENUM ssmeScope);
 	QString searchScopeDescription() const;
 
 private:

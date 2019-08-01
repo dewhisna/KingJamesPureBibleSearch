@@ -279,7 +279,24 @@ public:
 
 		lstWithinPhraseTags.reserve(lstPhraseTags.size());
 		for (TPhraseTagList::const_iterator itrTags = lstPhraseTags.constBegin(); itrTags != lstPhraseTags.constEnd(); ++itrTags) {
-			if (searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, *itrTags)) lstWithinPhraseTags.append(*itrTags);
+			if (searchCriteria.phraseIsCompletelyWithin(m_pBibleDatabase, *itrTags)) {
+				bool bMeetsConstraint = true;
+				switch (searchCriteria.searchScopeMode()) {
+					case CSearchCriteria::SSME_BOOK:
+						bMeetsConstraint = m_pBibleDatabase->bookPhraseTag(itrTags->relIndex()).completelyContains(m_pBibleDatabase.data(), *itrTags);
+						break;
+					case CSearchCriteria::SSME_CHAPTER:
+						bMeetsConstraint = m_pBibleDatabase->chapterPhraseTag(itrTags->relIndex()).completelyContains(m_pBibleDatabase.data(), *itrTags);
+						break;
+					case CSearchCriteria::SSME_VERSE:
+						bMeetsConstraint = m_pBibleDatabase->versePhraseTag(itrTags->relIndex()).completelyContains(m_pBibleDatabase.data(), *itrTags);
+						break;
+					default:
+						break;
+				}
+
+				if (bMeetsConstraint) lstWithinPhraseTags.append(*itrTags);
+			}
 		}
 	}
 
@@ -410,9 +427,6 @@ int main(int argc, char *argv[])
 	bool bPreserveAccentSensitive = false;
 	bool bToggleCaseSensitive = false;
 	bool bToggleAccentSensitive = false;
-//	bool bConstrainBooks = false;
-//	bool bConstrainChapters = false;
-//	bool bConstrainVerses = false;
 	bool bInvertCriteria = false;
 	bool bOrderByModulus = false;
 	CRenderFormat fmtRender;
@@ -420,6 +434,9 @@ int main(int argc, char *argv[])
 	CSearchCriteria searchCriteria;
 	TRelativeIndexSet setSearchWithin;
 	bool bSearchWithinIsEntireBible = true;
+	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM ssmeAllPhrases = CSearchCriteria::SSME_UNSCOPED;
+
+	searchCriteria.setSearchScopeMode(CSearchCriteria::SSME_UNSCOPED);
 
 	// Default to searching Entire Bible:
 	for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
@@ -511,6 +528,30 @@ int main(int argc, char *argv[])
 
 			setSearchWithin = setInvert;
 
+		} else if (strArg.compare("-cpb") == 0) {
+			if (searchCriteria.searchScopeMode() <= CSearchCriteria::SSME_BOOK) {
+				searchCriteria.setSearchScopeMode(CSearchCriteria::SSME_BOOK);
+			}
+		} else if (strArg.compare("-cpc") == 0) {
+			if (searchCriteria.searchScopeMode() <= CSearchCriteria::SSME_CHAPTER) {
+				searchCriteria.setSearchScopeMode(CSearchCriteria::SSME_CHAPTER);
+			}
+		} else if (strArg.compare("-cpv") == 0) {
+			if (searchCriteria.searchScopeMode() <= CSearchCriteria::SSME_VERSE) {
+				searchCriteria.setSearchScopeMode(CSearchCriteria::SSME_VERSE);
+			}
+		} else if (strArg.compare("-cab") == 0) {
+			if (ssmeAllPhrases <= CSearchCriteria::SSME_BOOK) {
+				ssmeAllPhrases = CSearchCriteria::SSME_BOOK;
+			}
+		} else if (strArg.compare("-cac") == 0) {
+			if (ssmeAllPhrases <= CSearchCriteria::SSME_CHAPTER) {
+				ssmeAllPhrases = CSearchCriteria::SSME_CHAPTER;
+			}
+		} else if (strArg.compare("-cav") == 0) {
+			if (ssmeAllPhrases <= CSearchCriteria::SSME_VERSE) {
+				ssmeAllPhrases = CSearchCriteria::SSME_VERSE;
+			}
 		} else if (strArg.compare("-om") == 0) {
 			bOrderByModulus = true;
 		} else if (strArg.compare("-fn") == 0) {
@@ -552,6 +593,16 @@ int main(int argc, char *argv[])
 		std::cerr << QString("   -i =  Invert search criteria so that the default is to search\n").toUtf8().data();
 		std::cerr << QString("           none of the Bible except when -sX options are used to\n").toUtf8().data();
 		std::cerr << QString("           select a specific Book or Testament, etc.\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Constraints:\n").toUtf8().data();
+		std::cerr << QString(" -cpb =  Constrain Phrases to whole books\n").toUtf8().data();
+		std::cerr << QString(" -cpc =  Constrain Phrases to whole chapters (implies '-cpb')\n").toUtf8().data();
+		std::cerr << QString(" -cpv =  Constrain Phrases to whole verses (implies '-cpb' and '-cpc')\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString(" -cab =  Constrain All Phrases to whole books\n").toUtf8().data();
+		std::cerr << QString(" -cac =  Constrain All Phrases to whole chapters (implies '-cab')\n").toUtf8().data();
+		std::cerr << QString(" -cav =  Constrain All Phrases to whole verses (implies '-cab' and '-cac')\n").toUtf8().data();
+		std::cerr << QString("           (-cab, -cac, and -cav take precedence over -cpb, -cpc, and -cpv)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Output:\n").toUtf8().data();
 		std::cerr << QString("  -om =  Output ordered by modulus multiplicand first\n").toUtf8().data();
@@ -619,6 +670,11 @@ int main(int argc, char *argv[])
 	}
 	if (bPreserveHyphenSensitive) {
 		std::cerr << QString("while preserving hyphenated words\n").toUtf8().data();
+	}
+
+	std::cerr << QString("Scoping All Phrases Combined to be %1\n").arg(CSearchCriteria::searchScopeDescription(ssmeAllPhrases)).toUtf8().data();
+	if (searchCriteria.searchScopeMode() >= ssmeAllPhrases) {
+		std::cerr << QString("Scoping Individual Phrases to be %1\n").arg(searchCriteria.searchScopeDescription()).toUtf8().data();
 	}
 
 	// ------------------------------------------------------------------------
@@ -785,14 +841,39 @@ int main(int argc, char *argv[])
 			//	search results.  We should now sum-up the results and see if it's
 			//	an even modulus of our modulus-value.  If so, we should add the
 			//	results to the output:
-			unsigned int nTotalMatches = 0;
+			TPhraseTag tagAllPhrases(ndxPhrase);
 			for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
-				lstSearchPhrases[ndx].buildWithinResultsInParsedPhrase(searchCriteria, bSearchWithinIsEntireBible);
-				nTotalMatches += lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin();
+				tagAllPhrases.setCount(tagAllPhrases.count() + lstSearchPhrases.at(ndx).targetLength());
+			}
 
-				if (lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin() > MIN_SEARCH_WITHIN_CACHE_LIMIT) {
-					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-					g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
+			bool bMeetsConstraint = true;
+			switch (ssmeAllPhrases) {
+				case CSearchCriteria::SSME_BOOK:
+					bMeetsConstraint = pBibleDatabase->bookPhraseTag(tagAllPhrases.relIndex()).completelyContains(pBibleDatabase.data(), tagAllPhrases);
+					break;
+				case CSearchCriteria::SSME_CHAPTER:
+					bMeetsConstraint = pBibleDatabase->chapterPhraseTag(tagAllPhrases.relIndex()).completelyContains(pBibleDatabase.data(), tagAllPhrases);
+					break;
+				case CSearchCriteria::SSME_VERSE:
+					bMeetsConstraint = pBibleDatabase->versePhraseTag(tagAllPhrases.relIndex()).completelyContains(pBibleDatabase.data(), tagAllPhrases);
+					break;
+				default:
+					break;
+			}
+			// Note: If it doesn't fit the search constraint, increasing the phrase size
+			//	won't help it fit any better, so we'll leave the nTotalMatches == 0 and
+			//	let it "converge" to fall out early...
+
+			unsigned int nTotalMatches = 0;
+			if (bMeetsConstraint) {
+				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+					lstSearchPhrases[ndx].buildWithinResultsInParsedPhrase(searchCriteria, bSearchWithinIsEntireBible);
+					nTotalMatches += lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin();
+
+					if (lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin() > MIN_SEARCH_WITHIN_CACHE_LIMIT) {
+						CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+						g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
+					}
 				}
 			}
 			if (bNoAccentOrCase && (nTotalMatches < static_cast<unsigned int>(nModulus))) {
