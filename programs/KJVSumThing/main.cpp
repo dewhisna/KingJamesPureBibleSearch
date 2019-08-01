@@ -419,6 +419,7 @@ int main(int argc, char *argv[])
 	int nBibleDescriptor = -1;
 	int nPhraseCount = 1;
 	int nModulus = 2;
+	int nModulusMultiplier = 0;		// 0=no multiplier check
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
 	bool bUnknownOption = false;
@@ -552,6 +553,12 @@ int main(int argc, char *argv[])
 			if (ssmeAllPhrases <= CSearchCriteria::SSME_VERSE) {
 				ssmeAllPhrases = CSearchCriteria::SSME_VERSE;
 			}
+		} else if (strArg.startsWith("-x")) {
+			nModulusMultiplier = strArg.mid(2).toInt();
+			if (nModulusMultiplier < 0) {
+				nModulusMultiplier = 0;
+				bUnknownOption = true;
+			}
 		} else if (strArg.compare("-om") == 0) {
 			bOrderByModulus = true;
 		} else if (strArg.compare("-fn") == 0) {
@@ -581,6 +588,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -tc =  Toggle Phrase Case-Sensitivity when comparing (default=false, overrides -pc)\n").toUtf8().data();
 		std::cerr << QString("  -ta =  Toggle Phrase Accent-Sensitivity when comparing (default=false, overrides -pa)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("  -xN =  Only return results where the modulus multiplier is 'N' (where N >= 1)\n").toUtf8().data();
+		std::cerr << QString("           for example '-x1' only returns results that occur exactly Modulus-Value times\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Search Criteria:\n").toUtf8().data();
 		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
@@ -658,6 +668,9 @@ int main(int argc, char *argv[])
 	std::cerr << "\n";
 	std::cerr << QString("Searching within %1\n").arg(searchCriteria.searchWithinDescription(pBibleDatabase)).toUtf8().data();
 	std::cerr << QString("for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
+	if (nModulusMultiplier > 0) {
+		std::cerr << QString("and occur exactly [%1 * %2] times\n").arg(nModulusMultiplier).arg(nModulus).toUtf8().data();
+	}
 	if (bToggleCaseSensitive) {
 		std::cerr << QString("while toggling case-sensitivity\n").toUtf8().data();
 	} else if (bPreserveCaseSensitive) {
@@ -869,7 +882,8 @@ int main(int argc, char *argv[])
 				//	fit any better, so fall out early...
 				bSearchConverged = true;
 			}
-			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
+			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0) &&
+				((nModulusMultiplier == 0) || (static_cast<int>(nTotalMatches / nModulus) == nModulusMultiplier))) {
 				if (bNeedNewline && bVerbose) {
 					std::cerr << "\n";
 					bNeedNewline = false;
