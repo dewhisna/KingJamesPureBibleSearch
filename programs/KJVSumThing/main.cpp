@@ -816,15 +816,6 @@ int main(int argc, char *argv[])
 				ndxPrevLastNonconverged = ndxLastNonconverged;
 			}
 
-			bool bNoAccentOrCase = true;		// True if all search phrases are ignoring accent and case this cycle or aren't toggling it
-			if (bToggleAccentSensitive || bToggleCaseSensitive) {
-				for (int ndx = 0; (bNoAccentOrCase && (ndx < lstSearchPhrases.size())); ++ndx) {
-					if ((lstSearchPhrases.at(ndx).isAccentSensitive() && bToggleAccentSensitive) ||
-						(lstSearchPhrases.at(ndx).isCaseSensitive() && bToggleCaseSensitive))
-						bNoAccentOrCase = false;
-				}
-			}
-
 #if DEBUG_MODE
 			{
 				if (bNeedNewline) std::cerr << "\n";
@@ -860,9 +851,6 @@ int main(int argc, char *argv[])
 				default:
 					break;
 			}
-			// Note: If it doesn't fit the search constraint, increasing the phrase size
-			//	won't help it fit any better, so we'll leave the nTotalMatches == 0 and
-			//	let it "converge" to fall out early...
 
 			unsigned int nTotalMatches = 0;
 			if (bMeetsConstraint) {
@@ -875,12 +863,13 @@ int main(int argc, char *argv[])
 						g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
 					}
 				}
-			}
-			if (bNoAccentOrCase && (nTotalMatches < static_cast<unsigned int>(nModulus))) {
-				// If the maximum search (i.e. no accent/case) yields a result
-				//	less than the modulus, this search pass has converged:
+			} else {
+				// Note: If it doesn't fit the search constraint (i.e. fit inside the
+				//	verse or chapter or book, increasing the phrase size won't help it
+				//	fit any better, so fall out early...
 				bSearchConverged = true;
-			} else if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
+			}
+			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0)) {
 				if (bNeedNewline && bVerbose) {
 					std::cerr << "\n";
 					bNeedNewline = false;
