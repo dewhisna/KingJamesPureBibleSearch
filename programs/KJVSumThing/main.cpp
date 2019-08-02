@@ -27,6 +27,7 @@
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/SearchCompleter.h"
+#include "../KJVCanOpener/PassageReferenceWidget.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/KJVSearchCriteria.h"
@@ -50,6 +51,7 @@
 #include <iostream>
 #include <set>
 #include <algorithm>
+#include <utility>
 #include <vector>
 
 #define NUM_BK 80u				// Total Books Defined
@@ -432,6 +434,11 @@ int main(int argc, char *argv[])
 	bool bOrderByModulus = false;
 	CRenderFormat fmtRender;
 	bool bVerbose = false;
+	QString strStartReference;
+	QString strEndReference;
+	bool bDecEndRef = false;
+	TPhraseTag tagStartReference;
+	TPhraseTag tagEndReference;
 	CSearchCriteria searchCriteria;
 	TRelativeIndexSet setSearchWithin;
 	bool bSearchWithinIsEntireBible = true;
@@ -464,6 +471,10 @@ int main(int argc, char *argv[])
 					std::cerr << QString("*** Limiting Modulus to a minimum of 2\n").toUtf8().data();
 					nModulus = 2;
 				}
+			} else if (nArgsFound == 4) {
+				strStartReference = strArg;
+			} else if (nArgsFound == 5) {
+				strEndReference = strArg;
 			} else {
 				bUnknownOption = true;
 			}
@@ -559,6 +570,8 @@ int main(int argc, char *argv[])
 				nModulusMultiplier = 0;
 				bUnknownOption = true;
 			}
+		} else if (strArg.compare("-end") == 0) {
+			bDecEndRef = true;
 		} else if (strArg.compare("-om") == 0) {
 			bOrderByModulus = true;
 		} else if (strArg.compare("-fn") == 0) {
@@ -573,9 +586,9 @@ int main(int argc, char *argv[])
 	if (bToggleCaseSensitive) bPreserveCaseSensitive = false;
 	if (bToggleAccentSensitive) bPreserveAccentSensitive = false;
 
-	if ((nArgsFound != 3) || (bUnknownOption)) {
+	if ((nArgsFound < 3) || (nArgsFound > 5) || (bUnknownOption)) {
 		std::cerr << QString("KJVSumThing Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <Bible-UUID-Index> <Phrase-Count> <Modulus-Value>\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <Bible-UUID-Index> <Phrase-Count> <Modulus-Value> [<Start-Ref> [<End-Ref>]]\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Reads the specified Bible Database and Searches for n-consecutive\n").toUtf8().data();
 		std::cerr << QString("    phrases of varying length whose combined occurrence-count is\n").toUtf8().data();
@@ -591,6 +604,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -xN =  Only return results where the modulus multiplier is 'N' (where N >= 1)\n").toUtf8().data();
 		std::cerr << QString("           for example '-x1' only returns results that occur exactly Modulus-Value times\n").toUtf8().data();
+		std::cerr << QString(" -end =  Subtract one word count from the specified <End-Ref>\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Search Criteria:\n").toUtf8().data();
 		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
@@ -626,7 +640,14 @@ int main(int argc, char *argv[])
 		}
 		std::cerr << "\n";
 		std::cerr << QString("Phrase-Count : Number of consecutive phrases searched (>=1)\n").toUtf8().data();
-		std::cerr << QString("Modulus : Occurrence Count Modulus to find (>=2)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Modulus-Value : Occurrence Count Modulus to find (>=2)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Start-Ref : Starting Passage Reference to begin scan (Optional)\n").toUtf8().data();
+		std::cerr << QString("              (Ex: \"Ps 1:1 [1]\")\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("End-Ref : Ending Passage Reference to end scan (Optional)\n").toUtf8().data();
+		std::cerr << QString("              (Ex: \"Psalm 119\")\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		return -1;
 	}
@@ -665,8 +686,39 @@ int main(int argc, char *argv[])
 	searchCriteria.setSearchWithin(setSearchWithin);
 	bSearchWithinIsEntireBible = searchCriteria.withinIsEntireBible(pBibleDatabase, false);
 
+	CPassageReferenceResolver refResolver(pBibleDatabase);
+	tagStartReference = refResolver.resolve(strStartReference);
+	tagEndReference = refResolver.resolve(strEndReference);
+
+	if (!strStartReference.isEmpty() && !tagStartReference.isSet()) {
+		std::cerr << QString("\n*** ERROR: Unrecognized Start Reference specified: \"%1\"\n").arg(strStartReference).toUtf8().data();
+		return -4;
+	} else if (strStartReference.isEmpty()) {
+		tagStartReference.setRelIndex(pBibleDatabase->DenormalizeIndex(1));
+	}
+
+	if (!strEndReference.isEmpty() && !tagEndReference.isSet()) {
+		std::cerr << QString("\n*** ERROR: Unrecognized End Reference specified: \"%1\"\n").arg(strEndReference).toUtf8().data();
+		return -4;
+	} else if (strEndReference.isEmpty()) {
+		tagEndReference.setRelIndex(pBibleDatabase->DenormalizeIndex(pBibleDatabase->bibleEntry().m_nNumWrd));
+	} else if (bDecEndRef) {
+		tagEndReference.setRelIndex(pBibleDatabase->DenormalizeIndex(
+										pBibleDatabase->NormalizeIndex(tagEndReference.relIndex()) - 1));
+		if (!tagEndReference.isSet()) {
+			// Wrap the decrement:
+			tagEndReference.setRelIndex(pBibleDatabase->DenormalizeIndex(pBibleDatabase->bibleEntry().m_nNumWrd));
+		}
+	}
+
+	if (tagEndReference.relIndex() < tagStartReference.relIndex()) {
+		std::swap(tagStartReference, tagEndReference);
+	}
+
 	std::cerr << "\n";
 	std::cerr << QString("Searching within %1\n").arg(searchCriteria.searchWithinDescription(pBibleDatabase)).toUtf8().data();
+	std::cerr << QString("Scanning %1 through %2\n").arg(pBibleDatabase->PassageReferenceText(tagStartReference.relIndex(), false))
+													.arg(pBibleDatabase->PassageReferenceText(tagEndReference.relIndex(), false)).toUtf8().data();
 	std::cerr << QString("for %1 Consecutive-Phrase(s) which have an Occurrence-Modulus of %2\n").arg(nPhraseCount).arg(nModulus).toUtf8().data();
 	if (nModulusMultiplier > 0) {
 		std::cerr << QString("and occur exactly [%1 * %2] times\n").arg(nModulusMultiplier).arg(nModulus).toUtf8().data();
@@ -707,10 +759,11 @@ int main(int argc, char *argv[])
 	QList<CPhraseList> lstOverallResults;
 	bool bNeedNewline = false;			// For output beautification
 
-	uint32_t nNormalIndex = 1;
+	uint32_t nNormalIndex = pBibleDatabase->NormalizeIndex(tagStartReference.relIndex());
+	uint32_t nEndIndex = pBibleDatabase->NormalizeIndex(tagEndReference.relIndex());
 	uint32_t nBk = 0;
 	uint32_t nChp = 0;
-	while (nNormalIndex <= pBibleDatabase->bibleEntry().m_nNumWrd) {
+	while (nNormalIndex <= nEndIndex) {
 		CRelIndex ndxPhrase(pBibleDatabase->DenormalizeIndex(nNormalIndex));
 		if (!searchCriteria.indexIsWithin(CRelIndex(ndxPhrase.book(), 0, 0, 0))) {
 			// Skip entire books we aren't searching:

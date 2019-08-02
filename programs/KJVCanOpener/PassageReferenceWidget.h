@@ -26,10 +26,14 @@
 
 #include "dbstruct.h"
 
-#include <QWidget>
 #include <QList>
 #include <QString>
+#include <QObject>
+
+#ifdef QT_WIDGETS_LIB
+#include <QWidget>
 #include <QPointer>
+#endif
 
 // ============================================================================
 
@@ -53,6 +57,8 @@ private:
 };
 
 // ============================================================================
+
+#ifdef QT_WIDGETS_LIB
 
 // Forward declarations:
 class QMenu;
@@ -114,6 +120,8 @@ private:
 	QAction *m_pActionSelectAll;
 	Ui::CPassageReferenceWidget ui;
 };
+
+#endif	// QT_WIDGETS_LIB
 
 // ============================================================================
 

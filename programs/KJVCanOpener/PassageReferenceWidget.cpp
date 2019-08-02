@@ -26,10 +26,13 @@
 #include "SearchCompleter.h"
 
 #include <QRegExp>
-#include <QColor>
 #include <QStringList>
+
+#ifdef QT_WIDGETS_LIB
+#include <QColor>
 #include <QKeyEvent>
 #include <QMenu>
+#endif
 
 #include <assert.h>
 
@@ -37,6 +40,8 @@
 #define PASSAGE_SOUNDEX_MODE CSoundExSearchCompleterFilter::SEOME_ENHANCED
 
 // ============================================================================
+
+#ifdef QT_WIDGETS_LIB
 
 CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
 	:	QWidget(parent),
@@ -187,6 +192,8 @@ void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 
 	emit passageReferenceChanged(m_tagPhrase);
 }
+
+#endif	// QT_WIDGETS_LIB
 
 // ============================================================================
 // ============================================================================

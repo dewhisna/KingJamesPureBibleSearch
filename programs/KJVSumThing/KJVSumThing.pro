@@ -50,6 +50,7 @@ SOURCES += main.cpp \
 	../KJVCanOpener/KJVSearchCriteria.cpp \
 	../KJVCanOpener/ModelRowForwardIterator.cpp \
 	../KJVCanOpener/ParseSymbols.cpp \
+	../KJVCanOpener/PassageReferenceWidget.cpp \
 	../KJVCanOpener/PersistentSettings.cpp \
 	../KJVCanOpener/PhraseEdit.cpp \
 	../KJVCanOpener/PhraseListModel.cpp \
@@ -69,6 +70,7 @@ HEADERS += \
 	../KJVCanOpener/KJVSearchCriteria.h \
 	../KJVCanOpener/ModelRowForwardIterator.h \
 	../KJVCanOpener/ParseSymbols.h \
+	../KJVCanOpener/PassageReferenceWidget.h \
 	../KJVCanOpener/PersistentSettings.h \
 	../KJVCanOpener/PhraseEdit.h \
 	../KJVCanOpener/PhraseListModel.h \
