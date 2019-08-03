@@ -632,6 +632,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("           (-cab, -cac, and -cav take precedence over -cpb, -cpc, and -cpv)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -ev =  Only outputs results where all phrases fill at least an entire verse\n").toUtf8().data();
+		std::cerr << QString("           starting at the beginning of the verse\n").toUtf8().data();
 		std::cerr << QString("           (Use with -cav to only output results that are exactly one verse)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Output:\n").toUtf8().data();
@@ -784,6 +785,11 @@ int main(int argc, char *argv[])
 				//	so we don't loop ad infinitum
 				nNormalIndex = pBibleDatabase->bibleEntry().m_nNumWrd + 1;
 			}
+			continue;
+		} else if (bFillEntireVerses && (ndxPhrase.word() > 1)) {
+			// To fill an entire verse (or more), it has to at least start at
+			//	the first word of the verse
+			++nNormalIndex;
 			continue;
 		}
 		if (nBk != ndxPhrase.book()) {
