@@ -919,24 +919,30 @@ int main(int argc, char *argv[])
 			}
 
 			unsigned int nTotalMatches = 0;
-			if (bMeetsConstraint) {
-				for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
-					lstSearchPhrases[ndx].buildWithinResultsInParsedPhrase(searchCriteria, bSearchWithinIsEntireBible);
-					nTotalMatches += lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin();
+			for (int ndx = 0; ndx < lstSearchPhrases.size(); ++ndx) {
+				lstSearchPhrases[ndx].buildWithinResultsInParsedPhrase(searchCriteria, bSearchWithinIsEntireBible);
+				nTotalMatches += lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin();
 
-					if (lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin() > MIN_SEARCH_WITHIN_CACHE_LIMIT) {
-						CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
-						g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
-					}
+				if (lstSearchPhrases.at(ndx).GetNumberOfMatchesWithin() > MIN_SEARCH_WITHIN_CACHE_LIMIT) {
+					CPhraseEntry phraseEntry(lstSearchPhrases.at(ndx));
+					g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
 				}
 			}
+
 			// Note: Even if it doesn't fit the search constraint (i.e. fit inside
 			//	the verse or chapter or book) and while increasing the phrase size
 			//	won't help it fit any better, we can't drop out completely here
 			//	because diddling the other phrases may make a match, so DON'T
-			//	set bSearchConverged = true when !bMeetsConstraint
+			//	set bSearchConverged = true when !bMeetsConstraint.  ALSO, we must
+			//	continue to call buildWithinResultsInParsedPhrase() above for
+			//	all phrases when !bMeetsConstraint or else the results will not
+			//	converge.  And if we just clear them for the last one that hasn't
+			//	converged so that it thinks it converged, then the cache will be
+			//	wrong, which will cause errors elsewhere and if we clear the cache,
+			//	it only increases the run time.  So just don't log the result if
+			//	!bMeetsConstraint
 
-			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0) &&
+			if (bMeetsConstraint && (nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0) &&
 				((nModulusMultiplier == 0) || (static_cast<int>(nTotalMatches / nModulus) == nModulusMultiplier))) {
 				if (bNeedNewline && bVerbose) {
 					std::cerr << "\n";
