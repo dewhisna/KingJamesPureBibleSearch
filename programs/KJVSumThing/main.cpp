@@ -929,12 +929,13 @@ int main(int argc, char *argv[])
 						g_hashSearchPhraseCache[phraseEntry] = lstSearchPhrases.at(ndx);
 					}
 				}
-			} else {
-				// Note: If it doesn't fit the search constraint (i.e. fit inside the
-				//	verse or chapter or book, increasing the phrase size won't help it
-				//	fit any better, so fall out early...
-				bSearchConverged = true;
 			}
+			// Note: Even if it doesn't fit the search constraint (i.e. fit inside
+			//	the verse or chapter or book) and while increasing the phrase size
+			//	won't help it fit any better, we can't drop out completely here
+			//	because diddling the other phrases may make a match, so DON'T
+			//	set bSearchConverged = true when !bMeetsConstraint
+
 			if ((nTotalMatches != 0) && ((nTotalMatches % nModulus) == 0) &&
 				((nModulusMultiplier == 0) || (static_cast<int>(nTotalMatches / nModulus) == nModulusMultiplier))) {
 				if (bNeedNewline && bVerbose) {
