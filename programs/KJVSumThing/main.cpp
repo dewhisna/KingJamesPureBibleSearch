@@ -439,6 +439,7 @@ int main(int argc, char *argv[])
 	bool bDecEndRef = false;
 	TPhraseTag tagStartReference;
 	TPhraseTag tagEndReference;
+	bool bFillEntireVerses = false;
 	CSearchCriteria searchCriteria;
 	TRelativeIndexSet setSearchWithin;
 	bool bSearchWithinIsEntireBible = true;
@@ -564,6 +565,8 @@ int main(int argc, char *argv[])
 			if (ssmeAllPhrases <= CSearchCriteria::SSME_VERSE) {
 				ssmeAllPhrases = CSearchCriteria::SSME_VERSE;
 			}
+		} else if (strArg.compare("-ev") == 0) {
+			bFillEntireVerses = true;
 		} else if (strArg.startsWith("-x")) {
 			nModulusMultiplier = strArg.mid(2).toInt();
 			if (nModulusMultiplier < 0) {
@@ -627,6 +630,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString(" -cac =  Constrain All Phrases to whole chapters (implies '-cab')\n").toUtf8().data();
 		std::cerr << QString(" -cav =  Constrain All Phrases to whole verses (implies '-cab' and '-cac')\n").toUtf8().data();
 		std::cerr << QString("           (-cab, -cac, and -cav take precedence over -cpb, -cpc, and -cpv)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("  -ev =  Only outputs results where all phrases fill at least an entire verse\n").toUtf8().data();
+		std::cerr << QString("           (Use with -cav to only output results that are exactly one verse)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Output:\n").toUtf8().data();
 		std::cerr << QString("  -om =  Output ordered by modulus multiplicand first\n").toUtf8().data();
@@ -740,6 +746,9 @@ int main(int argc, char *argv[])
 	std::cerr << QString("Scoping All Phrases Combined to be %1\n").arg(CSearchCriteria::searchScopeDescription(ssmeAllPhrases)).toUtf8().data();
 	if (searchCriteria.searchScopeMode() >= ssmeAllPhrases) {
 		std::cerr << QString("Scoping Individual Phrases to be %1\n").arg(searchCriteria.searchScopeDescription()).toUtf8().data();
+	}
+	if (bFillEntireVerses) {
+		std::cerr << QString("And that fill at least an entire verse\n").toUtf8().data();
 	}
 
 	// ------------------------------------------------------------------------
@@ -916,6 +925,10 @@ int main(int argc, char *argv[])
 					break;
 				default:
 					break;
+			}
+			if (bFillEntireVerses) {
+				if (!tagAllPhrases.completelyContains(pBibleDatabase.data(), pBibleDatabase->versePhraseTag(tagAllPhrases.relIndex())))
+					bMeetsConstraint = false;
 			}
 
 			unsigned int nTotalMatches = 0;
