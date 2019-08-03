@@ -786,12 +786,9 @@ int main(int argc, char *argv[])
 				nNormalIndex = pBibleDatabase->bibleEntry().m_nNumWrd + 1;
 			}
 			continue;
-		} else if (bFillEntireVerses && (ndxPhrase.word() > 1)) {
-			// To fill an entire verse (or more), it has to at least start at
-			//	the first word of the verse
-			++nNormalIndex;
-			continue;
 		}
+
+		// Display progress:
 		if (nBk != ndxPhrase.book()) {
 			nBk = ndxPhrase.book();
 			nChp = 0;
@@ -801,6 +798,13 @@ int main(int argc, char *argv[])
 			nChp = ndxPhrase.chapter();
 			std::cerr << ".";
 			bNeedNewline = true;
+		}
+
+		if (bFillEntireVerses && (ndxPhrase.word() > 1)) {
+			// To fill an entire verse (or more), it has to at least start at
+			//	the first word of the verse
+			++nNormalIndex;
+			continue;
 		}
 
 		CMyPhraseSearchList lstSearchPhrases;
