@@ -2101,6 +2101,14 @@ sudo apt-get install libjpeg-dev
 sudo apt-get install zlib1g zlib1g-dev
 sudo apt-get install libssl-dev			## See below for 18.04 Bionic!
 sudo apt-get install libssl1.0-dev		## <<<<<<<<< Qt 4.8.7 (and maybe 5.5.0) needs OpenSSL 1.0.x API/ABI NOT the newer 1.1.x on 18.04 Bionic!!
+### <<<<<<<<<<<<<<<<  BUT: libmysqlclient-dev needed for MediaDrop requires the newer libssl-dev package!
+### <<<<<<<<<<<<<<<<	The workaround is to first install libssl1.0-dev, build Qt 4.8.7 for VNC (and other
+### <<<<<<<<<<<<<<<<	necessary Qt packages), then switch from libssl1.0-dev to libssl-dev and install
+### <<<<<<<<<<<<<<<<	MySQL and MediaDrop.  And similarly ffmpeg needs libssl1.0-dev (not sure if it works
+### <<<<<<<<<<<<<<<<	with newer or not.  This works, because once it's compiled, we can still have both
+### <<<<<<<<<<<<<<<<	libssl1.0.0 and libssl1.1 binary packages installed simultaneously.  The swap of the
+### <<<<<<<<<<<<<<<<	dev package is only needed for compiling purposes.
+### <<<<<<<<<<<<<<<<	Note: for older Qts, there should be a patch from KDE to allow it to build/work with libssl1.1
 sudo apt-get install pkg-config
 sudo apt-get install patch patchutils
 sudo apt-get install p7zip p7zip-full
