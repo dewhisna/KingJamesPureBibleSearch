@@ -484,27 +484,20 @@ int main(int argc, char *argv[])
 #error "Can't use WebChannel with Emscripten!"
 #endif
 
-#ifndef Q_OS_WASM
 	if (pSplash != NULL) {
-		nRetVal = pApp->exec();
-		QTimer::singleShot(2000, pApp, SLOT(executeEvent()));
-	} else {
-		nRetVal = pApp->execute(bBuildDB);
-		if (nRetVal == 0) pApp->exec();
-	}
-#else
-	// Unlike the old Emscripten-Qt mechanism where pApp->exec()
-	//	returned immediately, WebAssembly Emscripten runs its
-	//	message loop.  So, for WebAssembly, we have to fire our
-	//	timer event first and then enter the loop:
-	if (pSplash != NULL) {
+		// Note: The order of the following two are important
+		//	on WebAssembly because pApp->exec() is blocking
+		//	there and the splash screen will display but the
+		//	app will never launch.  The old Emscripten-Qt,
+		//	however, returns immediately and worked OK with
+		//	the order reversed.  But, if we trigger the timer
+		//	first, this should work correctly for both targets:
 		QTimer::singleShot(2000, pApp, SLOT(executeEvent()));
 		nRetVal = pApp->exec();
 	} else {
 		nRetVal = pApp->execute(bBuildDB);
 		if (nRetVal == 0) pApp->exec();
 	}
-#endif
 
 #ifdef EMSCRIPTEN_NATIVE
 	while (true) {
