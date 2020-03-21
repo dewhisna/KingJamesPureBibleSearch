@@ -37,7 +37,7 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 										   QMessageBox::StandardButtons nButtons,
 										   QMessageBox::StandardButton nDefaultButton)
 {
-#if defined(EMSCRIPTEN)
+#if defined(EMSCRIPTEN) && !defined(Q_OS_WASM)
 	qDebug("warning: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
@@ -74,7 +74,7 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 												QMessageBox::StandardButtons nButtons,
 												QMessageBox::StandardButton nDefaultButton)
 {
-#if defined(EMSCRIPTEN)
+#if defined(EMSCRIPTEN) && !defined(Q_OS_WASM)
 	qDebug("information: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
 	Q_UNUSED(pParent);
 	Q_UNUSED(nButtons);
