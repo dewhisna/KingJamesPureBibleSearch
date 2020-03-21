@@ -524,6 +524,7 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		translationDeploy.files += $$TRANSLATIONS_WWWIDGETS4_QM
 	}
 	# Note: Disabling on Windows due to command-line too long with nmake/msbuild (grrr)
+	# Note: This also disables building translations on WebAssembly since there's no lrelease
 	!win32:if (exists($$[QT_INSTALL_BINS]/lrelease) | exists($$[QT_INSTALL_BINS]/lrelease.exe)) {
 		translation_build.output = $$translationDeploy.files
 		translation_build.target = $$translationDeploy.files
@@ -965,8 +966,14 @@ emscripten:wasm {
 		WASMFILES += $$translationDeploy.files
 	}
 
-	wasmDeploy.files = $$WASMFILES
-	wasmDeploy.path = ./data
+	wasmDeploy.files = \
+		$${OUT_PWD}/KingJamesPureBibleSearch.data \
+		$${OUT_PWD}/KingJamesPureBibleSearch.html \
+		$${OUT_PWD}/KingJamesPureBibleSearch.js \
+		$${OUT_PWD}/KingJamesPureBibleSearch.wasm \
+		$${OUT_PWD}/qtloader.js \
+		$${OUT_PWD}/qtlogo.svg
+	wasmDeploy.path = ./build-WebAssembly
 
 	INSTALLS += wasmDeploy
 
