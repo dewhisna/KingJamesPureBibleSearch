@@ -3093,7 +3093,7 @@ $ tar -Jxvf ~/Downloads/software/Qt/5.14.1/qt-everywhere-src-5.14.1.tar.xz
 $ mv qt-everywhere-src-5.14.1/ 5.14.1-wasm
 $ cd 5.14.1-wasm/
 $ ./configure -xplatform wasm-emscripten -nomake examples -prefix $PWD/qtbase -opensource -confirm-license
-$ make -j8 module-qtbase module-qtdeclarative
+$ make -j8 module-qtbase module-qtdeclarative module-qttranslations
 
 
 Build qtstyleplugin:
@@ -3105,6 +3105,17 @@ $ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ../qtstyleplugins/qtstyleplugins.pro CONFIG+
 $ make
 $ make install
 
+
+Build wwWidgets:
+----------------
+$ cd ~/Qt
+$ mkdir build-wwwidgets4-Qt_5_14_1_wasm
+$ cd build-wwwidgets4-Qt_5_14_1_wasm/
+$ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro CONFIG+=emscripten CONFIG+=release CONFIG+=static
+$ make
+$ make install
+$ mkdir ~/Qt/5.14.1-wasm/qtbase/translations
+$ cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm ~/Qt/5.14.1-wasm/qtbase/translations/
 
 Build KJPBS:
 ------------

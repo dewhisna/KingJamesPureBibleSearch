@@ -44,7 +44,7 @@ console:DEFINES += IS_CONSOLE_APP
 unix:!emscripten:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG *= webchannel
 webchannel:include(../qwebchannel/qwebchannel.pri)
 
-!emscripten {
+if(!emscripten|wasm) {
 	CONFIG += wwwidgets
 }
 
@@ -191,9 +191,8 @@ DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/
 #DEFINES += ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 
 # Enable Loading of our Application Fonts (Note: old Emscripten-Qt uses auto-loading of .qpf fonts from deployed qt-fonts folder):
-!emscripten:!console:DEFINES *= LOAD_APPLICATION_FONTS
 # But, WebAssembly Emscripten Qt does it directly from resources:
-emscripten:wasm:DEFINES *= LOAD_APPLICATION_FONTS
+if(!emscripten|wasm):!console:DEFINES *= LOAD_APPLICATION_FONTS
 
 # Enable Asynchronous Dialogs
 #if(emscripten | macx):DEFINES += USE_ASYNC_DIALOGS
@@ -372,7 +371,7 @@ SOURCES += \
 buildKJVDatabase:SOURCES += \
 	BuildDB.cpp
 
-!emscripten:SOURCES += \
+if(!emscripten|wasm):SOURCES += \
 	BibleDatabaseInfoDlg.cpp \
 	DictDatabaseInfoDlg.cpp \
 	DictionaryWidget.cpp \
@@ -437,7 +436,7 @@ HEADERS += \
 buildKJVDatabase:HEADERS += \
 	BuildDB.h
 
-!emscripten:HEADERS += \
+if(!emscripten|wasm):HEADERS += \
 	BibleDatabaseInfoDlg.h \
 	DictDatabaseInfoDlg.h \
 	DictionaryWidget.h \
@@ -464,7 +463,7 @@ FORMS += \
 	NoteKeywordWidget.ui \
 	PassageReferenceWidget.ui
 
-!emscripten:FORMS += \
+if(!emscripten|wasm):FORMS += \
 	BibleDatabaseInfoDlg.ui \
 	ConfigBrowserOptions.ui \
 	ConfigCopyOptions.ui \
@@ -520,11 +519,10 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		for(f, TRANSLATIONS_QT):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
 		for(f, TRANSLATIONS_QT):translation_source.files += $$quote($${PWD}/$$f)
 	}
-	!emscripten:!isEmpty(TRANSLATIONS_WWWIDGETS4_QM) {
+	if(!emscripten|wasm):!isEmpty(TRANSLATIONS_WWWIDGETS4_QM) {
 		translationDeploy.files += $$TRANSLATIONS_WWWIDGETS4_QM
 	}
 	# Note: Disabling on Windows due to command-line too long with nmake/msbuild (grrr)
-	# Note: This also disables building translations on WebAssembly since there's no lrelease
 	!win32:if (exists($$[QT_INSTALL_BINS]/lrelease) | exists($$[QT_INSTALL_BINS]/lrelease.exe)) {
 		translation_build.output = $$translationDeploy.files
 		translation_build.target = $$translationDeploy.files
@@ -955,12 +953,22 @@ emscripten:wasm {
 
 	QMAKE_LFLAGS += --emrun \
 					--preload-file data/bbl-kjv1769.ccdb \
-					--preload-file data/dct-web1828.s3db
+					--preload-file data/kjpbs.en.qm \
+					--preload-file data/kjpbs.fr.qm \
+					--preload-file data/kjpbs.es.qm \
+					--preload-file data/kjpbs.de.qm \
+					--preload-file data/kjpbs.ru.qm \
+					--preload-file data/qtbase_fr.qm \
+					--preload-file data/qtbase_es.qm \
+					--preload-file data/qtbase_de.qm \
+					--preload-file data/qtbase_ru.qm \
+					--preload-file data/wwwidgets_en.qm \
+					--preload-file data/wwwidgets_fr.qm \
+					--preload-file data/wwwidgets_es.qm \
+					--preload-file data/wwwidgets_de.qm
 
 	WASMFILES += \
-		$${PWD}/db/bbl-kjv1769.ccdb \
-		$${PWD}/db/dct-web1828.s3db \
-		$${PWD}/db/dct-web1913.s3db
+		$${PWD}/db/bbl-kjv1769.ccdb
 
 	!isEmpty(TRANSLATIONS) {
 		WASMFILES += $$translationDeploy.files
@@ -991,6 +999,7 @@ emscripten:wasm {
 	wasm_build.commands = $$QMAKE_MKDIR data; $$QMAKE_COPY_DIR ${QMAKE_FILE_IN} data/
 	wasm_build.name = COPY ${QMAKE_FILE_IN}
 	wasm_build.CONFIG = no_link target_predeps
+	!isEmpty(TRANSLATIONS):wasm_build.depends = $$translationDeploy.files
 	QMAKE_EXTRA_COMPILERS += wasm_build
 
 	# Add target for 'clean' so we can also clean the recursed 'data' folders:

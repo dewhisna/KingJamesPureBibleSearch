@@ -187,9 +187,11 @@ namespace {
 
 	#ifdef EMSCRIPTEN_NATIVE
 		const char *g_constrBibleDatabasePath = "./data/";
+		const char *g_constrDictionaryDatabasePath = "./data/";
 		const char *g_constrTranslationsPath = "./data/";
 	#else
 		const char *g_constrBibleDatabasePath = "data/";
+		const char *g_constrDictionaryDatabasePath = "data/";
 		const char *g_constrTranslationsPath = "data/";
 	#endif
 #elif defined(VNCSERVER)
@@ -1599,6 +1601,7 @@ int CMyApplication::execute(bool bBuildDB)
 	g_strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
 #else
 	g_strBibleDatabasePath = g_constrBibleDatabasePath;
+	g_strDictionaryDatabasePath = g_constrDictionaryDatabasePath;
 #endif
 
 	// Read (and/or Build) our Databases:
@@ -1653,7 +1656,7 @@ int CMyApplication::execute(bool bBuildDB)
 			return -3;
 		}
 
-#ifndef EMSCRIPTEN
+#if !defined(EMSCRIPTEN)
 		// Read Dictionary Database:
 		QList<DICTIONARY_DESCRIPTOR_ENUM> lstAvailableDDEs = TDictionaryDatabaseList::instance()->availableDictionaryDatabases();
 		for (int ndx = 0; ndx < lstAvailableDDEs.size(); ++ndx) {
