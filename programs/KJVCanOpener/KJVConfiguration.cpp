@@ -3166,6 +3166,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 
 	m_pConfiguration->setMinimumWidth(m_pConfiguration->sizeHint().width());
 	updateGeometry();
+	adjustSize();
 
 	connect(m_pButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
 	connect(m_pButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
