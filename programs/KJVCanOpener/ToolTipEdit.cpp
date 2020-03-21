@@ -107,7 +107,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 		m_bFirstActivate(true)
 {
 //	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if (!defined(EMSCRIPTEN) && !defined(VNCSERVER)) || defined(Q_OS_WASM)
 	setWindowFlags(Qt::Tool | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
 #else
 	setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
@@ -300,7 +300,7 @@ void CTipEdit::en_pushPinPressed()
 		CToolTipEdit::showText(m_pParentCanOpener, pntTip, text(), widget);
 	} else {
 		setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
-#if defined(EMSCRIPTEN) || defined(VNCSERVER)
+#if (defined(EMSCRIPTEN) || defined(VNCSERVER)) && !defined(Q_OS_WASM)
 		CToolTipEdit::hideText(m_pParentCanOpener);
 #endif
 	}
