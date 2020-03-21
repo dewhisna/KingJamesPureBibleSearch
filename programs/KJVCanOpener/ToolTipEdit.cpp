@@ -107,8 +107,15 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 		m_bFirstActivate(true)
 {
 //	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
-#if (!defined(EMSCRIPTEN) && !defined(VNCSERVER)) || defined(Q_OS_WASM)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	setWindowFlags(Qt::Tool | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
+#elif defined(Q_OS_WASM)
+	// For some reason, WebAssembly doesn't properly allow the user to move the window
+	//	when Qt::CustomizeWindowHint is set even when setting Qt::WindowTitleHint,
+	//	unless we set the Qt::WindowSystemMenuHint and Qt::WindowStaysOnTopHint,
+	//	Similar to some of the old Emscripten oddities.  However, it must be a Qt::Tool
+	//	type and not Qt::Window like old Emscripten.
+	setWindowFlags(Qt::Tool | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
 #else
 	setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_pParentCanOpener) ? Qt::WindowTitleHint : QFlags<Qt::WindowType>(0)));
 #endif
