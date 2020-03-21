@@ -3066,4 +3066,64 @@ chown -R root:root lsb-app-checker/
 (or cp -r from temp folder)
 
 
+===============================================================================
+===============================================================================
+
+================================
+WebAssembly/Emscripten (5.14.1):
+================================
+
+Install Emscripten:
+-------------------
+$ git clone https://github.com/emscripten-core/emsdk.git
+$ cd emsdk/
+$ ./emsdk install sdk-fastcomp-1.38.27-64bit
+$ ./emsdk activate --embedded sdk-fastcomp-1.38.27-64bit
+
+Before doing following compilations, run:
+
+$ source ./emsdk_env.sh
+$ em++ --version						((Make sure em++ is in path))
+
+
+Download/Build Qt for WebAssembly:
+----------------------------------
+$ cd ~/Qt
+$ tar -Jxvf ~/Downloads/software/Qt/5.14.1/qt-everywhere-src-5.14.1.tar.xz
+$ mv qt-everywhere-src-5.14.1/ 5.14.1-wasm
+$ cd 5.14.1-wasm/
+$ ./configure -xplatform wasm-emscripten -nomake examples -prefix $PWD/qtbase -opensource -confirm-license
+$ make -j8 module-qtbase module-qtdeclarative
+
+
+Build qtstyleplugin:
+--------------------
+$ cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
+$ mkdir build-qtstyleplugins-5_14_1_wasm
+$ cd build-qtstyleplugins-5_14_1_wasm/
+$ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ../qtstyleplugins/qtstyleplugins.pro CONFIG+=emscripten CONFIG+=release CONFIG+=static
+$ make
+$ make install
+
+
+Build KJPBS:
+------------
+$ cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
+$ mkdir -p build-KJVCanOpener-Qt_5_14_1_wasm/Release
+$ cd ../build-KJVCanOpener-Qt_5_14_1_wasm/Release
+$ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ../../KJVCanOpener CONFIG+=emscripten CONFIG+=release
+$ make
+
+
+Testing:
+--------
+$ emrun --browser=firefox KingJamesPureBibleSearch.html
+
+
+
+===============================================================================
+===============================================================================
+
+
+
 

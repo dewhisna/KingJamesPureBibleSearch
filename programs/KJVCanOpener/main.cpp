@@ -483,6 +483,8 @@ int main(int argc, char *argv[])
 #ifdef USING_WEBCHANNEL
 #error "Can't use WebChannel with Emscripten!"
 #endif
+
+#ifndef Q_OS_WASM
 	if (pSplash != NULL) {
 		nRetVal = pApp->exec();
 		QTimer::singleShot(2000, pApp, SLOT(executeEvent()));
@@ -490,6 +492,19 @@ int main(int argc, char *argv[])
 		nRetVal = pApp->execute(bBuildDB);
 		if (nRetVal == 0) pApp->exec();
 	}
+#else
+	// Unlike the old Emscripten-Qt mechanism where pApp->exec()
+	//	returned immediately, WebAssembly Emscripten runs its
+	//	message loop.  So, for WebAssembly, we have to fire our
+	//	timer event first and then enter the loop:
+	if (pSplash != NULL) {
+		QTimer::singleShot(2000, pApp, SLOT(executeEvent()));
+		nRetVal = pApp->exec();
+	} else {
+		nRetVal = pApp->execute(bBuildDB);
+		if (nRetVal == 0) pApp->exec();
+	}
+#endif
 
 #ifdef EMSCRIPTEN_NATIVE
 	while (true) {

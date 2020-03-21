@@ -530,8 +530,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
+#ifndef EMSCRIPTEN
 	if (m_pDictionaryWidget != NULL)
 		connect(m_pDictionaryWidget, SIGNAL(activatedDictionary(bool)), this, SLOT(en_activatedDictionary(bool)));
+#endif
 
 	// --- View Menu
 	m_pViewMenu = ui.menuBar->addMenu(tr("&View", "MainMenu"));
@@ -980,11 +982,15 @@ CKJVCanOpener::~CKJVCanOpener()
 
 CDictionaryDatabasePtr CKJVCanOpener::dictionaryDatabase() const
 {
+#ifndef EMSCRIPTEN
 	if (m_pDictionaryWidget != NULL) {
 		return m_pDictionaryWidget->dictionaryDatabase();
 	} else {
 		return CDictionaryDatabasePtr();
 	}
+#else
+	return CDictionaryDatabasePtr();
+#endif
 }
 
 void CKJVCanOpener::initialize()
@@ -2211,6 +2217,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 		return;
 	}
 
+#ifndef EMSCRIPTEN
 	if (!bWordEditor) {
 		if (bAdd) {
 			if (m_pActionDictionaryEditMenu == NULL) {
@@ -2240,6 +2247,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 			}
 		}
 	}
+#endif
 }
 
 void CKJVCanOpener::en_activatedBrowser(bool bPassageReferenceEditor)

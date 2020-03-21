@@ -41,7 +41,7 @@ testlib:QT.testlib.CONFIG -= console
 console:DEFINES += IS_CONSOLE_APP
 
 # Include QWebChannel support on Qt 5.5+, if it's been selected:
-unix:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG *= webchannel
+unix:!emscripten:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG *= webchannel
 webchannel:include(../qwebchannel/qwebchannel.pri)
 
 !emscripten {
@@ -190,8 +190,10 @@ DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/
 # Enable to only show loaded Dictionary Databases in the Select Dictionary action:
 #DEFINES += ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 
-# Enable Loading of our Application Fonts (Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder):
-!emscripten:!console:DEFINES += LOAD_APPLICATION_FONTS
+# Enable Loading of our Application Fonts (Note: old Emscripten-Qt uses auto-loading of .qpf fonts from deployed qt-fonts folder):
+!emscripten:!console:DEFINES *= LOAD_APPLICATION_FONTS
+# But, WebAssembly Emscripten Qt does it directly from resources:
+emscripten:wasm:DEFINES *= LOAD_APPLICATION_FONTS
 
 # Enable Asynchronous Dialogs
 #if(emscripten | macx):DEFINES += USE_ASYNC_DIALOGS
@@ -518,7 +520,7 @@ ios:greaterThan(QT_MAJOR_VERSION,4) {
 		for(f, TRANSLATIONS_QT):translationDeploy.files += $$quote($${PWD}/$$replace(f, .ts, .qm))
 		for(f, TRANSLATIONS_QT):translation_source.files += $$quote($${PWD}/$$f)
 	}
-	!isEmpty(TRANSLATIONS_WWWIDGETS4_QM) {
+	!emscripten:!isEmpty(TRANSLATIONS_WWWIDGETS4_QM) {
 		translationDeploy.files += $$TRANSLATIONS_WWWIDGETS4_QM
 	}
 	# Note: Disabling on Windows due to command-line too long with nmake/msbuild (grrr)
@@ -593,6 +595,8 @@ android {
 	}
 }
 
+# =============================================================================
+
 ios {
 	app_bundle {
 		# Note: For some reason, wildcards don't work with the builtin-copy operation on Mac/iOS
@@ -659,6 +663,8 @@ ios {
 		}
 	}
 }
+
+# =============================================================================
 
 macx {
 	app_bundle {
@@ -815,6 +821,8 @@ macx {
 	}
 }
 
+# =============================================================================
+
 win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
 #
 # For Windows:
@@ -937,6 +945,56 @@ win32:!declarative_debug:equals(MAKEFILE_GENERATOR, "MSBUILD") {
 
 	message("Deployment Path: " $$shell_path($${WINBUILD})$$escape_expand(\\n))
 }
+
+# =============================================================================
+
+emscripten:wasm {
+	RESOURCES += \
+		KJVCanOpener_emscripten_fonts.qrc
+
+	QMAKE_LFLAGS += --emrun \
+					--preload-file data/bbl-kjv1769.ccdb \
+					--preload-file data/dct-web1828.s3db
+
+	WASMFILES += \
+		$${PWD}/db/bbl-kjv1769.ccdb \
+		$${PWD}/db/dct-web1828.s3db \
+		$${PWD}/db/dct-web1913.s3db
+
+	!isEmpty(TRANSLATIONS) {
+		WASMFILES += $$translationDeploy.files
+	}
+
+	wasmDeploy.files = $$WASMFILES
+	wasmDeploy.path = ./data
+
+	INSTALLS += wasmDeploy
+
+	!equals($$PWD, $$OUT_PWD) {
+		# Shadow build, copy all example assets.
+		wasm_copyfiles = $$WASMFILES
+	}
+
+	defineReplace(stripSrcDir) {
+		return($$basename(1))
+	}
+
+	wasm_build.input = wasm_copyfiles
+	wasm_build.output = $$OUT_PWD/data/${QMAKE_FUNC_FILE_IN_stripSrcDir}
+	wasm_build.commands = $$QMAKE_MKDIR data; $$QMAKE_COPY_DIR ${QMAKE_FILE_IN} data/
+	wasm_build.name = COPY ${QMAKE_FILE_IN}
+	wasm_build.CONFIG = no_link target_predeps
+	QMAKE_EXTRA_COMPILERS += wasm_build
+
+	# Add target for 'clean' so we can also clean the recursed 'data' folders:
+	!equals($$PWD, $$OUT_PWD) {
+		wasm_clean.commands = -$(DEL_FILE) -r $${OUT_PWD}/data
+		clean.depends = wasm_clean
+		QMAKE_EXTRA_TARGETS += clean wasm_clean
+	}
+}
+
+###############################################################################
 
 message("Config: " $$CONFIG$$escape_expand(\\n))
 message("QtConfig: " $$QT_CONFIG$$escape_expand(\\n))

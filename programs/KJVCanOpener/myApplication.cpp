@@ -292,20 +292,34 @@ namespace {
 	const char *g_constrDejaVuSerif = "../Resources/fonts/DejaVuSerif.ttf";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
-	// Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder
+	// Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder,
+	//	except for WebAssembly (WASM), which has them embedded as resources instead.
 	#ifdef EMSCRIPTEN_NATIVE
-	const char *g_constrDejaVuSans_BoldOblique = "./data/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "./data/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "./data/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "./data/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "./data/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "./data/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "./data/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "./data/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldOblique = "./data/DejaVuSerif-BoldOblique.ttf";
-	const char *g_constrDejaVuSerif_Bold = "./data/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerif_Oblique = "./data/DejaVuSerif-Oblique.ttf";
-	const char *g_constrDejaVuSerif = "./data/DejaVuSerif.ttf";
+		const char *g_constrDejaVuSans_BoldOblique = "./data/DejaVuSans-BoldOblique.ttf";
+		const char *g_constrDejaVuSans_Bold = "./data/DejaVuSans-Bold.ttf";
+		const char *g_constrDejaVuSansMono_BoldOblique = "./data/DejaVuSansMono-BoldOblique.ttf";
+		const char *g_constrDejaVuSansMono_Bold = "./data/DejaVuSansMono-Bold.ttf";
+		const char *g_constrDejaVuSansMono_Oblique = "./data/DejaVuSansMono-Oblique.ttf";
+		const char *g_constrDejaVuSansMono = "./data/DejaVuSansMono.ttf";
+		const char *g_constrDejaVuSans_Oblique = "./data/DejaVuSans-Oblique.ttf";
+		const char *g_constrDejaVuSans = "./data/DejaVuSans.ttf";
+		const char *g_constrDejaVuSerif_BoldItalic = "./data/DejaVuSerif-BoldItalic.ttf";
+		const char *g_constrDejaVuSerif_Bold = "./data/DejaVuSerif-Bold.ttf";
+		const char *g_constrDejaVuSerif_Italic = "./data/DejaVuSerif-Italic.ttf";
+		const char *g_constrDejaVuSerif = "./data/DejaVuSerif.ttf";
+	#elif defined(Q_OS_WASM)
+		const char *g_constrDejaVuSans_BoldOblique = ":/fonts/DejaVuSans-BoldOblique.ttf";
+		const char *g_constrDejaVuSans_Bold = ":/fonts/DejaVuSans-Bold.ttf";
+		const char *g_constrDejaVuSansMono_BoldOblique = ":/fonts/DejaVuSansMono-BoldOblique.ttf";
+		const char *g_constrDejaVuSansMono_Bold = ":/fonts/DejaVuSansMono-Bold.ttf";
+		const char *g_constrDejaVuSansMono_Oblique = ":/fonts/DejaVuSansMono-Oblique.ttf";
+		const char *g_constrDejaVuSansMono = ":/fonts/DejaVuSansMono.ttf";
+		const char *g_constrDejaVuSans_Oblique = ":/fonts/DejaVuSans-Oblique.ttf";
+		const char *g_constrDejaVuSans = ":/fonts/DejaVuSans.ttf";
+		const char *g_constrDejaVuSerif_BoldItalic = ":/fonts/DejaVuSerif-BoldItalic.ttf";
+		const char *g_constrDejaVuSerif_Bold = ":/fonts/DejaVuSerif-Bold.ttf";
+		const char *g_constrDejaVuSerif_Italic = ":/fonts/DejaVuSerif-Italic.ttf";
+		const char *g_constrDejaVuSerif = ":/fonts/DejaVuSerif.ttf";
 	#else
 		const char *g_constrDejaVuSans_BoldOblique = "data/DejaVuSans-BoldOblique.ttf";
 		const char *g_constrDejaVuSans_Bold = "data/DejaVuSans-Bold.ttf";
@@ -315,9 +329,9 @@ namespace {
 		const char *g_constrDejaVuSansMono = "data/DejaVuSansMono.ttf";
 		const char *g_constrDejaVuSans_Oblique = "data/DejaVuSans-Oblique.ttf";
 		const char *g_constrDejaVuSans = "data/DejaVuSans.ttf";
-		const char *g_constrDejaVuSerif_BoldOblique = "data/DejaVuSerif-BoldOblique.ttf";
+		const char *g_constrDejaVuSerif_BoldItalic = "data/DejaVuSerif-BoldItalic.ttf";
 		const char *g_constrDejaVuSerif_Bold = "data/DejaVuSerif-Bold.ttf";
-		const char *g_constrDejaVuSerif_Oblique = "data/DejaVuSerif-Oblique.ttf";
+		const char *g_constrDejaVuSerif_Italic = "data/DejaVuSerif-Italic.ttf";
 		const char *g_constrDejaVuSerif = "data/DejaVuSerif.ttf";
 	#endif
 #elif defined(VNCSERVER)
@@ -408,9 +422,9 @@ namespace {
 		g_constrDejaVuSansMono,
 		g_constrDejaVuSans_Oblique,
 		g_constrDejaVuSans,
-		g_constrDejaVuSerif_BoldOblique,
+		g_constrDejaVuSerif_BoldItalic,
 		g_constrDejaVuSerif_Bold,
-		g_constrDejaVuSerif_Oblique,
+		g_constrDejaVuSerif_Italic,
 		g_constrDejaVuSerif,
 		NULL
 	};

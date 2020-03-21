@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/DejaVuSans-BoldOblique.ttf</file>
+        <file>fonts/DejaVuSans-Bold.ttf</file>
+        <file>fonts/DejaVuSansMono-BoldOblique.ttf</file>
+        <file>fonts/DejaVuSansMono-Bold.ttf</file>
+        <file>fonts/DejaVuSansMono-Oblique.ttf</file>
+        <file>fonts/DejaVuSansMono.ttf</file>
+        <file>fonts/DejaVuSans-Oblique.ttf</file>
+        <file>fonts/DejaVuSans.ttf</file>
+        <file>fonts/DejaVuSerif-BoldItalic.ttf</file>
+        <file>fonts/DejaVuSerif-Bold.ttf</file>
+        <file>fonts/DejaVuSerif-Italic.ttf</file>
+        <file>fonts/DejaVuSerif.ttf</file>
+    </qresource>
+</RCC>
