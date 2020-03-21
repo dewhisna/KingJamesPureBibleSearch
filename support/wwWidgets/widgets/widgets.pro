@@ -1,6 +1,6 @@
 include(../wwwidgets_utils.pri)
 
-linux-g++|linux-g++-32|linux-g++-64:CONFIG(release, debug|release):QMAKE_STRIP = strip
+emscripten|linux-g++|linux-g++-32|linux-g++-64:CONFIG(release, debug|release):QMAKE_STRIP = strip
 
 HEADERS += wwglobal.h wwglobal_p.h colormodel.h
 SOURCES += wwglobal_p.cpp colormodel.cpp
@@ -8,7 +8,7 @@ SOURCES += wwglobal_p.cpp colormodel.cpp
 QT += core gui
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
-linux-g++|linux-g++-32|linux-g++-64 {
+emscripten|linux-g++|linux-g++-32|linux-g++-64 {
 	CONFIG += static separate_debug_info
 #	CONFIG += debug_and_release separate_debug_info
 } else {
@@ -25,7 +25,7 @@ INCLUDEPATH += .
 
 TEMPLATE = lib
 CONFIG += warn_on
-linux-g++|linux-g++-32|linux-g++-64 {
+emscripten|linux-g++|linux-g++-32|linux-g++-64 {
 	CONFIG(release, debug|release) {
 		TARGET = $$qtLibraryTarget(wwwidgets4)
 	} else {
@@ -72,7 +72,7 @@ mac {
 DEFINES += WW_BUILD_WWWIDGETS
 DISTFILES += ../TODO
 
-CONFIG += precompile_header
+!emscripten:CONFIG += precompile_header
 PRECOMPILED_HEADER = stable.h
 
 TRANSLATIONS = ../translations/wwwidgets_pl.ts \
