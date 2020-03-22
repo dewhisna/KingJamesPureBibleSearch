@@ -1064,7 +1064,12 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	ui.treeBibleDatabases->resizeColumnToContents(0);
 	ui.treeBibleDatabases->resizeColumnToContents(1);
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION > 0x050600
+	// Something changed between Qt 5.6 and ~5.13 to cause it to continually
+	//	expand if set to always adjust to size, but adjust on first show
+	//	works OK.  Theory is that this happened around the 5.6->5.7 break:
+	ui.treeBibleDatabases->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
+#elif QT_VERSION >= 0x050200
 	ui.treeBibleDatabases->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 #endif
 
@@ -1306,7 +1311,12 @@ CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
 	ui.treeDictDatabases->resizeColumnToContents(0);
 	ui.treeDictDatabases->resizeColumnToContents(1);
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION > 0x050600
+	// Something changed between Qt 5.6 and ~5.13 to cause it to continually
+	//	expand if set to always adjust to size, but adjust on first show
+	//	works OK.  Theory is that this happened around the 5.6->5.7 break:
+	ui.treeDictDatabases->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
+#elif QT_VERSION >= 0x050200
 	ui.treeDictDatabases->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 #endif
 
