@@ -217,7 +217,19 @@ public:
     void _q_colorDialogRequested() {
         Q_Q(QwwColorButton);
 #if QT_VERSION >= 0x040500
-		QColor c = QColorDialog::getColor(q->currentColor(), q, QwwColorButton::tr("Choose color"), QColorDialog::ShowAlphaChannel);
+#if defined(Q_OS_WASM)
+        // Workaround for WebAssembly which for some reason
+        //	doesn't properly adjust its dialog size:
+        QColorDialog dlgColor(q);
+        dlgColor.setWindowTitle(QwwColorButton::tr("Choose color"));
+        dlgColor.setOptions(QColorDialog::ShowAlphaChannel);
+        dlgColor.setCurrentColor(q->currentColor());
+        dlgColor.adjustSize();
+        dlgColor.exec();
+        QColor c = dlgColor.selectedColor();
+#else
+        QColor c = QColorDialog::getColor(q->currentColor(), q, QwwColorButton::tr("Choose color"), QColorDialog::ShowAlphaChannel);
+#endif
 #else
         QColor c = QColorDialog::getColor(q->currentColor(), q);
 #endif
