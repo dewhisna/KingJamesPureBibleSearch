@@ -2994,7 +2994,11 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings", "MainMenu"));
 #endif
 	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database", "MainMenu"));
+#if !defined(EMSCRIPTEN)
+// NOTE : We are still creating this group, but not hooking it up
+//	yet since WebAssembly/Emscripten doesn't support SQL
 	addGroup(m_pDictDatabaseConfig, QIcon(":/res/Apps-accessories-dictionary-icon-128.png"), tr("Dictionary Database", "MainMenu"));
+#endif
 	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings", "MainMenu"));
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	addGroup(m_pTTSOptionsConfig, QIcon(":/res/Actions-text-speak-icon-128.png"), tr("Text-To-Speech", "MainMenu"));
@@ -3020,9 +3024,11 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_BIBLE_DATABASE:
 			pSelect = m_pBibleDatabaseConfig;
 			break;
+#if !defined(EMSCRIPTEN)
 		case CPSE_DICT_DATABASE:
 			pSelect = m_pDictDatabaseConfig;
 			break;
+#endif
 		case CPSE_LOCALE:
 			pSelect = m_pLocaleConfig;
 			break;
