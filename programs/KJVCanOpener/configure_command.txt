@@ -3102,7 +3102,7 @@ $ cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
 $ mkdir build-qtstyleplugins-5_14_1_wasm
 $ cd build-qtstyleplugins-5_14_1_wasm/
 $ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ../qtstyleplugins/qtstyleplugins.pro CONFIG+=emscripten CONFIG+=release CONFIG+=static
-$ make
+$ make -j8
 $ make install
 
 
@@ -3112,18 +3112,17 @@ $ cd ~/Qt
 $ mkdir build-wwwidgets4-Qt_5_14_1_wasm
 $ cd build-wwwidgets4-Qt_5_14_1_wasm/
 $ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro CONFIG+=emscripten CONFIG+=release CONFIG+=static
-$ make
+$ make -j8
 $ make install
-$ mkdir ~/Qt/5.14.1-wasm/qtbase/translations
 $ cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm ~/Qt/5.14.1-wasm/qtbase/translations/
 
 Build KJPBS:
 ------------
 $ cd ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/
 $ mkdir -p build-KJVCanOpener-Qt_5_14_1_wasm/Release
-$ cd ../build-KJVCanOpener-Qt_5_14_1_wasm/Release
+$ cd build-KJVCanOpener-Qt_5_14_1_wasm/Release
 $ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ../../KJVCanOpener CONFIG+=emscripten CONFIG+=release
-$ make
+$ make -j8
 
 
 Testing:
