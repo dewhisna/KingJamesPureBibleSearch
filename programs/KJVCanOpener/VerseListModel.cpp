@@ -1367,7 +1367,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 												  "merge those passages into this target highlighter, changing their color to match the target "
 												  "highlighter.  This operation cannot be undone!\n\n"
 												  "Are you sure you wish to move the selected verse highlighting to \"%1\"?", "Errors").arg(strTargetHighlighter),
-										QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+										(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
 		if (nResult != QMessageBox::Yes) return false;
 
 		for (int ndxVerse = 0; ndxVerse < lstHighlighterIndexPairs.size(); ++ndxVerse) {

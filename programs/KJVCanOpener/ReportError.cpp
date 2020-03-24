@@ -48,13 +48,6 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 #endif
 }
 
-QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
-											QMessageBox::StandardButton nButton0,
-											QMessageBox::StandardButton nButton1)
-{
-	return displayWarning(pParent, strTitle, strText, QMessageBox::StandardButtons(nButton0 | nButton1), nButton1);
-}
-
 #else
 
 void displayWarning(void *pParent, const QString &strTitle, const QString &strText)
@@ -83,13 +76,6 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 #else
 	return QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
 #endif
-}
-
-QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
-												QMessageBox::StandardButton nButton0,
-												QMessageBox::StandardButton nButton1)
-{
-	return displayInformation(pParent, strTitle, strText, QMessageBox::StandardButtons(nButton0 | nButton1), nButton1);
 }
 
 #else

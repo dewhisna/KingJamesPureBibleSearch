@@ -873,7 +873,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 																 "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
 																 "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
 																 "this highlighter.  Or, open a new King James Notes file.  The Highlighter is already disabled so no text "
-																 "highlighted with this Highlighter will be visible.", "Errors"), QMessageBox::Ok, QMessageBox::Ok);
+																 "highlighted with this Highlighter will be visible.", "Errors"));
 			}
 			return;		// Note: the setEnabled() call above will take care of updating our demo text and marking us dirty, etc, and nothing should have changed size...
 		}

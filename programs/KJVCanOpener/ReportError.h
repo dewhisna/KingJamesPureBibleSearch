@@ -38,11 +38,6 @@ extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QStrin
 													QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
 													QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton);
 
-
-extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
-													QMessageBox::StandardButton nButton0,
-													QMessageBox::StandardButton nButton1);
-
 #else
 
 extern void displayWarning(void *pParent, const QString &strTitle, const QString &strText);
@@ -56,10 +51,6 @@ extern void displayWarning(void *pParent, const QString &strTitle, const QString
 extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
 														QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
 														QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton);
-
-extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
-														QMessageBox::StandardButton nButton0,
-														QMessageBox::StandardButton nButton1);
 
 #else
 
