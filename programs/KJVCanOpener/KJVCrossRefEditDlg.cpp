@@ -23,6 +23,7 @@
 
 #include "KJVCrossRefEditDlg.h"
 
+#include "ReportError.h"
 #include "myApplication.h"
 #include "PersistentSettings.h"
 
@@ -230,7 +231,7 @@ void CKJVCrossRefEditDlg::accept()
 void CKJVCrossRefEditDlg::reject()
 {
 	if (m_bIsDirty) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Do you wish to discard them??", "Errors"),
+		int nResult = displayWarning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Do you wish to discard them??", "Errors"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 	}
@@ -302,7 +303,7 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
 {
 	if (m_bIsDirty) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Save them??", "Errors"),
+		int nResult = displayWarning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Save them??", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
 		if (nResult == QMessageBox::Yes) saveCrossRefs();
 	}
@@ -324,9 +325,9 @@ void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 		ndxTarget = navigateCrossRef(ndxTarget);
 		if (ndxTarget.isSet()) {
 			if (ndxSource == ndxTarget) {
-				QMessageBox::warning(this, windowTitle(), tr("You can't set a cross-reference to reference itself.", "Errors"));
+				displayWarning(this, windowTitle(), tr("You can't set a cross-reference to reference itself.", "Errors"));
 			} else if (m_pWorkingUserNotesDatabase->crossRefsMap().haveCrossReference(ndxSource, ndxTarget)) {
-				QMessageBox::warning(this, windowTitle(), tr("That cross-reference already exists.", "Errors"));
+				displayWarning(this, windowTitle(), tr("That cross-reference already exists.", "Errors"));
 			} else if (m_pWorkingUserNotesDatabase->setCrossReference(ndxSource, ndxTarget)) {
 				m_bIsDirty = true;
 				bRefSet = true;

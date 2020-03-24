@@ -23,6 +23,7 @@
 
 #include "KJVSearchResult.h"
 
+#include "ReportError.h"
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
 #include "KJVPassageNavigatorDlg.h"
@@ -630,7 +631,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, b
 	}
 
 	if (bAllAlreadyHighlighted) {
-		int nResult = QMessageBox::information(this, windowTitle(), tr("All of the verses you have selected are already highlighted with that highlighter!\n\n"
+		int nResult = displayInformation(this, windowTitle(), tr("All of the verses you have selected are already highlighted with that highlighter!\n\n"
 																	   "Do you wish to unhighlight all of them instead??", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 		if (nResult != QMessageBox::Yes) return;

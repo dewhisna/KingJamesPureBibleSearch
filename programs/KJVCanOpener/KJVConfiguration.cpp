@@ -23,6 +23,7 @@
 
 #include "KJVConfiguration.h"
 
+#include "ReportError.h"
 #include "ScriptureEdit.h"
 #include "KJVSearchResult.h"
 #include "KJVSearchCriteria.h"
@@ -860,7 +861,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 		} else {
 			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(nListWidgetIndex));
 			if (pButtonItem->enabled()) {
-				int nResult = QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
+				int nResult = displayInformation(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
 																			   "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
 																			   "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
 																			   "this highlighter.  Or, open a new King James Notes file.\n\n"
@@ -868,7 +869,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok);
 				if (nResult == QMessageBox::Ok) pButtonItem->setEnabled(false);
 			} else {
-				QMessageBox::information(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
+				displayInformation(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
 																 "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
 																 "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
 																 "this highlighter.  Or, open a new King James Notes file.  The Highlighter is already disabled so no text "
@@ -901,7 +902,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 
 		if (dlgRename.exec() != QDialog::Accepted) return;
 		if (g_pUserNotesDatabase->existsHighlighter(dlgRename.newName())) {
-			QMessageBox::warning(this, windowTitle(), tr("That highlighter name already exists and can't be used as a new name for this highlighter. "
+			displayWarning(this, windowTitle(), tr("That highlighter name already exists and can't be used as a new name for this highlighter. "
 														 "To try again, click the rename button again. Or, to combine highlighter tags, use the "
 														 "\"View Highlighters\" mode to display the highlighted passages, select the passages "
 														 "associated with the desired highlighters, and drag them to a different highlighter.", "Errors"));
@@ -942,7 +943,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 		m_bIsDirty = true;
 		emit dataChanged(false);
 	} else {
-		QMessageBox::warning(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be renamed.  "
+		displayWarning(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be renamed.  "
 													 "To rename it, create a new highlighter with the desired name.  Then, use the \"View Highlighters\" "
 													 "mode to display the highlighted passages, select the passages associated with this highlighter, "
 													 "and drag them to the new highlighter.  And then you can return here and remove this highlighter.", "Errors"));
@@ -1549,13 +1550,13 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 		if (m_pUserNotesDatabase->filePathName().isEmpty()) {
 			if (m_pUserNotesDatabase->errorFilePathName().isEmpty()) {
 				// If we don't have a filename at all, prompt for new setup:
-				nResult = QMessageBox::warning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
+				nResult = displayWarning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
 																		 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost.", "Errors"),
 														(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 			} else {
 				// If we originally had a filename, but failed in opening it, just prompt the user about saving it since it's
 				//		possible they don't want to attempt to overwrite the one that failed since we couldn't load it:
-				nResult = QMessageBox::warning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
+				nResult = displayWarning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
 																	   "Do you wish to save the changes you've made?\n"
 																	   "Warning, if you save this file overtop of your original file, you will "
 																	   "lose all ability to recover the remaining data in your original file.  It's "
@@ -1590,7 +1591,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 				}
 
 				if (!m_pUserNotesDatabase->save()) {
-					nResult = QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
+					nResult = displayWarning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
 														tr("Unable to save the King James Notes File!\n\n"
 														   "Click 'Yes' to try again, or\n"
 														   "Click 'No' to lose your changes and continue on to Select a Notes File to Load, or\n"
@@ -1637,7 +1638,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 		ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
 
 		if (!loadUserNotesDatabase()) {
-			QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError());
+			displayWarning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError());
 			// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
 			//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
 			//		the time we exit.  But save a reference to it so we can get the user navigated back there:
@@ -1648,12 +1649,12 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			continue;
 		} else {
 			if (m_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
-				QMessageBox::warning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was last saved on "
+				displayWarning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was last saved on "
 											"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
 											"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
 											"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"", "Errors").arg(m_pUserNotesDatabase->filePathName()));
 			} else if (m_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
-				QMessageBox::warning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was created on "
+				displayWarning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was created on "
 											"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
 											"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
 											"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
@@ -1680,7 +1681,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 	bool bDone = false;
 	while (!bDone) {
 		if ((m_pUserNotesDatabase->isDirty()) && (!m_pUserNotesDatabase->save())) {
-			int nResult = QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
+			int nResult = displayWarning(this, tr("King James Notes File Error", "Errors"),  m_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
 													tr("Unable to save the current King James Notes File!\n\n"
 													   "Click 'Yes' to try again, or\n"
 													   "Click 'No' to lose your changes and continue on to Select a Notes File to Load, or\n"
@@ -2904,10 +2905,10 @@ void CKJVTTSOptionsConfig::saveSettings()
 			QUrl urlTTSServer(strTTSServer);
 			QString strTTSHost = urlTTSServer.host();
 			if (urlTTSServer.scheme().compare(QTSPEECH_SERVER_SCHEME_NAME, Qt::CaseInsensitive) != 0) {
-				QMessageBox::warning(this, windowTitle(), tr("Unknown Text-To-Speech Server Scheme name.\nExpected \"%1\".", "Errors").arg(QTSPEECH_SERVER_SCHEME_NAME));
+				displayWarning(this, windowTitle(), tr("Unknown Text-To-Speech Server Scheme name.\nExpected \"%1\".", "Errors").arg(QTSPEECH_SERVER_SCHEME_NAME));
 			} else if ((!strTTSHost.isEmpty()) &&
 						(!QtSpeech::connectToServer(strTTSHost, urlTTSServer.port(QTSPEECH_DEFAULT_SERVER_PORT)))) {
-				QMessageBox::warning(this, windowTitle(), tr("Failed to connect to Text-To-Speech Server!\n\n\"%1\"", "Errors").arg(strTTSServer));
+				displayWarning(this, windowTitle(), tr("Failed to connect to Text-To-Speech Server!\n\n\"%1\"", "Errors").arg(strTTSServer));
 			} else {
 				if (strTTSHost.isEmpty()) {
 					QtSpeech::disconnectFromServer();			// Empty Host means we disconnect from current server
@@ -3218,7 +3219,7 @@ void CKJVConfigurationDialog::accept()
 void CKJVConfigurationDialog::reject()
 {
 	if (m_pConfiguration->isDirty()) {
-		int nResult = QMessageBox::information(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
+		int nResult = displayInformation(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
 																	   "Click 'OK' to discard the changes and close this configuration window.\n"
 																	   "Click 'Cancel' to stay here in the configuration window.", "Errors"),
 																  (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
@@ -3282,7 +3283,7 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 	if (m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(m_nLastIndex))) {
 		m_bHandlingPageSwap = true;
 
-		int nResult = QMessageBox::information(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
+		int nResult = displayInformation(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
 																	   "Click 'Yes' to apply the setting changes and continue.\n"
 																	   "Click 'No' to discard those setting changes and continue.\n"
 																	   "Click 'Cancel' to stay on this settings page.", "Errors"),
@@ -3307,7 +3308,7 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 #ifdef USING_QT_SPEECH
 	if (static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index) == CPSE_TTS_OPTIONS) {
 		if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL) && (!g_pMyApplication->speechSynth()->canSpeak())) {
-			QMessageBox::warning(this, windowTitle(), tr("Failed to load system Text-To-Speech Module.\n"
+			displayWarning(this, windowTitle(), tr("Failed to load system Text-To-Speech Module.\n"
 														"To use Text-To-Speech, you may need to install the Text-To-Speech support package."));
 		}
 	}
@@ -3328,7 +3329,7 @@ void CKJVConfigurationDialog::en_setToLastIndex()
 
 bool CKJVConfigurationDialog::promptRestart()
 {
-	int nResult = QMessageBox::information(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
+	int nResult = displayInformation(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
 																   "Doing so will close all Search Windows just like exiting the program.  "
 																   "If you choose not to exit, they will be applied the next time you run the program.\n\n"
 																   "Do you wish to restart the app??", "Errors"),

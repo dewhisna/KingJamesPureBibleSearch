@@ -22,6 +22,8 @@
 ****************************************************************************/
 
 #include "VerseListModel.h"
+
+#include "ReportError.h"
 #include "ScriptureDocument.h"
 #include "SearchCompleter.h"
 #include "myApplication.h"
@@ -1360,7 +1362,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 		CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 		assert(pCanOpener != NULL);
 
-		int nResult = QMessageBox::information(pCanOpener, tr("Moving Highlighter Tags", "Errors"),
+		int nResult = displayInformation(pCanOpener, tr("Moving Highlighter Tags", "Errors"),
 											   tr("You are about to move the selected verse highlighting to the \"%1\" highlighter.  This will "
 												  "merge those passages into this target highlighter, changing their color to match the target "
 												  "highlighter.  This operation cannot be undone!\n\n"

@@ -23,6 +23,7 @@
 
 #include "KJVNoteEditDlg.h"
 
+#include "ReportError.h"
 #include "myApplication.h"
 #include "PersistentSettings.h"
 
@@ -234,7 +235,7 @@ void CKJVNoteEditDlg::accept()
 	assert(!m_pUserNotesDatabase.isNull());
 
 	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
+		int nResult = displayWarning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
 																   "haven't yet entered them to where they will take effect.\n\n"
 																   "Do you wish to set them as valid keywords for this note?", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
@@ -252,7 +253,7 @@ void CKJVNoteEditDlg::accept()
 void CKJVNoteEditDlg::reject()
 {
 	if (m_bIsDirty) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("You have made changes to this note.  Do you wish to discard them??", "Errors"),
+		int nResult = displayWarning(this, windowTitle(), tr("You have made changes to this note.  Do you wish to discard them??", "Errors"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 	}
@@ -306,7 +307,7 @@ void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 	assert(!m_pUserNotesDatabase.isNull());
 
 	if (button == m_pDeleteNoteButton) {
-		int nResult = QMessageBox::warning(this, windowTitle(), tr("Are you sure you want to completely delete this note??", "Errors"),
+		int nResult = displayWarning(this, windowTitle(), tr("Are you sure you want to completely delete this note??", "Errors"),
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 		m_bIsDirty = false;

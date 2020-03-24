@@ -23,6 +23,7 @@
 
 #include "ScriptureEdit.h"
 
+#include "ReportError.h"
 #include "dbstruct.h"
 #include "KJVPassageNavigatorDlg.h"
 #include "MimeHelper.h"
@@ -1242,7 +1243,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 #ifndef EMSCRIPTEN
 			if (parentCanOpener()->confirmFollowLink() == QMessageBox::Yes) {
 				if (!QDesktopServices::openUrl(link)) {
-					QMessageBox::warning(this, parentCanOpener()->windowTitle(), CKJVCanOpener::tr("Unable to open a System Web Browser for\n\n"
+					displayWarning(this, parentCanOpener()->windowTitle(), CKJVCanOpener::tr("Unable to open a System Web Browser for\n\n"
 																									"%1", "Errors").arg(strAnchor));
 				}
 			}

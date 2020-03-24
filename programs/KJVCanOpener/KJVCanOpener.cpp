@@ -23,6 +23,7 @@
 
 #include "KJVCanOpener.h"
 
+#include "ReportError.h"
 #include "myApplication.h"
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
@@ -1383,7 +1384,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			if (!g_pUserNotesDatabase->filePathName().isEmpty()) {
 				if (!g_pUserNotesDatabase->load()) {
 					show();
-					QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  g_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") + tr("Check File existence and Program Settings!", "Errors"));
+					displayWarning(this, tr("King James Notes File Error", "Errors"),  g_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") + tr("Check File existence and Program Settings!", "Errors"));
 					// Leave the isDirty flag set, but clear the filename to force the user to re-navigate to
 					//		it, or else we may accidentally overwrite the file if it happens to be "fixed" by
 					//		the time we exit.  But save a reference to it so we can get the user navigated back there:
@@ -1393,13 +1394,13 @@ void CKJVCanOpener::restorePersistentSettings()
 				} else {
 					if (g_pUserNotesDatabase->version() < KJN_FILE_VERSION) {
 						show();
-						QMessageBox::warning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was last saved on "
+						displayWarning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was last saved on "
 													"an older version of King James Pure Bible Search.  It will automatically be updated to this version of "
 													"King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must "
 													"manually save a copy of your file now BEFORE you continue!\n\nFilename: \"%1\"", "Errors").arg(g_pUserNotesDatabase->filePathName()));
 					} else if (g_pUserNotesDatabase->version() > KJN_FILE_VERSION) {
 						show();
-						QMessageBox::warning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was created on "
+						displayWarning(this, tr("Loading King James Notes File", "Errors"), tr("Warning: The King James Notes File being loaded was created on "
 													"a newer version of King James Pure Bible Search.  It may contain data or settings for things not "
 													"supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the "
 													"next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not "
@@ -1723,13 +1724,13 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 			if (g_pUserNotesDatabase->filePathName().isEmpty()) {
 				if (g_pUserNotesDatabase->errorFilePathName().isEmpty()) {
 					// If we don't have a filename at all, prompt for new setup:
-					nResult = QMessageBox::warning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
+					nResult = displayWarning(this, windowTitle(), tr("You have edited Notes, Highlighters, and/or References, but don't yet have a King James Notes File setup.\n\n"
 																			 "Do you wish to setup a Notes File and save your changes??\nWarning: If you select 'No', then your changes will be lost.", "Errors"),
 															(QMessageBox::Yes  | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
 				} else {
 					// If we originally had a filename, but failed in opening it, just prompt the user about saving it since it's
 					//		possible they don't want to attempt to overwrite the one that failed since we couldn't load it:
-					nResult = QMessageBox::warning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
+					nResult = displayWarning(this, windowTitle(), tr("The previous attempt to load your King James Notes File failed.\n"
 																		   "Do you wish to save the changes you've made?\n"
 																		   "Warning, if you save this file overtop of your original file, you will "
 																		   "lose all ability to recover the remaining data in your original file.  It's "
@@ -1765,7 +1766,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 					}
 
 					if (!g_pUserNotesDatabase->save()) {
-						nResult = QMessageBox::warning(this, tr("King James Notes File Error", "Errors"),  g_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
+						nResult = displayWarning(this, tr("King James Notes File Error", "Errors"),  g_pUserNotesDatabase->lastLoadSaveError() + QString("\n\n") +
 															tr("Unable to save the King James Notes File!\n\n"
 															   "Click 'Yes' to try again, or\n"
 															   "Click 'No' to lose your changes and exit, or\n"
@@ -1886,7 +1887,7 @@ void CKJVCanOpener::en_OpenSearch()
 	QString strFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Open KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
-			QMessageBox::warning(this, tr("KJV Search File Open Failed", "Errors"), tr("Failed to open and read the specified KJV Search File!", "Errors"));
+			displayWarning(this, tr("KJV Search File Open Failed", "Errors"), tr("Failed to open and read the specified KJV Search File!", "Errors"));
 #else
 //	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
 //	//	Left here for reference for how to do the open asynchronously:
@@ -1907,7 +1908,7 @@ void CKJVCanOpener::en_SaveSearch()
 	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), "kjs", NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
-			QMessageBox::warning(this, tr("KJV Search File Save Failed", "Errors"), tr("Failed to save the specified KJV Search File!", "Errors"));
+			displayWarning(this, tr("KJV Search File Save Failed", "Errors"), tr("Failed to save the specified KJV Search File!", "Errors"));
 #else
 //	// Note: This still doesn't work -- it looks up not being able to instantiate the OpenFileDialog.
 //	//	Left here for reference for how to do the open asynchronously:
@@ -1967,14 +1968,14 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 
 	if (nFileVersion < KJS_FILE_VERSION) {
 		show();		// Make sure we are visible if this was during construction
-		QMessageBox::warning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening was saved on "
+		displayWarning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening was saved on "
 									"an older version of King James Pure Bible Search.  Some manual editing may be necessary "
 									"to configure any new search options added since that older version.\n\n"
 									"To avoid this message when opening this file in the future, then resave your "
 									"search phrases over top of this file, replacing this old version.", "Errors"));
 	} else if (nFileVersion > KJS_FILE_VERSION) {
 		show();		// Make sure we are visible if this was during construction
-		QMessageBox::warning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening was created on "
+		displayWarning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening was created on "
 									"a newer version of King James Pure Bible Search.  It may contain settings for options not "
 									"available on this version of King James Pure Bible Search.  If so, those options will be "
 									"ignored.", "Errors"));
@@ -1982,12 +1983,12 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 
 	if (strBblLang.compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) != 0) {
 		show();		// Make sure we are visible if this was during construction
-		QMessageBox::warning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening is for a "
+		displayWarning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening is for a "
 									"different language Bible Database and will most likely not display the Search Results "
 									"that were intended to have been saved in the KJS file.", "Errors"));
 	} else if (strBblUUID.compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) != 0) {
 		show();		// Make sure we are visible if this was during construction
-		QMessageBox::warning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening was created with "
+		displayWarning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening was created with "
 									"a different Bible Database and might have incompatible Search Specification options, potentially yielding "
 									"different Search Results from that which was intended to have been saved in the KJS file.", "Errors"));
 	}
@@ -2760,7 +2761,7 @@ void CKJVCanOpener::en_HelpManual()
 
 	QFileInfo fiHelpDoc(g_pMyApplication->initialAppDirPath(), g_constrHelpDocFilename);
 	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
-		QMessageBox::warning(this, windowTitle(), tr("Unable to open the King James Pure Bible Search Users Manual.\n"
+		displayWarning(this, windowTitle(), tr("Unable to open the King James Pure Bible Search Users Manual.\n"
 													 "Verify that you have a PDF Viewer, such as Adobe Acrobat, installed.\n"
 													 "And check installation of King James Pure Bible Search User Manual at:\n\n"
 													 "%1", "Errors").arg(QDir::toNativeSeparators(fiHelpDoc.absoluteFilePath())));
@@ -2786,7 +2787,7 @@ void CKJVCanOpener::en_PureBibleSearchDotCom()
 	if (confirmFollowLink() == QMessageBox::Yes) {
 		if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
 #ifndef EMSCRIPTEN
-			QMessageBox::warning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
+			displayWarning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
 														 "%1", "Errors").arg(g_constrPureBibleSearchURL));
 #endif
 		}

@@ -576,7 +576,7 @@ void CMyDaemon::handleSigUsr1()
 	if (!m_pMyApplication.isNull()) {
 		pParent = m_pMyApplication->activeCanOpener();
 	}
-	QMessageBox::warning(pParent, tr("King James Pure Bible Search", "Errors"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.", "Errors"));
+	displayWarning(pParent, tr("King James Pure Bible Search", "Errors"), tr("Warning: Your VNC King James Pure Bible Search Session expires in 5 minutes.", "Errors"));
 #endif
 
 	m_psnUsr1->setEnabled(true);
