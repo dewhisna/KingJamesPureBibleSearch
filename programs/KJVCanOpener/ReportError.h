@@ -29,14 +29,22 @@
 #endif
 
 #include <QString>
+#include <functional>
 
 // ============================================================================
 
 #ifndef IS_CONSOLE_APP
 
-extern QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
-													QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
-													QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton);
+#ifndef USE_ASYNC_DIALOGS
+extern QMessageBox::StandardButton
+#else
+extern void
+#endif
+				displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
+								QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
+								QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton,
+								std::function<void (QMessageBox::StandardButton nResult)> fnCompletion = nullptr);
+
 
 #else
 
@@ -48,9 +56,15 @@ extern void displayWarning(void *pParent, const QString &strTitle, const QString
 
 #ifndef IS_CONSOLE_APP
 
-extern QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
-														QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
-														QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton);
+#ifndef USE_ASYNC_DIALOGS
+extern QMessageBox::StandardButton
+#else
+extern void
+#endif
+				displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
+									QMessageBox::StandardButtons nButtons = QMessageBox::Ok,
+									QMessageBox::StandardButton nDefaultButton = QMessageBox::NoButton,
+									std::function<void (QMessageBox::StandardButton nResult)> fnCompletion = nullptr);
 
 #else
 

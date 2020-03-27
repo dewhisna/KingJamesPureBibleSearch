@@ -951,7 +951,12 @@ emscripten:wasm {
 	RESOURCES += \
 		KJVCanOpener_emscripten_fonts.qrc
 
+	QMAKE_CFLAGS += -s ASSERTIONS=1
+
+	QMAKE_CXXFLAGS += -s ASSERTIONS=1
+
 	QMAKE_LFLAGS += --emrun \
+					--no-heap-copy \
 					--preload-file data/bbl-kjv1769.ccdb \
 					--preload-file data/kjpbs.en.qm \
 					--preload-file data/kjpbs.fr.qm \

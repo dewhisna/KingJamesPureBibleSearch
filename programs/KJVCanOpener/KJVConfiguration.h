@@ -37,6 +37,8 @@
 #include <QFont>
 #include <QPushButton>
 
+#include <functional>
+
 // ============================================================================
 
 // Forward Declarations:
@@ -655,8 +657,8 @@ public:
 
 public slots:
 	virtual void en_dataChanged(bool bNeedRestart);
-	virtual void accept();
-	virtual void reject();
+	virtual void accept() override;
+	virtual void reject() override;
 	virtual void apply();
 	virtual void restore(bool bRecopy);		// Restores setting changes (converse of apply).  If bRecopy=true, a fresh copy of the settings are made to continue edit.  If false, they are switched back to the original and left
 
@@ -665,7 +667,7 @@ private slots:
 	void en_setToLastIndex();
 
 private:
-	bool promptRestart();
+	void promptRestart(std::function<void (bool bRestart)> fnCompletion);
 
 private:
 	int m_nLastIndex;						// Last Configuration Index active

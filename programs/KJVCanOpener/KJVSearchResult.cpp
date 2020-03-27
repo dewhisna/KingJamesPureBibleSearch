@@ -599,6 +599,7 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 
 // ----------------------------------------------------------------------------
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, bool bSecondaryActive)
 {
 	if (!hasFocus()) return;
@@ -643,6 +644,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, b
 	CBusyCursor iAmBusy(NULL);
 	vlmodel()->userNotesDatabase()->appendHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
 }
+#endif
 
 // ----------------------------------------------------------------------------
 

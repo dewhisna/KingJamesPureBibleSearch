@@ -1175,16 +1175,32 @@ void CMyApplication::activateAllCanOpeners() const
 	}
 }
 
-void CMyApplication::closeAllCanOpeners() const
+void CMyApplication::closeAllCanOpeners()
 {
 	assert(canQuit());
 	if (!canQuit()) return;
 
+	int nLastCanOpener = 0;
+
+#if defined(Q_OS_WASM)
+	if (m_bAreRestarting) {
+		nLastCanOpener = 1;		// Hold the last instance until we create the new one, because if we delete it, we exit
+	}
+#endif
+
 	// Close in reverse order:
-	for (int ndx = (m_lstKJVCanOpeners.size()-1); ndx >= 0; --ndx) {
+	for (int ndx = (m_lstKJVCanOpeners.size()-1); ndx >= nLastCanOpener; --ndx) {
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(ndx), SLOT(close()));
 	}
 	// Note: List update will happen automatically as the windows close...
+
+#if defined(Q_OS_WASM)
+	if (m_bAreRestarting) {
+		createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
+		QTimer::singleShot(0, m_lstKJVCanOpeners.at(0), SLOT(close()));
+	}
+#endif
+
 }
 
 void CMyApplication::restartApp()

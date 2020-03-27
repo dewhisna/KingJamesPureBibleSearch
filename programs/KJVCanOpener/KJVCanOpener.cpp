@@ -2842,15 +2842,38 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		if (pHighlighterButtons != NULL) pHighlighterButtons->enterConfigurationMode();
 	}
 
-	CKJVConfigurationDialog dlgConfigure(m_pBibleDatabase, ((m_pDictionaryWidget != NULL) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
-	dlgConfigure.exec();
+	QPointer<CKJVConfigurationDialog> pDlgConfigure = new CKJVConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != NULL) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 
-	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
-		CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
-		if (pHighlighterButtons != NULL) pHighlighterButtons->leaveConfigurationMode();
-	}
+	auto &&fnCompletion = [lstCanOpeners, pDlgConfigure](int nResult)->void {
+		Q_UNUSED(nResult);
+		for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
+			CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
+			if (pHighlighterButtons != NULL) pHighlighterButtons->leaveConfigurationMode();
+		}
 
-	if (dlgConfigure.restartApp()) QTimer::singleShot(10, g_pMyApplication.data(), SLOT(restartApp()));
+		assert(!pDlgConfigure.isNull());
+		if (pDlgConfigure) {
+			if (pDlgConfigure->restartApp()) {
+				QTimer::singleShot(10, g_pMyApplication.data(), SLOT(restartApp()));
+			}
+			pDlgConfigure->deleteLater();
+		}
+	};
+
+#ifndef USE_ASYNC_DIALOGS
+
+	pDlgConfigure->exec();
+	fnCompletion(0);
+
+#else
+
+	connect(pDlgConfigure, &CKJVConfigurationDialog::finished, fnCompletion);
+	pDlgConfigure->setAttribute(Qt::WA_DeleteOnClose, false);
+	pDlgConfigure->setAttribute(Qt::WA_ShowModal, true);
+	pDlgConfigure->show();
+
+#endif
+
 #else
 	Q_UNUSED(nInitialPage);
 #endif

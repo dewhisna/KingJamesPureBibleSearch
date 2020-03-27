@@ -23,6 +23,7 @@
 
 #include "KJVAboutDlg.h"
 
+#include "ReportError.h"
 #include "version.h"
 
 #include <QApplication>
@@ -186,14 +187,7 @@ void CKJVAboutDlg::en_licenseDisplay()
 			"Written and Developed for Bethel Church, Festus, MO.", "AboutBox");
 	const QString strTitle = tr("About King James Pure Bible Search License", "AboutBox");
 
-#ifndef USE_ASYNC_DIALOGS
-	QMessageBox::information(this, strTitle, strLicenseInfo);
-#else
-	QMessageBox *pMsgBox = new QMessageBox(QMessageBox::Information, strTitle, strLicenseInfo, QMessageBox::Ok, this);
-	pMsgBox->setAttribute(Qt::WA_DeleteOnClose);
-	pMsgBox->setModal(true);
-	pMsgBox->show();
-#endif
+	displayInformation(this, strTitle, strLicenseInfo);
 }
 
 // ============================================================================

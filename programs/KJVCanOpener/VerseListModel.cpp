@@ -1317,6 +1317,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 	assert(pData != NULL);
 	if (pData == NULL) return false;
 
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	if ((nAction == Qt::MoveAction) &&
 		(m_private.m_nViewMode == VVME_HIGHLIGHTERS) &&
 		(pData->hasFormat(g_constrHighlighterPhraseTagListMimeType))) {
@@ -1391,6 +1392,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 
 		return true;
 	}
+#endif
 
 	return false;
 }

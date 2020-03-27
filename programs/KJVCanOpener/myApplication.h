@@ -217,7 +217,7 @@ public slots:
 	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
 	void activateCanOpener(int ndx) const;
 	void activateAllCanOpeners() const;
-	void closeAllCanOpeners() const;
+	void closeAllCanOpeners();
 	void restartApp();
 
 signals:

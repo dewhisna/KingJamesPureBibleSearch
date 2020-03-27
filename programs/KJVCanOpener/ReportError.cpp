@@ -29,13 +29,83 @@
 #include <iostream>
 #endif
 
+#if !defined(IS_CONSOLE_APP) && defined(USE_ASYNC_DIALOGS)
+#include <QCoreApplication>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QPointer>
+#include <QEventLoop>
+#endif
+
+// ============================================================================
+
+#if !defined(IS_CONSOLE_APP) && defined(USE_ASYNC_DIALOGS)
+
+static void asyncShowNewMessageBox(QWidget *parent,
+	QMessageBox::Icon icon,
+	const QString& title, const QString& text,
+	QMessageBox::StandardButtons buttons,
+	QMessageBox::StandardButton defaultButton,
+	std::function<void (QMessageBox::StandardButton nResult)> fnCompletion)
+{
+	QPointer<QMessageBox> pMsgBox = new QMessageBox(icon, title, text, QMessageBox::NoButton, parent);
+	QDialogButtonBox *buttonBox = pMsgBox->findChild<QDialogButtonBox*>();
+	Q_ASSERT(buttonBox != 0);
+
+	uint mask = QMessageBox::FirstButton;
+	while (mask <= QMessageBox::LastButton) {
+		uint sb = buttons & mask;
+		mask <<= 1;
+		if (!sb)
+			continue;
+		QPushButton *button = pMsgBox->addButton((QMessageBox::StandardButton)sb);
+		// Choose the first accept role as the default
+		if (pMsgBox->defaultButton())
+			continue;
+		if ((defaultButton == QMessageBox::NoButton && buttonBox->buttonRole(button) == QDialogButtonBox::AcceptRole)
+			|| (defaultButton != QMessageBox::NoButton && sb == uint(defaultButton)))
+			pMsgBox->setDefaultButton(button);
+	}
+
+	pMsgBox->setAttribute(Qt::WA_DeleteOnClose, false);
+	pMsgBox->setAttribute(Qt::WA_ShowModal, true);
+	pMsgBox->setResult(0);
+
+	QMessageBox::connect(
+		pMsgBox, &QMessageBox::finished,
+		[pMsgBox, fnCompletion](int nResult)
+		{
+			Q_UNUSED(nResult);
+			QMessageBox::StandardButton nRetVal = QMessageBox::NoButton;
+			assert(!pMsgBox.isNull());
+			if (pMsgBox) {
+				nRetVal = pMsgBox->standardButton(pMsgBox->clickedButton());
+			}
+			if (fnCompletion) fnCompletion(nRetVal);
+			if (pMsgBox) {
+				pMsgBox->deleteLater();
+			}
+		}
+	);
+
+	pMsgBox->show();
+}
+
+#endif
+
 // ============================================================================
 
 #ifndef IS_CONSOLE_APP
 
-QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
-										   QMessageBox::StandardButtons nButtons,
-										   QMessageBox::StandardButton nDefaultButton)
+#ifndef USE_ASYNC_DIALOGS
+QMessageBox::StandardButton
+#else
+void
+#endif
+				displayWarning(QWidget *pParent, const QString &strTitle, const QString &strText,
+								QMessageBox::StandardButtons nButtons,
+								QMessageBox::StandardButton nDefaultButton,
+								std::function<void (QMessageBox::StandardButton nResult)> fnCompletion)
 {
 #if defined(EMSCRIPTEN) && !defined(Q_OS_WASM)
 	qDebug("warning: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
@@ -44,7 +114,15 @@ QMessageBox::StandardButton displayWarning(QWidget *pParent, const QString &strT
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
 #else
-	return QMessageBox::warning(pParent, strTitle, strText, nButtons, nDefaultButton);
+
+#ifndef USE_ASYNC_DIALOGS
+	QMessageBox::StandardButton nRetVal = QMessageBox::warning(pParent, strTitle, strText, nButtons, nDefaultButton);
+	if (fnCompletion) fnCompletion(nRetVal);
+	return nRetVal;
+#else
+	asyncShowNewMessageBox(pParent, QMessageBox::Warning, strTitle, strText, nButtons, nDefaultButton, fnCompletion);
+#endif
+
 #endif
 }
 
@@ -63,9 +141,15 @@ void displayWarning(void *pParent, const QString &strTitle, const QString &strTe
 
 #ifndef IS_CONSOLE_APP
 
-QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
-												QMessageBox::StandardButtons nButtons,
-												QMessageBox::StandardButton nDefaultButton)
+#ifndef USE_ASYNC_DIALOGS
+QMessageBox::StandardButton
+#else
+void
+#endif
+				displayInformation(QWidget *pParent, const QString &strTitle, const QString &strText,
+									QMessageBox::StandardButtons nButtons,
+									QMessageBox::StandardButton nDefaultButton,
+									std::function<void (QMessageBox::StandardButton nResult)> fnCompletion)
 {
 #if defined(EMSCRIPTEN) && !defined(Q_OS_WASM)
 	qDebug("information: %s: %s", strTitle.toUtf8().data(), strText.toUtf8().data());
@@ -74,7 +158,15 @@ QMessageBox::StandardButton displayInformation(QWidget *pParent, const QString &
 	if (nDefaultButton != QMessageBox::NoButton) return nDefaultButton;
 	return QMessageBox::Ok;
 #else
-	return QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
+
+#ifndef USE_ASYNC_DIALOGS
+	QMessageBox::StandardButton nRetVal = QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
+	if (fnCompletion) fnCompletion(nRetVal);
+	return nRetVal;
+#else
+	asyncShowNewMessageBox(pParent, QMessageBox::Information, strTitle, strText, nButtons, nDefaultButton, fnCompletion);
+#endif
+
 #endif
 }
 

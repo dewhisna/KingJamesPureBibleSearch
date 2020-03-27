@@ -859,15 +859,19 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 			QListWidgetItem *pItem = ui.listWidgetHighlighterColors->takeItem(nListWidgetIndex);
 			delete pItem;
 		} else {
-			CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(nListWidgetIndex));
+			QPointer<CHighlighterColorButton> pButtonItem = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(nListWidgetIndex));
 			if (pButtonItem->enabled()) {
-				int nResult = displayInformation(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
+				displayInformation(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
 																			   "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
 																			   "with this highlighter, and drag them to a different highlighter.  And then you can return here and remove "
 																			   "this highlighter.  Or, open a new King James Notes file.\n\n"
 																				"So instead, would you like to disable it so that text highlighted with this Highlighter isn't visible??", "Errors"),
-																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok);
-				if (nResult == QMessageBox::Ok) pButtonItem->setEnabled(false);
+																		  (QMessageBox::Ok  | QMessageBox::Cancel), QMessageBox::Ok,
+												std::function<void (QMessageBox::StandardButton nResult)>(
+													[pButtonItem](QMessageBox::StandardButton nResult)->void {
+														if ((nResult == QMessageBox::Ok) && pButtonItem)
+															pButtonItem->setEnabled(false);
+													}));
 			} else {
 				displayInformation(this, windowTitle(), tr("That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, "
 																 "use the \"View Highlighters\" mode to display the highlighted passages, select the passages associated "
@@ -3206,24 +3210,46 @@ void CKJVConfigurationDialog::en_dataChanged(bool bNeedRestart)
 
 void CKJVConfigurationDialog::accept()
 {
-	if (m_bNeedRestart) m_bRestartApp = promptRestart();
-
-	CBusyCursor iAmBusy(NULL);
-
+	// Note: Must do this AHEAD of the final completion function for
+	//		asynchronous dialogs to work correctly, as this configure
+	//		dialog may be in the process of getting torn down during
+	//		that finalizer and we'll hit an assert inside of save:
 	m_pConfiguration->saveSettings();
-	QDialog::accept();
-	// Note: Leave the settings permanent, by not copying
-	//		them back in the persistent settings object
+
+	auto &&fnFinalCompletion = [this]()->void {
+		CBusyCursor iAmBusy(NULL);
+
+		QDialog::accept();
+		// Note: Leave the settings permanent, by not copying
+		//		them back in the persistent settings object
+	};
+
+	if (m_bNeedRestart) {
+		promptRestart(std::function<void (bool bRestart)>(
+						[this, fnFinalCompletion](bool bRestart)->void {
+							m_bRestartApp = bRestart;
+							fnFinalCompletion();
+						}));
+	} else {
+		fnFinalCompletion();
+	}
 }
 
 void CKJVConfigurationDialog::reject()
 {
 	if (m_pConfiguration->isDirty()) {
-		int nResult = displayInformation(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
+		displayInformation(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
 																	   "Click 'OK' to discard the changes and close this configuration window.\n"
 																	   "Click 'Cancel' to stay here in the configuration window.", "Errors"),
-																  (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
-		if (nResult == QMessageBox::Cancel) return;
+																  (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel,
+									std::function<void (QMessageBox::StandardButton nResult)>(
+										[this](QMessageBox::StandardButton nResult) {
+											if (nResult != QMessageBox::Cancel) {
+												 restore(false);
+												 QDialog::reject();
+											 }
+										}));
+		return;
 	}
 	restore(false);
 	QDialog::reject();
@@ -3233,24 +3259,39 @@ void CKJVConfigurationDialog::apply()
 {
 	assert(!g_pUserNotesDatabase.isNull());
 
-	if (m_bNeedRestart) m_bRestartApp = promptRestart();
-
-	CBusyCursor iAmBusy(NULL);
-
 	// Make sure our persistent settings have been updated, and we'll
 	//		copy the settings over to the original, making them permanent
 	//		as the user is "applying" them:
+	// Note: Must do this AHEAD of the final completion function for
+	//		asynchronous dialogs to work correctly, as this configure
+	//		dialog may be in the process of getting torn down during
+	//		that finalizer and we'll hit an assert inside of save:
 	m_pConfiguration->saveSettings();
-	if (m_bRestartApp) {
-		QDialog::accept();
-		// If we are restarting, then leave the settings permanent, by
-		//		not copying them back in the persistent settings object.
-		//		This is the same functionality of "accept()".  We have
-		//		already prompted the user above...
+
+	auto &&fnFinalCompletion = [this]()->void {
+		CBusyCursor iAmBusy(NULL);
+
+		if (m_bRestartApp) {
+			QDialog::accept();
+			// If we are restarting, then leave the settings permanent, by
+			//		not copying them back in the persistent settings object.
+			//		This is the same functionality of "accept()".  We have
+			//		already prompted the user above...
+		} else {
+			CPersistentSettings::instance()->togglePersistentSettingData(true);
+			g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
+			en_dataChanged(false);
+		}
+	};
+
+	if (m_bNeedRestart) {
+		promptRestart(std::function<void (bool bRestart)>(
+						[this, fnFinalCompletion](bool bRestart)->void {
+							m_bRestartApp = bRestart;
+							fnFinalCompletion();
+						}));
 	} else {
-		CPersistentSettings::instance()->togglePersistentSettingData(true);
-		g_pUserNotesDatabase->toggleUserNotesDatabaseData(true);
-		en_dataChanged(false);
+		fnFinalCompletion();
 	}
 }
 
@@ -3280,43 +3321,52 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 
 	assert(m_nLastIndex != -1);				// We should have set our initial page index and can never navigate away from some page!
 	if (m_nLastIndex == index) return;
-	if (m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(m_nLastIndex))) {
-		m_bHandlingPageSwap = true;
 
-		int nResult = displayInformation(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
+	auto &&fnFinalCompletion = [this, index]()->void {
+#ifdef USING_QT_SPEECH
+		if (static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index) == CPSE_TTS_OPTIONS) {
+			if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL) && (!g_pMyApplication->speechSynth()->canSpeak())) {
+				displayWarning(this, windowTitle(), tr("Failed to load system Text-To-Speech Module.\n"
+															"To use Text-To-Speech, you may need to install the Text-To-Speech support package."));
+			}
+		}
+#endif
+
+		m_nLastIndex = index;
+
+		m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index)));
+	};
+
+	if (m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(m_nLastIndex))) {
+		displayInformation(this, windowTitle(), tr("You have changed some settings on the previous page.  Do you wish to apply those settings??\n\n"
 																	   "Click 'Yes' to apply the setting changes and continue.\n"
 																	   "Click 'No' to discard those setting changes and continue.\n"
 																	   "Click 'Cancel' to stay on this settings page.", "Errors"),
-																  (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes);
-		if (nResult == QMessageBox::Yes) {
-			apply();
-		} else if (nResult == QMessageBox::No) {
-			restore(true);
-		} else {
-			// It doesn't work right to call setCurrentIndex() here to set us back
-			//		to the last index, because the listWidgetView still hasn't updated
-			//		at the time of this call.  However, we can work around it by setting
-			//		an event to happen when the event loop runs again, which will trigger
-			//		after this current setting process has completed:
-			QTimer::singleShot(0, this, SLOT(en_setToLastIndex()));
-			return;
-		}
+																  (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel), QMessageBox::Yes,
+										std::function<void (QMessageBox::StandardButton nResult)>(
+											[this, fnFinalCompletion](QMessageBox::StandardButton nResult)->void {
+												m_bHandlingPageSwap = true;
+												if (nResult == QMessageBox::Yes) {
+													apply();
+												} else if (nResult == QMessageBox::No) {
+													restore(true);
+												} else {
+													// It doesn't work right to call setCurrentIndex() here to set us back
+													//		to the last index, because the listWidgetView still hasn't updated
+													//		at the time of this call.  However, we can work around it by setting
+													//		an event to happen when the event loop runs again, which will trigger
+													//		after this current setting process has completed:
+													QTimer::singleShot(0, this, SLOT(en_setToLastIndex()));
+													return;
+												}
+												m_bHandlingPageSwap = false;
+												fnFinalCompletion();
+											}
+										));
 
-		m_bHandlingPageSwap = false;
+	} else {
+		fnFinalCompletion();
 	}
-
-#ifdef USING_QT_SPEECH
-	if (static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index) == CPSE_TTS_OPTIONS) {
-		if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL) && (!g_pMyApplication->speechSynth()->canSpeak())) {
-			displayWarning(this, windowTitle(), tr("Failed to load system Text-To-Speech Module.\n"
-														"To use Text-To-Speech, you may need to install the Text-To-Speech support package."));
-		}
-	}
-#endif
-
-	m_nLastIndex = index;
-
-	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty(static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index)));
 }
 
 void CKJVConfigurationDialog::en_setToLastIndex()
@@ -3327,14 +3377,17 @@ void CKJVConfigurationDialog::en_setToLastIndex()
 	m_bHandlingPageSwap = false;
 }
 
-bool CKJVConfigurationDialog::promptRestart()
+void CKJVConfigurationDialog::promptRestart(std::function<void (bool bRestart)> fnCompletion)
 {
-	int nResult = displayInformation(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
+	displayInformation(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
 																   "Doing so will close all Search Windows just like exiting the program.  "
 																   "If you choose not to exit, they will be applied the next time you run the program.\n\n"
 																   "Do you wish to restart the app??", "Errors"),
-																(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
-	return (nResult == QMessageBox::Yes);
+																(QMessageBox::Yes | QMessageBox::No), QMessageBox::No,
+									std::function<void (QMessageBox::StandardButton nResult)>(
+										[fnCompletion](QMessageBox::StandardButton nResult)->void {
+											if (fnCompletion) fnCompletion(nResult == QMessageBox::Yes);
+										}));
 }
 
 // ============================================================================
