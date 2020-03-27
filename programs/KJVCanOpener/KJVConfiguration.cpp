@@ -3205,7 +3205,10 @@ void CKJVConfigurationDialog::en_dataChanged(bool bNeedRestart)
 {
 	updateGeometry();
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty());
-	m_bNeedRestart = (bNeedRestart && m_pConfiguration->isDirty());
+	// The following must 'OR' with m_bNeedRestart so that if a control
+	//	not needing a restart is changed after one that does, it doesn't
+	//	remove the existing NeedRestart flag:
+	m_bNeedRestart = m_bNeedRestart || (bNeedRestart && m_pConfiguration->isDirty());
 }
 
 void CKJVConfigurationDialog::accept()
