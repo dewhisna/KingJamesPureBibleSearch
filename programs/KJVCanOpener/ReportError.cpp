@@ -35,6 +35,7 @@
 #include <QPushButton>
 #include <QPointer>
 #include <QEventLoop>
+#include <QTimer>
 #endif
 
 // ============================================================================
@@ -73,7 +74,7 @@ static void asyncShowNewMessageBox(QWidget *parent,
 
 	QMessageBox::connect(
 		pMsgBox, &QMessageBox::finished,
-		[pMsgBox, fnCompletion](int nResult)
+		[parent, pMsgBox, fnCompletion](int nResult)
 		{
 			Q_UNUSED(nResult);
 			QMessageBox::StandardButton nRetVal = QMessageBox::NoButton;
@@ -85,6 +86,13 @@ static void asyncShowNewMessageBox(QWidget *parent,
 			if (pMsgBox) {
 				pMsgBox->deleteLater();
 			}
+#if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
+			if (parent) {
+				QTimer::singleShot(10, [parent]()->void { parent->activateWindow();  parent->setFocus(); });
+			}
+#else
+			Q_UNUSED(parent);
+#endif
 		}
 	);
 
