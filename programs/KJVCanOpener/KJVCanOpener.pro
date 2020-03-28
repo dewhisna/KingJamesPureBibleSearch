@@ -958,6 +958,8 @@ emscripten:wasm {
 	QMAKE_LFLAGS += --emrun \
 					--no-heap-copy \
 					--preload-file data/bbl-kjv1769.ccdb \
+					--preload-file data/bbl-rv1865mv20180504.ccdb \
+					--preload-file data/bbl-rvg2010-20150120.ccdb \
 					--preload-file data/kjpbs.en.qm \
 					--preload-file data/kjpbs.fr.qm \
 					--preload-file data/kjpbs.es.qm \
@@ -973,7 +975,9 @@ emscripten:wasm {
 					--preload-file data/wwwidgets_de.qm
 
 	WASMFILES += \
-		$${PWD}/db/bbl-kjv1769.ccdb
+		$${PWD}/db/bbl-kjv1769.ccdb \
+		$${PWD}/db/bbl-rv1865mv20180504.ccdb \
+		$${PWD}/db/bbl-rvg2010-20150120.ccdb
 
 	!isEmpty(TRANSLATIONS) {
 		WASMFILES += $$translationDeploy.files
