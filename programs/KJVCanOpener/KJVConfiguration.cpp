@@ -3248,9 +3248,9 @@ void CKJVConfigurationDialog::reject()
 									std::function<void (QMessageBox::StandardButton nResult)>(
 										[this](QMessageBox::StandardButton nResult) {
 											if (nResult != QMessageBox::Cancel) {
-												 restore(false);
-												 QDialog::reject();
-											 }
+												restore(false);
+												QDialog::reject();
+											}
 										}));
 		return;
 	}
