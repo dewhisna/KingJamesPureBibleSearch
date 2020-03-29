@@ -2844,7 +2844,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 
 	QPointer<CKJVConfigurationDialog> pDlgConfigure = new CKJVConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != NULL) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 
-	auto &&fnCompletion = [lstCanOpeners, pDlgConfigure](int nResult)->void {
+	auto &&fnCompletion = [this, lstCanOpeners, pDlgConfigure](int nResult)->void {
 		Q_UNUSED(nResult);
 		for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
 			CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
@@ -2854,7 +2854,12 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		assert(!pDlgConfigure.isNull());
 		if (pDlgConfigure) {
 			if (pDlgConfigure->restartApp()) {
+#if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
+				QTimer::singleShot(10, [this]()->void { g_pMyApplication->restartApp(this); });
+#else
+				Q_UNUSED(this);
 				QTimer::singleShot(10, g_pMyApplication.data(), SLOT(restartApp()));
+#endif
 			}
 			pDlgConfigure->deleteLater();
 		}

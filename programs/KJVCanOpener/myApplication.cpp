@@ -1175,18 +1175,31 @@ void CMyApplication::activateAllCanOpeners() const
 	}
 }
 
-void CMyApplication::closeAllCanOpeners()
+void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 {
 	assert(canQuit());
 	if (!canQuit()) return;
 
 	int nLastCanOpener = 0;
 
-#if defined(Q_OS_WASM)
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+	if (pActiveCanOpener) pBibleDatabase = pActiveCanOpener->bibleDatabase();
+
 	if (m_bAreRestarting) {
-		nLastCanOpener = 1;		// Hold the last instance until we create the new one, because if we delete it, we exit
+		// Hold the last instance until we create the new one, because if we delete it, we exit.
+		//	This is particularly important on WebAssembly since we can't let
+		//	the main exec() exit due to operating in asynchronous mode.  On
+		//	desktop/vnc builds, we can exit and the loop in main() will check to
+		//	see if we are restarting and recreate the main CanOpener.  However,
+		//	that loop can't easily start back on the same database as the
+		//	currently active CanOpener.  So we'll let both paths follow the
+		//	same course here and try to recreate the main CanOpener here with
+		//	the database of the current CanOpener and let the main() just be
+		//	a fallback on desktop/vnc builds.  The fallback is needed for
+		//	older Qt's that don't support functor calls in singleShot
+		//	(see CKJVCanOpener::en_Configure):
+		nLastCanOpener = 1;
 	}
-#endif
 
 	// Close in reverse order:
 	for (int ndx = (m_lstKJVCanOpeners.size()-1); ndx >= nLastCanOpener; --ndx) {
@@ -1194,19 +1207,17 @@ void CMyApplication::closeAllCanOpeners()
 	}
 	// Note: List update will happen automatically as the windows close...
 
-#if defined(Q_OS_WASM)
 	if (m_bAreRestarting) {
-		createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
+		createKJVCanOpener(pBibleDatabase);
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(0), SLOT(close()));
 	}
-#endif
 
 }
 
-void CMyApplication::restartApp()
+void CMyApplication::restartApp(CKJVCanOpener *pCallingCanOpener)
 {
 	m_bAreRestarting = true;
-	closeAllCanOpeners();
+	closeAllCanOpeners(pCallingCanOpener);
 }
 
 void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)
