@@ -49,10 +49,6 @@
 
 #include <assert.h>
 
-#ifndef uint32_t
-#define uint32_t unsigned int
-#endif
-
 #ifndef _countof
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif

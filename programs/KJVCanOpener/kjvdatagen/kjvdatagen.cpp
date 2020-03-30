@@ -127,10 +127,6 @@
 #define stricmp strcasecmp
 #endif
 
-#ifndef uint32_t
-#define uint32_t unsigned int
-#endif
-
 // PILCROW_SUMMARY : Set to 1 to output Pilcrow report summary to <stderr> or 0 to suppress
 #define PILCROW_SUMMARY 0
 // OUTPUT_HEBREW_PS119 : Set to 1 to output Hebrew characters in addition to English for Psalm119 in Rich text

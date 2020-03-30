@@ -27,6 +27,12 @@
 #
 #-------------------------------------------------
 
+greaterThan(QT_MAJOR_VERSION,4) {
+	CONFIG *= c++11
+} else {
+	QMAKE_CXXFLAGS *= -std=c++11
+}
+
 QT       += core gui xml
 !emscripten {
 	QT += sql
