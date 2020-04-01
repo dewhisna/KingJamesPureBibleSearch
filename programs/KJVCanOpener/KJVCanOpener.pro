@@ -33,13 +33,21 @@ greaterThan(QT_MAJOR_VERSION,4) {
 	QMAKE_CXXFLAGS *= -std=c++11
 }
 
-QT       += core gui xml
-!emscripten {
-	QT += sql
+QT       *= core gui xml
+
+defined(qtHaveModule, test) {
+	qtHaveModule(sql):QT *= sql
 } else {
-	DEFINES += NOT_USING_SQL
+	# The qtHaveModule function was added in Qt 5.0.1, but our
+	#	VNC target is built in 4.8.7, yet still uses SQL:
+	vnc:QT *= sql
 }
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
+
+!contains(QT, sql):DEFINES *= NOT_USING_SQL
+
+# Dictionaries require SQL, so enable it if we have SQL:
+contains(QT, sql):DEFINES *= USING_DICTIONARIES
 
 # See: https://stackoverflow.com/questions/18666799/how-to-prevent-qmake-from-adding-the-console-subsystem-on-the-linker-command-lin
 testlib:QT.testlib.CONFIG -= console
@@ -966,6 +974,8 @@ emscripten:wasm {
 					--preload-file data/bbl-kjv1769.ccdb \
 					--preload-file data/bbl-rv1865mv20180504.ccdb \
 					--preload-file data/bbl-rvg2010-20150120.ccdb \
+					--preload-file data/dct-web1828.s3db \
+					--preload-file data/dct-web1913.s3db \
 					--preload-file data/kjpbs.en.qm \
 					--preload-file data/kjpbs.fr.qm \
 					--preload-file data/kjpbs.es.qm \
@@ -983,7 +993,9 @@ emscripten:wasm {
 	WASMFILES += \
 		$${PWD}/db/bbl-kjv1769.ccdb \
 		$${PWD}/db/bbl-rv1865mv20180504.ccdb \
-		$${PWD}/db/bbl-rvg2010-20150120.ccdb
+		$${PWD}/db/bbl-rvg2010-20150120.ccdb \
+		$${PWD}/db/dct-web1828.s3db \
+		$${PWD}/db/dct-web1913.s3db
 
 	!isEmpty(TRANSLATIONS) {
 		WASMFILES += $$translationDeploy.files
@@ -1027,5 +1039,6 @@ emscripten:wasm {
 
 ###############################################################################
 
+message("Qt: " $$QT$$escape_expand(\\n))
 message("Config: " $$CONFIG$$escape_expand(\\n))
 message("QtConfig: " $$QT_CONFIG$$escape_expand(\\n))

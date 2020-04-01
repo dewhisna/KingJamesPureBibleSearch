@@ -1304,6 +1304,8 @@ void CKJVBibleDatabaseConfig::en_displayBibleInformation()
 // ============================================================================
 // ============================================================================
 
+#if defined(USING_DICTIONARIES)
+
 CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
@@ -1464,6 +1466,8 @@ void CKJVDictDatabaseConfig::en_displayDictInformation()
 	pDlg->show();
 #endif
 }
+
+#endif	// USING_DICTIONARIES
 
 // ============================================================================
 // ============================================================================
@@ -2970,7 +2974,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		m_pUserNotesDatabaseConfig(NULL),
 #endif
 		m_pBibleDatabaseConfig(NULL),
+#if defined(USING_DICTIONARIES)
 		m_pDictDatabaseConfig(NULL),
+#endif
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pTTSOptionsConfig(NULL),
 #endif
@@ -2986,7 +2992,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif
 	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
+#if defined(USING_DICTIONARIES)
 	m_pDictDatabaseConfig = new CKJVDictDatabaseConfig(this);
+#endif
 	m_pLocaleConfig = new CKJVLocaleConfig(this);
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pTTSOptionsConfig = new CKJVTTSOptionsConfig(this);
@@ -2999,9 +3007,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	addGroup(m_pUserNotesDatabaseConfig, QIcon(":/res/Data_management_Icon_128.png"), tr("Notes File Settings", "MainMenu"));
 #endif
 	addGroup(m_pBibleDatabaseConfig, QIcon(":/res/Database4-128.png"), tr("Bible Database", "MainMenu"));
-#if !defined(EMSCRIPTEN)
-// NOTE : We are still creating this group, but not hooking it up
-//	yet since WebAssembly/Emscripten doesn't support SQL
+#if defined(USING_DICTIONARIES)
 	addGroup(m_pDictDatabaseConfig, QIcon(":/res/Apps-accessories-dictionary-icon-128.png"), tr("Dictionary Database", "MainMenu"));
 #endif
 	addGroup(m_pLocaleConfig, QIcon(":/res/language_256.png"), tr("Locale Settings", "MainMenu"));
@@ -3029,7 +3035,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_BIBLE_DATABASE:
 			pSelect = m_pBibleDatabaseConfig;
 			break;
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 		case CPSE_DICT_DATABASE:
 			pSelect = m_pDictDatabaseConfig;
 			break;
@@ -3058,7 +3064,9 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(m_pUserNotesDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 #endif
 	connect(m_pBibleDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+#if defined(USING_DICTIONARIES)
 	connect(m_pDictDatabaseConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
+#endif
 	connect(m_pLocaleConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	connect(m_pTTSOptionsConfig, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
@@ -3079,7 +3087,9 @@ void CKJVConfiguration::loadSettings()
 	m_pUserNotesDatabaseConfig->loadSettings();
 #endif
 	m_pBibleDatabaseConfig->loadSettings();
+#if defined(USING_DICTIONARIES)
 	m_pDictDatabaseConfig->loadSettings();
+#endif
 	m_pLocaleConfig->loadSettings();
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pTTSOptionsConfig->loadSettings();
@@ -3095,7 +3105,9 @@ void CKJVConfiguration::saveSettings()
 	m_pUserNotesDatabaseConfig->saveSettings();
 #endif
 	m_pBibleDatabaseConfig->saveSettings();
+#if defined(USING_DICTIONARIES)
 	m_pDictDatabaseConfig->saveSettings();
+#endif
 	m_pLocaleConfig->saveSettings();
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pTTSOptionsConfig->saveSettings();
@@ -3117,8 +3129,10 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 			return m_pTextFormatConfig->isDirty();
 		case CPSE_BIBLE_DATABASE:
 			return m_pBibleDatabaseConfig->isDirty();
+#if defined(USING_DICTIONARIES)
 		case CPSE_DICT_DATABASE:
 			return m_pDictDatabaseConfig->isDirty();
+#endif
 		case CPSE_LOCALE:
 			return m_pLocaleConfig->isDirty();
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -3134,7 +3148,9 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 #endif
 					m_pTextFormatConfig->isDirty() ||
 					m_pBibleDatabaseConfig->isDirty() ||
+#if defined(USING_DICTIONARIES)
 					m_pDictDatabaseConfig->isDirty() ||
+#endif
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 					m_pTTSOptionsConfig->isDirty() ||
 #endif

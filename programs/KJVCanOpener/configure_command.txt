@@ -3073,12 +3073,25 @@ chown -R root:root lsb-app-checker/
 WebAssembly/Emscripten (5.14.1):
 ================================
 
+Warning: Multithreaded doesn't work well at all, as most browsers still don't
+support it, including my Firefox.  The QtSql module, though, requires that
+Threading be enable.  However, SQLite doesn't actually need multithreading.
+So, we will patch the Qt source and disable the requirement and everything
+will compile and function correctly.
+
+The following versions of Emscripten are known to work:
+
+- sdk-fastcomp-1.38.27-64bit
+- sdk-fastcomp-1.38.30-64bit
+
+
 Install Emscripten:
 -------------------
+$ ~/Documents/programs
 $ git clone https://github.com/emscripten-core/emsdk.git
 $ cd emsdk/
-$ ./emsdk install sdk-fastcomp-1.38.27-64bit
-$ ./emsdk activate --embedded sdk-fastcomp-1.38.27-64bit
+$ ./emsdk install sdk-fastcomp-1.38.30-64bit
+$ ./emsdk activate --embedded sdk-fastcomp-1.38.30-64bit
 
 Before doing following compilations, run:
 
@@ -3090,9 +3103,10 @@ Download/Build Qt for WebAssembly:
 ----------------------------------
 $ cd ~/Qt
 $ tar -Jxvf ~/Downloads/software/Qt/5.14.1/qt-everywhere-src-5.14.1.tar.xz
-$ mv qt-everywhere-src-5.14.1/ 5.14.1-wasm
+$ mv qt-everywhere-src-5.14.1 5.14.1-wasm
 $ cd 5.14.1-wasm/
-$ ./configure -xplatform wasm-emscripten -nomake examples -prefix $PWD/qtbase -opensource -confirm-license
+$ patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/Qt_5_14_1_wasm.patch
+$ ./configure -xplatform wasm-emscripten -sql-sqlite -nomake examples -prefix $PWD/qtbase -opensource -confirm-license
 $ make -j8 module-qtbase module-qtdeclarative module-qttranslations
 
 
@@ -3115,6 +3129,7 @@ $ ~/Qt/5.14.1-wasm/qtbase/bin/qmake ~/Documents/programs/Bible/KingJamesPureBibl
 $ make -j8
 $ make install
 $ cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/support/wwWidgets/translations/wwwidgets_*.qm ~/Qt/5.14.1-wasm/qtbase/translations/
+
 
 Build KJPBS:
 ------------

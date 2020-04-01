@@ -1,0 +1,11 @@
+diff -rupN qt-everywhere-src-5.14.1/qtbase/configure.json 5.14.1-wasm/qtbase/configure.json
+--- qt-everywhere-src-5.14.1/qtbase/configure.json	2020-01-23 06:37:32.000000000 -0600
++++ 5.14.1-wasm/qtbase/configure.json	2020-03-31 17:38:37.727875669 -0500
+@@ -1311,7 +1311,6 @@
+         },
+         "sql": {
+             "label": "Qt Sql",
+-            "condition": "features.thread",
+             "output": [ "privateFeature" ]
+         },
+         "testlib": {

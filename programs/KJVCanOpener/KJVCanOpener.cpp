@@ -36,7 +36,7 @@
 #include "KJVAboutDlg.h"
 #if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
 #include "KJVConfiguration.h"
-#include "DictionaryWidget.h"
+#include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
 #if !defined(VNCSERVER) && !defined(EMSCRIPTEN)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
@@ -435,7 +435,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pBrowserWidget->setSizePolicy(aSizePolicyBrowser);
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	CDictionaryDatabasePtr pDictionary = TDictionaryDatabaseList::locateAndLoadDictionary(m_pBibleDatabase->language(), this);
 	if (!pDictionary.isNull()) {
 		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, m_pBibleDatabase->language(), m_pSplitterDictionary);
@@ -531,7 +531,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	if (m_pDictionaryWidget != NULL)
 		connect(m_pDictionaryWidget, SIGNAL(activatedDictionary(bool)), this, SLOT(en_activatedDictionary(bool)));
 #endif
@@ -832,7 +832,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchBibleDatabaseConfig()));
 
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F6));
 	addAction(pAction);
@@ -946,7 +946,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Scripture Browser:
 
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	if (m_pDictionaryWidget != NULL) {
 		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
 		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(const QString &)), m_pBrowserWidget, SLOT(gotoPassageReference(const QString &)));
@@ -985,7 +985,7 @@ CKJVCanOpener::~CKJVCanOpener()
 
 CDictionaryDatabasePtr CKJVCanOpener::dictionaryDatabase() const
 {
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	if (m_pDictionaryWidget != NULL) {
 		return m_pDictionaryWidget->dictionaryDatabase();
 	} else {
@@ -2220,7 +2220,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 		return;
 	}
 
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	if (!bWordEditor) {
 		if (bAdd) {
 			if (m_pActionDictionaryEditMenu == NULL) {
@@ -2250,6 +2250,8 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 			}
 		}
 	}
+#else
+	Q_UNUSED(bWordEditor);
 #endif
 }
 
@@ -2921,7 +2923,7 @@ void CKJVCanOpener::en_LaunchBibleDatabaseConfig()
 
 void CKJVCanOpener::en_LaunchDictDatabaseConfig()
 {
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 	en_Configure(CPSE_DICT_DATABASE);
 #endif
 }

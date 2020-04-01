@@ -1683,7 +1683,7 @@ int CMyApplication::execute(bool bBuildDB)
 			return -3;
 		}
 
-#if !defined(EMSCRIPTEN)
+#if defined(USING_DICTIONARIES)
 		// Read Dictionary Database:
 		QList<DICTIONARY_DESCRIPTOR_ENUM> lstAvailableDDEs = TDictionaryDatabaseList::instance()->availableDictionaryDatabases();
 		for (int ndx = 0; ndx < lstAvailableDDEs.size(); ++ndx) {
@@ -1716,7 +1716,7 @@ int CMyApplication::execute(bool bBuildDB)
 				TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(TDictionaryDatabaseList::instance()->at(nDctNdx)->compatibilityUUID());
 			}
 		}
-#endif	// !EMSCRIPTEN
+#endif	// USING_DICTIONARIES
 
 	}
 

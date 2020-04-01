@@ -215,6 +215,8 @@ private:
 
 // ============================================================================
 
+#if defined(USING_DICTIONARIES)
+
 #include "ui_KJVDictDatabaseConfig.h"
 
 class CKJVDictDatabaseConfig : public QWidget
@@ -257,6 +259,8 @@ private:
 
 	Ui::CKJVDictDatabaseConfig ui;
 };
+
+#endif	// USING_DICTIONARIES
 
 // ============================================================================
 
@@ -591,25 +595,25 @@ private:
 // NOTE: These enumerations must match the configuration pages defined, meaning
 //		that on Emscripten and VNC, we must redefine the list accordingly or
 //		else weird things will happen because the actual indexes won't match
-//		the pages:
+//		the pages.  Therefore, we will not use explicit numbers here (except for
+//		the first two) so that instead they will automatically assign themselves
+//		sequentially:
 
 enum CONFIGURATION_PAGE_SELECTION_ENUM {
 	CPSE_DEFAULT = -1,
 	CPSE_GENERAL_SETTINGS = 0,
-	CPSE_COPY_OPTIONS = 1,
-	CPSE_TEXT_FORMAT = 2,
+	CPSE_COPY_OPTIONS,
+	CPSE_TEXT_FORMAT,
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	CPSE_USER_NOTES_DATABASE = 3,
-	CPSE_BIBLE_DATABASE = 4,
-	CPSE_DICT_DATABASE = 5,
-	CPSE_LOCALE = 6
-#ifdef USING_QT_SPEECH
-	,CPSE_TTS_OPTIONS = 7
+	CPSE_USER_NOTES_DATABASE,
 #endif
-#else
-	CPSE_BIBLE_DATABASE = 3,
-	CPSE_DICT_DATABASE = 4,
-	CPSE_LOCALE = 5
+	CPSE_BIBLE_DATABASE,
+#if defined(USING_DICTIONARIES)
+	CPSE_DICT_DATABASE,
+#endif
+	CPSE_LOCALE,
+#ifdef USING_QT_SPEECH
+	CPSE_TTS_OPTIONS,
 #endif
 };
 
@@ -636,7 +640,9 @@ private:
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
 #endif
 	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
+#if defined(USING_DICTIONARIES)
 	CKJVDictDatabaseConfig *m_pDictDatabaseConfig;
+#endif
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVTTSOptionsConfig *m_pTTSOptionsConfig;
 #endif
