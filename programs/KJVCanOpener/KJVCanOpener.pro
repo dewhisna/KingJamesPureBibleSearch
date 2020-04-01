@@ -385,14 +385,14 @@ SOURCES += \
 buildKJVDatabase:SOURCES += \
 	BuildDB.cpp
 
-if(!emscripten|wasm):SOURCES += \
+if(!emscripten|wasm):!console:SOURCES += \
 	BibleDatabaseInfoDlg.cpp \
 	DictDatabaseInfoDlg.cpp \
 	DictionaryWidget.cpp \
 	KJVConfiguration.cpp \
 	RenameHighlighterDlg.cpp
 
-!emscripten:!vnc:SOURCES += \
+!emscripten:!vnc:!console:SOURCES += \
 	EditWWWLinkDlg.cpp \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
@@ -450,14 +450,14 @@ HEADERS += \
 buildKJVDatabase:HEADERS += \
 	BuildDB.h
 
-if(!emscripten|wasm):HEADERS += \
+if(!emscripten|wasm):!console:HEADERS += \
 	BibleDatabaseInfoDlg.h \
 	DictDatabaseInfoDlg.h \
 	DictionaryWidget.h \
 	KJVConfiguration.h \
 	RenameHighlighterDlg.h
 
-!emscripten:!vnc:HEADERS += \
+!emscripten:!vnc:!console:HEADERS += \
 	EditWWWLinkDlg.h \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
@@ -477,7 +477,7 @@ FORMS += \
 	NoteKeywordWidget.ui \
 	PassageReferenceWidget.ui
 
-if(!emscripten|wasm):FORMS += \
+if(!emscripten|wasm):!console:FORMS += \
 	BibleDatabaseInfoDlg.ui \
 	ConfigBrowserOptions.ui \
 	ConfigCopyOptions.ui \
@@ -492,7 +492,7 @@ if(!emscripten|wasm):FORMS += \
 	KJVTextFormatConfig.ui \
 	RenameHighlighterDlg.ui
 
-!emscripten:!vnc:FORMS += \
+!emscripten:!vnc:!console:FORMS += \
 	EditWWWLinkDlg.ui \
 	KJVCrossRefEditDlg.ui \
 	KJVNoteEditDlg.ui \

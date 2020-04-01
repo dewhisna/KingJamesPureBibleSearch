@@ -32,7 +32,7 @@
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif
@@ -392,7 +392,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 	assert(pCanOpener != NULL);
 
 	if (pCanOpener != NULL) {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
 		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int, bool)), this, SLOT(en_highlightSearchResults(int, bool)));
@@ -599,7 +599,7 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 
 // ----------------------------------------------------------------------------
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, bool bSecondaryActive)
 {
 	if (!hasFocus()) return;
@@ -971,7 +971,7 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 	emit activatedSearchResults();
 	QTreeView::focusInEvent(event);
 	if (parentCanOpener() != NULL) {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		parentCanOpener()->highlighterButtons()->setHighlighterTips(true);
 #endif
 #ifdef USING_QT_SPEECH
@@ -993,7 +993,7 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 	if ((parentCanOpener() != NULL) &&
 		(event->reason() != Qt::MenuBarFocusReason) &&
 		(event->reason() != Qt::PopupFocusReason)) {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		parentCanOpener()->highlighterButtons()->setHighlighterTips(false);
 		parentCanOpener()->actionUserNoteEditor()->setEnabled(false);
 		parentCanOpener()->actionCrossRefsEditor()->setEnabled(false);
@@ -1095,7 +1095,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 	m_pActionNavigator->setEnabled(bEditableNode);
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	if (hasFocus()) {
 		if (parentCanOpener() != NULL) {
 			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditableNode);
@@ -1397,7 +1397,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	m_pShowHighlightersInSearchResults = new QCheckBox(this);
 	m_pShowHighlightersInSearchResults->setObjectName(QString::fromUtf8("checkBoxShowHighlightersInSearchResults"));
 	m_pShowHighlightersInSearchResults->setText(tr("Show &Highlighting in Search Results", "MainMenu"));

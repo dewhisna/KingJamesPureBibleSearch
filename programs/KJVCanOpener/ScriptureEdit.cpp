@@ -29,7 +29,7 @@
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif

@@ -34,7 +34,7 @@
 #include "Highlighter.h"
 #include "SearchCompleter.h"
 #include "KJVAboutDlg.h"
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 #include "KJVConfiguration.h"
 #include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
 #if !defined(VNCSERVER) && !defined(EMSCRIPTEN)
@@ -309,7 +309,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- User Notes/Highlighter/References Toolbar:
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 
 	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
 	//			will be null when its constructor is building menus:
@@ -435,7 +435,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pBrowserWidget->setSizePolicy(aSizePolicyBrowser);
 	m_pSplitterDictionary->addWidget(m_pBrowserWidget);
 
-#if defined(USING_DICTIONARIES)
+#if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	CDictionaryDatabasePtr pDictionary = TDictionaryDatabaseList::locateAndLoadDictionary(m_pBibleDatabase->language(), this);
 	if (!pDictionary.isNull()) {
 		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, m_pBibleDatabase->language(), m_pSplitterDictionary);
@@ -494,7 +494,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setToolTip(tr("Clear All Search Phrases, Search Scope, and Search Within Settings, and Begin New Search", "MainMenu"));
 	ui.mainToolBar->addAction(pAction);
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File...", "MainMenu"), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
 	pAction->setStatusTip(tr("Load Search Phrases from a previously saved King James Search File", "MainMenu"));
 	pAction->setToolTip(tr("Load Search Phrases from a previously saved King James Search File", "MainMenu"));
@@ -531,7 +531,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
-#if defined(USING_DICTIONARIES)
+#if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (m_pDictionaryWidget != NULL)
 		connect(m_pDictionaryWidget, SIGNAL(activatedDictionary(bool)), this, SLOT(en_activatedDictionary(bool)));
 #endif
@@ -573,7 +573,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setChecked(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), pAction);
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	pAction = m_pActionGroupViewMode->addAction(tr("View &Highlighters", "MainMenu"));
 	m_pViewMenu->addAction(pAction);
 	pAction->setData(CVerseListModel::VVME_HIGHLIGHTERS);
@@ -796,7 +796,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.browserNavigationToolBar->addSeparator();
 	ui.browserNavigationToolBar->addAction(m_pActionViewDetails);
 
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	// --- Settings Menu
 	QMenu *pSettingsMenu = ui.menuBar->addMenu(tr("Se&ttings", "MainMenu"));
 
@@ -851,7 +851,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchTTSOptionsConfig()));
 #endif
 
-#endif	// !EMSCRIPTEN || Q_OS_WASM
+#endif	// (!EMSCRIPTEN && !IS_CONSOLE_APP) || Q_OS_WASM
 
 
 	// --- Window Menu
@@ -946,7 +946,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Scripture Browser:
 
-#if defined(USING_DICTIONARIES)
+#if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (m_pDictionaryWidget != NULL) {
 		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
 		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(const QString &)), m_pBrowserWidget, SLOT(gotoPassageReference(const QString &)));
@@ -954,7 +954,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #endif
 
 	// -------------------- UserNoteEditor Dialog:
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pUserNoteEditorDlg->setModal(true);
 	connect(m_pActionUserNoteEditor, SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
@@ -962,7 +962,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 
 	// -------------------- CrossRefsEditor Dialog:
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pCrossRefsEditorDlg->setModal(true);
 	connect(m_pActionCrossRefsEditor, SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
@@ -985,7 +985,7 @@ CKJVCanOpener::~CKJVCanOpener()
 
 CDictionaryDatabasePtr CKJVCanOpener::dictionaryDatabase() const
 {
-#if defined(USING_DICTIONARIES)
+#if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (m_pDictionaryWidget != NULL) {
 		return m_pDictionaryWidget->dictionaryDatabase();
 	} else {
@@ -1109,7 +1109,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrDefaultNoteBackgroundColorKey, CPersistentSettings::instance()->colorDefaultNoteBackground().name());
 		settings.endGroup();
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		m_pUserNoteEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 		m_pCrossRefsEditorDlg->writeSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 #endif
@@ -1375,7 +1375,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			settings.endGroup();
 		}
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		m_pUserNoteEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrUserNoteEditorGroup));
 		m_pCrossRefsEditorDlg->readSettings(settings, groupCombine(constrUserNotesDatabaseGroup, constrCrossRefsEditorGroup));
 #endif
@@ -1714,7 +1714,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	assert(!g_pMyApplication.isNull());
 
 	if (g_pMyApplication->isLastCanOpener()) {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined (IS_CONSOLE_APP)
 		int nResult;
 		bool bPromptFilename = false;
 
@@ -1883,7 +1883,7 @@ void CKJVCanOpener::en_NewSearch()
 
 void CKJVCanOpener::en_OpenSearch()
 {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	QString strFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Open KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), NULL, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
@@ -1904,7 +1904,7 @@ void CKJVCanOpener::en_OpenSearch()
 
 void CKJVCanOpener::en_SaveSearch()
 {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), "kjs", NULL, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
@@ -2220,7 +2220,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 		return;
 	}
 
-#if defined(USING_DICTIONARIES)
+#if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (!bWordEditor) {
 		if (bAdd) {
 			if (m_pActionDictionaryEditMenu == NULL) {
@@ -2356,7 +2356,7 @@ void CKJVCanOpener::en_nextViewMode()
 			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED;
 			break;
 		case CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED:
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 			nNewMode = CVerseListModel::VVME_HIGHLIGHTERS;
 #else
 			nNewMode = CVerseListModel::VVME_SEARCH_RESULTS;
@@ -2655,7 +2655,7 @@ void CKJVCanOpener::en_gotoRandomPassage()
 
 void CKJVCanOpener::en_userNoteEditorTriggered()
 {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
@@ -2686,7 +2686,7 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 
 void CKJVCanOpener::en_crossRefsEditorTriggered()
 {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
@@ -2834,7 +2834,7 @@ void CKJVCanOpener::en_QuickActivate()
 
 void CKJVCanOpener::en_Configure(int nInitialPage)
 {
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	assert(!g_pMyApplication.isNull());
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
@@ -2888,56 +2888,56 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 
 void CKJVCanOpener::en_LaunchGeneralSettingsConfig()
 {
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	en_Configure(CPSE_GENERAL_SETTINGS);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchCopyOptionsConfig()
 {
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	en_Configure(CPSE_COPY_OPTIONS);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchTextColorAndFontsConfig()
 {
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	en_Configure(CPSE_TEXT_FORMAT);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchNotesFileSettingsConfig()
 {
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) && !defined(VNCSERVER)
 	en_Configure(CPSE_USER_NOTES_DATABASE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchBibleDatabaseConfig()
 {
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	en_Configure(CPSE_BIBLE_DATABASE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchDictDatabaseConfig()
 {
-#if defined(USING_DICTIONARIES)
+#if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	en_Configure(CPSE_DICT_DATABASE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchLocaleSettingsConfig()
 {
-#if !defined(EMSCRIPTEN) || defined(Q_OS_WASM)
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	en_Configure(CPSE_LOCALE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchTTSOptionsConfig()
 {
-#if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	en_Configure(CPSE_TTS_OPTIONS);
 #endif
 }

@@ -119,7 +119,7 @@ protected slots:
 	void en_copyReferenceDetails() const;
 	void en_copyComplete() const;
 
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	void en_highlightSearchResults(int ndxHighlighterTool, bool bSecondaryActive);
 #endif
 
