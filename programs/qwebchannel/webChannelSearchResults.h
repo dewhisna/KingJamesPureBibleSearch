@@ -70,12 +70,12 @@ public slots:
 	void autoCorrect(const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 
-	void getSearchResultDetails(unsigned int ndxLogical);	// Requests data for ToolTip (i.e. search results detail) for the specified logical index
+	void getSearchResultDetails(uint32_t ndxLogical);	// Requests data for ToolTip (i.e. search results detail) for the specified logical index
 
 	void resolvePassageReference(const QString &strPassageReference);
 
-	void gotoIndex(unsigned int ndxRel, int nMoveMode, const QString &strParam);		// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
-	void gotoChapter(int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
+	void gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam);		// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
+	void gotoChapter(unsigned int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
 
 signals:
 	void bibleSelected(bool bSuccess, const QString &strUUID, const QString &strJsonBkChpStruct);		// Generated after selectBible() call to indicate success/fail and to provide the book/chapter layout for navigation (empty if failure)
@@ -87,11 +87,11 @@ signals:
 	void setAutoCompleter(const QString &strElementID, const QString &strWordList);		// Triggered after call to autoCorrect() will return a list of words separated by ";"
 	void updatePhrase(const QString &strElementID, const QString &strNewPhrase);		// Triggered after call to calcUpdatedPhrase() to return new phrase with subphrase substituted
 
-	void searchResultsDetails(unsigned int ndxLogical, const QString &strDetails);		// Triggered after call to getSearchResultDetails() to return search details i.e. tool tip for specified index
+	void searchResultsDetails(uint32_t ndxLogical, const QString &strDetails);		// Triggered after call to getSearchResultDetails() to return search details i.e. tool tip for specified index
 
-	void resolvedPassageReference(unsigned int ndxRel, unsigned int nWordCount);		// Triggered after call to resolvePassageReference with the TPhraseTag equivalent of the passage
+	void resolvedPassageReference(uint32_t ndxRel, uint32_t nWordCount);		// Triggered after call to resolvePassageReference with the TPhraseTag equivalent of the passage
 
-	void scriptureBrowserRender(int nChp, unsigned int ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
+	void scriptureBrowserRender(unsigned int nChp, uint32_t ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
 	void setBibleAudioURLs(const QString &strURLListJson);								// Triggered by scripture browser navigation to set a list of valid URLs for Bible Audio
 
 	void idleStateChanged(bool bIsIdle);					// Triggered when connection either goes idle or wakes up
@@ -191,12 +191,12 @@ public:
 	void autoCorrect(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos);			// Returns HTML Auto-Correction string for passed phrase and triggers autoCompleter list
 	void calcUpdatedPhrase(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos);		// Runs Phrase Parser and determines current subphrase.  Replaces that subphrase with passed strAutoCompleter value
 
-	void getSearchResultDetails(CWebChannelObjects *pChannel, unsigned int ndxLogical);		// Requests data for ToolTip (i.e. search results detail) for the specified logical index
+	void getSearchResultDetails(CWebChannelObjects *pChannel, uint32_t ndxLogical);		// Requests data for ToolTip (i.e. search results detail) for the specified logical index
 
 	void resolvePassageReference(CWebChannelObjects *pChannel, const QString &strPassageReference);
 
-	void gotoIndex(CWebChannelObjects *pChannel, unsigned int ndxRel, int nMoveMode, const QString &strParam);			// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
-	void gotoChapter(CWebChannelObjects *pChannel, int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
+	void gotoIndex(CWebChannelObjects *pChannel, uint32_t ndxRel, int nMoveMode, const QString &strParam);			// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
+	void gotoChapter(CWebChannelObjects *pChannel, unsigned int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
 
 private:
 	CWebChannelSearchResults *createWebChannelSearchResults(CWebChannelObjects *pChannel,  CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase);

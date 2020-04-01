@@ -83,7 +83,7 @@ signals:
 	void triggered();
 	void triggered(const QString &string);
 	void triggered(int i);
-	void triggered(unsigned int ui);
+	void triggered(uint32_t ui);
 	void triggered(const CRelIndex &ndx);
 	void triggered(const TPhraseTag &tag);
 	void triggered(const TPassageTag &tag);
@@ -93,7 +93,7 @@ public slots:
 	void trigger();
 	void trigger(const QString &string);
 	void trigger(int i);
-	void trigger(unsigned int ui);
+	void trigger(uint32_t ui);
 	void trigger(const CRelIndex &ndx);
 	void trigger(const TPhraseTag &tag);
 	void trigger(const TPassageTag &tag);

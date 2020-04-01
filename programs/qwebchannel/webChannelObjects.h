@@ -84,7 +84,7 @@ public slots:
 	void resolvePassageReference(const QString &strPassageReference);
 
 	void gotoIndex(uint32_t ndxRel, int nMoveMode, const QString &strParam);			// Passage to navigate Scripture Browser to relative to nMoveMode. strParam is misc parameter sent back to javascript via scriptureBrowserRender()
-	void gotoChapter(int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
+	void gotoChapter(unsigned int nChp, const QString &strParam);	// Passage to navigate Scripture Browser to by chapter index
 
 protected slots:
 	// ------------ Threaded Results Slots:
@@ -113,7 +113,7 @@ signals:
 
 	void resolvedPassageReference(uint32_t ndxRel, uint32_t nWordCount);				// Triggered after call to resolvePassageReference with the TPhraseTag equivalent of the passage
 
-	void scriptureBrowserRender(int nChp, uint32_t ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
+	void scriptureBrowserRender(unsigned int nChp, uint32_t ndxRel, const QString &strHtmlScripture, const QString &strParam);		// Triggered by scripture browser navigation to display rendered text
 	void setBibleAudioURLs(const QString &strURLListJson);								// Triggered by scripture browser navigation to set a list of valid URLs for Bible Audio
 
 private:

@@ -1499,6 +1499,7 @@ int CMyApplication::execute(bool bBuildDB)
 	qRegisterMetaType<CBibleDatabasePtr>("CBibleDatabasePtr");						// Needed to do queued connection on WebChannel threads
 	qRegisterMetaType<CDictionaryDatabasePtr>("CDictionaryDatabasePtr");			// Needed to do queued connection on WebChannel threads
 	qRegisterMetaType<CUserNotesDatabasePtr>("CUserNotesDatabasePtr");				// Needed to do queued connection on WebChannel threads
+	qRegisterMetaType<uint32_t>("uint32_t");										// Needed to do queued connection on WebChannel threads
 
 	// Setup Text-To-Speech:
 #ifdef USING_QT_SPEECH

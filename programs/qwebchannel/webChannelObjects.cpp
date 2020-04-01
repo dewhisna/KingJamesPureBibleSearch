@@ -147,7 +147,7 @@ void CWebChannelObjects::gotoIndex(uint32_t ndxRel, int nMoveMode, const QString
 	CWebChannelThreadController::instance()->gotoIndex(this, ndxRel, nMoveMode, strParam);
 }
 
-void CWebChannelObjects::gotoChapter(int nChp, const QString &strParam)
+void CWebChannelObjects::gotoChapter(unsigned int nChp, const QString &strParam)
 {
 	CWebChannelThreadController::instance()->gotoChapter(this, nChp, strParam);
 }

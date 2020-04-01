@@ -49,7 +49,7 @@ void DelayedExecutionTimer::timeout()
 	emit triggered();
 	emit triggered(m_prefix % m_lastString % m_postfix);
 	emit triggered(m_lastInt);
-	emit triggered(static_cast<unsigned int>(m_lastInt));
+	emit triggered(static_cast<uint32_t>(m_lastInt));
 	emit triggered(m_lastRelIndex);
 	emit triggered(m_lastPhraseTag);
 	emit triggered(m_lastPassageTag);
@@ -91,7 +91,7 @@ void DelayedExecutionTimer::trigger(int i)
 	trigger();
 }
 
-void DelayedExecutionTimer::trigger(unsigned int ui)
+void DelayedExecutionTimer::trigger(uint32_t ui)
 {
 	m_lastInt = static_cast<int>(ui);
 }

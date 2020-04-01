@@ -184,6 +184,7 @@ inline QDataStream& operator>>(QDataStream &in, CRelIndex &ndx) {
 	return in;
 }
 Q_DECLARE_METATYPE(CRelIndex)
+Q_DECLARE_METATYPE(uint32_t)
 
 // ============================================================================
 
