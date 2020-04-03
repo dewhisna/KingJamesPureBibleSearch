@@ -69,6 +69,17 @@
 			QMAKE_EXTRA_TARGETS += clean html_clean
 		}
 
+		# Generate Random Admin Access Key:
+		KEYGEN_SCRIPT_FILES = $$PWD/webChannelKeyGen.sh
+		webChannelKeyGen.input = KEYGEN_SCRIPT_FILES
+		webChannelKeyGen.output = $$OUT_PWD/webChannelKeys.cpp
+		webChannelKeyGen.commands = ${QMAKE_FILE_IN}
+		webChannelKeyGen.name = Generating WebChannel Keys with ${QMAKE_FILE_IN}
+		webChannelKeyGen.CONFIG = no_link target_predeps
+		webChannelKeyGen.depends = html/admin
+		webChannelKeyGen.variable_out = SOURCES
+		QMAKE_EXTRA_COMPILERS += webChannelKeyGen
+
 	} else {
 		error("WebChannel support build requires Qt 5.5+")
 	}

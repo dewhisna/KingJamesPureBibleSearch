@@ -9,6 +9,7 @@
 		<script type="text/javascript" src="../jquery/jquery-ui/1.11.4/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../jquery/jquery-ui/jquery-ui-autocomplete-scroll/0.1.7/jquery.ui.autocomplete.scroll.min.js"></script>
 		<script type="text/javascript" src="../qwebchannel.js"></script>
+		<script type="text/javascript" src="webChannelKeys.js"></script>
 		<script type="text/javascript">
 			var bAreConnected = false;			// True when we are connected to the server (and properly initialized)
 
@@ -20,7 +21,7 @@
 			}
 			function key()
 			{
-				return "76476F14-F3A9-42AC-9443-4A7445154EC7";
+				return webChannelKeys.webChannelAdminKey;
 			}
 			function scrollToAnchor(anAnchor)
 			{
@@ -112,7 +113,7 @@
 							}
 						});
 
-						channel.objects.kjpbs.unlock("A609FDFD-BB3C-4BEB-AFDA-9A839F940346");
+						channel.objects.kjpbs.unlock(key(), "A609FDFD-BB3C-4BEB-AFDA-9A839F940346");
 						channel.objects.kjpbs.setUserAgent(navigator.userAgent);
 
 						output("Connected to WebChannel, ready...");

@@ -33,6 +33,15 @@
 #include <QWebSocket>
 #include <QVector>
 
+#include <QDateTime>
+
+#ifdef IS_CONSOLE_APP
+#include <iostream>
+#endif
+
+// External keys from webChannelKeys.cpp as generated via webChannelKeyGen.sh
+extern const char *g_pWebChannelAdminKey;
+
 // ============================================================================
 
 //
@@ -79,9 +88,27 @@ void CWebChannelObjects::en_killWebChannel()
 
 // ----------------------------------------------------------------------------
 
-void CWebChannelObjects::unlock(const QString &strKey)
+void CWebChannelObjects::unlock(const QString &strKey, const QString &strConfirmation)
 {
-	if (strKey.compare("A609FDFD-BB3C-4BEB-AFDA-9A839F940346") == 0) m_bIsAdmin = true;
+	if ((strKey.compare(g_pWebChannelAdminKey) == 0) &&
+		(strConfirmation.compare("A609FDFD-BB3C-4BEB-AFDA-9A839F940346") == 0)) {
+		m_bIsAdmin = true;
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : Admin : WebChannelObjects Unlock Successful\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+		std::cout.flush();
+#endif
+	} else {
+		// An invalid key forces disconnection:
+		en_killWebChannel();
+		m_bIsAdmin = false;
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key Received: \"%2\"  Confirmation: \"%3\".  Terminating Connection\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).arg(strConfirmation).toUtf8().data();
+		std::cout.flush();
+#endif
+	}
 }
 
 void CWebChannelObjects::setUserAgent(const QString &strUserAgent)
@@ -160,7 +187,7 @@ void CWebChannelObjects::gotoChapter(unsigned int nChp, const QString &strParam)
 
 CWebChannelAdminObjects::CWebChannelAdminObjects(CWebChannelServer *pWebServerParent)
 	:	QObject(pWebServerParent),
-		m_strKey("76476F14-F3A9-42AC-9443-4A7445154EC7"),
+		m_strKey(g_pWebChannelAdminKey),
 		m_pWebServer(pWebServerParent)
 {
 
@@ -173,14 +200,43 @@ CWebChannelAdminObjects::~CWebChannelAdminObjects()
 
 void CWebChannelAdminObjects::sendBroadcast(const QString &strKey, const QString &strMessage)
 {
-	if (strKey == m_strKey) {
-		emit broadcast(strMessage);
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Send Broadcast.  Key: \"%2\"  Message: \"%3\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).arg(strMessage).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
 	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Send Broadcast.  Message: \"%2\"\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+					.arg(strMessage).toUtf8().data();
+	std::cout.flush();
+#endif
+	emit broadcast(strMessage);
 }
 
 void CWebChannelAdminObjects::sendMessage(const QString &strKey, const QString &strClientIP, const QString &strClientPort, const QString &strMessage)
 {
-	if (strKey != m_strKey) return;
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Send Message.  Key: \"%2\"  Message: \"%3\"  Client: \"%4\"  Port: \"%5\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).arg(strMessage).arg(strClientIP).arg(strClientPort).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Send Message.  Message: \"%2\"  Client: \"%3\"  Port: \"%4\"\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+					.arg(strMessage).arg(strClientIP).arg(strClientPort).toUtf8().data();
+	std::cout.flush();
+#endif
 
 	bool bStatus = false;
 	if (!strMessage.isEmpty()) {
@@ -191,7 +247,21 @@ void CWebChannelAdminObjects::sendMessage(const QString &strKey, const QString &
 
 void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 {
-	if (strKey != m_strKey) return;
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Get Connections list.  Key: \"%2\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Get Connections list\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+	std::cout.flush();
+#endif
 
 	const TWebChannelClientMap &mapChannels = m_pWebServer->channelMap();
 
@@ -325,7 +395,21 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 void CWebChannelAdminObjects::shutdownServer(const QString &strKey, const QString &strConfirmation)
 {
 	if ((strKey != m_strKey) ||
-		(strConfirmation != "9BF89B76-45B2-46EB-B95C-79D460F702BD")) return;
+		(strConfirmation != "9BF89B76-45B2-46EB-B95C-79D460F702BD")) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key or Confirmation on Shutdown Server.  Key: \"%2\"  Confirmation: \"%3\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).arg(strConfirmation).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Shutdown Server\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+	std::cout.flush();
+#endif
 
 #ifdef IS_CONSOLE_APP
 	QCoreApplication::exit(0);			// For console-build (i.e. daemon), exit.  Server closing will happen on exit
@@ -336,7 +420,22 @@ void CWebChannelAdminObjects::shutdownServer(const QString &strKey, const QStrin
 
 void CWebChannelAdminObjects::disconnectClient(const QString &strKey, const QString &strClientIP, const QString &strClientPort)
 {
-	if (strKey != m_strKey) return;
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Disconnect Client.  Key: \"%2\"  Client: \"%3\"  Port: \"%4\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).arg(strClientIP).arg(strClientPort).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Disconnect Client.  Client: \"%2\"  Port: \"%3\"\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+					.arg(strClientIP).arg(strClientPort).toUtf8().data();
+	std::cout.flush();
+#endif
 
 	bool bStatus = m_pWebServer->disconnectClient(strClientIP, strClientPort);
 	emit disconnectClientStatus(bStatus, strClientIP, strClientPort);
@@ -344,7 +443,21 @@ void CWebChannelAdminObjects::disconnectClient(const QString &strKey, const QStr
 
 void CWebChannelAdminObjects::stopListening(const QString &strKey)
 {
-	if (strKey != m_strKey) return;
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Stop Listening.  Key: \"%2\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Stop Listening\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+	std::cout.flush();
+#endif
 
 	m_pWebServer->stopListening();
 	getIsListening(strKey);
@@ -352,7 +465,21 @@ void CWebChannelAdminObjects::stopListening(const QString &strKey)
 
 void CWebChannelAdminObjects::startListening(const QString &strKey)
 {
-	if (strKey != m_strKey) return;
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Start Listening.  Key: \"%2\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Start Listening\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+	std::cout.flush();
+#endif
 
 	m_pWebServer->startListening();
 	getIsListening(strKey);
@@ -360,7 +487,21 @@ void CWebChannelAdminObjects::startListening(const QString &strKey)
 
 void CWebChannelAdminObjects::getIsListening(const QString &strKey)
 {
-	if (strKey != m_strKey) return;
+	if (strKey != m_strKey) {
+#ifdef IS_CONSOLE_APP
+		std::cout << QString("%1 UTC : *** Invalid Admin Key on Get IsListening Status.  Key: \"%2\".  Ignoring\n")
+						.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
+						.arg(strKey).toUtf8().data();
+		std::cout.flush();
+#endif
+		return;
+	}
+
+#ifdef IS_CONSOLE_APP
+	std::cout << QString("%1 UTC : Admin : Get IsListening Status\n")
+					.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)).toUtf8().data();
+	std::cout.flush();
+#endif
 
 	emit serverListeningStatus(m_pWebServer->isListening());
 }

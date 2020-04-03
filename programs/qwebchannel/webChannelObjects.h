@@ -65,7 +65,7 @@ private:
 public slots:
 	// ------------ Directly Handled Slots:
 
-	void unlock(const QString &strKey);						// Admin unlock
+	void unlock(const QString &strKey, const QString &strConfirmation);				// Admin unlock
 	void setUserAgent(const QString &strUserAgent);			// Set userAgent data for logging
 	void sendBroadcast(const QString &strMessage);			// Transmit broadcast message to connected client (shutdown alert, etc)
 
