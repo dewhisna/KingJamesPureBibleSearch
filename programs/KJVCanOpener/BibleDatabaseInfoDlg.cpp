@@ -34,6 +34,7 @@ CBibleDatabaseInfoDialog::CBibleDatabaseInfoDialog(CBibleDatabasePtr pBibleDatab
 
 #ifdef USE_ASYNC_DIALOGS
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAttribute(Qt::WA_ShowModal, true);
 #endif
 
 	ui.lblBibleDatabaseName->setText(pBibleDatabase->description());

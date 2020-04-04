@@ -34,6 +34,7 @@ CDictDatabaseInfoDialog::CDictDatabaseInfoDialog(CDictionaryDatabasePtr pDictDat
 
 #ifdef USE_ASYNC_DIALOGS
 	setAttribute(Qt::WA_DeleteOnClose);
+	setAttribute(Qt::WA_ShowModal, true);
 #endif
 
 	ui.lblDictDatabaseName->setText(pDictDatabase->description());
