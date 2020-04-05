@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>King James Pure Bible Search Online</title>
-<meta name="keywords" content="Dewtronics Pure Bible Search King James Only Bible biblecode KingJamesCode Donna Whisnant Pastor Mike Hoggard Bethel Church Linux Mac Windows Android iOS iPad Emscripten Qt Search Software Festus Missouri Counting Scripture Prophetic Research Ministry">
+<meta name="keywords" content="Dewtronics Pure Bible Search King James Only Bible biblecode KingJamesCode Donna Whisnant Pastor Mike Hoggard Bethel Church Linux Mac Windows Android iOS iPad Emscripten WebAssembly Qt Search Software Festus Missouri Counting Scripture Prophetic Research Ministry">
 <style type="text/css">
 body { background-color:#000000; color:#FFFF00; }
 a:link { color:#33CC99; }
@@ -18,7 +18,7 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 
 <table width="500">
 	<tr>
-		<td colspan="3" align="center" style="white-space:nowrap">
+		<td colspan="4" align="center" style="white-space:nowrap">
 			<h1>King James Pure Bible Search Online</h1>
 		</td>
 	</tr>
@@ -26,7 +26,7 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 		<td colspan="1">
 			&nbsp;
 		</td>
-		<td colspan="1" align="center" style="white-space:nowrap">
+		<td colspan="2" align="center" style="white-space:nowrap">
 			<div class="center" style="background-color:#00FF00;border-style:double;border-width:5px;">
 			<img src="KJPBS_Laptop.png" alt="King James Pure Bible Search Computer Graphic" width="400" height="304">
 			</div>
@@ -36,19 +36,19 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3" style="height:25">
+		<td colspan="4" style="height:25">
 			&nbsp;
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3" align="center" style="white-space:nowrap">
+		<td colspan="4" align="center" style="white-space:nowrap">
 			<hr>
 			<h2>Select how you wish to run Pure Bible Search:</h2>
 			<hr>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3" style="height:25">
+		<td colspan="4" style="height:25">
 			&nbsp;
 		</td>
 	</tr>
@@ -56,10 +56,11 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 		<td colspan="1">
 			&nbsp;
 		</td>
-		<td align="center" colspan="1">
+		<td align="center" colspan="2">
 			<ul>
 			<li><a href="http://vnc.purebiblesearch.com/">Virtual Network Computer (VNC)</a><br><!--#include virtual="/cgi-bin/kjpbs/kjpbs_status.pl" --><br><br></li>
-			<li><a href="http://cloud.dewtronics.com/KingJamesPureBibleSearch/online/emscripten.html">Emscripten-Qt Javascript</a></li>
+			<li><a href="http://cloud.dewtronics.com/KingJamesPureBibleSearch/online/emscripten.html">Emscripten-Qt Javascript</a><br><br><br></li>
+			<li><a href="http://cloud.dewtronics.com/KingJamesPureBibleSearch/online/webassembly.html">WebAssembly</a></li>
 			</ul>
 			<br>
 		</td>
@@ -68,24 +69,24 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 		</td>
 	</tr>
 	<tr>
-		<td align="center" colspan="3" style="white-space:nowrap">
+		<td align="center" colspan="4" style="white-space:nowrap">
 			<b>What's the difference?  Read below...</b>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3" style="height:25">
+		<td colspan="4" style="height:25">
 			&nbsp;
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3" align="center" style="white-space:nowrap">
+		<td colspan="4" align="center" style="white-space:nowrap">
 			<hr>
-			<h2>VNC vs Emscripten:</h2>
+			<h2>VNC vs Emscripten vs WebAssembly:</h2>
 			<hr>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3">
+		<td colspan="4">
 			<table>
 				<tr>
 					<td colspan="1">&nbsp;</td>
@@ -95,17 +96,21 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td colspan="1">
 						<b>Emscripten-Qt Javascript</b>
 					</td>
+					<td colspan="1">
+						<b>WebAssembly</b>
+					</td>
 				</tr>
 				<tr>
-					<td colspan="3"><hr></td>
+					<td colspan="4"><hr></td>
 				</tr>
 				<tr>
 					<td>Run Location?</td>
 					<td>On Remote Computer</td>
 					<td>On Your PC</td>
+					<td>On Your PC</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -113,19 +118,21 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Startup Speed?</td>
 					<td>Fast, about 5 seconds</td>
 					<td>Slow, must download many megs of data</td>
+					<td>Medium, must download many megs of data but is more optimized than Emscripten</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
 				<tr>
 					<td>Slow Internet Latency?</td>
 					<td>Sluggish - Doesn't work well with slow internet connections</td>
-					<td>Initial download/startup will be slow, but then runs full-speed (Best for slow connections)</td>
+					<td>Initial download/startup will be slow, but then runs full-speed (Good for slow connections)</td>
+					<td>Initial startup is slow, but then runs full-speed (Best for slow connections)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -133,9 +140,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Data Bandwidth?</td>
 					<td>Very High - Like streaming a movie</td>
 					<td>Low - Initial Download of 30-40mb only</td>
+					<td>Medium-Low - Initial Download of about 100mb</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -143,9 +151,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Browser Friendly?</td>
 					<td>Works on all modern browsers</td>
 					<td>Works on most modern browsers, has issues with older IE, may have spurious script busy warnings</td>
+					<td>Works on modern browsers only, 2017 and newer only (and some cases 2019 and newer), as WebAssembly is a very new technology</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -153,19 +162,21 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Works with Proxy Servers?</td>
 					<td>Maybe<br>(Depends on the Proxy Server.  Some proxy servers can't proxy the special TCP ports used by VNC)</td>
 					<td>Yes<br>(All standard web proxies that can proxy the standard HTTP port 80 work)</td>
+					<td>Yes<br>(All standard web proxies that can proxy the standard HTTP port 80 work)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
 				<tr>
 					<td>Works on Mobile?</td>
 					<td>Yes<br>(But is as clunky as using any desktop app on a mobile)</td>
-					<td>No</td>
+					<td>No, or not known to work</td>
+					<td>Unknown, probably works on Windows tablets, but iOS and Android compatibility is unknown</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -173,9 +184,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Sandboxed/Lite Version?</td>
 					<td>Yes, but has more selectable options</td>
 					<td>Yes, bare-minimum</td>
+					<td>Yes, but has more selectable options</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -183,9 +195,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Remembers Settings?</td>
 					<td>No, Like running &quot;Stealth Mode&quot;</td>
 					<td>No, Like running &quot;Stealth Mode&quot;</td>
+					<td>No, Like running &quot;Stealth Mode&quot;</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -196,9 +209,11 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					you to those links, nor does it have a PDF viewer for the manual.</td>
 					<td>Yes<br>Since the Emscripten version is actually running inside your web browser, it can instruct the browser to open website links
 					or the online version of the manual.</td>
+					<td>Yes<br>Since the WebAssembly version is actually running inside your web browser, it can instruct the browser to open website links
+					or the online version of the manual.</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -206,9 +221,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Lite Version?</td>
 					<td>Yes, Doesn't support Notes/Cross-Refs/Highlighters</td>
 					<td>Yes, Doesn't support Notes/Cross-Refs/Highlighters</td>
+					<td>Yes, Doesn't support Notes/Cross-Refs/Highlighters</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -216,9 +232,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Selectable Fonts?</td>
 					<td>Yes</td>
 					<td>No<br>(Due to download size limitations)</td>
+					<td>Yes<br>(But smaller list than VNC)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -226,9 +243,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Webster Dictionary?</td>
 					<td>Yes</td>
 					<td>No<br>(Due to download size limits)</td>
+					<td>Yes</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -236,19 +254,21 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Experimental Features?</td>
 					<td>Yes<br>(The VNC platform is a perfect place to testout new features, both in alpha and beta stage prior to release.)</td>
 					<td>Maybe<br>(Some new features may appear in the Emscripten version, but cross-compiled Javascript is not the best place to debug it)</td>
+					<td>Maybe<br>(Some new features may appear in the WebAssembly version, but is not the best place to debug it due to limited code traceability)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
 				<tr>
 					<td>Multiple Bible Databases?</td>
-					<td>Yes<br>(Currently English/Spanish)</td>
+					<td>Yes<br>(Currently English/Spanish/German/Russian/Greek)</td>
 					<td>No<br>(Due to download size limits)</td>
+					<td>Yes<br>(Currently English/Spanish)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -256,9 +276,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Maximum Concurrent Users?</td>
 					<td>Currently Limited to 20</td>
 					<td>Unlimited</td>
+					<td>Unlimited</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -266,9 +287,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Maximum Session Time?</td>
 					<td>One Hour</td>
 					<td>Unlimited</td>
+					<td>Umlimited</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -276,9 +298,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Subject to Downtime?</td>
 					<td>Yes<br>(May be shutdown during peak internet usage periods due to cost)</td>
 					<td>No<br>(Works as long as website is up and running)</td>
+					<td>No<br>(Works as long as website is up and running)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -286,19 +309,21 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Requires Special Accounts/Access?</td>
 					<td>Yes<br>(You must enter a CAPTCHA to prove you are human to keep web bots out)</td>
 					<td>No</td>
+					<td>No</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
 				<tr>
 					<td>Latest Alpha/Beta Testing Versions?</td>
 					<td>Yes<br>(From time-to-time new software will be deployed for testing purposes)</td>
-					<td>Maybe<br>(Not as likely due to debugging limitation and built-time restrictions)</td>
+					<td>Maybe<br>(Not as likely due to debugging limitations and build-time restrictions)</td>
+					<td>Maybe<br>(Not as likely due to debugging limitations)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -306,9 +331,10 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 					<td>Free Of Charge?</td>
 					<td>Yes<br>(Always)</td>
 					<td>Yes<br>(Always)</td>
+					<td>Yes<br>(Always)</td>
 				</tr>
 				<tr>
-					<td colspan="3" style="height:25">
+					<td colspan="4" style="height:25">
 						<hr>
 					</td>
 				</tr>
@@ -316,7 +342,7 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 		</td>
 	</tr>
 	<tr>
-		<td colspan="3" style="height:25">
+		<td colspan="4" style="height:25">
 			&nbsp;
 		</td>
 	</tr>
