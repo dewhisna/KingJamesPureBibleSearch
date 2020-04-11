@@ -38,6 +38,7 @@
 
 #define REFLOW_BATCH_SIZE 100			// Number of items to update per reflowTick
 #define REFLOW_TIMESLICE 100			// Maximum reflowTick timeslice in milliseconds
+#define REFLOW_TICK_RATE 100			// Reflow tick rate in milliseconds
 
 // ============================================================================
 
@@ -138,7 +139,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate, bool
 	connect(parent->model(), SIGNAL(modelAboutToBeReset()), this, SLOT(reflowHalt()));
 	connect(parent->model(), SIGNAL(layoutChanged()), this, SLOT(startReflow()));
 
-	m_timerReflow.setInterval(0);
+	m_timerReflow.setInterval(REFLOW_TICK_RATE);
 	connect(&m_timerReflow, SIGNAL(timeout()), SLOT(reflowTick()));
 }
 
@@ -260,7 +261,7 @@ void CReflowDelegate::setOnlyLeaves(bool bOnlyLeaves)
 
 void CReflowDelegate::layoutRow(const QStyleOptionViewItem &option, const QModelIndex &index, QSize *pSizeHint, QVector<QSize> *pVecSZColumns, SIZE_HINT_CACHE_MODE_ENUM nSizeHintMode) const
 {
-	// If this one isn't on that's considered for reflowing, bailout:
+	// If this one isn't one that's considered for reflowing, bailout:
 	if (!index.isValid() || (m_bOnlyLeaves && index.model()->hasChildren(index))) return;
 
 	QTreeView *pView = parentView();
@@ -355,7 +356,7 @@ void CReflowDelegate::startReflow()
 {
 	if (!m_bReflowDisabled) {
 		if (m_timerReflow.isActive()) {
-			// If we are already running reflow, restart back tot he beginning of the model:
+			// If we are already running reflow, restart back to the beginning of the model:
 			m_itrReflowIndex = QModelIndex();
 		} else {
 			// If we aren't current running reflow, start it:
@@ -474,7 +475,7 @@ void CReflowDelegate::reflowTick()
 			sizeHintChanged(pModel->index(0,0), pModel->index(pModel->rowCount()-1, 0));
 		}
 
-		// If reflow is complete, so ticking:
+		// If reflow is complete, stop ticking:
 		if (!m_itrReflowIndex) reflowHalt();
 	}
 }
