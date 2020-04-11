@@ -1042,6 +1042,18 @@ void CSearchResultsTreeView::currentChanged(const QModelIndex &current, const QM
 {
 	QTreeView::currentChanged(current, previous);
 	emit currentItemChanged();
+#if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
+	// If the user pressed 'end', then the Viewport size hint won't have been
+	//	calculated initially and will end up scrolling to the wrong location.
+	//	To fix it, we must queue a scrollTo() event to get it there.  Most of
+	//	the time, this event does nothing since the reflowViewport() of the
+	//	ReflowDelegate handles the current page and the page up/down and next
+	//	logic OK.  This is really only for the "user presses end" case and
+	//	the size hints of the last page haven't been calculated yet.  This
+	//	one-liner is a lot easier than creating a reverseIterator and making
+	//	reflowViewport always calculate size-hints for the last page too:
+	QTimer::singleShot(1, [this]()->void { scrollTo(currentIndex(), QAbstractItemView::EnsureVisible); });
+#endif
 }
 
 void CSearchResultsTreeView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)

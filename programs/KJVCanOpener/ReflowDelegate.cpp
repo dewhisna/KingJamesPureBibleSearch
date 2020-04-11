@@ -382,9 +382,6 @@ void CReflowDelegate::reflowViewport()
 		// So it ought to be close enough:
 		QStyleOptionViewItemV4_t option = viewOptions(*itr);
 
-		// If we are now past the bottom of the viewport, quit since the rest aren't visible yet:
-		if (option.rect.top() > rcVisible.bottom()) break;
-
 		QSize sizeHint;
 		QVector<QSize> vecSizeColumns;
 		layoutRow(option, *itr, &sizeHint, &vecSizeColumns, SHCME_ComputeIfNeeded);
@@ -416,6 +413,15 @@ void CReflowDelegate::reflowViewport()
 			// if its children aren't being shown, skip past them:
 			itr.nextSibling();
 		}
+
+		// If we are now past the bottom of the viewport, quit since the rest aren't visible yet...
+		//	Do this check last so that we are sure to calculate one extra item's height so
+		//	that the scrollTo() works correctly when using up/down arrows.  And check for twice
+		//	the viewport size so that page up/down also works.  It does NOT, however, handle the
+		//	'end' key case.  For that, we'd need a reverseIterator here and always calculate the
+		//	last viewport page in addition to the first.  So, we'll instead just work around
+		//	specific use cases.  See CSearchResultsTreeView::currentChanged().
+		if (option.rect.top() > (rcVisible.bottom()+rcVisible.height())) break;
 	}
 }
 
