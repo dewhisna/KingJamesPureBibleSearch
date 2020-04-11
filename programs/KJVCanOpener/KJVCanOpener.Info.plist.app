@@ -9,7 +9,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Copyright(c)2012-2014 Donna Whisnant, a.k.a. Dewtronics</string>
+	<string>Copyright(c)2012-2020 Donna Whisnant, a.k.a. Dewtronics</string>
 	<key>CFBundleSignature</key>
 	<string>@TYPEINFO@</string>
 	<key>CFBundleName</key>

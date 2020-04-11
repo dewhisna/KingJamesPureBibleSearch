@@ -7,7 +7,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Copyright(c)2012-2015 Donna Whisnant, a.k.a. Dewtronics</string>
+	<string>Copyright(c)2012-2020 Donna Whisnant, a.k.a. Dewtronics</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
@@ -22,6 +22,11 @@
 	<string>com.dewtronics.KingJamesPureBibleSearch-iOS</string>
 	<key>NOTE</key>
 	<string>Don't make me have to open a can on you!</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>http</string>
+		<string>https</string>
+	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
