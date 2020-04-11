@@ -1180,8 +1180,11 @@ public:
 	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
 	QString highlighterUUID() const { return m_strHighlighterUUID; }
 
-	QString translatedColophonString() const;
-	QString translatedSuperscriptionString() const;
+	QString translatedColophonString() const;				// Text "Colophon"
+	QString translatedSuperscriptionString() const;			// Text "Superscription"
+
+	bool hasColophons() const;								// Returns true if any book has colophons in this Bible
+	bool hasSuperscriptions() const;						// Returns true if any chapter has superscriptions in this Bible
 
 	bool completelyContains(const TPhraseTag &aPhraseTag) const;		// Returns true if this Bible database completely contains the specified tag (i.e. none of it lies outside the database text)
 	TTagBoundsPair bounds() const;

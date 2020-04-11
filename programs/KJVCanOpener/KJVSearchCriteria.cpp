@@ -50,35 +50,6 @@ const CRelIndex CSearchCriteria::SSI_SUPERSCRIPTION = CRelIndex(0, 0, 0, 2);
 
 // ============================================================================
 
-bool CSearchCriteria::bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const
-{
-	assert(!pBibleDatabase.isNull());
-
-	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
-		const CBookEntry *pBookEntry = pBibleDatabase->bookEntry(nBk);
-		if (pBookEntry == NULL) continue;
-		if (pBookEntry->m_bHaveColophon) return true;
-	}
-
-	return false;
-}
-
-bool CSearchCriteria::bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const
-{
-	assert(!pBibleDatabase.isNull());
-
-	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
-		const CBookEntry *pBookEntry = pBibleDatabase->bookEntry(nBk);
-		if (pBookEntry == NULL) continue;
-		for (unsigned int nChp = 1; nChp <= pBookEntry->m_nNumChp; ++nChp) {
-			const CChapterEntry *pChapterEntry = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0));
-			if ((pChapterEntry != NULL) && (pChapterEntry->m_bHaveSuperscription)) return true;
-		}
-	}
-
-	return false;
-}
-
 QString CSearchCriteria::searchWithinDescription(CBibleDatabasePtr pBibleDatabase) const
 {
 	CSearchWithinModel modelSearchWithin(pBibleDatabase, *this);
@@ -132,8 +103,8 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 	assert(!m_pBibleDatabase.isNull());
 
 	const TRelativeIndexSet &aSetSearchWithin = aSearchCriteria.searchWithin();
-	m_bBibleHasColophons = aSearchCriteria.bibleHasColophons(pBibleDatabase);
-	m_bBibleHasSuperscriptions = aSearchCriteria.bibleHasSuperscriptions(pBibleDatabase);
+	m_bBibleHasColophons = pBibleDatabase->hasColophons();
+	m_bBibleHasSuperscriptions = pBibleDatabase->hasSuperscriptions();
 
 	// Build our model data (which should be static with the given Bible Database):
 	// The root node is the "Whole Bible"

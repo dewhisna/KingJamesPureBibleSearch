@@ -1155,6 +1155,31 @@ QString CBibleDatabase::translatedSuperscriptionString() const
 	return strSuperscription;
 }
 
+bool CBibleDatabase::hasColophons() const
+{
+	for (unsigned int nBk = 1; nBk <= bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBookEntry = bookEntry(nBk);
+		if (pBookEntry == NULL) continue;
+		if (pBookEntry->m_bHaveColophon) return true;
+	}
+
+	return false;
+}
+
+bool CBibleDatabase::hasSuperscriptions() const
+{
+	for (unsigned int nBk = 1; nBk <= bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBookEntry = bookEntry(nBk);
+		if (pBookEntry == NULL) continue;
+		for (unsigned int nChp = 1; nChp <= pBookEntry->m_nNumChp; ++nChp) {
+			const CChapterEntry *pChapterEntry = chapterEntry(CRelIndex(nBk, nChp, 0, 0));
+			if ((pChapterEntry != NULL) && (pChapterEntry->m_bHaveSuperscription)) return true;
+		}
+	}
+
+	return false;
+}
+
 QString CBibleDatabase::PassageReferenceText(const CRelIndex &nRelIndex, bool bSuppressWordOnPseudoVerse) const
 {
 	if (!nRelIndex.isSet()) return QObject::tr("<Invalid Reference>", "Statistics");

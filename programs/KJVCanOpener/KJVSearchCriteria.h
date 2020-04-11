@@ -83,9 +83,6 @@ public:
 		m_setSearchWithin.clear();
 	}
 
-	bool bibleHasColophons(CBibleDatabasePtr pBibleDatabase) const;
-	bool bibleHasSuperscriptions(CBibleDatabasePtr pBibleDatabase) const;
-
 	SEARCH_SCOPE_MODE_ENUM searchScopeMode() const { return m_nSearchScopeMode; }
 	void setSearchScopeMode(SEARCH_SCOPE_MODE_ENUM nMode) { m_nSearchScopeMode = nMode; }
 
@@ -132,8 +129,8 @@ public:
 			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
 		}
 		if (!bIgnorePseudoVerses) {
-			if ((bibleHasColophons(pBibleDatabase)) && (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end())) bIsEntire = false;
-			if ((bibleHasSuperscriptions(pBibleDatabase)) && (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end())) bIsEntire = false;
+			if ((pBibleDatabase->hasColophons()) && (m_setSearchWithin.find(SSI_COLOPHON) == m_setSearchWithin.end())) bIsEntire = false;
+			if ((pBibleDatabase->hasSuperscriptions()) && (m_setSearchWithin.find(SSI_SUPERSCRIPTION) == m_setSearchWithin.end())) bIsEntire = false;
 		}
 		return bIsEntire;
 	}
