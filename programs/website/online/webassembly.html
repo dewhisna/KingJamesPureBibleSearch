@@ -113,8 +113,14 @@ h2 { font-size:1.875em; font-family:"Times New Roman", Times, serif; font-weight
 			<li>This online version DOES support having multiple search windows open.  But note that when you
 				click on Window-&gt;New Search Window, the new window will appear right on top of your existing window.  You
 				will need to use the Window menu to switch between search windows.<br><br></li>
-			<li>Even though this is in a sandbox, WebAssembly plays nicely with the system clipboard, unlike its older
-				Emscripten-Qt predecessor.<br><br></li>
+			<li>Note that because this is running in a sandboxed environment, it does NOT have normal access to your
+				computer's clipboard (for the same reason it can't access arbitrary files on your computer).  This
+				is a security mechanism within your browser to keep viruses from spreading via clipboard
+				embedding or from websites spying on your clipboard content.  But, it means copying and pasting to/from the
+				program is difficult and will vary based on browser support for exchanging clipboard content.<br><br>
+				Pasting text between elements within the KJPBS app seem to work just fine, but not for text to/from the
+				host computer environment except in a few limited scenarios.  I am currently investigating workarounds
+				for this limitation.<br><br></li>
 			<li>WebAssembly itself is essentially the next generation of Emscripten.  The original Emscripten-Qt version
 				of KJPBS was with KJPBS cross-compiled to Javascript and running in your browser.  WebAssembly takes that
 				one step further and compiles it to an intermediate language that is run within your browser.
