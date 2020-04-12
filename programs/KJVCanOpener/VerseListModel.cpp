@@ -749,7 +749,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
 
 //				if (!bDoingSizeHint) {
-					navigator.setDocumentToVerse(itrVerse->getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_SearchResults);
+					navigator.setDocumentToVerse(itrVerse->getIndex(), itrVerse->phraseTags(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_SearchResults);
 					if ((m_private.m_nViewMode == CVerseListModel::VVME_SEARCH_RESULTS) ||
 						(m_private.m_nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 						CSearchResultHighlighter srHighlighter(itrVerse->phraseTags(), (m_private.m_nViewMode != CVerseListModel::VVME_SEARCH_RESULTS));
@@ -771,7 +771,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						navigator.doHighlighting(userHighlighter);
 					}
 //				} else {
-//					navigator.setDocumentToVerse(item.getIndex(), CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_SearchResults);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
+//					navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_SearchResults);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
 //				}
 				return doc.toHtml();
 			}
@@ -1461,7 +1461,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 			//		desired:
 			CPhraseNavigator::TextRenderOptionFlags troCopy = defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults;
 			if ((!bVerseTextOnly) && (m_private.m_nViewMode == VVME_USERNOTES)) troCopy |= CPhraseNavigator::TRO_UserNotes | CPhraseNavigator::TRO_UserNotesForceVisible;
-			navigator.setDocumentToVerse(item.getIndex(), troCopy);
+			navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), troCopy);
 			if (!bVerseTextOnly) {
 				if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 					(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
@@ -1682,7 +1682,7 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 		//		change on us if/when they get it fixed, we'll pass
 		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
+		navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
 		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 			CSearchResultHighlighter highlighter(item.phraseTags(), (m_private.m_nViewMode != VVME_SEARCH_RESULTS));

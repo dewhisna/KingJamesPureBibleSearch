@@ -2120,12 +2120,9 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	return strRawHTML;
 }
 
-QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
+QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
 {
 	assert(!m_pBibleDatabase.isNull());
-
-	bool bTotalColophonAnchor = (ndx.isColophon() && !(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
-	bool bTotalSuperscriptionAnchor =  (ndx.isSuperscription() && !(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoSuperscriptAnchors));
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		m_TextDocument.clear();
@@ -2146,9 +2143,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 		return QString();
 	}
 
-	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
-
-	if (ndx.chapter() > book.m_nNumChp) {
+	if (ndx.chapter() > m_pBibleDatabase->bookEntry(ndx.book())->m_nNumChp) {
 		assert(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
@@ -2169,6 +2164,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 
 	CRelIndex ndxVerse = ndx;
 	ndxVerse.setWord(0);			// Create special index to make sure we use a verse only reference
+
+	CRelIndex ndxSuperColo = ndx;
+	ndxSuperColo.setWord(1);
 
 	CScriptureTextHtmlBuilder scriptureHTML;
 
@@ -2224,34 +2222,70 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 	// Print Book/Chapter for this verse:
 	scriptureHTML.beginParagraph();
 
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.beginAnchorID(CRelIndex(ndx.book(), ndx.chapter(), 0, 0).asAnchor());
-	scriptureHTML.beginBold();
-	scriptureHTML.appendLiteralText(book.m_strBkName);
-	scriptureHTML.endBold();
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.endAnchor();
+	bool bExtended = false;			// True if result extends to multiple verses
 
-	// Print this Verse Text:
-	const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndx);
-	if (pVerse == NULL) {
-		assert(false);
-		if ((flagsTRO & TRO_InnerHTML) == 0) {
-			emit changedDocumentText();
+	do {
+		// Print this Verse Text:
+		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
+		if (pVerse == NULL) {
+			assert(false);
+			if ((flagsTRO & TRO_InnerHTML) == 0) {
+				emit changedDocumentText();
+			}
+			return QString();
 		}
-		return QString();
-	}
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
-	scriptureHTML.beginBold();
-	if (ndx.verse() != 0) {
-		scriptureHTML.appendLiteralText(QString(" %1:%2 ").arg(ndx.chapter()).arg(ndx.verse()));
-	} else {
-		if (ndx.chapter() == 0) {
-			scriptureHTML.appendLiteralText(" " + m_pBibleDatabase->translatedColophonString() + " ");
+
+		if (bExtended) scriptureHTML.appendRawText(QString("  "));
+
+		if (!bExtended || (ndxVerse.book() != ndx.book())) {
+			if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.beginAnchorID(CRelIndex(ndxVerse.book(), ndxVerse.chapter(), 0, 0).asAnchor());
+			scriptureHTML.beginBold();
+			if (bExtended) scriptureHTML.appendLiteralText(QString("("));
+			scriptureHTML.appendLiteralText(m_pBibleDatabase->bookEntry(ndxVerse.book())->m_strBkName);
+			scriptureHTML.endBold();
+			if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.endAnchor();
+		}
+
+		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
+		scriptureHTML.beginBold();
+		if (bExtended) {
+			if (ndxVerse.book() == ndx.book()) {
+				scriptureHTML.appendLiteralText(QString("("));
+			} else {
+				scriptureHTML.appendLiteralText(QString(" "));
+			}
+		}
+
+		if (bExtended && (ndxVerse.book() == ndx.book()) && (ndxVerse.chapter() == ndx.chapter())) {
+			if (ndxVerse.verse() != 0) {
+				scriptureHTML.appendLiteralText(QString("%1").arg(ndxVerse.verse()));
+			} else {
+				if (ndxVerse.chapter() == 0) {
+					scriptureHTML.appendLiteralText(m_pBibleDatabase->translatedColophonString());
+				} else {
+					scriptureHTML.appendLiteralText(m_pBibleDatabase->translatedSuperscriptionString());
+				}
+			}
 		} else {
-			scriptureHTML.appendLiteralText(QString(" %1 %2 ").arg(ndx.chapter()).arg(m_pBibleDatabase->translatedSuperscriptionString()));
+			if (!bExtended) scriptureHTML.appendLiteralText(QString(" "));
+			if (ndxVerse.verse() != 0) {
+				scriptureHTML.appendLiteralText(QString("%1:%2").arg(ndxVerse.chapter()).arg(ndxVerse.verse()));
+			} else {
+				if (ndxVerse.chapter() == 0) {
+					scriptureHTML.appendLiteralText(m_pBibleDatabase->translatedColophonString());
+				} else {
+					scriptureHTML.appendLiteralText(QString("%1 %2").arg(ndxVerse.chapter()).arg(m_pBibleDatabase->translatedSuperscriptionString()));
+				}
+			}
 		}
-	}
-	scriptureHTML.endBold();
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
+		if (bExtended) scriptureHTML.appendLiteralText(QString(")"));
+		scriptureHTML.appendLiteralText(QString(" "));
+		scriptureHTML.endBold();
+		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
+
+		bool bTotalColophonAnchor = (ndxSuperColo.isColophon() && !(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
+		bool bTotalSuperscriptionAnchor =  (ndxSuperColo.isSuperscription() && !(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoSuperscriptAnchors));
+
 //
 // Note: The problem with applying a special colophon/superscription style with
 //		a <div> causes it to be separated as its own paragraph rather than
@@ -2259,28 +2293,34 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, TextRenderOpt
 //		More importantly, do we even want to do it?  As we do lose our
 //		transChange markup in all of the italics...
 //
-//	if (ndx.verse() == 0) {
-//		if (ndx.chapter() == 0) {
-//			scriptureHTML.beginDiv("colophon");
-//		} else {
-//			scriptureHTML.beginDiv("superscription");
+//		if (ndxVerse.verse() == 0) {
+//			if (ndxVerse.chapter() == 0) {
+//				scriptureHTML.beginDiv("colophon");
+//			} else {
+//				scriptureHTML.beginDiv("superscription");
+//			}
 //		}
-//	}
-	if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
-		CRelIndex ndxSuperColo(ndxVerse);
-		ndxSuperColo.setWord(1);
-		scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxSuperColo.asAnchor()));
-	}
-	scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx,
-																((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																pHighlighter));
-	if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
-		scriptureHTML.appendRawText("</a>");
-	}
-//	if (ndx.verse() == 0) {
-//		scriptureHTML.endDiv();
-//	}
+		if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
+			scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxSuperColo.asAnchor()));
+		}
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse,
+																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
+																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
+																	pHighlighter));
+		if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
+			scriptureHTML.appendRawText("</a>");
+		}
+//		if (ndxVerse.verse() == 0) {
+//			scriptureHTML.endDiv();
+//		}
+
+		// Calculate the next verse index so we can see if it intersects our
+		//	results of this verse entry (i.e. spills to next verse)
+		ndxVerse = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxVerse, false);
+		ndxVerse.setWord(0);
+		ndxSuperColo = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxSuperColo, false);
+		bExtended = true;
+	} while (tagsToInclude.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxVerse)));
 
 	// Add CrossRefs:
 	if (flagsTRO & TRO_CrossRefs) {

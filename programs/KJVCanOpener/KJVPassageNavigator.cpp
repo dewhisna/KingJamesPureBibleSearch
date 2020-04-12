@@ -512,11 +512,11 @@ void CKJVPassageNavigator::CalcPassage()
 
 	switch (m_nRefType) {
 		case NRTE_WORD:
-			navigator.setDocumentToVerse(ndxWord, defaultDocumentToVerseFlags | CPhraseNavigator::TRO_ScriptureBrowser);
+			navigator.setDocumentToVerse(ndxWord, TPhraseTagList(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 			navigator.doHighlighting(CSearchResultHighlighter(m_tagPassage));
 			break;
 		case NRTE_VERSE:
-			navigator.setDocumentToVerse(ndxVerse, defaultDocumentToVerseFlags | CPhraseNavigator::TRO_ScriptureBrowser);
+			navigator.setDocumentToVerse(ndxVerse, TPhraseTagList(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 			break;
 		case NRTE_CHAPTER:
 			navigator.setDocumentToChapter(ndxChapter, CPhraseNavigator::TRO_Colophons | CPhraseNavigator::TRO_Superscriptions | CPhraseNavigator::TRO_Subtitles | CPhraseNavigator::TRO_Category | CPhraseNavigator::TRO_SuppressPrePostChapters | CPhraseNavigator::TRO_ScriptureBrowser);

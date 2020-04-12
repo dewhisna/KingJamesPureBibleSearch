@@ -189,11 +189,12 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 	CRelIndex ndxRel = tag.relIndex();
 	ndxRel.setWord(0);			// Make sure we have only a book, chapter, or verse
 	m_tagSourcePassage = TPassageTag(ndxRel, tag.verseCount());			// Warning: TPassageTag word will always be set to 1 (not 0)!
+	TPhraseTagList tagList(TPhraseTag(m_pBibleDatabase.data(), tag));
 
 	ui.editSourceRefDesc->setText(m_pBibleDatabase->PassageReferenceText(ndxRel));
 
 	if (ndxRel.verse()) {
-		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_ScriptureBrowser);
+		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, tagList, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_ScriptureBrowser);
 	} else if (ndxRel.chapter()) {
 		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, (defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_SuppressPrePostChapters | CPhraseNavigator::TRO_ScriptureBrowser) & ~CPhraseNavigator::TRO_UserNoteExpandAnchors);
 		QTextCursor txtCursor;

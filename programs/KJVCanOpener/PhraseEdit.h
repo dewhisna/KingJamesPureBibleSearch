@@ -603,7 +603,7 @@ public:
 	QString setDocumentToChapter(const CRelIndex &ndx,
 								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags),
 								const CBasicHighlighter *pHighlighter = NULL);
-	QString setDocumentToVerse(const CRelIndex &ndx,
+	QString setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude,
 								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags),
 								const CBasicHighlighter *pHighlighter = NULL);
 	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
