@@ -395,13 +395,14 @@ public:
 		return getVerseAsWordList(ndx, pBibleDatabase).join(" ");
 	}
 
-	QString getVersePlainText() const			// Plain (with punctuation)
+	QString getVersePlainText(bool bSuppressHeadings) const			// Plain (with punctuation)
 	{
 		CVerseTextPlainRichifierTags plainRichifierTags;
-		return getVerseRichText(plainRichifierTags);
+		return getVerseRichText(plainRichifierTags, bSuppressHeadings);
 	}
 
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags,
+								bool bSuppressHeadings,
 								const CBasicHighlighter *pHighlighter = NULL) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
@@ -413,26 +414,22 @@ public:
 		bool bExtended = false;			// True if result extends to multiple verses
 		do {
 			if (bExtended) {
-				if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() == getIndex().chapter()) &&
-					(ndxCurrent.verse() != 0)) {
-					if (richifierTags.usesHTML()) {
-						strVerseRichText += QString("&nbsp;&nbsp;(%1) ").arg(ndxCurrent.verse());
-					} else {
-						strVerseRichText += QString("  (%1) ").arg(ndxCurrent.verse());
-					}
-				} else if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() != 0) && (ndxCurrent.verse() != 0)) {
-					if (richifierTags.usesHTML()) {
-						strVerseRichText += QString("&nbsp;&nbsp;(%1:%2) ").arg(ndxCurrent.chapter()).arg(ndxCurrent.verse());
-					} else {
-						strVerseRichText += QString("  (%1:%2) ").arg(ndxCurrent.chapter()).arg(ndxCurrent.verse());
-					}
+				if (richifierTags.usesHTML()) {
+					strVerseRichText += QString("&nbsp;&nbsp;");
 				} else {
-					CRelIndex ndxPrint = ndxCurrent;
-					if ((ndxPrint.chapter() != 0) && (ndxPrint.verse() != 0)) ndxPrint.setWord(0);
-					if (richifierTags.usesHTML()) {
-						strVerseRichText += QString("&nbsp;&nbsp;(%1) ").arg(m_pBibleDatabase->PassageReferenceText(ndxPrint, true));
+					strVerseRichText += QString("  ");
+				}
+
+				if (!bSuppressHeadings) {
+					if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() == getIndex().chapter()) &&
+						(ndxCurrent.verse() != 0)) {
+						strVerseRichText += QString("(%1) ").arg(ndxCurrent.verse());
+					} else if ((ndxCurrent.book() == getIndex().book()) && (ndxCurrent.chapter() != 0) && (ndxCurrent.verse() != 0)) {
+						strVerseRichText += QString("(%1:%2) ").arg(ndxCurrent.chapter()).arg(ndxCurrent.verse());
 					} else {
-						strVerseRichText += QString("  (%1) ").arg(m_pBibleDatabase->PassageReferenceText(ndxPrint, true));
+						CRelIndex ndxPrint = ndxCurrent;
+						if ((ndxPrint.chapter() != 0) && (ndxPrint.verse() != 0)) ndxPrint.setWord(0);
+						strVerseRichText += QString("(%1) ").arg(m_pBibleDatabase->PassageReferenceText(ndxPrint, true));
 					}
 				}
 			}

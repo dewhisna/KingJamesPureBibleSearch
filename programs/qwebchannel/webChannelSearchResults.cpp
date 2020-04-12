@@ -448,7 +448,7 @@ void CWebChannelSearchResults::getMoreSearchResults()
 		strVerse += m_pBibleDatabase->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
-		strVerse += item.getVerseRichText(richifierTags, &srHighlighter);
+		strVerse += item.getVerseRichText(richifierTags, false, &srHighlighter);
 		strVerse += QString("<a href=\"javascript:viewDetails(%1);\"><img src=\"detail.png\" alt=\"Details\" height=\"16\" width=\"16\"></a>")
 								.arg(m_pVerseListModel->logicalIndexForModelIndex(ndxModel).index());
 		strVerse += "<br /><hr />";

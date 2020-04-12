@@ -444,7 +444,7 @@ void CSearchResultsTreeView::en_speechPlay()
 		ndxVerse.setWord(0);
 		lstSentences.append(vlmodel()->bibleDatabase()->PassageReferenceText(ndxVerse, true).split(regexpSentence, QString::SkipEmptyParts));
 		CParsedPhrase phrase;
-		phrase.ParsePhrase(item.getVersePlainText());
+		phrase.ParsePhrase(item.getVersePlainText(true));
 		lstSentences.append(phrase.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts));
 	}
 

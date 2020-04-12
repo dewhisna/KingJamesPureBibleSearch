@@ -735,7 +735,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					dataGenHTML.beginBold();
 					dataGenHTML.appendLiteralText(QString("%1 ").arg(m_private.m_pBibleDatabase->PassageReferenceText(ndxDisplayVerse, true)));
 					dataGenHTML.endBold();
-					dataGenHTML.appendRawText(itrVerse->getVerseRichText((role == VERSE_COPYING_ROLE) ? m_private.m_richifierTagsCopying : m_private.m_richifierTagsDisplay));
+					dataGenHTML.appendRawText(itrVerse->getVerseRichText((role == VERSE_COPYING_ROLE) ? m_private.m_richifierTagsCopying : m_private.m_richifierTagsDisplay, false));
 				}
 				if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
 					dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
@@ -1523,7 +1523,7 @@ QMimeData *CVerseListModel::mimeDataFromRawVerseText(const QModelIndexList &lstV
 		if (item.verseIndex().isNull()) continue;
 
 		if (!bVeryRaw) {
-			strText += item.getVersePlainText() + "\n";
+			strText += item.getVersePlainText(true) + "\n";
 		} else {
 			strText += item.getVerseVeryPlainText() + "\n";
 		}
