@@ -39,7 +39,8 @@ class CVerseTextRichifierTags
 {
 public:
 	CVerseTextRichifierTags()
-		:	m_nHash(0),
+		:	m_bUsesHTML(true),
+			m_nHash(0),
 			m_bAddRichPs119HebrewPrefix(true),
 			m_strTransChangeAddedBegin("<i>"),
 			m_strTransChangeAddedEnd("</i>"),
@@ -62,6 +63,8 @@ public:
 	{
 
 	}
+
+	bool usesHTML() const { return m_bUsesHTML; }
 
 	void setFromPersistentSettings(const CPersistentSettings &aPersistentSettings, bool bCopyOptions = false);	// If bCopyOptions==true, DisplayOptions will be used
 
@@ -143,6 +146,8 @@ public:
 	inline uint hash() const { return m_nHash; }
 
 protected:
+	void setUsesHTML(bool bUsesHTML) { m_bUsesHTML = bUsesHTML; }
+
 	void calcHash()
 	{
 		m_nHash = qHash((m_bAddRichPs119HebrewPrefix ? 'M' : 'm') +
@@ -160,6 +165,7 @@ protected:
 	}
 
 private:
+	bool m_bUsesHTML;
 	uint m_nHash;
 	bool m_bAddRichPs119HebrewPrefix;
 	QString m_strTransChangeAddedBegin;
@@ -181,6 +187,7 @@ public:
 	CVerseTextPlainRichifierTags()
 		:	CVerseTextRichifierTags()
 	{
+		setUsesHTML(false);
 		setAddRichPs119HebrewPrefix(false);
 		setTransChangeAddedTags("[", "]");
 		setWordsOfJesusTags(QString(), QString());
