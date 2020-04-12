@@ -168,7 +168,8 @@ DEFINES *= QT_DEPRECATED_WARNINGS
 #DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
 #DEFINES += SEARCH_PHRASE_SPY SEARCH_RESULTS_SPY
 #DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
-!emscripten:!vnc:declarative_debug:DEFINES += SIGNAL_SPY_DEBUG
+!emscripten:!vnc:declarative_debug:CONFIG *= signalspy
+signalspy:DEFINES *= SIGNAL_SPY_DEBUG
 #DEFINES += USE_MDI_MAIN_WINDOW
 #DEFINES += DEBUG_CURSOR_SELECTION
 #DEFINES += DEBUG_SEARCH_RESULTS_NODE_TOOLTIPS
@@ -396,7 +397,9 @@ if(!emscripten|wasm):!console:SOURCES += \
 	EditWWWLinkDlg.cpp \
 	KJVCrossRefEditDlg.cpp \
 	KJVNoteEditDlg.cpp \
-	SaveLoadFileDialog.cpp \
+	SaveLoadFileDialog.cpp
+
+signalspy:SOURCES += \
 	signalspy/Q4puGenericSignalSpy.cpp
 
 
@@ -461,7 +464,9 @@ if(!emscripten|wasm):!console:HEADERS += \
 	EditWWWLinkDlg.h \
 	KJVCrossRefEditDlg.h \
 	KJVNoteEditDlg.h \
-	SaveLoadFileDialog.h \
+	SaveLoadFileDialog.h
+
+signalspy:HEADERS += \
 	signalspy/Q4puGenericSignalSpy.h
 
 
