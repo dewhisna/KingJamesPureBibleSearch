@@ -210,10 +210,12 @@ private:
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL)
+		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, bool bUsesHTML, int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
 				m_strTemplate(strTemplate),
+				m_bUsesHTML(bUsesHTML),
+				// ----
 				m_nStartWord(ndxRelative.word()),
 				m_pWordCount(pWordCount),
 				m_pHighlighter(pHighlighter),
@@ -230,6 +232,7 @@ private:
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;
 		QString m_strTemplate;								// Verse Template being parsed -- will be identical to the one from CVerseEntry if not doing SearchResults, or modified if we are
+		bool m_bUsesHTML;									// True if the CVerseTextRichifierTags being used supports HTML tags
 		// ----
 		QString m_strVerseText;								// Verse Text being built
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name

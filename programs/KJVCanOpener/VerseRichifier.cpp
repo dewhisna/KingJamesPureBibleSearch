@@ -278,8 +278,8 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 #endif
 				parseBaton.m_ndxCurrent.setWord(i);
 				if (parseBaton.m_bOutput) {
-					parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
-					if (m_bAddAnchors) parseBaton.m_strVerseText.append(QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor()));
+					if (parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+					if (m_bAddAnchors && parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor()));
 				}
 				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 					if (parseBaton.m_bOutput) {
@@ -292,8 +292,8 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(strWord);
 				}
 				if (parseBaton.m_bOutput) {
-					if (m_bAddAnchors) parseBaton.m_strVerseText.append("</a>");
-					parseBaton.m_strVerseText.append(QString("</span>"));
+					if (m_bAddAnchors && parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append("</a>");
+					if (parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("</span>"));
 				}
 				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
 			} else {
@@ -371,7 +371,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
 	CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
 	CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
-	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors) : ""), &rich_J);
+	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors && tags.usesHTML()) : ""), &rich_J);
 	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bAddAnchors);
 
 	QString strTemplate = pVerse->m_strTemplate;
@@ -380,7 +380,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		strTemplate.replace(QChar('w'), "Rwr");
 	}
 
-	CRichifierBaton baton(pBibleDatabase, ndxRelative, strTemplate, pWordCount, pHighlighter);
+	CRichifierBaton baton(pBibleDatabase, ndxRelative, strTemplate, tags.usesHTML(), pWordCount, pHighlighter);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {
