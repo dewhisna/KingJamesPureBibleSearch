@@ -278,6 +278,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 #endif
 				parseBaton.m_ndxCurrent.setWord(i);
 				if (parseBaton.m_bOutput) {
+					parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
 					if (m_bAddAnchors) parseBaton.m_strVerseText.append(QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor()));
 				}
 				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
@@ -292,6 +293,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				}
 				if (parseBaton.m_bOutput) {
 					if (m_bAddAnchors) parseBaton.m_strVerseText.append("</a>");
+					parseBaton.m_strVerseText.append(QString("</span>"));
 				}
 				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
 			} else {
