@@ -1539,7 +1539,7 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 
 	if ((nVT == VT_COLOPHON) && (m_bNoColophonVerses || m_bDisableColophons)) {
 		if (!m_bOpenEndedColophon) {
-			if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+			if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus at " << m_pBibleDatabase->PassageReferenceText(relIndex).toUtf8().data() << "\n";
 			m_bInWordsOfJesus = false;
 		}
 
@@ -1564,7 +1564,7 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 		}
 		if (bLocalDisableSuperscription || m_bNoSuperscriptionVerses || m_bDisableSuperscriptions) {
 			if (!m_bOpenEndedSuperscription) {
-				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
+				if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus at " << m_pBibleDatabase->PassageReferenceText(relIndex).toUtf8().data() << "\n";
 				m_bInWordsOfJesus = false;
 			}
 
@@ -1586,19 +1586,6 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
 		verse.m_nPilcrow = m_nDelayedPilcrow;
 		m_nDelayedPilcrow = CVerseEntry::PTE_NONE;
-	}
-
-	if (((nVT == VT_VERSE) && (!m_bOpenEndedVerse)) ||
-		((nVT == VT_COLOPHON) && (!m_bOpenEndedColophon)) ||
-		((nVT == VT_SUPERSCRIPTION) && (!m_bOpenEndedSuperscription))) {
-		if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus\n";
-		m_bInWordsOfJesus = false;
-	} else {
-		if (m_bInWordsOfJesus) {
-			// We can have nested Words of Jesus with open form:
-			verse.m_strText += g_chrParseTag;
-			verse.m_lstParseStack.push_back("J:");
-		}
 	}
 
 	if (nVT == VT_VERSE) {
@@ -1628,6 +1615,19 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 		if (m_bInSuperscription) std::cerr << "\n*** Error: Missing end of Superscription\n";
 		m_bInSuperscription = false;
 		m_bOpenEndedSuperscription = false;
+	}
+
+	if (((nVT == VT_VERSE) && (!m_bOpenEndedVerse)) ||
+		((nVT == VT_COLOPHON) && (!m_bOpenEndedColophon)) ||
+		((nVT == VT_SUPERSCRIPTION) && (!m_bOpenEndedSuperscription))) {
+		if (m_bInWordsOfJesus) std::cerr << "\n*** Error: Missing end of Words-of-Jesus at " << m_pBibleDatabase->PassageReferenceText(relIndex).toUtf8().data() << "\n";
+		m_bInWordsOfJesus = false;
+	} else {
+		if (m_bInWordsOfJesus) {
+			// We can have nested Words of Jesus with open form:
+			verse.m_strText += g_chrParseTag;
+			verse.m_lstParseStack.push_back("J:");
+		}
 	}
 
 	if (m_bInBracketNotes) {
