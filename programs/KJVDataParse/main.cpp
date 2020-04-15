@@ -1873,7 +1873,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					strLemmaAttr = strParse.mid(nPos+1);
 				} else if (strOp.compare("l") == 0) {
 					// TODO : End Lemma
-					tagLemmaEntry.setCount((nWordCount+1)-tagLemmaEntry.relIndex().word()+tagLemmaEntry.count());
+					tagLemmaEntry.setCount((nWordCount+1)-tagLemmaEntry.relIndex().word());
 					m_mapLemmaEntries[tagLemmaEntry.relIndex()] = CLemmaEntry(tagLemmaEntry, strLemmaAttr);
 				} else if (strOp.compare("T") == 0) {
 					if (!bInlineNote) {
