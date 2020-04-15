@@ -47,6 +47,42 @@
 
 #include <iostream>
 #include <set>
+#include <map>
+
+class CLemmaEntry
+{
+public:
+	CLemmaEntry() { }
+	CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttr)
+		:	m_tagEntry(tag),
+			m_strLemmaAttr(strLemmaAttr)
+	{ }
+	~CLemmaEntry() { }
+
+	CLemmaEntry(const CLemmaEntry &entry) = delete;					// No Copy Constructor
+	CLemmaEntry & operator=(const CLemmaEntry &entry) = delete;		// No assignment
+
+	CLemmaEntry(const CLemmaEntry &&entry) noexcept					// Move constructor
+		:	m_tagEntry(entry.m_tagEntry),
+			m_strLemmaAttr(entry.m_strLemmaAttr)
+	{ }
+
+	CLemmaEntry & operator=(const CLemmaEntry &&entry) noexcept		// Move assignment
+	{
+		m_tagEntry = entry.m_tagEntry;
+		m_strLemmaAttr = std::move(entry.m_strLemmaAttr);
+		return *this;
+	}
+
+	TPhraseTag tag() const { return m_tagEntry; }
+	QString lemmaAttr() const { return m_strLemmaAttr; }
+
+private:
+	TPhraseTag m_tagEntry;
+	QString m_strLemmaAttr;
+};
+
+typedef std::map<CRelIndex, CLemmaEntry, RelativeIndexSortPredicate> TLemmaEntryMap;
 
 #define CHECK_INDEXES 0
 
@@ -560,6 +596,7 @@ public:
 	virtual bool endDocument() override;
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
+	const TLemmaEntryMap &lemmaEntryMap() const { return m_mapLemmaEntries; }
 
 	QString language() const { return m_strLanguage; }
 
@@ -650,6 +687,7 @@ private:
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
+	TLemmaEntryMap m_mapLemmaEntries;
 	QString m_strLanguage;
 	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
@@ -1804,6 +1842,9 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 	QString strRichWord;
 	QStringList lstWords;
 
+	TPhraseTag tagLemmaEntry;
+	QString strLemmaAttr;
+
 	QStringList lstRichWords;
 	bool bHaveDoneTemplateWord = false;				// Used to tag words crossing parse-stack boundary (i.e. half the word is inside the parse operator and half is outside, like the word "inasmuch")
 	while (!strTemp.isEmpty()) {
@@ -1827,8 +1868,13 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				QString strOp = strParse.left(nPos);
 				if (strOp.compare("L") == 0) {
 					// TODO : Parse Lemma for Strongs/Morph
+					tagLemmaEntry.setRelIndex(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), nWordCount+1));
+					tagLemmaEntry.setCount(1);
+					strLemmaAttr = strParse.mid(nPos+1);
 				} else if (strOp.compare("l") == 0) {
 					// TODO : End Lemma
+					tagLemmaEntry.setCount((nWordCount+1)-tagLemmaEntry.relIndex().word()+tagLemmaEntry.count());
+					m_mapLemmaEntries[tagLemmaEntry.relIndex()] = CLemmaEntry(tagLemmaEntry, strLemmaAttr);
 				} else if (strOp.compare("T") == 0) {
 					if (!bInlineNote) {
 						verse.m_strTemplate += "T";
@@ -2249,6 +2295,7 @@ int main(int argc, char *argv[])
 	QFile fileFootnotes;	// Footnotes CSV being written
 	QFile fileWordSummary;	// Words Summary CSV being written
 	QFile filePhrases;		// Default search phrases CSV being written (deprecated)
+	QFile fileLemmas;		// Lemma list being written
 
 	QFileInfo fiInfoFile(strInfoFilename);
 	if (!strInfoFilename.isEmpty()) {
@@ -2816,6 +2863,35 @@ int main(int argc, char *argv[])
 	filePhrases.write(QString("Ndx,Phrase,CaseSensitive,AccentSensitive,Exclude\r\n").toUtf8());
 
 	filePhrases.close();
+	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+
+	// Write Lemmas:
+	fileLemmas.setFileName(dirOutput.absoluteFilePath("LEMMAS.csv"));
+	if (!fileLemmas.open(QIODevice::WriteOnly)) {
+		std::cerr << QString("\n\n*** Failed to open Lemma Output File \"%1\"\n").arg(fileLemmas.fileName()).toUtf8().data();
+		return -11;
+	}
+	std::cerr << QFileInfo(fileLemmas).fileName().toUtf8().data();
+
+	fileLemmas.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+	fileLemmas.write(QString("Ndx,Count,Attrs\r\n").toUtf8());
+
+	unsigned int nLemmaBk = 0;
+	for (TLemmaEntryMap::const_iterator itrLemmas = xmlHandler.lemmaEntryMap().cbegin();
+			itrLemmas != xmlHandler.lemmaEntryMap().cend(); ++itrLemmas) {
+		if (nLemmaBk != itrLemmas->second.tag().relIndex().book()) {
+			nLemmaBk = itrLemmas->second.tag().relIndex().book();
+			std::cerr << ".";
+		}
+		fileLemmas.write(QString("%1,%2,%3\r\n")
+							.arg(itrLemmas->second.tag().relIndex().index())
+							.arg(itrLemmas->second.tag().count())
+							.arg(itrLemmas->second.lemmaAttr()).toUtf8());
+	}
+
+	fileLemmas.close();
 	std::cerr << "\n";
 
 	// ------------------------------------------------------------------------
