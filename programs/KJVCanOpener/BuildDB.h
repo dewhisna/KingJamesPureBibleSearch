@@ -59,6 +59,7 @@ protected:
 	bool BuildWordsTable();
 	bool BuildFootnotesTables();
 	bool BuildPhrasesTable();
+	bool BuildLemmasTable();
 
 private:
 	QWidget *m_pParent;

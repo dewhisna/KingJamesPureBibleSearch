@@ -1238,6 +1238,131 @@ bool CBuildDatabase::BuildPhrasesTable()
 	return true;
 }
 
+bool CBuildDatabase::BuildLemmasTable()
+{
+	// Build the Lemmas table:
+
+#ifndef NOT_USING_SQL
+	QString strCmd;
+	if (m_myDatabase.isOpen()) {
+		QSqlQuery queryCreate(m_myDatabase);
+
+		// Check to see if the table exists already:
+		if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='LEMMAS'")) {
+			displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Table Lookup for \"LEMMAS\" Failed!\n%1", "BuildDB").arg(queryCreate.lastError().text()));
+			return false;
+		} else {
+			queryCreate.next();
+			if (queryCreate.value(0).toInt()) {
+				// If we found it, drop it so we can recreate it:
+				if (!queryCreate.exec("DROP TABLE LEMMAS")) {
+					displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to drop old \"LEMMAS\" table from database!\n%1", "BuildDB").arg(queryCreate.lastError().text()));
+					return false;
+				}
+			}
+
+			// Create the table in the database:
+			strCmd = QString("create table LEMMAS "
+							"(BkChpVrsWrdNdx INTEGER PRIMARY KEY, Count NUMERIC, Attrs TEXT)");
+
+			if (!queryCreate.exec(strCmd)) {
+				if (displayWarning(m_pParent, g_constrBuildDatabase,
+						QObject::tr("Failed to create table for LEMMAS\n%1", "BuildDB").arg(queryCreate.lastError().text()),
+						(QMessageBox::Ignore | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+			}
+		}
+	}
+#endif	// !NOT_USING_SQL
+
+	// Open the table data file:
+	QFile fileLemmas(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/LEMMAS.csv")).absoluteFilePath());
+	if (!fileLemmas.open(QIODevice::ReadOnly)) {
+		displayInformation(m_pParent, g_constrBuildDatabase,
+			QObject::tr("Failed to open %1 for reading.  Skipping Lemma Generation.", "BuildDB").arg(fileLemmas.fileName()));
+		return true;
+	}
+
+	// Read file and populate table:
+	CCSVStream csv(&fileLemmas);
+
+	QStringList slHeaders;
+	csv >> slHeaders;              // Read Headers (verify and discard)
+
+	if ((slHeaders.size()!=3) ||
+		(slHeaders.at(0).compare("BkChpVrsWrdNdx") != 0) ||
+		(slHeaders.at(1).compare("Count") != 0) ||
+		(slHeaders.at(2).compare("Attrs") != 0)) {
+		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for LEMMAS data file!", "BuildDB"),
+							(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
+			fileLemmas.close();
+			return false;
+		}
+	}
+
+#ifndef NOT_USING_SQL
+	QSqlQuery queryInsert(m_myDatabase);
+	if (m_myDatabase.isOpen()) {
+		queryInsert.exec("BEGIN TRANSACTION");
+	}
+#endif	// !NOT_USING_SQL
+
+	QList<QStringList> lstArrCCData;
+
+	while (!csv.atEndOfStream()) {
+		QStringList sl;
+		csv >> sl;
+
+		if (sl.count() != 3) {
+			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in LEMMAS data file!", "BuildDB"),
+								(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
+				fileLemmas.close();
+				return false;
+			}
+			continue;
+		}
+
+#ifndef NOT_USING_SQL
+		if (m_myDatabase.isOpen()) {
+			strCmd = QString("INSERT INTO LEMMAS "
+							"(BkChpVrsWrdNdx, Count, Attrs) "
+							"VALUES (:BkChpVrsWrdNdx, :Count, :Attrs)");
+
+			queryInsert.prepare(strCmd);
+			queryInsert.bindValue(":BkChpVrsWrdNdx", sl.at(0).toUInt());
+			queryInsert.bindValue(":Count", sl.at(1).toUInt());
+			queryInsert.bindValue(":Attrs", sl.at(2));
+
+			if (!queryInsert.exec()) {
+				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for LEMMAS!\n%1\n%2\n%3\n%4", "BuildDB").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)).arg(sl.at(2)),
+										(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) break;
+			}
+		}
+#endif	// !NOT_USING_SQL
+
+		// Format:  BkChpVrsWrdNdx, Count, Attrs
+		lstArrCCData.append(sl);
+	}
+
+#ifndef NOT_USING_SQL
+	if (m_myDatabase.isOpen()) {
+		queryInsert.exec("COMMIT");
+	}
+#endif	// !NOT_USING_SQL
+
+	if (!m_pCCDatabase.isNull()) {
+		// Format:  LEMMAS,count
+		QStringList arrCCData;
+		arrCCData.append("LEMMAS");
+		arrCCData.append(QString("%1").arg(lstArrCCData.size()));
+		(*m_pCCDatabase) << arrCCData;
+		m_pCCDatabase->writeAll(lstArrCCData);
+	}
+
+	fileLemmas.close();
+
+	return true;
+}
+
 bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename)
 {
 #ifndef NOT_USING_SQL
@@ -1286,7 +1411,8 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 			(!BuildVerseTables()) ||
 			(!BuildWordsTable()) ||
 			(!BuildFootnotesTables()) ||
-			(!BuildPhrasesTable())) bSuccess = false;
+			(!BuildPhrasesTable()) ||
+			(!BuildLemmasTable())) bSuccess = false;
 	}
 
 #ifndef NOT_USING_SQL
