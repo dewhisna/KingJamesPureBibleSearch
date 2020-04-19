@@ -39,18 +39,18 @@ public:
 	CCSVStream(QIODevice *pIOD);
 	CCSVStream(QString *pStr, QIODevice::OpenMode nFilemode);
 
-	QIODevice *device() { return m_stream.device(); }
+	QIODevice *device() const { return m_stream.device(); }
 	void setDevice(QIODevice *pIOD) { m_stream.setDevice(pIOD); }
 	void unsetDevice() { m_stream.setDevice(NULL); }
 
-	bool atEndOfStream() { return m_stream.atEnd(); }
-	bool atEndOfLine() { return m_bEndOfLine; }
-	bool atEnding() { return atEndOfStream() || atEndOfLine(); }
-	bool atBeginningOfLine() { return m_bBeginningOfLine; }
+	bool atEndOfStream() const { return m_stream.atEnd(); }
+	bool atEndOfLine() const { return m_bEndOfLine; }
+	bool atEnding() const { return atEndOfStream() || atEndOfLine(); }
+	bool atBeginningOfLine() const { return m_bBeginningOfLine; }
 
 	// Excel seems to do identical quoting for tab-delimited text and
 	//	seemingly other delimiters like '|', so allow changing the delimiter:
-	QChar delimiter() { return m_chrDelim; }
+	QChar delimiter() const { return m_chrDelim; }
 	void setDelimiter(QChar ch) { m_chrDelim = ch; }
 
 	CCSVStream &endLine();
