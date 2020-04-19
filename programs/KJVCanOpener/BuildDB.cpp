@@ -982,17 +982,17 @@ bool CBuildDatabase::BuildFootnotesTables()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileBook(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/FOOTNOTES.csv")).absoluteFilePath());
+	QFile fileFootnotes(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/FOOTNOTES.csv")).absoluteFilePath());
 	while (1) {
-		if (!fileBook.open(QIODevice::ReadOnly)) {
+		if (!fileFootnotes.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
-					QObject::tr("Failed to open %1 for reading.", "BuildDB").arg(fileBook.fileName()),
+					QObject::tr("Failed to open %1 for reading.", "BuildDB").arg(fileFootnotes.fileName()),
 					(QMessageBox::Retry | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) return false;
 		} else break;
 	}
 
 	// Read file and populate table:
-	CCSVStream csv(&fileBook);
+	CCSVStream csv(&fileFootnotes);
 
 	QStringList slHeaders;
 	csv >> slHeaders;              // Read Headers (verify and discard)
@@ -1003,7 +1003,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 		(slHeaders.at(2).compare("RFootnote") != 0)) {
 		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for FOOTNOTES data file!", "BuildDB"),
 							(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
-			fileBook.close();
+			fileFootnotes.close();
 			return false;
 		}
 	}
@@ -1024,7 +1024,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 		if (sl.count() != 3) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in FOOTNOTES data file!", "BuildDB"),
 								(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
-				fileBook.close();
+				fileFootnotes.close();
 				return false;
 			}
 			continue;
@@ -1075,7 +1075,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 		m_pCCDatabase->writeAll(lstArrCCData);
 	}
 
-	fileBook.close();
+	fileFootnotes.close();
 
 	return true;
 }
