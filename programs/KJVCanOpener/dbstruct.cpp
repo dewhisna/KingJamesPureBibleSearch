@@ -640,6 +640,71 @@ QString CFootnoteEntry::plainText(const CBibleDatabase *pBibleDatabase) const
 
 // ============================================================================
 
+CLemmaEntry::CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs)
+	:	m_tagEntry(tag)
+#ifdef OSIS_PARSER_BUILD
+		, m_strLemmaAttrs(strLemmaAttrs)
+#endif
+{
+	QStringList lstElements = strLemmaAttrs.split(',');							// List of Elements
+	for (int ndxElement = 0; ndxElement < lstElements.size(); ++ndxElement) {
+		QStringList lstMembers = lstElements.at(ndxElement).split('=');			// Element=Members
+		if (lstMembers.size() != 2) continue;		// Must have exactly two-halves (Element=Members)
+		QStringList lstEntries = lstMembers.at(1).split(' ');					// List of Name:Value pairs
+		for (int ndxEntries = 0; ndxEntries < lstEntries.size(); ++ndxEntries) {
+			QStringList lstValues = lstEntries.at(ndxEntries).split(':');		// Name:Value pairs
+			if (lstValues.size() != 2) continue;	// Must have exaclty two-halves (Name:Value)
+			if (lstMembers.at(0).compare("lemma", Qt::CaseInsensitive) == 0) {
+				if (lstValues.at(0).compare("strong", Qt::CaseInsensitive) == 0) {
+					m_lstStrongs.append(lstValues.at(1));
+				} else if (lstValues.at(0).compare("lemma.TR", Qt::CaseInsensitive) == 0) {
+					m_lstText.append(lstValues.at(1));
+				}
+			} else if (lstMembers.at(0).compare("morph", Qt::CaseInsensitive) == 0) {
+				if (lstValues.at(0).compare("robinson", Qt::CaseInsensitive) == 0) {
+					m_lstMorph.append(lstValues.at(1));
+					m_strMorphSource = "robinson";
+				} else if (lstValues.at(0).compare("oshm", Qt::CaseInsensitive) == 0) {
+					m_lstMorph.append(lstValues.at(1));
+					m_strMorphSource = "oshm";
+				}
+			}
+		}
+	}
+}
+
+QString CLemmaEntry::strongs(int nIndex) const
+{
+	if ((nIndex < 0) || (nIndex >= count())) {
+		assert(false);
+		return QString();
+	}
+
+	return m_lstStrongs.at(nIndex);
+}
+
+QString CLemmaEntry::text(int nIndex) const
+{
+	if ((nIndex < 0) || (nIndex >= count())) {
+		assert(false);
+		return QString();
+	}
+
+	return m_lstText.at(nIndex);
+}
+
+QString CLemmaEntry::morph(int nIndex) const
+{
+	if ((nIndex < 0) || (nIndex >= count())) {
+		assert(false);
+		return QString();
+	}
+
+	return m_lstMorph.at(nIndex);
+}
+
+// ============================================================================
+
 #ifdef OSIS_PARSER_BUILD
 
 uint32_t CBibleDatabase::NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const

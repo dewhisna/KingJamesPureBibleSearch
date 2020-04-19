@@ -1109,6 +1109,46 @@ struct TPassageTagListSortPredicate {
 
 // ============================================================================
 
+class CLemmaEntry
+{
+public:
+	CLemmaEntry() { }
+	CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs);
+	~CLemmaEntry() { }
+
+	inline TPhraseTag tag() const { return m_tagEntry; }
+#ifdef OSIS_PARSER_BUILD
+	inline QString lemmaAttrs() const { return m_strLemmaAttrs; }
+#endif
+
+	inline int count() const { return m_lstStrongs.size(); }
+	inline bool isValid() const
+	{
+		return ((m_lstStrongs.size() == m_lstText.size()) &&
+				(m_lstStrongs.size() == m_lstMorph.size()));
+	}
+
+	QString strongs(int nIndex) const;
+	QString text(int nIndex) const;
+	QString morph(int nIndex) const;
+	QString morphSource() const { return  m_strMorphSource; }
+
+private:
+	TPhraseTag m_tagEntry;
+#ifdef OSIS_PARSER_BUILD
+	QString m_strLemmaAttrs;		// Lemma Attributes from OSIS.  These will be parsed into the data below, but this member is only needed during OSIS parsing.
+#endif
+	// ----
+	QStringList m_lstStrongs;		// Array of Strongs Indexes -- count of this is the Lemma count
+	QStringList m_lstText;			// Masoretic or Textus-Receptus Words (paired with Strongs Indexes)
+	QStringList m_lstMorph;			// Morphological Coding for Words (paired with Strongs Indexes) -- for future expansion for other dictionary sources, we can allow for a comma-separated list
+	QString m_strMorphSource;		// Morphological Source: "robinson" or oshm", etc.
+};
+
+typedef std::map<CRelIndex, CLemmaEntry, RelativeIndexSortPredicate> TLemmaEntryMap;	// Index by [nBk|nChp|nVrs|nWrd]
+
+// ============================================================================
+
 class TBibleDatabaseSettings
 {
 public:
@@ -1315,6 +1355,11 @@ public:
 	{
 		return m_lstCommonPhrases;
 	}
+	const CLemmaEntry *lemmaEntry(const CRelIndex &ndx) const;			// Lemma Data Entry, Used CRelIndex: [Book | Chapter | Verse | Word], supports Colophons and Superscription indexes
+	inline const TLemmaEntryMap &lemmaMap() const						// Entire Lemma Map, needed for database generation
+	{
+		return m_mapLemmaEntries;
+	}
 	QString soundEx(const QString &strDecomposedConcordanceWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Concordance Word (calculations done based on this Bible Database language)
 
 	QString richVerseText(const CRelIndex &ndxRel,
@@ -1345,6 +1390,7 @@ private:
 	TNormalizedIndexList m_lstConcordanceMapping;	// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
+	TLemmaEntryMap m_mapLemmaEntries;		// Lemmas (typed by index - See notes above with TLemmaEntryMap)
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:

@@ -49,41 +49,6 @@
 #include <set>
 #include <map>
 
-class CLemmaEntry
-{
-public:
-	CLemmaEntry() { }
-	CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttr)
-		:	m_tagEntry(tag),
-			m_strLemmaAttr(strLemmaAttr)
-	{ }
-	~CLemmaEntry() { }
-
-	CLemmaEntry(const CLemmaEntry &entry) = delete;					// No Copy Constructor
-	CLemmaEntry & operator=(const CLemmaEntry &entry) = delete;		// No assignment
-
-	CLemmaEntry(const CLemmaEntry &&entry) noexcept					// Move constructor
-		:	m_tagEntry(entry.m_tagEntry),
-			m_strLemmaAttr(entry.m_strLemmaAttr)
-	{ }
-
-	CLemmaEntry & operator=(const CLemmaEntry &&entry) noexcept		// Move assignment
-	{
-		m_tagEntry = entry.m_tagEntry;
-		m_strLemmaAttr = std::move(entry.m_strLemmaAttr);
-		return *this;
-	}
-
-	TPhraseTag tag() const { return m_tagEntry; }
-	QString lemmaAttr() const { return m_strLemmaAttr; }
-
-private:
-	TPhraseTag m_tagEntry;
-	QString m_strLemmaAttr;
-};
-
-typedef std::map<CRelIndex, CLemmaEntry, RelativeIndexSortPredicate> TLemmaEntryMap;
-
 #define CHECK_INDEXES 0
 
 const unsigned int VERSION = 10000;		// Version 1.0.0
@@ -596,7 +561,6 @@ public:
 	virtual bool endDocument() override;
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
-	const TLemmaEntryMap &lemmaEntryMap() const { return m_mapLemmaEntries; }
 
 	QString language() const { return m_strLanguage; }
 
@@ -687,7 +651,6 @@ private:
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
-	TLemmaEntryMap m_mapLemmaEntries;
 	QString m_strLanguage;
 	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
@@ -1867,14 +1830,12 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				assert(nPos != -1);		// Every ParseStack entry must contain a ':'
 				QString strOp = strParse.left(nPos);
 				if (strOp.compare("L") == 0) {
-					// TODO : Parse Lemma for Strongs/Morph
 					tagLemmaEntry.setRelIndex(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), nWordCount+1));
 					tagLemmaEntry.setCount(1);
 					strLemmaAttr = strParse.mid(nPos+1);
 				} else if (strOp.compare("l") == 0) {
-					// TODO : End Lemma
 					tagLemmaEntry.setCount((nWordCount+1)-tagLemmaEntry.relIndex().word());
-					m_mapLemmaEntries[tagLemmaEntry.relIndex()] = CLemmaEntry(tagLemmaEntry, strLemmaAttr);
+					m_pBibleDatabase->m_mapLemmaEntries[tagLemmaEntry.relIndex()] = CLemmaEntry(tagLemmaEntry, strLemmaAttr);
 				} else if (strOp.compare("T") == 0) {
 					if (!bInlineNote) {
 						verse.m_strTemplate += "T";
@@ -2876,19 +2837,24 @@ int main(int argc, char *argv[])
 	std::cerr << QFileInfo(fileLemmas).fileName().toUtf8().data();
 
 	fileLemmas.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	fileLemmas.write(QString("Ndx,Count,Attrs\r\n").toUtf8());
+	fileLemmas.write(QString("BkChpVrsWrdNdx,Count,Attrs\r\n").toUtf8());
 
 	unsigned int nLemmaBk = 0;
-	for (TLemmaEntryMap::const_iterator itrLemmas = xmlHandler.lemmaEntryMap().cbegin();
-			itrLemmas != xmlHandler.lemmaEntryMap().cend(); ++itrLemmas) {
+	const TLemmaEntryMap &mapLemmas = pBibleDatabase->lemmaMap();
+	for (TLemmaEntryMap::const_iterator itrLemmas = mapLemmas.cbegin();
+			itrLemmas != mapLemmas.cend(); ++itrLemmas) {
 		if (nLemmaBk != itrLemmas->second.tag().relIndex().book()) {
 			nLemmaBk = itrLemmas->second.tag().relIndex().book();
 			std::cerr << ".";
 		}
-		fileLemmas.write(QString("%1,%2,%3\r\n")
+		QStringList lstTempLemma = (itrLemmas->second).lemmaAttrs().split('\"');
+		QString strTempLemma = lstTempLemma.join("\"\"");
+		// Ndx,Count,Attrs
+		fileLemmas.write(QString("%1,%2,\"%3\"\r\n")
 							.arg(itrLemmas->second.tag().relIndex().index())
 							.arg(itrLemmas->second.tag().count())
-							.arg(itrLemmas->second.lemmaAttr()).toUtf8());
+							.arg(strTempLemma)
+							.toUtf8());
 	}
 
 	fileLemmas.close();

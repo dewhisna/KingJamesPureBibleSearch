@@ -76,6 +76,7 @@ protected:
 	bool ReadWordsTable();
 	bool ReadFOOTNOTESTable();
 	bool ReadPHRASESTable();
+	bool ReadLEMMASTable();
 	bool ValidateData();
 
 	// ------------------------------------------------------------------------

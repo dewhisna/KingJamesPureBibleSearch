@@ -234,6 +234,14 @@ public:
 		}
 	}
 
+	bool atEndOfStream() const
+	{
+		if (m_pCSVStream != NULL) {
+			return m_pCSVStream->atEndOfStream();
+		}
+		return false;
+	}
+
 	bool haveData() const
 	{
 		return m_bContinue;
@@ -980,6 +988,47 @@ bool CReadDatabase::ReadPHRASESTable()
 	return true;
 }
 
+bool CReadDatabase::ReadLEMMASTable()
+{
+	assert(!m_pBibleDatabase.isNull());
+
+	// Read the Lemmas table:
+
+#ifndef NOT_USING_SQL
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data(), m_myDatabase);
+#else
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
+#endif
+
+	if (dbParser.atEndOfStream()) return true;		// Lemmas are optional and old databases won't have them
+
+	if (!dbParser.findTable("LEMMAS")) {
+		if (!m_pCCDatabase.isNull()) {
+			return false;
+		} else {
+			return true;			// If this is an SQL-only database, SQL Files won't report EndOfStream above, but Lemmas are optional
+		}
+	}
+
+	m_pBibleDatabase->m_mapLemmaEntries.clear();
+
+	dbParser.startQueryLoop("BkChpVrsWrdNdx,Count,Attrs");
+
+	while (dbParser.haveData()) {
+		QStringList lstFields;
+		if (!dbParser.readNextRecord(lstFields, 3)) return false;
+
+		CLemmaEntry lemma(TPhraseTag(lstFields.at(0).toUInt(), lstFields.at(1).toUInt()), lstFields.at(2));
+		assert(lemma.tag().isSet());
+		if (!lemma.tag().isSet() || (lemma.count() == 0)) continue;
+		m_pBibleDatabase->m_mapLemmaEntries[lemma.tag().relIndex()] = lemma;
+	}
+
+	dbParser.endQueryLoop();
+
+	return true;
+}
+
 bool CReadDatabase::ValidateData()
 {
 	assert(!m_pBibleDatabase.isNull());
@@ -1286,6 +1335,7 @@ bool CReadDatabase::readBibleStub()
 		(!ReadWordsTable()) ||
 		(!ReadFOOTNOTESTable()) ||
 		(!ReadPHRASESTable()) ||
+		(!ReadLEMMASTable()) ||
 		(!ValidateData())) return false;
 #ifdef USE_EXTENDED_INDEXES
 	// Build Letter counts.  Do this here after reading the
