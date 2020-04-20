@@ -42,6 +42,10 @@
 #include <QAbstractTextDocumentLayout>
 #include <QTextDocument>
 
+#if !defined(IS_CONSOLE_APP) && (QT_VERSION >= 0x050400)		// Functor calls was introduced in Qt 5.4
+#include <QTimer>
+#endif
+
 #ifdef USING_WEBCHANNEL
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -376,7 +380,23 @@ bool TDictionaryDatabaseList::loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM 
 	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
 	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
 		iAmBusy.earlyRestore();
+#ifndef IS_CONSOLE_APP
+#if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
+		// Since this loadDictionaryDatabase function is called on the constructor of KJVCanOpener,
+		//	we can't call our normal QMessageBox display since we won't have a main KJVCanOpener
+		//	widget and will blow up.  So, trigger a warning to display after its creation:
+		QTimer::singleShot(1, pParent, [pParent, dctDesc]() {
+				displayWarning(pParent, tr("Load Dictionary Database", "Errors"), tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
+		});
+#else
+		// Should display some warning message here, but there isn't a good
+		//	way to do so for a GUI without going down in flames unless we
+		//	add an actual callback function on our pParent KJVCanOpener,
+		//	but that's a lot of work to support obsolete/old Qt versions.
+#endif
+#else
 		displayWarning(pParent, tr("Load Dictionary Database", "Errors"), tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
+#endif
 		return false;
 	}
 	return true;
