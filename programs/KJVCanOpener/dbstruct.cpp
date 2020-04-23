@@ -2146,6 +2146,35 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 	return &(footnote->second);
 }
 
+const CLemmaEntry *CBibleDatabase::lemmaEntry(const CRelIndex &ndx) const
+{
+	TLemmaEntryMap::const_iterator lemma = m_mapLemmaEntries.find(ndx);
+	if (lemma == m_mapLemmaEntries.end()) return NULL;
+	return &(lemma->second);
+}
+
+const CStrongsEntry *CBibleDatabase::strongsEntryByIndex(const QString &strIndex) const
+{
+	TStrongsIndexMap::const_iterator strongs = m_mapStrongsEntries.find(strIndex);
+	if (strongs == m_mapStrongsEntries.end()) return NULL;
+	return &(strongs->second);
+}
+
+QList<const CStrongsEntry *> CBibleDatabase::strongsEntriesByOthography(const QString &strOrth) const
+{
+	QStringList lstStrongIndexes = strongsIndexesFromOrthograph(strOrth);
+	QList<const CStrongsEntry *> lstStrongs;
+	for (int ndx = 0; ndx < lstStrongIndexes.size(); ++ndx) {
+		lstStrongs.append(strongsEntryByIndex(lstStrongIndexes.at(ndx)));
+	}
+	return lstStrongs;
+}
+
+QStringList CBibleDatabase::strongsIndexesFromOrthograph(const QString &strOrth) const
+{
+	return m_mapStrongsOrthographyMap.values(strOrth);
+}
+
 QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors, const CBasicHighlighter *aHighlighter) const
 {
 	CRelIndex ndx = ndxRel;

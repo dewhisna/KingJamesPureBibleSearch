@@ -27,6 +27,7 @@
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/Translator.h"
+#include "../KJVCanOpener/CSV.h"
 
 #include "xc_KJVDataParse.h"
 
@@ -44,6 +45,8 @@
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
 #endif
+#include <QBuffer>
+#include <QByteArray>
 
 #include <iostream>
 #include <set>
@@ -463,6 +466,362 @@ static QString WordFromWordSet(const TAltWordSet &setAltWords)
 // ============================================================================
 // ============================================================================
 
+// Like the QXmlAttributes::index() function, but case-insensitive
+static int findAttribute(const QXmlAttributes &attr, const QString &strName)
+{
+	for (int i = 0; i < attr.count(); ++i) {
+		if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;
+	}
+	return -1;
+}
+
+static QString stringifyAttributes(const QXmlAttributes &attr)
+{
+	QString strTemp;
+	for (int i=0; i<attr.count(); ++i) {
+		if (i) strTemp += ',';
+		strTemp += attr.localName(i) + '=' + attr.value(i);
+	}
+	return strTemp;
+}
+
+//static QXmlAttributes attributesFromString(const QString &str)
+//{
+//	QXmlAttributes attrs;
+//	QStringList lstPairs = str.split(',');
+//	for (int i=0; i<lstPairs.count(); ++i) {
+//		QStringList lstEntry = lstPairs.at(i).split('=');
+//		assert(lstEntry.count() == 2);
+//		if (lstEntry.count() != 2) {
+//			std::cerr << "\n*** Error: Attributes->String failure\n";
+//			continue;
+//		}
+//		attrs.append(lstEntry.at(0), QString(), lstEntry.at(0), lstEntry.at(1));
+//	}
+//	return attrs;
+//}
+
+// ============================================================================
+// ============================================================================
+
+class CStrongsImpXmlHandler : public QXmlDefaultHandler
+{
+	enum STRONGS_IMP_PARSER_STATE {
+		SIPSE_ENTRYFREE = 0,
+		SIPSE_TITLE = 1,
+		SIPSE_ORTH = 2,
+		SIPSE_TRANSLITERATION = 3,
+		SIPSE_PRONUNCIATION = 4,
+		SIPSE_DEFINITION = 5,
+		SIPSE_REFERENCE = 6,
+		SIPSE_RENDER = 7,
+	};
+
+public:
+	CStrongsImpXmlHandler(const QString &strExpectedTextIndex)
+		:	m_strongsEntry(!strExpectedTextIndex.isEmpty() ? strExpectedTextIndex.at(0) : '?',
+							strExpectedTextIndex.mid(1).toUInt()),
+			m_strExpectedTextIndex(strExpectedTextIndex)
+	{ }
+
+	virtual ~CStrongsImpXmlHandler()
+	{ }
+
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts) override;
+	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
+	virtual bool characters(const QString &ch) override;
+	virtual bool error(const QXmlParseException &exception) override;
+	virtual QString errorString() const override
+	{
+		return (!m_strErrorString.isEmpty() ? m_strErrorString : QXmlDefaultHandler::errorString());
+	}
+	virtual bool endDocument() override;
+
+	const CStrongsEntry &strongsEntry() const { return m_strongsEntry; }
+
+private:
+	void beginRenderElement(const QString &strRendType);
+	void endRenderElement();
+
+private:
+	CStrongsEntry m_strongsEntry;
+
+	QVector<STRONGS_IMP_PARSER_STATE> m_vctParseState;	// Parse State Stack
+	QString m_strExpectedTextIndex;				// Strongs Text Index expected from IMP file during construction of this parser (ex: 'G0001')
+	QString m_strErrorString;
+
+	QString m_strEntryTextIndex;				// derived from entryFree 'n' attribute, compared with expected TextIndex and with 'title' element (ex: 'G0001')
+	QString m_strCurrentMapIndex;				// derived from text on 'title' element (ex: 'G1'), compared with expected TextIndex
+
+	QString m_strEntryOrthographicIndex;		// derived from entryFree 'n' attribute, compared with 'orth' element
+
+	QStringList m_lstRenderElementStack;		// Corresponding Render Element to output when we hit endRenderElement(), pushed in beginRenderElement()
+};
+
+void CStrongsImpXmlHandler::beginRenderElement(const QString &strRendType)
+{
+	if (strRendType.compare("bold", Qt::CaseInsensitive) == 0) {
+		characters("<b>");
+		m_lstRenderElementStack.push_back("</b>");
+	} else if (strRendType.compare("italic", Qt::CaseInsensitive) == 0) {
+		characters("<i>");
+		m_lstRenderElementStack.push_back("</i>");
+	} else if (strRendType.compare("super", Qt::CaseInsensitive) == 0) {
+		characters("<sup>");
+		m_lstRenderElementStack.push_back("</sup>");
+	} else if (strRendType.compare("sub", Qt::CaseInsensitive) == 0) {
+		characters("<sub>");
+		m_lstRenderElementStack.push_back("</sub>");
+	} else {
+		// Unknown rendering types placeholder:
+		m_lstRenderElementStack.push_back(QString());		// Keep stack balanced
+	}
+	m_vctParseState.push_back(SIPSE_RENDER);
+}
+
+void CStrongsImpXmlHandler::endRenderElement()
+{
+	assert(!m_vctParseState.isEmpty());
+	assert(m_vctParseState.back() == SIPSE_RENDER);
+	m_vctParseState.pop_back();
+	assert(!m_lstRenderElementStack.isEmpty());
+	characters(m_lstRenderElementStack.back());
+	m_lstRenderElementStack.pop_back();
+}
+
+bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts)
+{
+	Q_UNUSED(namespaceURI);
+	Q_UNUSED(qName);
+
+/*
+
+	Strongs IMP Format:
+	-------------------
+	$$$G0001
+	<entryFree n="G0001|Α"> <title>G1</title> <orth>Α</orth> <orth rend="bold" type="trans">A</orth>
+	<pron rend="italic">al'-fah</pron><lb/> <def>Of Hebrew origin; the first letter of the alphabet:
+	figuratively only (from its use as a numeral) the <hi rend="italic">first</hi>. Often used (usually
+	“an” before a vowel) also in composition (as a contraction from <ref target="Strong:G0427">G427</ref>)
+	in the sense of <hi rend="italic">privation</hi>; so in many words beginning with this letter;
+	occasionally in the sense of <hi rend="italic">union</hi> (as a contraction of
+	<ref target="Strong:G0260">G260</ref>): - Alpha.</def> </entryFree>
+
+*/
+
+	int ndx = -1;
+
+	if (localName.compare("entryFree", Qt::CaseInsensitive) == 0) {
+		if (!m_vctParseState.isEmpty()) {
+			std::cerr << QString("*** Error: Strongs Imp Parse State not empty at entryFree start for %1\n").arg(m_strExpectedTextIndex).toUtf8().data();
+			m_vctParseState.clear();
+		}
+
+		m_vctParseState.push_back(SIPSE_ENTRYFREE);
+
+		m_strCurrentMapIndex.clear();
+		m_strongsEntry.setOrthography(QString());
+
+		ndx = findAttribute(atts, "n");
+		if (ndx != -1) {
+			QStringList lstIndex = atts.value(ndx).split('|');
+			if (lstIndex.size() < 2) {
+				std::cerr << QString("*** Warning: On %1 - Strongs Imp entryFree missing proper 'n' attribute: %2\n").arg(m_strExpectedTextIndex).arg(stringifyAttributes(atts)).toUtf8().data();
+			} else {
+				m_strEntryTextIndex = lstIndex.at(0);
+				m_strEntryOrthographicIndex = lstIndex.at(1);
+				if (lstIndex.size() > 2) {
+					std::cerr << QString("*** Warning: On %1 - Strongs Imp entryFree with extraneous 'n' attribute: %2\n").arg(m_strExpectedTextIndex).arg(atts.value(ndx)).toUtf8().data();
+				}
+			}
+		} else {
+			m_strEntryTextIndex.clear();
+			m_strEntryOrthographicIndex.clear();
+		}
+	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
+		m_vctParseState.push_back(SIPSE_TITLE);
+
+		m_strCurrentMapIndex.clear();		// Redundant, but we'll do it in case an entry has multiple 'title' elements
+	} else if (localName.compare("orth", Qt::CaseInsensitive) == 0) {
+		ndx = findAttribute(atts, "type");
+		if ((ndx != -1) && (atts.value(ndx).compare("trans", Qt::CaseInsensitive) == 0)) {
+			m_vctParseState.push_back(SIPSE_TRANSLITERATION);
+			m_strongsEntry.setTransliteration(QString());
+		} else {
+			m_vctParseState.push_back(SIPSE_ORTH);
+			m_strongsEntry.setOrthography(QString());
+		}
+
+		ndx = findAttribute(atts, "rend");
+		if (ndx != -1) beginRenderElement(atts.value(ndx));
+	} else if (localName.compare("pron", Qt::CaseInsensitive) == 0) {
+		m_vctParseState.push_back(SIPSE_PRONUNCIATION);
+		m_strongsEntry.setPronunciation(QString());
+
+		ndx = findAttribute(atts, "rend");
+		if (ndx != -1) beginRenderElement(atts.value(ndx));
+	} else if (localName.compare("def", Qt::CaseInsensitive) == 0) {
+		m_vctParseState.push_back(SIPSE_DEFINITION);
+		m_strongsEntry.setDefinition(QString());
+
+		ndx = findAttribute(atts, "rend");
+		if (ndx != -1) beginRenderElement(atts.value(ndx));
+	} else if (localName.compare("hi", Qt::CaseInsensitive) == 0) {
+		ndx = findAttribute(atts, "rend");
+		if (ndx != -1) beginRenderElement(atts.value(ndx));
+	} else if (localName.compare("ref", Qt::CaseInsensitive) == 0) {
+		ndx = findAttribute(atts, "target");
+		if (ndx != -1) {
+			// Push the reference attribute into current text element before we push the reference state
+			characters(QString("<a target=\"%1\">").arg(atts.value(ndx).replace("Strong:", "strong/://", Qt::CaseInsensitive)));
+			m_vctParseState.push_back(SIPSE_REFERENCE);
+		}	// Ignore references with no target
+	}
+	// Ignore other elements, like 'lb'
+
+	return true;
+}
+
+bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QString &localName, const QString &qName)
+{
+	Q_UNUSED(namespaceURI);
+	Q_UNUSED(qName);
+
+	if (localName.compare("entryFree", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_ENTRYFREE) {
+			m_vctParseState.pop_back();
+		} else {
+			m_strErrorString = "Expected entryFree endElement";
+			return false;
+		}
+	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_TITLE) {
+			m_vctParseState.pop_back();
+
+			// TODO : Compare m_strCurrentMapIndex, m_strEntryTextIndex, and m_strExpectedTextIndex
+
+		} else {
+			m_strErrorString = "Expected title endElement";
+			return false;
+		}
+
+	} else if (localName.compare("orth", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_RENDER) {
+			endRenderElement();
+			assert(!m_vctParseState.isEmpty());
+		}
+		if ((m_vctParseState.back() == SIPSE_ORTH) ||
+			(m_vctParseState.back() == SIPSE_TRANSLITERATION)) {
+			m_vctParseState.pop_back();
+
+			// TODO : for SIPSE_ORTH, Compare m_strongsEntry.orthography() with m_strEntryOrthographicIndex
+
+		} else {
+			m_strErrorString = "Expected orth endElement";
+			return false;
+		}
+	} else if (localName.compare("pron", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_RENDER) {
+			endRenderElement();
+			assert(!m_vctParseState.isEmpty());
+		}
+		if (m_vctParseState.back() == SIPSE_PRONUNCIATION) {
+			m_vctParseState.pop_back();
+		} else {
+			m_strErrorString = "Expected pron endElement";
+			return false;
+		}
+	} else if (localName.compare("def", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_RENDER) {
+			endRenderElement();
+			assert(!m_vctParseState.isEmpty());
+		}
+		if (m_vctParseState.back() == SIPSE_DEFINITION) {
+			m_vctParseState.pop_back();
+		} else {
+			m_strErrorString = "Expected def endElement";
+			return false;
+		}
+	} else if (localName.compare("hi", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_RENDER) {
+			endRenderElement();
+		}
+	} else if (localName.compare("ref", Qt::CaseInsensitive) == 0) {
+		assert(!m_vctParseState.isEmpty());
+		if (m_vctParseState.back() == SIPSE_REFERENCE) {
+			m_vctParseState.pop_back();
+			characters("</a>");
+		}
+	}
+	// Ignore other elements, like 'lb'
+
+	return true;
+}
+
+bool CStrongsImpXmlHandler::characters(const QString &ch)
+{
+	assert(!m_vctParseState.isEmpty());
+	STRONGS_IMP_PARSER_STATE parseState = m_vctParseState.back();
+
+	// Push data inside references and render elements up to
+	//	the parent element:
+	int ndxParent = 2;
+	while ((parseState == SIPSE_REFERENCE) ||
+			(parseState == SIPSE_RENDER)) {
+		assert(m_vctParseState.size() >= ndxParent);
+		parseState = m_vctParseState.at(m_vctParseState.size()-ndxParent);
+		++ndxParent;
+	}
+
+	switch (parseState) {
+		case SIPSE_ENTRYFREE:
+			// Ignore characters (like spaces) in our entry not assigned to a specific function
+			break;
+		case SIPSE_TITLE:
+			m_strCurrentMapIndex.append(ch);
+			break;
+		case SIPSE_ORTH:
+			m_strongsEntry.setOrthography(m_strongsEntry.orthography() + ch);
+			break;
+		case SIPSE_TRANSLITERATION:
+			m_strongsEntry.setTransliteration(m_strongsEntry.transliteration() + ch);
+			break;
+		case SIPSE_PRONUNCIATION:
+			m_strongsEntry.setPronunciation(m_strongsEntry.pronunciation() + ch);
+			break;
+		case SIPSE_DEFINITION:
+			m_strongsEntry.setDefinition(m_strongsEntry.definition() + ch);
+			break;
+		case SIPSE_REFERENCE:
+		case SIPSE_RENDER:
+			// This state can't happen due to parent seeking above
+			assert(false);
+			return false;
+	}
+
+	return true;
+}
+
+bool CStrongsImpXmlHandler::error(const QXmlParseException &exception)
+{
+	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
+	return true;
+}
+
+bool CStrongsImpXmlHandler::endDocument()
+{
+	return true;
+}
+
+// ============================================================================
+// ============================================================================
+
 class COSISXmlHandler : public QXmlDefaultHandler
 {
 public:
@@ -514,7 +873,7 @@ public:
 		}
 	}
 
-	~COSISXmlHandler()
+	virtual ~COSISXmlHandler()
 	{
 
 	}
@@ -545,6 +904,8 @@ public:
 	void setSegVariant(const QString &strSegVariant) { m_strSegVariant = strSegVariant; }
 	QString segVariant() const { return m_strSegVariant; }
 	bool foundSegVariant() const { return m_bFoundSegVariant; }
+	void setStrongsImpFilepath(const QString &strFilepath) { m_strStrongsImpFilepath = strFilepath; }
+	QString strongsImpFilepath() const { return m_strStrongsImpFilepath; }
 
 	// Parsing:
 	QStringList elementNames() const { return m_lstElementNames; }
@@ -569,37 +930,6 @@ public:
 	const CBookEntry *addBookToBibleDatabase(unsigned int nBk);
 
 protected:
-	int findAttribute(const QXmlAttributes &attr, const QString &strName) {
-		for (int i = 0; i < attr.count(); ++i) {
-			if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;
-		}
-		return -1;
-	}
-
-	QString stringifyAttributes(const QXmlAttributes &attr) {
-		QString strTemp;
-		for (int i=0; i<attr.count(); ++i) {
-			if (i) strTemp += ',';
-			strTemp += attr.localName(i) + '=' + attr.value(i);
-		}
-		return strTemp;
-	}
-
-	QXmlAttributes attributesFromString(const QString &str) {
-		QXmlAttributes attrs;
-		QStringList lstPairs = str.split(',');
-		for (int i=0; i<lstPairs.count(); ++i) {
-			QStringList lstEntry = lstPairs.at(i).split('=');
-			assert(lstEntry.count() == 2);
-			if (lstEntry.count() != 2) {
-				std::cerr << "\n*** Error: Attributes->String failure\n";
-				continue;
-			}
-			attrs.append(lstEntry.at(0), QString(), lstEntry.at(0), lstEntry.at(1));
-		}
-		return attrs;
-	}
-
 	void startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded);
 	void charactersVerseEntry(const CRelIndex &relIndex, const QString &strText);
 	void endVerseEntry(CRelIndex &relIndex);
@@ -667,6 +997,7 @@ private:
 	QString m_strSegVariant;			// OSIS <seg> tag variant to export (or empty to export all)
 	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
+	QString m_strStrongsImpFilepath;	// Strongs Imp Database to parse (if empty, no Strongs Database will be used)
 };
 
 static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
@@ -1471,6 +1802,66 @@ bool COSISXmlHandler::error(const QXmlParseException &exception)
 
 bool COSISXmlHandler::endDocument()
 {
+	// Nothing else needs to be done here for the main database XML,
+	//	but now that that's complete, we'll parse any given Strongs
+	//	Database here to go with it:
+	if (m_strStrongsImpFilepath.isEmpty()) return true;
+
+	QFile fileStrongsImp;
+
+	fileStrongsImp.setFileName(m_strStrongsImpFilepath);
+	if (!fileStrongsImp.open(QIODevice::ReadOnly)) {
+		m_strErrorString = QString("*** Failed to open Strongs Imp Database \"%1\"\n").arg(m_strStrongsImpFilepath).toUtf8().data();
+		return false;
+	}
+
+	std::cerr << "Strongs: ";
+
+	int nProgress = 0;
+	QString strIndexLine;
+	QByteArray baDataLine;
+	while (!fileStrongsImp.atEnd()) {
+		if ((nProgress % 100) == 0) std::cerr << ".";
+		++nProgress;
+
+		strIndexLine = QString(fileStrongsImp.readLine()).trimmed();
+		baDataLine = fileStrongsImp.readLine();
+		if (strIndexLine.isEmpty()) continue;		// Handle extra newline at end of file
+
+		if (strIndexLine.left(3) != "$$$") {
+			std::cerr << QString("\n\n*** Malformed Strongs Index: %1\n").arg(strIndexLine).toUtf8().data();
+			continue;
+		} else {
+			strIndexLine = strIndexLine.mid(3);
+		}
+		CStrongsImpXmlHandler xmlHandler(strIndexLine);
+		if (xmlHandler.strongsEntry().strongsIndex() == 0) {
+// Note: All link indexes in database of orthography will generate this warning, so
+//	leave this commented out -- but leave the line here in case we need to turn it on
+//	to debug a new database:
+//			std::cerr << QString("\n*** Unknown Strongs Index: %1\n").arg(strIndexLine).toUtf8().data();
+			continue;
+		}
+
+		QBuffer xmlBuffer(&baDataLine);
+		QXmlInputSource xmlInput(&xmlBuffer);
+		QXmlSimpleReader xmlReader;
+
+		xmlReader.setContentHandler(&xmlHandler);
+		xmlReader.setErrorHandler(&xmlHandler);
+		if (xmlReader.parse(xmlInput)) {
+			if (m_pBibleDatabase->m_mapStrongsEntries.find(xmlHandler.strongsEntry().strongsMapIndex()) !=
+				m_pBibleDatabase->m_mapStrongsEntries.cend()) {
+				std::cerr << QString("\n*** Duplicate Strongs Map Index: %1\n").arg(strIndexLine).toUtf8().data();
+			}
+			m_pBibleDatabase->m_mapStrongsEntries[xmlHandler.strongsEntry().strongsMapIndex()] = xmlHandler.strongsEntry();
+			m_pBibleDatabase->m_mapStrongsOrthographyMap.insert(xmlHandler.strongsEntry().orthography(), xmlHandler.strongsEntry().strongsMapIndex());
+		} else {
+			std::cerr << QString("\n\n*** Failed to parse Strongs Index: %1\n").arg(strIndexLine).toUtf8().data();
+		}
+	}
+	std::cerr << "\n";
+
 	return true;
 }
 
@@ -2111,6 +2502,7 @@ int main(int argc, char *argv[])
 	QString strOSISFilename;
 	QString strInfoFilename;
 	QString strOutputPath;
+	QString strStrongsImpPath;
 	bool bLookingforSegVariant = false;
 	QString strSegVariant;
 
@@ -2130,6 +2522,8 @@ int main(int argc, char *argv[])
 					strInfoFilename = strArg;
 				} else if (nArgsFound == 4) {
 					strOutputPath = strArg;
+				} else if (nArgsFound == 5) {
+					strStrongsImpPath = strArg;
 				}
 			}
 		} else if (strArg.compare("-c") == 0) {
@@ -2162,9 +2556,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((nArgsFound != 4) || (bUnknownOption)) {
+	if ((nArgsFound < 4) || (nArgsFound > 5) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> <datafile-path>\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> <datafile-path> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
 		std::cerr << QString("    necessary to import into KJPBS into <datafile-path>\n\n").toUtf8().data();
 		std::cerr << QString("<infofile> is the path/filename to the information file to include\n\n").toUtf8().data();
@@ -2233,13 +2627,13 @@ int main(int argc, char *argv[])
 	xmlHandler.setUseBracketFootnotesExcluded(bUseBracketFootnotesExcluded);
 	xmlHandler.setExcludeDeuterocanonical(bExcludeDeuterocanonical);
 	xmlHandler.setSegVariant(strSegVariant);
+	xmlHandler.setStrongsImpFilepath(strStrongsImpPath);
 
 	xmlReader.setContentHandler(&xmlHandler);
 	xmlReader.setErrorHandler(&xmlHandler);
 //	xmlReader.setFeature("http://www.bibletechnologies.net/2003/OSIS/namespace", true);
 
-	bool bOK = xmlReader.parse(xmlInput);
-	if (!bOK) {
+	if (!xmlReader.parse(xmlInput)) {
 		std::cerr << QString("\n\n*** Failed to parse OSIS database \"%1\"\n%2\n").arg(strOSISFilename).arg(xmlHandler.errorString()).toUtf8().data();
 		return -4;
 	}
@@ -2257,6 +2651,7 @@ int main(int argc, char *argv[])
 	QFile fileWordSummary;	// Words Summary CSV being written
 	QFile filePhrases;		// Default search phrases CSV being written (deprecated)
 	QFile fileLemmas;		// Lemma list being written
+	QFile fileStrongs;		// Strongs database list being written
 
 	QFileInfo fiInfoFile(strInfoFilename);
 	if (!strInfoFilename.isEmpty()) {
@@ -2783,7 +3178,7 @@ int main(int argc, char *argv[])
 	fileFootnotes.setFileName(dirOutput.absoluteFilePath("FOOTNOTES.csv"));
 	if (!fileFootnotes.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Footnotes Output File \"%1\"\n").arg(fileFootnotes.fileName()).toUtf8().data();
-		return -10;
+		return -9;
 	}
 	std::cerr << QFileInfo(fileFootnotes).fileName().toUtf8().data();
 
@@ -2816,7 +3211,7 @@ int main(int argc, char *argv[])
 	filePhrases.setFileName(dirOutput.absoluteFilePath("PHRASES.csv"));
 	if (!filePhrases.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Phrases Output File \"%1\"\n").arg(filePhrases.fileName()).toUtf8().data();
-		return -9;
+		return -10;
 	}
 	std::cerr << QFileInfo(filePhrases).fileName().toUtf8().data();
 
@@ -2858,6 +3253,37 @@ int main(int argc, char *argv[])
 	}
 
 	fileLemmas.close();
+	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+
+	// Write Strongs Database:
+	fileStrongs.setFileName(dirOutput.absoluteFilePath("STRONGS.csv"));
+	if (!fileStrongs.open(QIODevice::WriteOnly)) {
+		std::cerr << QString("\n\n*** Failed to open Strongs Output File \"%1\"\n").arg(fileStrongs.fileName()).toUtf8().data();
+		return -11;
+	}
+	std::cerr << QFileInfo(fileStrongs).fileName().toUtf8().data();
+
+	fileStrongs.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+
+	CCSVStream csvFileStrongs(&fileStrongs);
+	csvFileStrongs << QStringList({ "StrongsMapNdx", "Orth", "Trans", "Pron", "Def" });
+
+	int nStrongsProgress = 0;
+	for (TStrongsIndexMap::const_iterator itrStrongs = pBibleDatabase->strongsIndexMap().cbegin();
+			itrStrongs != pBibleDatabase->strongsIndexMap().cend();
+			++itrStrongs) {
+		csvFileStrongs << QStringList({ itrStrongs->second.strongsMapIndex(),
+										itrStrongs->second.orthography(),
+										itrStrongs->second.transliteration(),
+										itrStrongs->second.pronunciation(),
+										itrStrongs->second.definition() });
+		if ((nStrongsProgress % 100) == 0) std::cerr << ".";
+		++nStrongsProgress;
+	}
+
+	fileStrongs.close();
 	std::cerr << "\n";
 
 	// ------------------------------------------------------------------------

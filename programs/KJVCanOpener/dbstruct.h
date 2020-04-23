@@ -37,6 +37,8 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QMap>
+#include <QMultiMap>
 #include <QVariant>
 #include <QPair>
 #include <QMetaType>
@@ -1149,6 +1151,55 @@ typedef std::map<CRelIndex, CLemmaEntry, RelativeIndexSortPredicate> TLemmaEntry
 
 // ============================================================================
 
+class CStrongsEntry
+{
+public:
+	CStrongsEntry() { }
+	CStrongsEntry(QChar chrLangCode, unsigned int nStrongsIndex)
+		:	m_chrLangCode(chrLangCode),
+			m_nStrongsIndex(nStrongsIndex)
+	{ }
+
+	QChar langCode() const { return m_chrLangCode; }
+	unsigned int strongsIndex() const { return m_nStrongsIndex; }
+	QString strongsMapIndex() const { return QString("%1%2").arg(m_chrLangCode).arg(m_nStrongsIndex); }
+	QString strongsTextIndex() const { return QString("%1%2").arg(m_chrLangCode).arg(m_nStrongsIndex, 4, 10, QChar('0')); }
+
+	QString orthography() const { return m_strOrthography; }
+	void setOrthography(const QString &strOrthography) { m_strOrthography = strOrthography; }
+
+	QString transliteration() const { return m_strTransliteration; }
+	void setTransliteration(const QString &strTransliteration) { m_strTransliteration = strTransliteration; }
+
+	QString pronunciation() const { return m_strPronunciation; }
+	void setPronunciation(const QString &strPronunciation) { m_strPronunciation = strPronunciation; }
+
+	QString definition() const { return m_strDefinition; }
+	void setDefinition(const QString &strDefinition) { m_strDefinition = strDefinition; }
+
+private:
+	QChar m_chrLangCode;						// Language code: 'G' or 'H'
+	unsigned int m_nStrongsIndex = 0;			// Numeric Index
+	QString m_strOrthography;					// Word(s) in original language
+	QString m_strTransliteration;				// English Transliteration of Word(s)
+	QString m_strPronunciation;					// Entry Word(s) Pronunciation
+	QString m_strDefinition;					// Entry Definition as Rich Text
+};
+
+struct StrongsIndexSortPredicate {
+	bool operator() (const QString &v1, const QString &v2) const
+	{
+		if (v1.left(1) < v2.left(1)) return true;
+		if (v1.left(1) == v2.left(1)) return (v1.mid(1).toUInt() < v2.mid(1).toUInt());
+		return false;
+	}
+};
+
+typedef std::map<QString, CStrongsEntry, StrongsIndexSortPredicate> TStrongsIndexMap;		// Mapping of StrongsMapIndex to StrongsEntry
+typedef QMultiMap<QString, QString> TStrongsOrthographyMap;		// Mapping of Orthography word(s) to StrongsMapIndex -- NOTE: This is a MultiMap, as multiple Strongs Indexes can be mapped to one orthography
+
+// ============================================================================
+
 class TBibleDatabaseSettings
 {
 public:
@@ -1360,6 +1411,17 @@ public:
 	{
 		return m_mapLemmaEntries;
 	}
+	const CStrongsEntry *strongsEntryByIndex(const QString &strIndex) const;		// Strongs Entry by Map Index (G1, H22, etc);
+	QList<const CStrongsEntry *> strongsEntriesByOthography(const QString &strOrth) const;	// Strongs Entries from Orthographic Word
+	QStringList strongsIndexesFromOrthograph(const QString &strOrth) const;		// Lookup Orthographic Word and return a List of Strongs Map Indexes
+	inline const TStrongsIndexMap &strongsIndexMap() const
+	{
+		return m_mapStrongsEntries;
+	}
+	inline const TStrongsOrthographyMap &strongsOrthographyMap() const
+	{
+		return m_mapStrongsOrthographyMap;
+	}
 	QString soundEx(const QString &strDecomposedConcordanceWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Concordance Word (calculations done based on this Bible Database language)
 
 	QString richVerseText(const CRelIndex &ndxRel,
@@ -1391,6 +1453,8 @@ private:
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
 	CPhraseList m_lstCommonPhrases;			// Common phrases read from database
 	TLemmaEntryMap m_mapLemmaEntries;		// Lemmas (typed by index - See notes above with TLemmaEntryMap)
+	TStrongsIndexMap m_mapStrongsEntries;	// Strongs Entries mapped by StrongsMapIndex
+	TStrongsOrthographyMap m_mapStrongsOrthographyMap;		// Map of Strongs Orthography word(s) to StrongsMapIndex
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:
