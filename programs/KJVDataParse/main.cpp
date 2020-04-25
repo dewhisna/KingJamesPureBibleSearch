@@ -519,8 +519,7 @@ class CStrongsImpXmlHandler : public QXmlDefaultHandler
 
 public:
 	CStrongsImpXmlHandler(const QString &strExpectedTextIndex)
-		:	m_strongsEntry(!strExpectedTextIndex.isEmpty() ? strExpectedTextIndex.at(0) : '?',
-							strExpectedTextIndex.mid(1).toUInt()),
+		:	m_strongsEntry(strExpectedTextIndex),
 			m_strExpectedTextIndex(strExpectedTextIndex)
 	{ }
 

@@ -1160,6 +1160,10 @@ public:
 		:	m_chrLangCode(chrLangCode),
 			m_nStrongsIndex(nStrongsIndex)
 	{ }
+	CStrongsEntry(const QString &strStrongsTextIndex)
+		:	m_chrLangCode(!strStrongsTextIndex.isEmpty() ? strStrongsTextIndex.at(0) : '?'),
+			m_nStrongsIndex(strStrongsTextIndex.mid(1).toUInt())
+	{ }
 
 	QChar langCode() const { return m_chrLangCode; }
 	unsigned int strongsIndex() const { return m_nStrongsIndex; }
