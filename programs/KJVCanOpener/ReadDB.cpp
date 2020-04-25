@@ -1029,6 +1029,51 @@ bool CReadDatabase::ReadLEMMASTable()
 	return true;
 }
 
+bool CReadDatabase::ReadSTRONGSTable()
+{
+	assert(!m_pBibleDatabase.isNull());
+
+	// Read the Strongs table:
+
+#ifndef NOT_USING_SQL
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data(), m_myDatabase);
+#else
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
+#endif
+
+	if (dbParser.atEndOfStream()) return true;		// Strongs is optional and old databases won't have it
+
+	if (!dbParser.findTable("STRONGS")) {
+		if (!m_pCCDatabase.isNull()) {
+			return false;
+		} else {
+			return true;			// If this is an SQL-only database, SQL Files won't report EndOfStream above, but Strongs is optional
+		}
+	}
+
+	m_pBibleDatabase->m_mapStrongsEntries.clear();
+	m_pBibleDatabase->m_mapStrongsOrthographyMap.clear();
+
+	dbParser.startQueryLoop("StrongsMapNdx,Orth,Trans,Pron,Def");
+
+	while (dbParser.haveData()) {
+		QStringList lstFields;
+		if (!dbParser.readNextRecord(lstFields, 5)) return false;
+
+		CStrongsEntry strongsEntry(lstFields.at(0));
+		strongsEntry.setOrthography(lstFields.at(1));
+		strongsEntry.setTransliteration(lstFields.at(2));
+		strongsEntry.setPronunciation(lstFields.at(3));
+		strongsEntry.setDefinition(lstFields.at(4));
+		m_pBibleDatabase->m_mapStrongsEntries[strongsEntry.strongsMapIndex()] = strongsEntry;
+		m_pBibleDatabase->m_mapStrongsOrthographyMap.insert(strongsEntry.orthographyPlainText(), strongsEntry.strongsMapIndex());
+	}
+
+	dbParser.endQueryLoop();
+
+	return true;
+}
+
 bool CReadDatabase::ValidateData()
 {
 	assert(!m_pBibleDatabase.isNull());
@@ -1336,6 +1381,7 @@ bool CReadDatabase::readBibleStub()
 		(!ReadFOOTNOTESTable()) ||
 		(!ReadPHRASESTable()) ||
 		(!ReadLEMMASTable()) ||
+		(!ReadSTRONGSTable()) ||
 		(!ValidateData())) return false;
 #ifdef USE_EXTENDED_INDEXES
 	// Build Letter counts.  Do this here after reading the
