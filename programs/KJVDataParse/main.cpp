@@ -1870,7 +1870,7 @@ bool COSISXmlHandler::endDocument()
 				std::cerr << QString("\n*** Duplicate Strongs Map Index: %1\n").arg(strIndexLine).toUtf8().data();
 			}
 			m_pBibleDatabase->m_mapStrongsEntries[xmlHandler.strongsEntry().strongsMapIndex()] = xmlHandler.strongsEntry();
-			m_pBibleDatabase->m_mapStrongsOrthographyMap.insert(xmlHandler.strongsEntry().orthography(), xmlHandler.strongsEntry().strongsMapIndex());
+			m_pBibleDatabase->m_mapStrongsOrthographyMap.insert(xmlHandler.strongsEntry().orthographyPlainText(), xmlHandler.strongsEntry().strongsMapIndex());
 		} else {
 			std::cerr << QString("\n\n*** Failed to parse Strongs Index: %1\n").arg(strIndexLine).toUtf8().data();
 		}
