@@ -1363,6 +1363,135 @@ bool CBuildDatabase::BuildLemmasTable()
 	return true;
 }
 
+bool CBuildDatabase::BuildStrongsTable()
+{
+	// Build the Strongs table:
+
+#ifndef NOT_USING_SQL
+	QString strCmd;
+	if (m_myDatabase.isOpen()) {
+		QSqlQuery queryCreate(m_myDatabase);
+
+		// Check to see if the table exists already:
+		if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='STRONGS'")) {
+			displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Table Lookup for \"STRONGS\" Failed!\n%1", "BuildDB").arg(queryCreate.lastError().text()));
+			return false;
+		} else {
+			queryCreate.next();
+			if (queryCreate.value(0).toInt()) {
+				// If we found it, drop it so we can recreate it:
+				if (!queryCreate.exec("DROP TABLE STRONGS")) {
+					displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to drop old \"STRONGS\" table from database!\n%1", "BuildDB").arg(queryCreate.lastError().text()));
+					return false;
+				}
+			}
+
+			// Create the table in the database:
+			strCmd = QString("create table STRONGS "
+							"(StrongsMapNdx TEXT PRIMARY KEY, Orth TEXT, Trans TEXT, Pron TEXT, Def TEXT)");
+
+			if (!queryCreate.exec(strCmd)) {
+				if (displayWarning(m_pParent, g_constrBuildDatabase,
+						QObject::tr("Failed to create table for STRONGS\n%1", "BuildDB").arg(queryCreate.lastError().text()),
+						(QMessageBox::Ignore | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+			}
+		}
+	}
+#endif	// !NOT_USING_SQL
+
+	// Open the table data file:
+	QFile fileStrongs(QFileInfo(QDir(MY_GET_APP_DIR_PATH), QString("../../KJVCanOpener/db/data/STRONGS.csv")).absoluteFilePath());
+	if (!fileStrongs.open(QIODevice::ReadOnly)) {
+		displayInformation(m_pParent, g_constrBuildDatabase,
+			QObject::tr("Failed to open %1 for reading.  Skipping Strongs Generation.", "BuildDB").arg(fileStrongs.fileName()));
+		return true;
+	}
+
+	// Read file and populate table:
+	CCSVStream csv(&fileStrongs);
+
+	QStringList slHeaders;
+	csv >> slHeaders;              // Read Headers (verify and discard)
+
+	if ((slHeaders.size()!=5) ||
+		(slHeaders.at(0).compare("StrongsMapNdx") != 0) ||
+		(slHeaders.at(1).compare("Orth") != 0) ||
+		(slHeaders.at(2).compare("Trans") != 0) ||
+		(slHeaders.at(3).compare("Pron") != 0) ||
+		(slHeaders.at(4).compare("Def") != 0)) {
+		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for STRONGS data file!", "BuildDB"),
+							(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
+			fileStrongs.close();
+			return false;
+		}
+	}
+
+#ifndef NOT_USING_SQL
+	QSqlQuery queryInsert(m_myDatabase);
+	if (m_myDatabase.isOpen()) {
+		queryInsert.exec("BEGIN TRANSACTION");
+	}
+#endif	// !NOT_USING_SQL
+
+	QList<QStringList> lstArrCCData;
+
+	while (!csv.atEndOfStream()) {
+		QStringList sl;
+		csv >> sl;
+
+		if (sl.count() != 5) {
+			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in STRONGS data file!", "BuildDB"),
+								(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
+				fileStrongs.close();
+				return false;
+			}
+			continue;
+		}
+
+#ifndef NOT_USING_SQL
+		if (m_myDatabase.isOpen()) {
+			strCmd = QString("INSERT INTO STRONGS "
+							"(StrongsMapNdx, Orth, Trans, Pron, Def) "
+							"VALUES (:StrongsMapNdx, :Orth, :Trans, :Pron, :Def)");
+
+			queryInsert.prepare(strCmd);
+			queryInsert.bindValue(":StrongsMapNdx", sl.at(0));
+			queryInsert.bindValue(":Orth", sl.at(1));
+			queryInsert.bindValue(":Trans", sl.at(2));
+			queryInsert.bindValue(":Pron", sl.at(3));
+			queryInsert.bindValue(":Def", sl.at(4));
+
+			if (!queryInsert.exec()) {
+				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for STRONGS!\n%1\n%2\n%3\n%4\n%5\n%6", "BuildDB").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)).arg(sl.at(2)).arg(sl.at(3)).arg(sl.at(4)).arg(sl.at(5)),
+										(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) break;
+			}
+		}
+#endif	// !NOT_USING_SQL
+
+		// Format:  StrongsMapNdx,Orth,Trans,Pron,Def
+		lstArrCCData.append(sl);
+	}
+
+#ifndef NOT_USING_SQL
+	if (m_myDatabase.isOpen()) {
+		queryInsert.exec("COMMIT");
+	}
+#endif	// !NOT_USING_SQL
+
+	if (!m_pCCDatabase.isNull()) {
+		// Format:  STRONGS,count
+		QStringList arrCCData;
+		arrCCData.append("STRONGS");
+		arrCCData.append(QString("%1").arg(lstArrCCData.size()));
+		(*m_pCCDatabase) << arrCCData;
+		m_pCCDatabase->writeAll(lstArrCCData);
+	}
+
+	fileStrongs.close();
+
+	return true;
+}
+
 bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename)
 {
 #ifndef NOT_USING_SQL
@@ -1412,7 +1541,8 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 			(!BuildWordsTable()) ||
 			(!BuildFootnotesTables()) ||
 			(!BuildPhrasesTable()) ||
-			(!BuildLemmasTable())) bSuccess = false;
+			(!BuildLemmasTable()) ||
+			(!BuildStrongsTable())) bSuccess = false;
 	}
 
 #ifndef NOT_USING_SQL

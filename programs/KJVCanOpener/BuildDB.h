@@ -60,6 +60,7 @@ protected:
 	bool BuildFootnotesTables();
 	bool BuildPhrasesTable();
 	bool BuildLemmasTable();
+	bool BuildStrongsTable();
 
 private:
 	QWidget *m_pParent;
