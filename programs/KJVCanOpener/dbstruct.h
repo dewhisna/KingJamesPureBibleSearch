@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <QString>
 #include <QStringList>
+#include <QRegExp>
 #include <QList>
 #include <QMap>
 #include <QMultiMap>
@@ -1166,6 +1167,7 @@ public:
 	QString strongsTextIndex() const { return QString("%1%2").arg(m_chrLangCode).arg(m_nStrongsIndex, 4, 10, QChar('0')); }
 
 	QString orthography() const { return m_strOrthography; }
+	QString orthographyPlainText() const { QString strResult = m_strOrthography; return strResult.remove(QRegExp("<[^>]*>")); }
 	void setOrthography(const QString &strOrthography) { m_strOrthography = strOrthography; }
 
 	QString transliteration() const { return m_strTransliteration; }
@@ -1182,7 +1184,7 @@ private:
 	unsigned int m_nStrongsIndex = 0;			// Numeric Index
 	QString m_strOrthography;					// Word(s) in original language
 	QString m_strTransliteration;				// English Transliteration of Word(s)
-	QString m_strPronunciation;					// Entry Word(s) Pronunciation
+	QString m_strPronunciation;					// Entry Word(s) Pronunciation.  Note: Will be RichText in some cases as some Hebrew entries have a superscripted 'o' for some reason
 	QString m_strDefinition;					// Entry Definition as Rich Text
 };
 

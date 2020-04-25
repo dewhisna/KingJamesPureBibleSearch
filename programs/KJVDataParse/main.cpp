@@ -553,7 +553,7 @@ private:
 	QString m_strEntryTextIndex;				// derived from entryFree 'n' attribute, compared with expected TextIndex and with 'title' element (ex: 'G0001')
 	QString m_strCurrentMapIndex;				// derived from text on 'title' element (ex: 'G1'), compared with expected TextIndex
 
-	QString m_strEntryOrthographicIndex;		// derived from entryFree 'n' attribute, compared with 'orth' element
+	QString m_strEntryOrthographicIndex;		// derived from entryFree 'n' attribute, compared with 'orth' element, is PlainText whereas the 'orth' element in the StrongsEntry is RichText
 
 	QStringList m_lstRenderElementStack;		// Corresponding Render Element to output when we hit endRenderElement(), pushed in beginRenderElement()
 };
@@ -698,10 +698,19 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		assert(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_TITLE) {
+			// Make sure all of our indexes match:
+			StrongsIndexSortPredicate isp;
+			if ((isp(m_strCurrentMapIndex, m_strEntryTextIndex) != false) ||
+				(isp(m_strEntryTextIndex, m_strCurrentMapIndex) != false) ||
+				(isp(m_strCurrentMapIndex, m_strExpectedTextIndex) != false) ||
+				(isp(m_strExpectedTextIndex, m_strCurrentMapIndex) != false)) {
+				std::cerr << QString("\n*** Mismatched Current, Title, and Expected Text Indexes : "
+										"Current=%1, Title=%2, Expected=%3\n")
+										.arg(m_strCurrentMapIndex)
+										.arg(m_strEntryTextIndex)
+										.arg(m_strExpectedTextIndex).toUtf8().data();
+			}
 			m_vctParseState.pop_back();
-
-			// TODO : Compare m_strCurrentMapIndex, m_strEntryTextIndex, and m_strExpectedTextIndex
-
 		} else {
 			m_strErrorString = "Expected title endElement";
 			return false;
@@ -715,10 +724,17 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 		}
 		if ((m_vctParseState.back() == SIPSE_ORTH) ||
 			(m_vctParseState.back() == SIPSE_TRANSLITERATION)) {
+			// Make sure orthography indexes match:
+			if (m_vctParseState.back() == SIPSE_ORTH) {
+				if (m_strongsEntry.orthographyPlainText() != m_strEntryOrthographicIndex) {
+					std::cerr << QString("\n*** Mismatched Orthography on %1 : n=\"%2\", orth=\"%3\", orthPlainText=\"%4\"\n")
+											.arg(m_strExpectedTextIndex)
+											.arg(m_strEntryOrthographicIndex)
+											.arg(m_strongsEntry.orthography())
+											.arg(m_strongsEntry.orthographyPlainText()).toUtf8().data();
+				}
+			}
 			m_vctParseState.pop_back();
-
-			// TODO : for SIPSE_ORTH, Compare m_strongsEntry.orthography() with m_strEntryOrthographicIndex
-
 		} else {
 			m_strErrorString = "Expected orth endElement";
 			return false;
