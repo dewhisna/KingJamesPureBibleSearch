@@ -203,7 +203,7 @@ class CVerseTextRichifier
 {
 private:
 	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL);
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false, bool bUseLemmas = false);
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bUseLemmas = false);
 
 	~CVerseTextRichifier();
 
@@ -260,7 +260,6 @@ private:
 	const QChar m_chrMatchChar;
 	const CVerseEntry *m_pVerse;
 	QString m_strXlateText;
-	bool m_bAddAnchors;
 	bool m_bUseLemmas;
 };
 

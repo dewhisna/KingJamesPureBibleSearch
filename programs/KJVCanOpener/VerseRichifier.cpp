@@ -228,17 +228,15 @@ CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const QStrin
 		m_chrMatchChar(chrMatchChar),
 		m_pVerse(NULL),
 		m_strXlateText(strXlateText),
-		m_bAddAnchors(false),
 		m_bUseLemmas(false)
 {
 
 }
 
-CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bAddAnchors, bool bUseLemmas)
+CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bUseLemmas)
 	:	m_pRichNext(pRichNext),
 		m_chrMatchChar(chrMatchChar),
 		m_pVerse(pVerse),
-		m_bAddAnchors(bAddAnchors),
 		m_bUseLemmas(bUseLemmas)
 {
 	assert(pVerse != NULL);
@@ -351,8 +349,6 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 
 					parseBaton.m_strVerseText.append(parseBaton.m_strPrewordStack);
 					parseBaton.m_strPrewordStack.clear();
-
-					if (m_bAddAnchors && parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("<a id=\"%1\">").arg(parseBaton.m_ndxCurrent.asAnchor()));
 				}
 				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 					if (parseBaton.m_bOutput) {
@@ -364,12 +360,15 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				} else {
 					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(strWord);
 				}
-				if (parseBaton.m_bOutput && parseBaton.m_bUsesHTML) {
-					if (m_bAddAnchors) parseBaton.m_strVerseText.append("</a>");
-				}
 				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
 			} else {
-				if (m_chrMatchChar == QChar('D')) {
+				if (m_chrMatchChar == QChar('A')) {
+					if (parseBaton.m_bOutput && parseBaton.m_bUsesHTML) {
+						CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+						ndxWord.setWord(ndxWord.word()+1);
+						parseBaton.m_strPrewordStack.append(QString("<a id=\"%1\">").arg(ndxWord.asAnchor()));
+					}
+				} else if (m_chrMatchChar == QChar('D')) {
 					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
 				} else if (m_chrMatchChar == QChar('R')) {
 					assert(parseBaton.m_pHighlighter != NULL);
@@ -462,26 +461,35 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_R('R', tags.searchResultsBegin(), &rich_r);
 	CVerseTextRichifier rich_n('n', tags.inlineNoteEnd(), &rich_R);
 	CVerseTextRichifier rich_N('N', tags.inlineNoteBegin(), &rich_n);
-	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_N);
-	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be last for font start/stop to work correctly with special first-letter text mode
+	CVerseTextRichifier rich_a('a', QString(tags.usesHTML() ? "</a>" : ""), &rich_N);
+	CVerseTextRichifier rich_A('A', QString(), &rich_a);							// A/a must be after D/d, J/j, and T/t
+	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_A);
+	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be after J/j and T/t for font start/stop to work correctly with special first-letter text mode
 	CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
 	CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
 	CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
 	CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
 	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors && tags.usesHTML()) : ""), &rich_J);
-	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bAddAnchors, bUseLemmas);
+	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bUseLemmas);
 
 	QString strTemplate = pVerse->m_strTemplate;
 
+	// Add anchors first so that it has outer most binding of tags:
+	if (bAddAnchors) {
+		strTemplate.replace(QChar('w'), "Awa");
+	}
+
 	// --------------------------------
 
-	// Convert WordsOfJesus and TransChangeAdded to per-word entities
+	// Convert WordsOfJesus, TransChangeAdded, and DivineName to per-word entities
 	//	so that displaying works correctly in per-word fields for stacking:
 	QStringList lstWords = strTemplate.split('w');
 	QList<int> lstWordsOfJesus;			// Counts at this point to convert to flags
 	QList<int> lstTransChangeAdded;
+	QList<int> lstDivineName;			// Note: Divine name processed here specifically for anchor tag pairing of per-word entity
 	int nInWordsOfJesus = 0;
 	int nInTransChangeAdded = 0;
+	int nInDivineName = 0;
 	for (int ndxWord = 0; ndxWord < lstWords.size(); ++ndxWord) {
 		for (int nChar = 0; nChar < lstWords.at(ndxWord).size(); ++nChar) {
 			if (lstWords.at(ndxWord).at(nChar) == 'J') {
@@ -492,10 +500,15 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 				++nInTransChangeAdded;
 			} else if (lstWords.at(ndxWord).at(nChar) == 't') {
 				--nInTransChangeAdded;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'D') {
+				++nInDivineName;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'd') {
+				--nInDivineName;
 			}
 		}
 		lstWordsOfJesus.append(nInWordsOfJesus);
 		lstTransChangeAdded.append(nInTransChangeAdded);
+		lstDivineName.append(nInDivineName);
 	}
 
 	strTemplate.clear();
@@ -504,18 +517,24 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 			strTemplate.append('J');
 		}
 		if (ndxWord == 1) {
-			lstWords[0].remove(QRegExp("[JjTt]"));
+			lstWords[0].remove(QRegExp("[JjTtDd]"));
 			strTemplate.append(lstWords.at(0));
 		}
 		if (lstTransChangeAdded.at(ndxWord-1)) {
 			strTemplate.append('T');
 		}
+		if (lstDivineName.at(ndxWord-1)) {
+			strTemplate.append('D');
+		}
 		strTemplate.append('w');
 
+		if (lstDivineName.at(ndxWord-1)) {
+			strTemplate.append('d');
+		}
 		if (lstTransChangeAdded.at(ndxWord-1)) {
 			strTemplate.append('t');
 		}
-		lstWords[ndxWord].remove(QRegExp("[JjTt]"));
+		lstWords[ndxWord].remove(QRegExp("[JjTtDd]"));
 		strTemplate.append(lstWords.at(ndxWord));
 		if (lstWordsOfJesus.at(ndxWord-1)) {
 			strTemplate.append('j');
@@ -524,6 +543,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	// --------------------------------
 
+	// Highlighter last so that its color takes precedence over Words of Jesus color, etc:
 	if ((pHighlighter != NULL) &&
 		(pHighlighter->enabled())) {
 		strTemplate.replace(QChar('w'), "Rwr");
