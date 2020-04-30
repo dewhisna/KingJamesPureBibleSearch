@@ -44,6 +44,12 @@ defined(qtHaveModule, test) {
 }
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
+# WebEngine introduced in Qt 5.4:
+!console:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,3)) {
+	QT *= webenginewidgets
+	DEFINES *= USING_QT_WEBENGINE
+}
+
 !contains(QT, sql):DEFINES *= NOT_USING_SQL
 
 # Dictionaries require SQL, so enable it if we have SQL:
@@ -402,6 +408,9 @@ if(!emscripten|wasm):!console:SOURCES += \
 signalspy:SOURCES += \
 	signalspy/Q4puGenericSignalSpy.cpp
 
+contains(QT, webenginewidgets):SOURCES += \
+	ScriptureWebEngine.cpp
+
 
 HEADERS += \
 	myApplication.h \
@@ -468,6 +477,9 @@ if(!emscripten|wasm):!console:HEADERS += \
 
 signalspy:HEADERS += \
 	signalspy/Q4puGenericSignalSpy.h
+
+contains(QT, webenginewidgets):HEADERS += \
+	ScriptureWebEngine.h
 
 
 FORMS += \
