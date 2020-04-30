@@ -382,7 +382,6 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					if ((parseBaton.m_bOutput) &&
 						(!parseBaton.m_bInSearchResult) &&
 						(parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
-//						parseBaton.m_strVerseText.append(m_strXlateText);
 						parseBaton.m_strPrewordStack.append(m_strXlateText);
 						parseBaton.m_bInSearchResult = true;
 					}
@@ -409,7 +408,6 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					parseBaton.m_strVerseText.append(m_strXlateText);		// Closing ')'
 					parseBaton.m_strVerseText.append(' ');			// Add separator.  Note that we will trim baton whitespace at the end anyway
 				} else {
-//					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(m_strXlateText);
 					if (parseBaton.m_bOutput) {
 						if (isStartOperator()) {
 							parseBaton.m_strPrewordStack.append(m_strXlateText);
@@ -419,19 +417,6 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					}
 				}
 			}
-		}
-		if ((m_pVerse != NULL) && parseBaton.m_bOutput) {
-//			if (bStartedVerseOutput && parseBaton.m_bUsesHTML) {
-//				// If not in a Lemma, we need to end this word:
-//				if (parseBaton.m_pCurrentLemma == nullptr) {
-//					if (m_bUseLemmas) {
-//						writeLemma(parseBaton);		// Write empty lemma
-//					} else {
-//						parseBaton.m_strVerseText.append(QString("</span>"));	// End stack span
-//					}
-//					parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
-//				}
-//			}
 		}
 		if (m_pRichNext) {
 			m_pRichNext->parse(parseBaton, lstSplit.at(i));
@@ -488,54 +473,56 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	QString strTemplate = pVerse->m_strTemplate;
 
-//	if (bUseLemmas) {
-		// Convert WordsOfJesus and TransChangeAdded to per-word entities
-		//	so that displaying works correctly in per-word fields for stacking:
-		QStringList lstWords = strTemplate.split('w');
-		QList<int> lstWordsOfJesus;			// Counts at this point to convert to flags
-		QList<int> lstTransChangeAdded;
-		int nInWordsOfJesus = 0;
-		int nInTransChangeAdded = 0;
-		for (int ndxWord = 0; ndxWord < lstWords.size(); ++ndxWord) {
-			for (int nChar = 0; nChar < lstWords.at(ndxWord).size(); ++nChar) {
-				if (lstWords.at(ndxWord).at(nChar) == 'J') {
-					++nInWordsOfJesus;
-				} else if (lstWords.at(ndxWord).at(nChar) == 'j') {
-					--nInWordsOfJesus;
-				} else if (lstWords.at(ndxWord).at(nChar) == 'T') {
-					++nInTransChangeAdded;
-				} else if (lstWords.at(ndxWord).at(nChar) == 't') {
-					--nInTransChangeAdded;
-				}
-			}
-			lstWordsOfJesus.append(nInWordsOfJesus);
-			lstTransChangeAdded.append(nInTransChangeAdded);
-		}
+	// --------------------------------
 
-		strTemplate.clear();
-		for (int ndxWord = 1; ndxWord < lstWords.size(); ++ndxWord) {
-			if (lstWordsOfJesus.at(ndxWord-1)) {
-				strTemplate.append('J');
-			}
-			if (ndxWord == 1) {
-				lstWords[0].remove(QRegExp("[JjTt]"));
-				strTemplate.append(lstWords.at(0));
-			}
-			if (lstTransChangeAdded.at(ndxWord-1)) {
-				strTemplate.append('T');
-			}
-			strTemplate.append('w');
-
-			if (lstTransChangeAdded.at(ndxWord-1)) {
-				strTemplate.append('t');
-			}
-			lstWords[ndxWord].remove(QRegExp("[JjTt]"));
-			strTemplate.append(lstWords.at(ndxWord));
-			if (lstWordsOfJesus.at(ndxWord-1)) {
-				strTemplate.append('j');
+	// Convert WordsOfJesus and TransChangeAdded to per-word entities
+	//	so that displaying works correctly in per-word fields for stacking:
+	QStringList lstWords = strTemplate.split('w');
+	QList<int> lstWordsOfJesus;			// Counts at this point to convert to flags
+	QList<int> lstTransChangeAdded;
+	int nInWordsOfJesus = 0;
+	int nInTransChangeAdded = 0;
+	for (int ndxWord = 0; ndxWord < lstWords.size(); ++ndxWord) {
+		for (int nChar = 0; nChar < lstWords.at(ndxWord).size(); ++nChar) {
+			if (lstWords.at(ndxWord).at(nChar) == 'J') {
+				++nInWordsOfJesus;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'j') {
+				--nInWordsOfJesus;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'T') {
+				++nInTransChangeAdded;
+			} else if (lstWords.at(ndxWord).at(nChar) == 't') {
+				--nInTransChangeAdded;
 			}
 		}
-//	}
+		lstWordsOfJesus.append(nInWordsOfJesus);
+		lstTransChangeAdded.append(nInTransChangeAdded);
+	}
+
+	strTemplate.clear();
+	for (int ndxWord = 1; ndxWord < lstWords.size(); ++ndxWord) {
+		if (lstWordsOfJesus.at(ndxWord-1)) {
+			strTemplate.append('J');
+		}
+		if (ndxWord == 1) {
+			lstWords[0].remove(QRegExp("[JjTt]"));
+			strTemplate.append(lstWords.at(0));
+		}
+		if (lstTransChangeAdded.at(ndxWord-1)) {
+			strTemplate.append('T');
+		}
+		strTemplate.append('w');
+
+		if (lstTransChangeAdded.at(ndxWord-1)) {
+			strTemplate.append('t');
+		}
+		lstWords[ndxWord].remove(QRegExp("[JjTt]"));
+		strTemplate.append(lstWords.at(ndxWord));
+		if (lstWordsOfJesus.at(ndxWord-1)) {
+			strTemplate.append('j');
+		}
+	}
+
+	// --------------------------------
 
 	if ((pHighlighter != NULL) &&
 		(pHighlighter->enabled())) {
@@ -546,8 +533,6 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {
-//		baton.m_strVerseText.append(g_chrPilcrow);
-//		baton.m_strVerseText.append(QChar(' '));
 		baton.m_strPrewordStack.append(g_chrPilcrow);
 		baton.m_strPrewordStack.append(QChar(' '));
 	}
