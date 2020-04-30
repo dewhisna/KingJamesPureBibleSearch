@@ -1132,8 +1132,11 @@ public:
 	}
 
 	QString strongs(int nIndex) const;
+	const QStringList &strongs() const { return m_lstStrongs; }
 	QString text(int nIndex) const;
+	const QStringList &text() const { return m_lstText; }
 	QString morph(int nIndex) const;
+	const QStringList &morph() const { return  m_lstMorph; }
 	QString morphSource() const { return  m_strMorphSource; }
 
 private:
@@ -1433,7 +1436,8 @@ public:
 	QString richVerseText(const CRelIndex &ndxRel,
 							const CVerseTextRichifierTags &tags,
 							bool bAddAnchors = false,
-							const CBasicHighlighter *aHighlighter = NULL) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+							const CBasicHighlighter *aHighlighter = NULL,
+							bool bUseLemmas = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
 #endif

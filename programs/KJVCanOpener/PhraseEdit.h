@@ -530,7 +530,8 @@ public:
 		TRO_NoCrossRefAnchors = 0x80000,			// Disables navigation anchors for CrossRefs (superceded by TRO_NoAnchors)
 		TRO_NoFootnoteAnchors = 0x100000,			// Disables outputting anchors for Footnotes (superceded by TRO_NoAnchors)
 		TRO_NoColophonAnchors = 0x200000,			// If TRO_NoWordAnchors is used, the entire Colophon will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
-		TRO_NoSuperscriptAnchors = 0x400000			// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
+		TRO_NoSuperscriptAnchors = 0x400000,		// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
+		TRO_UseLemmas = 0x800000,					// Render Lemmas interlinearly with verses
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 

@@ -203,7 +203,7 @@ class CVerseTextRichifier
 {
 private:
 	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL);
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false);
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bAddAnchors = false, bool bUseLemmas = false);
 
 	~CVerseTextRichifier();
 
@@ -220,7 +220,8 @@ private:
 				m_pWordCount(pWordCount),
 				m_pHighlighter(pHighlighter),
 				m_bOutput(false),
-				m_bInSearchResult(false)
+				m_bInSearchResult(false),
+				m_pCurrentLemma(nullptr)
 		{
 			assert(pBibleDatabase != NULL);
 			m_strVerseText.reserve(1024);					// Avoid reallocations
@@ -235,20 +236,24 @@ private:
 		bool m_bUsesHTML;									// True if the CVerseTextRichifierTags being used supports HTML tags
 		// ----
 		QString m_strVerseText;								// Verse Text being built
+		QString m_strPrewordStack;							// Verse Text to save and push at the beginning of the next word
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		uint32_t m_nStartWord;								// Set to the word to start parse on from ndxRelative on initial call (0 and 1 are both start of verse)
 		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
 		const CBasicHighlighter *m_pHighlighter;			// Search Results (or other) word highligher if set
 		bool m_bOutput;										// True when outputting text
 		bool m_bInSearchResult;								// True when we are inside intersection of m_lstTagsSearchResults, f->t triggers writing the begin tag, t->f triggers writing the end tag
+		const CLemmaEntry *m_pCurrentLemma;					// Pointer to the Lemma currently being processed or null if no Lemma exists for the current word/tag
 	};
 
 	void parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
+	void writeLemma(CRichifierBaton &parseBaton) const;
+	bool isStartOperator() const { return m_chrMatchChar.isUpper(); }
 
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false,
-							int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL);
+							int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL, bool bUseLemmas = false);
 
 private:
 	const CVerseTextRichifier *m_pRichNext;
@@ -256,6 +261,7 @@ private:
 	const CVerseEntry *m_pVerse;
 	QString m_strXlateText;
 	bool m_bAddAnchors;
+	bool m_bUseLemmas;
 };
 
 // ============================================================================

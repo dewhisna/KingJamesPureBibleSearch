@@ -691,6 +691,12 @@ CLemmaEntry::CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs)
 			}
 		}
 	}
+	int nCorrectedCount = std::max(m_lstStrongs.size(), std::max(m_lstText.size(), m_lstMorph.size()));
+	// ? for (int ndx = m_lstStrongs.size(); ndx < nCorrectedCount; ++ndx) m_lstStrongs.append(QString());
+	for (int ndx = m_lstText.size(); ndx < nCorrectedCount; ++ndx) m_lstText.append(QString());
+	m_lstText.mid(0, m_lstStrongs.size());
+	for (int ndx = m_lstMorph.size(); ndx < nCorrectedCount; ++ndx) m_lstMorph.append(QString());
+	m_lstMorph.mid(0, m_lstStrongs.size());
 }
 
 QString CLemmaEntry::strongs(int nIndex) const
@@ -2175,7 +2181,7 @@ QStringList CBibleDatabase::strongsIndexesFromOrthograph(const QString &strOrth)
 	return m_mapStrongsOrthographyMap.values(strOrth);
 }
 
-QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors, const CBasicHighlighter *aHighlighter) const
+QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors, const CBasicHighlighter *aHighlighter, bool bUseLemmas) const
 {
 	CRelIndex ndx = ndxRel;
 	ndx.setWord(0);							// We always return the whole verse, not specific words
@@ -2186,10 +2192,10 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
 	TVerseCacheMap::iterator itr = cache.find(ndx);
 	if (itr != cache.end()) return (itr->second);
-	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, aHighlighter);
+	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, aHighlighter, bUseLemmas);
 	return cache[ndx];
 #else
-	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, aHighlighter);
+	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, NULL, aHighlighter, bUseLemmas);
 #endif
 }
 
