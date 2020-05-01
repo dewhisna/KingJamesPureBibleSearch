@@ -462,7 +462,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_n('n', tags.inlineNoteEnd(), &rich_R);
 	CVerseTextRichifier rich_N('N', tags.inlineNoteBegin(), &rich_n);
 	CVerseTextRichifier rich_a('a', QString(tags.usesHTML() ? "</a>" : ""), &rich_N);
-	CVerseTextRichifier rich_A('A', QString(), &rich_a);							// A/a must be after D/d, J/j, and T/t
+	CVerseTextRichifier rich_A('A', QString(), &rich_a);
 	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_A);
 	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be after J/j and T/t for font start/stop to work correctly with special first-letter text mode
 	CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
@@ -473,11 +473,6 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bUseLemmas);
 
 	QString strTemplate = pVerse->m_strTemplate;
-
-	// Add anchors first so that it has outer most binding of tags:
-	if (bAddAnchors) {
-		strTemplate.replace(QChar('w'), "Awa");
-	}
 
 	// --------------------------------
 
@@ -520,6 +515,9 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 			lstWords[0].remove(QRegExp("[JjTtDd]"));
 			strTemplate.append(lstWords.at(0));
 		}
+		if (bAddAnchors) {
+			strTemplate.append('A');
+		}
 		if (lstTransChangeAdded.at(ndxWord-1)) {
 			strTemplate.append('T');
 		}
@@ -533,6 +531,9 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		}
 		if (lstTransChangeAdded.at(ndxWord-1)) {
 			strTemplate.append('t');
+		}
+		if (bAddAnchors) {
+			strTemplate.append('a');
 		}
 		lstWords[ndxWord].remove(QRegExp("[JjTtDd]"));
 		strTemplate.append(lstWords.at(ndxWord));
