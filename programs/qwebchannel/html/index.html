@@ -751,6 +751,9 @@
 					if (anchorElement.next()) {
 						anchorElement.next().addClass("selected");
 					}
+					if (anchorElement.closest(".verse")) {
+						anchorElement.closest(".verse").addClass("selected");
+					}
 				}
 			}
 
