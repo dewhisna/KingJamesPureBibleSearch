@@ -315,8 +315,6 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 							if (parseBaton.m_pCurrentLemma == nullptr) {
 								if (m_bUseLemmas) {
 									writeLemma(parseBaton);		// Write empty lemma
-								} else {
-									parseBaton.m_strVerseText.append(QString("</span>"));	// End stack span
 								}
 								parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
 							}
@@ -327,7 +325,9 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 						//	need to write the word span:
 						if (parseBaton.m_bUsesHTML) {
 							parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
-							parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+							if (m_bUseLemmas) {
+								parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+							}
 						}
 						if (m_bUseLemmas) {
 							parseBaton.m_pCurrentLemma = parseBaton.m_pBibleDatabase->lemmaEntry(parseBaton.m_ndxCurrent);
@@ -343,7 +343,9 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 							parseBaton.m_strVerseText.append(QString("</span>"));
 							// Start next word segment, regardless of whether or not we are in a Lemma:
 							parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
-							parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+							if (m_bUseLemmas) {
+								parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+							}
 						}
 					}	// Otherwise, we are still in a Lemma and need to continue to output it...
 
@@ -436,8 +438,6 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 			// If not in a Lemma, we need to end this word:
 			if (m_bUseLemmas) {
 				writeLemma(parseBaton);		// Write empty lemma
-			} else {
-				parseBaton.m_strVerseText.append(QString("</span>"));	// End stack span
 			}
 			parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
 		}
