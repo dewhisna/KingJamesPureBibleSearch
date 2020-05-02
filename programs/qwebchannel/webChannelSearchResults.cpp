@@ -442,15 +442,19 @@ void CWebChannelSearchResults::getMoreSearchResults()
 									 CRefCountCalc::RTE_CHAPTER, CRelIndex(ndxVerse.book(), pBook->m_nNumChp, 0, 0)).ofBible().first;
 			}
 		}
+		strVerse += "<span class=\"verse\">";
+		strVerse += "<span class=\"ref\">";
 		strVerse += QString("<a href=\"javascript:gotoResult(%1,%2);\">")
 									.arg(nChp)
 									.arg(ndxVerse.index());
 		strVerse += m_pBibleDatabase->PassageReferenceText(ndxVerse, true);
 		strVerse += "</a>";
 		strVerse += " ";
+		strVerse += "</span>";	// Ref
 		strVerse += item.getVerseRichText(richifierTags, false, &srHighlighter);
 		strVerse += QString("<a href=\"javascript:viewDetails(%1);\"><img src=\"detail.png\" alt=\"Details\" height=\"16\" width=\"16\"></a>")
 								.arg(m_pVerseListModel->logicalIndexForModelIndex(ndxModel).index());
+		strVerse += "</span>";	// Verse
 		strVerse += "<br /><hr />";
 		strResults += strVerse;
 
