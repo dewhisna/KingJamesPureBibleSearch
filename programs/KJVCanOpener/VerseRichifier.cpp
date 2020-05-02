@@ -228,16 +228,18 @@ CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const QStrin
 		m_chrMatchChar(chrMatchChar),
 		m_pVerse(NULL),
 		m_strXlateText(strXlateText),
-		m_bUseLemmas(false)
+		m_bUseLemmas(false),
+		m_bUseWordSpans(false)
 {
 
 }
 
-CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bUseLemmas)
+CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bUseLemmas, bool bUseWordSpans)
 	:	m_pRichNext(pRichNext),
 		m_chrMatchChar(chrMatchChar),
 		m_pVerse(pVerse),
-		m_bUseLemmas(bUseLemmas)
+		m_bUseLemmas(bUseLemmas),
+		m_bUseWordSpans(bUseWordSpans)
 {
 	assert(pVerse != NULL);
 }
@@ -316,7 +318,9 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 								if (m_bUseLemmas) {
 									writeLemma(parseBaton);		// Write empty lemma
 								}
-								parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+								if (m_bUseLemmas || m_bUseWordSpans) {
+									parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+								}
 							}
 						}
 						bStartedVerseOutput = true;
@@ -324,7 +328,9 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 						// If not currently in a Lemma or not even processing Lemmas, we
 						//	need to write the word span:
 						if (parseBaton.m_bUsesHTML) {
-							parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+							if (m_bUseLemmas || m_bUseWordSpans) {
+								parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+							}
 							if (m_bUseLemmas) {
 								parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
 							}
@@ -339,10 +345,12 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 						// Check for next lemma:
 						parseBaton.m_pCurrentLemma = parseBaton.m_pBibleDatabase->lemmaEntry(parseBaton.m_ndxCurrent);
 						if (parseBaton.m_bUsesHTML) {
-							// End word span:
-							parseBaton.m_strVerseText.append(QString("</span>"));
-							// Start next word segment, regardless of whether or not we are in a Lemma:
-							parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+							if (m_bUseLemmas || m_bUseWordSpans) {
+								// End word span:
+								parseBaton.m_strVerseText.append(QString("</span>"));
+								// Start next word segment, regardless of whether or not we are in a Lemma:
+								parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+							}
 							if (m_bUseLemmas) {
 								parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
 							}
@@ -433,19 +441,23 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 		if (parseBaton.m_pCurrentLemma) {
 			writeLemma(parseBaton);
 			parseBaton.m_pCurrentLemma = nullptr;
-			if (parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+			if (m_bUseLemmas || m_bUseWordSpans) {		// We track lemmas even when not outputting them, so much check flag here
+				if (parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+			}
 		} else if (bStartedVerseOutput && parseBaton.m_bUsesHTML) {
 			// If not in a Lemma, we need to end this word:
 			if (m_bUseLemmas) {
 				writeLemma(parseBaton);		// Write empty lemma
 			}
-			parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+			if (m_bUseLemmas || m_bUseWordSpans) {
+				parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+			}
 		}
 	}
 }
 
 QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
-										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const CBasicHighlighter *pHighlighter, bool bUseLemmas)
+										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const CBasicHighlighter *pHighlighter, bool bUseLemmas, bool bUseWordSpans)
 {
 	assert(pBibleDatabase != NULL);
 	assert(pVerse != NULL);
@@ -470,7 +482,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
 	CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
 	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors && tags.usesHTML()) : ""), &rich_J);
-	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bUseLemmas);
+	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bUseLemmas, bUseWordSpans);
 
 	QString strTemplate = pVerse->m_strTemplate;
 

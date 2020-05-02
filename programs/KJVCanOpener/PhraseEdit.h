@@ -532,6 +532,7 @@ public:
 		TRO_NoColophonAnchors = 0x200000,			// If TRO_NoWordAnchors is used, the entire Colophon will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
 		TRO_NoSuperscriptAnchors = 0x400000,		// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
 		TRO_UseLemmas = 0x800000,					// Render Lemmas interlinearly with verses
+		TRO_UseWordSpans = 0x1000000,				// Output Word-Spans in HTML (this is implied when TRO_UseLemmas is specified)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 

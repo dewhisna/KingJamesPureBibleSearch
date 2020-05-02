@@ -203,7 +203,7 @@ class CVerseTextRichifier
 {
 private:
 	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL);
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bUseLemmas = false);
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bUseLemmas = false, bool bUseWordSpans = false);
 
 	~CVerseTextRichifier();
 
@@ -253,7 +253,7 @@ private:
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false,
-							int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL, bool bUseLemmas = false);
+							int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL, bool bUseLemmas = false, bool bUseWordSpans = false);
 
 private:
 	const CVerseTextRichifier *m_pRichNext;
@@ -261,6 +261,7 @@ private:
 	const CVerseEntry *m_pVerse;
 	QString m_strXlateText;
 	bool m_bUseLemmas;
+	bool m_bUseWordSpans;
 };
 
 // ============================================================================
