@@ -122,6 +122,30 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
+      <widget class="QLabel" name="lblDefaultDisplayMode">
+       <property name="text">
+        <string>Default &amp;Browser Display Mode:</string>
+       </property>
+       <property name="buddy">
+        <cstring>comboBoxDefaultDisplayMode</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxDefaultDisplayMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
       <widget class="QLabel" name="lblVerseRenderingMode">
        <property name="text">
         <string>Verse &amp;Rendering:</string>
@@ -144,7 +168,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
       <widget class="QLabel" name="lblLineHeight">
        <property name="text">

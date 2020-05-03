@@ -1910,6 +1910,9 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Left-Side", "ScrollbarModes"), CSME_LEFT);
 	ui.comboBoxChapterScrollbarMode->addItem(tr("Right-Side", "ScrollbarModes"), CSME_RIGHT);
 
+	ui.comboBoxDefaultDisplayMode->addItem(tr("Bible Text", "BrowserDisplayModes"), BDME_BIBLE_TEXT);
+	ui.comboBoxDefaultDisplayMode->addItem(tr("Lemma/Morphography", "BrowserDisplayModes"), BDME_LEMMA_MORPHOGRAPHY);
+
 	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
@@ -1922,6 +1925,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
 	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
 	connect(ui.comboBoxChapterScrollbarMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedChapterScrollbarMode(int)));
+	connect(ui.comboBoxDefaultDisplayMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedDefaultDisplayMode(int)));
 	connect(ui.comboBoxVerseRenderingMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingMode(int)));
 	connect(ui.spinBoxLineHeight, SIGNAL(valueChanged(double)), this, SLOT(en_changedLineHeight(double)));
 	connect(ui.checkBoxShowPilcrowMarkers, SIGNAL(clicked(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
@@ -1952,6 +1956,14 @@ void CConfigBrowserOptions::loadSettings()
 		ui.comboBoxChapterScrollbarMode->setCurrentIndex(0);
 	}
 
+	nIndex = ui.comboBoxDefaultDisplayMode->findData(CPersistentSettings::instance()->browserDisplayMode());
+	if (nIndex != -1) {
+		ui.comboBoxDefaultDisplayMode->setCurrentIndex(nIndex);
+	} else {
+		bKeepDirty = true;
+		ui.comboBoxDefaultDisplayMode->setCurrentIndex(0);
+	}
+
 	nIndex = ui.comboBoxVerseRenderingMode->findData(CPersistentSettings::instance()->verseRenderingMode());
 	if (nIndex != -1) {
 		ui.comboBoxVerseRenderingMode->setCurrentIndex(nIndex);
@@ -1976,6 +1988,13 @@ void CConfigBrowserOptions::saveSettings()
 	int nIndex = ui.comboBoxChapterScrollbarMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(ui.comboBoxChapterScrollbarMode->itemData(nIndex).toUInt()));
+		m_bIsDirty = false;
+	} else {
+		assert(false);
+	}
+	nIndex = ui.comboBoxDefaultDisplayMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(ui.comboBoxDefaultDisplayMode->itemData(nIndex).toUInt()));
 		m_bIsDirty = false;
 	} else {
 		assert(false);
@@ -2019,6 +2038,15 @@ void CConfigBrowserOptions::en_changedShowExcludedSearchResults(bool bShowExclud
 }
 
 void CConfigBrowserOptions::en_changedChapterScrollbarMode(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBrowserOptions::en_changedDefaultDisplayMode(int nIndex)
 {
 	if (m_bLoadingData) return;
 

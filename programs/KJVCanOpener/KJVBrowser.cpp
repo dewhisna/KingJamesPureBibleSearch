@@ -64,6 +64,10 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 #ifndef PLASTIQUE_STATIC
 	m_pPlastiqueStyle(NULL),
 #endif
+#ifdef USING_QT_WEBENGINE
+	m_pWebEngineView(NULL),
+#endif
+	m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 	m_bDoingPassageReference(false),
 	m_pScriptureBrowser(NULL)
 {
@@ -85,13 +89,12 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	setNavigationActivationDelay(CPersistentSettings::instance()->navigationActivationDelay());
 	setPassageReferenceActivationDelay(CPersistentSettings::instance()->passageReferenceActivationDelay());
 	setBrowserNavigationPaneMode(CPersistentSettings::instance()->browserNavigationPaneMode());
-	setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode());
+	setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode());		// Initial Default only (global setting won't drive browser so browser windows are independent)
 
 	connect(CPersistentSettings::instance(), SIGNAL(changedNavigationActivationDelay(int)), this, SLOT(setNavigationActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM)), this, SLOT(en_changedChapterScrollbarMode()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM)), this, SLOT(setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM)));
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -262,18 +265,20 @@ void CKJVBrowser::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM
 
 void CKJVBrowser::en_clickedSetBrowserDisplayMode()
 {
-	switch (CPersistentSettings::instance()->browserDisplayMode()) {
+	switch (m_nBrowserDisplayMode) {
 		case BDME_BIBLE_TEXT:
-			CPersistentSettings::instance()->setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
+			setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
 			break;
 		case BDME_LEMMA_MORPHOGRAPHY:
-			CPersistentSettings::instance()->setBrowserDisplayMode(BDME_BIBLE_TEXT);
+			setBrowserDisplayMode(BDME_BIBLE_TEXT);
 			break;
 	}
 }
 
 void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
 {
+	m_nBrowserDisplayMode = nBrowserDisplayMode;
+
 	switch (nBrowserDisplayMode) {
 		case BDME_BIBLE_TEXT:
 #ifndef USING_QT_WEBENGINE
@@ -355,7 +360,7 @@ void CKJVBrowser::initialize()
 		++nNextCol;
 
 		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
-        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
 		++nNextCol;
 	}
 
@@ -378,7 +383,7 @@ void CKJVBrowser::initialize()
 
 	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
 		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
-        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
 		++nNextCol;
 
 		ui.scrollbarChapter = new QScrollBar(this);
@@ -462,7 +467,7 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 		++nNextCol;
 
 		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
-        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
 		++nNextCol;
 	}
 
@@ -476,7 +481,7 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 
 	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
 		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
-        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
 		++nNextCol;
 
 		ui.scrollbarChapter = new QScrollBar(this);

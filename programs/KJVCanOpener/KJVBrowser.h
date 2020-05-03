@@ -222,6 +222,7 @@ private:
 #ifdef USING_QT_WEBENGINE
 	CScriptureWebEngineView *m_pWebEngineView;
 #endif
+	BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;
 
 	bool m_bDoingPassageReference;
 	DelayedExecutionTimer m_dlyBkCombo;
