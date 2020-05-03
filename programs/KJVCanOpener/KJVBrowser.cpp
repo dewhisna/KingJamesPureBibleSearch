@@ -737,16 +737,6 @@ void CKJVBrowser::en_allCrossRefsChanged()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::setFontScriptureBrowser(const QFont& aFont)
-{
-	m_pScriptureBrowser->setFont(aFont);
-}
-
-void CKJVBrowser::setTextBrightness(bool bInvert, int nBrightness)
-{
-	m_pScriptureBrowser->setTextBrightness(bInvert, nBrightness);
-}
-
 void CKJVBrowser::showDetails()
 {
 	m_pScriptureBrowser->showDetails();

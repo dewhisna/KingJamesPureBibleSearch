@@ -90,8 +90,6 @@ public:
 	virtual bool eventFilter(QObject *obj, QEvent *ev);
 
 public slots:
-	void setFontScriptureBrowser(const QFont& aFont);
-	void setTextBrightness(bool bInvert, int nBrightness);
 	void showDetails();
 	void showPassageNavigator();
 
