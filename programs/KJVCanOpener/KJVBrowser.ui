@@ -24,6 +24,14 @@
 ****************************************************************************</comment>
  <class>CKJVBrowser</class>
  <widget class="QWidget" name="CKJVBrowser">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>534</width>
+    <height>349</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>KJVBrowserForm</string>
   </property>
@@ -305,22 +313,26 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Show/Hide Scripture Lemma/Morphography Browser</string>
+        <string>Set Browser Display Mode</string>
        </property>
        <property name="statusTip">
-        <string>Show/Hide Scripture Lemma/Morphography Browser</string>
+        <string>Set Browser Display Mode</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">QToolButton { border: none;  :hover { border: 1px; } :pressed { border: 1px; } }</string>
+        <string notr="true">QToolButton::menu-indicator { image: none; }; QToolButton { border: none;  :hover { border: 1px; } :pressed { border: 1px; } }</string>
+       </property>
+       <property name="icon">
+        <iconset resource="KJVCanOpener.qrc">
+         <normaloff>:/res/menu-icon-24.png</normaloff>:/res/menu-icon-24.png</iconset>
        </property>
        <property name="checked">
         <bool>false</bool>
        </property>
+       <property name="popupMode">
+        <enum>QToolButton::InstantPopup</enum>
+       </property>
        <property name="autoRaise">
         <bool>true</bool>
-       </property>
-       <property name="arrowType">
-        <enum>Qt::UpArrow</enum>
        </property>
       </widget>
      </item>
@@ -419,6 +431,8 @@
   <tabstop>comboBibleBk</tabstop>
   <tabstop>comboBibleChp</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="KJVCanOpener.qrc"/>
+ </resources>
  <connections/>
 </ui>

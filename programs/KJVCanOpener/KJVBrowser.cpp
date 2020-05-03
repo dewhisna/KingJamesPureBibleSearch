@@ -31,6 +31,7 @@
 #include <assert.h>
 
 #include <QComboBox>
+#include <QMenu>
 #include <QTextBrowser>
 #include <QTextCharFormat>
 #include <QTextBlock>
@@ -108,7 +109,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
 
 	connect(ui.btnHideNavigation, SIGNAL(clicked()), this, SLOT(en_clickedHideNavigationPane()));
-	connect(ui.btnSetBrowserDisplayMode, SIGNAL(clicked()), this, SLOT(en_clickedSetBrowserDisplayMode()));
+//	connect(ui.btnSetBrowserDisplayMode, SIGNAL(clicked()), this, SLOT(en_clickedSetBrowserDisplayMode()));
 
 	connect(ui.comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
 	connect(ui.comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
@@ -290,8 +291,6 @@ void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDispla
 #ifndef USING_QT_WEBENGINE
 		case BDME_LEMMA_MORPHOGRAPHY:
 #endif
-			ui.btnSetBrowserDisplayMode->setArrowType(Qt::UpArrow);
-			ui.btnSetBrowserDisplayMode->setChecked(false);
 			m_pScriptureBrowser->setVisible(true);
 #ifdef USING_QT_WEBENGINE
 			m_pWebEngineView->setVisible(false);
@@ -300,8 +299,6 @@ void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDispla
 
 #ifdef USING_QT_WEBENGINE
 		case BDME_LEMMA_MORPHOGRAPHY:
-			ui.btnSetBrowserDisplayMode->setArrowType(Qt::DownArrow);
-			ui.btnSetBrowserDisplayMode->setChecked(true);
 			m_pScriptureBrowser->setVisible(false);
 			m_pWebEngineView->setVisible(true);
 			break;
@@ -383,8 +380,6 @@ void CKJVBrowser::initialize()
 
 //	m_pWebEngineView->show();
 //	m_pScriptureBrowser->installEventFilter(this);
-#else
-	ui.btnSetBrowserDisplayMode->setVisible(false);
 #endif
 
 	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
@@ -407,6 +402,21 @@ void CKJVBrowser::initialize()
 #else
 	QWidget::setTabOrder(m_pScriptureBrowser, ui.comboTstBk);
 #endif
+
+	// --------------------------------------------------------------
+
+	// Setup Browser Display Mode Menu:
+	QMenu *pMenu = new QMenu(this);
+	pMenu->addAction(tr("Bible Text", "BrowserDisplayModes"), [this]()->void { this->setBrowserDisplayMode(BDME_BIBLE_TEXT); } );
+	QAction *pAction = pMenu->addAction(tr("Lemma/Morphography", "BrowserDisplayModes"), [this]()->void { this->setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY); } );
+	// Don't allow switching to Lemma/Morphography mode if the Bible Database doesn't have
+	//	them or else we'll confuse the user:
+#ifdef USING_QT_WEBENGINE
+	pAction->setEnabled(!m_pBibleDatabase->lemmaMap().empty());
+#else
+	pAction->setEnabled(false);
+#endif
+	ui.btnSetBrowserDisplayMode->setMenu(pMenu);
 
 	// --------------------------------------------------------------
 

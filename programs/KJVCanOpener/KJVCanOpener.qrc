@@ -104,5 +104,17 @@
 		<file>res/Insert-hyperlink-icon-48.png</file>
 		<file>res/Apps-accessories-dictionary-icon-128.png</file>
 		<file>res/Actions-text-speak-icon-128.png</file>
+		<!--
+			menu-icon-xxx.png:
+			https://www.iconfinder.com/icons/134216/hamburger_lines_menu_icon
+			Timothy Miller
+			Creative Commons : Attribution, Share Alike, 3.0 Unported
+		-->
+		<file>res/menu-icon-16.png</file>
+		<file>res/menu-icon-24.png</file>
+		<file>res/menu-icon-32.png</file>
+		<file>res/menu-icon-64.png</file>
+		<file>res/menu-icon-128.png</file>
+		<file>res/menu-icon-256.png</file>
 	</qresource>
 </RCC>
