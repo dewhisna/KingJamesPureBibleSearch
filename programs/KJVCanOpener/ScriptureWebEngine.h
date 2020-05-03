@@ -27,6 +27,66 @@
 // ============================================================================
 
 #include <QWebEngineView>
+#include <QWebEngineUrlScheme>
+#include <QWebEngineUrlSchemeHandler>
+#include <QWebEngineProfile>
+
+class QWebEngineUrlRequestJob;
+
+// ============================================================================
+
+//
+// Custom CKJPBSWebViewSchemeHandler
+//
+
+class CKJPBSWebViewSchemeHandler : public QWebEngineUrlSchemeHandler
+{
+public:
+	class CKJPBSWebViewUrlScheme : public QWebEngineUrlScheme
+	{
+	protected:
+		CKJPBSWebViewUrlScheme()
+			:	QWebEngineUrlScheme("kjpbs")
+		{
+			setSyntax(QWebEngineUrlScheme::Syntax::Path);
+			setFlags(QWebEngineUrlScheme::Flag::LocalScheme);
+		}
+
+	public:
+		static void registerScheme()
+		{
+			QWebEngineUrlScheme::registerScheme(scheme());
+		}
+
+		static CKJPBSWebViewUrlScheme &scheme()
+		{
+			static CKJPBSWebViewUrlScheme theScheme;
+			return theScheme;
+		}
+	};
+
+	// ------------------------------------------------------------------------
+
+protected:
+	CKJPBSWebViewSchemeHandler(QObject *parent = nullptr);
+public:
+	virtual ~CKJPBSWebViewSchemeHandler();
+	virtual void requestStarted(QWebEngineUrlRequestJob *request) override;
+
+	static void installUrlSchemeHandler()
+	{
+		QWebEngineProfile::defaultProfile()->installUrlSchemeHandler(CKJPBSWebViewUrlScheme::scheme().name(), &handler());
+	}
+
+	static CKJPBSWebViewSchemeHandler &handler()
+	{
+		static CKJPBSWebViewSchemeHandler schemeHandler;
+		return schemeHandler;
+	}
+};
+
+
+// ============================================================================
 
 //
 // CScriptureWebView - Base Class for viewing interlinear text with Lemmas and Morphology
@@ -34,9 +94,17 @@
 
 class CScriptureWebEngineView : public QWebEngineView
 {
-public:
-	CScriptureWebEngineView(QWidget *pParent = nullptr);
+	Q_OBJECT
 
+public:
+	explicit CScriptureWebEngineView(QWidget *pParent = nullptr);
+	virtual ~CScriptureWebEngineView();
+
+protected slots:
+	void en_loadFinished(bool bOK);
+
+	void en_setFont(const QFont& aFont);
+	void en_setTextBrightness(bool bInvert, int nBrightness);
 };
 
 // ============================================================================

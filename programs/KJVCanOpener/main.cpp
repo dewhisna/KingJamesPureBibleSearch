@@ -52,6 +52,10 @@
 #include <webChannelServer.h>
 #endif
 
+#ifdef USING_QT_WEBENGINE
+#include "ScriptureWebEngine.h"
+#endif
+
 #ifdef Q_OS_WIN
 // Needed to call CreateMutex to lockout installer running while we are:
 #define WIN32_LEAN_AND_MEAN
@@ -109,6 +113,10 @@ int main(int argc, char *argv[])
 	qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
 #endif
 
+#ifdef USING_QT_WEBENGINE
+	CKJPBSWebViewSchemeHandler::CKJPBSWebViewUrlScheme::registerScheme();
+#endif
+
 	CMyApplication *pApp = new CMyApplication(argc, argv);
 	g_pMyApplication = pApp;
 	pApp->setApplicationVersion(VER_QT);
@@ -120,6 +128,10 @@ int main(int argc, char *argv[])
 #endif
 #ifdef USING_QT_SINGLEAPPLICATION
 	QtSingleApplication &instance = *pApp;
+#endif
+
+#ifdef USING_QT_WEBENGINE
+	CKJPBSWebViewSchemeHandler::installUrlSchemeHandler();
 #endif
 
 #if QT_VERSION < 0x050000
