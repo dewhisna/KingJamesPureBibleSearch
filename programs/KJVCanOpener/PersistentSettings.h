@@ -52,6 +52,11 @@ enum BROWSER_NAVIGATION_PANE_MODE_ENUM {
 	BNPME_PASSAGE_REF_ONLY = 1		// Passage Reference editor only is visble
 };
 
+enum BROWSER_DISPLAY_MODE_ENUM {
+	BDME_BIBLE_TEXT = 0,			// Normal Bible Text Display Mode (via QTextBrowser)
+	BDME_LEMMA_MORPHOGRAPHY = 1,	// Lemma and Morphography Mode (via QWebEngineView)
+};
+
 enum COPY_MIME_TYPE_ENUM {
 	CMTE_ALL = 0,
 	CMTE_HTML = 1,
@@ -122,6 +127,7 @@ public:
 	bool showPilcrowMarkers() const { return m_pPersistentSettingData->m_bShowPilcrowMarkers; }
 	qreal scriptureBrowserLineHeight() const { return m_pPersistentSettingData->m_nScriptureBrowserLineHeight; }
 	BROWSER_NAVIGATION_PANE_MODE_ENUM browserNavigationPaneMode() const { return m_pPersistentSettingData->m_nBrowserNavigationPaneMode; }
+	BROWSER_DISPLAY_MODE_ENUM browserDisplayMode() const { return m_pPersistentSettingData->m_nBrowserDisplayMode; }
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
@@ -228,6 +234,7 @@ signals:
 	void changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void changedScriptureBrowserLineHeight(qreal nLineHeight);
 	void changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
+	void changedBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
 
 	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
@@ -285,6 +292,7 @@ public slots:
 	void setShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void setScriptureBrowserLineHeight(qreal nLineHeight);
 	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
+	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
 
 	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
@@ -369,6 +377,7 @@ private:
 		bool m_bShowPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be rendered
 		qreal m_nScriptureBrowserLineHeight;			// Line-height to use in the Scripture Browser display (1.00 to 2.00 for 100% to 200% or single to double spaced)
 		BROWSER_NAVIGATION_PANE_MODE_ENUM m_nBrowserNavigationPaneMode;			// Controls what part of the book/chapter/verse navigation pane is visible above the Scripture Browser
+		BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;	// Controls which browser mode is in use
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation

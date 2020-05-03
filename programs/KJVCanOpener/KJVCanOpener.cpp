@@ -184,6 +184,7 @@ namespace {
 	const QString constrShowPilcrowMarkersKey("ShowPilcrowMarkers");
 	const QString constrLineHeightKey("LineHeight");
 	const QString constrBrowserNavigationPaneModeKey("BrowserNavigationPaneMode");
+	const QString constrBrowserDisplayModeKey("BrowserDisplayMode");
 
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
@@ -1201,6 +1202,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers());
 		settings.setValue(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight());
 		settings.setValue(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode());
+		settings.setValue(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode());
 		settings.endGroup();
 
 		// Browser Object (used for Subwindows: FindDialog, etc):
@@ -1586,6 +1588,7 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setShowPilcrowMarkers(settings.value(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers()).toBool());
 			CPersistentSettings::instance()->setScriptureBrowserLineHeight(settings.value(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight()).toDouble());
 			CPersistentSettings::instance()->setBrowserNavigationPaneMode(static_cast<BROWSER_NAVIGATION_PANE_MODE_ENUM>(settings.value(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode()).toInt()));
+			CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(settings.value(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode()).toInt()));
 		}
 		settings.endGroup();
 

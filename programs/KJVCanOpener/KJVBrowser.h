@@ -44,6 +44,11 @@
 class QStyle;
 #endif
 
+#ifdef USING_QT_WEBENGINE
+// Forward Declaration
+class CScriptureWebEngineView;
+#endif
+
 // ============================================================================
 
 class CVerseListModel;			// Forward declaration
@@ -143,6 +148,9 @@ private slots:
 	void en_clickedHideNavigationPane();
 	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 
+	void en_clickedSetBrowserDisplayMode();
+	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
+
 	void en_selectionChanged();
 
 	void en_sourceChanged(const QUrl &src);
@@ -212,6 +220,10 @@ private:
 	m_bDoingUpdate = true;
 #define end_update()					\
 	m_bDoingUpdate = bUpdateSave;
+
+#ifdef USING_QT_WEBENGINE
+	CScriptureWebEngineView *m_pWebEngineView;
+#endif
 
 	bool m_bDoingPassageReference;
 	DelayedExecutionTimer m_dlyBkCombo;

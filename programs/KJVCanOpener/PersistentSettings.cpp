@@ -143,6 +143,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bShowPilcrowMarkers(true),
 		m_nScriptureBrowserLineHeight(1.0),
 		m_nBrowserNavigationPaneMode(BNPME_COMPLETE),
+		m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
@@ -324,6 +325,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_bShowPilcrowMarkers != pTarget->m_bShowPilcrowMarkers) emit changedShowPilcrowMarkers(pTarget->m_bShowPilcrowMarkers);
 		if (pSource->m_nScriptureBrowserLineHeight != pTarget->m_nScriptureBrowserLineHeight) emit changedScriptureBrowserLineHeight(pTarget->m_nScriptureBrowserLineHeight);
 		if (pSource->m_nBrowserNavigationPaneMode != pTarget->m_nBrowserNavigationPaneMode) emit changedBrowserNavigationPaneMode(pTarget->m_nBrowserNavigationPaneMode);
+		if (pSource->m_nBrowserDisplayMode != pTarget->m_nBrowserDisplayMode) emit changedBrowserDisplayMode(pTarget->m_nBrowserDisplayMode);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -623,6 +625,14 @@ void CPersistentSettings::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_M
 	if (m_pPersistentSettingData->m_nBrowserNavigationPaneMode != nBrowserNavigationPaneMode) {
 		m_pPersistentSettingData->m_nBrowserNavigationPaneMode = nBrowserNavigationPaneMode;
 		emit changedBrowserNavigationPaneMode(m_pPersistentSettingData->m_nBrowserNavigationPaneMode);
+	}
+}
+
+void CPersistentSettings::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
+{
+	if (m_pPersistentSettingData->m_nBrowserDisplayMode != nBrowserDisplayMode) {
+		m_pPersistentSettingData->m_nBrowserDisplayMode = nBrowserDisplayMode;
+		emit changedBrowserDisplayMode(m_pPersistentSettingData->m_nBrowserDisplayMode);
 	}
 }
 

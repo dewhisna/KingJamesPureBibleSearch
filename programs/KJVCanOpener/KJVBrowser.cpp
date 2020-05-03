@@ -46,6 +46,11 @@
 #include <QProxyStyle>
 #endif
 
+#ifdef USING_QT_WEBENGINE
+#include "ScriptureWebEngine.h"
+#include <QResizeEvent>
+#endif
+
 // ============================================================================
 
 CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
@@ -80,11 +85,13 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	setNavigationActivationDelay(CPersistentSettings::instance()->navigationActivationDelay());
 	setPassageReferenceActivationDelay(CPersistentSettings::instance()->passageReferenceActivationDelay());
 	setBrowserNavigationPaneMode(CPersistentSettings::instance()->browserNavigationPaneMode());
+	setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode());
 
 	connect(CPersistentSettings::instance(), SIGNAL(changedNavigationActivationDelay(int)), this, SLOT(setNavigationActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM)), this, SLOT(en_changedChapterScrollbarMode()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM)), this, SLOT(setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM)));
 
 // Data Connections:
 	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -98,6 +105,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
 
 	connect(ui.btnHideNavigation, SIGNAL(clicked()), this, SLOT(en_clickedHideNavigationPane()));
+	connect(ui.btnSetBrowserDisplayMode, SIGNAL(clicked()), this, SLOT(en_clickedSetBrowserDisplayMode()));
 
 	connect(ui.comboBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkComboIndexChanged(int)));
 	connect(ui.comboBkChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBkChpComboIndexChanged(int)));
@@ -175,6 +183,15 @@ bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 		QMouseEvent *pMouseEvent = static_cast<QMouseEvent*>(ev);
 		m_ptChapterScrollerMousePos = pMouseEvent->globalPos();
 	}
+#ifdef USING_QT_WEBENGINE
+//	if ((m_pWebEngineView != NULL) &&
+//		(m_pScriptureBrowser != NULL) &&
+//		(obj == m_pScriptureBrowser) &&
+//		(ev->type() == QEvent::Resize)) {
+//		QResizeEvent *pResizeEvent = static_cast<QResizeEvent*>(ev);
+//		m_pWebEngineView->resize(pResizeEvent->size());
+//	}
+#endif
 
 	return QWidget::eventFilter(obj, ev);
 }
@@ -243,6 +260,46 @@ void CKJVBrowser::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM
 
 // ----------------------------------------------------------------------------
 
+void CKJVBrowser::en_clickedSetBrowserDisplayMode()
+{
+	switch (CPersistentSettings::instance()->browserDisplayMode()) {
+		case BDME_BIBLE_TEXT:
+			CPersistentSettings::instance()->setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
+			break;
+		case BDME_LEMMA_MORPHOGRAPHY:
+			CPersistentSettings::instance()->setBrowserDisplayMode(BDME_BIBLE_TEXT);
+			break;
+	}
+}
+
+void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
+{
+	switch (nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+#ifndef USING_QT_WEBENGINE
+		case BDME_LEMMA_MORPHOGRAPHY:
+#endif
+			ui.btnSetBrowserDisplayMode->setArrowType(Qt::UpArrow);
+			ui.btnSetBrowserDisplayMode->setChecked(false);
+			m_pScriptureBrowser->setVisible(true);
+#ifdef USING_QT_WEBENGINE
+			m_pWebEngineView->setVisible(false);
+#endif
+			break;
+
+#ifdef USING_QT_WEBENGINE
+		case BDME_LEMMA_MORPHOGRAPHY:
+			ui.btnSetBrowserDisplayMode->setArrowType(Qt::DownArrow);
+			ui.btnSetBrowserDisplayMode->setChecked(true);
+			m_pScriptureBrowser->setVisible(false);
+			m_pWebEngineView->setVisible(true);
+			break;
+#endif
+	}
+}
+
+// ----------------------------------------------------------------------------
+
 void CKJVBrowser::initialize()
 {
 	// --------------------------------------------------------------
@@ -272,9 +329,26 @@ void CKJVBrowser::initialize()
 	int nColSpanChapterScrollbar;
 	ui.gridLayout->getItemPosition(ndxChapterScrollbar, &nRowChapterScrollbar, &nColChapterScrollbar, &nRowSpanChapterScrollbar, &nColSpanChapterScrollbar);
 
+	int ndxWebEngine = ui.gridLayout->indexOf(ui.textBrowserWebEnginePlaceholder);
+	assert(ndxWebEngine != -1);
+	if (ndxWebEngine == -1) return;
+	int nRowWebEngine;
+	int nColWebEngine;
+	int nRowSpanWebEngine;
+	int nColSpanWebEngine;
+	ui.gridLayout->getItemPosition(ndxWebEngine, &nRowWebEngine, &nColWebEngine, &nRowSpanWebEngine, &nColSpanWebEngine);
+
 	assert(nRow == nRowChapterScrollbar);
+	assert(nRow == nRowWebEngine);
+	assert(nRowSpan == nRowSpanChapterScrollbar);
+	assert(nRowSpan == nRowSpanWebEngine);
 	assert(nColSpan == 1);
 	assert(nColSpanChapterScrollbar == 1);
+	assert(nColSpanWebEngine == 1);
+
+#ifndef USING_QT_WEBENGINE
+	nColSpanWebEngine = 0;
+#endif
 
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
@@ -290,10 +364,25 @@ void CKJVBrowser::initialize()
 	bool bChapterScrollLeft = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT);
 
 	delete ui.textBrowserMainText;
+	delete ui.textBrowserWebEnginePlaceholder;
 	delete ui.scrollbarChapter;
 	ui.textBrowserMainText = NULL;
+	ui.textBrowserWebEnginePlaceholder = NULL;
 	ui.scrollbarChapter = NULL;
-	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, (bChapterScrollLeft ? nColChapterScrollbar : nCol), nRowSpan, (bChapterScrollNone ? (nColSpan + nColSpanChapterScrollbar) : nColSpan));
+	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, (bChapterScrollLeft ? nColChapterScrollbar : nCol), nRowSpan, (bChapterScrollNone ? (nColSpan + nColSpanChapterScrollbar) : nColSpan) + (1-nColSpanWebEngine));
+
+#ifdef USING_QT_WEBENGINE
+	m_pWebEngineView = new CScriptureWebEngineView(this);
+	m_pWebEngineView->setObjectName(QString::fromUtf8("textBrowserWebEngine"));
+	m_pWebEngineView->setMouseTracking(true);
+	ui.gridLayout->addWidget(m_pWebEngineView, nRowWebEngine, (bChapterScrollLeft ? nColChapterScrollbar : nCol)+1, nRowSpanWebEngine, nColSpanWebEngine);
+	m_pWebEngineView->setVisible(false);
+
+//	m_pWebEngineView->show();
+//	m_pScriptureBrowser->installEventFilter(this);
+#else
+	ui.btnSetBrowserDisplayMode->setVisible(false);
+#endif
 
 	if (!bChapterScrollNone) {
 		ui.scrollbarChapter = new QScrollBar(this);
@@ -304,7 +393,12 @@ void CKJVBrowser::initialize()
 
 	// Reinsert it in the correct TabOrder:
 	QWidget::setTabOrder(ui.comboBkChp, m_pScriptureBrowser);
+#ifdef USING_QT_WEBENGINE
+	QWidget::setTabOrder(m_pScriptureBrowser, m_pWebEngineView);
+	QWidget::setTabOrder(m_pWebEngineView, ui.comboTstBk);
+#else
 	QWidget::setTabOrder(m_pScriptureBrowser, ui.comboTstBk);
+#endif
 
 	// --------------------------------------------------------------
 
@@ -791,6 +885,9 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	if ((m_ndxCurrent.book() == 0) || ((m_ndxCurrent.chapter() == 0) && (ndx.word() == 0))) {
 		m_pScriptureBrowser->clear();
 		end_update();
+#ifdef USING_QT_WEBENGINE
+		m_pWebEngineView->load(QString("about:blank"));
+#endif
 		return;
 	}
 
@@ -798,6 +895,9 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 		// This can happen if the versification of the navigation reference doesn't match the active database
 		m_pScriptureBrowser->clear();
 		end_update();
+#ifdef USING_QT_WEBENGINE
+		m_pWebEngineView->load(QString("about:blank"));
+#endif
 		return;
 	}
 
@@ -808,6 +908,9 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 		if (!book.m_bHaveColophon) {
 			m_pScriptureBrowser->clear();
 			end_update();
+#ifdef USING_QT_WEBENGINE
+		m_pWebEngineView->load(QString("about:blank"));
+#endif
 			return;
 		}
 		ndxVirtual.setChapter(book.m_nNumChp);
@@ -839,7 +942,15 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
+	QString strBrowserHTML =
 	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser);
+
+#ifdef USING_QT_WEBENGINE
+	m_pWebEngineView->load(QString("kjpbs://%1/%2#%3")
+							.arg(m_pBibleDatabase->compatibilityUUID())
+							.arg(ndxVirtual.asAnchor())
+							.arg(ndx.isSuperscription() ? ndxVirtual.asAnchor() : ndx.asAnchor()));
+#endif
 }
 
 void CKJVBrowser::setVerse(const CRelIndex &ndx)
