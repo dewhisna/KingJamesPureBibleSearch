@@ -311,45 +311,6 @@ void CKJVBrowser::initialize()
 	//	Swapout the widgetKJVPassageNavigator from the layout with
 	//		one that we can set the database on:
 
-	int ndx = ui.gridLayout->indexOf(ui.textBrowserMainText);
-	assert(ndx != -1);
-	if (ndx == -1) return;
-	int nRow;
-	int nCol;
-	int nRowSpan;
-	int nColSpan;
-	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
-
-	int ndxChapterScrollbar = ui.gridLayout->indexOf(ui.scrollbarChapter);
-	assert(ndxChapterScrollbar != -1);
-	if (ndxChapterScrollbar == -1) return;
-	int nRowChapterScrollbar;
-	int nColChapterScrollbar;
-	int nRowSpanChapterScrollbar;
-	int nColSpanChapterScrollbar;
-	ui.gridLayout->getItemPosition(ndxChapterScrollbar, &nRowChapterScrollbar, &nColChapterScrollbar, &nRowSpanChapterScrollbar, &nColSpanChapterScrollbar);
-
-	int ndxWebEngine = ui.gridLayout->indexOf(ui.textBrowserWebEnginePlaceholder);
-	assert(ndxWebEngine != -1);
-	if (ndxWebEngine == -1) return;
-	int nRowWebEngine;
-	int nColWebEngine;
-	int nRowSpanWebEngine;
-	int nColSpanWebEngine;
-	ui.gridLayout->getItemPosition(ndxWebEngine, &nRowWebEngine, &nColWebEngine, &nRowSpanWebEngine, &nColSpanWebEngine);
-
-	assert(nRow == nRowChapterScrollbar);
-	assert(nRow == nRowWebEngine);
-	assert(nRowSpan == nRowSpanChapterScrollbar);
-	assert(nRowSpan == nRowSpanWebEngine);
-	assert(nColSpan == 1);
-	assert(nColSpanChapterScrollbar == 1);
-	assert(nColSpanWebEngine == 1);
-
-#ifndef USING_QT_WEBENGINE
-	nColSpanWebEngine = 0;
-#endif
-
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
 	m_pScriptureBrowser->setMouseTracking(true);
@@ -360,22 +321,53 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser->setOpenLinks(false);
 	connect(CPersistentSettings::instance(), SIGNAL(changedScrollbarsEnabled(bool)), this, SLOT(en_changedScrollbarsEnabled(bool)));
 
-	bool bChapterScrollNone = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_NONE);
-	bool bChapterScrollLeft = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT);
+	if (ui.textBrowserMainText) {
+		ui.gridLayout->removeWidget(ui.textBrowserMainText);
+		delete ui.textBrowserMainText;
+		ui.textBrowserMainText = NULL;
+	}
 
-	delete ui.textBrowserMainText;
-	delete ui.textBrowserWebEnginePlaceholder;
-	delete ui.scrollbarChapter;
-	ui.textBrowserMainText = NULL;
-	ui.textBrowserWebEnginePlaceholder = NULL;
-	ui.scrollbarChapter = NULL;
-	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, (bChapterScrollLeft ? nColChapterScrollbar : nCol), nRowSpan, (bChapterScrollNone ? (nColSpan + nColSpanChapterScrollbar) : nColSpan) + (1-nColSpanWebEngine));
+	if (ui.textBrowserWebEnginePlaceholder) {
+		ui.gridLayout->removeWidget(ui.textBrowserWebEnginePlaceholder);
+		delete ui.textBrowserWebEnginePlaceholder;
+		ui.textBrowserWebEnginePlaceholder = NULL;
+	}
+
+	if (ui.spacerScrollbarChapter) {
+		ui.gridLayout->removeItem(ui.spacerScrollbarChapter);
+		delete ui.spacerScrollbarChapter;
+		ui.spacerScrollbarChapter = NULL;
+	}
+
+	if (ui.scrollbarChapter) {
+		ui.gridLayout->removeWidget(ui.scrollbarChapter);
+		delete ui.scrollbarChapter;
+		ui.scrollbarChapter = NULL;
+	}
+
+	int nNextCol = 0;
+
+	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) {
+		ui.scrollbarChapter = new QScrollBar(this);
+		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
+		ui.scrollbarChapter->setOrientation(Qt::Vertical);
+		ui.gridLayout->addWidget(ui.scrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+
+		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+	}
+
+	ui.gridLayout->addWidget(m_pScriptureBrowser, 1, nNextCol, 1, 1);
+	++nNextCol;
 
 #ifdef USING_QT_WEBENGINE
 	m_pWebEngineView = new CScriptureWebEngineView(this);
 	m_pWebEngineView->setObjectName(QString::fromUtf8("textBrowserWebEngine"));
 	m_pWebEngineView->setMouseTracking(true);
-	ui.gridLayout->addWidget(m_pWebEngineView, nRowWebEngine, (bChapterScrollLeft ? nColChapterScrollbar : nCol)+1, nRowSpanWebEngine, nColSpanWebEngine);
+	ui.gridLayout->addWidget(m_pWebEngineView, 1, nNextCol, 1, 1);
+	++nNextCol;
 	m_pWebEngineView->setVisible(false);
 
 //	m_pWebEngineView->show();
@@ -384,11 +376,16 @@ void CKJVBrowser::initialize()
 	ui.btnSetBrowserDisplayMode->setVisible(false);
 #endif
 
-	if (!bChapterScrollNone) {
+	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
+		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+
 		ui.scrollbarChapter = new QScrollBar(this);
 		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
 		ui.scrollbarChapter->setOrientation(Qt::Vertical);
-		ui.gridLayout->addWidget(ui.scrollbarChapter, nRowChapterScrollbar, (bChapterScrollLeft ? nCol : nColChapterScrollbar), nRowSpanChapterScrollbar, nColSpanChapterScrollbar);
+		ui.gridLayout->addWidget(ui.scrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
 	}
 
 	// Reinsert it in the correct TabOrder:
@@ -438,56 +435,58 @@ void CKJVBrowser::en_changedScrollbarsEnabled(bool bEnabled)
 
 void CKJVBrowser::en_changedChapterScrollbarMode()
 {
-	bool bChapterScrollNone = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_NONE);
-	bool bChapterScrollLeft = (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT);
+	ui.gridLayout->removeWidget(m_pScriptureBrowser);
+#ifdef USING_QT_WEBENGINE
+	ui.gridLayout->removeWidget(m_pWebEngineView);
+#endif
 
-	int ndx = ui.gridLayout->indexOf(m_pScriptureBrowser);
-	assert(ndx != -1);
-	if (ndx == -1) return;
-	int nRow;
-	int nCol;
-	int nRowSpan;
-	int nColSpan;
-	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
-	nCol = (bChapterScrollLeft ? 1 : 0);
-	nColSpan = (bChapterScrollNone ? 2 : 1);
-	ui.gridLayout->takeAt(ndx);
-
-	int ndxChapterScrollbar = -1;
-	if (ui.scrollbarChapter != NULL) {
-		ndxChapterScrollbar = ui.gridLayout->indexOf(ui.scrollbarChapter);
-		assert(ndxChapterScrollbar != -1);
-		if (ndxChapterScrollbar == -1) return;
-	}
-	int nRowChapterScrollbar = nRow;
-	int nColChapterScrollbar;		// This one will be set below
-	int nRowSpanChapterScrollbar = nRowSpan;
-	int nColSpanChapterScrollbar = 1;
-	if (ndxChapterScrollbar != -1) {
-		ui.gridLayout->getItemPosition(ndxChapterScrollbar, &nRowChapterScrollbar, &nColChapterScrollbar, &nRowSpanChapterScrollbar, &nColSpanChapterScrollbar);
-		ui.gridLayout->takeAt(ndxChapterScrollbar);
-	}
-	assert(nRowChapterScrollbar == nRow);
-	nColChapterScrollbar = (bChapterScrollLeft ? 0 : 1);
-	assert(nRowSpanChapterScrollbar == nRowSpan);
-	assert(nColSpanChapterScrollbar == 1);
-
-	if (!bChapterScrollNone) {
-		if (ui.scrollbarChapter == NULL) {
-			ui.scrollbarChapter = new QScrollBar(this);
-			setupChapterScrollbar();
-		}
-	} else {
-		if (ui.scrollbarChapter != NULL) {
-			delete ui.scrollbarChapter;
-			ui.scrollbarChapter = NULL;
-		}
+	if (ui.spacerScrollbarChapter) {
+		ui.gridLayout->removeItem(ui.spacerScrollbarChapter);
+		delete ui.spacerScrollbarChapter;
+		ui.spacerScrollbarChapter = NULL;
 	}
 
-	ui.gridLayout->addWidget(m_pScriptureBrowser, nRow, nCol, nRowSpan, nColSpan);
-	if (ui.scrollbarChapter != NULL) {
-		ui.gridLayout->addWidget(ui.scrollbarChapter, nRowChapterScrollbar, nColChapterScrollbar, nRowSpanChapterScrollbar, nColSpanChapterScrollbar);
+	if (ui.scrollbarChapter) {
+		ui.gridLayout->removeWidget(ui.scrollbarChapter);
+		delete ui.scrollbarChapter;
+		ui.scrollbarChapter = NULL;
 	}
+
+	int nNextCol = 0;
+
+	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) {
+		ui.scrollbarChapter = new QScrollBar(this);
+		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
+		ui.scrollbarChapter->setOrientation(Qt::Vertical);
+		ui.gridLayout->addWidget(ui.scrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+
+		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+	}
+
+	ui.gridLayout->addWidget(m_pScriptureBrowser, 1, nNextCol, 1, 1);
+	++nNextCol;
+
+#ifdef USING_QT_WEBENGINE
+	ui.gridLayout->addWidget(m_pWebEngineView, 1, nNextCol, 1, 1);
+	++nNextCol;
+#endif
+
+	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
+		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
+        ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+
+		ui.scrollbarChapter = new QScrollBar(this);
+		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
+		ui.scrollbarChapter->setOrientation(Qt::Vertical);
+		ui.gridLayout->addWidget(ui.scrollbarChapter, 1, nNextCol, 1, 1);
+		++nNextCol;
+	}
+
+	setupChapterScrollbar();
 
 	if (ui.scrollbarChapter != NULL) {
 //		rerender();
