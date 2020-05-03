@@ -267,7 +267,9 @@ void CKJVBrowser::en_clickedSetBrowserDisplayMode()
 {
 	switch (m_nBrowserDisplayMode) {
 		case BDME_BIBLE_TEXT:
-			setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
+			// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
+			//	them or else we'll confuse the user:
+			if (!m_pBibleDatabase->lemmaMap().empty()) setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
 			break;
 		case BDME_LEMMA_MORPHOGRAPHY:
 			setBrowserDisplayMode(BDME_BIBLE_TEXT);
@@ -277,6 +279,10 @@ void CKJVBrowser::en_clickedSetBrowserDisplayMode()
 
 void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
 {
+	// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
+	//	them or else we'll confuse the user:
+	if (m_pBibleDatabase->lemmaMap().empty()) nBrowserDisplayMode = BDME_BIBLE_TEXT;
+
 	m_nBrowserDisplayMode = nBrowserDisplayMode;
 
 	switch (nBrowserDisplayMode) {
