@@ -1,6 +1,6 @@
 ##*****************************************************************************
 ##
-## Copyright (C) 2016 Donna Whisnant, a.k.a. Dewtronics.
+## Copyright (C) 2016-2020 Donna Whisnant, a.k.a. Dewtronics.
 ## Contact: http://www.dewtronics.com/
 ##
 ## This file is part of the KJVCanOpener Application as originally written

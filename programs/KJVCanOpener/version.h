@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+** Copyright (C) 2012-2020 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
 **
 ** This file is part of the KJVCanOpener Application as originally written
@@ -55,7 +55,7 @@
 #define VER_COMPANYNAME_STR			"Dewtronics\0"
 #define VER_FILEDESCRIPTION_STR		"King James Pure Bible Search\0"
 #define VER_INTERNALNAME_STR		"King James Pure Bible Search\0"
-#define VER_LEGALCOPYRIGHT_STR		"Copyright(c)2012-2017 Donna Whisnant, a.k.a. Dewtronics\0"
+#define VER_LEGALCOPYRIGHT_STR		"Copyright(c)2012-2020 Donna Whisnant, a.k.a. Dewtronics\0"
 #define VER_ORIGINALFILENAME_STR	"KingJamesPureBibleSearch.exe\0"
 #define VER_PRODUCTNAME_STR			"King James Pure Bible Search\0"
 

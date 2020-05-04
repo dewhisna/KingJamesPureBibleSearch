@@ -20,7 +20,7 @@
 #
 # This version modified for KJPBS usage as follows:
 #
-# Copyright (C) 2014 Donna Whisnant, a.k.a. Dewtronics.
+# Copyright (C) 2014-2020 Donna Whisnant, a.k.a. Dewtronics.
 # Contact: http://www.dewtronics.com/
 #
 # This file is part of the KJVCanOpener Application as originally written

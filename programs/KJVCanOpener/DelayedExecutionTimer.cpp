@@ -7,7 +7,7 @@ File licence not repeated here for space reasons. See file "DelayedExecutionTime
 -------------------------------------------------------------------------------
 
 Modified for the behaviour desired in King James Pure Bible Search.
-Modifications Copyright 2013, Donna Whisnant, a.k.a. Dewtronics
+Modifications Copyright 2013-2020, Donna Whisnant, a.k.a. Dewtronics
 
 -------------------------------------------------------------------------------
 */

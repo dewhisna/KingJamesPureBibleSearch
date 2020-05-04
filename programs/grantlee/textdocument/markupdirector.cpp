@@ -16,6 +16,13 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 
+-------------------------------------------------------------------------------
+
+Modified for the behaviour desired in King James Pure Bible Search.
+Modifications Copyright 2013-2020, Donna Whisnant, a.k.a. Dewtronics
+
+-------------------------------------------------------------------------------
+
 */
 
 

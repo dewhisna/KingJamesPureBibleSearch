@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012 Donna Whisnant, a.k.a. Dewtronics.
+** Copyright (C) 2012-2020 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
 **
 ** This file is part of the KJVCanOpener Application as originally written
@@ -182,7 +182,7 @@ void CKJVAboutDlg::en_licenseDisplay()
 			"See the GNU General Public License for more details.\n\n"
 			"You should have received a copy of the GNU General Public License along with this program; "
 			"if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n\n"
-			"Copyright (C) 2012-2014 Donna Whisnant, a.k.a. Dewtronics.\n"
+			"Copyright (C) 2012-2020 Donna Whisnant, a.k.a. Dewtronics.\n"
 			"Contact: http://www.dewtronics.com/\n"
 			"Written and Developed for Bethel Church, Festus, MO.", "AboutBox");
 	const QString strTitle = tr("About King James Pure Bible Search License", "AboutBox");
