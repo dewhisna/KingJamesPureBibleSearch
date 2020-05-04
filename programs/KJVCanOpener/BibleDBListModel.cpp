@@ -130,7 +130,7 @@ QVariant CBibleDatabaseListModel::data(const QModelIndex &index, int role) const
 		if (nBibleDB != -1) {
 			return QVariant::fromValue(TBibleDatabaseList::instance()->at(nBibleDB).data());
 		} else {
-			return QVariant::fromValue(static_cast<CBibleDatabase *>(NULL));
+			return QVariant::fromValue(static_cast<CBibleDatabase *>(nullptr));
 		}
 	}
 

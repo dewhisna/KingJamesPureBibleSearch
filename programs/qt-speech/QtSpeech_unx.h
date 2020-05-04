@@ -66,7 +66,7 @@ class QtSpeech_th : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_th(QObject *pParent = NULL);
+	QtSpeech_th(QObject *pParent = nullptr);
 	virtual ~QtSpeech_th()
 	{}
 
@@ -104,7 +104,7 @@ class QtSpeech_asyncServerIO : public QObject
 	Q_OBJECT
 
 public:
-	QtSpeech_asyncServerIO(const QString &strHostname, int nPortNumber, QObject *pParent = NULL);
+	QtSpeech_asyncServerIO(const QString &strHostname, int nPortNumber, QObject *pParent = nullptr);
 	virtual ~QtSpeech_asyncServerIO();
 
 	bool isConnected();

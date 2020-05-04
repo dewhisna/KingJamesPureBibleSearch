@@ -49,7 +49,7 @@ void CMimeHelper::addPhraseTagToClipboard(const TPhraseTag &tag)
 
 void CMimeHelper::addPhraseTagToMimeData(QMimeData *pMime, const TPhraseTag &tag)
 {
-	assert(pMime != NULL);
+	assert(pMime != nullptr);
 	QByteArray arrData;
 	QDataStream ds(&arrData, QIODevice::WriteOnly);
 	ds << tag;
@@ -58,7 +58,7 @@ void CMimeHelper::addPhraseTagToMimeData(QMimeData *pMime, const TPhraseTag &tag
 
 TPhraseTag CMimeHelper::getPhraseTagFromMimeData(const QMimeData *pMime)
 {
-	assert(pMime != NULL);
+	assert(pMime != nullptr);
 	QByteArray arrData(pMime->data(g_constrPhraseTagMimeType));
 	QDataStream ds(arrData);
 	TPhraseTag tag;

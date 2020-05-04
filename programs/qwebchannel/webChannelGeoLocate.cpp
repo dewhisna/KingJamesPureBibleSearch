@@ -61,7 +61,7 @@ CWebChannelGeoLocate::~CWebChannelGeoLocate()
 
 void CWebChannelGeoLocate::locate(const CWebChannelClient *pChannel, const QString &strIPAddress)
 {
-	assert(pChannel != NULL);
+	assert(pChannel != nullptr);
 
 	TGeoLocateClient theClient;
 	theClient.m_nLocateServer = GSE_NONE;
@@ -144,7 +144,7 @@ void CWebChannelGeoLocate::triggerInternalRequest(QObject *pInternal)
 
 void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 {
-	assert(pReply != NULL);
+	assert(pReply != nullptr);
 	TGeoLocateClient theClient = m_mapChannels.value(pReply);
 	m_mapChannels.remove(pReply);
 
@@ -153,7 +153,7 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	//		and clear pReply so as not to reat it as a QNetworkReply object:
 	if (theClient.m_nLocateServer == GSE_INTERNAL) {
 		reinterpret_cast<QObject *>(pReply)->deleteLater();
-		pReply = NULL;
+		pReply = nullptr;
 	}
 	// After this point, pReply will either be NULL or a real QNetworkReply object...
 

@@ -555,7 +555,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 		}
 	} else {
 		TVerseIndex *pVerseIndex = toVerseIndex(index);
-		assert(pVerseIndex != NULL);
+		assert(pVerseIndex != nullptr);
 
 #ifdef DEBUG_SEARCH_RESULTS_NODE_TOOLTIPS
 		if (role == Qt::ToolTipRole) {
@@ -869,7 +869,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 CRelIndex CVerseListModel::logicalIndexForModelIndex(const QModelIndex &index) const
 {
 	const TVerseIndex *pVerseIndex = toVerseIndex(index);
-	assert(pVerseIndex != NULL);
+	assert(pVerseIndex != nullptr);
 
 	CRelIndex ndxVerse = pVerseIndex->relIndex();
 	if (!ndxVerse.isSet()) return CRelIndex();
@@ -892,7 +892,7 @@ QModelIndex CVerseListModel::modelIndexForLogicalIndex(const CRelIndex &ndxLogic
 
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
 		const TVerseIndex *pVerseIndex = toVerseIndex(*fwdItr);
-		assert(pVerseIndex != NULL);
+		assert(pVerseIndex != nullptr);
 
 		CRelIndex ndxVerse = pVerseIndex->relIndex();
 		if (!ndxVerse.isSet()) continue;
@@ -1022,7 +1022,7 @@ bool CVerseListModel::descendingLessThanXRefTargets(const QModelIndex &ndx1, con
 }
 
 // Static thread-locked data, locked in sortModelIndexList:
-const TCrossReferenceMap *CVerseListModel::ms_pCrossRefsMap = NULL;
+const TCrossReferenceMap *CVerseListModel::ms_pCrossRefsMap = nullptr;
 
 void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseCopySortOption) const
 {
@@ -1030,7 +1030,7 @@ void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseC
 	while (!nThreadLock.testAndSetRelaxed(0, 1)) {
 		QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 	}	// Mutex wait for thread if someone is currently running this function
-	assert(ms_pCrossRefsMap == NULL);					// Thread-safeguard check
+	assert(ms_pCrossRefsMap == nullptr);					// Thread-safeguard check
 	ms_pCrossRefsMap = &m_crossRefsResults.m_mapCrossRefs;
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		if (bUseCopySortOption) {
@@ -1066,7 +1066,7 @@ void CVerseListModel::sortModelIndexList(QModelIndexList &lstIndexes, bool bUseC
 			std::sort(lstIndexes.begin(), lstIndexes.end(), ascendingLessThanModelIndex);
 		}
 	}
-	ms_pCrossRefsMap = NULL;
+	ms_pCrossRefsMap = nullptr;
 	nThreadLock = 0;
 }
 
@@ -1076,7 +1076,7 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 		return Qt::ItemIsDropEnabled;
 
 	TVerseIndex *pVerseIndex = CVerseListModel::toVerseIndex(index);
-	assert(pVerseIndex != NULL);
+	assert(pVerseIndex != nullptr);
 
 	CRelIndex ndxRel(logicalIndexForModelIndex(index));
 	if (m_private.m_nViewMode != VVME_CROSSREFS) {
@@ -1248,11 +1248,11 @@ QStringList CVerseListModel::mimeTypes() const
 
 QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 {
-	if (indexes.isEmpty()) return NULL;
+	if (indexes.isEmpty()) return nullptr;
 
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 
-	QMimeData *pMimeData = NULL;
+	QMimeData *pMimeData = nullptr;
 
 	switch (m_private.m_nDisplayMode) {
 		case VDME_COMPLETE:
@@ -1272,7 +1272,7 @@ QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 			break;
 	}
 
-	if ((pMimeData != NULL) &&
+	if ((pMimeData != nullptr) &&
 		(m_private.m_nViewMode == VVME_HIGHLIGHTERS)) {
 		QByteArray baEncodedData;
 
@@ -1287,8 +1287,8 @@ QMimeData *CVerseListModel::mimeData(const QModelIndexList &indexes) const
 		for (int ndx = 0; ndx < indexes.size(); ++ndx) {
 			if (indexes.at(ndx).isValid()) {
 				TVerseIndex *pVerseIndex = toVerseIndex(indexes.at(ndx));
-				assert(pVerseIndex != NULL);
-				if (pVerseIndex == NULL) continue;
+				assert(pVerseIndex != nullptr);
+				if (pVerseIndex == nullptr) continue;
 				assert(pVerseIndex->resultsType() == VLMRTE_HIGHLIGHTERS);
 				if (pVerseIndex->resultsType() != VLMRTE_HIGHLIGHTERS) continue;
 				assert(pVerseIndex->nodeType() == VLMNTE_UNDEFINED);
@@ -1314,8 +1314,8 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 	Q_UNUSED(nRow);
 	Q_UNUSED(nColumn);
 
-	assert(pData != NULL);
-	if (pData == NULL) return false;
+	assert(pData != nullptr);
+	if (pData == nullptr) return false;
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	if ((nAction == Qt::MoveAction) &&
@@ -1324,8 +1324,8 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 		if (!zParent.isValid()) return false;
 
 		TVerseIndex *pVerseIndex = toVerseIndex(zParent);
-		assert(pVerseIndex != NULL);
-		if (pVerseIndex == NULL) return false;
+		assert(pVerseIndex != nullptr);
+		if (pVerseIndex == nullptr) return false;
 		assert(pVerseIndex->nodeType() == VLMNTE_HIGHLIGHTER_NODE);
 		const CVerseListModel::TVerseListModelResults &zResults = results(zParent);
 		QString strTargetHighlighter = zResults.resultsName();
@@ -1361,7 +1361,7 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 
 		assert(!g_pMyApplication.isNull());
 		CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
-		assert(pCanOpener != NULL);
+		assert(pCanOpener != nullptr);
 
 		int nResult = displayInformation(pCanOpener, tr("Moving Highlighter Tags", "Errors"),
 											   tr("You are about to move the selected verse highlighting to the \"%1\" highlighter.  This will "
@@ -1853,7 +1853,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 		}
 
 //		const THighlighterTagMap *pHighlighters = m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase);
-//		if (pHighlighters != NULL) {
+//		if (pHighlighters != nullptr) {
 //			ndxHighlighter = 0;
 //			for (THighlighterTagMap::const_iterator itrHighlighters = pHighlighters->begin(); itrHighlighters != pHighlighters->end(); ++itrHighlighters) {
 //				// Must add it to our list before calling buildHighlighterResults(ndx):
@@ -1896,11 +1896,11 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter, const TPhraseT
 			ndxNextRelative.setWord(1);
 			uint32_t ndxNormalNext = m_private.m_pBibleDatabase->NormalizeIndex(ndxNextRelative);
 			if (ndxNormalNext == 0) continue;												// Handle cases for higlighters from other databases that extend beyond this one (and highlighter isn't part of this)
-			if (m_private.m_pBibleDatabase->verseEntry(ndxNextRelative) == NULL) continue;	// Handle cases for highlighters from othe database beginning in a colophon/superscription not supported in this database
+			if (m_private.m_pBibleDatabase->verseEntry(ndxNextRelative) == nullptr) continue;	// Handle cases for highlighters from othe database beginning in a colophon/superscription not supported in this database
 			while (nWordCount > 0) {
 				// Mask the highlighter tags for this verse and just insert the tags corresponding to this verse:
 				const CVerseEntry *pVerseEntry = m_private.m_pBibleDatabase->verseEntry(ndxNextRelative);
-				unsigned int nNumWordsInVerse = ((pVerseEntry != NULL) ? pVerseEntry->m_nNumWrd : 0);
+				unsigned int nNumWordsInVerse = ((pVerseEntry != nullptr) ? pVerseEntry->m_nNumWrd : 0);
 				TPhraseTag tagMasked = itrTags->mask(m_private.m_pBibleDatabase.data(), TPhraseTag(ndxNextRelative, nNumWordsInVerse));
 				if (zResults.m_mapVerses.contains(ndxNextRelative)) {
 					zResults.m_mapVerses[ndxNextRelative].addPhraseTag(tagMasked);
@@ -2330,7 +2330,7 @@ int CVerseListModel::TVerseListModelResults::GetChapterCount(unsigned int nBk) c
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
 		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(nBk);
-		assert(pBookEntry != NULL);
+		assert(pBookEntry != nullptr);
 		return pBookEntry->m_nNumChp + ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? 1 : 0);
 	}
 
@@ -2366,7 +2366,7 @@ int CVerseListModel::TVerseListModelResults::IndexByChapter(unsigned int nBk, un
 	if (m_private->m_bShowMissingLeafs) {
 		if (nBk > m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return -1;
 		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(nBk);
-		assert(pBookEntry != NULL);
+		assert(pBookEntry != nullptr);
 		unsigned int nChpCount = pBookEntry->m_nNumChp + ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? 1 : 0);
 		if ((!pBookEntry->m_bHaveColophon) || (nFirstChp==1)) {
 			assert(nChp > 0);
@@ -2409,7 +2409,7 @@ unsigned int CVerseListModel::TVerseListModelResults::ChapterByIndex(int ndxBook
 	if (m_private->m_bShowMissingLeafs) {
 		if (static_cast<unsigned int>(ndxBook) >= m_private->m_pBibleDatabase->bibleEntry().m_nNumBk) return 0;
 		const CBookEntry *pBookEntry = m_private->m_pBibleDatabase->bookEntry(ndxBook+1);
-		assert(pBookEntry != NULL);
+		assert(pBookEntry != nullptr);
 		unsigned int nChpCount = pBookEntry->m_nNumChp + ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? 1 : 0);
 		if (static_cast<unsigned int>(ndxChapter) >= nChpCount) return 0;
 		return ((pBookEntry->m_bHaveColophon && (nFirstChp==0)) ? ndxChapter : (ndxChapter+1));
@@ -2746,7 +2746,7 @@ void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *the
 	// If the phrases changed out from under us, we can't copy back.  We'll eventually
 	//		get another change notification to handle it:
 	if (!theThreadedSearchResult->searchResultsProcess()->canCopyBack()) {
-		m_pSearchResultsThreadCtrl = NULL;			// Object has its own deleteLater()
+		m_pSearchResultsThreadCtrl = nullptr;			// Object has its own deleteLater()
 		return;
 	}
 
@@ -2771,7 +2771,7 @@ void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *the
 		emit verseListChanged();
 	}
 
-	m_pSearchResultsThreadCtrl = NULL;		// Object has its own deleteLater()
+	m_pSearchResultsThreadCtrl = nullptr;		// Object has its own deleteLater()
 
 	emit searchResultsReady();
 }
@@ -2802,8 +2802,8 @@ CSearchResultsProcess::CSearchResultsProcess(CBibleDatabasePtr pBibleDatabase, c
 		m_pMapVersesExcl(pMapVersesExcl)
 {
 	assert(!pBibleDatabase.isNull());
-	assert(pMapVersesIncl != NULL);
-	assert(pMapVersesExcl != NULL);
+	assert(pMapVersesIncl != nullptr);
+	assert(pMapVersesExcl != nullptr);
 
 	commonConstruct();
 }
@@ -2899,7 +2899,7 @@ void CSearchResultsProcess::copyBackInclusionData(CSearchResultsData &searchResu
 	}
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
-		assert(m_pMapVersesIncl != NULL);
+		assert(m_pMapVersesIncl != nullptr);
 		mapVerseData = *m_pMapVersesIncl;
 	}
 #else
@@ -2939,7 +2939,7 @@ void CSearchResultsProcess::copyBackExclusionData(CSearchResultsData &searchResu
 	}
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 	if (!g_pMyApplication->isSingleThreadedSearchResults()) {
-		assert(m_pMapVersesExcl != NULL);
+		assert(m_pMapVersesExcl != nullptr);
 		mapVerseData = *m_pMapVersesExcl;
 	}
 #else
@@ -3197,7 +3197,7 @@ CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
 			if (index.book()) {
 				uint32_t nCat = m_pBibleDatabase->bookCategory(index);
 				if (nCat) {
-					assert(m_pBibleDatabase->bookCategoryEntry(nCat) != NULL);
+					assert(m_pBibleDatabase->bookCategoryEntry(nCat) != nullptr);
 					const CBookCategoryEntry &category = *m_pBibleDatabase->bookCategoryEntry(nCat);
 					if (category.m_setBooksNum.find(index.book()) != category.m_setBooksNum.end()) {
 						// Get first book of the category for the scope:

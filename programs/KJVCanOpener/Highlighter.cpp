@@ -60,7 +60,7 @@ CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const i_TVerseListModel
 	:	m_pvlmResults(pvlmResults),
 		m_lstPhraseTags(m_lstDummyPhraseTags)
 {
-	assert(pvlmResults != NULL);
+	assert(pvlmResults != nullptr);
 	m_itrVerses = m_pvlmResults->data.verseMap().constBegin();
 	while (m_itrVerses != m_pvlmResults->data.verseMap().constEnd()) {
 		m_itrTags = m_itrVerses->phraseTags().constBegin();
@@ -70,7 +70,7 @@ CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const i_TVerseListModel
 }
 
 CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const TPhraseTagList &lstTags)
-	:	m_pvlmResults(NULL),
+	:	m_pvlmResults(nullptr),
 		m_lstPhraseTags(lstTags)
 {
 	m_itrTags = m_lstPhraseTags.constBegin();
@@ -80,7 +80,7 @@ CHighlighterPhraseTagFwdItr::~CHighlighterPhraseTagFwdItr()
 {
 	if (m_pvlmResults) {
 		delete m_pvlmResults;
-		m_pvlmResults = NULL;
+		m_pvlmResults = nullptr;
 	}
 }
 
@@ -130,7 +130,7 @@ CSearchResultHighlighter::CSearchResultHighlighter(const CVerseListModel *pVerse
 
 CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults, QObject *parent)
 	:	CBasicHighlighter(parent),
-		  m_pVerseListModel(NULL),
+		  m_pVerseListModel(nullptr),
 		  m_bExcludedResults(bExcludedResults)
 {
 	m_myPhraseTags.setPhraseTags(lstPhraseTags);
@@ -138,7 +138,7 @@ CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTagList &lstPhra
 
 CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults, QObject *parent)
 	:	CBasicHighlighter(parent),
-		m_pVerseListModel(NULL),
+		m_pVerseListModel(nullptr),
 		m_bExcludedResults(bExcludedResults)
 {
 	TPhraseTagList lstTags;
@@ -149,8 +149,8 @@ CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, bool 
 CSearchResultHighlighter::~CSearchResultHighlighter()
 {
 	if (m_pVerseListModel) {
-		disconnect(m_pVerseListModel, 0, this, 0);
-		m_pVerseListModel = NULL;
+		disconnect(m_pVerseListModel, nullptr, this, nullptr);
+		m_pVerseListModel = nullptr;
 	}
 }
 
@@ -183,7 +183,7 @@ QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &
 
 bool CSearchResultHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
-	assert(pBibleDatabase != NULL);
+	assert(pBibleDatabase != nullptr);
 
 	if (!enabled()) return false;
 	if (!aTag.relIndex().isSet()) return false;
@@ -198,8 +198,8 @@ bool CSearchResultHighlighter::intersects(const CBibleDatabase *pBibleDatabase, 
 
 void CSearchResultHighlighter::verseListChanged()
 {
-	assert(m_pVerseListModel != NULL);
-	if (m_pVerseListModel == NULL) return;
+	assert(m_pVerseListModel != nullptr);
+	if (m_pVerseListModel == nullptr) return;
 
 	emit phraseTagsChanged();
 }
@@ -207,8 +207,8 @@ void CSearchResultHighlighter::verseListChanged()
 void CSearchResultHighlighter::verseListModelDestroyed()
 {
 	if (m_pVerseListModel) {
-		disconnect(m_pVerseListModel, 0, this, 0);
-		m_pVerseListModel = NULL;
+		disconnect(m_pVerseListModel, nullptr, this, nullptr);
+		m_pVerseListModel = nullptr;
 	}
 
 	// Note: This switches us back to the internal PhraseTags list, which should
@@ -359,9 +359,9 @@ void CUserDefinedHighlighter::clearPhraseTags()
 
 CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	:	QObject(pParent),
-		m_pActionGroupHighlighterTools(NULL)
+		m_pActionGroupHighlighterTools(nullptr)
 {
-	assert(pParent != NULL);
+	assert(pParent != nullptr);
 	assert(!g_pUserNotesDatabase.isNull());
 
 	m_pActionGroupHighlighterTools = new QActionGroup(pParent);
@@ -428,7 +428,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 
 		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
 		m_lstButtons.append(pButtonHighlighter);
-		m_lstActionGroups.append(NULL);					// Set initial list to NULL so our setHighlighterList() function will create it
+		m_lstActionGroups.append(nullptr);					// Set initial list to NULL so our setHighlighterList() function will create it
 
 		setHighlighterList(ndx);
 	}
@@ -476,7 +476,7 @@ void CHighlighterButtons::setHighlighterTips(bool bSearchResultsActive)
 
 void CHighlighterButtons::addHighlighterButtonsToToolBar(QToolBar *pToolBar)
 {
-	assert(pToolBar != NULL);
+	assert(pToolBar != nullptr);
 	for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
 		// Originally had this addWidget call.  However, addWidget creates a new QWidgetAction
 		//		which takes ownership of the specified widget, which is undesirable since we
@@ -516,15 +516,15 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 	assert(!g_pUserNotesDatabase.isNull());
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 	assert(m_lstButtons.size() == m_lstActionGroups.size());
-	assert(m_lstButtons.at(ndx) != NULL);
-	if (m_lstButtons.at(ndx) == NULL) return;
+	assert(m_lstButtons.at(ndx) != nullptr);
+	if (m_lstButtons.at(ndx) == nullptr) return;
 	QString strHighlighter = strUserDefinedHighlighterName;
-	if (m_lstActionGroups.at(ndx) == NULL) {
+	if (m_lstActionGroups.at(ndx) == nullptr) {
 		m_lstActionGroups[ndx] = new QActionGroup(this);
 	} else {
 		if (strHighlighter.isEmpty()) {
 			QAction *pCurrentAction = m_lstActionGroups.at(ndx)->checkedAction();
-			if (pCurrentAction != NULL) {
+			if (pCurrentAction != nullptr) {
 				strHighlighter = pCurrentAction->text();
 			}
 		}
@@ -533,7 +533,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 	}
 	m_lstActionGroups[ndx]->setExclusive(true);
 
-	assert(m_lstButtons[ndx]->menu() != NULL);
+	assert(m_lstButtons[ndx]->menu() != nullptr);
 	const TUserDefinedColorMap mapHighlighters(g_pUserNotesDatabase->highlighterDefinitionsMap());
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 		if ((!itrHighlighters->isValid()) || (!itrHighlighters->m_bEnabled)) continue;
@@ -544,7 +544,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 		if (strHighlighter.compare(itrHighlighters.key()) == 0) pAction->setChecked(true);
 		m_lstButtons[ndx]->menu()->addAction(pAction);
 	}
-	if (m_lstActionGroups[ndx]->checkedAction() == NULL) strHighlighter.clear();			// If we didn't check something, we didn't have a matching highlighter
+	if (m_lstActionGroups[ndx]->checkedAction() == nullptr) strHighlighter.clear();			// If we didn't check something, we didn't have a matching highlighter
 	setHighlighterPreview(ndx, strHighlighter);
 	connect(m_lstActionGroups[ndx], SIGNAL(triggered(QAction*)), this, SLOT(en_highlighterSelectionChanged(QAction*)));
 }
@@ -578,7 +578,7 @@ QIcon CHighlighterButtons::iconHighlighterPreview(const QString &strUserDefinedH
 
 void CHighlighterButtons::en_highlighterSelectionChanged(QAction *pAction)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 	int ndx = pAction->data().toInt();
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 
@@ -593,14 +593,14 @@ QString CHighlighterButtons::highlighter(int ndx) const
 	if ((ndx < 0) || (ndx >= m_lstActionGroups.size())) return QString();
 
 	QAction *pCurrentAction = m_lstActionGroups[ndx]->checkedAction();
-	if (pCurrentAction == NULL) return QString();
+	if (pCurrentAction == nullptr) return QString();
 
 	return pCurrentAction->text();
 }
 
 void CHighlighterButtons::en_highlighterToolTriggered(QAction *pAction, bool bSecondary)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 	int ndx = pAction->data().toInt();
 	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
 

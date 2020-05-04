@@ -38,7 +38,7 @@ class CEditWWWLinkDlg : public QDialog
 	Q_OBJECT
 
 public:
-	explicit CEditWWWLinkDlg(const QString strURL, QWidget *pParent = NULL);
+	explicit CEditWWWLinkDlg(const QString strURL, QWidget *pParent = nullptr);
 	virtual ~CEditWWWLinkDlg();
 
 	QString url() const { return m_strURL; }
@@ -67,7 +67,7 @@ private:
 class CEditWWWLinkDlgPtr : public QPointer<CEditWWWLinkDlg>
 {
 public:
-	CEditWWWLinkDlgPtr(const QString strURL, QWidget *pParent = NULL)
+	CEditWWWLinkDlgPtr(const QString strURL, QWidget *pParent = nullptr)
 		:	QPointer<CEditWWWLinkDlg>(new CEditWWWLinkDlg(strURL, pParent))
 	{
 

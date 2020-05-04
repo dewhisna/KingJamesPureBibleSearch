@@ -41,7 +41,7 @@ class CVerseListDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	CVerseListDelegate(CVerseListModel &model, QObject *parent = NULL);
+	CVerseListDelegate(CVerseListModel &model, QObject *parent = nullptr);
 
 	virtual void paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;

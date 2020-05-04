@@ -214,7 +214,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 CPersistentSettings::CPersistentSettings(QObject *parent)
 	:	QObject(parent),
 		m_pPersistentSettingData(&m_PersistentSettingData1),
-		m_pSettings(NULL),
+		m_pSettings(nullptr),
 		m_bStealthMode(false)
 {
 #ifndef NO_PERSISTENT_SETTINGS
@@ -234,7 +234,7 @@ CPersistentSettings::~CPersistentSettings()
 
 void CPersistentSettings::setStealthMode(const QString &strFilename)
 {
-	assert(m_pSettings == NULL);			// Can only set once
+	assert(m_pSettings == nullptr);			// Can only set once
 	m_bStealthMode = true;
 	if (!strFilename.isEmpty()) {
 		m_pSettings = new QSettings(strFilename, QSettings::IniFormat, this);
@@ -249,7 +249,7 @@ CPersistentSettings *CPersistentSettings::instance()
 
 QSettings *CPersistentSettings::settings()
 {
-	if ((m_pSettings == NULL) && (!m_bStealthMode)) {
+	if ((m_pSettings == nullptr) && (!m_bStealthMode)) {
 		// Create NON-Stealth Settings:
 		m_pSettings = new QSettings(this);
 	}

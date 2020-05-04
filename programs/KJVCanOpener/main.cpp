@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 	QWidget *pSplash = pApp->showSplash();
 
 #ifdef Q_OS_WIN
-	HANDLE hMutex = CreateMutexW(NULL, false, L"KJVCanOpenerMutex");
+	HANDLE hMutex = CreateMutexW(nullptr, false, L"KJVCanOpenerMutex");
 	assert(hMutex != NULL);
 	// Note: System will automatically close the mutex object when we
 	//			exit and InnoSetup actually suggest we leave it open
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
 #ifndef EMSCRIPTEN
 	bool bDone = false;
 
-	if (pSplash == NULL) {
+	if (pSplash == nullptr) {
 		// If we don't have a splash screen already, we will terminate unless we
 		//		go ahead and launch our app:
 		nRetVal = pApp->execute(bBuildDB);
@@ -450,7 +450,7 @@ int main(int argc, char *argv[])
 
 #ifdef IS_CONSOLE_APP
 #ifdef USING_WEBCHANNEL
-	if ((pApp->webChannelServer() == NULL) ||
+	if ((pApp->webChannelServer() == nullptr) ||
 		(!pApp->webChannelServer()->isListening())) {
 		std::cerr << "error: Failed to start WebChannel server listening.  Exiting...\n";
 		bDone = true;
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
 #error "Can't use WebChannel with Emscripten!"
 #endif
 
-	if (pSplash != NULL) {
+	if (pSplash != nullptr) {
 		// Note: The order of the following two are important
 		//	on WebAssembly because pApp->exec() is blocking
 		//	there and the splash screen will display but the

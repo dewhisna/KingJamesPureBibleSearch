@@ -54,7 +54,7 @@ public:
 
 	struct TGeoLocateClient {			// Client Baton
 		TGeoLocateClient()
-			:	m_pChannel(NULL),
+			:	m_pChannel(nullptr),
 				m_nLocateServer(GSE_NONE),
 				m_nRetries(0)
 		{ }
@@ -73,7 +73,7 @@ public:
 	static QString jsonToCSV(const QJsonDocument &json, const TGeoLocateClient &theClient);
 
 public:
-	CWebChannelGeoLocate(QObject *pParent = NULL);
+	CWebChannelGeoLocate(QObject *pParent = nullptr);
 	virtual ~CWebChannelGeoLocate();
 
 public slots:

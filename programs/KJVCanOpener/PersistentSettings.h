@@ -75,7 +75,7 @@ class CPersistentSettings : public QObject
 {
 	Q_OBJECT
 private:				// Enforce Singleton:
-	CPersistentSettings(QObject *parent = 0);
+	CPersistentSettings(QObject *parent = nullptr);
 
 public:
 	~CPersistentSettings();

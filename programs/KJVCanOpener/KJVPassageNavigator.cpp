@@ -55,7 +55,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 
 	initialize();
 
-	assert(m_pEditVersePreview != NULL);
+	assert(m_pEditVersePreview != nullptr);
 
 	QAction *pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
@@ -103,7 +103,7 @@ void CKJVPassageNavigator::initialize()
 	m_pEditVersePreview->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
 
 	delete ui.editVersePreview;
-	ui.editVersePreview = NULL;
+	ui.editVersePreview = nullptr;
 	ui.verticalLayoutMain->addWidget(m_pEditVersePreview);
 
 	// Updated Tab Ordering:
@@ -177,7 +177,7 @@ void CKJVPassageNavigator::initialize()
 	ui.comboBookDirect->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
-		assert(pBook != NULL);
+		assert(pBook != nullptr);
 		if (pBook->m_nNumWrd == 0) continue;		// Skip books that are empty (partial database support)
 		ui.comboBookDirect->addItem(pBook->m_strBkName, ndxBk);
 	}
@@ -388,7 +388,7 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	ui.comboChapterDirect->clear();
 	for (unsigned int ndxChp=1; ndxChp<=book.m_nNumChp; ++ndxChp) {
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(ndx.book(), ndxChp, 0, 0));
-		if (pChapter == NULL) continue;
+		if (pChapter == nullptr) continue;
 		if (pChapter->m_nNumWrd == 0) continue;			// Skip chapters that are empty (partial database support)
 		ui.comboChapterDirect->addItem(QString("%1").arg(ndxChp), ndxChp);
 	}
@@ -405,7 +405,7 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	ui.comboVerseDirect->clear();
 	for (unsigned int ndxVrs=1; ndxVrs<=chapter.m_nNumVrs; ++ndxVrs) {
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(CRelIndex(ndx.book(), ndx.chapter(), ndxVrs, 0));
-		if (pVerse == NULL) continue;
+		if (pVerse == nullptr) continue;
 		if (pVerse->m_nNumWrd == 0) continue;		// Skip verses that are empty (partial database support)
 		ui.comboVerseDirect->addItem(QString("%1").arg(ndxVrs), ndxVrs);
 	}

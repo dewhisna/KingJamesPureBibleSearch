@@ -56,7 +56,7 @@ public:
 		SOUNDEX_ENTRY_ROLE = Qt::UserRole + 0				// SoundEx completion
 	};
 
-	CSearchStringListModel(QObject *parent = NULL)
+	CSearchStringListModel(QObject *parent = nullptr)
 		:	QAbstractListModel(parent)
 	{
 
@@ -103,7 +103,7 @@ class CSearchParsedPhraseListModel : public CSearchStringListModel
 	Q_OBJECT
 
 public:
-	CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent = NULL);
+	CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent = nullptr);
 	virtual ~CSearchParsedPhraseListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -134,7 +134,7 @@ class CSearchDictionaryListModel : public CSearchStringListModel
 	Q_OBJECT
 
 public:
-	CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = NULL);
+	CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = nullptr);
 	virtual ~CSearchDictionaryListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -183,7 +183,7 @@ public:
 	};
 
 
-	CSoundExSearchCompleterFilter(CSearchStringListModel *pSearchStringListModel, QObject *parent = NULL);
+	CSoundExSearchCompleterFilter(CSearchStringListModel *pSearchStringListModel, QObject *parent = nullptr);
 	~CSoundExSearchCompleterFilter();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

@@ -89,7 +89,7 @@ class CKJVPassageNavigatorDlgPtr : public QPointer<CKJVPassageNavigatorDlg>
 {
 public:
 	CKJVPassageNavigatorDlgPtr(CBibleDatabasePtr pBibleDatabase,
-								QWidget *parent = NULL,
+								QWidget *parent = nullptr,
 								CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
 								CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD)
 		:	QPointer<CKJVPassageNavigatorDlg>(new CKJVPassageNavigatorDlg(pBibleDatabase, parent, flagsRefTypes, nRefType))

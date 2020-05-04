@@ -46,7 +46,7 @@ class CComboBox : public QComboBox
 	Q_OBJECT
 
 public:
-	CComboBox(QWidget *pParent = NULL);
+	CComboBox(QWidget *pParent = nullptr);
 	virtual ~CComboBox();
 
 	virtual void keyPressEvent(QKeyEvent *pEvent);
@@ -62,7 +62,7 @@ class CFontComboBox : public QFontComboBox
 	Q_OBJECT
 
 public:
-	CFontComboBox(QWidget *pParent = NULL);
+	CFontComboBox(QWidget *pParent = nullptr);
 	virtual ~CFontComboBox();
 
 	virtual void keyPressEvent(QKeyEvent *pEvent);
@@ -78,7 +78,7 @@ class CSpinBox : public QSpinBox
 	Q_OBJECT
 
 public:
-	CSpinBox(QWidget *pParent = NULL);
+	CSpinBox(QWidget *pParent = nullptr);
 	virtual ~CSpinBox();
 
 	virtual void keyPressEvent(QKeyEvent *pEvent);
@@ -94,7 +94,7 @@ class CDoubleSpinBox : public QDoubleSpinBox
 	Q_OBJECT
 
 public:
-	CDoubleSpinBox(QWidget *pParent = NULL);
+	CDoubleSpinBox(QWidget *pParent = nullptr);
 	virtual ~CDoubleSpinBox();
 
 	virtual void keyPressEvent(QKeyEvent *pEvent);
@@ -154,7 +154,7 @@ class CSingleLineTextEdit : public QTextEdit
 	Q_OBJECT
 
 public:
-	CSingleLineTextEdit(int nMinHeight = -1, QWidget *pParent = NULL);
+	CSingleLineTextEdit(int nMinHeight = -1, QWidget *pParent = nullptr);
 	virtual ~CSingleLineTextEdit();
 
 	virtual QSize sizeHint() const;
@@ -169,7 +169,7 @@ protected:
 		CDoUpdate(CSingleLineTextEdit *pLineEdit)
 			:	m_pLineEdit(pLineEdit)
 		{
-			assert(m_pLineEdit != NULL);
+			assert(m_pLineEdit != nullptr);
 			m_bUpdateSave = m_pLineEdit->m_bUpdateInProgress;
 			m_pLineEdit->m_bUpdateInProgress = true;
 		}

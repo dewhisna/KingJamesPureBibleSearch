@@ -59,7 +59,7 @@ class CFileBuffer : public QBuffer
 {
 public:
 	CFileBuffer()
-		:	m_pFile(NULL)
+		:	m_pFile(nullptr)
 	{
 		cookie_io_functions_t myCookieFunctions =
 					{ .read = fileRead,
@@ -95,7 +95,7 @@ protected:
 	static ssize_t fileWrite(void *cookie, const char *buffer, size_t size)
 	{
 		CFileBuffer *pBuffer = static_cast<CFileBuffer*>(cookie);
-		assert(pBuffer != NULL);
+		assert(pBuffer != nullptr);
 		if (pBuffer) {
 			return pBuffer->write(buffer, size);
 		} else {
@@ -114,9 +114,9 @@ protected:
 	static int fileClose(void *cookie)
 	{
 		CFileBuffer *pBuffer = static_cast<CFileBuffer*>(cookie);
-		assert(pBuffer != NULL);
+		assert(pBuffer != nullptr);
 		if (pBuffer) {
-			pBuffer->m_pFile = NULL;
+			pBuffer->m_pFile = nullptr;
 			pBuffer->close();
 		} else {
 			return EOF;
@@ -141,7 +141,7 @@ static void print_indentation(QBuffer &buffer, int i)
 
 static MMDB_entry_data_list_s *entry_data_list_to_JSON(QBuffer &buffer, MMDB_entry_data_list_s *entry_data_list, int indent, int *status)
 {
-	assert(entry_data_list != NULL);
+	assert(entry_data_list != nullptr);
 
 	switch (entry_data_list->entry_data.type) {
 		case MMDB_DATA_TYPE_MAP:
@@ -160,14 +160,14 @@ static MMDB_entry_data_list_s *entry_data_list_to_JSON(QBuffer &buffer, MMDB_ent
 				if (MMDB_DATA_TYPE_UTF8_STRING !=
 					entry_data_list->entry_data.type) {
 					*status = MMDB_INVALID_DATA_ERROR;
-					return NULL;
+					return nullptr;
 				}
 				QString key(QByteArray(entry_data_list->entry_data.utf8_string, entry_data_list->entry_data.data_size));
 				print_indentation(buffer, indent);
 				buffer.write(QString("\"%1\": \n").arg(key).toUtf8());
 
 				entry_data_list = entry_data_list_to_JSON(buffer, entry_data_list->next, indent + 2, status);
-				if (MMDB_SUCCESS != *status) return NULL;
+				if (MMDB_SUCCESS != *status) return nullptr;
 			}
 			if (!bFirst) buffer.write("\n");
 
@@ -190,7 +190,7 @@ static MMDB_entry_data_list_s *entry_data_list_to_JSON(QBuffer &buffer, MMDB_ent
 				bFirst = false;
 
 				entry_data_list = entry_data_list_to_JSON(buffer, entry_data_list, indent, status);
-				if (MMDB_SUCCESS != *status) return NULL;
+				if (MMDB_SUCCESS != *status) return nullptr;
 			}
 			if (!bFirst) buffer.write("\n");
 
@@ -276,7 +276,7 @@ static MMDB_entry_data_list_s *entry_data_list_to_JSON(QBuffer &buffer, MMDB_ent
 		break;
 	default:
 		*status = MMDB_INVALID_DATA_ERROR;
-		return NULL;
+		return nullptr;
 	}
 
 	*status = MMDB_SUCCESS;
@@ -320,7 +320,7 @@ CMMDBLookup::CMMDBLookup()
 				m_strLastError += QString(" : IO error: %s").arg(strerror(errno));		// Thread safe???
 			}
 			delete m_pMMDB;
-			m_pMMDB = NULL;
+			m_pMMDB = nullptr;
 		}
 
 #if DEBUG_MMDB_METADATA
@@ -337,7 +337,7 @@ CMMDBLookup::~CMMDBLookup()
 	if (m_pMMDB) {
 		MMDB_close(m_pMMDB);
 		delete m_pMMDB;
-		m_pMMDB = NULL;
+		m_pMMDB = nullptr;
 	}
 #endif
 }
@@ -367,7 +367,7 @@ bool CMMDBLookup::lookup(QString &strResultsJSON, const QString &strIPAddress, c
 		return false;
 	}
 
-	MMDB_entry_data_list_s *entry_data_list = NULL;
+	MMDB_entry_data_list_s *entry_data_list = nullptr;
 
 	if (lookupResult.found_entry) {
 		int nStatus;
@@ -390,7 +390,7 @@ bool CMMDBLookup::lookup(QString &strResultsJSON, const QString &strIPAddress, c
 		if (MMDB_SUCCESS != nStatus) {
 			bRetVal = false;
 			m_strLastError = QString("Got an error looking up the entry data - %1").arg(MMDB_strerror(nStatus));
-		} else if (NULL != entry_data_list) {
+		} else if (nullptr != entry_data_list) {
 #if DEBUG_MMDB_ENTRY_DUMP
 			CFileBuffer fileBuf;
 			MMDB_dump_entry_data_list(fileBuf.file(), entry_data_list, 2);

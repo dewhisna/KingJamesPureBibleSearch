@@ -39,7 +39,7 @@ class CBibleWordDiffListModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	CBibleWordDiffListModel(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), QObject *parent = NULL);
+	CBibleWordDiffListModel(CBibleDatabasePtr pBibleDatabase = CBibleDatabasePtr(), QObject *parent = nullptr);
 	virtual ~CBibleWordDiffListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

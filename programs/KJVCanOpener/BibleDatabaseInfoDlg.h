@@ -39,7 +39,7 @@ class CBibleDatabaseInfoDialog : public QDialog
 	Q_OBJECT
 
 public:
-	CBibleDatabaseInfoDialog(CBibleDatabasePtr pBibleDatabase, QWidget *parent = NULL);
+	CBibleDatabaseInfoDialog(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	~CBibleDatabaseInfoDialog();
 
 // UI Private:
@@ -55,7 +55,7 @@ private:
 class CBibleDatabaseInfoDialogPtr : public QPointer<CBibleDatabaseInfoDialog>
 {
 public:
-	CBibleDatabaseInfoDialogPtr(CBibleDatabasePtr pBibleDatabase, QWidget *parent = NULL)
+	CBibleDatabaseInfoDialogPtr(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr)
 		:	QPointer<CBibleDatabaseInfoDialog>(new CBibleDatabaseInfoDialog(pBibleDatabase, parent))
 	{
 

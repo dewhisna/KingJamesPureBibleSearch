@@ -54,14 +54,14 @@ static inline QString htmlEscape(const QString &aString)
 
 CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
-	m_pBethelChurch(NULL),
-	m_pAppTitle(NULL),
-	m_pExtraVersionInfo(NULL),
-	m_pAppSpecialVersion(NULL),
-	m_pAppBuildDateTime(NULL),
-	m_pQtVersion(NULL),
-	m_pBroughtToYouBy(NULL),
-	m_pBethelURL(NULL)
+	m_pBethelChurch(nullptr),
+	m_pAppTitle(nullptr),
+	m_pExtraVersionInfo(nullptr),
+	m_pAppSpecialVersion(nullptr),
+	m_pAppBuildDateTime(nullptr),
+	m_pQtVersion(nullptr),
+	m_pBroughtToYouBy(nullptr),
+	m_pBethelURL(nullptr)
 {
 	ui.setupUi(this);
 
@@ -86,7 +86,7 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	m_pExtraVersionInfo = scene->addText(tr("Lite Version", "AboutBox"), QFont("Times New Roman", 10));
 	m_pExtraVersionInfo->setTextInteractionFlags(Qt::TextBrowserInteraction);
 #else
-	m_pExtraVersionInfo = NULL;
+	m_pExtraVersionInfo = nullptr;
 #endif
 	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
 	if (!strSpecialVersion.isEmpty()) {
@@ -165,7 +165,7 @@ void CKJVAboutDlg::en_resizeMe()
 	adjustSize();
 
 	QWidget *pParentWidget = parentWidget();
-	if (pParentWidget != NULL) {
+	if (pParentWidget != nullptr) {
 		QPoint ptParent = pParentWidget->mapToGlobal(pParentWidget->rect().center());
 		move(ptParent.x() - width()/2, ptParent.y() - height()/2);
 	}

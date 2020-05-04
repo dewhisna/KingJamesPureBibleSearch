@@ -39,7 +39,7 @@ class CDictDatabaseInfoDialog : public QDialog
 	Q_OBJECT
 
 public:
-	CDictDatabaseInfoDialog(CDictionaryDatabasePtr pDictDatabase, QWidget *parent = NULL);
+	CDictDatabaseInfoDialog(CDictionaryDatabasePtr pDictDatabase, QWidget *parent = nullptr);
 	~CDictDatabaseInfoDialog();
 
 // UI Private:
@@ -55,7 +55,7 @@ private:
 class CDictDatabaseInfoDialogPtr : public QPointer<CDictDatabaseInfoDialog>
 {
 public:
-	CDictDatabaseInfoDialogPtr(CDictionaryDatabasePtr pDictDatabase, QWidget *parent = NULL)
+	CDictDatabaseInfoDialogPtr(CDictionaryDatabasePtr pDictDatabase, QWidget *parent = nullptr)
 		:	QPointer<CDictDatabaseInfoDialog>(new CDictDatabaseInfoDialog(pDictDatabase, parent))
 	{
 

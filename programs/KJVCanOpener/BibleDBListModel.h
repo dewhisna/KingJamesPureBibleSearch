@@ -46,7 +46,7 @@ public:
 		BDDRE_UUID_ROLE = Qt::UserRole + 2					// Bible Database UUID
 	};
 
-	CBibleDatabaseListModel(QObject *parent = NULL);
+	CBibleDatabaseListModel(QObject *parent = nullptr);
 	virtual ~CBibleDatabaseListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

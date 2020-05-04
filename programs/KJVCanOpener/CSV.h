@@ -41,7 +41,7 @@ public:
 
 	QIODevice *device() const { return m_stream.device(); }
 	void setDevice(QIODevice *pIOD) { m_stream.setDevice(pIOD); }
-	void unsetDevice() { m_stream.setDevice(NULL); }
+	void unsetDevice() { m_stream.setDevice(nullptr); }
 
 	bool atEndOfStream() const { return m_stream.atEnd(); }
 	bool atEndOfLine() const { return m_bEndOfLine; }

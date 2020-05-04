@@ -51,15 +51,15 @@
 // Placeholder Constructor:
 CPhraseLineEdit::CPhraseLineEdit(QWidget *pParent)
 	:	CSingleLineTextEdit(PHRASE_COMPLETER_BUTTON_SIZE_Y, pParent),
-		m_pCompleter(NULL),
-		m_pCommonPhrasesCompleter(NULL),
+		m_pCompleter(nullptr),
+		m_pCommonPhrasesCompleter(nullptr),
 		m_nLastCursorWord(-1),
 		m_bDoingPopup(false),
 		m_icoDroplist(":/res/droplist.png"),
-		m_pButtonDroplist(NULL),
-		m_pEditMenu(NULL),
-		m_pActionSelectAll(NULL),
-		m_pStatusAction(NULL)
+		m_pButtonDroplist(nullptr),
+		m_pEditMenu(nullptr),
+		m_pActionSelectAll(nullptr),
+		m_pStatusAction(nullptr)
 {
 
 }
@@ -68,15 +68,15 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	:	CSingleLineTextEdit(PHRASE_COMPLETER_BUTTON_SIZE_Y, pParent),
 		CParsedPhrase(pBibleDatabase),
 		m_pBibleDatabase(pBibleDatabase),
-		m_pCompleter(NULL),
-		m_pCommonPhrasesCompleter(NULL),
+		m_pCompleter(nullptr),
+		m_pCommonPhrasesCompleter(nullptr),
 		m_nLastCursorWord(-1),
 		m_bDoingPopup(false),
 		m_icoDroplist(":/res/droplist.png"),
-		m_pButtonDroplist(NULL),
-		m_pEditMenu(NULL),
-		m_pActionSelectAll(NULL),
-		m_pStatusAction(NULL)
+		m_pButtonDroplist(nullptr),
+		m_pEditMenu(nullptr),
+		m_pActionSelectAll(nullptr),
+		m_pStatusAction(nullptr)
 {
 	assert(!pBibleDatabase.isNull());
 
@@ -503,11 +503,11 @@ void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
 	assert(!m_pBibleDatabase.isNull());
 	if (m_pBibleDatabase.isNull()) return;
-	assert(m_pCommonPhrasesCompleter != NULL);
-	if (m_pCommonPhrasesCompleter == NULL) return;
+	assert(m_pCommonPhrasesCompleter != nullptr);
+	if (m_pCommonPhrasesCompleter == nullptr) return;
 	CPhraseListModel *pModel = (CPhraseListModel *)(m_pCommonPhrasesCompleter->model());
-	assert(pModel != NULL);
-	if (pModel == NULL) return;
+	assert(pModel != nullptr);
+	if (pModel == nullptr) return;
 
 	CPhraseList phrases = m_pBibleDatabase->phraseList();
 	phrases.append(CPersistentSettings::instance()->userPhrases(m_pBibleDatabase->compatibilityUUID()));
@@ -530,7 +530,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_bHaveUserDatabase(bHaveUserDatabase),
 	m_bLastPhraseChangeHadResults(false),
 	m_bUpdateInProgress(false),
-	m_pMatchingPhrasesModel(NULL),
+	m_pMatchingPhrasesModel(nullptr),
 	m_bMatchingPhrasesModelCurrent(false)
 {
 	assert(!m_pBibleDatabase.isNull());
@@ -627,7 +627,7 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 
 bool CKJVSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
 {
-	assert(pEvent != NULL);
+	assert(pEvent != nullptr);
 
 	if ((pEvent->type() == QEvent::KeyPress) && (pObject == ui.treeViewMatchingPhrases)) {
 		QKeyEvent *pKeyEvent = static_cast<QKeyEvent *>(pEvent);
@@ -732,7 +732,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	setShowMatchingPhrases(false, true);		// This must always be done so we can invalidate our listModel()
 
 	const CParsedPhrase *pPhrase = parsedPhrase();
-	assert(pPhrase != NULL);
+	assert(pPhrase != nullptr);
 
 	// Make sure any pending updates are complete:
 	phraseEditor()->processPendingUpdateCompleter();
@@ -873,12 +873,12 @@ void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
 
 void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)
 {
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 
 	QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
 
 	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
-		assert(m_pMatchingPhrasesModel != NULL);
+		assert(m_pMatchingPhrasesModel != nullptr);
 		int nPhraseTreeHeight = 0;
 		m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
 		m_bMatchingPhrasesModelCurrent = !bClearMatchingPhraseList;

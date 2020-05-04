@@ -52,7 +52,7 @@ public:
 		SEARCH_PHRASE_EDIT_WIDGET_ROLE = Qt::UserRole + 0
 	};
 
-	explicit CSearchPhraseListModel(QObject *parent = 0);
+	explicit CSearchPhraseListModel(QObject *parent = nullptr);
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 

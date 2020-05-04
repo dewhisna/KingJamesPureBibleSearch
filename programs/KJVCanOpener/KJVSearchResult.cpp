@@ -103,23 +103,23 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
 		m_bDoingPopup(false),
-		m_pEditMenu(NULL),
-		m_pEditMenuLocal(NULL),
-		m_pActionCopyVerseEntry(NULL),
-		m_pActionCopyVerseText(NULL),
-		m_pActionCopyRaw(NULL),
-		m_pActionCopyVeryRaw(NULL),
-		m_pActionCopyVerseHeadings(NULL),
-		m_pActionCopyReferenceDetails(NULL),
-		m_pActionCopyComplete(NULL),
-		m_pActionSelectAll(NULL),
-		m_pActionClearSelection(NULL),
-		m_pMenuInsertionPoint(NULL),
-		m_pMenuUserNotesInsertionPoint(NULL),
-		m_pActionNavigator(NULL),
-		m_pStatusAction(NULL),
-		m_pReflowDelegate(NULL),
-		m_pParentCanOpener(NULL)
+		m_pEditMenu(nullptr),
+		m_pEditMenuLocal(nullptr),
+		m_pActionCopyVerseEntry(nullptr),
+		m_pActionCopyVerseText(nullptr),
+		m_pActionCopyRaw(nullptr),
+		m_pActionCopyVeryRaw(nullptr),
+		m_pActionCopyVerseHeadings(nullptr),
+		m_pActionCopyReferenceDetails(nullptr),
+		m_pActionCopyComplete(nullptr),
+		m_pActionSelectAll(nullptr),
+		m_pActionClearSelection(nullptr),
+		m_pMenuInsertionPoint(nullptr),
+		m_pMenuUserNotesInsertionPoint(nullptr),
+		m_pActionNavigator(nullptr),
+		m_pStatusAction(nullptr),
+		m_pReflowDelegate(nullptr),
+		m_pParentCanOpener(nullptr)
 {
 	assert(!pBibleDatabase.isNull());
 	assert(!pUserNotesDatabase.isNull());
@@ -341,7 +341,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if (pSpeech != NULL) {
+	if (pSpeech != nullptr) {
 		connect(pSpeech, SIGNAL(beginning()), this, SLOT(setSpeechActionEnables()));
 		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(setSpeechActionEnables()));
 	}
@@ -375,7 +375,7 @@ void CSearchResultsTreeView::en_changedScrollbarsEnabled(bool bEnabled)
 
 CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 {
-	if (m_pParentCanOpener == NULL) {
+	if (m_pParentCanOpener == nullptr) {
 		assert(!g_pMyApplication.isNull());
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<CSearchResultsTreeView>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
@@ -389,9 +389,9 @@ CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 void CSearchResultsTreeView::en_findParentCanOpener()
 {
 	CKJVCanOpener *pCanOpener = parentCanOpener();
-	assert(pCanOpener != NULL);
+	assert(pCanOpener != nullptr);
 
-	if (pCanOpener != NULL) {
+	if (pCanOpener != nullptr) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
@@ -423,7 +423,7 @@ void CSearchResultsTreeView::en_speechPlay()
 {
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if (pSpeech == NULL) return;
+	if (pSpeech == nullptr) return;
 
 	if (!speakableNodeSelected()) return;
 
@@ -461,8 +461,8 @@ void CSearchResultsTreeView::setSpeechActionEnables()
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if ((pSpeech != NULL) && (hasFocus())) {
-		if (parentCanOpener()->actionSpeechPlay() != NULL) {
+	if ((pSpeech != nullptr) && (hasFocus())) {
+		if (parentCanOpener()->actionSpeechPlay() != nullptr) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(pSpeech->canSpeak() && !pSpeech->isTalking() && speakableNodeSelected());
 		}
 	}
@@ -515,8 +515,8 @@ void CSearchResultsTreeView::en_copyVerseEntry() const
 								 (vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) ? getSelectedEntries() : getSelectedVerses());
 
 	QMimeData *mime = vlmodel()->mimeDataFromVerseText(lstVerses, false);
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -526,8 +526,8 @@ void CSearchResultsTreeView::en_copyVerseEntry() const
 void CSearchResultsTreeView::en_copyVerseText() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromVerseText(getSelectedVerses(), true);
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -537,8 +537,8 @@ void CSearchResultsTreeView::en_copyVerseText() const
 void CSearchResultsTreeView::en_copyRaw() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromRawVerseText(getSelectedVerses(), false);
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -548,8 +548,8 @@ void CSearchResultsTreeView::en_copyRaw() const
 void CSearchResultsTreeView::en_copyVeryRaw() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromRawVerseText(getSelectedVerses(), true);
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -562,8 +562,8 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 								 (vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) ? getSelectedEntries() : getSelectedVerses());
 
 	QMimeData *mime = vlmodel()->mimeDataFromVerseHeadings(lstVerses, true);
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -573,8 +573,8 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 void CSearchResultsTreeView::en_copyReferenceDetails() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromReferenceDetails(getSelectedVerses());
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -584,8 +584,8 @@ void CSearchResultsTreeView::en_copyReferenceDetails() const
 void CSearchResultsTreeView::en_copyComplete() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromCompleteVerseDetails(getSelectedVerses());
-	assert(mime != NULL);
-	if (mime == NULL) return;
+	assert(mime != nullptr);
+	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(mime);
@@ -603,8 +603,8 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, bool bSecondaryActive)
 {
 	if (!hasFocus()) return;
-	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
-	assert(vlmodel()->userNotesDatabase() != NULL);
+	assert(parentCanOpener() != nullptr);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
+	assert(vlmodel()->userNotesDatabase() != nullptr);
 
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
@@ -613,8 +613,8 @@ void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, b
 	QModelIndexList lstVerses = getSelectedVerses();
 	if (lstVerses.isEmpty()) return;
 
-	bool bAllAlreadyHighlighted = (plstHighlighterTags != NULL);
-	if (plstHighlighterTags != NULL) {
+	bool bAllAlreadyHighlighted = (plstHighlighterTags != nullptr);
+	if (plstHighlighterTags != nullptr) {
 		for (int ndxVerse = 0; ndxVerse < lstVerses.size(); ++ndxVerse) {
 			const CVerseListItem &item(vlmodel()->data(lstVerses.at(ndxVerse), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 			if (!plstHighlighterTags->completelyContains(vlmodel()->bibleDatabase().data(), (bSecondaryActive ? item.phraseTags() : item.getWholeVersePhraseTag()))) {
@@ -636,12 +636,12 @@ void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, b
 																	   "Do you wish to unhighlight all of them instead??", "Errors"),
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 		if (nResult != QMessageBox::Yes) return;
-		CBusyCursor iAmBusy(NULL);
+		CBusyCursor iAmBusy(nullptr);
 		vlmodel()->userNotesDatabase()->removeHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
 		return;
 	}
 
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 	vlmodel()->userNotesDatabase()->appendHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
 }
 #endif
@@ -755,7 +755,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 
 	pDlg->navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
 	if (pDlg->exec() == QDialog::Accepted) {
-		if (pDlg != NULL) emit gotoIndex(pDlg->passage());		// Could get deleted during execution
+		if (pDlg != nullptr) emit gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
 #else
 	CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(vlmodel()->bibleDatabase(), this);
@@ -769,7 +769,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 
 bool CSearchResultsTreeView::event(QEvent *event)
 {
-	assert(event != NULL);
+	assert(event != nullptr);
 #ifdef TOUCH_GESTURE_PROCESSING
 	if (event->type() == QEvent::Gesture) {
 		QGestureEvent *pGestureEvent = static_cast<QGestureEvent *>(event);
@@ -778,11 +778,11 @@ bool CSearchResultsTreeView::event(QEvent *event)
 		QPanGesture *pPan = static_cast<QPanGesture *>(pGestureEvent->gesture(Qt::PanGesture));
 		QSwipeGesture *pSwipe = static_cast<QSwipeGesture *>(pGestureEvent->gesture(Qt::SwipeGesture));
 		// Observe in order of priority, as some gestures can trigger multiple recognitions:
-		if (pSwipe != NULL) {
+		if (pSwipe != nullptr) {
 			return handleSwipeGesture(pSwipe);
-		} else if (pPan != NULL) {
+		} else if (pPan != nullptr) {
 			return handlePanGesture(pPan);
-		} else if (pTapAndHold != NULL) {
+		} else if (pTapAndHold != nullptr) {
 			return handleTapAndHoldGesture(pTapAndHold);
 		} else if (pTap) {
 			return handleTapGesture(pTap);
@@ -795,7 +795,7 @@ bool CSearchResultsTreeView::event(QEvent *event)
 
 void CSearchResultsTreeView::keyPressEvent(QKeyEvent *event)
 {
-	assert(event != NULL);
+	assert(event != nullptr);
 	switch (event->key()) {
 		case Qt::Key_Select:
 			// Also do Key_Enter action.
@@ -851,7 +851,7 @@ QString CSearchResultsTreeView::debugGestureState(QGesture *pGesture) const
 bool CSearchResultsTreeView::handleTapGesture(QTapGesture *pTapGesture)
 {
 qDebug("%s", QString("Handle Tap Gesture -- %1").arg(debugGestureState(pTapGesture)).toUtf8().data());
-	assert(pTapGesture != NULL);
+	assert(pTapGesture != nullptr);
 
 	if (pTapGesture->state() == Qt::GestureFinished) {
 		if (m_bDoubleTouchStarted) {
@@ -891,7 +891,7 @@ qDebug("Double-touch timed out");
 bool CSearchResultsTreeView::handleTapAndHoldGesture(QTapAndHoldGesture *pTapAndHoldGesture)
 {
 qDebug("%s", QString("Handle TapAndHold Gesture -- %1").arg(debugGestureState(pTapAndHoldGesture)).toUtf8().data());
-	assert(pTapAndHoldGesture != NULL);
+	assert(pTapAndHoldGesture != nullptr);
 
 	if ((pTapAndHoldGesture->state() == Qt::GestureFinished) &&
 		(!m_bDoingPopup)) {
@@ -910,7 +910,7 @@ qDebug("%s", QString("Handle TapAndHold Gesture -- %1").arg(debugGestureState(pT
 bool CSearchResultsTreeView::handlePanGesture(QPanGesture *pPanGesture)
 {
 qDebug("%s", QString("Handle Pan Gesture -- %1").arg(debugGestureState(pPanGesture)).toUtf8().data());
-	assert(pPanGesture != NULL);
+	assert(pPanGesture != nullptr);
 
 	QScrollBar *pVertSB = verticalScrollBar();
 	int nStepsToScroll = 0;
@@ -952,7 +952,7 @@ qDebug("%s", QString("Handle Pan Gesture -- %1").arg(debugGestureState(pPanGestu
 bool CSearchResultsTreeView::handleSwipeGesture(QSwipeGesture *pSwipeGesture)
 {
 qDebug("%s", QString("Handle Swipe Gesture -- %1").arg(debugGestureState(pSwipeGesture)).toUtf8().data());
-	assert(pSwipeGesture != NULL);
+	assert(pSwipeGesture != nullptr);
 
 	// TODO : Something here for swipe gesture...
 
@@ -970,7 +970,7 @@ void CSearchResultsTreeView::focusInEvent(QFocusEvent *event)
 {
 	emit activatedSearchResults();
 	QTreeView::focusInEvent(event);
-	if (parentCanOpener() != NULL) {
+	if (parentCanOpener() != nullptr) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		parentCanOpener()->highlighterButtons()->setHighlighterTips(true);
 #endif
@@ -990,7 +990,7 @@ void CSearchResultsTreeView::focusOutEvent(QFocusEvent *event)
 {
 	QTreeView::focusOutEvent(event);
 
-	if ((parentCanOpener() != NULL) &&
+	if ((parentCanOpener() != nullptr) &&
 		(event->reason() != Qt::MenuBarFocusReason) &&
 		(event->reason() != Qt::PopupFocusReason)) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
@@ -1109,7 +1109,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	if (hasFocus()) {
-		if (parentCanOpener() != NULL) {
+		if (parentCanOpener() != nullptr) {
 			parentCanOpener()->actionUserNoteEditor()->setEnabled(bEditableNode);
 			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bEditableNode);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
@@ -1195,12 +1195,12 @@ bool CSearchResultsTreeView::haveDetails() const
 
 bool CSearchResultsTreeView::isActive() const
 {
-	return ((hasFocus()) || ((parentCanOpener() != NULL) && (parentCanOpener()->isSearchResultsActive())));
+	return ((hasFocus()) || ((parentCanOpener() != nullptr) && (parentCanOpener()->isSearchResultsActive())));
 }
 
 void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 {
-	assert(event != NULL);
+	assert(event != nullptr);
 
 // This isn't needed when using the ReflowDelegate because the delegate is handling
 //	the resizeEvent as well and will invalidate our sizeHints appropriately.  Leaving
@@ -1295,7 +1295,7 @@ void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
 //		pDrag->setHotSpot(d->pressedPosition - rc.topLeft());
 		QRect rcCurrentVisual = visualRect(currentIndex());
 		QScrollBar *pVertScrollBar = verticalScrollBar();
-		assert(pVertScrollBar != NULL);
+		assert(pVertScrollBar != nullptr);
 		pDrag->setHotSpot(QPoint(rcCurrentVisual.left(), rcCurrentVisual.top() + pVertScrollBar->value() + rcCurrentVisual.height()/2) - rc.topLeft());
 		Qt::DropAction aDefaultDropAction = Qt::IgnoreAction;
 //		if (d->defaultDropAction != Qt::IgnoreAction && (supportedActions & d->defaultDropAction))
@@ -1312,7 +1312,7 @@ void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
 
 CSearchResultsTreeView::CItemViewPaintPairs CSearchResultsTreeView::draggablePaintPairs(const QModelIndexList &lstIndexes, QRect *pRC) const
 {
-	assert(pRC != NULL);
+	assert(pRC != nullptr);
 	QRect &rc = *pRC;
 	const QRect viewportRC = viewport()->rect();
 	CItemViewPaintPairs lstRet;
@@ -1330,7 +1330,7 @@ CSearchResultsTreeView::CItemViewPaintPairs CSearchResultsTreeView::draggablePai
 
 QPixmap CSearchResultsTreeView::renderToPixmap(const QModelIndexList &lstIndexes, QRect *pRC) const
 {
-	assert(pRC != NULL);
+	assert(pRC != nullptr);
 
 	CItemViewPaintPairs lstPaintPairs = draggablePaintPairs(lstIndexes, pRC);
 	if (lstPaintPairs.isEmpty()) return QPixmap();
@@ -1369,12 +1369,12 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pBibleDatabase(pBibleDatabase),
 	// ----
 	m_bDoingUpdate(false),
-	m_pSearchResultsType(NULL),
-	m_pSearchResultsCount(NULL),
-	m_pExcludedSearchResultsCount(NULL),
-	m_pShowHighlightersInSearchResults(NULL),
-	m_pNoteKeywordWidget(NULL),
-	m_pSearchResultsTreeView(NULL)
+	m_pSearchResultsType(nullptr),
+	m_pSearchResultsCount(nullptr),
+	m_pExcludedSearchResultsCount(nullptr),
+	m_pShowHighlightersInSearchResults(nullptr),
+	m_pNoteKeywordWidget(nullptr),
+	m_pSearchResultsTreeView(nullptr)
 {
 	assert(!m_pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
@@ -1446,7 +1446,7 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 
 	// --------------------------------
 
-	if (m_pShowHighlightersInSearchResults != NULL) {
+	if (m_pShowHighlightersInSearchResults != nullptr) {
 		m_pShowHighlightersInSearchResults->setChecked(m_pSearchResultsTreeView->vlmodel()->showHighlightersInSearchResults());
 		connect(m_pShowHighlightersInSearchResults, SIGNAL(clicked(bool)), m_pSearchResultsTreeView->vlmodel(), SLOT(setShowHighlightersInSearchResults(bool)));
 	}
@@ -1538,7 +1538,7 @@ void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMo
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pExcludedSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
-	if (m_pShowHighlightersInSearchResults != NULL) {
+	if (m_pShowHighlightersInSearchResults != nullptr) {
 		m_pShowHighlightersInSearchResults->setVisible((nViewMode == CVerseListModel::VVME_SEARCH_RESULTS) ||
 													   (nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
 	}
@@ -1593,7 +1593,7 @@ void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
 void CKJVSearchResult::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
 {
 	m_pSearchResultsTreeView->setShowHighlightersInSearchResults(bShowHighlightersInSearchResults);
-	if (m_pShowHighlightersInSearchResults != NULL) {
+	if (m_pShowHighlightersInSearchResults != nullptr) {
 		m_pShowHighlightersInSearchResults->setChecked(bShowHighlightersInSearchResults);
 	}
 }

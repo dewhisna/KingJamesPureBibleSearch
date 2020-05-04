@@ -414,8 +414,8 @@ void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_nCompletionFilterMode(SCFME_NORMAL),
-		m_pSearchStringListModel(NULL),
-		m_pSoundExFilterModel(NULL)
+		m_pSearchStringListModel(nullptr),
+		m_pSoundExFilterModel(nullptr)
 {
 	m_pSearchStringListModel = new CSearchParsedPhraseListModel(parsedPhrase, this);
 	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
@@ -430,8 +430,8 @@ CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *p
 CSearchCompleter::CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_nCompletionFilterMode(SCFME_NORMAL),
-		m_pSearchStringListModel(NULL),
-		m_pSoundExFilterModel(NULL)
+		m_pSearchStringListModel(nullptr),
+		m_pSoundExFilterModel(nullptr)
 {
 	m_pSearchStringListModel = new CSearchDictionaryListModel(pDictionary, editorWord, this);
 	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
@@ -450,7 +450,7 @@ CSearchCompleter::~CSearchCompleter()
 
 void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nCompletionFilterMode)
 {
-	assert(m_pSoundExFilterModel != NULL);
+	assert(m_pSoundExFilterModel != nullptr);
 
 	switch (nCompletionFilterMode) {
 		case SCFME_NORMAL:
@@ -556,7 +556,7 @@ void CSearchCompleter::selectFirstMatchString()
 
 void CSearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 {
-	assert(m_pSearchStringListModel != NULL);
+	assert(m_pSearchStringListModel != nullptr);
 	m_pSearchStringListModel->setWordsFromPhrase(bForceUpdate);
 }
 
@@ -574,7 +574,7 @@ CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListMo
 		m_nFirstDecomposedMatchStringIndex(-1),
 		m_pSearchStringListModel(pSearchStringListModel)
 {
-	assert(m_pSearchStringListModel != NULL);
+	assert(m_pSearchStringListModel != nullptr);
 	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()), Qt::DirectConnection);
 
 	connect(m_pSearchStringListModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_dataChanged(const QModelIndex &, const QModelIndex &)));
@@ -695,7 +695,7 @@ void CSoundExSearchCompleterFilter::en_modelChanged()
 	qDebug("SoundExSearchCompleter::modelChanged");
 #endif
 
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 
 	int nCount = m_pSearchStringListModel->rowCount();
 	m_mapSoundEx.clear();

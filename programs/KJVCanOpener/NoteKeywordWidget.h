@@ -66,7 +66,7 @@ class CNoteKeywordModelListView : public QListView
 	Q_OBJECT
 
 public:
-	CNoteKeywordModelListView(QWidget *pParent = 0)
+	CNoteKeywordModelListView(QWidget *pParent = nullptr)
 		:	QListView(pParent)
 	{
 		connect(this, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_activated(const QModelIndex &)));
@@ -95,7 +95,7 @@ class CNoteKeywordModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	CNoteKeywordModel(QObject *pParent = 0);
+	CNoteKeywordModel(QObject *pParent = nullptr);
 	virtual ~CNoteKeywordModel();
 
 	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
@@ -154,7 +154,7 @@ class CKeywordComboBox : public CComboBox
 	Q_OBJECT
 
 public:
-	CKeywordComboBox(QWidget *pParent = NULL)
+	CKeywordComboBox(QWidget *pParent = nullptr)
 		:	CComboBox(pParent)
 	{ }
 	virtual ~CKeywordComboBox() { }
@@ -181,7 +181,7 @@ class CNoteKeywordWidget : public QWidget
 	Q_OBJECT
 	
 public:
-	explicit CNoteKeywordWidget(QWidget *parent = 0);
+	explicit CNoteKeywordWidget(QWidget *parent = nullptr);
 	~CNoteKeywordWidget();
 
 	bool isAllKeywordsSelected() const;

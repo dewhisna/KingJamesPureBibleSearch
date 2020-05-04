@@ -252,8 +252,8 @@ public:
 				// Note: This CAN legitimately be NULL if we are intentionally dumping our SearchPhrase
 				//		data.  See CWebChannelObjects::en_searchResultsReady() and the clearing of the
 				//		Parsed Phrases in order to free memory for additional users.  So don't assert here:
-				//assert(pPhrase != NULL);
-				if (pPhrase == NULL) continue;
+				//assert(pPhrase != nullptr);
+				if (pPhrase == nullptr) continue;
 				if (verseIndex()->resultsType() != VLMRTE_SEARCH_RESULTS_EXCLUDED) {
 					QString strSearchWithinDescription = searchResultsData.m_SearchCriteria.searchWithinDescription(m_pBibleDatabase);
 					QString strSearchScopeDescription = searchResultsData.m_SearchCriteria.searchScopeDescription();
@@ -403,7 +403,7 @@ public:
 
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags,
 								bool bSuppressHeadings,
-								const CBasicHighlighter *pHighlighter = NULL) const
+								const CBasicHighlighter *pHighlighter = nullptr) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
@@ -447,7 +447,7 @@ public:
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
 									const CVerseTextRichifierTags &richifierTags,
-									const CBasicHighlighter *pHighlighter = NULL)
+									const CBasicHighlighter *pHighlighter = nullptr)
 	{
 		assert(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
@@ -595,7 +595,7 @@ public:
 
 	static TVerseIndex *toVerseIndex(const QModelIndex &ndx) {
 		static TVerseIndex nullVerseIndex;				// Empty VerseIndex to use for parent entries where QModelIndex->NULL
-		return ((ndx.internalPointer() != NULL) ? reinterpret_cast<TVerseIndex *>(ndx.internalPointer()) : &nullVerseIndex);
+		return ((ndx.internalPointer() != nullptr) ? reinterpret_cast<TVerseIndex *>(ndx.internalPointer()) : &nullVerseIndex);
 	}
 	static void *fromVerseIndex(const TVerseIndex *ndx) { return reinterpret_cast<void *>(const_cast<TVerseIndex *>(ndx)); }
 
@@ -739,7 +739,7 @@ public:
 
 	// ------------------------------------------------------------------------
 
-	CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent = 0);
+	CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QObject *pParent = nullptr);
 
 	inline CBibleDatabasePtr bibleDatabase() const { return m_private.m_pBibleDatabase; }
 	inline CUserNotesDatabasePtr userNotesDatabase() const { return m_private.m_pUserNotesDatabase; }

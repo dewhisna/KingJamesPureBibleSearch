@@ -33,19 +33,19 @@
 class CSaveLoadFileDialog
 {
 public:
-	static QString getSaveFileName(QWidget *parent = NULL,
+	static QString getSaveFileName(QWidget *parent = nullptr,
 												const QString &caption = QString(),
 												const QString &dir = QString(),
 												const QString &filter = QString(),
 												const QString &strDefaultSuffix = QString(),
-												QString *selectedFilter = NULL,
+												QString *selectedFilter = nullptr,
 												QFileDialog::Options options = 0);
 
-	static QString getOpenFileName(QWidget *parent = NULL,
+	static QString getOpenFileName(QWidget *parent = nullptr,
 												const QString &caption = QString(),
 												const QString &dir = QString(),
 												const QString &filter = QString(),
-												QString *selectedFilter = NULL,
+												QString *selectedFilter = nullptr,
 												QFileDialog::Options options = 0);
 
 protected:

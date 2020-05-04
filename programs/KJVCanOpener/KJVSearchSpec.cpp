@@ -52,9 +52,9 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_bHaveUserDatabase(bHaveUserDatabase),
-		m_pLayoutPhrases(NULL),
+		m_pLayoutPhrases(nullptr),
 		m_bDoingResizing(false),
-		m_pLastEditorActive(NULL),
+		m_pLastEditorActive(nullptr),
 		m_bDoneActivation(false),
 		m_bCloseAllSearchPhrasesInProgress(false),
 		m_bReadingSearchFile(false)
@@ -131,7 +131,7 @@ CKJVSearchSpec::~CKJVSearchSpec()
 	}
 	m_lstSearchPhraseEditors.clear();
 
-	m_pLastEditorActive = NULL;
+	m_pLastEditorActive = nullptr;
 }
 
 // ------------------------------------------------------------------
@@ -204,11 +204,11 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	ui.widgetSearchCriteria->setSearchScopeMode(nSearchScope);
 	ui.widgetSearchCriteria->setSearchWithin(strSearchWithin);
 
-	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = NULL;
+	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = nullptr;
 	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
 	for (int ndx = 0; ndx < nPhrases; ++ndx) {
 		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-		assert(pPhraseEditor != NULL);
+		assert(pPhraseEditor != nullptr);
 		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 		kjsFile.setArrayIndex(ndx);
 		TPhraseSettings aPhrase;
@@ -222,18 +222,18 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	// But, always open at least the minimum number of empty search phrases specified:
 	for (int ndx = nPhrases; ndx < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++ndx) {
 		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-		assert(pPhraseEditor != NULL);
+		assert(pPhraseEditor != nullptr);
 		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 	}
 	kjsFile.endArray();
 
 	m_bReadingSearchFile = false;
-	en_phraseChanged(NULL);			// Update all results at once
+	en_phraseChanged(nullptr);			// Update all results at once
 
 	// Set focus to our first editor.  Note that calling of focusEditor
 	//	doesn't work when running from the constructor during a restore
 	//	operation.  So we'll set it to trigger later:
-	assert(pFirstSearchPhraseEditor != NULL);
+	assert(pFirstSearchPhraseEditor != nullptr);
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 }
 
@@ -268,7 +268,7 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::setFocusSearchPhrase(int nIndex)
 		setFocusSearchPhrase(m_lstSearchPhraseEditors.at(nIndex));
 		return m_lstSearchPhraseEditors.at(nIndex);
 	}
-	return NULL;
+	return nullptr;
 }
 
 void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase)
@@ -277,7 +277,7 @@ void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhr
 		m_lstSearchPhraseEditors.at(ndx)->processPendingTextChanges();
 	}
 
-	assert(pSearchPhrase != NULL);
+	assert(pSearchPhrase != nullptr);
 	pSearchPhrase->focusEditor();
 	ensureSearchPhraseVisible(pSearchPhrase);
 }
@@ -296,11 +296,11 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 	}
 
 	m_lstSearchPhraseEditors.clear();
-	m_pLastEditorActive = NULL;
+	m_pLastEditorActive = nullptr;
 	m_bCloseAllSearchPhrasesInProgress = false;
 
 	resizeScrollAreaLayout();
-	en_phraseChanged(NULL);							// Still need to emit one change
+	en_phraseChanged(nullptr);							// Still need to emit one change
 }
 
 CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
@@ -408,9 +408,9 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	if (m_bCloseAllSearchPhrasesInProgress) return;
 
-	assert(pSearchPhrase != NULL);
+	assert(pSearchPhrase != nullptr);
 
-	if (pSearchPhrase->phraseEditor() == m_pLastEditorActive) m_pLastEditorActive = NULL;
+	if (pSearchPhrase->phraseEditor() == m_pLastEditorActive) m_pLastEditorActive = nullptr;
 
 	bool bPhraseChanged = ((!pSearchPhrase->parsedPhrase()->isDuplicate()) &&
 							(!pSearchPhrase->parsedPhrase()->isDisabled()) &&
@@ -426,14 +426,14 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	resizeScrollAreaLayout();
 
-	if (bPhraseChanged) en_phraseChanged(NULL);
+	if (bPhraseChanged) en_phraseChanged(nullptr);
 
 	setFocusSearchPhrase(ndxActivate);
 }
 
 void CKJVSearchSpec::en_changedSearchCriteria()
 {
-	en_phraseChanged(NULL);
+	en_phraseChanged(nullptr);
 }
 
 typedef struct {
@@ -454,7 +454,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	CPhraseList phrases;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
-		assert(pPhrase != NULL);
+		assert(pPhrase != nullptr);
 		if ((pPhrase->GetNumberOfMatches()) &&
 			(!pPhrase->isDuplicate()) &&
 			(!pPhrase->isDisabled())) {
@@ -548,7 +548,7 @@ void CKJVSearchSpec::processAllPendingUpdateCompleter()
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		CPhraseLineEdit *pPhraseEditor = m_lstSearchPhraseEditors.at(ndx)->phraseEditor();
-		assert(pPhraseEditor != NULL);
+		assert(pPhraseEditor != nullptr);
 		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isDisabled()) continue;
 		// No need to update the active one as it will handle itself:
 		if (pPhraseEditor != m_pLastEditorActive)
@@ -564,7 +564,7 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	if (m_bReadingSearchFile) return;
 
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 
 	processAllPendingUpdateCompleter();
 
@@ -574,7 +574,7 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
-		assert(pPhrase != NULL);
+		assert(pPhrase != nullptr);
 		if (pPhrase->isDisabled()) continue;
 		pPhrase->setIsDuplicate(false);
 		pPhrase->ClearWithinPhraseTagSearchResults();
@@ -623,7 +623,7 @@ void CKJVSearchSpec::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	if (pEditor) {
 		m_pLastEditorActive = pEditor;
 	} else {
-		m_pLastEditorActive = NULL;
+		m_pLastEditorActive = nullptr;
 		m_bDoneActivation = false;
 	}
 }

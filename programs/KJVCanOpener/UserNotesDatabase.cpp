@@ -992,13 +992,13 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 	if (strUUID.isEmpty()) return;
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
-		if (highlighterTagsFor(pBibleDatabase) == NULL) return;				// Return if it doesn't exist so we don't set dirty flag
+		if (highlighterTagsFor(pBibleDatabase) == nullptr) return;				// Return if it doesn't exist so we don't set dirty flag
 		emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 		m_mapHighlighterTags.erase(strUUID);
 	} else {
 		TBibleDBHighlighterTagMap::iterator itr = m_mapHighlighterTags.find(strUUID);
 		if (itr == m_mapHighlighterTags.end()) return;
-		if (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) == NULL) return;		// Return if it doesn't exist so we don't set dirty flag
+		if (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) == nullptr) return;		// Return if it doesn't exist so we don't set dirty flag
 		emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 		(itr->second).erase(strUserDefinedHighlighterName);
 	}

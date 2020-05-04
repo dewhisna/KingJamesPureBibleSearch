@@ -40,7 +40,7 @@ class CTranslator : public QObject
 	Q_OBJECT
 
 private:
-	CTranslator(const QString &strLangName = QString(), const QString &strTranslationFilename = QString(), QObject *pParent = NULL);
+	CTranslator(const QString &strLangName = QString(), const QString &strTranslationFilename = QString(), QObject *pParent = nullptr);
 	friend class CTranslatorList;				// Only creatable by our container
 
 public:
@@ -74,7 +74,7 @@ class CTranslatorList : public QObject
 	Q_OBJECT
 
 private:				// Enforce Singleton:
-	CTranslatorList(QObject *pParent = NULL);
+	CTranslatorList(QObject *pParent = nullptr);
 
 public:
 	virtual ~CTranslatorList();

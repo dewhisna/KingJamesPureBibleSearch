@@ -56,7 +56,7 @@ CWebChannelObjects::CWebChannelObjects(CWebChannelClient *pParent)
 		m_bHasSelectedBible(false),
 		m_pWebChannel(pParent)
 {
-	assert(m_pWebChannel != NULL);
+	assert(m_pWebChannel != nullptr);
 }
 
 CWebChannelObjects::~CWebChannelObjects()
@@ -66,7 +66,7 @@ CWebChannelObjects::~CWebChannelObjects()
 
 void CWebChannelObjects::setThreadIndex(int nThreadIndex)
 {
-	assert(m_pWebChannel != NULL);
+	assert(m_pWebChannel != nullptr);
 
 	m_nThreadIndex = nThreadIndex;
 	m_pWebChannel->setThreadIndex();
@@ -74,7 +74,7 @@ void CWebChannelObjects::setThreadIndex(int nThreadIndex)
 
 void CWebChannelObjects::en_idleStateChanged(bool bIsIdle)
 {
-	assert(m_pWebChannel != NULL);
+	assert(m_pWebChannel != nullptr);
 
 	m_bIsIdle = bIsIdle;
 	m_pWebChannel->setIdle();
@@ -82,7 +82,7 @@ void CWebChannelObjects::en_idleStateChanged(bool bIsIdle)
 
 void CWebChannelObjects::en_killWebChannel()
 {
-	assert(m_pWebChannel != NULL);
+	assert(m_pWebChannel != nullptr);
 	m_pWebChannel->killWebChannel();
 }
 
@@ -113,7 +113,7 @@ void CWebChannelObjects::unlock(const QString &strKey, const QString &strConfirm
 
 void CWebChannelObjects::setUserAgent(const QString &strUserAgent)
 {
-	assert(m_pWebChannel != NULL);
+	assert(m_pWebChannel != nullptr);
 
 	m_strUserAgent = strUserAgent;
 	m_pWebChannel->setUserAgent();
@@ -128,7 +128,7 @@ void CWebChannelObjects::sendBroadcast(const QString &strMessage)
 
 void CWebChannelObjects::selectBible(const QString &strUUID)
 {
-	assert(m_pWebChannel != NULL);
+	assert(m_pWebChannel != nullptr);
 
 	if (CWebChannelThreadController::instance()->selectBible(this, strUUID)) {
 		m_strBibleUUID = strUUID;

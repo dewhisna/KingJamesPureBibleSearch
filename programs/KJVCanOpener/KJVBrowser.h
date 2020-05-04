@@ -62,7 +62,7 @@ class CKJVBrowser : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	virtual ~CKJVBrowser();
 
 	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
@@ -213,7 +213,7 @@ private:
 #endif
 
 #define begin_update()					\
-	CBusyCursor iAmBusy(NULL);			\
+	CBusyCursor iAmBusy(nullptr);		\
 	bool bUpdateSave = m_bDoingUpdate;	\
 	m_bDoingUpdate = true;
 #define end_update()					\

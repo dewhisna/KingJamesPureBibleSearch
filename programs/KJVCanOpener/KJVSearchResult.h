@@ -77,7 +77,7 @@ class QSwipeGesture;
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
+	explicit CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
 	virtual ~CSearchResultsTreeView();
 
 	inline QMenu *getEditMenu() { return m_pEditMenu; }
@@ -88,7 +88,7 @@ public:
 	bool isActive() const;
 
 	inline CVerseListModel *vlmodel() const {
-		assert(model() != NULL);
+		assert(model() != nullptr);
 		return static_cast<CVerseListModel *>(model());
 	}
 
@@ -246,7 +246,7 @@ class CKJVSearchResult : public QWidget
 	Q_OBJECT
 
 public:
-	CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	~CKJVSearchResult();
 
 	inline CVerseListModel::VERSE_VIEW_MODE_ENUM viewMode() const { return m_pSearchResultsTreeView->viewMode(); }

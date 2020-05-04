@@ -202,15 +202,15 @@ public:
 class CVerseTextRichifier
 {
 private:
-	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = NULL);
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = NULL, bool bUseLemmas = false, bool bUseWordSpans = false);
+	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = nullptr);
+	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
 
 	~CVerseTextRichifier();
 
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, bool bUsesHTML, int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL)
+		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, bool bUsesHTML, int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
 				m_strTemplate(strTemplate),
@@ -223,7 +223,7 @@ private:
 				m_bInSearchResult(false),
 				m_pCurrentLemma(nullptr)
 		{
-			assert(pBibleDatabase != NULL);
+			assert(pBibleDatabase != nullptr);
 			m_strVerseText.reserve(1024);					// Avoid reallocations
 			m_ndxCurrent.setWord(0);						// Set ndxCurrent to be whole verse start, but nStartWord=Target First Word (set above)
 			if (m_nStartWord == 1) m_nStartWord = 0;		// Starting at first word includes pretext prior to word
@@ -253,7 +253,7 @@ private:
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false,
-							int *pWordCount = NULL, const CBasicHighlighter *pHighlighter = NULL, bool bUseLemmas = false, bool bUseWordSpans = false);
+							int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
 
 private:
 	const CVerseTextRichifier *m_pRichNext;

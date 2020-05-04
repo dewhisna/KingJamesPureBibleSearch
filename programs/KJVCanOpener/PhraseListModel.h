@@ -43,8 +43,8 @@ public:
 		PHRASE_ENTRY_ROLE = Qt::UserRole + 0
 	};
 
-	explicit CPhraseListModel(QObject *parent = 0);
-	CPhraseListModel(const CPhraseList &phrases, QObject *parent = 0);
+	explicit CPhraseListModel(QObject *parent = nullptr);
+	CPhraseListModel(const CPhraseList &phrases, QObject *parent = nullptr);
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
@@ -79,7 +79,7 @@ class CMatchingPhrasesListModel : public QStringListModel
 	Q_OBJECT
 
 public:
-	explicit CMatchingPhrasesListModel(QObject *pParent = NULL)
+	explicit CMatchingPhrasesListModel(QObject *pParent = nullptr)
 		:	QStringListModel(pParent)
 	{
 #if QT_VERSION < 0x050000
@@ -87,7 +87,7 @@ public:
 #endif
 	}
 
-	CMatchingPhrasesListModel(const QStringList &lstPhrases, QObject *pParent = NULL)
+	CMatchingPhrasesListModel(const QStringList &lstPhrases, QObject *pParent = nullptr)
 		:	QStringListModel(lstPhrases, pParent)
 	{
 #if QT_VERSION < 0x050000

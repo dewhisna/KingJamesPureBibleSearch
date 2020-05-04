@@ -45,14 +45,14 @@
 
 CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
 	:	QWidget(parent),
-		m_pEditMenu(NULL),
-		m_pActionUndo(NULL),
-		m_pActionRedo(NULL),
-		m_pActionCut(NULL),
-		m_pActionCopy(NULL),
-		m_pActionPaste(NULL),
-		m_pActionDelete(NULL),
-		m_pActionSelectAll(NULL)
+		m_pEditMenu(nullptr),
+		m_pActionUndo(nullptr),
+		m_pActionRedo(nullptr),
+		m_pActionCut(nullptr),
+		m_pActionCopy(nullptr),
+		m_pActionPaste(nullptr),
+		m_pActionDelete(nullptr),
+		m_pActionSelectAll(nullptr)
 {
 	ui.setupUi(this);
 
@@ -133,7 +133,7 @@ void CPassageReferenceWidget::setPassageReference(const QString &strPassageRefer
 
 bool CPassageReferenceWidget::eventFilter(QObject *pObject, QEvent *pEvent)
 {
-	assert(pEvent != NULL);
+	assert(pEvent != nullptr);
 	if ((pObject == ui.editPassageReference) && (pEvent->type() == QEvent::FocusIn)) emit activatedPassageReference();
 
 	return QWidget::eventFilter(pObject, pEvent);
@@ -160,7 +160,7 @@ void CPassageReferenceWidget::keyPressEvent(QKeyEvent *event)
 
 void CPassageReferenceWidget::en_passageReferenceContextMenuRequested(const QPoint &pos)
 {
-	assert(m_pEditMenu != NULL);
+	assert(m_pEditMenu != nullptr);
 #ifndef USE_ASYNC_DIALOGS
 	m_pEditMenu->exec(ui.editPassageReference->mapToGlobal(pos));
 #else

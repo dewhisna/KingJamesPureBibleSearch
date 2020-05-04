@@ -185,7 +185,7 @@ public:
 		QStringList lstFields;
 		m_nRecordCount = 0;
 
-		if (m_pCSVStream != NULL) {
+		if (m_pCSVStream != nullptr) {
 			if (!readCCDatabaseRecord(m_pParentWidget, lstFields, m_pCSVStream, 2)) return false;
 			// Format:  <TABLE>,count
 			if ((lstFields.size() != 2) ||
@@ -221,7 +221,7 @@ public:
 	{
 		assert(!m_strTableName.isEmpty());
 		m_bContinue = false;
-		if (m_pCSVStream != NULL) {
+		if (m_pCSVStream != nullptr) {
 			m_bContinue = (m_nRecordCount > 0);
 		} else {
 #ifndef NOT_USING_SQL
@@ -236,7 +236,7 @@ public:
 
 	bool atEndOfStream() const
 	{
-		if (m_pCSVStream != NULL) {
+		if (m_pCSVStream != nullptr) {
 			return m_pCSVStream->atEndOfStream();
 		}
 		return false;
@@ -249,7 +249,7 @@ public:
 
 	bool readNextRecord(QStringList &lstFields, int nMinFields, bool bTreatBlobsAsIndexes = false)
 	{
-		if (m_pCSVStream != NULL) {
+		if (m_pCSVStream != nullptr) {
 			if (!readCCDatabaseRecord(m_pParentWidget, lstFields, m_pCSVStream, nMinFields)) return false;
 			--m_nRecordCount;
 			m_bContinue = (m_nRecordCount > 0);
@@ -268,7 +268,7 @@ public:
 	void endQueryLoop()
 	{
 #ifndef NOT_USING_SQL
-		if (m_pCSVStream == NULL) m_queryData.finish();
+		if (m_pCSVStream == nullptr) m_queryData.finish();
 #endif	// !NOT_USING_SQL
 	}
 
@@ -1292,7 +1292,7 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 
 QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictionaryDatabase, const CDictionaryWordEntry &wordEntry)
 {
-	assert(pDictionaryDatabase != NULL);
+	assert(pDictionaryDatabase != nullptr);
 
 	QStringList lstDefinitions;
 
@@ -1402,7 +1402,7 @@ bool CReadDatabase::readBibleStub()
 			for (unsigned int nWrd = 1; nWrd <= theVerse.m_nNumWrd; ++nWrd) {
 				CRelIndex ndxBkWrd(nBk, 0, 0, nWrd);
 				const CConcordanceEntry *pConcordanceEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(ndxBkWrd);
-				if (pConcordanceEntry == NULL) continue;
+				if (pConcordanceEntry == nullptr) continue;
 				theVerse.m_nNumLtr += pConcordanceEntry->letterCount();
 			}
 			nLtrCount += theVerse.m_nNumLtr;
@@ -1424,7 +1424,7 @@ bool CReadDatabase::readBibleStub()
 				for (unsigned int nWrd = 1; nWrd <= theVerse.m_nNumWrd; ++nWrd) {
 					CRelIndex ndxBkChpVrsWrd(nBk, nChp, nVrs, nWrd);
 					const CConcordanceEntry *pConcordanceEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(ndxBkChpVrsWrd);
-					if (pConcordanceEntry == NULL) continue;
+					if (pConcordanceEntry == nullptr) continue;
 					theVerse.m_nNumLtr += pConcordanceEntry->letterCount();
 				}
 				nLtrCount += theVerse.m_nNumLtr;

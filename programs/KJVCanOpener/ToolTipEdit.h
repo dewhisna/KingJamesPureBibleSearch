@@ -119,7 +119,7 @@ class CToolTipEdit
 {
 	CToolTipEdit() { }
 public:
-	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w = 0);
+	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w = nullptr);
 	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w, const QRect &rect);
 	static inline void hideText(CKJVCanOpener *pCanOpener) { showText(pCanOpener, QPoint(), QString()); }
 

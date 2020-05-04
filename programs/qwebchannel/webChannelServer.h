@@ -104,7 +104,7 @@ class CWebChannelServer : public QObject
 	Q_OBJECT
 
 public:
-	CWebChannelServer(const QHostAddress &anAddress = QHostAddress::Any, quint16 nPort = 0, QObject *pParent = NULL);
+	CWebChannelServer(const QHostAddress &anAddress = QHostAddress::Any, quint16 nPort = 0, QObject *pParent = nullptr);
 	virtual ~CWebChannelServer();
 
 	bool isListening() const { return m_server.isListening(); }

@@ -211,7 +211,7 @@ Qt::ItemFlags CMatchingPhrasesListModel::flags(const QModelIndex &index) const
 
 QMimeData *CMatchingPhrasesListModel::mimeData(const QModelIndexList &indexes) const
 {
-	if (indexes.isEmpty()) return NULL;
+	if (indexes.isEmpty()) return nullptr;
 
 	QMimeData *mime = new QMimeData();
 	QStringList lstPhrases;

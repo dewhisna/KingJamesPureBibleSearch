@@ -23,7 +23,7 @@ DelayedExecutionTimer::DelayedExecutionTimer(int maximumDelay, int minimumDelay,
 	m_minimumTimer(new QTimer(this)),
 	m_maximumTimer(new QTimer(this)),
 	m_lastInt(0),
-	m_pLastObject(NULL)
+	m_pLastObject(nullptr)
 {
 	connect(m_minimumTimer, SIGNAL(timeout()), SLOT(timeout()));
 	connect(m_maximumTimer, SIGNAL(timeout()), SLOT(timeout()));
@@ -36,7 +36,7 @@ DelayedExecutionTimer::DelayedExecutionTimer(QObject* parent):
 	m_minimumTimer(new QTimer(this)),
 	m_maximumTimer(new QTimer(this)),
 	m_lastInt(0),
-	m_pLastObject(NULL)
+	m_pLastObject(nullptr)
 {
 	connect(m_minimumTimer, SIGNAL(timeout()), SLOT(timeout()));
 	connect(m_maximumTimer, SIGNAL(timeout()), SLOT(timeout()));

@@ -96,7 +96,7 @@ static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpr
 // ============================================================================
 
 CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, const QString &strUserDefinedHighlighterName)
-	:	QObject(NULL),
+	:	QObject(nullptr),
 		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 {
 	connect(this, SIGNAL(colorPicked(const QString &, const QColor &)), pConfigurator, SLOT(en_HighlighterColorPicked(const QString &, const QColor &)));
@@ -164,12 +164,12 @@ private:
 CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName)
 	:	CHighlighterColorButtonSignalReflector(pConfigurator, strUserDefinedHighlighterName),
 		QListWidgetItem(pList, 0),
-		m_pWidget(NULL),
-		m_pHorzLayout(NULL),
-		m_pColorButton(NULL),
-		m_pEnableCheckbox(NULL)
+		m_pWidget(nullptr),
+		m_pHorzLayout(nullptr),
+		m_pColorButton(nullptr),
+		m_pEnableCheckbox(nullptr)
 {
-	assert(pList != NULL);
+	assert(pList != nullptr);
 	assert(!g_pUserNotesDatabase.isNull());
 
 	m_pWidget = new QWidget(pList);
@@ -287,9 +287,9 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	//	m_pBibleDatabase(pBibleDatabase),
 	//	m_pDictionaryDatabase(pDictionary),
 	m_previewSearchPhrase(pBibleDatabase),
-	m_pSearchResultsTreeView(NULL),
-	m_pScriptureBrowser(NULL),
-	m_pDictionaryWidget(NULL),
+	m_pSearchResultsTreeView(nullptr),
+	m_pScriptureBrowser(nullptr),
+	m_pDictionaryWidget(nullptr),
 	m_bIsDirty(false),
 	m_bLoadingData(false)
 {
@@ -319,7 +319,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_pSearchResultsTreeView->setShowHighlightersInSearchResults(false);
 
 	delete ui.treeViewSearchResultsPreview;
-	ui.treeViewSearchResultsPreview = NULL;
+	ui.treeViewSearchResultsPreview = nullptr;
 	ui.splitter->insertWidget(ndx, m_pSearchResultsTreeView);
 
 	// --------------------------------------------------------------
@@ -348,7 +348,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_pScriptureBrowser->setToolTip(tr("Scripture Browser Preview", "MainMenu"));			// Note:  Also disables the "Press Ctrl-D" tooltip, since that mode isn't enable in the configurator
 
 	delete ui.textScriptureBrowserPreview;
-	ui.textScriptureBrowserPreview = NULL;
+	ui.textScriptureBrowserPreview = nullptr;
 	ui.splitterDictionary->insertWidget(ndx, m_pScriptureBrowser);
 
 	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChangedBrowser()));
@@ -373,11 +373,11 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 		m_pDictionaryWidget->setToolTip(tr("Dictionary Window Preview", "MainMenu"));
 
 		delete ui.widgetDictionary;
-		ui.widgetDictionary = NULL;
+		ui.widgetDictionary = nullptr;
 		ui.splitterDictionary->insertWidget(ndx, m_pDictionaryWidget);
 	} else {
 		delete ui.widgetDictionary;
-		ui.widgetDictionary = NULL;
+		ui.widgetDictionary = nullptr;
 	}
 
 	// --------------------------------------------------------------
@@ -452,12 +452,12 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	QWidget::setTabOrder(ui.buttonSearchResultsColor, ui.buttonCursorFollowColor);
 	QWidget::setTabOrder(ui.buttonCursorFollowColor, m_pSearchResultsTreeView);
 	QWidget::setTabOrder(m_pSearchResultsTreeView, m_pScriptureBrowser);
-	if (m_pDictionaryWidget != NULL) QWidget::setTabOrder(m_pScriptureBrowser, m_pDictionaryWidget);
+	if (m_pDictionaryWidget != nullptr) QWidget::setTabOrder(m_pScriptureBrowser, m_pDictionaryWidget);
 
 	// --------------------------------------------------------------
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	if (CPersistentSettings::instance()->settings() == NULL) {
+	if (CPersistentSettings::instance()->settings() == nullptr) {
 		ui.fontComboBoxApplication->setEnabled(false);
 		ui.fontComboBoxApplication->setToolTip(tr("Application Font can't be changed in Stealth Mode.  Launch app with -stylesheet to change it instead.", "MainMenu"));
 		ui.dblSpinBoxApplicationFontSize->setEnabled(false);
@@ -577,7 +577,7 @@ void CKJVTextFormatConfig::saveSettings()
 
 	// Save application font only if not in stealth mode:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 #endif
 		QFont fntApp;
 		fntApp.setFamily(ui.fontComboBoxApplication->currentFont().family());
@@ -595,7 +595,7 @@ void CKJVTextFormatConfig::en_ApplicationFontChanged(const QFont &font)
 {
 	if (m_bLoadingData) return;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	if (CPersistentSettings::instance()->settings() == NULL) return;
+	if (CPersistentSettings::instance()->settings() == nullptr) return;
 #endif
 
 	Q_UNUSED(font);
@@ -629,7 +629,7 @@ void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
 	if (m_bLoadingData) return;
 
 	m_fntDictionary.setFamily(font.family());
-	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
+	if (m_pDictionaryWidget != nullptr) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
@@ -638,7 +638,7 @@ void CKJVTextFormatConfig::en_ApplicationFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	if (CPersistentSettings::instance()->settings() == NULL) return;
+	if (CPersistentSettings::instance()->settings() == nullptr) return;
 #endif
 
 	Q_UNUSED(nFontSize);
@@ -672,7 +672,7 @@ void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
 	if (m_bLoadingData) return;
 
 	m_fntDictionary.setPointSizeF(nFontSize);
-	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setFont(m_fntDictionary);
+	if (m_pDictionaryWidget != nullptr) m_pDictionaryWidget->setFont(m_fntDictionary);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
@@ -959,7 +959,7 @@ void CKJVTextFormatConfig::en_currentColorListViewItemChanged(QListWidgetItem *p
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(pPrevious);
-	if (pCurrent != NULL) {
+	if (pCurrent != nullptr) {
 		CHighlighterColorButton *pButtonItem = static_cast<CHighlighterColorButton *>(pCurrent);
 		en_HighlighterColorClicked(pButtonItem->highlighterName());
 	}
@@ -1000,8 +1000,8 @@ void CKJVTextFormatConfig::navigateToDemoText()
 		//		Solution was to iterate over the buttons in our QListWidget of Highlighter Set buttons.. <sigh>
 		for (int ndx = 0; ndx < ui.listWidgetHighlighterColors->count(); ++ndx) {
 			CHighlighterColorButton *pColorButton = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(ndx));
-			assert(pColorButton != NULL);
-			if (pColorButton == NULL) continue;
+			assert(pColorButton != nullptr);
+			if (pColorButton == nullptr) continue;
 			if (!g_pUserNotesDatabase->highlighterDefinition(pColorButton->highlighterName()).isValid()) continue;
 			if (!g_pUserNotesDatabase->highlighterEnabled(pColorButton->highlighterName())) continue;
 			m_pScriptureBrowser->navigator().doHighlighting(CUserDefinedHighlighter(pColorButton->highlighterName(),
@@ -1037,14 +1037,14 @@ void CKJVTextFormatConfig::setPreview()
 {
 	m_pSearchResultsTreeView->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 	m_pScriptureBrowser->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
-	if (m_pDictionaryWidget != NULL) m_pDictionaryWidget->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+	if (m_pDictionaryWidget != nullptr) m_pDictionaryWidget->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 }
 
 void CKJVTextFormatConfig::en_selectionChangedBrowser()
 {
 	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
 
-	if ((tagSelection.isSet()) && (tagSelection.count() < 2) && (m_pDictionaryWidget != NULL)) {
+	if ((tagSelection.isSet()) && (tagSelection.count() < 2) && (m_pDictionaryWidget != nullptr)) {
 		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->wordAtIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(tagSelection.relIndex())), false);
 	}
 }
@@ -1588,7 +1588,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 			bDone = false;
 			do {
 				if (bPromptFilename) {
-					QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
+					QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), m_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", nullptr, 0);
 					if (!strFilePathName.isEmpty()) {
 						m_pUserNotesDatabase->setFilePathName(strFilePathName);
 						ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
@@ -1630,7 +1630,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 	while (!bDone) {
 		QString strNewFilePathName = m_pUserNotesDatabase->errorFilePathName();
 		if (strNewFilePathName.isEmpty()) strNewFilePathName = m_pUserNotesDatabase->filePathName();
-		strNewFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Load King James Notes File", "FileFilters"), strNewFilePathName, tr("King James Notes File (*.kjn)", "FileFilters"), NULL, 0);
+		strNewFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Load King James Notes File", "FileFilters"), strNewFilePathName, tr("King James Notes File (*.kjn)", "FileFilters"), nullptr, 0);
 		if (strNewFilePathName.isEmpty()) {		// Empty if user cancels
 			if (bLoadFailed) {
 				// If our previous load failed, we now have an uninitalized notes file.  So,
@@ -1678,7 +1678,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 
 bool CKJVUserNotesDatabaseConfig::loadUserNotesDatabase()
 {
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 	return m_pUserNotesDatabase->load();
 }
 
@@ -1708,7 +1708,7 @@ void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 		}
 	}
 
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 
 	m_pUserNotesDatabase->setErrorFilePathName(QString());
 	m_pUserNotesDatabase->setFilePathName(QString());
@@ -2163,7 +2163,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 		m_pBibleDatabase(pBibleDatabase),
 		m_bIsDirty(false),
 		m_bLoadingData(false),
-		m_pEditCopyOptionPreview(NULL)
+		m_pEditCopyOptionPreview(nullptr)
 {
 	assert(!pBibleDatabase.isNull());
 
@@ -2309,7 +2309,7 @@ void CConfigCopyOptions::initialize()
 	int nIndex = ui.verticalLayoutCopyOptionPreview->indexOf(ui.editCopyOptionPreview);
 	assert(nIndex != -1);
 	delete ui.editCopyOptionPreview;
-	ui.editCopyOptionPreview = NULL;
+	ui.editCopyOptionPreview = nullptr;
 	ui.verticalLayoutCopyOptionPreview->insertWidget(nIndex, m_pEditCopyOptionPreview);
 
 	// ----------
@@ -2955,7 +2955,7 @@ void CKJVTTSOptionsConfig::saveSettings()
 		}
 	}
 
-	if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL)) {
+	if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != nullptr)) {
 		QtSpeech::TVoiceName aVoiceName;
 		aVoiceName.id = CPersistentSettings::instance()->ttsSelectedVoiceID();
 		g_pMyApplication->speechSynth()->setVoiceName(aVoiceName);
@@ -2995,20 +2995,20 @@ void CKJVTTSOptionsConfig::en_changedTTSVoiceSelection(int nIndex)
 
 CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QwwConfigWidget(parent),
-		m_pGeneralSettingsConfig(NULL),
-		m_pCopyOptionsConfig(NULL),
-		m_pTextFormatConfig(NULL),
+		m_pGeneralSettingsConfig(nullptr),
+		m_pCopyOptionsConfig(nullptr),
+		m_pTextFormatConfig(nullptr),
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-		m_pUserNotesDatabaseConfig(NULL),
+		m_pUserNotesDatabaseConfig(nullptr),
 #endif
-		m_pBibleDatabaseConfig(NULL),
+		m_pBibleDatabaseConfig(nullptr),
 #if defined(USING_DICTIONARIES)
-		m_pDictDatabaseConfig(NULL),
+		m_pDictDatabaseConfig(nullptr),
 #endif
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-		m_pTTSOptionsConfig(NULL),
+		m_pTTSOptionsConfig(nullptr),
 #endif
-		m_pLocaleConfig(NULL)
+		m_pLocaleConfig(nullptr)
 {
 	assert(!pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
@@ -3192,8 +3192,8 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_nLastIndex(-1),
 		m_bHandlingPageSwap(false),
-		m_pConfiguration(NULL),
-		m_pButtonBox(NULL),
+		m_pConfiguration(nullptr),
+		m_pButtonBox(nullptr),
 		m_bNeedRestart(false),
 		m_bRestartApp(false)
 {
@@ -3201,7 +3201,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	assert(!g_pUserNotesDatabase.isNull());
 
 #ifdef MODELTEST
-	if (g_pdlgColor == NULL) g_pdlgColor = new QColorDialog(this);
+	if (g_pdlgColor == nullptr) g_pdlgColor = new QColorDialog(this);
 #endif
 
 	// --------------------------------------------------------------
@@ -3264,7 +3264,7 @@ void CKJVConfigurationDialog::accept()
 	m_pConfiguration->saveSettings();
 
 	auto &&fnFinalCompletion = [this]()->void {
-		CBusyCursor iAmBusy(NULL);
+		CBusyCursor iAmBusy(nullptr);
 
 		QDialog::accept();
 		// Note: Leave the settings permanent, by not copying
@@ -3316,7 +3316,7 @@ void CKJVConfigurationDialog::apply()
 	m_pConfiguration->saveSettings();
 
 	auto &&fnFinalCompletion = [this]()->void {
-		CBusyCursor iAmBusy(NULL);
+		CBusyCursor iAmBusy(nullptr);
 
 		if (m_bRestartApp) {
 			QDialog::accept();
@@ -3372,7 +3372,7 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 	auto &&fnFinalCompletion = [this, index]()->void {
 #ifdef USING_QT_SPEECH
 		if (static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(index) == CPSE_TTS_OPTIONS) {
-			if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != NULL) && (!g_pMyApplication->speechSynth()->canSpeak())) {
+			if ((!g_pMyApplication.isNull()) && (g_pMyApplication->speechSynth() != nullptr) && (!g_pMyApplication->speechSynth()->canSpeak())) {
 				displayWarning(this, windowTitle(), tr("Failed to load system Text-To-Speech Module.\n"
 															"To use Text-To-Speech, you may need to install the Text-To-Speech support package."));
 			}

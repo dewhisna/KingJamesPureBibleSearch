@@ -60,8 +60,8 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pUserNotesDatabase(pUserNotesDatabase),
-		m_pEditSourcePassage(NULL),
-		m_pCrossRefTreeView(NULL),
+		m_pEditSourcePassage(nullptr),
+		m_pCrossRefTreeView(nullptr),
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
@@ -105,7 +105,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pEditSourcePassage->setToolTip(tr("Source Passage for Reference", "MainMenu"));
 
 	delete ui.editSourcePassage;
-	ui.editSourcePassage = NULL;
+	ui.editSourcePassage = nullptr;
 	ui.verticalLayoutSource->insertWidget(ndx, m_pEditSourcePassage);
 
 
@@ -131,7 +131,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	m_pCrossRefTreeView->setDisplayMode(CVerseListModel::VDME_RICHTEXT);
 
 	delete ui.treeCrossRefs;
-	ui.treeCrossRefs = NULL;
+	ui.treeCrossRefs = nullptr;
 	ui.verticalLayoutRefList->insertWidget(ndx, m_pCrossRefTreeView);
 
 	connect(m_pCrossRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_crossRefTreeViewContextMenuRequested(const QPoint &)));
@@ -291,7 +291,7 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	pDlg->navigator().startAbsoluteMode(tagNav);
 	if (pDlg->exec() != QDialog::Accepted) return CRelIndex();
 
-	if (pDlg != NULL) {			// Could get deleted during execution
+	if (pDlg != nullptr) {			// Could get deleted during execution
 		CRelIndex ndxTarget = pDlg->passage().relIndex();
 		ndxTarget.setWord(0);			// Whole verse references only
 		return ndxTarget;

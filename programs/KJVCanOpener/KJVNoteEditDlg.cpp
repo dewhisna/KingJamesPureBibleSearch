@@ -64,9 +64,9 @@ namespace {
 
 CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
-		m_pBackgroundColorButton(NULL),
-		m_pRichTextEdit(NULL),
-		m_pDeleteNoteButton(NULL),
+		m_pBackgroundColorButton(nullptr),
+		m_pRichTextEdit(nullptr),
+		m_pDeleteNoteButton(nullptr),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pUserNotesDatabase(pUserNotesDatabase),
 		m_bDoingUpdate(false),
@@ -105,7 +105,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_pRichTextEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse|Qt::TextEditable);
 
 	delete ui.textEdit;
-	ui.textEdit = NULL;
+	ui.textEdit = nullptr;
 	ui.gridLayoutMain->addWidget(m_pRichTextEdit, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
@@ -123,7 +123,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_pBackgroundColorButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	delete ui.buttonBackgroundColor;
-	ui.buttonBackgroundColor = NULL;
+	ui.buttonBackgroundColor = nullptr;
 	ui.verticalLayoutBackgroundButtons->insertWidget(ndx, m_pBackgroundColorButton);
 
 	// --------------------------------------------------------------
@@ -140,9 +140,9 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	// Setup Dialog buttons:
 
-	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != NULL);
+	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
-	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != NULL);
+	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
 	m_pDeleteNoteButton = ui.buttonBox->addButton(tr("Delete Note", "MainMenu"), QDialogButtonBox::ActionRole);
 	m_pDeleteNoteButton->setIcon(QIcon(":/res/deletered1-24.png"));
@@ -204,7 +204,7 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 
 void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 {
-	assert(m_pRichTextEdit != NULL);
+	assert(m_pRichTextEdit != nullptr);
 	assert(!m_pUserNotesDatabase.isNull());
 
 	m_ndxLocation = ndxLocation;
@@ -231,7 +231,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 
 void CKJVNoteEditDlg::accept()
 {
-	assert(m_pRichTextEdit != NULL);
+	assert(m_pRichTextEdit != nullptr);
 	assert(!m_pUserNotesDatabase.isNull());
 
 	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
@@ -303,7 +303,7 @@ void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
 
 void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 {
-	assert(button != NULL);
+	assert(button != nullptr);
 	assert(!m_pUserNotesDatabase.isNull());
 
 	if (button == m_pDeleteNoteButton) {

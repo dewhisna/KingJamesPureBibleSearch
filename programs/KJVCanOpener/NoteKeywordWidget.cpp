@@ -35,8 +35,8 @@
 
 CNoteKeywordModel::CNoteKeywordModel(QObject *pParent)
 	:	QAbstractListModel(pParent),
-		m_pActionSelectAllKeywords(NULL),
-		m_pActionClearKeywordSelection(NULL)
+		m_pActionSelectAllKeywords(nullptr),
+		m_pActionClearKeywordSelection(nullptr)
 
 {
 	m_pActionSelectAllKeywords = m_keywordContextMenu.addAction(tr("Select &All", "MainMenu"), this, SLOT(en_selectAllKeywords()));
@@ -298,7 +298,7 @@ void CNoteKeywordModel::updateContextMenu()
 
 CNoteKeywordWidget::CNoteKeywordWidget(QWidget *parent)
 	:	QWidget(parent),
-		m_pKeywordModel(NULL),
+		m_pKeywordModel(nullptr),
 		m_bDoingUpdate(false)
 {
 	ui.setupUi(this);

@@ -157,7 +157,7 @@ class CWebChannelThread : public QThread
 	Q_OBJECT
 
 public:
-	CWebChannelThread(QObject *pParent = NULL);
+	CWebChannelThread(QObject *pParent = nullptr);
 
 	void attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults);
 };

@@ -221,7 +221,7 @@ public:
 	}
 
 	inline bool isSet() const { return ((CRelIndex::isSet()) || (m_ndxEx != 0)); }
-	inline void clear() { CRelIndex::clear(); m_ndxEx =0; }
+	inline void clear() { CRelIndex::clear(); m_ndxEx = 0; }
 
 	inline uint64_t indexEx() const
 	{
@@ -720,8 +720,8 @@ public:
 	{ }
 	~CFootnoteEntry() { }
 
-	QString htmlText(const CBibleDatabase *pBibleDatabase = NULL) const;		// Formatted HTML to insert into Scripture Browser (Database is needed only if doing footnotes with embedded scripture or cross-refs, etc)
-	QString plainText(const CBibleDatabase *pBibleDatabase = NULL) const;		// Formatted PlainText rendering (Database is needed only if doing footnotes with embedded scripture or cross-refs, etc)
+	QString htmlText(const CBibleDatabase *pBibleDatabase = nullptr) const;		// Formatted HTML to insert into Scripture Browser (Database is needed only if doing footnotes with embedded scripture or cross-refs, etc)
+	QString plainText(const CBibleDatabase *pBibleDatabase = nullptr) const;		// Formatted PlainText rendering (Database is needed only if doing footnotes with embedded scripture or cross-refs, etc)
 
 	QString text() const		// We'll use a function to fetch the text (on mobile this can be a database lookup if need be)
 	{
@@ -1436,7 +1436,7 @@ public:
 	QString richVerseText(const CRelIndex &ndxRel,
 							const CVerseTextRichifierTags &tags,
 							bool bAddAnchors = false,
-							const CBasicHighlighter *aHighlighter = NULL,
+							const CBasicHighlighter *aHighlighter = nullptr,
 							bool bUseLemmas = false,
 							bool bUseWordSpans = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
@@ -1495,7 +1495,7 @@ class  TBibleDatabaseList : public QObject, protected QList<CBibleDatabasePtr>
 	Q_OBJECT
 
 private:				// Enforce Singleton:
-	TBibleDatabaseList(QObject *pParent = NULL);
+	TBibleDatabaseList(QObject *pParent = nullptr);
 
 public:
 	virtual ~TBibleDatabaseList();
@@ -1504,8 +1504,8 @@ public:
 #ifdef USING_WEBCHANNEL
 	static QString availableBibleDatabasesAsJson();
 #endif
-	static bool loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
-	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
+	static bool loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
+	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
 	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }
 	void setMainBibleDatabase(const QString &strUUID);
 	bool haveMainBibleDatabase() const { return (!m_pMainBibleDatabase.isNull()); }
@@ -1685,16 +1685,16 @@ class  TDictionaryDatabaseList : public QObject, protected QList<CDictionaryData
 	Q_OBJECT
 
 private:				// Enforce Singleton:
-	TDictionaryDatabaseList(QObject *pParent = NULL);
+	TDictionaryDatabaseList(QObject *pParent = nullptr);
 
 public:
 	virtual ~TDictionaryDatabaseList();
 	static TDictionaryDatabaseList *instance();
 
-	static CDictionaryDatabasePtr locateAndLoadDictionary(const QString &strLanguage, QWidget *pParentWidget = NULL);		// Locates and loads the best candidate dictionary for the specified language based on MainDictionary and DictionaryLoad settings
+	static CDictionaryDatabasePtr locateAndLoadDictionary(const QString &strLanguage, QWidget *pParentWidget = nullptr);		// Locates and loads the best candidate dictionary for the specified language based on MainDictionary and DictionaryLoad settings
 
-	static bool loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
-	static bool loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = NULL);
+	static bool loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
+	static bool loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
 	CDictionaryDatabasePtr mainDictionaryDatabase() const { return m_pMainDictionaryDatabase; }
 	void setMainDictionaryDatabase(const QString &strUUID);
 	bool haveMainDictionaryDatabase() const { return (!m_pMainDictionaryDatabase.isNull()); }

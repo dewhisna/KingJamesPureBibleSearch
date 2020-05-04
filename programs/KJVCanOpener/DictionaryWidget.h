@@ -44,7 +44,7 @@ class CDictionaryLineEdit : public CSingleLineTextEdit
 	Q_OBJECT
 
 public:
-	explicit CDictionaryLineEdit(QWidget *pParent = 0);
+	explicit CDictionaryLineEdit(QWidget *pParent = nullptr);
 	virtual ~CDictionaryLineEdit();
 
 	void initialize(CDictionaryDatabasePtr pDictionary);
@@ -85,7 +85,7 @@ class CDictionaryWidget : public QWidget
 	Q_OBJECT
 	
 public:
-	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const QString &strLanguage, QWidget *parent = 0);
+	explicit CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const QString &strLanguage, QWidget *parent = nullptr);
 	~CDictionaryWidget();
 
 	CDictionaryDatabasePtr dictionaryDatabase() const { return m_pDictionaryDatabase; }
@@ -117,7 +117,7 @@ protected slots:
 	void en_editDictionaryWordContextMenuRequested(const QPoint &pos);
 
 	void en_updateDictionaryDatabasesList();
-	void en_selectDictionary(QAction *pAction = NULL);
+	void en_selectDictionary(QAction *pAction = nullptr);
 
 // Data Private:
 private:

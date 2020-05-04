@@ -133,7 +133,7 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 		if (nDictDB != -1) {
 			return QVariant::fromValue(TDictionaryDatabaseList::instance()->at(nDictDB).data());
 		} else {
-			return QVariant::fromValue(static_cast<CDictionaryDatabase *>(NULL));
+			return QVariant::fromValue(static_cast<CDictionaryDatabase *>(nullptr));
 		}
 	}
 

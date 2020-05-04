@@ -1530,7 +1530,7 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 		}
 	}
 
-	CScopedCSVStream ccdb(m_pCCDatabase, ((bSuccess && compCCDB.isOpen()) ? new CCSVStream(&compCCDB) : NULL));
+	CScopedCSVStream ccdb(m_pCCDatabase, ((bSuccess && compCCDB.isOpen()) ? new CCSVStream(&compCCDB) : nullptr));
 
 	if (bSuccess) {
 		if ((!BuildDBInfoTable()) ||

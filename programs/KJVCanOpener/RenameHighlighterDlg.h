@@ -36,7 +36,7 @@ class CRenameHighlighterDlg : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit CRenameHighlighterDlg(const QString &strOldName, QWidget *parent = 0);
+	explicit CRenameHighlighterDlg(const QString &strOldName, QWidget *parent = nullptr);
 	~CRenameHighlighterDlg();
 	
 	QString newName() const;

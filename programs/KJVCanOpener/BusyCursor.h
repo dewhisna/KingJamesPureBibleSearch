@@ -89,7 +89,7 @@ class CNotificationToolTip : public QObject
 	Q_OBJECT
 
 public:
-	CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget = 0);
+	CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget = nullptr);
 	virtual ~CNotificationToolTip();
 
 private slots:

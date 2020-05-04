@@ -67,7 +67,7 @@ class QtSpeech_th : public QObject
 {
 	Q_OBJECT
 public:
-	QtSpeech_th(QObject *pParent = NULL);
+	QtSpeech_th(QObject *pParent = nullptr);
 	virtual ~QtSpeech_th();
 
 public slots:

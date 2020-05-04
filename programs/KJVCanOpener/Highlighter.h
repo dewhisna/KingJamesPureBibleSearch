@@ -85,7 +85,7 @@ private:
 class CBasicHighlighter : public QObject {
 	Q_OBJECT
 public:
-	explicit CBasicHighlighter(QObject *parent = NULL)
+	explicit CBasicHighlighter(QObject *parent = nullptr)
 		:	QObject(parent),
 			m_bEnabled(true)
 	{
@@ -118,9 +118,9 @@ class CSearchResultHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CSearchResultHighlighter(const CVerseListModel *pVerseListModel, bool bExcludedResults = false, QObject *parent = NULL);
-	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults = false, QObject *parent = NULL);
-	CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults = false, QObject *parent = NULL);
+	explicit CSearchResultHighlighter(const CVerseListModel *pVerseListModel, bool bExcludedResults = false, QObject *parent = nullptr);
+	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults = false, QObject *parent = nullptr);
+	CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults = false, QObject *parent = nullptr);
 	virtual ~CSearchResultHighlighter();
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
@@ -157,12 +157,12 @@ class CCursorFollowHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CCursorFollowHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
+	explicit CCursorFollowHighlighter(const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = nullptr)
 		:	CBasicHighlighter(parent)
 	{
 		m_myPhraseTags.setPhraseTags(lstPhraseTags);
 	}
-	CCursorFollowHighlighter(const TPhraseTag &aTag, QObject *parent = NULL)
+	CCursorFollowHighlighter(const TPhraseTag &aTag, QObject *parent = nullptr)
 		:	CBasicHighlighter(parent)
 	{
 		TPhraseTagList lstTags;
@@ -207,13 +207,13 @@ class CUserDefinedHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = NULL)
+	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = nullptr)
 		:	CBasicHighlighter(parent),
 			m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 	{
 		m_myPhraseTags.setPhraseTags(lstPhraseTags);
 	}
-	CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent = NULL)
+	CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent = nullptr)
 		:	CBasicHighlighter(parent),
 			m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 	{
@@ -268,7 +268,7 @@ private:
 class CHighlighterToolButton : public QToolButton
 {
 public:
-	CHighlighterToolButton(QWidget *pParent = NULL)
+	CHighlighterToolButton(QWidget *pParent = nullptr)
 		:	QToolButton(pParent),
 			m_bControlActivation(false)
 	{
@@ -280,7 +280,7 @@ public:
 
 	virtual void mousePressEvent(QMouseEvent *pEvent)
 	{
-		assert(pEvent != NULL);
+		assert(pEvent != nullptr);
 #ifndef Q_OS_MAC
 		m_bControlActivation = ((pEvent->modifiers() & Qt::ControlModifier) ? true : false);
 #else
@@ -357,10 +357,10 @@ private:
 class CHighlighterWidgetAction : public QWidgetAction
 {
 public:
-	CHighlighterWidgetAction(CHighlighterAction *pButtonAction, QObject *pParent = 0)
+	CHighlighterWidgetAction(CHighlighterAction *pButtonAction, QObject *pParent = nullptr)
 		:	QWidgetAction(pParent),
 			m_pButtonAction(pButtonAction),
-			m_pHighlighterToolButton(NULL)
+			m_pHighlighterToolButton(nullptr)
 	{
 		setMenu(new QMenu);					// The action will take ownership via setOverrideMenuAction()
 	}
@@ -379,7 +379,7 @@ public:
 
 	bool controlActivation() const
 	{
-		assert(m_pHighlighterToolButton != NULL);
+		assert(m_pHighlighterToolButton != nullptr);
 		return m_pHighlighterToolButton->controlActivation();
 	}
 

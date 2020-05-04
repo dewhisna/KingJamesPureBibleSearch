@@ -73,8 +73,8 @@ class CPhraseLineEdit : public CSingleLineTextEdit, public CParsedPhrase
 	Q_OBJECT
 
 public:
-	explicit CPhraseLineEdit(QWidget *pParent = 0);
-	CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pParent = 0);
+	explicit CPhraseLineEdit(QWidget *pParent = nullptr);
+	CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pParent = nullptr);
 	virtual ~CPhraseLineEdit();
 
 	void setupPhrase(const TPhraseSettings &aPhrase);
@@ -163,7 +163,7 @@ class CKJVSearchPhraseEdit : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = 0);
+	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
 	virtual ~CKJVSearchPhraseEdit();
 
 	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);

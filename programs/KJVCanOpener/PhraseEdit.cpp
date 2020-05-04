@@ -895,7 +895,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 				for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 					if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
 					const CConcordanceEntry *pNextWordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
-					assert(pNextWordEntry != NULL);
+					assert(pNextWordEntry != nullptr);
 					const QString &strNextWord = ((!isAccentSensitive()) ?
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->decomposedWord() : pNextWordEntry->decomposedHyphenWord()) :
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->deApostrWord() : pNextWordEntry->deApostrHyphenWord()));
@@ -1241,7 +1241,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			if ((aHighlighter.isContinuous()) & (ndxNormalStart != ndxNormalEnd)) {
 				CRelIndex ndxCurrentWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart));
 				const CVerseEntry *pCurrentWordVerseEntry = m_pBibleDatabase->verseEntry(ndxCurrentWord);
-				assert(pCurrentWordVerseEntry != NULL);
+				assert(pCurrentWordVerseEntry != nullptr);
 				if (pCurrentWordVerseEntry) {
 					unsigned int nVrsWordCount = pCurrentWordVerseEntry->m_nNumWrd;
 					uint32_t ndxNormalLastVerseWord = ndxNormalStart + nVrsWordCount - ndxCurrentWord.word();
@@ -1290,14 +1290,14 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 
 		// Main Chapter:
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
-		assert(pChapter != NULL);
+		assert(pChapter != nullptr);
 		tagsCurrentDisplay.append((TPhraseTag(ndxDisplay, pChapter->m_nNumWrd)));
 
 		// Verse Before:
 		CRelIndex ndxVerseBefore = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxDisplay.book(), ndxDisplay.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
 		if (ndxVerseBefore.isSet()) {
 			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
-			assert(pVerseBefore != NULL);
+			assert(pVerseBefore != nullptr);
 			tagsCurrentDisplay.append(TPhraseTag(ndxVerseBefore, pVerseBefore->m_nNumWrd));
 		}
 
@@ -1305,17 +1305,17 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 		CRelIndex ndxVerseAfter = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxDisplay.book(), ndxDisplay.chapter(), 1, 1), false);	// Calculate first verse of next chapter
 		if (ndxVerseAfter.isSet()) {
 			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
-			assert(pVerseAfter != NULL);
+			assert(pVerseAfter != nullptr);
 			tagsCurrentDisplay.append(TPhraseTag(ndxVerseAfter, pVerseAfter->m_nNumWrd));
 		}
 
 		// If this book has a colophon and this is the last chapter of that book, we
 		//	need to add it as well:
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxDisplay.book());
-		assert(pBook != NULL);
+		assert(pBook != nullptr);
 		if ((pBook->m_bHaveColophon) && (ndxDisplay.chapter() == pBook->m_nNumChp)) {
 			const CVerseEntry *pBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxDisplay.book(), 0, 0, 0));
-			assert(pBookColophon != NULL);
+			assert(pBookColophon != nullptr);
 			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxDisplay.book(), 0, 0, 1), pBookColophon->m_nNumWrd));
 		}
 
@@ -1324,10 +1324,10 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 		//	and other markup for it:
 		if ((ndxVerseBefore.isSet()) && (ndxVerseBefore.book() != ndxDisplay.book())) {
 			const CBookEntry *pBookVerseBefore = m_pBibleDatabase->bookEntry(ndxVerseBefore.book());
-			assert(pBookVerseBefore != NULL);
+			assert(pBookVerseBefore != nullptr);
 			if (pBookVerseBefore->m_bHaveColophon) {
 				const CVerseEntry *pPrevBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxVerseBefore.book(), 0, 0, 0));
-				assert(pPrevBookColophon != NULL);
+				assert(pPrevBookColophon != nullptr);
 				tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxVerseBefore.book(), 0, 0, 1), pPrevBookColophon->m_nNumWrd));
 			}
 		}
@@ -1540,7 +1540,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(ndx.book());
 
 	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
-	if (pChapter == NULL) {
+	if (pChapter == nullptr) {
 		assert(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
@@ -1837,7 +1837,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
-		if (pVerse == NULL) {
+		if (pVerse == nullptr) {
 			assert(false);
 			continue;
 		}
@@ -1993,7 +1993,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		CRelIndex ndxBookNext(relNext.book(), 0, 0, 0);
 		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
 		const CChapterEntry *pChapterNext = m_pBibleDatabase->chapterEntry(ndxBookChapNext);
-		assert(pChapterNext != NULL);
+		assert(pChapterNext != nullptr);
 
 		// Print Heading for this Book:
 		if (relNext.book() != ndx.book()) {
@@ -2179,8 +2179,8 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 
 	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);		// Note: Will be null on colophon
 
-	if (((pChapter != NULL) && (ndx.verse() > pChapter->m_nNumVrs)) ||
-		((pChapter == NULL) && (ndx.verse() != 0))) {
+	if (((pChapter != nullptr) && (ndx.verse() > pChapter->m_nNumVrs)) ||
+		((pChapter == nullptr) && (ndx.verse() != 0))) {
 		assert(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
@@ -2253,7 +2253,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 
 	do {
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
-		if (pVerse == NULL) {
+		if (pVerse == nullptr) {
 			assert(false);
 			if ((flagsTRO & TRO_InnerHTML) == 0) {
 				emit changedDocumentText();
@@ -2972,7 +2972,7 @@ CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aC
 		static const CVerseTextPlainRichifierTags tagsRichifier;
 		while ((nCount > 0) && (ndxRel.isSet())) {
 			const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxRel);
-			assert(pVerse != NULL);
+			assert(pVerse != nullptr);
 			strPhrase += CVerseTextRichifier::parse(ndxRel, m_pBibleDatabase.data(), pVerse, tagsRichifier, false, &nCount);
 			if (nCount) {
 				// Goto the first word of this verse and add the number of words in this verse to get to start of next verse:
@@ -3106,7 +3106,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const Q
 {
 	assert(!m_pBibleDatabase.isNull());
 
-	assert(pHelpEvent != NULL);
+	assert(pHelpEvent != nullptr);
 	CSelectionPhraseTagList lstRefSelection = getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
 	TPhraseTag tagReference = TPhraseTag(lstRefSelection.primarySelection().relIndex(), 1);
 	QString strToolTip = getToolTip(tagReference, selection);

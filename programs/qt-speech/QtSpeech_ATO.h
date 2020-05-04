@@ -54,7 +54,7 @@
 
 struct TAsyncTalkingObject
 {
-	TAsyncTalkingObject(const QString &strText = QString(), QObject *pObject = NULL, const char *pSlot = NULL)
+	TAsyncTalkingObject(const QString &strText = QString(), QObject *pObject = nullptr, const char *pSlot = nullptr)
 		:	m_strText(strText),
 			m_pObject(pObject),
 			m_pSlot(pSlot)
@@ -62,7 +62,7 @@ struct TAsyncTalkingObject
 
 	bool hasNotificationSlot() const
 	{
-		return ((m_pSlot != NULL) && (!m_pObject.isNull()));
+		return ((m_pSlot != nullptr) && (!m_pObject.isNull()));
 	}
 
 	QString m_strText;
@@ -78,7 +78,7 @@ class QtSpeech_asyncServerIOMonitor : public QObject
 {
 	Q_OBJECT
 public:
-	QtSpeech_asyncServerIOMonitor(QObject *pParent = NULL)
+	QtSpeech_asyncServerIOMonitor(QObject *pParent = nullptr)
 		:	QObject(pParent),
 			m_bIsTalking(false)
 	{

@@ -58,7 +58,7 @@ public:
 	Q_DECLARE_FLAGS(NavigatorRefTypeOptionFlags, NavigatorRefTypeOptions)
 
 
-	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0, NavigatorRefTypeOptionFlags flagsRefTypes = NRTO_Default, NAVIGATOR_REF_TYPE_ENUM nRefType = NRTE_WORD);
+	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr, NavigatorRefTypeOptionFlags flagsRefTypes = NRTO_Default, NAVIGATOR_REF_TYPE_ENUM nRefType = NRTE_WORD);
 	virtual ~CKJVPassageNavigator();
 
 	TPhraseTag passage() const;
@@ -119,7 +119,7 @@ private:
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
 #define begin_update()							\
-			CBusyCursor iAmBusy(NULL);			\
+			CBusyCursor iAmBusy(nullptr);		\
 			bool bUpdateSave = m_bDoingUpdate;	\
 			m_bDoingUpdate = true;
 #define end_update()							\

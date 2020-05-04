@@ -91,29 +91,29 @@ template <class T, class U>
 CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	T(parent),
 		m_pBibleDatabase(pBibleDatabase),
-		m_pFindDialog(NULL),
+		m_pFindDialog(nullptr),
 		m_bDoingPopup(false),
 		m_bDoingSelectionChange(false),
 		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
-		m_pEditMenu(NULL),
-		m_pActionCopy(NULL),
-		m_pActionCopyPlain(NULL),
-		m_pActionCopyRaw(NULL),
-		m_pActionCopyVeryRaw(NULL),
-		m_pActionCopyVerses(NULL),
-		m_pActionCopyVersesPlain(NULL),
-		m_pActionCopyReferenceDetails(NULL),
-		m_pActionCopyPassageStatistics(NULL),
-		m_pActionCopyEntirePassageDetails(NULL),
-		m_pActionSelectAll(NULL),
-		m_pActionFind(NULL),
-		m_pActionFindNext(NULL),
-		m_pActionFindPrev(NULL),
-		m_pActionShowAllNotes(NULL),
-		m_pActionHideAllNotes(NULL),
-		m_pStatusAction(NULL),
-		m_pParentCanOpener(NULL),
+		m_pEditMenu(nullptr),
+		m_pActionCopy(nullptr),
+		m_pActionCopyPlain(nullptr),
+		m_pActionCopyRaw(nullptr),
+		m_pActionCopyVeryRaw(nullptr),
+		m_pActionCopyVerses(nullptr),
+		m_pActionCopyVersesPlain(nullptr),
+		m_pActionCopyReferenceDetails(nullptr),
+		m_pActionCopyPassageStatistics(nullptr),
+		m_pActionCopyEntirePassageDetails(nullptr),
+		m_pActionSelectAll(nullptr),
+		m_pActionFind(nullptr),
+		m_pActionFindNext(nullptr),
+		m_pActionFindPrev(nullptr),
+		m_pActionShowAllNotes(nullptr),
+		m_pActionHideAllNotes(nullptr),
+		m_pStatusAction(nullptr),
+		m_pParentCanOpener(nullptr),
 		m_dlyDetailUpdate(-1, 500),
 		m_dlyRerenderCompressor(-1, 10)
 {
@@ -192,7 +192,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(QObject::tr("Select all current passage browser text", "MainMenu"));
 	m_pEditMenu->addSeparator();
-	if (m_pFindDialog != NULL) {
+	if (m_pFindDialog != nullptr) {
 		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
 		m_pActionFind->setStatusTip(QObject::tr("Find text within the passage browser", "MainMenu"));
 		m_pActionFind->setEnabled(T::useFindDialog());
@@ -204,7 +204,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionFindPrev->setEnabled(T::useFindDialog());
 	}
 
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
 		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
 
 		// Trigger adding our higlighters and things are we've discovered our CKJVCanOpener parent:
@@ -221,7 +221,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pStatusAction = new QAction(this);
 
 #ifdef USING_QT_SPEECH
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
 		QAction *pSpeechAction;
 
 		pSpeechAction = new QAction("readFromCursor", this);
@@ -236,7 +236,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		assert(!g_pMyApplication.isNull());
 		QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-		if (pSpeech != NULL) {
+		if (pSpeech != nullptr) {
 			T::connect(pSpeech, SIGNAL(beginning()), this, SLOT(setSpeechActionEnables()));
 			T::connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(setSpeechActionEnables()));
 		}
@@ -353,7 +353,7 @@ void CScriptureText<T,U>::grabGestures(bool bGrab)
 template<class T, class U>
 CKJVCanOpener *CScriptureText<T,U>::parentCanOpener() const
 {
-	if (m_pParentCanOpener == NULL) {
+	if (m_pParentCanOpener == nullptr) {
 		assert(!g_pMyApplication.isNull());
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<T>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
@@ -368,9 +368,9 @@ template<class T, class U>
 void CScriptureText<T,U>::en_findParentCanOpener()
 {
 	CKJVCanOpener *pCanOpener = parentCanOpener();
-	assert(pCanOpener != NULL);
+	assert(pCanOpener != nullptr);
 
-	if ((pCanOpener != NULL) && (qobject_cast<const QTextBrowser *>(this) != NULL)) {
+	if ((pCanOpener != nullptr) && (qobject_cast<const QTextBrowser *>(this) != nullptr)) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
@@ -412,18 +412,18 @@ void CScriptureText<T,U>::setTextBrightness(bool bInvert, int nBrightness)
 template<class T, class U>
 void CScriptureText<T,U>::savePersistentSettings(const QString &strGroup)
 {
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
-		if (m_pFindDialog != NULL) m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+		if (m_pFindDialog != nullptr) m_pFindDialog->writeSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
 	}
 }
 
 template<class T, class U>
 void CScriptureText<T,U>::restorePersistentSettings(const QString &strGroup)
 {
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
-		if (m_pFindDialog != NULL) m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
+		if (m_pFindDialog != nullptr) m_pFindDialog->readSettings(settings, groupCombine(strGroup, constrFindDialogGroup));
 	}
 }
 
@@ -436,7 +436,7 @@ void CScriptureText<T,U>::en_readSelection()
 {
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if (pSpeech == NULL) return;
+	if (pSpeech == nullptr) return;
 
 	if (!haveSelection()) return;
 
@@ -469,7 +469,7 @@ template<class T, class U>
 void CScriptureText<T,U>::setSpeechActionEnables()
 {
 	bool bIsScriptureBrowser = false;
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
 		bIsScriptureBrowser = true;
 	}
 	if (!bIsScriptureBrowser) return;				// Needed for the updateSelection() processing
@@ -477,8 +477,8 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if ((pSpeech != NULL) && (U::hasFocus())) {
-		if (parentCanOpener()->actionSpeechPlay() != NULL) {
+	if ((pSpeech != nullptr) && (U::hasFocus())) {
+		if (parentCanOpener()->actionSpeechPlay() != nullptr) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(pSpeech->canSpeak() && !pSpeech->isTalking() && haveSelection());
 		}
 	}
@@ -491,7 +491,7 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 template<class T, class U>
 void CScriptureText<T,U>::en_findDialog()
 {
-	if (m_pFindDialog != NULL) {
+	if (m_pFindDialog != nullptr) {
 		if (haveSelection()) {
 			m_pFindDialog->setTextToFind(m_lstSelectedPhrases.phraseRaw());
 		}
@@ -544,14 +544,14 @@ template<class T, class U>
 bool CScriptureText<T,U>::event(QEvent *ev)
 {
 	bool bIsScriptureBrowser = false;
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
 		bIsScriptureBrowser = true;
 	}
 
 	if (ev->type() == QEvent::FocusIn) {
 		emit T::activatedScriptureText();
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-		if (parentCanOpener() != NULL) {
+		if (parentCanOpener() != nullptr) {
 			parentCanOpener()->actionUserNoteEditor()->setEnabled(bIsScriptureBrowser);
 			parentCanOpener()->actionCrossRefsEditor()->setEnabled(bIsScriptureBrowser);
 			const QList<QAction *> lstHighlightActions = parentCanOpener()->highlighterButtons()->actions();
@@ -561,7 +561,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 		}
 #endif
 #ifdef USING_QT_SPEECH
-		if ((parentCanOpener() != NULL) && (bIsScriptureBrowser)) {
+		if ((parentCanOpener() != nullptr) && (bIsScriptureBrowser)) {
 			if (parentCanOpener()->actionSpeechPlay())
 				T::connect(parentCanOpener()->actionSpeechPlay(), SIGNAL(triggered()), this, SLOT(en_readSelection()), Qt::UniqueConnection);
 			if (parentCanOpener()->actionSpeakSelection())
@@ -571,7 +571,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 #endif
 	} else if (ev->type() == QEvent::FocusOut) {
 		QFocusEvent *pFocusEvent = static_cast<QFocusEvent *>(ev);
-		if ((parentCanOpener() != NULL) &&
+		if ((parentCanOpener() != nullptr) &&
 			(pFocusEvent->reason() != Qt::MenuBarFocusReason) &&
 			(pFocusEvent->reason() != Qt::PopupFocusReason)) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -730,7 +730,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 //	pDlg->navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 	pDlg->navigator().startAbsoluteMode(tagSel);
 	if (pDlg->exec() == QDialog::Accepted) {
-		if (pDlg != NULL) emit T::gotoIndex(pDlg->passage());		// Could get deleted during execution
+		if (pDlg != nullptr) emit T::gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
 #else
 	CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(m_pBibleDatabase, T::parentWidget());
@@ -774,7 +774,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 		menu->addAction(m_pActionFindNext);
 		menu->addAction(m_pActionFindPrev);
 	}
-	if (qobject_cast<const QTextBrowser *>(this) != NULL) {
+	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
 		if (parentCanOpener()) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 			menu->addSeparator();
@@ -1135,14 +1135,14 @@ void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSeco
 	Q_UNUSED(bSecondaryActive);
 
 	if (!U::hasFocus()) return;
-	assert(parentCanOpener() != NULL);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
+	assert(parentCanOpener() != nullptr);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
 	assert(!g_pUserNotesDatabase.isNull());
 
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
 	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
 
-	bool bCompletelyContained = (plstHighlighterTags != NULL);		// Assume it will be completely contained if we have a highlighter and if any phrase isn't, this will get cleared
+	bool bCompletelyContained = (plstHighlighterTags != nullptr);		// Assume it will be completely contained if we have a highlighter and if any phrase isn't, this will get cleared
 	TPhraseTagList lstHighlightList;
 	CSelectionPhraseTagList lstSelection = selection();
 	for (int ndxSel = 0; ndxSel < lstSelection.size(); ++ndxSel) {
@@ -1164,7 +1164,7 @@ void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSeco
 			tagSel = TPhraseTag(CRelIndex(relNdx.book(), relNdx.chapter(), relNdx.verse(), 1), m_pBibleDatabase->verseEntry(relNdx)->m_nNumWrd);
 		}
 
-		if ((plstHighlighterTags != NULL) && (!plstHighlighterTags->completelyContains(m_pBibleDatabase.data(), tagSel))) {
+		if ((plstHighlighterTags != nullptr) && (!plstHighlighterTags->completelyContains(m_pBibleDatabase.data(), tagSel))) {
 			bCompletelyContained = false;
 		}
 
@@ -1173,7 +1173,7 @@ void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSeco
 
 	if (lstHighlightList.isEmpty()) return;
 
-	CBusyCursor iAmBusy(NULL);
+	CBusyCursor iAmBusy(nullptr);
 
 	for (int ndxSel = 0; ndxSel < lstHighlightList.size(); ++ndxSel) {
 		TPhraseTag tagSel = lstHighlightList.at(ndxSel);

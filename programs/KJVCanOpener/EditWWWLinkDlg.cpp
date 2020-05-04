@@ -40,9 +40,9 @@ CEditWWWLinkDlg::CEditWWWLinkDlg(const QString strURL, QWidget *pParent)
 
 	// --------------------------------------------------------------
 
-	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != NULL);
+	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
-	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != NULL);
+	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
 
 	// Connect before setting the text so we'll trigger our slot:
@@ -86,7 +86,7 @@ void CEditWWWLinkDlg::en_textChanged(const QString &strURL)
 		(strScheme.compare("ftps", Qt::CaseInsensitive) != 0) &&
 		(strScheme.compare("sftp", Qt::CaseInsensitive) != 0)) m_bIsValid = false;
 
-	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != NULL);
+	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(m_bIsValid);
 }
 

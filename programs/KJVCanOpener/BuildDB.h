@@ -45,7 +45,7 @@ class CCSVStream;
 class CBuildDatabase
 {
 public:
-	CBuildDatabase(QWidget *pParent = NULL);
+	CBuildDatabase(QWidget *pParent = nullptr);
 	~CBuildDatabase();
 
 	bool BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename);

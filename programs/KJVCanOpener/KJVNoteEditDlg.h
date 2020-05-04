@@ -45,7 +45,7 @@ class CKJVNoteEditDlg : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
+	explicit CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
 	virtual ~CKJVNoteEditDlg();
 
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "UserNoteEditor");
@@ -98,7 +98,7 @@ private:
 class CKJVNoteEditDlgPtr : public QPointer<CKJVNoteEditDlg>
 {
 public:
-	CKJVNoteEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = NULL)
+	CKJVNoteEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr)
 		:	QPointer<CKJVNoteEditDlg>(new CKJVNoteEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
 	{
 

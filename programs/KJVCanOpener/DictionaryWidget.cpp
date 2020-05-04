@@ -39,7 +39,7 @@
 
 CDictionaryLineEdit::CDictionaryLineEdit(QWidget *pParent)
 	:	CSingleLineTextEdit(DICTIONARY_COMPLETER_BUTTON_SIZE_Y, pParent),
-		m_pCompleter(NULL),
+		m_pCompleter(nullptr),
 		m_bUpdateInProgress(false)
 {
 
@@ -79,7 +79,7 @@ void CDictionaryLineEdit::setDictionary(CDictionaryDatabasePtr pDictionary)
 	m_dlyUpdateCompleter.untrigger();
 	if (m_pCompleter) {
 		delete m_pCompleter;
-		m_pCompleter = NULL;
+		m_pCompleter = nullptr;
 	}
 
 	m_pCompleter = new SearchCompleter_t(m_pDictionaryDatabase, *this, this);
@@ -121,7 +121,7 @@ void CDictionaryLineEdit::setupCompleter(const QString &strText, bool bForce)
 
 	if (bForce || (!strText.isEmpty() && (strWord.length() > 2))) {
 		if (bForce || (!m_pDictionaryDatabase->wordExists(toPlainText().trimmed()))) {
-			CBusyCursor iAmBusy(NULL);
+			CBusyCursor iAmBusy(nullptr);
 			m_pCompleter->complete();
 		}
 	}
@@ -195,9 +195,9 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const Q
 		m_pDictionaryDatabase(pDictionary),
 		m_strLanguage(strLanguage),
 		m_bDoingPopup(false),
-		m_pEditMenuDictionary(NULL),
-		m_pEditMenuDictWord(NULL),
-		m_pActionDictDatabasesList(NULL),
+		m_pEditMenuDictionary(nullptr),
+		m_pEditMenuDictWord(nullptr),
+		m_pActionDictDatabasesList(nullptr),
 		m_bDoingUpdate(false),
 		m_bIgnoreNextWordChange(false),
 		m_bHaveURLLastWord(false)
@@ -328,7 +328,7 @@ CDictionaryWidget::~CDictionaryWidget()
 
 bool CDictionaryWidget::eventFilter(QObject *pObject, QEvent *pEvent)
 {
-	assert(pEvent != NULL);
+	assert(pEvent != nullptr);
 
 	if ((pObject == ui.definitionBrowser) && (pEvent->type() == QEvent::FocusIn)) {
 		emit activatedDictionary(false);
@@ -436,7 +436,7 @@ void CDictionaryWidget::en_definitionBrowserContextMenuRequested(const QPoint &p
 	bool bPopupSave = m_bDoingPopup;
 	m_bDoingPopup = true;
 
-	assert(m_pEditMenuDictionary != NULL);
+	assert(m_pEditMenuDictionary != nullptr);
 #ifndef USE_ASYNC_DIALOGS
 	m_pEditMenuDictionary->exec(ui.definitionBrowser->viewport()->mapToGlobal(pos));
 #else
@@ -451,7 +451,7 @@ void CDictionaryWidget::en_editDictionaryWordContextMenuRequested(const QPoint &
 	bool bPopupSave = m_bDoingPopup;
 	m_bDoingPopup = true;
 
-	assert(m_pEditMenuDictWord != NULL);
+	assert(m_pEditMenuDictWord != nullptr);
 #ifndef USE_ASYNC_DIALOGS
 	m_pEditMenuDictWord->exec(ui.editDictionaryWord->viewport()->mapToGlobal(pos));
 #else
@@ -475,8 +475,8 @@ void CDictionaryWidget::setTextBrightness(bool bInvert, int nBrightness)
 
 void CDictionaryWidget::en_updateDictionaryDatabasesList()
 {
-	assert(m_pActionDictDatabasesList != NULL);
-	assert(m_pActionDictDatabasesList->menu() != NULL);
+	assert(m_pActionDictDatabasesList != nullptr);
+	assert(m_pActionDictDatabasesList->menu() != nullptr);
 
 	if (!m_pActionGroupDictDatabasesList.isNull()) delete m_pActionGroupDictDatabasesList;
 	m_pActionGroupDictDatabasesList = new QActionGroup(this);
@@ -534,9 +534,9 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 
 void CDictionaryWidget::en_selectDictionary(QAction *pAction)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 
-	if (pAction != NULL) {
+	if (pAction != nullptr) {
 		QString strUUID = pAction->data().toString();
 		if (strUUID.compare(m_pDictionaryDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) return;		// Ignore if "switching" to same database
 

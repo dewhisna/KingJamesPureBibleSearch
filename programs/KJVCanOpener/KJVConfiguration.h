@@ -91,7 +91,7 @@ class CKJVTextFormatConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = 0);						// Databases for the preview
+	explicit CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr);						// Databases for the preview
 	~CKJVTextFormatConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -172,7 +172,7 @@ class CKJVBibleDatabaseConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVBibleDatabaseConfig(QWidget *parent = 0);
+	explicit CKJVBibleDatabaseConfig(QWidget *parent = nullptr);
 	~CKJVBibleDatabaseConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -224,7 +224,7 @@ class CKJVDictDatabaseConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVDictDatabaseConfig(QWidget *parent = 0);
+	explicit CKJVDictDatabaseConfig(QWidget *parent = nullptr);
 	~CKJVDictDatabaseConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -273,7 +273,7 @@ class CKJVTTSOptionsConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVTTSOptionsConfig(QWidget *parent = 0);
+	explicit CKJVTTSOptionsConfig(QWidget *parent = nullptr);
 	~CKJVTTSOptionsConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -313,7 +313,7 @@ class CKJVUserNotesDatabaseConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
+	explicit CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
 	~CKJVUserNotesDatabaseConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -359,7 +359,7 @@ class CConfigSearchOptions : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CConfigSearchOptions(QWidget *parent = 0);
+	explicit CConfigSearchOptions(QWidget *parent = nullptr);
 	~CConfigSearchOptions();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -400,7 +400,7 @@ class CConfigBrowserOptions : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CConfigBrowserOptions(QWidget *parent = 0);
+	explicit CConfigBrowserOptions(QWidget *parent = nullptr);
 	~CConfigBrowserOptions();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -438,7 +438,7 @@ class CConfigDictionaryOptions : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CConfigDictionaryOptions(QWidget *parent = 0);
+	explicit CConfigDictionaryOptions(QWidget *parent = nullptr);
 	~CConfigDictionaryOptions();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -474,7 +474,7 @@ class CConfigCopyOptions : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);		// Database for the preview
+	explicit CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);		// Database for the preview
 	~CConfigCopyOptions();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -538,7 +538,7 @@ class CKJVGeneralSettingsConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	~CKJVGeneralSettingsConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -566,7 +566,7 @@ class CKJVLocaleConfig : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVLocaleConfig(QWidget *parent = 0);
+	explicit CKJVLocaleConfig(QWidget *parent = nullptr);
 	~CKJVLocaleConfig();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -623,7 +623,7 @@ class CKJVConfiguration : public QwwConfigWidget
 	Q_OBJECT
 
 public:
-	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
+	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
 	virtual ~CKJVConfiguration();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
@@ -657,7 +657,7 @@ class CKJVConfigurationDialog : public QDialog
 	Q_OBJECT
 
 public:
-	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = NULL, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
+	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
 	virtual ~CKJVConfigurationDialog();
 
 	bool restartApp() const { return m_bRestartApp; }

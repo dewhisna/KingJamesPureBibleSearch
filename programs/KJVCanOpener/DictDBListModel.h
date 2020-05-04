@@ -46,7 +46,7 @@ public:
 		DDDRE_UUID_ROLE = Qt::UserRole + 2						// Dictionary Database UUID
 	};
 
-	CDictDatabaseListModel(QObject *parent = NULL);
+	CDictDatabaseListModel(QObject *parent = nullptr);
 	virtual ~CDictDatabaseListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;

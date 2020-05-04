@@ -70,7 +70,7 @@ class QtSpeech_th : public QObject
 {
 	Q_OBJECT
 public:
-	QtSpeech_th(const QtSpeech::TVoiceName &aVoiceName, QObject *pParent = NULL);
+	QtSpeech_th(const QtSpeech::TVoiceName &aVoiceName, QObject *pParent = nullptr);
 	virtual ~QtSpeech_th();
 
 	void speechFinished(SpeechChannel nChannel, SpeechDoneUPP_ARG2 refCon);		// Called by QtSpeech_GlobalData when async speech event has finished

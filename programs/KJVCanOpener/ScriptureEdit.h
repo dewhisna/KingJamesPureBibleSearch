@@ -71,7 +71,7 @@ template <class T, class U>
 class CScriptureText : public T
 {
 public:
-	CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	virtual ~CScriptureText();
 
 	void savePersistentSettings(const QString &strGroup);
@@ -229,7 +229,7 @@ class i_CScriptureEdit : public QTextEdit
 {
 	Q_OBJECT
 public:
-	explicit i_CScriptureEdit(QWidget *parent = 0)
+	explicit i_CScriptureEdit(QWidget *parent = nullptr)
 		:	QTextEdit(parent)
 	{ }
 
@@ -288,7 +288,7 @@ class i_CScriptureBrowser : public QTextBrowser
 {
 	Q_OBJECT
 public:
-	explicit i_CScriptureBrowser(QWidget *parent = 0)
+	explicit i_CScriptureBrowser(QWidget *parent = nullptr)
 		:	QTextBrowser(parent)
 	{ }
 
@@ -350,7 +350,7 @@ public slots:
 class CScriptureEdit : public CScriptureText<i_CScriptureEdit, QTextEdit>
 {
 public:
-	explicit CScriptureEdit(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0)
+	explicit CScriptureEdit(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr)
 		:	CScriptureText<i_CScriptureEdit, QTextEdit>(pBibleDatabase, parent)
 	{ }
 };
@@ -358,7 +358,7 @@ public:
 class CScriptureBrowser : public CScriptureText<i_CScriptureBrowser, QTextBrowser>
 {
 public:
-	explicit CScriptureBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0)
+	explicit CScriptureBrowser(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr)
 		:	CScriptureText<i_CScriptureBrowser, QTextBrowser>(pBibleDatabase, parent)
 	{ }
 };

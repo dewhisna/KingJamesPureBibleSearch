@@ -71,7 +71,7 @@ private:
 class CKJVAboutDlgPtr : public QPointer<CKJVAboutDlg>
 {
 public:
-	CKJVAboutDlgPtr(QWidget *parent = NULL)
+	CKJVAboutDlgPtr(QWidget *parent = nullptr)
 		:	QPointer<CKJVAboutDlg>(new CKJVAboutDlg(parent))
 	{
 

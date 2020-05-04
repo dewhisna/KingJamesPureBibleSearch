@@ -226,7 +226,7 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext)
 	:	m_pRichNext(pRichNext),
 		m_chrMatchChar(chrMatchChar),
-		m_pVerse(NULL),
+		m_pVerse(nullptr),
 		m_strXlateText(strXlateText),
 		m_bUseLemmas(false),
 		m_bUseWordSpans(false)
@@ -241,7 +241,7 @@ CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerse
 		m_bUseLemmas(bUseLemmas),
 		m_bUseWordSpans(bUseWordSpans)
 {
-	assert(pVerse != NULL);
+	assert(pVerse != nullptr);
 }
 
 CVerseTextRichifier::~CVerseTextRichifier()
@@ -276,7 +276,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 
 	QStringList lstSplit;
 
-	if (m_pVerse != NULL) {
+	if (m_pVerse != nullptr) {
 		lstSplit.reserve(m_pVerse->m_nNumWrd + 1);
 		lstSplit = parseBaton.m_strTemplate.split(m_chrMatchChar);
 		assert(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
@@ -289,10 +289,10 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 	bool bStartedVerseOutput = false;		// Set to true when we first start writing output on this verse
 
 	for (int i=0; i<lstSplit.size(); ++i) {
-		if (m_pVerse != NULL) {
+		if (m_pVerse != nullptr) {
 			bool bOldOutputStatus = parseBaton.m_bOutput;
 			parseBaton.m_bOutput = (static_cast<unsigned int>(i) >= parseBaton.m_nStartWord);
-			if ((parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) == 0)) parseBaton.m_bOutput = false;
+			if ((parseBaton.m_pWordCount != nullptr) && ((*parseBaton.m_pWordCount) == 0)) parseBaton.m_bOutput = false;
 
 			if (bOldOutputStatus && !parseBaton.m_bOutput && parseBaton.m_bUsesHTML && m_bUseLemmas && (parseBaton.m_pCurrentLemma != nullptr)) {
 				// If we transitioned out of output and lemma, finish writing
@@ -302,7 +302,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 			}
 		}
 		if (i > 0) {
-			if (m_pVerse != NULL) {
+			if (m_pVerse != nullptr) {
 #ifdef OSIS_PARSER_BUILD
 				QString strWord = m_pVerse->m_lstRichWords.at(i-1);
 #else
@@ -370,7 +370,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				} else {
 					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(strWord);
 				}
-				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != NULL) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
+				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != nullptr) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
 			} else {
 				if (m_chrMatchChar == QChar('A')) {
 					if (parseBaton.m_bOutput && parseBaton.m_bUsesHTML) {
@@ -381,7 +381,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				} else if (m_chrMatchChar == QChar('D')) {
 					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
 				} else if (m_chrMatchChar == QChar('R')) {
-					assert(parseBaton.m_pHighlighter != NULL);
+					assert(parseBaton.m_pHighlighter != nullptr);
 					// Note: for searchResult, we always have to check the intersection and handle
 					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
@@ -395,7 +395,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 						parseBaton.m_bInSearchResult = true;
 					}
 				} else if (m_chrMatchChar == QChar('r')) {
-					assert(parseBaton.m_pHighlighter != NULL);
+					assert(parseBaton.m_pHighlighter != nullptr);
 					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
 					if ((parseBaton.m_bOutput) &&
@@ -411,7 +411,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					if (ndxWord.word() > 1) parseBaton.m_strVerseText.append(' ');
 					parseBaton.m_strVerseText.append(m_strXlateText);		// Opening '('
 					const CFootnoteEntry *pFootnote = parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
-					assert(pFootnote != NULL);
+					assert(pFootnote != nullptr);
 					parseBaton.m_strVerseText.append(pFootnote->text());
 				} else if (m_chrMatchChar == QChar('n')) {
 					parseBaton.m_strVerseText.append(m_strXlateText);		// Closing ')'
@@ -433,7 +433,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 			if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(lstSplit.at(i));
 		}
 	}
-	if (m_pVerse != NULL) {
+	if (m_pVerse != nullptr) {
 		// Push any remaining stack:
 		parseBaton.m_strVerseText.append(parseBaton.m_strPrewordStack);
 		parseBaton.m_strPrewordStack.clear();
@@ -459,8 +459,8 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const CBasicHighlighter *pHighlighter, bool bUseLemmas, bool bUseWordSpans)
 {
-	assert(pBibleDatabase != NULL);
-	assert(pVerse != NULL);
+	assert(pBibleDatabase != nullptr);
+	assert(pVerse != nullptr);
 
 	CRelIndex ndxRelVerse(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);	// Relative as verse only
 
@@ -557,7 +557,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	// --------------------------------
 
 	// Highlighter last so that its color takes precedence over Words of Jesus color, etc:
-	if ((pHighlighter != NULL) &&
+	if ((pHighlighter != nullptr) &&
 		(pHighlighter->enabled())) {
 		strTemplate.replace(QChar('w'), "Rwr");
 	}

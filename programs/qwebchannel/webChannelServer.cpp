@@ -46,7 +46,7 @@ CWebChannelClient::CWebChannelClient(CWebChannelServer *pParent)
 		m_nChannelState(WCCS_CREATED),
 		m_pWebChannelServer(pParent)
 {
-	assert(m_pWebChannelServer != NULL);
+	assert(m_pWebChannelServer != nullptr);
 
 	m_strConnectionTime = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
 
@@ -116,31 +116,31 @@ void CWebChannelClient::sendBroadcast(const QString &strMessage)
 
 void CWebChannelClient::setThreadIndex()
 {
-	assert(m_pWebChannelServer != NULL);
+	assert(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientThreadIndex(this);
 }
 
 void CWebChannelClient::setIdle()
 {
-	assert(m_pWebChannelServer != NULL);
+	assert(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientIdle(this);
 }
 
 void CWebChannelClient::killWebChannel()
 {
-	assert(m_pWebChannelServer != NULL);
+	assert(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->killClient(this);
 }
 
 void CWebChannelClient::setUserAgent()
 {
-	assert(m_pWebChannelServer != NULL);
+	assert(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientUserAgent(this);
 }
 
 void CWebChannelClient::setBibleUUID()
 {
-	assert(m_pWebChannelServer != NULL);
+	assert(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientBibleUUID(this);
 }
 
@@ -152,7 +152,7 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 		m_clientWrapper(&m_server),
 		m_HostAddress(anAddress),
 		m_nHostPort(nPort),
-		m_pGeoLocater(NULL)
+		m_pGeoLocater(nullptr)
 {
 	m_pGeoLocater = new CWebChannelGeoLocate(this);
 	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &, const QString &)));
@@ -337,7 +337,7 @@ void CWebChannelServer::en_checkClientStates()
 
 	// Close and remove prescribed clients (removal happens in disconnect signal processing):
 	for (int i = 0; i < lstClientsToDrop.size(); ++i) {
-		assert(lstClientsToDrop.at(i) != NULL);
+		assert(lstClientsToDrop.at(i) != nullptr);
 		lstClientsToDrop.at(i)->socket()->close(QWebSocketProtocol::CloseCodeGoingAway, "disconnectClient");
 	}
 }

@@ -174,7 +174,7 @@ public:
 class CScriptureTextDocumentDirector : public Grantlee::MarkupDirector
 {
 public:
-	CScriptureTextDocumentDirector(CAbstractScriptureBuilderBase *pBuilder, const CBibleDatabase *pBibleDatabase = NULL);
+	CScriptureTextDocumentDirector(CAbstractScriptureBuilderBase *pBuilder, const CBibleDatabase *pBibleDatabase = nullptr);
 	virtual ~CScriptureTextDocumentDirector();
 
 	virtual void processCustomFragment(const QTextFragment &aFragment, const QTextDocument *pDoc);

@@ -37,7 +37,7 @@ CCSVStream &flush(CCSVStream &aStream)
 {
 	if (aStream.device()) {
 		QFile *pFile = qobject_cast<QFile *>(aStream.device());
-		assert(pFile != NULL);
+		assert(pFile != nullptr);
 		pFile->flush();
 	}
 	return aStream;

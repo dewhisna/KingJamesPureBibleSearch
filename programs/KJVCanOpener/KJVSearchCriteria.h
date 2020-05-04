@@ -186,7 +186,7 @@ class CKJVSearchCriteriaWidget : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchCriteriaWidget(QWidget *parent = 0);
+	explicit CKJVSearchCriteriaWidget(QWidget *parent = nullptr);
 	~CKJVSearchCriteriaWidget();
 
 	void initialize(CBibleDatabasePtr pBibleDatabase);
@@ -222,7 +222,7 @@ private:
 	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
 
 #define begin_update()							\
-			CBusyCursor iAmBusy(NULL);			\
+			CBusyCursor iAmBusy(nullptr);		\
 			bool bUpdateSave = m_bDoingUpdate;	\
 			m_bDoingUpdate = true;
 #define end_update()							\
@@ -242,7 +242,7 @@ class CSearchWithinModelIndex : public QObject
 	Q_OBJECT
 
 public:
-	CSearchWithinModelIndex(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM assme = CSearchCriteria::SSME_WHOLE_BIBLE, uint32_t nItemIndex = 0, CSearchWithinModelIndex *pParentIndex = NULL)
+	CSearchWithinModelIndex(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM assme = CSearchCriteria::SSME_WHOLE_BIBLE, uint32_t nItemIndex = 0, CSearchWithinModelIndex *pParentIndex = nullptr)
 		:	QObject(pParentIndex),
 			m_ssme(assme),
 			m_nItemIndex(nItemIndex),
@@ -325,7 +325,7 @@ public:
 		SWMDRE_WEBCHANNEL_ROLE = Qt::UserRole + 1		// Data role for toWebChannelJson() and toWebChannelHtml() format text
 	};
 
-	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent = 0);
+	CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent = nullptr);
 	virtual ~CSearchWithinModel();
 
 	QString searchWithinDescription() const;

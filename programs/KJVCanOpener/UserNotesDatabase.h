@@ -172,7 +172,7 @@ class CUserNotesDatabase : public QObject, protected QXmlDefaultHandler
 	Q_OBJECT
 
 public:
-	CUserNotesDatabase(QObject *pParent = NULL);
+	CUserNotesDatabase(QObject *pParent = nullptr);
 	virtual ~CUserNotesDatabase();
 
 	void setDataFrom(const CUserNotesDatabase &other);		// Works like a load() from the other object
@@ -218,7 +218,7 @@ public:
 	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
 	{
 		TBibleDBHighlighterTagMap::const_iterator itr = m_mapHighlighterTags.find(strUUID);
-		if (itr == m_mapHighlighterTags.end()) return NULL;
+		if (itr == m_mapHighlighterTags.end()) return nullptr;
 		return &(itr->second);
 	}
 	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
@@ -229,18 +229,18 @@ public:
 	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
 	{
 		const THighlighterTagMap *pmapHighlightTags = highlighterTagsFor(strUUID);
-		if (pmapHighlightTags == NULL) return NULL;
+		if (pmapHighlightTags == nullptr) return nullptr;
 		THighlighterTagMap::const_iterator itr = pmapHighlightTags->find(strUserDefinedHighlighterName);
-		if (itr == pmapHighlightTags->end()) return NULL;
+		if (itr == pmapHighlightTags->end()) return nullptr;
 		return &(itr->second);
 	}
 	bool existsHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
-		return (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) != NULL);
+		return (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) != nullptr);
 	}
 	bool existsHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
 	{
-		return (highlighterTagsFor(strUUID, strUserDefinedHighlighterName) != NULL);
+		return (highlighterTagsFor(strUUID, strUserDefinedHighlighterName) != nullptr);
 	}
 	bool existsHighlighterTagsFor(const QString &strUserDefinedHighlighterName) const
 	{

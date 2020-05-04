@@ -64,7 +64,7 @@ class CKJVCanOpener : public QMainWindow
 	Q_OBJECT
 
 public:
-	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent = 0);
+	explicit CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	~CKJVCanOpener();
 
 	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
@@ -174,7 +174,7 @@ protected slots:
 
 	void en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferenceEditor);
 	void en_addSearchResultsEditMenu(bool bAdd);
-	void en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = NULL);
+	void en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit *pEditor = nullptr);
 	void en_addDictionaryEditMenu(bool bAdd, bool bWordEditor);
 	void en_activatedBrowser(bool bPassageReferenceEditor);
 	void en_activatedSearchResults();
@@ -220,7 +220,7 @@ protected slots:
 	void en_LaunchLocaleSettingsConfig();
 	void en_LaunchTTSOptionsConfig();
 
-	void en_NewCanOpener(QAction *pAction = NULL);
+	void en_NewCanOpener(QAction *pAction = nullptr);
 
 #ifdef USING_QT_SPEECH
 	void en_speechPause();

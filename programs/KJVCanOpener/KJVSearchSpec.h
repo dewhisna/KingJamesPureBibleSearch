@@ -46,7 +46,7 @@
 class CSearchPhraseScrollArea : public QScrollArea
 {
 public:
-	CSearchPhraseScrollArea( QWidget *parent=NULL)
+	CSearchPhraseScrollArea( QWidget *parent=nullptr)
 		: QScrollArea(parent)
 	{ }
 	virtual ~CSearchPhraseScrollArea() { }
@@ -64,7 +64,7 @@ class CKJVSearchSpec : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = 0);
+	explicit CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
 	virtual ~CKJVSearchSpec();
 
 	QString searchPhraseSummaryText() const;
@@ -112,7 +112,7 @@ protected slots:
 	void resizeScrollAreaLayout();
 	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
 	void en_changedSearchCriteria();
-	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase = NULL);
+	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase = nullptr);
 public slots:
 	void en_searchResultsReady();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);

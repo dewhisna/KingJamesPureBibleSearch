@@ -241,43 +241,43 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pBibleDatabase(pBibleDatabase),
 	m_bDoingUpdate(false),
 	// ----
-	m_pActionPassageBrowserEditMenu(NULL),
-	m_pActionPassageReferenceEditMenu(NULL),
-	m_pActionSearchResultsEditMenu(NULL),
-	m_pActionSearchPhraseEditMenu(NULL),
-	m_pActionDictionaryEditMenu(NULL),
-	m_pActionDictWordEditMenu(NULL),
+	m_pActionPassageBrowserEditMenu(nullptr),
+	m_pActionPassageReferenceEditMenu(nullptr),
+	m_pActionSearchResultsEditMenu(nullptr),
+	m_pActionSearchPhraseEditMenu(nullptr),
+	m_pActionDictionaryEditMenu(nullptr),
+	m_pActionDictWordEditMenu(nullptr),
 	// ----
-	m_pViewMenu(NULL),
-	m_pActionGroupViewMode(NULL),
-	m_pActionGroupDisplayMode(NULL),
-	m_pActionGroupTreeMode(NULL),
-	m_pActionShowMissingLeafs(NULL),
-	m_pActionExpandAll(NULL),
-	m_pActionCollapseAll(NULL),
-	m_pActionViewDetails(NULL),
+	m_pViewMenu(nullptr),
+	m_pActionGroupViewMode(nullptr),
+	m_pActionGroupDisplayMode(nullptr),
+	m_pActionGroupTreeMode(nullptr),
+	m_pActionShowMissingLeafs(nullptr),
+	m_pActionExpandAll(nullptr),
+	m_pActionCollapseAll(nullptr),
+	m_pActionViewDetails(nullptr),
 	// ----
-	m_pActionBookBackward(NULL),
-	m_pActionBookForward(NULL),
-	m_pActionChapterBackward(NULL),
-	m_pActionChapterForward(NULL),
-	m_pActionNavBackward(NULL),
-	m_pActionNavForward(NULL),
-	m_pActionNavHome(NULL),
-	m_pActionNavClear(NULL),
-	m_pActionJump(NULL),
-	m_pActionRefresh(NULL),
+	m_pActionBookBackward(nullptr),
+	m_pActionBookForward(nullptr),
+	m_pActionChapterBackward(nullptr),
+	m_pActionChapterForward(nullptr),
+	m_pActionNavBackward(nullptr),
+	m_pActionNavForward(nullptr),
+	m_pActionNavHome(nullptr),
+	m_pActionNavClear(nullptr),
+	m_pActionJump(nullptr),
+	m_pActionRefresh(nullptr),
 	// ----
-	m_pActionBibleDatabasesList(NULL),
-	m_pActionSearchWindowList(NULL),
+	m_pActionBibleDatabasesList(nullptr),
+	m_pActionSearchWindowList(nullptr),
 	// ----
-	m_pActionAbout(NULL),
+	m_pActionAbout(nullptr),
 	// ----
-	m_pSpeechToolbar(NULL),
-	m_pActionSpeechPlay(NULL),
-	m_pActionSpeechPause(NULL),
-	m_pActionSpeechStop(NULL),
-	m_pActionSpeakSelection(NULL),
+	m_pSpeechToolbar(nullptr),
+	m_pActionSpeechPlay(nullptr),
+	m_pActionSpeechPause(nullptr),
+	m_pActionSpeechStop(nullptr),
+	m_pActionSpeakSelection(nullptr),
 	// ----
 	m_bBrowserActive(false),
 	m_bSearchResultsActive(false),
@@ -285,18 +285,18 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_bDictionaryActive(false),
 	m_bCanClose(true),
 	m_bIsClosing(false),
-	m_pSearchSpecWidget(NULL),
-	m_pSplitter(NULL),
-	m_pSplitterDictionary(NULL),
-	m_pSearchResultWidget(NULL),
-	m_pBrowserWidget(NULL),
-	m_pDictionaryWidget(NULL),
-	m_pUserNoteEditorDlg(NULL),
-	m_pCrossRefsEditorDlg(NULL),
-	m_pHighlighterButtons(NULL),
-	m_pActionUserNoteEditor(NULL),
-	m_pActionCrossRefsEditor(NULL),
-	m_pTipEdit(NULL),
+	m_pSearchSpecWidget(nullptr),
+	m_pSplitter(nullptr),
+	m_pSplitterDictionary(nullptr),
+	m_pSearchResultWidget(nullptr),
+	m_pBrowserWidget(nullptr),
+	m_pDictionaryWidget(nullptr),
+	m_pUserNoteEditorDlg(nullptr),
+	m_pCrossRefsEditorDlg(nullptr),
+	m_pHighlighterButtons(nullptr),
+	m_pActionUserNoteEditor(nullptr),
+	m_pActionCrossRefsEditor(nullptr),
+	m_pTipEdit(nullptr),
 	m_bTipEditIsPinned(false)
 {
 	assert(!m_pBibleDatabase.isNull());
@@ -304,7 +304,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.setupUi(this);
 
 	// Seed our random number generator for launching random passages:
-	srand(time(NULL));
+	srand(time(nullptr));
 
 	QAction *pAction;
 
@@ -338,7 +338,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #else
 	removeToolBar(ui.usernotesToolBar);
 	delete ui.usernotesToolBar;
-	ui.usernotesToolBar = NULL;
+	ui.usernotesToolBar = nullptr;
 #endif
 
 	// -------------------- Speech Toolbar:
@@ -348,7 +348,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSpeechToolbar = new QToolBar(this);
 	m_pSpeechToolbar->setObjectName(QLatin1String("speechToolBar"));
 	addToolBar(Qt::TopToolBarArea, m_pSpeechToolbar);
-	m_pSpeechToolbar->setWindowTitle(QApplication::translate("CKJVCanOpener", "Text-To-&Speech Toolbar", 0));	// Keep this in QApplication namespace to be consistent with the ToolBars in the UI file
+	m_pSpeechToolbar->setWindowTitle(QApplication::translate("CKJVCanOpener", "Text-To-&Speech Toolbar", nullptr));	// Keep this in QApplication namespace to be consistent with the ToolBars in the UI file
 
 	m_pActionSpeechPlay = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), tr("Play", "MainMenu"), this);
 #ifndef Q_OS_MAC
@@ -400,7 +400,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if (pSpeech != NULL) {
+	if (pSpeech != nullptr) {
 		connect(pSpeech, SIGNAL(beginning()), this, SLOT(setSpeechActionEnables()));
 		connect(pSpeech, SIGNAL(finished(bool)), this, SLOT(setSpeechActionEnables()));
 	}
@@ -533,7 +533,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
 	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
-	if (m_pDictionaryWidget != NULL)
+	if (m_pDictionaryWidget != nullptr)
 		connect(m_pDictionaryWidget, SIGNAL(activatedDictionary(bool)), this, SLOT(en_activatedDictionary(bool)));
 #endif
 
@@ -545,7 +545,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.mainToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Main Tool Bar", "MainMenu"));
 	pViewToolbarsMenu->addAction(ui.browserNavigationToolBar->toggleViewAction());
 	ui.browserNavigationToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide the Scripture Browser Navigation Tool Bar", "MainMenu"));
-	if (ui.usernotesToolBar != NULL) {
+	if (ui.usernotesToolBar != nullptr) {
 		pViewToolbarsMenu->addAction(ui.usernotesToolBar->toggleViewAction());
 		ui.usernotesToolBar->toggleViewAction()->setStatusTip(tr("Show/Hide Highlighter/Notes/References Tool Bar", "MainMenu"));
 	}
@@ -948,7 +948,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// -------------------- Scripture Browser:
 
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
-	if (m_pDictionaryWidget != NULL) {
+	if (m_pDictionaryWidget != nullptr) {
 		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
 		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(const QString &)), m_pBrowserWidget, SLOT(gotoPassageReference(const QString &)));
 	}
@@ -987,7 +987,7 @@ CKJVCanOpener::~CKJVCanOpener()
 CDictionaryDatabasePtr CKJVCanOpener::dictionaryDatabase() const
 {
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
-	if (m_pDictionaryWidget != NULL) {
+	if (m_pDictionaryWidget != nullptr) {
 		return m_pDictionaryWidget->dictionaryDatabase();
 	} else {
 		return CDictionaryDatabasePtr();
@@ -1008,7 +1008,7 @@ void CKJVCanOpener::initialize()
 	TPhraseTag tag(ndxBibleStart, 0);
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 
 		settings.beginGroup(constrBrowserViewGroup);
@@ -1038,7 +1038,7 @@ void CKJVCanOpener::initialize()
 
 void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 {
-	if (CPersistentSettings::instance()->settings() == NULL) return;
+	if (CPersistentSettings::instance()->settings() == nullptr) return;
 	QSettings &settings(*CPersistentSettings::instance()->settings());
 
 	if (!bSaveLastSearchOnly) {
@@ -1084,7 +1084,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 #ifdef PRESERVE_MAINWINDOW_SPLITTER_STATE
 		// Splitter:
-		if (m_pSplitter != NULL) {
+		if (m_pSplitter != nullptr) {
 			settings.beginGroup(constrSplitterRestoreStateGroup);
 			settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
 			settings.setValue(constrWindowStateKey, m_pSplitter->saveState());
@@ -1092,7 +1092,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		}
 
 		// Splitter Dictionary:
-		if ((m_pDictionaryWidget != NULL) && (m_pSplitterDictionary != NULL)) {
+		if ((m_pDictionaryWidget != nullptr) && (m_pSplitterDictionary != nullptr)) {
 			settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
 			settings.setValue(constrStateVersionKey, PS_SPLITTER_VERSION);
 			settings.setValue(constrWindowStateKey, m_pSplitterDictionary->saveState());
@@ -1116,7 +1116,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 #endif
 
 		// Highlighter Tool Bar:
-		if (m_pHighlighterButtons != NULL) {
+		if (m_pHighlighterButtons != nullptr) {
 			settings.beginWriteArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
 			settings.remove("");
 			for (int ndxColor = 0; ndxColor < m_pHighlighterButtons->count(); ++ndxColor) {
@@ -1282,7 +1282,7 @@ void CKJVCanOpener::restorePersistentSettings()
 	bool bFocusBrowser = false;
 	bool bLaunchNotesSetupConfig = false;
 
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		QString strFont;
 
@@ -1301,7 +1301,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		} else {
 #if defined(PRESERVE_MAINWINDOW_GEOMETRY) || defined(PRESERVE_MAINWINDOW_STATE)
 			CKJVCanOpener *pPrimaryCanOpener = g_pMyApplication->canOpeners().at(0);
-			assert(pPrimaryCanOpener != NULL);
+			assert(pPrimaryCanOpener != nullptr);
 #endif
 #ifdef PRESERVE_MAINWINDOW_STATE
 			restoreState(pPrimaryCanOpener->saveState(KJVAPP_REGISTRY_VERSION), KJVAPP_REGISTRY_VERSION);
@@ -1343,7 +1343,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		unsigned int nSplitterVersion;
 
 		// Splitter:
-		if (m_pSplitter != NULL) {
+		if (m_pSplitter != nullptr) {
 			settings.beginGroup(constrSplitterRestoreStateGroup);
 			nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
 			if (nSplitterVersion == PS_SPLITTER_VERSION) {
@@ -1353,7 +1353,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		}
 
 		// Splitter Dictionary:
-		if ((m_pDictionaryWidget != NULL) && (m_pSplitterDictionary != NULL)) {
+		if ((m_pDictionaryWidget != nullptr) && (m_pSplitterDictionary != nullptr)) {
 			settings.beginGroup(constrSplitterDictionaryRestoreStateGroup);
 			nSplitterVersion = settings.value(constrStateVersionKey).toUInt();
 			if (nSplitterVersion == PS_SPLITTER_VERSION) {
@@ -1414,7 +1414,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		}
 
 		// Highlighter Tool Bar (must be after loading the User Notes Database):
-		if (m_pHighlighterButtons != NULL) {
+		if (m_pHighlighterButtons != nullptr) {
 			int nColors = settings.beginReadArray(groupCombine(constrColorsGroup, constrColorsHighlightersSubgroup));
 			if (nColors != 0) {
 				for (int ndxColor = 0; ((ndxColor < nColors) && (ndxColor < m_pHighlighterButtons->count())); ++ndxColor) {
@@ -1657,7 +1657,7 @@ void CKJVCanOpener::restorePersistentSettings()
 		assert(!g_pUserNotesDatabase.isNull());
 
 		// Set the ToolBar to the initial file default highlighters:
-		if (m_pHighlighterButtons != NULL) {
+		if (m_pHighlighterButtons != nullptr) {
 			const TUserDefinedColorMap mapHighlighters = g_pUserNotesDatabase->highlighterDefinitionsMap();
 			int ndxColor = 0;
 			for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin();
@@ -1758,7 +1758,7 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 				bool bDone = false;
 				do {
 					if (bPromptFilename) {
-						QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", NULL, 0);
+						QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save King James Notes File", "FileFilters"), g_pUserNotesDatabase->errorFilePathName(), tr("King James Notes Files (*.kjn)", "FileFilters"), "kjn", nullptr, 0);
 						if (!strFilePathName.isEmpty()) {
 							g_pUserNotesDatabase->setFilePathName(strFilePathName);
 						} else {
@@ -1826,7 +1826,7 @@ QString CKJVCanOpener::searchWindowDescription() const
 
 void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode, bool bFocusTree)
 {
-	assert(m_pActionGroupViewMode != NULL);
+	assert(m_pActionGroupViewMode != nullptr);
 
 	QList<QAction *> lstActions = m_pActionGroupViewMode->actions();
 
@@ -1841,7 +1841,7 @@ void CKJVCanOpener::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode,
 
 void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
-	assert(m_pActionGroupDisplayMode != NULL);
+	assert(m_pActionGroupDisplayMode != nullptr);
 
 	QList<QAction *> lstActions = m_pActionGroupDisplayMode->actions();
 
@@ -1856,7 +1856,7 @@ void CKJVCanOpener::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDis
 
 void CKJVCanOpener::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
-	assert(m_pActionGroupTreeMode != NULL);
+	assert(m_pActionGroupTreeMode != nullptr);
 
 	QList<QAction *> lstActions = m_pActionGroupTreeMode->actions();
 
@@ -1871,7 +1871,7 @@ void CKJVCanOpener::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 
 void CKJVCanOpener::setShowMissingLeafs(bool bShowMissing)
 {
-	assert(m_pActionShowMissingLeafs != NULL);
+	assert(m_pActionShowMissingLeafs != nullptr);
 	m_pActionShowMissingLeafs->setChecked(bShowMissing);
 	en_viewShowMissingsLeafs();
 }
@@ -1887,7 +1887,7 @@ void CKJVCanOpener::en_NewSearch()
 void CKJVCanOpener::en_OpenSearch()
 {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	QString strFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Open KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), NULL, QFileDialog::ReadOnly);
+	QString strFilePathName = CSaveLoadFileDialog::getOpenFileName(this, tr("Open KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), nullptr, QFileDialog::ReadOnly);
 	if (!strFilePathName.isEmpty())
 		if (!openKJVSearchFile(strFilePathName))
 			displayWarning(this, tr("KJV Search File Open Failed", "Errors"), tr("Failed to open and read the specified KJV Search File!", "Errors"));
@@ -1908,7 +1908,7 @@ void CKJVCanOpener::en_OpenSearch()
 void CKJVCanOpener::en_SaveSearch()
 {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), "kjs", NULL, 0);
+	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this, tr("Save KJV Search File", "FileFilters"), QString(), tr("KJV Search Files (*.kjs)", "FileFilters"), "kjs", nullptr, 0);
 	if (!strFilePathName.isEmpty())
 		if (!saveKJVSearchFile(strFilePathName))
 			displayWarning(this, tr("KJV Search File Save Failed", "Errors"), tr("Failed to save the specified KJV Search File!", "Errors"));
@@ -2027,11 +2027,11 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 
 void CKJVCanOpener::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
-	assert(pSearchPhrase != NULL);
+	assert(pSearchPhrase != nullptr);
 
 	// If this search phrase's editor was currently active, remove it or else
 	//		we'll crash later accessing data for a deleted object:
-	if ((m_bPhraseEditorActive) && ((m_pActionSearchPhraseEditMenu != NULL) &&
+	if ((m_bPhraseEditorActive) && ((m_pActionSearchPhraseEditMenu != nullptr) &&
 									(m_pActionSearchPhraseEditMenu->menu() == pSearchPhrase->phraseEditor()->getEditMenu()))) {
 		en_addSearchPhraseEditMenu(false);
 	}
@@ -2062,7 +2062,7 @@ void CKJVCanOpener::en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex)
 {
 	assert(!m_pBibleDatabase.isNull());
 
-	if ((m_pBrowserWidget != NULL) && (relIndex.isSet())) {
+	if ((m_pBrowserWidget != nullptr) && (relIndex.isSet())) {
 		m_pBrowserWidget->gotoIndex(TPhraseTag(relIndex));
 		m_pBrowserWidget->setFocusBrowser();
 	}
@@ -2081,8 +2081,8 @@ void CKJVCanOpener::en_changedSearchSpec(const CSearchResultsData &searchResults
 
 void CKJVCanOpener::en_updateBibleDatabasesList()
 {
-	assert(m_pActionBibleDatabasesList != NULL);
-	assert(m_pActionBibleDatabasesList->menu() != NULL);
+	assert(m_pActionBibleDatabasesList != nullptr);
+	assert(m_pActionBibleDatabasesList->menu() != nullptr);
 
 	if (!m_pActionGroupBibleDatabasesList.isNull()) delete m_pActionGroupBibleDatabasesList;
 	m_pActionGroupBibleDatabasesList = new QActionGroup(this);
@@ -2125,10 +2125,10 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 
 void CKJVCanOpener::en_updateSearchWindowList()
 {
-	assert(m_pActionSearchWindowList != NULL);
-	assert(m_pActionSearchWindowList->menu() != NULL);
+	assert(m_pActionSearchWindowList != nullptr);
+	assert(m_pActionSearchWindowList->menu() != nullptr);
 
-	if (m_pActionGroupSearchWindowList != NULL) delete m_pActionGroupSearchWindowList;
+	if (m_pActionGroupSearchWindowList != nullptr) delete m_pActionGroupSearchWindowList;
 	m_pActionGroupSearchWindowList = new QActionGroup(this);
 
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
@@ -2148,7 +2148,7 @@ void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferen
 
 	if (!bPassageReferenceEditor) {
 		if (bAdd) {
-			if (m_pActionPassageBrowserEditMenu == NULL) {
+			if (m_pActionPassageBrowserEditMenu == nullptr) {
 				m_pActionPassageBrowserEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu(false));
 				connect(m_pActionPassageBrowserEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
 			}
@@ -2158,12 +2158,12 @@ void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferen
 				//		keep us from crashing:
 				if (ui.menuBar->actions().contains(m_pActionPassageBrowserEditMenu))
 					ui.menuBar->removeAction(m_pActionPassageBrowserEditMenu);
-				m_pActionPassageBrowserEditMenu = NULL;
+				m_pActionPassageBrowserEditMenu = nullptr;
 			}
 		}
 	} else {
 		if (bAdd) {
-			if (m_pActionPassageReferenceEditMenu == NULL) {
+			if (m_pActionPassageReferenceEditMenu == nullptr) {
 				m_pActionPassageReferenceEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pBrowserWidget->getEditMenu(true));
 				connect(m_pActionPassageReferenceEditMenu, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusPassageReferenceEditor()));
 			}
@@ -2173,7 +2173,7 @@ void CKJVCanOpener::en_addPassageBrowserEditMenu(bool bAdd, bool bPassageReferen
 				//		keep us from crashing:
 				if (ui.menuBar->actions().contains(m_pActionPassageReferenceEditMenu))
 					ui.menuBar->removeAction(m_pActionPassageReferenceEditMenu);
-				m_pActionPassageReferenceEditMenu = NULL;
+				m_pActionPassageReferenceEditMenu = nullptr;
 			}
 		}
 	}
@@ -2184,7 +2184,7 @@ void CKJVCanOpener::en_addSearchResultsEditMenu(bool bAdd)
 	m_bSearchResultsActive = bAdd;
 
 	if (bAdd) {
-		if (m_pActionSearchResultsEditMenu == NULL) {
+		if (m_pActionSearchResultsEditMenu == nullptr) {
 			m_pActionSearchResultsEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pSearchResultWidget->getEditMenu());
 		}
 	} else {
@@ -2193,7 +2193,7 @@ void CKJVCanOpener::en_addSearchResultsEditMenu(bool bAdd)
 			//		keep us from crashing:
 			if (ui.menuBar->actions().contains(m_pActionSearchResultsEditMenu))
 				ui.menuBar->removeAction(m_pActionSearchResultsEditMenu);
-			m_pActionSearchResultsEditMenu = NULL;
+			m_pActionSearchResultsEditMenu = nullptr;
 		}
 	}
 }
@@ -2207,9 +2207,9 @@ void CKJVCanOpener::en_addSearchPhraseEditMenu(bool bAdd, const CPhraseLineEdit 
 		//		keep us from crashing:
 		if (ui.menuBar->actions().contains(m_pActionSearchPhraseEditMenu))
 			ui.menuBar->removeAction(m_pActionSearchPhraseEditMenu);
-		m_pActionSearchPhraseEditMenu = NULL;
+		m_pActionSearchPhraseEditMenu = nullptr;
 	}
-	if ((bAdd) && (pEditor != NULL)) {
+	if ((bAdd) && (pEditor != nullptr)) {
 		m_pActionSearchPhraseEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), pEditor->getEditMenu());
 	}
 }
@@ -2218,7 +2218,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 {
 	m_bDictionaryActive = bAdd;
 
-	if (m_pDictionaryWidget == NULL) {
+	if (m_pDictionaryWidget == nullptr) {
 		assert(bAdd == false);			// We shouldn't be receiving a dictionary activiation menu add if we don't even have a dictionary widget
 		return;
 	}
@@ -2226,7 +2226,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (!bWordEditor) {
 		if (bAdd) {
-			if (m_pActionDictionaryEditMenu == NULL) {
+			if (m_pActionDictionaryEditMenu == nullptr) {
 				m_pActionDictionaryEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pDictionaryWidget->getEditMenu(false));
 			}
 		} else {
@@ -2235,12 +2235,12 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 				//		keep us from crashing:
 				if (ui.menuBar->actions().contains(m_pActionDictionaryEditMenu))
 					ui.menuBar->removeAction(m_pActionDictionaryEditMenu);
-				m_pActionDictionaryEditMenu = NULL;
+				m_pActionDictionaryEditMenu = nullptr;
 			}
 		}
 	} else {
 		if (bAdd) {
-			if (m_pActionDictWordEditMenu == NULL) {
+			if (m_pActionDictWordEditMenu == nullptr) {
 				m_pActionDictWordEditMenu = ui.menuBar->insertMenu(m_pViewMenu->menuAction(), m_pDictionaryWidget->getEditMenu(true));
 			}
 		} else {
@@ -2249,7 +2249,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 				//		keep us from crashing:
 				if (ui.menuBar->actions().contains(m_pActionDictWordEditMenu))
 					ui.menuBar->removeAction(m_pActionDictWordEditMenu);
-				m_pActionDictWordEditMenu = NULL;
+				m_pActionDictWordEditMenu = nullptr;
 			}
 		}
 	}
@@ -2260,7 +2260,7 @@ void CKJVCanOpener::en_addDictionaryEditMenu(bool bAdd, bool bWordEditor)
 
 void CKJVCanOpener::en_activatedBrowser(bool bPassageReferenceEditor)
 {
-	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
+	m_pSearchSpecWidget->en_activatedPhraseEditor(nullptr);		// Notify that we have no search phrase editor active
 	en_addPassageBrowserEditMenu(false, !bPassageReferenceEditor);
 	en_addPassageBrowserEditMenu(true, bPassageReferenceEditor);
 	en_addSearchResultsEditMenu(false);
@@ -2272,7 +2272,7 @@ void CKJVCanOpener::en_activatedBrowser(bool bPassageReferenceEditor)
 
 void CKJVCanOpener::en_activatedSearchResults()
 {
-	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
+	m_pSearchSpecWidget->en_activatedPhraseEditor(nullptr);		// Notify that we have no search phrase editor active
 	en_addPassageBrowserEditMenu(false, false);
 	en_addPassageBrowserEditMenu(false, true);
 	en_addSearchResultsEditMenu(true);
@@ -2295,7 +2295,7 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 
 void CKJVCanOpener::en_activatedDictionary(bool bWordEditor)
 {
-	m_pSearchSpecWidget->en_activatedPhraseEditor(NULL);		// Notify that we have no search phrase editor active
+	m_pSearchSpecWidget->en_activatedPhraseEditor(nullptr);		// Notify that we have no search phrase editor active
 	en_addPassageBrowserEditMenu(false, false);
 	en_addPassageBrowserEditMenu(false, true);
 	en_addSearchResultsEditMenu(false);
@@ -2307,14 +2307,14 @@ void CKJVCanOpener::en_activatedDictionary(bool bWordEditor)
 
 bool CKJVCanOpener::isBrowserFocusedOrActive() const
 {
-	assert(m_pBrowserWidget != NULL);
+	assert(m_pBrowserWidget != nullptr);
 
 	return (m_pBrowserWidget->hasFocusBrowser() || m_pBrowserWidget->hasFocusPassageReferenceEditor() || isBrowserActive());
 }
 
 bool CKJVCanOpener::isSearchResultsFocusedOrActive() const
 {
-	assert(m_pSearchResultWidget != NULL);
+	assert(m_pSearchResultWidget != nullptr);
 
 	return (m_pSearchResultWidget->hasFocusSearchResult() || isSearchResultsActive());
 }
@@ -2333,7 +2333,7 @@ bool CKJVCanOpener::isDictionaryFocusedOrActive() const
 
 void CKJVCanOpener::en_viewModeChange(QAction *pAction, bool bFocusTree)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
@@ -2387,7 +2387,7 @@ void CKJVCanOpener::en_nextViewMode()
 
 void CKJVCanOpener::en_displayModeChange(QAction *pAction)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
@@ -2428,7 +2428,7 @@ void CKJVCanOpener::en_nextDisplayMode()
 
 void CKJVCanOpener::en_treeModeChange(QAction *pAction)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
@@ -2475,7 +2475,7 @@ void CKJVCanOpener::en_nextTreeMode()
 
 void CKJVCanOpener::en_viewShowMissingsLeafs()
 {
-	assert(m_pActionShowMissingLeafs != NULL);
+	assert(m_pActionShowMissingLeafs != nullptr);
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
@@ -2497,14 +2497,14 @@ void CKJVCanOpener::en_viewShowMissingsLeafs()
 
 void CKJVCanOpener::en_gotoIndex(const TPhraseTag &tag)
 {
-	assert(m_pActionBookBackward != NULL);
-	assert(m_pActionBookForward != NULL);
-	assert(m_pActionChapterBackward != NULL);
-	assert(m_pActionChapterForward != NULL);
-	if ((m_pActionBookBackward == NULL) ||
-		(m_pActionBookForward == NULL) ||
-		(m_pActionChapterBackward == NULL) ||
-		(m_pActionChapterForward == NULL)) return;
+	assert(m_pActionBookBackward != nullptr);
+	assert(m_pActionBookForward != nullptr);
+	assert(m_pActionChapterBackward != nullptr);
+	assert(m_pActionChapterForward != nullptr);
+	if ((m_pActionBookBackward == nullptr) ||
+		(m_pActionBookForward == nullptr) ||
+		(m_pActionChapterBackward == nullptr) ||
+		(m_pActionChapterForward == nullptr)) return;
 
 	m_pActionBookBackward->setEnabled(tag.relIndex().book() >= 2);
 	m_pActionBookForward->setEnabled(tag.relIndex().book() < m_pBibleDatabase->bibleEntry().m_nNumBk);
@@ -2574,7 +2574,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 		CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
 
 		if (pDlg->exec() == QDialog::Accepted) {
-			if (pDlg != NULL) {			// Could get deleted during execution
+			if (pDlg != nullptr) {			// Could get deleted during execution
 				m_pBrowserWidget->gotoIndex(pDlg->passage());
 				m_pBrowserWidget->setFocusBrowser();
 			}
@@ -2622,7 +2622,7 @@ void CKJVCanOpener::en_gotoRandomPassage()
 #endif
 		ndxPassage.setBook(nBook);
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(nBook);
-		if (pBook == NULL) continue;
+		if (pBook == nullptr) continue;
 
 #ifdef USE_STD_RANDOM
 		std::uniform_int_distribution<unsigned int> distributionChapter(1, pBook->m_nNumChp);
@@ -2632,7 +2632,7 @@ void CKJVCanOpener::en_gotoRandomPassage()
 #endif
 		ndxPassage.setChapter(nChapter);
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxPassage);
-		if (pChapter == NULL) continue;
+		if (pChapter == nullptr) continue;
 
 #ifdef USE_STD_RANDOM
 		std::uniform_int_distribution<unsigned int> distributionVerse(1, pChapter->m_nNumVrs);
@@ -2662,9 +2662,9 @@ void CKJVCanOpener::en_userNoteEditorTriggered()
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
-	assert(m_pUserNoteEditorDlg != NULL);
+	assert(m_pUserNoteEditorDlg != nullptr);
 	assert(!g_pUserNotesDatabase.isNull());
-	if ((m_pUserNoteEditorDlg == NULL) || (g_pUserNotesDatabase.isNull())) return;
+	if ((m_pUserNoteEditorDlg == nullptr) || (g_pUserNotesDatabase.isNull())) return;
 
 	CRelIndex indexNote;
 
@@ -2693,9 +2693,9 @@ void CKJVCanOpener::en_crossRefsEditorTriggered()
 	if (!isActiveWindow()) return;
 	if ((!isBrowserFocusedOrActive()) && (!isSearchResultsFocusedOrActive())) return;
 
-	assert(m_pCrossRefsEditorDlg != NULL);
+	assert(m_pCrossRefsEditorDlg != nullptr);
 	assert(!g_pUserNotesDatabase.isNull());
-	if ((m_pCrossRefsEditorDlg == NULL) || (g_pUserNotesDatabase.isNull())) return;
+	if ((m_pCrossRefsEditorDlg == nullptr) || (g_pUserNotesDatabase.isNull())) return;
 
 	TPassageTag tagCrossRef;
 
@@ -2844,16 +2844,16 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 
 	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
 		CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
-		if (pHighlighterButtons != NULL) pHighlighterButtons->enterConfigurationMode();
+		if (pHighlighterButtons != nullptr) pHighlighterButtons->enterConfigurationMode();
 	}
 
-	QPointer<CKJVConfigurationDialog> pDlgConfigure = new CKJVConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != NULL) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
+	QPointer<CKJVConfigurationDialog> pDlgConfigure = new CKJVConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != nullptr) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 
 	auto &&fnCompletion = [this, lstCanOpeners, pDlgConfigure](int nResult)->void {
 		Q_UNUSED(nResult);
 		for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
 			CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
-			if (pHighlighterButtons != NULL) pHighlighterButtons->leaveConfigurationMode();
+			if (pHighlighterButtons != nullptr) pHighlighterButtons->leaveConfigurationMode();
 		}
 
 		assert(!pDlgConfigure.isNull());
@@ -2949,7 +2949,7 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 {
 	assert(!g_pMyApplication.isNull());
 
-	if (pAction != NULL) {
+	if (pAction != nullptr) {
 		QString strUUID = pAction->data().toString();
 
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
@@ -2984,7 +2984,7 @@ void CKJVCanOpener::en_speechStop()
 {
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
-	if ((pSpeech != NULL) && (pSpeech->isTalking())) pSpeech->clearQueue();
+	if ((pSpeech != nullptr) && (pSpeech->isTalking())) pSpeech->clearQueue();
 }
 
 void CKJVCanOpener::setSpeechActionEnables()
@@ -2992,8 +2992,8 @@ void CKJVCanOpener::setSpeechActionEnables()
 	assert(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if (pSpeech != NULL) {
-		if (actionSpeechStop() != NULL) {
+	if (pSpeech != nullptr) {
+		if (actionSpeechStop() != nullptr) {
 			actionSpeechStop()->setEnabled(pSpeech->isTalking());
 		}
 	}

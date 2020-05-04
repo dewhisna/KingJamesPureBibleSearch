@@ -53,7 +53,7 @@ class DynamicTreeModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
-  DynamicTreeModel(QObject *parent = 0);
+  DynamicTreeModel(QObject *parent = nullptr);
 
   QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
   QModelIndex parent(const QModelIndex &index) const;
@@ -98,7 +98,7 @@ class ModelChangeCommand : public QObject
   Q_OBJECT
 public:
 
-  ModelChangeCommand( DynamicTreeModel *model, QObject *parent = 0 );
+  ModelChangeCommand( DynamicTreeModel *model, QObject *parent = nullptr );
 
   virtual ~ModelChangeCommand() {}
 
@@ -131,7 +131,7 @@ class ModelInsertCommand : public ModelChangeCommand
 
 public:
 
-  ModelInsertCommand(DynamicTreeModel *model, QObject *parent = 0 );
+  ModelInsertCommand(DynamicTreeModel *model, QObject *parent = nullptr );
   virtual ~ModelInsertCommand() {}
 
   virtual void doCommand();
@@ -168,7 +168,7 @@ class ModelResetCommand : public ModelMoveCommand
 {
   Q_OBJECT
 public:
-  ModelResetCommand(DynamicTreeModel* model, QObject* parent = 0);
+  ModelResetCommand(DynamicTreeModel* model, QObject* parent = nullptr);
 
   virtual ~ModelResetCommand();
 
@@ -184,7 +184,7 @@ class ModelResetCommandFixed : public ModelMoveCommand
 {
   Q_OBJECT
 public:
-  ModelResetCommandFixed(DynamicTreeModel* model, QObject* parent = 0);
+  ModelResetCommandFixed(DynamicTreeModel* model, QObject* parent = nullptr);
 
   virtual ~ModelResetCommandFixed();
 

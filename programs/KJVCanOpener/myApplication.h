@@ -231,7 +231,7 @@ public slots:
 	void signalSpyCaughtSlot(const QString &strMessage) const;
 
 public:
-	static Q4puGenericSignalSpy *createSpy(QObject *pOwner, QObject *pSpyOn = NULL);
+	static Q4puGenericSignalSpy *createSpy(QObject *pOwner, QObject *pSpyOn = nullptr);
 #endif
 
 private slots:

@@ -52,7 +52,7 @@ public:
 		DTE_CC = 1						// Compressed-CSV (always available)
 	};
 
-	CReadDatabase(const QString &strBibleDBPath, const QString &strDictionaryDBPath, QWidget *pParent = NULL);
+	CReadDatabase(const QString &strBibleDBPath, const QString &strDictionaryDBPath, QWidget *pParent = nullptr);
 	~CReadDatabase();
 
 	bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;

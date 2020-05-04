@@ -34,12 +34,12 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 												 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
-		m_pApplyButton(NULL),
-		m_pModeButton(NULL),
-		m_pResetButton(NULL),
-		m_pOKButton(NULL),
-		m_pCancelButton(NULL),
-		m_pNavigator(NULL)
+		m_pApplyButton(nullptr),
+		m_pModeButton(nullptr),
+		m_pResetButton(nullptr),
+		m_pOKButton(nullptr),
+		m_pCancelButton(nullptr),
+		m_pNavigator(nullptr)
 {
 	assert(!m_pBibleDatabase.isNull());
 
@@ -66,12 +66,12 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	m_pNavigator = new CKJVPassageNavigator(pBibleDatabase, this, flagsRefTypes, nRefType);
 	m_pNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
 	delete ui.widgetKJVPassageNavigator;
-	ui.widgetKJVPassageNavigator = NULL;
+	ui.widgetKJVPassageNavigator = nullptr;
 	ui.gridLayout->addWidget(m_pNavigator, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
 
-	assert(m_pNavigator != NULL);
+	assert(m_pNavigator != nullptr);
 
 	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(en_ApplyResolvedClicked()));

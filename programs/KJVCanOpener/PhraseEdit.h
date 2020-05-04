@@ -114,7 +114,7 @@ public:
 
 	void registerSmartPointer(CParsedPhrasePtr *pSmartPtr) const
 	{
-		if (pSmartPtr != NULL) m_lstSmartPointers.append(pSmartPtr);
+		if (pSmartPtr != nullptr) m_lstSmartPointers.append(pSmartPtr);
 	}
 	void unregisterSmartPointer(CParsedPhrasePtr *pSmartPtr) const
 	{
@@ -273,22 +273,22 @@ class CParsedPhrasePtr
 {
 public:
 	CParsedPhrasePtr()
-		:	m_pParsedPhrase(NULL)
+		:	m_pParsedPhrase(nullptr)
 	{
 	}
 	CParsedPhrasePtr(const CParsedPhrasePtr &aSrc)
 		:	m_pParsedPhrase(aSrc.m_pParsedPhrase)
 	{
-		if (m_pParsedPhrase != NULL) m_pParsedPhrase->registerSmartPointer(this);
+		if (m_pParsedPhrase != nullptr) m_pParsedPhrase->registerSmartPointer(this);
 	}
 	CParsedPhrasePtr(const CParsedPhrase *pParsedPhrase)
 		:	m_pParsedPhrase(pParsedPhrase)
 	{
-		if (m_pParsedPhrase != NULL) m_pParsedPhrase->registerSmartPointer(this);
+		if (m_pParsedPhrase != nullptr) m_pParsedPhrase->registerSmartPointer(this);
 	}
 	~CParsedPhrasePtr()
 	{
-		if (m_pParsedPhrase != NULL) m_pParsedPhrase->unregisterSmartPointer(this);
+		if (m_pParsedPhrase != nullptr) m_pParsedPhrase->unregisterSmartPointer(this);
 	}
 
 	inline const CParsedPhrase &operator*() const { return *m_pParsedPhrase; }
@@ -301,7 +301,7 @@ protected:
 	friend class CParsedPhrase;
 	void clear()
 	{
-		m_pParsedPhrase = NULL;
+		m_pParsedPhrase = nullptr;
 	}
 
 private:
@@ -569,7 +569,7 @@ public:
 		CFSE_SEARCH_RESULTS = 3						// Use Search Results' Current font setting
 	};
 
-	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = NULL);
+	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = nullptr);
 
 	// AnchorPosition returns the document postion for the specified anchor or -1 if none found:
 	int anchorPosition(const QString &strAnchorName) const;
@@ -604,10 +604,10 @@ public:
 	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToBookInfoFlags));
 	QString setDocumentToChapter(const CRelIndex &ndx,
 								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToChapterFlags),
-								const CBasicHighlighter *pHighlighter = NULL);
+								const CBasicHighlighter *pHighlighter = nullptr);
 	QString setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude,
 								TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultDocumentToVerseFlags),
-								const CBasicHighlighter *pHighlighter = NULL);
+								const CBasicHighlighter *pHighlighter = nullptr);
 	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags);		// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags);	// Note: By definition, this one doesn't include anchors and is always considerd as 'copying' mode
 
@@ -665,7 +665,7 @@ class CPhraseEditNavigator : public CPhraseNavigator
 {
 	Q_OBJECT
 public:
-	CPhraseEditNavigator(CBibleDatabasePtr pBibleDatabase, QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = NULL)
+	CPhraseEditNavigator(CBibleDatabasePtr pBibleDatabase, QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = nullptr)
 		:	CPhraseNavigator(pBibleDatabase, *textEditor.document(), parent),
 			m_TextEditor(textEditor),
 			m_bUseToolTipEdit(bUseToolTipEdit)

@@ -106,8 +106,8 @@ public:
 	typedef QList<TVoiceName> TVoiceNamesList;
 
 	// api
-	QtSpeech(QObject *pParent = NULL);
-	QtSpeech(const TVoiceName &aVoiceName, QObject *pParent = NULL);
+	QtSpeech(QObject *pParent = nullptr);
+	QtSpeech(const TVoiceName &aVoiceName, QObject *pParent = nullptr);
 	virtual ~QtSpeech();
 
 	const TVoiceName &voiceName() const; //!< Name of current voice
@@ -125,7 +125,7 @@ public:
 
 public slots:
 	virtual void say(const QString &strText) const;														//!< Say something, synchronous
-	virtual void tell(const QString &strText, QObject *pObject = NULL, const char *pSlot = NULL) const;		//!< Tell something, asynchronous
+	virtual void tell(const QString &strText, QObject *pObject = nullptr, const char *pSlot = nullptr) const;		//!< Tell something, asynchronous
 	virtual void clearQueue();						// Clear all pending "tell" operations
 
 signals:

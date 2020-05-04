@@ -40,7 +40,7 @@ public:
 
 	CModelRowForwardIterator & operator=(const QAbstractItemModel *pModel)
 	{
-		assert(pModel != NULL);
+		assert(pModel != nullptr);
 		return *this = (pModel->hasChildren() ? pModel->index(0,0) : QModelIndex());
 	}
 

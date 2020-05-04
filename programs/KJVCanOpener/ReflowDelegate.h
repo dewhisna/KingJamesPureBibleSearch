@@ -125,7 +125,7 @@ private:
 		SHCME_ComputeIfNeeded = 1
 	};
 
-	void layoutRow(const QStyleOptionViewItem &option, const QModelIndex &index, QSize *pSizeHint = NULL, QVector<QSize> *pVecSZColumns = NULL, SIZE_HINT_CACHE_MODE_ENUM nSizeHintMode = SHCME_ComputeIfNeeded) const;
+	void layoutRow(const QStyleOptionViewItem &option, const QModelIndex &index, QSize *pSizeHint = nullptr, QVector<QSize> *pVecSZColumns = nullptr, SIZE_HINT_CACHE_MODE_ENUM nSizeHintMode = SHCME_ComputeIfNeeded) const;
 	QStyleOptionViewItemV4_t viewOptions(const QModelIndex &index);
 
 	QTreeView *parentView() const;

@@ -47,7 +47,7 @@ class CKJVCrossRefEditDlg : public QDialog
 	Q_OBJECT
 	
 public:
-	explicit CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = 0);
+	explicit CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
 	virtual ~CKJVCrossRefEditDlg();
 
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "CrossRefsEditor");
@@ -100,7 +100,7 @@ private:
 class CKJVCrossRefEditDlgPtr : public QPointer<CKJVCrossRefEditDlg>
 {
 public:
-	CKJVCrossRefEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = NULL)
+	CKJVCrossRefEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr)
 		:	QPointer<CKJVCrossRefEditDlg>(new CKJVCrossRefEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
 	{
 

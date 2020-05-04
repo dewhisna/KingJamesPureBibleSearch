@@ -71,13 +71,13 @@ QPalette g_tooltipedit_palette(QToolTip::palette());
 
 CTipEdit *CTipEdit::instance(const CKJVCanOpener *pCanOpener)
 {
-	if (pCanOpener == NULL) return NULL;
+	if (pCanOpener == nullptr) return nullptr;
 	return pCanOpener->tipEdit();
 }
 
 void CTipEdit::setInstance(CTipEdit *pTipEdit)
 {
-	assert(m_pParentCanOpener != NULL);
+	assert(m_pParentCanOpener != nullptr);
 	return m_pParentCanOpener->setTipEdit(pTipEdit);
 }
 
@@ -85,13 +85,13 @@ bool CTipEdit::tipEditIsPinned(const CKJVCanOpener *pCanOpener)
 {
 	// Note: pCanOpener can be NULL during construction of CKJVCanOpener, for example,
 	//		and this function may get called by children being constructed
-	if (pCanOpener == NULL) return false;
+	if (pCanOpener == nullptr) return false;
 	return pCanOpener->tipEditIsPinned();
 }
 
 void CTipEdit::setTipEditIsPinned(bool bIsPinned)
 {
-	assert(m_pParentCanOpener != NULL);
+	assert(m_pParentCanOpener != nullptr);
 	return m_pParentCanOpener->setTipEditIsPinned(bIsPinned);
 }
 
@@ -99,11 +99,11 @@ void CTipEdit::setTipEditIsPinned(bool bIsPinned)
 
 CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	:	QTextEdit(parent),
-		styleSheetParent(0),
+		styleSheetParent(nullptr),
 		m_pParentCanOpener(pCanOpener),
-		widget(0),
+		widget(nullptr),
 		m_bDoingContextMenu(false),
-		m_pPushButton(NULL),
+		m_pPushButton(nullptr),
 		m_bFirstActivate(true)
 {
 //	setWindowFlags(Qt::ToolTip |  /* Qt::SubWindow | */ /* Qt::WindowTitleHint | Qt::WindowSystemMenuHint | */ Qt::BypassGraphicsProxyWidget);
@@ -130,7 +130,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	setWindowTitle(tr("Details : King James Pure Bible Search", "MainMenu"));
 
-	assert(m_pParentCanOpener != NULL);
+	assert(m_pParentCanOpener != nullptr);
 
 	m_pPushButton = new QPushButton(this);
 	m_pPushButton->setFlat(true);
@@ -151,7 +151,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	setFrameStyle(QFrame::Box | QFrame::Plain);
 	setAlignment(Qt::AlignLeft);
 	qApp->installEventFilter(this);
-	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, 0, this) / qreal(255.0));
+	setWindowOpacity(style()->styleHint(QStyle::SH_ToolTipLabel_Opacity, nullptr, this) / qreal(255.0));
 	setMouseTracking(true);
 	fadingOut = false;
 	restorePersistentSettings();
@@ -160,13 +160,13 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 CTipEdit::~CTipEdit()
 {
 	savePersistentSettings();
-	if (instance(m_pParentCanOpener) == this) setInstance(NULL);
+	if (instance(m_pParentCanOpener) == this) setInstance(nullptr);
 }
 
 void CTipEdit::savePersistentSettings()
 {
 #ifndef NO_PERSISTENT_SETTINGS
-	if (CPersistentSettings::instance()->settings() == NULL) return;
+	if (CPersistentSettings::instance()->settings() == nullptr) return;
 
 	const int nFontSize = fontInfo().pointSize();
 
@@ -180,7 +180,7 @@ void CTipEdit::savePersistentSettings()
 void CTipEdit::restorePersistentSettings()
 {
 #ifndef NO_PERSISTENT_SETTINGS
-	if (CPersistentSettings::instance()->settings() == NULL) return;
+	if (CPersistentSettings::instance()->settings() == nullptr) return;
 
 	QSettings &settings(*CPersistentSettings::instance()->settings());
 
@@ -210,7 +210,7 @@ void CTipEdit::reuseTip(const QString &strText)
 	if (styleSheetParent){
 		disconnect(styleSheetParent, SIGNAL(destroyed()),
 						this, SLOT(styleSheetParentDestroyed()));
-		styleSheetParent = 0;
+		styleSheetParent = nullptr;
 	}
 
 //	setWordWrap(Qt::mightBeRichText(strText));
@@ -364,7 +364,7 @@ void CTipEdit::hideTipImmediately()
 {
 	if (!tipEditIsPinned(m_pParentCanOpener)) {
 		close(); // to trigger QEvent::Close which stops the animation
-		if (instance(m_pParentCanOpener) == this) setInstance(NULL);
+		if (instance(m_pParentCanOpener) == this) setInstance(nullptr);
 		deleteLater();
 	}
 }
@@ -526,7 +526,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 
 	QRect screen;
-	if ((pCanOpener != NULL) && (pCanOpener->isFullScreen()))
+	if ((pCanOpener != nullptr) && (pCanOpener->isFullScreen()))
 		screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
 	else
 		screen = QApplication::desktop()->availableGeometry(getTipScreen(pos, w));
@@ -634,7 +634,7 @@ void CToolTipEdit::showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const 
 
 bool CToolTipEdit::isVisible(CKJVCanOpener *pCanOpener)
 {
-	return (CTipEdit::instance(pCanOpener) != 0 && CTipEdit::instance(pCanOpener)->isVisible());
+	return ((CTipEdit::instance(pCanOpener) != nullptr) && CTipEdit::instance(pCanOpener)->isVisible());
 }
 
 QString CToolTipEdit::text(CKJVCanOpener *pCanOpener)

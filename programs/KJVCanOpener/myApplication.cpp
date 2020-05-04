@@ -93,15 +93,15 @@
 
 // ============================================================================
 
-QPointer<CMyApplication> g_pMyApplication = NULL;
-QPointer<QMdiArea> g_pMdiArea = NULL;
+QPointer<CMyApplication> g_pMyApplication = nullptr;
+QPointer<QMdiArea> g_pMdiArea = nullptr;
 
 #ifdef USING_QT_SPEECH
-QPointer<QtSpeech> CMyApplication::m_pSpeech = NULL;
+QPointer<QtSpeech> CMyApplication::m_pSpeech = nullptr;
 #endif
 
 #ifdef USING_WEBCHANNEL
-QPointer<CWebChannelServer> CMyApplication::m_pWebChannelServer = NULL;
+QPointer<CWebChannelServer> CMyApplication::m_pWebChannelServer = nullptr;
 #endif
 
 const QString g_constrApplicationID = "KingJamesPureBibleSearch";
@@ -412,7 +412,7 @@ namespace {
 		g_constrDejaVuSerifCondensed,
 		g_constrDejaVuSerif_Italic,
 		g_constrDejaVuSerif,
-		NULL
+		nullptr
 	};
 #else
 	const char *g_constrarrFontFilenames[] = {
@@ -428,7 +428,7 @@ namespace {
 		g_constrDejaVuSerif_Bold,
 		g_constrDejaVuSerif_Italic,
 		g_constrDejaVuSerif,
-		NULL
+		nullptr
 	};
 #endif		// EMSCRIPTEN
 
@@ -448,9 +448,9 @@ int CMyDaemon::m_sigusr1Fd[2] = { 0, 0 };
 
 CMyDaemon::CMyDaemon(CMyApplication *pMyApplication)
 	:	QObject(pMyApplication),
-		m_psnHup(NULL),
-		m_psnTerm(NULL),
-		m_psnUsr1(NULL),
+		m_psnHup(nullptr),
+		m_psnTerm(nullptr),
+		m_psnUsr1(nullptr),
 		m_pMyApplication(pMyApplication)
 {
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, m_sighupFd))
@@ -484,21 +484,21 @@ int CMyDaemon::setup_unix_signal_handlers()
 	hup.sa_flags = 0;
 	hup.sa_flags |= SA_RESTART;
 
-	if (sigaction(SIGHUP, &hup, 0) > 0)
+	if (sigaction(SIGHUP, &hup, nullptr) > 0)
 		return 1;
 
 	term.sa_handler = CMyDaemon::termSignalHandler;
 	sigemptyset(&term.sa_mask);
 	term.sa_flags |= SA_RESTART;
 
-	if (sigaction(SIGTERM, &term, 0) > 0)
+	if (sigaction(SIGTERM, &term, nullptr) > 0)
 		return 2;
 
 	usr1.sa_handler = CMyDaemon::usr1SignalHandler;
 	sigemptyset(&usr1.sa_mask);
 	usr1.sa_flags |= SA_RESTART;
 
-	if (sigaction(SIGUSR1, &usr1, 0) >0)
+	if (sigaction(SIGUSR1, &usr1, nullptr) >0)
 		return 3;
 
 	return 0;
@@ -572,7 +572,7 @@ void CMyDaemon::handleSigUsr1()
 
 #if defined(VNCSERVER)
 	// do Qt stuff
-	QWidget *pParent = NULL;
+	QWidget *pParent = nullptr;
 	if (!m_pMyApplication.isNull()) {
 		pParent = m_pMyApplication->activeCanOpener();
 	}
@@ -589,8 +589,8 @@ void CMyDaemon::handleSigUsr1()
 class MyProxyStyle : public QProxyStyle
 {
 public:
-	int styleHint(StyleHint hint, const QStyleOption *option = 0,
-				const QWidget *widget = 0, QStyleHintReturn *returnData = 0) const
+	int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
+				const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const
 	{
 		if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0;
 
@@ -620,7 +620,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_nLastActivateCanOpener(-1),
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
-		m_pSplash(NULL),
+		m_pSplash(nullptr),
 		m_nSelectedMainBibleDB(BDE_UNKNOWN),
 		m_nSelectedMainDictDB(DDE_UNKNOWN)
 {
@@ -668,9 +668,9 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 
 CMyApplication::~CMyApplication()
 {
-	if (m_pSplash != NULL) {
+	if (m_pSplash != nullptr) {
 		delete m_pSplash;
-		m_pSplash = NULL;
+		m_pSplash = nullptr;
 	}
 
 	// We must clean up our databases and things before exiting or else
@@ -723,7 +723,7 @@ QWidget *CMyApplication::showSplash()
 
 void CMyApplication::completeInterAppSplash()
 {
-	if (m_pSplash != NULL) {
+	if (m_pSplash != nullptr) {
 #ifdef SHOW_SPLASH_SCREEN
 		assert(m_splashTimer.isValid());
 		do {
@@ -736,7 +736,7 @@ void CMyApplication::completeInterAppSplash()
 void CMyApplication::setSplashMessage(const QString &strMessage)
 {
 #ifdef SHOW_SPLASH_SCREEN
-	if (m_pSplash != NULL) {
+	if (m_pSplash != nullptr) {
 		m_pSplash->clearMessage();
 		const QString strOffsetSpace = "";
 		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
@@ -766,7 +766,7 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 void CMyApplication::saveApplicationFontSettings()
 {
 #ifndef IS_CONSOLE_APP
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrMainAppControlGroup);
 		settings.setValue(constrFontNameKey, font().family());
@@ -794,7 +794,7 @@ void CMyApplication::restoreApplicationFontSettings()
 	QFont fntAppControls = QFont("DejaVu Sans", 8);
 #endif
 
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 
 		settings.beginGroup(constrMainAppControlGroup);
@@ -825,7 +825,7 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 
 void CMyApplication::saveApplicationLanguage()
 {
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrMainAppControlGroup);
 		settings.setValue(constrLanguageKey, CPersistentSettings::instance()->applicationLanguage());
@@ -835,7 +835,7 @@ void CMyApplication::saveApplicationLanguage()
 
 void CMyApplication::restoreApplicationLanguage()
 {
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrMainAppControlGroup);
 		CPersistentSettings::instance()->setApplicationLanguage(settings.value(constrLanguageKey, CPersistentSettings::instance()->applicationLanguage()).toString());
@@ -848,7 +848,7 @@ void CMyApplication::restoreApplicationLanguage()
 
 void CMyApplication::saveTTSSettings()
 {
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrTTSSettingsGroup);
 		if (!CPersistentSettings::instance()->ttsServerURL().isEmpty()) {
@@ -867,7 +867,7 @@ void CMyApplication::saveTTSSettings()
 
 void CMyApplication::restoreTTSSettings()
 {
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 		settings.beginGroup(constrTTSSettingsGroup);
 		CPersistentSettings::instance()->setTTSServerURL(settings.value(constrTTSServerURLKey, CPersistentSettings::instance()->ttsServerURL()).toString());
@@ -885,7 +885,7 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 	//		a NULL Receiver object.  Haven't found exactly where these are originating,
 	//		but they seem fairly beneign.  So just defaulting them here so we don't get
 	//		a recurrent debug log notification message:
-	if (pReceiver == NULL) return true;
+	if (pReceiver == nullptr) return true;
 #endif
 
 #if !defined(NOT_USING_EXCEPTIONS) && defined(QT_DEBUG)
@@ -932,15 +932,15 @@ bool CMyApplication::event(QEvent *event) {
 Q4puGenericSignalSpy *CMyApplication::createSpy(QObject *pOwner, QObject *pSpyOn)
 {
 	assert(!g_pMyApplication.isNull());
-	Q4puGenericSignalSpy *pSpy = new Q4puGenericSignalSpy((pOwner != NULL) ? pOwner : g_pMyApplication);
+	Q4puGenericSignalSpy *pSpy = new Q4puGenericSignalSpy((pOwner != nullptr) ? pOwner : g_pMyApplication);
 
 	QObject::connect(pSpy, SIGNAL(caughtSignal(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSignal(const QString &)));
 	QObject::connect(pSpy, SIGNAL(caughtSlot(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSlot(const QString &)));
 
 	// If we are given an object to spy on, attach to it.  If not, but were given
 	//		an owner, attach to it.  If not, don't attach to anything...
-	if ((pSpyOn != NULL) || (pOwner != NULL)) {
-		pSpy->spyOn((pSpyOn != NULL) ? pSpyOn : pOwner);
+	if ((pSpyOn != nullptr) || (pOwner != nullptr)) {
+		pSpy->spyOn((pSpyOn != nullptr) ? pSpyOn : pOwner);
 	}
 
 	return pSpy;
@@ -1043,7 +1043,7 @@ int CMyApplication::bibleDatabaseCanOpenerRefCount(const QString &strBblUUID) co
 	} else {
 		int nCount = 0;
 		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
+			if (m_lstKJVCanOpeners.at(ndx) == nullptr) continue;
 			CBibleDatabasePtr pBibleDatabase = m_lstKJVCanOpeners.at(ndx)->bibleDatabase();
 			if (pBibleDatabase.isNull()) continue;
 			if (pBibleDatabase->compatibilityUUID().compare(strBblUUID, Qt::CaseInsensitive) == 0) ++nCount;
@@ -1059,7 +1059,7 @@ int CMyApplication::dictDatabaseCanOpenerRefCount(const QString &strDctUUID) con
 	} else {
 		int nCount = 0;
 		for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
-			if (m_lstKJVCanOpeners.at(ndx) == NULL) continue;
+			if (m_lstKJVCanOpeners.at(ndx) == nullptr) continue;
 			CDictionaryDatabasePtr pDictDatabase = m_lstKJVCanOpeners.at(ndx)->dictionaryDatabase();
 			if (pDictDatabase.isNull()) continue;
 			if (pDictDatabase->compatibilityUUID().compare(strDctUUID, Qt::CaseInsensitive) == 0) ++nCount;
@@ -1080,7 +1080,7 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 		} else {
 			QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
 			for (int ndxSubWindows = 0; ndxSubWindows < lstSubWindows.size(); ++ndxSubWindows) {
-				if (lstSubWindows.at(ndxSubWindows)->widget() == NULL) {
+				if (lstSubWindows.at(ndxSubWindows)->widget() == nullptr) {
 					lstSubWindows.at(ndxSubWindows)->close();
 					break;
 				}
@@ -1117,20 +1117,20 @@ CKJVCanOpener *CMyApplication::activeCanOpener() const
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 		if (m_lstKJVCanOpeners.at(ndx)->isActiveWindow()) return m_lstKJVCanOpeners.at(ndx);
 	}
-	return NULL;
+	return nullptr;
 }
 
 template<class T>
 CKJVCanOpener *CMyApplication::findCanOpenerFromChild(const T *pChild) const
 {
-	assert(pChild != NULL);
+	assert(pChild != nullptr);
 	for (int ndxCanOpener = 0; ndxCanOpener < m_lstKJVCanOpeners.size(); ++ndxCanOpener) {
 		QList<T *>lstFoundChildren = m_lstKJVCanOpeners.at(ndxCanOpener)->findChildren<T *>(pChild->objectName());
 		for (int ndxChild = 0; ndxChild < lstFoundChildren.size(); ++ndxChild) {
 			if (lstFoundChildren.at(ndxChild) == pChild) return m_lstKJVCanOpeners.at(ndxCanOpener);
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 class CSearchResultsTreeView;
@@ -1145,7 +1145,7 @@ template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureEdit>
 
 void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
 {
-	assert(pCanOpener != NULL);
+	assert(pCanOpener != nullptr);
 	if (!g_pMdiArea.isNull()) {
 		QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
 		for (int ndx = 0; ndx < lstSubWindows.size(); ++ndx) {
@@ -1222,7 +1222,7 @@ void CMyApplication::restartApp(CKJVCanOpener *pCallingCanOpener)
 
 void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)
 {
-	assert(pAction != NULL);
+	assert(pAction != nullptr);
 	int nIndex = pAction->data().toInt();
 	activateCanOpener(nIndex);
 }
@@ -1296,7 +1296,7 @@ void CMyApplication::en_notesFileAutoSaveTriggered()
 {
 	if (g_pUserNotesDatabase.isNull()) return;			// Shouldn't happen, but just in case
 	if ((g_pUserNotesDatabase->isDirty()) && (!g_pUserNotesDatabase->filePathName().isEmpty())) {
-		CBusyCursor iAmBusy(NULL);
+		CBusyCursor iAmBusy(nullptr);
 		if (!g_pUserNotesDatabase->save()) m_dlyNotesFilesAutoSave.trigger();		// If save failed, retrigger to try again
 	}
 }
@@ -1422,19 +1422,19 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 			}
 			bool bForceOpen = ((nCommand == KAMCE_NEW_CANOPENER_OPEN_KJS) || (nCommand == KAMCE_NEW_CANOPENER));
 			if ((m_lstKJVCanOpeners.size() == 1) && (m_lstKJVCanOpeners.at(0)->bibleDatabase()->compatibilityUUID().compare(strBibleUUID, Qt::CaseInsensitive) != 0)) bForceOpen = true;
-			CKJVCanOpener *pCanOpener = NULL;
+			CKJVCanOpener *pCanOpener = nullptr;
 			if ((bForceOpen) || (bNeedDB) || (m_lstKJVCanOpeners.size() != 1)) {
 				// If we have more than one, just open a new window and launch the file:
 				CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
 				if ((pBibleDatabase.isNull()) && (!strBibleUUID.isEmpty())) {
-					if (TBibleDatabaseList::loadBibleDatabase(strBibleUUID, true, NULL)) {
+					if (TBibleDatabaseList::loadBibleDatabase(strBibleUUID, true, nullptr)) {
 						pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strBibleUUID);
 					}
 				}
 				if (pBibleDatabase.isNull()) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 				setFileToLoad(strKJSFileName);
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
-				assert(pCanOpener != NULL);
+				assert(pCanOpener != nullptr);
 			} else {
 				pCanOpener = m_lstKJVCanOpeners.at(0);
 				if (!strKJSFileName.isEmpty()) pCanOpener->openKJVSearchFile(strKJSFileName);
@@ -1468,7 +1468,7 @@ int CMyApplication::execute(bool bBuildDB)
 	//	Temporary workaround is to add these to the Info.plist so iOS will
 	//		auto-load them for us:
 #ifndef WORKAROUND_QTBUG_34490
-	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != NULL; ++ndxFont) {
+	for (int ndxFont = 0; g_constrarrFontFilenames[ndxFont] != nullptr; ++ndxFont) {
 #ifndef EMSCRIPTEN
 		QString strFontFileName = QFileInfo(initialAppDirPath(), g_constrarrFontFilenames[ndxFont]).absoluteFilePath();
 #else
@@ -1543,7 +1543,7 @@ int CMyApplication::execute(bool bBuildDB)
 	QString strMainBibleDatabaseUUID;
 	QString strMainDictDatabaseUUID;
 
-	if (CPersistentSettings::instance()->settings() != NULL) {
+	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
 
 		// Main Bible Database:
@@ -1810,10 +1810,10 @@ int CMyApplication::execute(bool bBuildDB)
 	//		data won't be available for the browser objects and such:
 #ifdef SHOW_SPLASH_SCREEN
 	CKJVCanOpener *pMain = createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
-	if (m_pSplash != NULL) {
+	if (m_pSplash != nullptr) {
 		m_pSplash->finish((!g_pMdiArea.isNull()) ? static_cast<QWidget *>(g_pMdiArea.data()) : static_cast<QWidget *>(pMain));
 		delete m_pSplash;
-		m_pSplash = NULL;
+		m_pSplash = nullptr;
 	}
 #else
 	createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());

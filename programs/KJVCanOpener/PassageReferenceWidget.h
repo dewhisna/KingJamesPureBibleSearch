@@ -42,7 +42,7 @@ class CPassageReferenceResolver : public QObject
 	Q_OBJECT
 
 public:
-	CPassageReferenceResolver(CBibleDatabasePtr pBibleDatabase, QObject *pParent = NULL);
+	CPassageReferenceResolver(CBibleDatabasePtr pBibleDatabase, QObject *pParent = nullptr);
 
 	TPhraseTag resolve(const QString &strPassageReference) const;
 
@@ -71,7 +71,7 @@ class CPassageReferenceWidget : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CPassageReferenceWidget(QWidget *parent = 0);
+	explicit CPassageReferenceWidget(QWidget *parent = nullptr);
 	~CPassageReferenceWidget();
 
 	void initialize(CBibleDatabasePtr pBibleDatabase);

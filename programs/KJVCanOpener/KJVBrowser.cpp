@@ -63,14 +63,14 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	m_bShowExcludedSearchResults(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()),
 	m_bDoingUpdate(false),
 #ifndef PLASTIQUE_STATIC
-	m_pPlastiqueStyle(NULL),
+	m_pPlastiqueStyle(nullptr),
 #endif
 #ifdef USING_QT_WEBENGINE
-	m_pWebEngineView(NULL),
+	m_pWebEngineView(nullptr),
 #endif
 	m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 	m_bDoingPassageReference(false),
-	m_pScriptureBrowser(NULL)
+	m_pScriptureBrowser(nullptr)
 {
 	assert(!m_pBibleDatabase.isNull());
 	assert(!g_pUserNotesDatabase.isNull());
@@ -83,7 +83,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 
 	initialize();
 
-	assert(m_pScriptureBrowser != NULL);
+	assert(m_pScriptureBrowser != nullptr);
 
 	ui.lblBibleDatabaseName->setText(m_pBibleDatabase->description());
 
@@ -171,7 +171,7 @@ CKJVBrowser::~CKJVBrowser()
 #ifndef PLASTIQUE_STATIC
 	if (m_pPlastiqueStyle) {
 		delete m_pPlastiqueStyle;
-		m_pPlastiqueStyle = NULL;
+		m_pPlastiqueStyle = nullptr;
 	}
 #endif
 }
@@ -180,7 +180,7 @@ CKJVBrowser::~CKJVBrowser()
 
 bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 {
-	if ((ui.scrollbarChapter != NULL) &&
+	if ((ui.scrollbarChapter != nullptr) &&
 		(obj == ui.scrollbarChapter) &&
 		(ev->type() == QEvent::MouseMove) &&
 		(ui.scrollbarChapter->isSliderDown())) {
@@ -188,8 +188,8 @@ bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 		m_ptChapterScrollerMousePos = pMouseEvent->globalPos();
 	}
 #ifdef USING_QT_WEBENGINE
-//	if ((m_pWebEngineView != NULL) &&
-//		(m_pScriptureBrowser != NULL) &&
+//	if ((m_pWebEngineView != nullptr) &&
+//		(m_pScriptureBrowser != nullptr) &&
 //		(obj == m_pScriptureBrowser) &&
 //		(ev->type() == QEvent::Resize)) {
 //		QResizeEvent *pResizeEvent = static_cast<QResizeEvent*>(ev);
@@ -332,25 +332,25 @@ void CKJVBrowser::initialize()
 	if (ui.textBrowserMainText) {
 		ui.gridLayout->removeWidget(ui.textBrowserMainText);
 		delete ui.textBrowserMainText;
-		ui.textBrowserMainText = NULL;
+		ui.textBrowserMainText = nullptr;
 	}
 
 	if (ui.textBrowserWebEnginePlaceholder) {
 		ui.gridLayout->removeWidget(ui.textBrowserWebEnginePlaceholder);
 		delete ui.textBrowserWebEnginePlaceholder;
-		ui.textBrowserWebEnginePlaceholder = NULL;
+		ui.textBrowserWebEnginePlaceholder = nullptr;
 	}
 
 	if (ui.spacerScrollbarChapter) {
 		ui.gridLayout->removeItem(ui.spacerScrollbarChapter);
 		delete ui.spacerScrollbarChapter;
-		ui.spacerScrollbarChapter = NULL;
+		ui.spacerScrollbarChapter = nullptr;
 	}
 
 	if (ui.scrollbarChapter) {
 		ui.gridLayout->removeWidget(ui.scrollbarChapter);
 		delete ui.scrollbarChapter;
-		ui.scrollbarChapter = NULL;
+		ui.scrollbarChapter = nullptr;
 	}
 
 	int nNextCol = 0;
@@ -428,7 +428,7 @@ void CKJVBrowser::initialize()
 	ui.comboBibleChp->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
-		assert(pBook != NULL);
+		assert(pBook != nullptr);
 		nBibleChp += pBook->m_nNumChp;
 		if (pBook->m_nNumWrd == 0) continue;		// Skip books that are empty (partial database support)
 		ui.comboBk->addItem(pBook->m_strBkName, ndxBk);
@@ -446,7 +446,7 @@ void CKJVBrowser::initialize()
 
 void CKJVBrowser::en_changedScrollbarsEnabled(bool bEnabled)
 {
-	assert(m_pScriptureBrowser != NULL);
+	assert(m_pScriptureBrowser != nullptr);
 	if (bEnabled) {
 		m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	} else {
@@ -464,13 +464,13 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 	if (ui.spacerScrollbarChapter) {
 		ui.gridLayout->removeItem(ui.spacerScrollbarChapter);
 		delete ui.spacerScrollbarChapter;
-		ui.spacerScrollbarChapter = NULL;
+		ui.spacerScrollbarChapter = nullptr;
 	}
 
 	if (ui.scrollbarChapter) {
 		ui.gridLayout->removeWidget(ui.scrollbarChapter);
 		delete ui.scrollbarChapter;
-		ui.scrollbarChapter = NULL;
+		ui.scrollbarChapter = nullptr;
 	}
 
 	int nNextCol = 0;
@@ -509,7 +509,7 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 
 	setupChapterScrollbar();
 
-	if (ui.scrollbarChapter != NULL) {
+	if (ui.scrollbarChapter != nullptr) {
 //		rerender();
 		ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, m_ndxCurrent).ofBible().first);
 	}
@@ -517,9 +517,9 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 
 void CKJVBrowser::setupChapterScrollbar()
 {
-	if (ui.scrollbarChapter != NULL) {
+	if (ui.scrollbarChapter != nullptr) {
 #ifndef PLASTIQUE_STATIC
-		assert(m_pPlastiqueStyle != NULL);
+		assert(m_pPlastiqueStyle != nullptr);
 		ui.scrollbarChapter->setStyle(m_pPlastiqueStyle);
 #else
 		ui.scrollbarChapter->setStyle(&m_PlastiqueStyle);
@@ -855,7 +855,7 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 		ui.comboTstBk->addItem(QString("%1").arg(ndxTstBk), ndxTstBk);
 		for (unsigned int ndxBkChp=1; ndxBkChp <= m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumChp; ++ndxBkChp) {
 			const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(nTstStartBook+ndxTstBk, ndxBkChp, 0, 0));
-			if (pChapter == NULL) continue;
+			if (pChapter == nullptr) continue;
 			if (pChapter->m_nNumWrd == 0) continue;		// Skip chapters that are empty for partial databases
 			unsigned int ndxTstChp = nTstChp-m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumChp+ndxBkChp;
 			ui.comboTstChp->addItem(QString("%1").arg(ndxTstChp), ndxTstChp);
@@ -865,7 +865,7 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 	for (unsigned int ndxBkChp=1; ndxBkChp<=book.m_nNumChp; ++ndxBkChp) {
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(CRelIndex(m_ndxCurrent.book(), ndxBkChp, 0, 0));
-		if (pChapter == NULL) continue;
+		if (pChapter == nullptr) continue;
 		if (pChapter->m_nNumWrd == 0) continue;			// Skip chapters that are empty for partial databases
 		ui.comboBkChp->addItem(QString("%1").arg(ndxBkChp), ndxBkChp);
 	}
@@ -932,8 +932,8 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	unsigned int nBibleChp = 0;
 	for (unsigned int ndxBk=1; ndxBk<ndxVirtual.book(); ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
-		assert(pBook != NULL);
-		if (pBook == NULL) continue;
+		assert(pBook != nullptr);
+		if (pBook == nullptr) continue;
 		if (pBook->m_nTstNdx == book.m_nTstNdx)
 			nTstChp += pBook->m_nNumChp;
 		nBibleChp += pBook->m_nNumChp;
@@ -945,7 +945,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	ui.comboBibleChp->setCurrentIndex(ui.comboBibleChp->findData(nBibleChp));
 
 	// Set the chapter scroller to the chapter of the Bible:
-	if (ui.scrollbarChapter != NULL) {
+	if (ui.scrollbarChapter != nullptr) {
 		ui.scrollbarChapter->setValue(CRefCountCalc(m_pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxVirtual).ofBible().first);
 //		ui.scrollbarChapter->setToolTip(m_pBibleDatabase->PassageReferenceText(CRelIndex(ndx.book(), ndx.chapter(), 0, 0)));
 	}
@@ -1097,8 +1097,8 @@ void CKJVBrowser::en_activatedScriptureText()
 
 void CKJVBrowser::ChapterSliderMoved(int index)
 {
-	assert(ui.scrollbarChapter != NULL);
-	if (ui.scrollbarChapter == NULL) return;
+	assert(ui.scrollbarChapter != nullptr);
+	if (ui.scrollbarChapter == nullptr) return;
 
 	if (m_bDoingUpdate) return;
 
@@ -1120,7 +1120,7 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 //		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), strText);
 		QStyleOptionSlider opt;
 		opt.initFrom(ui.scrollbarChapter);
-		assert(ui.scrollbarChapter->style() != NULL);
+		assert(ui.scrollbarChapter->style() != nullptr);
 		QRect rcSlider = ui.scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui.scrollbarChapter);
 		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), strText);
 	}
@@ -1135,8 +1135,8 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 
 void CKJVBrowser::ChapterSliderValueChanged()
 {
-	assert(ui.scrollbarChapter != NULL);
-	if (ui.scrollbarChapter == NULL) return;
+	assert(ui.scrollbarChapter != nullptr);
+	if (ui.scrollbarChapter == nullptr) return;
 
 	ChapterSliderMoved(ui.scrollbarChapter->value());
 	m_ptChapterScrollerMousePos = QPoint();

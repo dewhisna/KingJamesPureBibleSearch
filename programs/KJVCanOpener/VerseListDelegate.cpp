@@ -57,7 +57,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4_t &option,
 	assert(index.isValid());
 
 	QTreeView *pView = parentView();
-	assert(pView != NULL);
+	assert(pView != nullptr);
 	bool bViewHasFocus = pView->hasFocus();
 
 	Q_UNUSED(bDoingSizeHint);
@@ -96,7 +96,7 @@ void CVerseListDelegate::SetDocumentText(const QStyleOptionViewItemV4_t &option,
 int CVerseListDelegate::indentationForIndex(const QModelIndex &index) const
 {
 	QTreeView *pView = parentView();
-	assert(pView != NULL);
+	assert(pView != nullptr);
 
 	int nLevel = 0;
 	if (pView->rootIsDecorated()) ++nLevel;

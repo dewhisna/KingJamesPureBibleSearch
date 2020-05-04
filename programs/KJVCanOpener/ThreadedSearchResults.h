@@ -55,7 +55,7 @@ class CThreadedSearchResultCtrl : public QObject
 	Q_OBJECT
 
 public:
-	CThreadedSearchResultCtrl(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &theData, QObject *pParent = NULL)
+	CThreadedSearchResultCtrl(CBibleDatabasePtr pBibleDatabase, const CSearchResultsData &theData, QObject *pParent = nullptr)
 		:	QObject(pParent),
 			m_searchResultsProcess(pBibleDatabase, theData)
 	{
