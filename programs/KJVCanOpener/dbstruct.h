@@ -1517,9 +1517,10 @@ public:
 
 	QList<BIBLE_DESCRIPTOR_ENUM> availableBibleDatabases();		// List of BDEs of available Bible Databases
 	QStringList availableBibleDatabasesUUIDs();					// List of UUIDs of available Bible Databases
-	void findBibleDatabases();
 
 protected:
+	void findBibleDatabases();
+
 	friend class CReadDatabase;
 	void addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain);			// Added via CReadDatabase
 
@@ -1706,9 +1707,10 @@ public:
 
 	QList<DICTIONARY_DESCRIPTOR_ENUM> availableDictionaryDatabases();	// List of DDEs of available Dictionary Databases
 	QStringList availableDictionaryDatabasesUUIDs();					// List of UUIDs of available Dictionary Databases
-	void findDictionaryDatabases();
 
 protected:
+	void findDictionaryDatabases();
+
 	friend class CReadDatabase;
 	void addDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase, bool bSetAsMain);		// Added via CReadDatabase
 

@@ -178,7 +178,7 @@ CBibleDatabasePtr TBibleDatabaseList::atUUID(const QString &strUUID) const
 
 QList<BIBLE_DESCRIPTOR_ENUM> TBibleDatabaseList::availableBibleDatabases()
 {
-	if (!m_bHaveSearchedAvailableDatabases) findBibleDatabases();
+	findBibleDatabases();
 	return m_lstAvailableDatabases;
 }
 
@@ -186,8 +186,7 @@ QStringList TBibleDatabaseList::availableBibleDatabasesUUIDs()
 {
 	QStringList lstUUIDs;
 
-	if (!m_bHaveSearchedAvailableDatabases) findBibleDatabases();
-
+	findBibleDatabases();
 	lstUUIDs.reserve(m_lstAvailableDatabases.size());
 	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
 		lstUUIDs.append(bibleDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
@@ -236,6 +235,8 @@ static int BDEIndex(BIBLE_DESCRIPTOR_ENUM nBDE)
 
 void TBibleDatabaseList::findBibleDatabases()
 {
+	if (m_bHaveSearchedAvailableDatabases) return;
+
 	m_lstAvailableDatabases.clear();
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
@@ -462,7 +463,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::atUUID(const QString &strUUID) c
 
 QList<DICTIONARY_DESCRIPTOR_ENUM> TDictionaryDatabaseList::availableDictionaryDatabases()
 {
-	if (!m_bHaveSearchedAvailableDatabases) findDictionaryDatabases();
+	findDictionaryDatabases();
 	return m_lstAvailableDatabases;
 }
 
@@ -470,8 +471,7 @@ QStringList TDictionaryDatabaseList::availableDictionaryDatabasesUUIDs()
 {
 	QStringList lstUUIDs;
 
-	if (!m_bHaveSearchedAvailableDatabases) findDictionaryDatabases();
-
+	findDictionaryDatabases();
 	lstUUIDs.reserve(m_lstAvailableDatabases.size());
 	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
 		lstUUIDs.append(dictionaryDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
@@ -482,6 +482,8 @@ QStringList TDictionaryDatabaseList::availableDictionaryDatabasesUUIDs()
 
 void TDictionaryDatabaseList::findDictionaryDatabases()
 {
+	if (m_bHaveSearchedAvailableDatabases) return;
+
 	m_lstAvailableDatabases.clear();
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 		const TDictionaryDescriptor &dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
