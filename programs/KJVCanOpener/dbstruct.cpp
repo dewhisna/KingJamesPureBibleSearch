@@ -368,10 +368,10 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	return CDictionaryDatabasePtr();
 }
 
-bool TDictionaryDatabaseList::loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB, bool bAutoSetAsMain, QWidget *pParent)
+bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
 {
-	if (nDictDB == DDE_UNKNOWN) return false;
-	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDictDB);
+	if (strUUID.isEmpty()) return false;
+	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUID));
 	CBusyCursor iAmBusy(nullptr);
 	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
 	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
@@ -396,11 +396,6 @@ bool TDictionaryDatabaseList::loadDictionaryDatabase(DICTIONARY_DESCRIPTOR_ENUM 
 		return false;
 	}
 	return true;
-}
-
-bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
-{
-	return loadDictionaryDatabase(dictionaryDescriptorFromUUID(strUUID), bAutoSetAsMain, pParent);
 }
 
 void TDictionaryDatabaseList::setMainDictionaryDatabase(const QString &strUUID)

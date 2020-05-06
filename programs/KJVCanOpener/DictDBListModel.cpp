@@ -43,9 +43,9 @@ CDictDatabaseListModel::~CDictDatabaseListModel()
 void CDictDatabaseListModel::updateDictDatabaseList()
 {
 	beginResetModel();
-	m_lstAvailableDatabases =  TDictionaryDatabaseList::instance()->availableDictionaryDatabases();
+	m_lstAvailableDatabaseUUIDs =  TDictionaryDatabaseList::instance()->availableDictionaryDatabasesUUIDs();
 	m_mapAvailableToLoadedIndex.clear();
-	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
+	for (int ndx = 0; ndx < m_lstAvailableDatabaseUUIDs.size(); ++ndx) {
 		locateLoadedDatabase(ndx);
 	}
 	endResetModel();
@@ -53,15 +53,14 @@ void CDictDatabaseListModel::updateDictDatabaseList()
 
 void CDictDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 {
-	assert((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabases.size()));
-	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(m_lstAvailableDatabases.at(nAvailableDBIndex));
+	assert((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabaseUUIDs.size()));
 
 	bool bFound = false;
 	for (int ndxLoaded = 0; ndxLoaded < TDictionaryDatabaseList::instance()->size(); ++ndxLoaded) {
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->at(ndxLoaded);
 		assert(!pDictDatabase.isNull());
 		if (pDictDatabase.isNull()) continue;
-		if (pDictDatabase->compatibilityUUID().compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+		if (pDictDatabase->compatibilityUUID().compare(m_lstAvailableDatabaseUUIDs.at(nAvailableDBIndex), Qt::CaseInsensitive) == 0) {
 			m_mapAvailableToLoadedIndex[nAvailableDBIndex] = ndxLoaded;
 			bFound = true;
 		}
@@ -73,7 +72,7 @@ int CDictDatabaseListModel::rowCount(const QModelIndex &parent) const
 {
 	if (parent.isValid()) return 0;
 
-	return m_lstAvailableDatabases.size();
+	return m_lstAvailableDatabaseUUIDs.size();
 }
 
 int CDictDatabaseListModel::columnCount(const QModelIndex &parent) const
@@ -89,10 +88,10 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 
 	int ndxDB = index.row();
 
-	if ((ndxDB < 0) || (ndxDB >= m_lstAvailableDatabases.size()))
+	if ((ndxDB < 0) || (ndxDB >= m_lstAvailableDatabaseUUIDs.size()))
 		return QVariant();
 
-	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(m_lstAvailableDatabases.at(ndxDB));
+	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(dictionaryDescriptorFromUUID(m_lstAvailableDatabaseUUIDs.at(ndxDB)));
 	bool bLoadOnStart = CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart();
 
 	if (index.column() == 0) {
@@ -110,10 +109,9 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 	} else if (index.column() == 1) {
 		if ((role == Qt::DisplayRole) ||
 			(role == Qt::EditRole)) {
-			DICTIONARY_DESCRIPTOR_ENUM ddeMainDB = dictionaryDescriptorFromUUID(CPersistentSettings::instance()->mainDictDatabaseUUID());
 			if (dctDesc.m_dtoFlags & DTO_AutoLoad) {
 				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded", "DictDBStatus"));
-			} else if (ddeMainDB == m_lstAvailableDatabases.at(ndxDB)) {
+			} else if (CPersistentSettings::instance()->mainDictDatabaseUUID().compare(m_lstAvailableDatabaseUUIDs.at(ndxDB), Qt::CaseInsensitive) == 0) {
 				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database", "DictDBStatus"));
 			} else if ((m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) && (bLoadOnStart)) {
 				return QString("[%1]").arg(tr("Loaded, Auto-Reloaded at startup", "DictDBStatus"));
@@ -124,9 +122,6 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 			}
 		}
 	}
-
-	if (role == DDDRE_DICTIONARY_DESCRIPTOR_ROLE)
-		return QVariant::fromValue(m_lstAvailableDatabases.at(ndxDB));
 
 	if (role == DDDRE_DATABASE_POINTER_ROLE) {
 		int nDictDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);
@@ -142,10 +137,10 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
-QVariant CDictDatabaseListModel::data(DICTIONARY_DESCRIPTOR_ENUM nDDE, int role) const
+QVariant CDictDatabaseListModel::data(const QString &strUUID, int role) const
 {
-	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
-		if (m_lstAvailableDatabases.at(ndx) == nDDE) {
+	for (int ndx = 0; ndx < m_lstAvailableDatabaseUUIDs.size(); ++ndx) {
+		if (m_lstAvailableDatabaseUUIDs.at(ndx).compare(strUUID, Qt::CaseInsensitive) == 0) {
 			return data(createIndex(ndx, 0), role);
 		}
 	}
@@ -159,10 +154,10 @@ bool CDictDatabaseListModel::setData(const QModelIndex &index, const QVariant &v
 
 	int ndxDB = index.row();
 
-	if ((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size())) {
+	if ((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabaseUUIDs.size())) {
 		if (role == Qt::CheckStateRole) {
-			DICTIONARY_DESCRIPTOR_ENUM ddeMainDB = dictionaryDescriptorFromUUID(CPersistentSettings::instance()->mainDictDatabaseUUID());
-			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(m_lstAvailableDatabases.at(ndxDB));
+			QString strMainDBUUID = CPersistentSettings::instance()->mainDictDatabaseUUID();
+			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(dictionaryDescriptorFromUUID(m_lstAvailableDatabaseUUIDs.at(ndxDB)));
 			int nDictDB = m_mapAvailableToLoadedIndex.value(ndxDB, -1);		// Get mapping if it's really loaded
 			bool bIsCurrentlyChecked = (CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart() || (dctDesc.m_dtoFlags & DTO_AutoLoad));
 			bool bIsDBLoaded = (nDictDB != -1);
@@ -170,7 +165,7 @@ bool CDictDatabaseListModel::setData(const QModelIndex &index, const QVariant &v
 
 			if (bNewCheck) {
 				// If checked, make sure database is loaded and indexed:
-				if (!bIsDBLoaded) emit loadDictDatabase(m_lstAvailableDatabases.at(ndxDB));
+				if (!bIsDBLoaded) emit loadDictDatabase(m_lstAvailableDatabaseUUIDs.at(ndxDB));
 				TDictionaryDatabaseSettings dctDBaseSettings = CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID);
 				dctDBaseSettings.setLoadOnStart(true);
 				CPersistentSettings::instance()->setDictionaryDatabaseSettings(dctDesc.m_strUUID, dctDBaseSettings);
@@ -191,8 +186,8 @@ bool CDictDatabaseListModel::setData(const QModelIndex &index, const QVariant &v
 			//		changing even when the checkbox isn't.  And if our main database is also changing,
 			//		then its status text is changes, so trigger it too if it's different:
 			emit dataChanged(createIndex(index.row(), 0), createIndex(index.row(), 1));
-			for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
-				if ((ddeMainDB == m_lstAvailableDatabases.at(ndx)) &&
+			for (int ndx = 0; ndx < m_lstAvailableDatabaseUUIDs.size(); ++ndx) {
+				if ((strMainDBUUID.compare(m_lstAvailableDatabaseUUIDs.at(ndx), Qt::CaseInsensitive) == 0) &&
 					(ndx != ndxDB)) {
 					emit dataChanged(createIndex(ndx, 0), createIndex(ndx, 1));
 				}
@@ -204,10 +199,10 @@ bool CDictDatabaseListModel::setData(const QModelIndex &index, const QVariant &v
 	return false;
 }
 
-bool CDictDatabaseListModel::setData(DICTIONARY_DESCRIPTOR_ENUM nDDE, const QVariant &value, int role)
+bool CDictDatabaseListModel::setData(const QString &strUUID, const QVariant &value, int role)
 {
-	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
-		if (m_lstAvailableDatabases.at(ndx) == nDDE) {
+	for (int ndx = 0; ndx < m_lstAvailableDatabaseUUIDs.size(); ++ndx) {
+		if (m_lstAvailableDatabaseUUIDs.at(ndx).compare(strUUID, Qt::CaseInsensitive) == 0) {
 			return setData(createIndex(ndx, 0), value, role);
 		}
 	}
@@ -222,9 +217,9 @@ Qt::ItemFlags CDictDatabaseListModel::flags(const QModelIndex &index) const
 
 	int ndxDB = index.row();
 
-	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabases.size()));
+	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabaseUUIDs.size()));
 
-	bool bCheckable = (!(dictionaryDescriptor(m_lstAvailableDatabases.at(ndxDB)).m_dtoFlags & DTO_AutoLoad));
+	bool bCheckable = (!(dictionaryDescriptor(dictionaryDescriptorFromUUID(m_lstAvailableDatabaseUUIDs.at(ndxDB))).m_dtoFlags & DTO_AutoLoad));
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | (bCheckable ? Qt::ItemIsUserCheckable : Qt::NoItemFlags) | Qt::ItemIsSelectable;
 }
 

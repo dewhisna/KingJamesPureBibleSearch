@@ -1329,7 +1329,7 @@ CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
 	ui.comboBoxMainDictDatabaseSelect->setModel(m_pDictDatabaseListModel);
 
 	connect(ui.treeDictDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
-	connect(m_pDictDatabaseListModel, SIGNAL(loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM)), this, SLOT(en_loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM)));
+	connect(m_pDictDatabaseListModel, SIGNAL(loadDictDatabase(const QString &)), this, SLOT(en_loadDictDatabase(const QString &)));
 	connect(m_pDictDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
 
 	connect(ui.comboBoxMainDictDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
@@ -1352,9 +1352,8 @@ void CKJVDictDatabaseConfig::loadSettings()
 
 	ui.treeDictDatabases->setCurrentIndex(ui.treeDictDatabases->model()->index(0, 0));
 	for (int ndx = 0; ndx < ui.comboBoxMainDictDatabaseSelect->count(); ++ndx) {
-		DICTIONARY_DESCRIPTOR_ENUM nDictDB = ui.comboBoxMainDictDatabaseSelect->itemData(ndx, CDictDatabaseListModel::DDDRE_DICTIONARY_DESCRIPTOR_ROLE).value<DICTIONARY_DESCRIPTOR_ENUM>();
-		const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDictDB);
-		if (CPersistentSettings::instance()->mainDictDatabaseUUID().compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+		QString strUUID = ui.comboBoxMainDictDatabaseSelect->itemData(ndx, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString();
+		if (CPersistentSettings::instance()->mainDictDatabaseUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
 			ui.comboBoxMainDictDatabaseSelect->setCurrentIndex(ndx);
 			break;
 		}
@@ -1375,7 +1374,7 @@ void CKJVDictDatabaseConfig::saveSettings()
 	// Unload unused Dictionary Databases:
 	for (int ndx = TDictionaryDatabaseList::instance()->size()-1; ndx >= 0; --ndx) {
 		QString strUUID = TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID();
-		if ((m_pDictDatabaseListModel->data(dictionaryDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
+		if ((m_pDictDatabaseListModel->data(strUUID, Qt::CheckStateRole) == Qt::Unchecked) &&
 			(TDictionaryDatabaseList::instance()->mainDictionaryDatabase() != TDictionaryDatabaseList::instance()->atUUID(strUUID)) &&		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
 			(!g_pMyApplication.isNull()) && (g_pMyApplication->dictDatabaseCanOpenerRefCount(strUUID) == 0)) {
 			TDictionaryDatabaseList::instance()->removeDictionaryDatabase(strUUID);
@@ -1414,10 +1413,10 @@ void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
 	m_bLoadingData = bLoadingData;
 }
 
-void CKJVDictDatabaseConfig::en_loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB)
+void CKJVDictDatabaseConfig::en_loadDictDatabase(const QString &strUUID)
 {
-	assert(nDictDB != DDE_UNKNOWN);
-	TDictionaryDatabaseList::loadDictionaryDatabase(nDictDB, false, this);
+	assert(!strUUID.isEmpty());
+	TDictionaryDatabaseList::loadDictionaryDatabase(strUUID, false, this);
 }
 
 void CKJVDictDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
@@ -1440,13 +1439,12 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 
 	if (index == -1) return;
 
-	DICTIONARY_DESCRIPTOR_ENUM nDictDB = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_DICTIONARY_DESCRIPTOR_ROLE).value<DICTIONARY_DESCRIPTOR_ENUM>();
 	QString strUUID = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString();
 	// Must set main dict first so list model will update correctly:
-	if (TDictionaryDatabaseList::instance()->atUUID(strUUID).isNull()) TDictionaryDatabaseList::loadDictionaryDatabase(nDictDB, false, this);
+	if (TDictionaryDatabaseList::instance()->atUUID(strUUID).isNull()) TDictionaryDatabaseList::loadDictionaryDatabase(strUUID, false, this);
 	TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(strUUID);
 	CPersistentSettings::instance()->setMainDictDatabaseUUID(ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
-	m_pDictDatabaseListModel->setData(nDictDB, m_pDictDatabaseListModel->data(nDictDB, Qt::CheckStateRole), Qt::CheckStateRole);		// Update entry to same check to force status text update
+	m_pDictDatabaseListModel->setData(strUUID, m_pDictDatabaseListModel->data(strUUID, Qt::CheckStateRole), Qt::CheckStateRole);		// Update entry to same check to force status text update
 	setSettingControls();
 	m_bIsDirty = true;
 	emit dataChanged(false);

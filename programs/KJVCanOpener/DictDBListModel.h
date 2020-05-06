@@ -41,9 +41,8 @@ class CDictDatabaseListModel : public QAbstractListModel
 
 public:
 	enum DICT_DATABASE_DATA_ROLES_ENUM {
-		DDDRE_DICTIONARY_DESCRIPTOR_ROLE = Qt::UserRole + 0,	// Data role for the DICTIONARY_DESCRIPTOR_ENUM
-		DDDRE_DATABASE_POINTER_ROLE = Qt::UserRole + 1,			// CDictionaryDatabase* Role
-		DDDRE_UUID_ROLE = Qt::UserRole + 2						// Dictionary Database UUID
+		DDDRE_DATABASE_POINTER_ROLE = Qt::UserRole + 0,			// CDictionaryDatabase* Role
+		DDDRE_UUID_ROLE = Qt::UserRole + 1						// Dictionary Database UUID
 	};
 
 	CDictDatabaseListModel(QObject *parent = nullptr);
@@ -53,23 +52,23 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual QVariant data(DICTIONARY_DESCRIPTOR_ENUM nDDE, int role) const;
+	virtual QVariant data(const QString &strUUID, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-	virtual bool setData(DICTIONARY_DESCRIPTOR_ENUM nDDE, const QVariant &value, int role = Qt::EditRole);
+	virtual bool setData(const QString &strUUID, const QVariant &value, int role = Qt::EditRole);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 	void updateDictDatabaseList();
 
 signals:
-	void loadDictDatabase(DICTIONARY_DESCRIPTOR_ENUM nDictDB);
+	void loadDictDatabase(const QString &strUUID);
 	void changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);
 
 private:
 	void locateLoadedDatabase(int nAvailableDBIndex);
 
 private:
-	QList<DICTIONARY_DESCRIPTOR_ENUM> m_lstAvailableDatabases;	// List of descriptor enums for Dictionary databases available
+	QStringList m_lstAvailableDatabaseUUIDs;					// List of Database UUIDs for Dictionary databases available
 	QMap<int, int> m_mapAvailableToLoadedIndex;					// Mapping of indexes in Available Database list (above) to the global Dictionary Database list index (-1 = database isn't loaded)
 
 	Q_DISABLE_COPY(CDictDatabaseListModel)
