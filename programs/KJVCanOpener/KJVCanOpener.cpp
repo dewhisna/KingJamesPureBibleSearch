@@ -861,7 +861,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionBibleDatabasesList = new QAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window...", "MainMenu"), this);
 	m_pActionBibleDatabasesList->setStatusTip(tr("Create a New King James Pure Bible Search Window", "MainMenu"));
 	m_pActionBibleDatabasesList->setToolTip(tr("Create New Search Window", "MainMenu"));
-	if (TBibleDatabaseList::instance()->availableBibleDatabases().size() == 1) {
+	if (TBibleDatabaseList::instance()->availableBibleDatabasesUUIDs().size() == 1) {
 		// If we only have a single available database, treat it in the old fashion of a single "New Search Window" button:
 		m_pActionBibleDatabasesList->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 		connect(m_pActionBibleDatabasesList, SIGNAL(triggered()), this, SLOT(en_NewCanOpener()));

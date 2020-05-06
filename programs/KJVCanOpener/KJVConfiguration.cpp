@@ -1090,7 +1090,7 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	ui.comboBoxHyphenHideMode->addItem(tr("Both", "HyphenModes"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
 
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
-	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)), this, SLOT(en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM)));
+	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(const QString &)), this, SLOT(en_loadBibleDatabase(const QString &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
 
 	connect(ui.comboBoxMainBibleDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
@@ -1117,9 +1117,8 @@ void CKJVBibleDatabaseConfig::loadSettings()
 
 	ui.treeBibleDatabases->setCurrentIndex(ui.treeBibleDatabases->model()->index(0, 0));
 	for (int ndx = 0; ndx < ui.comboBoxMainBibleDatabaseSelect->count(); ++ndx) {
-		BIBLE_DESCRIPTOR_ENUM nBibleDB = ui.comboBoxMainBibleDatabaseSelect->itemData(ndx, CBibleDatabaseListModel::BDDRE_BIBLE_DESCRIPTOR_ROLE).value<BIBLE_DESCRIPTOR_ENUM>();
-		const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
-		if (CPersistentSettings::instance()->mainBibleDatabaseUUID().compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+		QString strBibleDBUUID = ui.comboBoxMainBibleDatabaseSelect->itemData(ndx, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString();
+		if (CPersistentSettings::instance()->mainBibleDatabaseUUID().compare(strBibleDBUUID, Qt::CaseInsensitive) == 0) {
 			ui.comboBoxMainBibleDatabaseSelect->setCurrentIndex(ndx);
 			break;
 		}
@@ -1140,7 +1139,7 @@ void CKJVBibleDatabaseConfig::saveSettings()
 	// Unload unused Bible Databases:
 	for (int ndx = TBibleDatabaseList::instance()->size()-1; ndx >= 0; --ndx) {
 		QString strUUID = TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID();
-		if ((m_pBibleDatabaseListModel->data(bibleDescriptorFromUUID(strUUID), Qt::CheckStateRole) == Qt::Unchecked) &&
+		if ((m_pBibleDatabaseListModel->data(strUUID, Qt::CheckStateRole) == Qt::Unchecked) &&
 			(TBibleDatabaseList::instance()->mainBibleDatabase() != TBibleDatabaseList::instance()->atUUID(strUUID)) &&		// MainDB check is a safeguard against race condition of changing MainDB selection and the Model Check State
 			(!g_pMyApplication.isNull()) && (g_pMyApplication->bibleDatabaseCanOpenerRefCount(strUUID) == 0)) {
 			TBibleDatabaseList::instance()->removeBibleDatabase(strUUID);
@@ -1253,10 +1252,10 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 	m_bLoadingData = bLoadingData;
 }
 
-void CKJVBibleDatabaseConfig::en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB)
+void CKJVBibleDatabaseConfig::en_loadBibleDatabase(const QString &strUUID)
 {
-	assert(nBibleDB != BDE_UNKNOWN);
-	TBibleDatabaseList::loadBibleDatabase(nBibleDB, false, this);
+	assert(!strUUID.isEmpty());
+	TBibleDatabaseList::loadBibleDatabase(strUUID, false, this);
 }
 
 void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
@@ -1279,9 +1278,9 @@ void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 
 	if (index == -1) return;
 
-	BIBLE_DESCRIPTOR_ENUM nBibleDB = ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_BIBLE_DESCRIPTOR_ROLE).value<BIBLE_DESCRIPTOR_ENUM>();
-	m_pBibleDatabaseListModel->setData(nBibleDB, true, Qt::CheckStateRole);
-	CPersistentSettings::instance()->setMainBibleDatabaseUUID(ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
+	QString strBibleDBUUID = ui.comboBoxMainBibleDatabaseSelect->itemData(index, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString();
+	m_pBibleDatabaseListModel->setData(strBibleDBUUID, true, Qt::CheckStateRole);
+	CPersistentSettings::instance()->setMainBibleDatabaseUUID(strBibleDBUUID);
 	setSettingControls();
 	m_bIsDirty = true;
 	emit dataChanged(false);

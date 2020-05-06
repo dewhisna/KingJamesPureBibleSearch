@@ -1504,7 +1504,6 @@ public:
 #ifdef USING_WEBCHANNEL
 	static QString availableBibleDatabasesAsJson();
 #endif
-	static bool loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
 	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
 	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }
 	void setMainBibleDatabase(const QString &strUUID);

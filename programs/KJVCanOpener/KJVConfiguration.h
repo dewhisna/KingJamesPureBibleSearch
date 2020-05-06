@@ -189,7 +189,7 @@ private slots:
 	void en_changedHyphenSensitive(bool bHyphenSensitive);
 
 	void en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious);
-	void en_loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB);
+	void en_loadBibleDatabase(const QString &strUUID);
 	void en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);
 
 	void en_changedMainDBCurrentChanged(int index);

@@ -104,10 +104,10 @@ QString TBibleDatabaseList::availableBibleDatabasesAsJson()
 }
 #endif
 
-bool TBibleDatabaseList::loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool bAutoSetAsMain, QWidget *pParent)
+bool TBibleDatabaseList::loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
 {
-	if (nBibleDB == BDE_UNKNOWN) return false;
-	const TBibleDescriptor &bblDesc = bibleDescriptor(nBibleDB);
+	if (strUUID.isEmpty()) return false;
+	const TBibleDescriptor &bblDesc = bibleDescriptor(bibleDescriptorFromUUID(strUUID));
 	CBusyCursor iAmBusy(nullptr);
 	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
 	if ((!rdbMain.haveBibleDatabaseFiles(bblDesc)) || (!rdbMain.ReadBibleDatabase(bblDesc, (bAutoSetAsMain && !TBibleDatabaseList::instance()->haveMainBibleDatabase())))) {
@@ -116,11 +116,6 @@ bool TBibleDatabaseList::loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB, bool 
 		return false;
 	}
 	return true;
-}
-
-bool TBibleDatabaseList::loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
-{
-	return loadBibleDatabase(bibleDescriptorFromUUID(strUUID), bAutoSetAsMain, pParent);
 }
 
 void TBibleDatabaseList::setMainBibleDatabase(const QString &strUUID)
@@ -246,7 +241,7 @@ void TBibleDatabaseList::findBibleDatabases()
 		int nInsertPoint = 0;
 		while (nInsertPoint < m_lstAvailableDatabases.size()) {
 			BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
-			// Sort by Specific decriptro ID, language, then by description, then by general descriptor ID:
+			// Sort by Specific descriptor ID, language, then by description, then by general descriptor ID:
 			int nBIndex1 = BDEIndex(nBDE);
 			int nBIndex2 = BDEIndex(m_lstAvailableDatabases.at(nInsertPoint));
 			int nLIndex1 = languageIndex(bblDesc.m_strLanguage);

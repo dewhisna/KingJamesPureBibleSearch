@@ -41,9 +41,8 @@ class CBibleDatabaseListModel : public QAbstractListModel
 
 public:
 	enum BIBLE_DATABASE_DATA_ROLES_ENUM {
-		BDDRE_BIBLE_DESCRIPTOR_ROLE = Qt::UserRole + 0,		// Data role for the BIBLE_DESCRIPTOR_ENUM
-		BDDRE_DATABASE_POINTER_ROLE = Qt::UserRole + 1,		// CBibleDatabase* Role
-		BDDRE_UUID_ROLE = Qt::UserRole + 2					// Bible Database UUID
+		BDDRE_DATABASE_POINTER_ROLE = Qt::UserRole + 0,		// CBibleDatabase* Role
+		BDDRE_UUID_ROLE = Qt::UserRole + 1					// Bible Database UUID
 	};
 
 	CBibleDatabaseListModel(QObject *parent = nullptr);
@@ -53,23 +52,23 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual QVariant data(BIBLE_DESCRIPTOR_ENUM nBDE, int role) const;
+	virtual QVariant data(const QString &strUUID, int role) const;
 	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-	virtual bool setData(BIBLE_DESCRIPTOR_ENUM nBDE, const QVariant &value, int role = Qt::EditRole);
+	virtual bool setData(const QString &strUUID, const QVariant &value, int role = Qt::EditRole);
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 	void updateBibleDatabaseList();
 
 signals:
-	void loadBibleDatabase(BIBLE_DESCRIPTOR_ENUM nBibleDB);
+	void loadBibleDatabase(const QString &strUUID);
 	void changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);
 
 private:
 	void locateLoadedDatabase(int nAvailableDBIndex);
 
 private:
-	QList<BIBLE_DESCRIPTOR_ENUM> m_lstAvailableDatabases;		// List of descriptor enums for Bible databases available
+	QStringList m_lstAvailableDatabaseUUIDs;					// List of Database UUIDs for Bible databases available
 	QMap<int, int> m_mapAvailableToLoadedIndex;					// Mapping of indexes in Available Database list (above) to the global Bible Database list index (-1 = database isn't loaded)
 
 	Q_DISABLE_COPY(CBibleDatabaseListModel)
