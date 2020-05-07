@@ -1272,13 +1272,15 @@ public:
 	TBibleDatabaseSettings settings() const;
 	void setSettings(const TBibleDatabaseSettings &aSettings);
 
-	BibleTypeOptionsFlags flags() const { return m_btoFlags; }
-	QString language() const { return m_strLanguage; }
-	QString name() const { return m_strName; }
-	QString description() const { return m_strDescription; }
+	BibleTypeOptionsFlags flags() const { return m_descriptor.m_btoFlags; }
+	QString language() const { return m_descriptor.m_strLanguage; }
+	QString name() const { return m_descriptor.m_strDBName; }
+	QString description() const { return m_descriptor.m_strDBDesc; }
+	QString compatibilityUUID() const { return m_descriptor.m_strUUID; }
+	QString highlighterUUID() const { return m_descriptor.m_strHighlighterUUID; }
+	const TBibleDescriptor &descriptor() const { return m_descriptor; }
+
 	QString info() const { return m_strInfo; }
-	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
-	QString highlighterUUID() const { return m_strHighlighterUUID; }
 
 	QString translatedColophonString() const;				// Text "Colophon"
 	QString translatedSuperscriptionString() const;			// Text "Superscription"
@@ -1469,13 +1471,8 @@ private:
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:
-	BibleTypeOptionsFlags m_btoFlags;		// Bible Database Flags
-	QString m_strLanguage;					// Language ID for this database (en, es, etc)
-	QString m_strName;						// Name for this database
-	QString m_strDescription;				// Database description
+	TBibleDescriptor m_descriptor;			// Bible Descriptor Record
 	QString m_strInfo;						// Information about this database (copyright details, etc)
-	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
-	QString m_strHighlighterUUID;			// Master Highlighter UUID for which this database is compatible with
 
 	CKJPBSWordScriptureObject *m_pKJPBSWordScriptureObject;		// Object used to render the words from this database in the Scripture Editor/Browser
 
@@ -1514,7 +1511,7 @@ public:
 	CBibleDatabasePtr at(int i) const { return QList<CBibleDatabasePtr>::at(i); }
 	CBibleDatabasePtr atUUID(const QString &strUUID) const;
 
-	QList<BIBLE_DESCRIPTOR_ENUM> availableBibleDatabases();		// List of BDEs of available Bible Databases
+	const QList<TBibleDescriptor> &availableBibleDatabasesDescriptors();		// List of Bible Descriptors of available Bible Databases
 	QStringList availableBibleDatabasesUUIDs();					// List of UUIDs of available Bible Databases
 
 protected:
@@ -1536,7 +1533,7 @@ protected slots:
 private:
 	CBibleDatabasePtr m_pMainBibleDatabase;
 	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
-	QList<BIBLE_DESCRIPTOR_ENUM> m_lstAvailableDatabases;			// List of descriptor enums for Bible databases available
+	QList<TBibleDescriptor> m_lstAvailableDatabaseDescriptors;		// List of descriptors for available Bible databases
 };
 
 // ============================================================================

@@ -1175,7 +1175,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		std::cerr << "XMLType: ZEFANIA\n";
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (localName.compare("osisText", Qt::CaseInsensitive) == 0))  {
 		ndx = findAttribute(atts, "osisIDWork");
-		if (ndx != -1) m_pBibleDatabase->m_strName = atts.value(ndx);
+		if (ndx != -1) m_pBibleDatabase->m_descriptor.m_strWorkID = atts.value(ndx);
 		std::cerr << "Work: " << atts.value(ndx).toUtf8().data() << "\n";
 		ndx = findAttribute(atts, "lang");
 		if  (ndx != -1) {
@@ -1687,7 +1687,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_bCaptureLang = false;
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		if (m_bInHeader) {
-			std::cerr << "Title: " << m_pBibleDatabase->m_strDescription.toUtf8().data() << "\n";
+			std::cerr << "Title: " << m_pBibleDatabase->m_descriptor.m_strDBDesc.toUtf8().data() << "\n";
 		}
 		m_bCaptureTitle = false;
 		if ((m_bInSuperscription) && (!m_bOpenEndedSuperscription)) {
@@ -1765,7 +1765,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 //	strTemp.replace('\n', ' ');
 
 	if (m_bCaptureTitle) {
-		m_pBibleDatabase->m_strDescription += strTemp;
+		m_pBibleDatabase->m_descriptor.m_strDBDesc += strTemp;
 	} else if (m_bCaptureLang) {
 		m_strLanguage += strTemp;
 	} else if ((!m_strCurrentSegVariant.isEmpty()) && (!m_strSegVariant.isEmpty()) && (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) != 0)) {

@@ -376,10 +376,11 @@ bool CReadDatabase::ReadDBInfoTable()
 			bDBInfoGood = false;
 			strError = QObject::tr("Invalid Bible Database Name", "ReadDB");
 		} else {
-			m_pBibleDatabase->m_strCompatibilityUUID = lstFields.at(2);
-			m_pBibleDatabase->m_strLanguage = lstFields.at(3);
-			m_pBibleDatabase->m_strName = lstFields.at(4);
-			m_pBibleDatabase->m_strDescription = lstFields.at(5);
+			// Note: This overrides any defaults read from internal descriptor list:
+			m_pBibleDatabase->m_descriptor.m_strUUID = lstFields.at(2);
+			m_pBibleDatabase->m_descriptor.m_strLanguage = lstFields.at(3);
+			m_pBibleDatabase->m_descriptor.m_strDBName = lstFields.at(4);
+			m_pBibleDatabase->m_descriptor.m_strDBDesc = lstFields.at(5);
 			m_pBibleDatabase->m_strInfo = lstFields.at(6);
 		}
 	}

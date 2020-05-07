@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
 			} else if (bLookingForBibleDB) {
 				bLookingForBibleDB = false;
 				if (strArg.toUInt() < bibleDescriptorCount()) {
-					pApp->setSelectedMainBibleDB(static_cast<BIBLE_DESCRIPTOR_ENUM>(strArg.toUInt()));
+					pApp->setSelectedMainBibleDB(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(strArg.toUInt())).m_strUUID);
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"", "Errors").arg(strArg));
 				}

@@ -51,6 +51,8 @@ typedef struct {
 	QString m_strS3DBFilename;			// Sqlite3 Database filename
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
 	QString m_strHighlighterUUID;		// Master Highlighter UUID for databases with compatible versification to point to their master
+
+	bool isValid() const { return !m_strUUID.isEmpty(); }
 } TBibleDescriptor;
 
 // Must match constBibleDescriptors[]!!  This is also the order we attempt to read/load them in:

@@ -171,10 +171,10 @@ CBibleDatabasePtr TBibleDatabaseList::atUUID(const QString &strUUID) const
 	return CBibleDatabasePtr();
 }
 
-QList<BIBLE_DESCRIPTOR_ENUM> TBibleDatabaseList::availableBibleDatabases()
+const QList<TBibleDescriptor> &TBibleDatabaseList::availableBibleDatabasesDescriptors()
 {
 	findBibleDatabases();
-	return m_lstAvailableDatabases;
+	return m_lstAvailableDatabaseDescriptors;
 }
 
 QStringList TBibleDatabaseList::availableBibleDatabasesUUIDs()
@@ -182,14 +182,15 @@ QStringList TBibleDatabaseList::availableBibleDatabasesUUIDs()
 	QStringList lstUUIDs;
 
 	findBibleDatabases();
-	lstUUIDs.reserve(m_lstAvailableDatabases.size());
-	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
-		lstUUIDs.append(bibleDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
+	lstUUIDs.reserve(m_lstAvailableDatabaseDescriptors.size());
+	for (int ndx = 0; ndx < m_lstAvailableDatabaseDescriptors.size(); ++ndx) {
+		lstUUIDs.append(m_lstAvailableDatabaseDescriptors.at(ndx).m_strUUID);
 	}
 
 	return lstUUIDs;
 }
 
+// Sort order for languages of Bible Databases:
 static QStringList languageList()
 {
 	QStringList lstLanguages;
@@ -197,6 +198,7 @@ static QStringList languageList()
 	lstLanguages.append("es");
 	lstLanguages.append("fr");
 	lstLanguages.append("de");
+	lstLanguages.append("ru");
 	return lstLanguages;
 }
 
@@ -208,6 +210,8 @@ static int languageIndex(const QString &strLanguage)
 	return ((nIndex != -1) ? nIndex : lstLanguages.size());
 }
 
+// Sort order for Bible Databases, used to put KJV text ahead
+//	of other databases:
 static QList<BIBLE_DESCRIPTOR_ENUM> BDElist()
 {
 	QList<BIBLE_DESCRIPTOR_ENUM> lstBDE;
@@ -232,30 +236,31 @@ void TBibleDatabaseList::findBibleDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
-	m_lstAvailableDatabases.clear();
+	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
 		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
 		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 		// Sort the list as we insert them:
 		int nInsertPoint = 0;
-		while (nInsertPoint < m_lstAvailableDatabases.size()) {
+		while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
 			BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
 			// Sort by Specific descriptor ID, language, then by description, then by general descriptor ID:
 			int nBIndex1 = BDEIndex(nBDE);
-			int nBIndex2 = BDEIndex(m_lstAvailableDatabases.at(nInsertPoint));
+			int nBIndex2 = BDEIndex(bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID));
 			int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
-			int nLIndex2 = languageIndex(bibleDescriptor(m_lstAvailableDatabases.at(nInsertPoint)).m_strLanguage);
+			int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
 			int nBDEComp = ((nBIndex1 < nBIndex2) ? -1 : ((nBIndex2 < nBIndex1) ? 1 : 0));
 			int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
-			int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(bibleDescriptor(m_lstAvailableDatabases.at(nInsertPoint)).m_strDBDesc, true), Qt::CaseInsensitive);
+			int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
 			if ((nBDEComp < 0) ||
 				((nBDEComp == 0) && (nLangComp < 0)) ||
 				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp < 0)) ||
-				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp == 0) && (nBDE < m_lstAvailableDatabases.at(nInsertPoint)))) break;
+				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp == 0) &&
+				 (nBDE < bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID)))) break;
 			++nInsertPoint;
 		}
-		m_lstAvailableDatabases.insert(nInsertPoint, static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+		m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
 	}
 	m_bHaveSearchedAvailableDatabases = true;
 	emit changedAvailableBibleDatabaseList();
@@ -1926,12 +1931,13 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 		}
 	}
 
-	// Even though the main compatibility UUID is always derived from the Bible Database in ReadDB,
-	//		we are the current the one to determine cross-database compatibility.  Perhaps this would
-	//		best be kept in the database as well, but it's almost a toss-up.
-	m_strHighlighterUUID = bblDesc.m_strHighlighterUUID;
+	m_descriptor = bblDesc;
 
-	m_btoFlags = bblDesc.m_btoFlags;
+	// Note: Even though the main compatibility UUID is always derived from the Bible Database in ReadDB,
+	//		we are currently the one to determine cross-database compatibility and the setting of the
+	//		HighlighterUUID.  Perhaps this would best be kept in the database as well, but it's almost a
+	//		toss-up.  So bblDesc.m_strHighlighterUUID will get set from data coming from internal Bible
+	//		Descriptors only and won't get updated or set from the database read.
 }
 
 CBibleDatabase::~CBibleDatabase()
@@ -1944,12 +1950,12 @@ CBibleDatabase::~CBibleDatabase()
 
 TBibleDatabaseSettings CBibleDatabase::settings() const
 {
-	return CPersistentSettings::instance()->bibleDatabaseSettings(m_strCompatibilityUUID);
+	return CPersistentSettings::instance()->bibleDatabaseSettings(m_descriptor.m_strUUID);
 }
 
 void CBibleDatabase::setSettings(const TBibleDatabaseSettings &aSettings)
 {
-	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strCompatibilityUUID, aSettings);
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_descriptor.m_strUUID, aSettings);
 }
 
 bool CBibleDatabase::completelyContains(const TPhraseTag &aPhraseTag) const

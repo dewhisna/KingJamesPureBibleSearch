@@ -621,7 +621,6 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
 		m_pSplash(nullptr),
-		m_nSelectedMainBibleDB(BDE_UNKNOWN),
 		m_nSelectedMainDictDB(DDE_UNKNOWN)
 {
 #ifdef Q_OS_ANDROID
@@ -1595,22 +1594,17 @@ int CMyApplication::execute(bool bBuildDB)
 		settings.endArray();
 	}
 
-	if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
+	if (m_strSelectedMainBibleDB.isEmpty()) {
 		// If command-line override wasn't specified, first see if we will be loading a KJS file.
 		//		If so, try and determine it's Bible Database:
 		if (!fileToLoad().isEmpty()) {
-			m_nSelectedMainBibleDB = bibleDescriptorFromUUID(CKJVCanOpener::determineBibleUUIDForKJVSearchFile(fileToLoad()));
+			m_strSelectedMainBibleDB = CKJVCanOpener::determineBibleUUIDForKJVSearchFile(fileToLoad());
 		}
 		// Else, see if a persistent settings was previously set:
-		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) {
-			for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
-				if ((!strMainBibleDatabaseUUID.isEmpty()) && (strMainBibleDatabaseUUID.compare(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
-					m_nSelectedMainBibleDB = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
-					break;
-				}
-			}
+		if (m_strSelectedMainBibleDB.isEmpty()) {
+			m_strSelectedMainBibleDB = strMainBibleDatabaseUUID;
 		}
-		if (m_nSelectedMainBibleDB == BDE_UNKNOWN) m_nSelectedMainBibleDB = BDE_KJV;				// Default to KJV unless we're told otherwise
+		if (m_strSelectedMainBibleDB.isEmpty()) m_strSelectedMainBibleDB = bibleDescriptor(BDE_KJV).m_strUUID;				// Default to KJV unless we're told otherwise
 	}
 
 	if (m_nSelectedMainDictDB == DDE_UNKNOWN) {
@@ -1642,9 +1636,11 @@ int CMyApplication::execute(bool bBuildDB)
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
+			QString strKJVSQLDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(bibleDescriptorFromUUID(m_strSelectedMainBibleDB)).m_strS3DBFilename).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(m_nSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
+			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(bibleDescriptorFromUUID(m_strSelectedMainBibleDB)).m_strCCDBFilename).absoluteFilePath();
+			// TODO : Fix the paths above to work with external defined names/descriptors as well as internal list
+			//	so that we can build databases that haven't been defined in the list yet.
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));
@@ -1659,16 +1655,16 @@ int CMyApplication::execute(bool bBuildDB)
 #endif
 
 		// Read Main Database(s)
-		QList<BIBLE_DESCRIPTOR_ENUM> lstAvailableBDEs = TBibleDatabaseList::instance()->availableBibleDatabases();
-		for (int ndx = 0; ndx < lstAvailableBDEs.size(); ++ndx) {
-			const TBibleDescriptor &bblDesc = bibleDescriptor(lstAvailableBDEs.at(ndx));
+		const QList<TBibleDescriptor> lstAvailableBBLDescs = TBibleDatabaseList::instance()->availableBibleDatabasesDescriptors();
+		for (int ndx = 0; ndx < lstAvailableBBLDescs.size(); ++ndx) {
+			const TBibleDescriptor &bblDesc = lstAvailableBBLDescs.at(ndx);
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
-				(m_nSelectedMainBibleDB != lstAvailableBDEs.at(ndx)) &&
+				(m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) != 0) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
 			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			assert(rdbMain.haveBibleDatabaseFiles(bblDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(bblDesc.m_strDBName) + tr("Bible", "Errors"));
-			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_nSelectedMainBibleDB == lstAvailableBDEs.at(ndx)))) {
+			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0))) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!", "Errors").arg(bblDesc.m_strDBDesc));
 				return -3;
 			}
@@ -1693,8 +1689,8 @@ int CMyApplication::execute(bool bBuildDB)
 				(m_nSelectedMainDictDB != lstAvailableDDEs.at(ndx)) &&
 				(!CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart())) continue;
 			bool bHaveLanguageMatch = false;
-			for (int nBBLNdx = 0; nBBLNdx < lstAvailableBDEs.size(); ++nBBLNdx) {
-				if (bibleDescriptor(lstAvailableBDEs.at(nBBLNdx)).m_strLanguage.compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0) {
+			for (int nBBLNdx = 0; nBBLNdx < lstAvailableBBLDescs.size(); ++nBBLNdx) {
+				if (lstAvailableBBLDescs.at(nBBLNdx).m_strLanguage.compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0) {
 					bHaveLanguageMatch = true;
 					break;
 				}

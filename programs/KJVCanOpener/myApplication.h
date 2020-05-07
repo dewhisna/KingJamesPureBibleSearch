@@ -137,8 +137,8 @@ public:
 	bool isSingleThreadedSearchResults() const { return m_bSingleThreadedSearchResults; }
 	void setSingleThreadedSearchResults(bool bSingleThreadedSearchResults) { m_bSingleThreadedSearchResults = bSingleThreadedSearchResults; }		// Warning: Only call this in main() before calling execute(), otherwise isn't thread-safe
 
-	BIBLE_DESCRIPTOR_ENUM selectedMainBibleDB() const { return m_nSelectedMainBibleDB; }
-	void setSelectedMainBibleDB(BIBLE_DESCRIPTOR_ENUM nBibleDB) { m_nSelectedMainBibleDB = nBibleDB; }
+	QString selectedMainBibleDB() const { return m_strSelectedMainBibleDB; }
+	void setSelectedMainBibleDB(const QString &strUUID) { m_strSelectedMainBibleDB = strUUID; }
 
 	DICTIONARY_DESCRIPTOR_ENUM selectedMainDictDB() const { return m_nSelectedMainDictDB; }
 	void setSelectedMainDictDB(DICTIONARY_DESCRIPTOR_ENUM nDictDB) { m_nSelectedMainDictDB = nDictDB; }
@@ -282,7 +282,7 @@ protected:
 #ifdef USING_WEBCHANNEL
 	static QPointer<CWebChannelServer> m_pWebChannelServer;	// "Global" singletons for WebChannel
 #endif
-	BIBLE_DESCRIPTOR_ENUM m_nSelectedMainBibleDB;		// Selected (or Default) Main Bible Database descriptor index
+	QString m_strSelectedMainBibleDB;					// Selected (or Default) Main Bible Database UUID
 	DICTIONARY_DESCRIPTOR_ENUM m_nSelectedMainDictDB;	// Selected (or Default) Main Dictionary Database descriptor index
 	DelayedExecutionTimer m_dlyNotesFilesAutoSave;		// Delay timer for notes file auto-save trigger
 };
