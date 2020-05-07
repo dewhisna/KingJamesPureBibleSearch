@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 			} else if (bLookingForDictDB) {
 				bLookingForDictDB = false;
 				if (strArg.toUInt() < dictionaryDescriptorCount()) {
-					pApp->setSelectedMainDictDB(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(strArg.toUInt()));
+					pApp->setSelectedMainDictDB(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(strArg.toUInt())).m_strUUID);
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Dictionary Database Index \"%1\"", "Errors").arg(strArg));
 				}

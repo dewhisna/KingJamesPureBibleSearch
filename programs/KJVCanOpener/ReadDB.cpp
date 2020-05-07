@@ -1557,7 +1557,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
 	assert(!m_pDictionaryDatabase.isNull());
 
-	m_pDictionaryDatabase->m_strLanguage = dctDesc.m_strLanguage;
+	m_pDictionaryDatabase->m_descriptor.m_strLanguage = dctDesc.m_strLanguage;
 
 	QFileInfo fiSQL(dictDBFileInfo(DTE_SQL, dctDesc));
 	QFileInfo fiCC(dictDBFileInfo(DTE_CC, dctDesc));

@@ -110,6 +110,8 @@ typedef struct {
 	QString m_strUUID;
 	QString m_strS3DBFilename;			// Sqlite3 Database filename
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
+
+	bool isValid() const { return !m_strUUID.isEmpty(); }
 } TDictionaryDescriptor;
 
 // Must match coonstDictionaryDescriptors[]!!  This is also the order we attempt to read/load them in:

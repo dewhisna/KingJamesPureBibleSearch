@@ -1628,12 +1628,15 @@ private:
 public:
 	~CDictionaryDatabase();
 
-	DictionaryTypeOptionsFlags flags() const { return m_dtoFlags; }
-	QString language() const { return m_strLanguage; }
-	QString name() const { return m_strName; }
-	QString description() const { return m_strDescription; }
+	DictionaryTypeOptionsFlags flags() const { return m_descriptor.m_dtoFlags; }
+	QString language() const { return m_descriptor.m_strLanguage; }
+	QString name() const { return m_descriptor.m_strDBName; }
+	QString description() const { return m_descriptor.m_strDBDesc; }
+	QString compatibilityUUID() const { return m_descriptor.m_strUUID; }
+	const TDictionaryDescriptor &descriptor() const { return m_descriptor; }
+
 	QString info() const { return m_strInfo; }
-	QString compatibilityUUID() const { return m_strCompatibilityUUID; }
+
 	bool isLiveDatabase() const {
 #ifndef NOT_USING_SQL
 		return m_myDatabase.isOpen();
@@ -1662,12 +1665,8 @@ private:
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_mapWordDefinitions) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:
-	DictionaryTypeOptionsFlags m_dtoFlags;	// Dictionary Database Flags
-	QString m_strLanguage;					// Language ID for this database (en, es, etc)
-	QString m_strName;						// Name for this database
-	QString m_strDescription;				// Database description
+	TDictionaryDescriptor m_descriptor;		// Dictionary Descriptor Record
 	QString m_strInfo;						// Information about this database (copyright details, etc)
-	QString m_strCompatibilityUUID;			// Unique Identifier inside database that data can be tied to to know that the database has the same word count structure such that highlighters and things still work
 #ifndef NOT_USING_SQL
 	QSqlDatabase m_myDatabase;				// Open SQL for this dictionary
 #endif
@@ -1700,7 +1699,7 @@ public:
 	CDictionaryDatabasePtr at(int i) const { return QList<CDictionaryDatabasePtr>::at(i); }
 	CDictionaryDatabasePtr atUUID(const QString &strUUID) const;
 
-	QList<DICTIONARY_DESCRIPTOR_ENUM> availableDictionaryDatabases();	// List of DDEs of available Dictionary Databases
+	const QList<TDictionaryDescriptor> &availableDictionaryDatabasesDescriptors();		// List of Dictionary Descriptors of available Dictionary Databases
 	QStringList availableDictionaryDatabasesUUIDs();					// List of UUIDs of available Dictionary Databases
 
 protected:
@@ -1719,7 +1718,7 @@ signals:
 private:
 	CDictionaryDatabasePtr m_pMainDictionaryDatabase;
 	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
-	QList<DICTIONARY_DESCRIPTOR_ENUM> m_lstAvailableDatabases;		// List of descriptor enums for Dictionary databases available
+	QList<TDictionaryDescriptor> m_lstAvailableDatabaseDescriptors;		// List of descriptors for available Dictionary databases
 };
 
 

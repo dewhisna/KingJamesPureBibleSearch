@@ -620,8 +620,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_nLastActivateCanOpener(-1),
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
-		m_pSplash(nullptr),
-		m_nSelectedMainDictDB(DDE_UNKNOWN)
+		m_pSplash(nullptr)
 {
 #ifdef Q_OS_ANDROID
 	m_strInitialAppDirPath = QDir::homePath();
@@ -1604,18 +1603,13 @@ int CMyApplication::execute(bool bBuildDB)
 		if (m_strSelectedMainBibleDB.isEmpty()) {
 			m_strSelectedMainBibleDB = strMainBibleDatabaseUUID;
 		}
-		if (m_strSelectedMainBibleDB.isEmpty()) m_strSelectedMainBibleDB = bibleDescriptor(BDE_KJV).m_strUUID;				// Default to KJV unless we're told otherwise
+		if (m_strSelectedMainBibleDB.isEmpty()) m_strSelectedMainBibleDB = bibleDescriptor(BDE_KJV).m_strUUID;			// Default to KJV unless we're told otherwise
 	}
 
-	if (m_nSelectedMainDictDB == DDE_UNKNOWN) {
+	if (m_strSelectedMainDictDB.isEmpty()) {
 		// If command-line override for dictionary wasn't specified, see if a persistent setting was previously set:
-		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
-			if ((!strMainDictDatabaseUUID.isEmpty()) && (strMainDictDatabaseUUID.compare(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx)).m_strUUID, Qt::CaseInsensitive) == 0)) {
-				m_nSelectedMainDictDB = static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx);
-				break;
-			}
-		}
-		if (m_nSelectedMainDictDB == DDE_UNKNOWN) m_nSelectedMainDictDB = DDE_WEB1828;				// Default to WEB1828 unless we're told otherwise
+		m_strSelectedMainDictDB = strMainDictDatabaseUUID;
+		if (m_strSelectedMainDictDB.isEmpty()) m_strSelectedMainDictDB = dictionaryDescriptor(DDE_WEB1828).m_strUUID;	// Default to WEB1828 unless we're told otherwise
 	}
 
 #ifndef EMSCRIPTEN
@@ -1655,7 +1649,7 @@ int CMyApplication::execute(bool bBuildDB)
 #endif
 
 		// Read Main Database(s)
-		const QList<TBibleDescriptor> lstAvailableBBLDescs = TBibleDatabaseList::instance()->availableBibleDatabasesDescriptors();
+		const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::instance()->availableBibleDatabasesDescriptors();
 		for (int ndx = 0; ndx < lstAvailableBBLDescs.size(); ++ndx) {
 			const TBibleDescriptor &bblDesc = lstAvailableBBLDescs.at(ndx);
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
@@ -1682,11 +1676,11 @@ int CMyApplication::execute(bool bBuildDB)
 
 #if defined(USING_DICTIONARIES)
 		// Read Dictionary Database:
-		QList<DICTIONARY_DESCRIPTOR_ENUM> lstAvailableDDEs = TDictionaryDatabaseList::instance()->availableDictionaryDatabases();
-		for (int ndx = 0; ndx < lstAvailableDDEs.size(); ++ndx) {
-			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(lstAvailableDDEs.at(ndx));
+		const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesDescriptors();
+		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+			const TDictionaryDescriptor &dctDesc = lstAvailableDictDescs.at(ndx);
 			if ((!(dctDesc.m_dtoFlags & DTO_AutoLoad)) &&
-				(m_nSelectedMainDictDB != lstAvailableDDEs.at(ndx)) &&
+				(m_strSelectedMainDictDB.compare(lstAvailableDictDescs.at(ndx).m_strUUID, Qt::CaseInsensitive) != 0) &&
 				(!CPersistentSettings::instance()->dictionaryDatabaseSettings(dctDesc.m_strUUID).loadOnStart())) continue;
 			bool bHaveLanguageMatch = false;
 			for (int nBBLNdx = 0; nBBLNdx < lstAvailableBBLDescs.size(); ++nBBLNdx) {
@@ -1699,7 +1693,7 @@ int CMyApplication::execute(bool bBuildDB)
 			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
 			assert(rdbDict.haveDictionaryDatabaseFiles(dctDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(dctDesc.m_strDBName) + tr("Dictionary", "Errors"));
-			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (m_nSelectedMainDictDB == lstAvailableDDEs.at(ndx)))) {
+			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (m_strSelectedMainDictDB.compare(lstAvailableDictDescs.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0))) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
 				return -5;
 			}

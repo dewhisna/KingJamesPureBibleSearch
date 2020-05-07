@@ -343,11 +343,11 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		}
 	}
 
-	QStringList lstAvailableUUIDs = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesUUIDs();
+	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesDescriptors();
 
 	// Loaded dictionaries have precedence:
-	for (int ndx = 0; ndx < lstAvailableUUIDs.size(); ++ndx) {
-		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx));
+	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 		if (!pDictDatabase.isNull()) {
 			if ((strLanguage.isEmpty()) || (pDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0) ||
 				(pDictDatabase->flags() & DTO_IgnoreLang)) return pDictDatabase;
@@ -356,13 +356,13 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 
 	// Try to find one that isn't loaded if we're allowed to:
 #ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
-	for (int ndx = 0; ndx < lstAvailableUUIDs.size(); ++ndx) {
-		if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx)).isNull()) continue;
+	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+		if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID).isNull()) continue;
 		if ((strLanguage.isEmpty()) ||
-			(dictionaryDescriptor(dictionaryDescriptorFromUUID(lstAvailableUUIDs.at(ndx))).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
-			(dictionaryDescriptor(dictionaryDescriptorFromUUID(lstAvailableUUIDs.at(ndx))).m_dtoFlags & DTO_IgnoreLang)) {
-			if (TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableUUIDs.at(ndx), false, pParentWidget)) {
-				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableUUIDs.at(ndx));
+			(lstAvailableDictDescs.at(ndx).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+			(lstAvailableDictDescs.at(ndx).m_dtoFlags & DTO_IgnoreLang)) {
+			if (TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableDictDescs.at(ndx).m_strUUID, false, pParentWidget)) {
+				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 				assert(!pDictDatabase.isNull());
 				if (!pDictDatabase.isNull()) return pDictDatabase;
 			}
@@ -456,10 +456,10 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::atUUID(const QString &strUUID) c
 	return CDictionaryDatabasePtr();
 }
 
-QList<DICTIONARY_DESCRIPTOR_ENUM> TDictionaryDatabaseList::availableDictionaryDatabases()
+const QList<TDictionaryDescriptor> &TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors()
 {
 	findDictionaryDatabases();
-	return m_lstAvailableDatabases;
+	return m_lstAvailableDatabaseDescriptors;
 }
 
 QStringList TDictionaryDatabaseList::availableDictionaryDatabasesUUIDs()
@@ -467,9 +467,9 @@ QStringList TDictionaryDatabaseList::availableDictionaryDatabasesUUIDs()
 	QStringList lstUUIDs;
 
 	findDictionaryDatabases();
-	lstUUIDs.reserve(m_lstAvailableDatabases.size());
-	for (int ndx = 0; ndx < m_lstAvailableDatabases.size(); ++ndx) {
-		lstUUIDs.append(dictionaryDescriptor(m_lstAvailableDatabases.at(ndx)).m_strUUID);
+	lstUUIDs.reserve(m_lstAvailableDatabaseDescriptors.size());
+	for (int ndx = 0; ndx < m_lstAvailableDatabaseDescriptors.size(); ++ndx) {
+		lstUUIDs.append(m_lstAvailableDatabaseDescriptors.at(ndx).m_strUUID);
 	}
 
 	return lstUUIDs;
@@ -479,12 +479,12 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
-	m_lstAvailableDatabases.clear();
+	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 		const TDictionaryDescriptor &dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
 		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
 		if (!rdbMain.haveDictionaryDatabaseFiles(dictDesc)) continue;
-		m_lstAvailableDatabases.append(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+		m_lstAvailableDatabaseDescriptors.append(dictDesc);
 	}
 	m_bHaveSearchedAvailableDatabases = true;
 	emit changedAvailableDictionaryDatabaseList();
@@ -1917,7 +1917,8 @@ TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBi
 
 
 CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
-	:	m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
+	:	m_descriptor(bblDesc),
+		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
 	// Note: For ReadSpecialBibleDatabase() to work correctly (command-line tools), this function must be
 	//	able to work with the BDE_SPECIAL_TEST descriptor:
@@ -1930,8 +1931,6 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 			CPersistentSettings::instance()->setBibleDatabaseSettings(bblDesc.m_strUUID, bblDBaseSettings);
 		}
 	}
-
-	m_descriptor = bblDesc;
 
 	// Note: Even though the main compatibility UUID is always derived from the Bible Database in ReadDB,
 	//		we are currently the one to determine cross-database compatibility and the setting of the
@@ -2250,10 +2249,7 @@ CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord)
 // ============================================================================
 
 CDictionaryDatabase::CDictionaryDatabase(const TDictionaryDescriptor &dctDesc)
-	:	m_dtoFlags(dctDesc.m_dtoFlags),
-		m_strName(dctDesc.m_strDBName),
-		m_strDescription(dctDesc.m_strDBDesc),
-		m_strCompatibilityUUID(dctDesc.m_strUUID)
+	:	m_descriptor(dctDesc)
 {
 
 }
@@ -2262,12 +2258,12 @@ CDictionaryDatabase::~CDictionaryDatabase()
 {
 #ifndef NOT_USING_SQL
 	if (isLiveDatabase()) {
-		assert(m_myDatabase.contains(m_strCompatibilityUUID));
+		assert(m_myDatabase.contains(m_descriptor.m_strUUID));
 		m_myDatabase.close();
 		m_myDatabase = QSqlDatabase();
-		QSqlDatabase::removeDatabase(m_strCompatibilityUUID);
+		QSqlDatabase::removeDatabase(m_descriptor.m_strUUID);
 	} else {
-		assert(!m_myDatabase.contains(m_strCompatibilityUUID));
+		assert(!m_myDatabase.contains(m_descriptor.m_strUUID));
 	}
 #endif
 }

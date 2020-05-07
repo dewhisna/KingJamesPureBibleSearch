@@ -140,8 +140,8 @@ public:
 	QString selectedMainBibleDB() const { return m_strSelectedMainBibleDB; }
 	void setSelectedMainBibleDB(const QString &strUUID) { m_strSelectedMainBibleDB = strUUID; }
 
-	DICTIONARY_DESCRIPTOR_ENUM selectedMainDictDB() const { return m_nSelectedMainDictDB; }
-	void setSelectedMainDictDB(DICTIONARY_DESCRIPTOR_ENUM nDictDB) { m_nSelectedMainDictDB = nDictDB; }
+	QString selectedMainDictDB() const { return m_strSelectedMainDictDB; }
+	void setSelectedMainDictDB(const QString &strUUID) { m_strSelectedMainDictDB = strUUID; }
 
 	QWidget *showSplash();
 	void completeInterAppSplash();
@@ -283,7 +283,7 @@ protected:
 	static QPointer<CWebChannelServer> m_pWebChannelServer;	// "Global" singletons for WebChannel
 #endif
 	QString m_strSelectedMainBibleDB;					// Selected (or Default) Main Bible Database UUID
-	DICTIONARY_DESCRIPTOR_ENUM m_nSelectedMainDictDB;	// Selected (or Default) Main Dictionary Database descriptor index
+	QString m_strSelectedMainDictDB;					// Selected (or Default) Main Dictionary Database UUID
 	DelayedExecutionTimer m_dlyNotesFilesAutoSave;		// Delay timer for notes file auto-save trigger
 };
 extern QPointer<CMyApplication> g_pMyApplication;
