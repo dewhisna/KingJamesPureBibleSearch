@@ -80,7 +80,7 @@ TBibleDatabaseList *TBibleDatabaseList::instance()
 QString TBibleDatabaseList::availableBibleDatabasesAsJson()
 {
 	QJsonArray arrBibleList;
-	const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabasesDescriptors();
+	const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabases();
 	QString strUUIDDefault;
 	CBibleDatabasePtr pDefaultBible = TBibleDatabaseList::instance()->atUUID(QString());
 	if (!pDefaultBible.isNull()) strUUIDDefault = pDefaultBible->compatibilityUUID();
@@ -167,12 +167,6 @@ CBibleDatabasePtr TBibleDatabaseList::atUUID(const QString &strUUID) const
 	}
 
 	return CBibleDatabasePtr();
-}
-
-const QList<TBibleDescriptor> &TBibleDatabaseList::availableBibleDatabasesDescriptors()
-{
-	instance()->findBibleDatabases();
-	return instance()->m_lstAvailableDatabaseDescriptors;
 }
 
 // Sort order for languages of Bible Databases:
@@ -329,7 +323,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		}
 	}
 
-	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors();
+	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabases();
 
 	// Loaded dictionaries have precedence:
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
@@ -440,12 +434,6 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::atUUID(const QString &strUUID) c
 	}
 
 	return CDictionaryDatabasePtr();
-}
-
-const QList<TDictionaryDescriptor> &TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors()
-{
-	instance()->findDictionaryDatabases();
-	return instance()->m_lstAvailableDatabaseDescriptors;
 }
 
 void TDictionaryDatabaseList::findDictionaryDatabases()

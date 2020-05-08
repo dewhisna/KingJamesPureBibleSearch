@@ -1647,7 +1647,7 @@ int CMyApplication::execute(bool bBuildDB)
 #endif
 
 		// Read Main Database(s)
-		const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabasesDescriptors();
+		const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabases();
 		for (int ndx = 0; ndx < lstAvailableBBLDescs.size(); ++ndx) {
 			const TBibleDescriptor &bblDesc = lstAvailableBBLDescs.at(ndx);
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
@@ -1674,7 +1674,7 @@ int CMyApplication::execute(bool bBuildDB)
 
 #if defined(USING_DICTIONARIES)
 		// Read Dictionary Database:
-		const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors();
+		const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabases();
 		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
 			const TDictionaryDescriptor &dctDesc = lstAvailableDictDescs.at(ndx);
 			if ((!(dctDesc.m_dtoFlags & DTO_AutoLoad)) &&

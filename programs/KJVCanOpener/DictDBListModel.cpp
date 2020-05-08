@@ -31,7 +31,7 @@
 
 CDictDatabaseListModel::CDictDatabaseListModel(QObject *parent)
 	:	QAbstractListModel(parent),
-		m_lstAvailableDatabaseDescriptors(TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors())
+		m_lstAvailableDatabaseDescriptors(TDictionaryDatabaseList::availableDictionaryDatabases())
 {
 	updateDictDatabaseList();
 }

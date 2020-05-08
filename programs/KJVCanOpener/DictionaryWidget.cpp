@@ -496,7 +496,7 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 		m_pActionDictDatabasesList->menu()->addAction(pAction);
 	}
 #else
-	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors();
+	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabases();
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 

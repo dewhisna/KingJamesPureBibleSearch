@@ -31,7 +31,7 @@
 
 CBibleDatabaseListModel::CBibleDatabaseListModel(QObject *parent)
 	:	QAbstractListModel(parent),
-		m_lstAvailableDatabaseDescriptors(TBibleDatabaseList::availableBibleDatabasesDescriptors())
+		m_lstAvailableDatabaseDescriptors(TBibleDatabaseList::availableBibleDatabases())
 {
 	updateBibleDatabaseList();
 }

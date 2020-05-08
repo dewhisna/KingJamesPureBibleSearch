@@ -68,7 +68,7 @@ private:
 	void locateLoadedDatabase(int nAvailableDBIndex);
 
 private:
-	const QList<TBibleDescriptor> &m_lstAvailableDatabaseDescriptors;	// List of descriptors for available Bible databases reference to TBibleDatabaseList::availableBibleDatabasesDescriptors()
+	const QList<TBibleDescriptor> &m_lstAvailableDatabaseDescriptors;	// List of descriptors for available Bible databases reference to TBibleDatabaseList::availableBibleDatabases()
 	QMap<int, int> m_mapAvailableToLoadedIndex;					// Mapping of indexes in Available Database list (above) to the global Bible Database list index (-1 = database isn't loaded)
 
 	Q_DISABLE_COPY(CBibleDatabaseListModel)

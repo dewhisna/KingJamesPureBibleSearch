@@ -1511,10 +1511,14 @@ public:
 	CBibleDatabasePtr at(int i) const { return QList<CBibleDatabasePtr>::at(i); }
 	CBibleDatabasePtr atUUID(const QString &strUUID) const;
 
-	static const QList<TBibleDescriptor> &availableBibleDatabasesDescriptors();		// List of Bible Descriptors of available Bible Databases
+	static const QList<TBibleDescriptor> &availableBibleDatabases()		// List of Bible Descriptors of available Bible Databases
+	{
+		instance()->findBibleDatabases();
+		return instance()->m_lstAvailableDatabaseDescriptors;
+	}
 	static TBibleDescriptor availableBibleDatabaseDescriptor(const QString &strUUID)
 	{
-		const QList<TBibleDescriptor> &lstDesc = availableBibleDatabasesDescriptors();
+		const QList<TBibleDescriptor> &lstDesc = availableBibleDatabases();
 		for (int ndx = 0; ndx < lstDesc.size(); ++ndx) {
 			if (strUUID.compare(lstDesc.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0) return lstDesc.at(ndx);
 		}
@@ -1706,10 +1710,14 @@ public:
 	CDictionaryDatabasePtr at(int i) const { return QList<CDictionaryDatabasePtr>::at(i); }
 	CDictionaryDatabasePtr atUUID(const QString &strUUID) const;
 
-	static const QList<TDictionaryDescriptor> &availableDictionaryDatabasesDescriptors();		// List of Dictionary Descriptors of available Dictionary Databases
+	static const QList<TDictionaryDescriptor> &availableDictionaryDatabases()		// List of Dictionary Descriptors of available Dictionary Databases
+	{
+		instance()->findDictionaryDatabases();
+		return instance()->m_lstAvailableDatabaseDescriptors;
+	}
 	static TDictionaryDescriptor availableDictionaryDatabaseDescriptor(const QString &strUUID)
 	{
-		const QList<TDictionaryDescriptor> &lstDesc = availableDictionaryDatabasesDescriptors();
+		const QList<TDictionaryDescriptor> &lstDesc = availableDictionaryDatabases();
 		for (int ndx = 0; ndx < lstDesc.size(); ++ndx) {
 			if (strUUID.compare(lstDesc.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0) return lstDesc.at(ndx);
 		}
