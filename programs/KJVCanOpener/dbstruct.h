@@ -1706,8 +1706,15 @@ public:
 	CDictionaryDatabasePtr at(int i) const { return QList<CDictionaryDatabasePtr>::at(i); }
 	CDictionaryDatabasePtr atUUID(const QString &strUUID) const;
 
-	const QList<TDictionaryDescriptor> &availableDictionaryDatabasesDescriptors();		// List of Dictionary Descriptors of available Dictionary Databases
-	QStringList availableDictionaryDatabasesUUIDs();					// List of UUIDs of available Dictionary Databases
+	static const QList<TDictionaryDescriptor> &availableDictionaryDatabasesDescriptors();		// List of Dictionary Descriptors of available Dictionary Databases
+	static TDictionaryDescriptor availableDictionaryDatabaseDescriptor(const QString &strUUID)
+	{
+		const QList<TDictionaryDescriptor> &lstDesc = availableDictionaryDatabasesDescriptors();
+		for (int ndx = 0; ndx < lstDesc.size(); ++ndx) {
+			if (strUUID.compare(lstDesc.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0) return lstDesc.at(ndx);
+		}
+		return TDictionaryDescriptor();
+	}
 
 protected:
 	void findDictionaryDatabases();

@@ -496,9 +496,9 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 		m_pActionDictDatabasesList->menu()->addAction(pAction);
 	}
 #else
-	QStringList lstAvailableDatabases = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesUUIDs();
-	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
-		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
+	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors();
+	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 
 		if (!pDictDatabase.isNull()) {
 			if ((m_strLanguage.isEmpty()) || (pDictDatabase->language().compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
@@ -512,9 +512,8 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 				m_pActionDictDatabasesList->menu()->addAction(pAction);
 			}
 		} else {
-			DICTIONARY_DESCRIPTOR_ENUM nDDE = dictionaryDescriptorFromUUID(lstAvailableDatabases.at(ndx));
-			assert(nDDE != DDE_UNKNOWN);
-			const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(nDDE);
+			TDictionaryDescriptor dctDesc = lstAvailableDictDescs.at(ndx);
+			assert(dctDesc.isValid());
 			if ((m_strLanguage.isEmpty()) || (dctDesc.m_strLanguage.compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
 				(dctDesc.m_dtoFlags & DTO_IgnoreLang)) {
 				QAction *pAction = new QAction(dctDesc.m_strDBDesc, m_pActionGroupDictDatabasesList);

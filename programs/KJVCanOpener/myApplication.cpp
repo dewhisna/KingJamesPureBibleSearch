@@ -1674,7 +1674,7 @@ int CMyApplication::execute(bool bBuildDB)
 
 #if defined(USING_DICTIONARIES)
 		// Read Dictionary Database:
-		const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesDescriptors();
+		const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors();
 		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
 			const TDictionaryDescriptor &dctDesc = lstAvailableDictDescs.at(ndx);
 			if ((!(dctDesc.m_dtoFlags & DTO_AutoLoad)) &&

@@ -68,7 +68,7 @@ private:
 	void locateLoadedDatabase(int nAvailableDBIndex);
 
 private:
-	QStringList m_lstAvailableDatabaseUUIDs;					// List of Database UUIDs for Dictionary databases available
+	const QList<TDictionaryDescriptor> &m_lstAvailableDatabaseDescriptors;	// List of descriptors for available Dictionary databases reference to TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors()
 	QMap<int, int> m_mapAvailableToLoadedIndex;					// Mapping of indexes in Available Database list (above) to the global Dictionary Database list index (-1 = database isn't loaded)
 
 	Q_DISABLE_COPY(CDictDatabaseListModel)

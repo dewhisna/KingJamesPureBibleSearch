@@ -311,8 +311,8 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		if ((pMainDictDatabase.isNull()) ||
 			((!pMainDictDatabase.isNull()) && (pMainDictDatabase->compatibilityUUID().compare(strUUIDSelMain, Qt::CaseInsensitive) != 0))) {
 			if ((strLanguage.isEmpty()) ||
-				(dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUIDSelMain)).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
-				(dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUIDSelMain)).m_dtoFlags & DTO_IgnoreLang)) {
+				(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+				(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_dtoFlags & DTO_IgnoreLang)) {
 				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
 				if (!pDictDatabase.isNull()) {
 					return pDictDatabase;
@@ -329,7 +329,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		}
 	}
 
-	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::instance()->availableDictionaryDatabasesDescriptors();
+	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors();
 
 	// Loaded dictionaries have precedence:
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
@@ -362,7 +362,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
 {
 	if (strUUID.isEmpty()) return false;
-	const TDictionaryDescriptor &dctDesc = dictionaryDescriptor(dictionaryDescriptorFromUUID(strUUID));
+	TDictionaryDescriptor dctDesc = availableDictionaryDatabaseDescriptor(strUUID);
 	CBusyCursor iAmBusy(nullptr);
 	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
 	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
@@ -444,27 +444,15 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::atUUID(const QString &strUUID) c
 
 const QList<TDictionaryDescriptor> &TDictionaryDatabaseList::availableDictionaryDatabasesDescriptors()
 {
-	findDictionaryDatabases();
-	return m_lstAvailableDatabaseDescriptors;
-}
-
-QStringList TDictionaryDatabaseList::availableDictionaryDatabasesUUIDs()
-{
-	QStringList lstUUIDs;
-
-	findDictionaryDatabases();
-	lstUUIDs.reserve(m_lstAvailableDatabaseDescriptors.size());
-	for (int ndx = 0; ndx < m_lstAvailableDatabaseDescriptors.size(); ++ndx) {
-		lstUUIDs.append(m_lstAvailableDatabaseDescriptors.at(ndx).m_strUUID);
-	}
-
-	return lstUUIDs;
+	instance()->findDictionaryDatabases();
+	return instance()->m_lstAvailableDatabaseDescriptors;
 }
 
 void TDictionaryDatabaseList::findDictionaryDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
+	// TODO : Add local file Dictionary Database discovery to this
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 		const TDictionaryDescriptor &dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
