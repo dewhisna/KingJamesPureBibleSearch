@@ -1511,8 +1511,15 @@ public:
 	CBibleDatabasePtr at(int i) const { return QList<CBibleDatabasePtr>::at(i); }
 	CBibleDatabasePtr atUUID(const QString &strUUID) const;
 
-	const QList<TBibleDescriptor> &availableBibleDatabasesDescriptors();		// List of Bible Descriptors of available Bible Databases
-	QStringList availableBibleDatabasesUUIDs();					// List of UUIDs of available Bible Databases
+	static const QList<TBibleDescriptor> &availableBibleDatabasesDescriptors();		// List of Bible Descriptors of available Bible Databases
+	static TBibleDescriptor availableBibleDatabaseDescriptor(const QString &strUUID)
+	{
+		const QList<TBibleDescriptor> &lstDesc = availableBibleDatabasesDescriptors();
+		for (int ndx = 0; ndx < lstDesc.size(); ++ndx) {
+			if (strUUID.compare(lstDesc.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0) return lstDesc.at(ndx);
+		}
+		return TBibleDescriptor();
+	}
 
 protected:
 	void findBibleDatabases();

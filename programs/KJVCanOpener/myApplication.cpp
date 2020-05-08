@@ -1630,11 +1630,9 @@ int CMyApplication::execute(bool bBuildDB)
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(bibleDescriptorFromUUID(m_strSelectedMainBibleDB)).m_strS3DBFilename).absoluteFilePath();
+			QString strKJVSQLDatabasePath = QFileInfo(g_strBibleDatabasePath, TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, bibleDescriptor(bibleDescriptorFromUUID(m_strSelectedMainBibleDB)).m_strCCDBFilename).absoluteFilePath();
-			// TODO : Fix the paths above to work with external defined names/descriptors as well as internal list
-			//	so that we can build databases that haven't been defined in the list yet.
+			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));
@@ -1649,7 +1647,7 @@ int CMyApplication::execute(bool bBuildDB)
 #endif
 
 		// Read Main Database(s)
-		const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::instance()->availableBibleDatabasesDescriptors();
+		const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabasesDescriptors();
 		for (int ndx = 0; ndx < lstAvailableBBLDescs.size(); ++ndx) {
 			const TBibleDescriptor &bblDesc = lstAvailableBBLDescs.at(ndx);
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&

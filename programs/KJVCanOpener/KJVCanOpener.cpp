@@ -861,7 +861,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionBibleDatabasesList = new QAction(QIcon(":/res/gnome_window_new.png"), tr("&New Search Window...", "MainMenu"), this);
 	m_pActionBibleDatabasesList->setStatusTip(tr("Create a New King James Pure Bible Search Window", "MainMenu"));
 	m_pActionBibleDatabasesList->setToolTip(tr("Create New Search Window", "MainMenu"));
-	if (TBibleDatabaseList::instance()->availableBibleDatabasesUUIDs().size() == 1) {
+	if (TBibleDatabaseList::availableBibleDatabasesDescriptors().size() == 1) {
 		// If we only have a single available database, treat it in the old fashion of a single "New Search Window" button:
 		m_pActionBibleDatabasesList->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
 		connect(m_pActionBibleDatabasesList, SIGNAL(triggered()), this, SLOT(en_NewCanOpener()));
@@ -1965,9 +1965,9 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 	kjsFile.endGroup();
 
 	// Determine Bible Language for this file (default to KJV if not specified since early files didn't specify)
-	BIBLE_DESCRIPTOR_ENUM bdeFile = bibleDescriptorFromUUID(strBblUUID);
-	if (bdeFile == BDE_UNKNOWN) bdeFile = BDE_KJV;
-	strBblLang = bibleDescriptor(bdeFile).m_strLanguage;
+	TBibleDescriptor bblDesc = TBibleDatabaseList::availableBibleDatabaseDescriptor(strBblUUID);
+	if (!bblDesc.isValid()) bblDesc = bibleDescriptor(BDE_KJV);
+	strBblLang = bblDesc.m_strLanguage;
 
 	if (nFileVersion < KJS_FILE_VERSION) {
 		show();		// Make sure we are visible if this was during construction
@@ -2098,9 +2098,9 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 		m_pActionBibleDatabasesList->menu()->addAction(pAction);
 	}
 #else
-	QStringList lstAvailableDatabases = TBibleDatabaseList::instance()->availableBibleDatabasesUUIDs();
-	for (int ndx = 0; ndx < lstAvailableDatabases.size(); ++ndx) {
-		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstAvailableDatabases.at(ndx));
+	const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabasesDescriptors();
+	for (int ndx = 0; ndx < lstAvailableBBLDescs.size(); ++ndx) {
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstAvailableBBLDescs.at(ndx).m_strUUID);
 
 		if (!pBibleDatabase.isNull()) {
 			QAction *pAction = new QAction(pBibleDatabase->description(), m_pActionGroupBibleDatabasesList);
@@ -2110,11 +2110,9 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 			}
 			m_pActionBibleDatabasesList->menu()->addAction(pAction);
 		} else {
-			BIBLE_DESCRIPTOR_ENUM nBDE = bibleDescriptorFromUUID(lstAvailableDatabases.at(ndx));
-			assert(nBDE != BDE_UNKNOWN);
-			const TBibleDescriptor &bblDesc = bibleDescriptor(nBDE);
-			QAction *pAction = new QAction(bblDesc.m_strDBDesc, m_pActionGroupBibleDatabasesList);
-			pAction->setData(bblDesc.m_strUUID);
+			assert(lstAvailableBBLDescs.at(ndx).isValid());
+			QAction *pAction = new QAction(lstAvailableBBLDescs.at(ndx).m_strDBDesc, m_pActionGroupBibleDatabasesList);
+			pAction->setData(lstAvailableBBLDescs.at(ndx).m_strUUID);
 			m_pActionBibleDatabasesList->menu()->addAction(pAction);
 		}
 	}
