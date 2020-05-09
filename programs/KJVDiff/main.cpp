@@ -53,6 +53,8 @@
 #include <set>
 #include <algorithm>
 
+#include "../KJVCanOpener/PathConsts.h"
+
 // ============================================================================
 
 namespace {
@@ -61,12 +63,6 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 
 	const unsigned int VERSION = 10000;		// Version 1.0.0
-
-	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
-
-	// Use translations from the main app:
-	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
-	const char *g_constrTranslationFilenamePrefix = "kjpbs";
 
 }	// namespace
 
@@ -125,9 +121,7 @@ static int readDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 {
 	std::cerr << QString::fromUtf8("Reading database: %1\n").arg(bblDesc.m_strDBDesc).toUtf8().data();
 
-	QFileInfo fiDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
-
-	CReadDatabase rdbMain(fiDBPath.absoluteFilePath(), QString(), NULL);
+	CReadDatabase rdbMain;
 	if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) {
 		std::cerr << QString::fromUtf8("\n*** ERROR: Unable to locate Bible Database Files for %1!\n").arg(bblDesc.m_strDBDesc).toUtf8().data();
 		return -2;
@@ -142,17 +136,16 @@ static int readDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 
 static int readDatabaseByFilename(const QString &strFilename, bool bSetAsMain)
 {
-	QFileInfo fiDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
-	QFileInfo fiFile(strFilename);
+	QFileInfo fiFile(QDir(TBibleDatabaseList::bibleDatabasePath()), strFilename);
 
 	std::cerr << QString::fromUtf8("Reading database: %1\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
 
-	CReadDatabase rdbMain(fiDBPath.absoluteFilePath(), QString(), NULL);
+	CReadDatabase rdbMain;
 	if (!fiFile.exists() || !fiFile.isFile()) {
 		std::cerr << QString::fromUtf8("\n*** ERROR: Unable to locate Bible Database File \"%1\"!\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
 		return -2;
 	}
-	if (!rdbMain.ReadSpecialBibleDatabase(fiFile.absoluteFilePath(), bSetAsMain)) {
+	if (!rdbMain.ReadSpecialBibleDatabase(strFilename, bSetAsMain)) {
 		std::cerr << QString::fromUtf8("\n*** ERROR: Failed to Read Bible Database File \"%1\"!\n").arg(fiFile.absoluteFilePath()).toUtf8().data();
 		return -3;
 	}
@@ -309,8 +302,10 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// TODO : Add support for raw-UUID as well as indexes
+
 	if ((nDescriptor1 > 0) && (static_cast<unsigned int>(nDescriptor1) < bibleDescriptorCount())) {
-		bblDescriptor1 = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor1));
+		bblDescriptor1 = TBibleDatabaseList::availableBibleDatabaseDescriptor(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor1)).m_strUUID);
 	} else {
 		if (nDescriptor1 != 0) {
 			std::cerr << QString::fromUtf8("Unknown UUID-Index: %1\n").arg(nDescriptor1).toUtf8().data();
@@ -319,7 +314,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nDescriptor2 > 0) && (static_cast<unsigned int>(nDescriptor2) < bibleDescriptorCount())) {
-		bblDescriptor2 = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor2));
+		bblDescriptor2 = TBibleDatabaseList::availableBibleDatabaseDescriptor(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor2)).m_strUUID);
 	} else {
 		if (nDescriptor2 != 0) {
 			std::cerr << QString::fromUtf8("Unknown UUID-Index: %1\n").arg(nDescriptor2).toUtf8().data();

@@ -166,7 +166,6 @@ public:
 	static CWebChannelServer *webChannelServer() { return m_pWebChannelServer.data(); }
 #endif
 
-	QString initialAppDirPath() const { return m_strInitialAppDirPath; }
 	QString startupStyleSheet() const { return m_strStartupStyleSheet; }
 
 	QString ttsServerURL() const { return m_strTTSServerURL; }
@@ -264,7 +263,6 @@ protected:
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
-	QString m_strInitialAppDirPath;						// Initial applicationDirPath() -- needed since according to Qt documentation, QCoreApplcation::applicationDirPath assumes we haven't changed our current directory
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app

@@ -91,6 +91,8 @@
 #include <iostream>
 #endif
 
+#include "PathConsts.h"
+
 // ============================================================================
 
 QPointer<CMyApplication> g_pMyApplication = nullptr;
@@ -153,66 +155,6 @@ namespace {
 #endif
 
 	const QString g_constrInitialization = QObject::tr("King James Pure Bible Search Initialization", "Errors");
-
-	//////////////////////////////////////////////////////////////////////
-
-	const char *g_constrTranslationFilenamePrefix = "kjpbs";
-
-#ifdef Q_OS_ANDROID
-	// --------------------------------------------------------------------------------------------------------- Android ------------------------
-// Android deploy mechanism will automatically include our plugins, so these shouldn't be needed:
-//	const char *g_constrPluginsPath = "assets:/plugins/";
-//	const char *g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/qt-reserved-files/plugins/";
-
-	const char *g_constrBibleDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
-	const char *g_constrDictionaryDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
-	const char *g_constrTranslationsPath = "../qt-reserved-files/files/KJVCanOpener/translations/";
-#elif defined(Q_OS_IOS)
-	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
-	const char *g_constrPluginsPath = "./Frameworks/";
-
-	const char *g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
-	const char *g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
-	const char *g_constrTranslationsPath = "./assets/KJVCanOpener/translations/";
-#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
-	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
-	const char *g_constrPluginsPath = "../PlugIns/";
-
-	const char *g_constrBibleDatabasePath = "../Resources/db/";
-	const char *g_constrDictionaryDatabasePath = "../Resources/db/";
-	const char *g_constrTranslationsPath = "../Resources/translations/";
-#elif defined(EMSCRIPTEN)
-	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
-	// No plugins on Empscripten
-
-	#ifdef EMSCRIPTEN_NATIVE
-		const char *g_constrBibleDatabasePath = "./data/";
-		const char *g_constrDictionaryDatabasePath = "./data/";
-		const char *g_constrTranslationsPath = "./data/";
-	#else
-		const char *g_constrBibleDatabasePath = "data/";
-		const char *g_constrDictionaryDatabasePath = "data/";
-		const char *g_constrTranslationsPath = "data/";
-	#endif
-#elif defined(VNCSERVER)
-	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
-	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-
-	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
-	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
-	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
-#else
-	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
-	const char *g_constrPluginsPath = "../../KJVCanOpener/plugins/";
-
-	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
-	const char *g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
-	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
-#endif
-
-#ifdef USING_MMDB
-	const char *g_constrMMDBPath = "../../KJVCanOpener/geoip/GeoLite2-City.mmdb";
-#endif
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -622,11 +564,6 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		m_bAreRestarting(false),
 		m_pSplash(nullptr)
 {
-#ifdef Q_OS_ANDROID
-	m_strInitialAppDirPath = QDir::homePath();
-#else
-	m_strInitialAppDirPath = applicationDirPath();
-#endif
 #ifndef IS_CONSOLE_APP
 	m_strStartupStyleSheet = styleSheet();
 #endif
@@ -638,7 +575,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 	//	QApplication object has been instantiated.  So, we'll just have to put
 	//	the Platform plugins in the app folder:
 #if !defined(Q_OS_ANDROID) && !defined(EMSCRIPTEN)
-	QFileInfo fiPlugins(m_strInitialAppDirPath, g_constrPluginsPath);
+	QFileInfo fiPlugins(initialAppDirPath(), g_constrPluginsPath);
 	QCoreApplication::addLibraryPath(fiPlugins.absolutePath());
 #endif
 
@@ -1612,14 +1549,6 @@ int CMyApplication::execute(bool bBuildDB)
 		if (m_strSelectedMainDictDB.isEmpty()) m_strSelectedMainDictDB = dictionaryDescriptor(DDE_WEB1828).m_strUUID;	// Default to WEB1828 unless we're told otherwise
 	}
 
-#ifndef EMSCRIPTEN
-	g_strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
-	g_strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
-#else
-	g_strBibleDatabasePath = g_constrBibleDatabasePath;
-	g_strDictionaryDatabasePath = g_constrDictionaryDatabasePath;
-#endif
-
 	// Read (and/or Build) our Databases:
 	{
 #ifdef BUILD_KJV_DATABASE
@@ -1630,9 +1559,9 @@ int CMyApplication::execute(bool bBuildDB)
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(g_strBibleDatabasePath, TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
+			QString strKJVSQLDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(), TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(g_strBibleDatabasePath, TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
+			QString strKJVCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(), TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));
@@ -1653,7 +1582,7 @@ int CMyApplication::execute(bool bBuildDB)
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
 				(m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) != 0) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
-			CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
+			CReadDatabase rdbMain(m_pSplash);
 			assert(rdbMain.haveBibleDatabaseFiles(bblDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(bblDesc.m_strDBName) + tr("Bible", "Errors"));
 			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0))) {
@@ -1688,7 +1617,7 @@ int CMyApplication::execute(bool bBuildDB)
 				}
 			}
 			if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
-			CReadDatabase rdbDict(g_strBibleDatabasePath, g_strDictionaryDatabasePath, m_pSplash);
+			CReadDatabase rdbDict(m_pSplash);
 			assert(rdbDict.haveDictionaryDatabaseFiles(dctDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(dctDesc.m_strDBName) + tr("Dictionary", "Errors"));
 			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (m_strSelectedMainDictDB.compare(lstAvailableDictDescs.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0))) {
@@ -1754,7 +1683,7 @@ int CMyApplication::execute(bool bBuildDB)
 
 #ifdef USING_MMDB
 	// Setup MMDB Path detail:
-	QFileInfo fiMMDBPath(g_pMyApplication->initialAppDirPath(), g_constrMMDBPath);
+	QFileInfo fiMMDBPath(initialAppDirPath(), g_constrMMDBPath);
 	CMMDBLookup::setMMDBPath(fiMMDBPath.absoluteFilePath());
 #endif
 

@@ -41,6 +41,9 @@
 #include <iterator>
 #include <QAbstractTextDocumentLayout>
 #include <QTextDocument>
+#include <QFileInfo>
+#include <QDir>
+#include <QCoreApplication>
 
 #if !defined(IS_CONSOLE_APP) && (QT_VERSION >= 0x050400)		// Functor calls was introduced in Qt 5.4
 #include <QTimer>
@@ -55,12 +58,37 @@
 
 #include <assert.h>
 
+#include "PathConsts.h"
+
+// ============================================================================
+
+const QString &initialAppDirPath()
+{
+	static QString g_strAppDirPath;
+
+	if (g_strAppDirPath.isEmpty()) {
+#ifdef Q_OS_ANDROID
+		g_strAppDirPath = QDir::homePath();
+#else
+		g_strAppDirPath = QCoreApplication::applicationDirPath();
+#endif
+	}
+
+	return g_strAppDirPath;
+}
+
 // ============================================================================
 
 TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 	:	QObject(pParent),
 		m_bHaveSearchedAvailableDatabases(false)
 {
+#ifndef EMSCRIPTEN
+	m_strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
+#else
+	m_strBibleDatabasePath = g_constrBibleDatabasePath;
+#endif
+
 	// This one should be a Direct connection so that we update the database words immediately before users get updated:
 	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::DirectConnection);
 }
@@ -107,7 +135,7 @@ bool TBibleDatabaseList::loadBibleDatabase(const QString &strUUID, bool bAutoSet
 	if (strUUID.isEmpty()) return false;
 	TBibleDescriptor bblDesc = availableBibleDatabaseDescriptor(strUUID);
 	CBusyCursor iAmBusy(nullptr);
-	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
+	CReadDatabase rdbMain(pParent);
 	if ((!rdbMain.haveBibleDatabaseFiles(bblDesc)) || (!rdbMain.ReadBibleDatabase(bblDesc, (bAutoSetAsMain && !TBibleDatabaseList::instance()->haveMainBibleDatabase())))) {
 		iAmBusy.earlyRestore();
 		displayWarning(pParent, tr("Load Bible Database", "Errors"), tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!", "Errors").arg(bblDesc.m_strDBDesc));
@@ -218,8 +246,10 @@ void TBibleDatabaseList::findBibleDatabases()
 	// TODO : Add local file Bible Database discovery to this
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
-		const TBibleDescriptor &bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
-		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
+		TBibleDescriptor bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
+		bblDesc.m_strCCDBFilename = QFileInfo(QDir(bibleDatabasePath()), bblDesc.m_strCCDBFilename).absoluteFilePath();
+		bblDesc.m_strS3DBFilename = QFileInfo(QDir(bibleDatabasePath()), bblDesc.m_strS3DBFilename).absoluteFilePath();
+		CReadDatabase rdbMain;
 		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 		// Sort the list as we insert them:
 		int nInsertPoint = 0;
@@ -275,7 +305,11 @@ TDictionaryDatabaseList::TDictionaryDatabaseList(QObject *pParent)
 	:	QObject(pParent),
 		m_bHaveSearchedAvailableDatabases(false)
 {
-
+#ifndef EMSCRIPTEN
+	m_strDictionaryDatabasePath = QFileInfo(initialAppDirPath(), g_constrDictionaryDatabasePath).absoluteFilePath();
+#else
+	m_strDictionaryDatabasePath = g_constrDictionaryDatabasePath;
+#endif
 }
 
 TDictionaryDatabaseList::~TDictionaryDatabaseList()
@@ -358,7 +392,7 @@ bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, boo
 	if (strUUID.isEmpty()) return false;
 	TDictionaryDescriptor dctDesc = availableDictionaryDatabaseDescriptor(strUUID);
 	CBusyCursor iAmBusy(nullptr);
-	CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath, pParent);
+	CReadDatabase rdbMain(pParent);
 	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
 		iAmBusy.earlyRestore();
 #ifndef IS_CONSOLE_APP
@@ -443,8 +477,10 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 	// TODO : Add local file Dictionary Database discovery to this
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
-		const TDictionaryDescriptor &dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
-		CReadDatabase rdbMain(g_strBibleDatabasePath, g_strDictionaryDatabasePath);
+		TDictionaryDescriptor dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+		dictDesc.m_strCCDBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dictDesc.m_strCCDBFilename).absoluteFilePath();
+		dictDesc.m_strS3DBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dictDesc.m_strS3DBFilename).absoluteFilePath();
+		CReadDatabase rdbMain;
 		if (!rdbMain.haveDictionaryDatabaseFiles(dictDesc)) continue;
 		m_lstAvailableDatabaseDescriptors.append(dictDesc);
 	}

@@ -39,6 +39,7 @@
 #endif
 
 #include <QObject>
+#include <QFileInfo>
 #include <QFile>
 #include <QDir>
 #include <QString>
@@ -286,10 +287,8 @@ private:
 
 // ============================================================================
 
-CReadDatabase::CReadDatabase(const QString &strBibleDBPath, const QString &strDictionaryDBPath, QWidget *pParent)
-	:	m_pParent(pParent),
-		m_strBibleDatabasePath(strBibleDBPath),
-		m_strDictionaryDatabasePath(strDictionaryDBPath)
+CReadDatabase::CReadDatabase(QWidget *pParent)
+	:	m_pParent(pParent)
 {
 
 }
@@ -1324,8 +1323,8 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 
 bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const
 {
-	QFileInfo fiSQL(bibleDBFileInfo(DTE_SQL, bblDesc));
-	QFileInfo fiCC(bibleDBFileInfo(DTE_CC, bblDesc));
+	QFileInfo fiSQL(bblDesc.m_strS3DBFilename);
+	QFileInfo fiCC(bblDesc.m_strCCDBFilename);
 #ifdef Q_OS_ANDROID
 	if (!fiCC.exists()) {
 		__android_log_print(ANDROID_LOG_WARN, "KJPBS", QObject::tr("Warning: Couldn't find CC database file \"%1\".", "ReadDB").arg(fiCC.absoluteFilePath()).toUtf8().data());
@@ -1337,36 +1336,10 @@ bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) cons
 
 bool CReadDatabase::haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const
 {
-	QFileInfo fiSQL(dictDBFileInfo(DTE_SQL, dctDesc));
-	QFileInfo fiCC(dictDBFileInfo(DTE_CC, dctDesc));
+	QFileInfo fiSQL(dctDesc.m_strS3DBFilename);
+	QFileInfo fiCC(dctDesc.m_strCCDBFilename);
 	return ((fiCC.exists() && fiCC.isFile()) ||
 			(fiSQL.exists() && fiSQL.isFile()));
-}
-
-QFileInfo CReadDatabase::bibleDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TBibleDescriptor &bblDesc) const
-{
-	switch (nDatabaseType) {
-		case DTE_SQL:
-			return QFileInfo(QDir(m_strBibleDatabasePath), bblDesc.m_strS3DBFilename);
-		case DTE_CC:
-			return QFileInfo(QDir(m_strBibleDatabasePath), bblDesc.m_strCCDBFilename);
-		default:
-			assert(false);
-			return QFileInfo();
-	}
-}
-
-QFileInfo CReadDatabase::dictDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TDictionaryDescriptor &dctDesc) const
-{
-	switch (nDatabaseType) {
-		case DTE_SQL:
-			return QFileInfo(QDir(m_strDictionaryDatabasePath), dctDesc.m_strS3DBFilename);
-		case DTE_CC:
-			return QFileInfo(QDir(m_strDictionaryDatabasePath), dctDesc.m_strCCDBFilename);
-		default:
-			assert(false);
-			return QFileInfo();
-	}
 }
 
 // ============================================================================
@@ -1448,12 +1421,12 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 
 	// Prefer CC database over SQL in our search order:
 	if (!bSuccess) {
-		bSuccess = readCCDBBibleDatabase(bblDesc, bibleDBFileInfo(DTE_CC, bblDesc), bSetAsMain);
+		bSuccess = readCCDBBibleDatabase(bblDesc, bSetAsMain);
 	}
 
 	// Try SQL secondarily if we support SQL:
 	if (!bSuccess) {
-		bSuccess = readS3DBBibleDatabase(bblDesc, bibleDBFileInfo(DTE_SQL, bblDesc), bSetAsMain);
+		bSuccess = readS3DBBibleDatabase(bblDesc, bSetAsMain);
 	}
 
 	return bSuccess;
@@ -1461,14 +1434,17 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 
 bool CReadDatabase::ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain)
 {
-	QFileInfo fiCCDB(QDir(m_strBibleDatabasePath), strCCDBPathFilename);
-	return readCCDBBibleDatabase(bibleDescriptor(BDE_SPECIAL_TEST), fiCCDB, bSetAsMain);
+	QFileInfo fiCCDB(QDir(TBibleDatabaseList::bibleDatabasePath()), strCCDBPathFilename);
+	TBibleDescriptor bblDesc = bibleDescriptor(BDE_SPECIAL_TEST);
+	bblDesc.m_strCCDBFilename = fiCCDB.absoluteFilePath();
+	return readCCDBBibleDatabase(bblDesc, bSetAsMain);
 }
 
-bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiCCDB, bool bSetAsMain)
+bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 {
 	bool bSuccess = false;
 
+	QFileInfo fiCCDB(bblDesc.m_strCCDBFilename);
 	if (fiCCDB.exists() && fiCCDB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
 		assert(!m_pBibleDatabase.isNull());
@@ -1501,10 +1477,11 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, const
 	return bSuccess;
 }
 
-bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiS3DB, bool bSetAsMain)
+bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 {
 	bool bSuccess = false;
 
+	QFileInfo fiS3DB(bblDesc.m_strS3DBFilename);
 	if (fiS3DB.exists() && fiS3DB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
 		assert(!m_pBibleDatabase.isNull());
@@ -1559,8 +1536,8 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 
 	m_pDictionaryDatabase->m_descriptor.m_strLanguage = dctDesc.m_strLanguage;
 
-	QFileInfo fiSQL(dictDBFileInfo(DTE_SQL, dctDesc));
-	QFileInfo fiCC(dictDBFileInfo(DTE_CC, dctDesc));
+	QFileInfo fiSQL(dctDesc.m_strS3DBFilename);
+	QFileInfo fiCC(dctDesc.m_strCCDBFilename);
 
 	// Prefer CC database over SQL in our search order:
 	if (!bSuccess && fiCC.exists() && fiCC.isFile()) {

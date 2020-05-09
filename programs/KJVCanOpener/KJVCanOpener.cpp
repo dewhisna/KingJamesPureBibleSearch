@@ -2760,9 +2760,7 @@ void CKJVCanOpener::en_HelpManual()
 		QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
 	}
 #else
-	assert(!g_pMyApplication.isNull());
-
-	QFileInfo fiHelpDoc(g_pMyApplication->initialAppDirPath(), g_constrHelpDocFilename);
+	QFileInfo fiHelpDoc(initialAppDirPath(), g_constrHelpDocFilename);
 	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
 		displayWarning(this, windowTitle(), tr("Unable to open the King James Pure Bible Search Users Manual.\n"
 													 "Verify that you have a PDF Viewer, such as Adobe Acrobat, installed.\n"

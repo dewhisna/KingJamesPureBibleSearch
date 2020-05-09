@@ -33,7 +33,6 @@ class QWidget;		// Include QWidget only as forward declaration for non-gui apps
 #include <QByteArray>
 #include <QString>
 #include <QScopedPointer>
-#include <QFileInfo>
 #include "dbstruct.h"
 #include "dbDescriptors.h"
 
@@ -47,12 +46,7 @@ class CCSVStream;
 class CReadDatabase
 {
 public:
-	enum DATABASE_TYPE_ENUM {
-		DTE_SQL = 0,					// SQLite3 (when NOT_USING_SQL not defined)
-		DTE_CC = 1						// Compressed-CSV (always available)
-	};
-
-	CReadDatabase(const QString &strBibleDBPath, const QString &strDictionaryDBPath, QWidget *pParent = nullptr);
+	CReadDatabase(QWidget *pParent = nullptr);
 	~CReadDatabase();
 
 	bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
@@ -87,17 +81,12 @@ protected:
 
 	// ------------------------------------------------------------------------
 
-	QFileInfo bibleDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TBibleDescriptor &bblDesc) const;
-	QFileInfo dictDBFileInfo(DATABASE_TYPE_ENUM nDatabaseType, const TDictionaryDescriptor &dctDesc) const;
-
-	// ------------------------------------------------------------------------
-
 private:
 	bool readBibleStub();
 	bool readDictionaryStub(bool bLiveDB);
 
-	bool readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiCCDB, bool bSetAsMain = false);
-	bool readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, const QFileInfo &fiS3DB, bool bSetAsMain = false);
+	bool readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
+	bool readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
 
 private:
 	QWidget *m_pParent;
@@ -109,9 +98,6 @@ private:
 
 	CBibleDatabasePtr m_pBibleDatabase;				// Pointer to the Bible Database currently being read -- created in ReadBibleDatabase, used by reader functions
 	CDictionaryDatabasePtr m_pDictionaryDatabase;	// Pointer to the Dictionary Database currently being read -- created in ReadDictionaryDatabase, used by reader functions
-
-	QString m_strBibleDatabasePath;
-	QString m_strDictionaryDatabasePath;
 };
 
 // ============================================================================

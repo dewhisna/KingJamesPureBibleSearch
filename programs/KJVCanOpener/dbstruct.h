@@ -62,6 +62,10 @@
 
 // ============================================================================
 
+extern const QString &initialAppDirPath();		// Initial Application path storage, since QCoreApplication::applicationDirPath() assumes we haven't changed our directory
+
+// ============================================================================
+
 // Forward declarations:
 class CBibleDatabase;
 class CBasicHighlighter;
@@ -1498,6 +1502,11 @@ public:
 	virtual ~TBibleDatabaseList();
 	static TBibleDatabaseList *instance();
 
+	static const QString &bibleDatabasePath()
+	{
+		return instance()->m_strBibleDatabasePath;
+	}
+
 #ifdef USING_WEBCHANNEL
 	static QString availableBibleDatabasesAsJson();
 #endif
@@ -1545,6 +1554,8 @@ private:
 	CBibleDatabasePtr m_pMainBibleDatabase;
 	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
 	QList<TBibleDescriptor> m_lstAvailableDatabaseDescriptors;		// List of descriptors for available Bible databases
+
+	QString m_strBibleDatabasePath;
 };
 
 // ============================================================================
@@ -1698,6 +1709,11 @@ public:
 	virtual ~TDictionaryDatabaseList();
 	static TDictionaryDatabaseList *instance();
 
+	static const QString &dictionaryDatabasePath()
+	{
+		return instance()->m_strDictionaryDatabasePath;
+	}
+
 	static CDictionaryDatabasePtr locateAndLoadDictionary(const QString &strLanguage, QWidget *pParentWidget = nullptr);		// Locates and loads the best candidate dictionary for the specified language based on MainDictionary and DictionaryLoad settings
 
 	static bool loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
@@ -1741,6 +1757,8 @@ private:
 	CDictionaryDatabasePtr m_pMainDictionaryDatabase;
 	bool m_bHaveSearchedAvailableDatabases;							// True when we've done at least one find operation
 	QList<TDictionaryDescriptor> m_lstAvailableDatabaseDescriptors;		// List of descriptors for available Dictionary databases
+
+	QString m_strDictionaryDatabasePath;
 };
 
 

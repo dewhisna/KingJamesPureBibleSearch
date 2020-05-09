@@ -413,6 +413,7 @@ contains(QT, webenginewidgets):SOURCES += \
 
 
 HEADERS += \
+	PathConsts.h \
 	myApplication.h \
 	BibleDBListModel.h \
 	BibleWordDiffListModel.h \

@@ -63,6 +63,7 @@ SOURCES += main.cpp \
 	../KJVCanOpener/VerseRichifier.cpp
 
 HEADERS += \
+	../KJVCanOpener/PathConsts.h \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/dbDescriptors.h \
 	../KJVCanOpener/dbstruct.h \

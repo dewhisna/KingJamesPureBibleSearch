@@ -64,18 +64,14 @@ constexpr int MIN_SEARCH_WITHIN_CACHE_LIMIT = 10;		// Minimum number of results 
 
 #define DEBUG_MODE 0			// Set to 1 to enable debug output
 
+#include "../KJVCanOpener/PathConsts.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
 	const unsigned int VERSION = 10000;		// Version 1.0.0
-
-	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
-
-	// Use translations from the main app:
-	const char *g_constrTranslationsPath = "../../KJVCanOpener/translations/";
-	const char *g_constrTranslationFilenamePrefix = "kjpbs";
 
 }	// namespace
 
@@ -659,8 +655,10 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// TODO : Add support for raw-UUID as well as indexes
+
 	if ((nBibleDescriptor >= 0) && (static_cast<unsigned int>(nBibleDescriptor) < bibleDescriptorCount())) {
-		bblDescriptor = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nBibleDescriptor));
+		bblDescriptor = TBibleDatabaseList::availableBibleDatabaseDescriptor(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nBibleDescriptor)).m_strUUID);
 	} else {
 		std::cerr << "Unknown Bible-UUID-Index\n";
 		return -1;
@@ -668,9 +666,7 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	QFileInfo fiBblDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
-
-	CReadDatabase rdbMain(fiBblDBPath.absoluteFilePath(), QString(), NULL);
+	CReadDatabase rdbMain;
 
 	std::cerr << QString("Reading Bible Database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
 	if (!rdbMain.haveBibleDatabaseFiles(bblDescriptor)) {

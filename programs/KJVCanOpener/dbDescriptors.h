@@ -131,9 +131,6 @@ Q_DECLARE_METATYPE(DICTIONARY_DESCRIPTOR_ENUM)
 
 // ============================================================================
 
-extern QString g_strBibleDatabasePath;
-extern QString g_strDictionaryDatabasePath;
-
 extern unsigned int bibleDescriptorCount();
 extern const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex);
 extern BIBLE_DESCRIPTOR_ENUM bibleDescriptorFromUUID(const QString &strUUID);

@@ -80,6 +80,7 @@ SOURCES += main.cpp \
 
 HEADERS += \
 	xc_KJVDataParse.h \
+	../KJVCanOpener/PathConsts.h \
 	../KJVCanOpener/CSV.h \
 	../KJVCanOpener/dbDescriptors.h \
 	../KJVCanOpener/dbstruct.h \

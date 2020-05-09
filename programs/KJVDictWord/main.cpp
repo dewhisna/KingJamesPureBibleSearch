@@ -42,14 +42,14 @@
 #include <iostream>
 #include <algorithm>
 
+#include "../KJVCanOpener/PathConsts.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
 	const unsigned int VERSION = 10000;		// Version 1.0.0
-
-	const char *g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
 
 }	// namespace
 
@@ -110,15 +110,17 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	// TODO : Add support for raw-UUID as well as indexes
+
 	if ((nBibleDescriptor >= 0) && (static_cast<unsigned int>(nBibleDescriptor) < bibleDescriptorCount())) {
-		bblDescriptor = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nBibleDescriptor));
+		bblDescriptor = TBibleDatabaseList::availableBibleDatabaseDescriptor(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nBibleDescriptor)).m_strUUID);
 	} else {
 		std::cerr << "Unknown Bible-UUID-Index\n";
 		return -1;
 	}
 
 	if ((nDictDescriptor >= 0) && (static_cast<unsigned int>(nDictDescriptor) < dictionaryDescriptorCount())) {
-		dictDescriptor = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(nDictDescriptor));
+		dictDescriptor = TDictionaryDatabaseList::availableDictionaryDatabaseDescriptor(dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(nDictDescriptor)).m_strUUID);
 	} else {
 		std::cerr << "Unknown Dictionary-UUID-Index\n";
 		return -1;
@@ -126,10 +128,7 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	QFileInfo fiBblDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
-	QFileInfo fiDictDBPath(QDir(QCoreApplication::applicationDirPath()), g_constrBibleDatabasePath);
-
-	CReadDatabase rdbMain(fiBblDBPath.absoluteFilePath(), fiDictDBPath.absoluteFilePath(), NULL);
+	CReadDatabase rdbMain;
 
 	std::cerr << QString("Reading Bible Database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
 	if (!rdbMain.haveBibleDatabaseFiles(bblDescriptor)) {
