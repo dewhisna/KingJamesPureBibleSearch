@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
 
 	bool bLookingForSettings = false;
 	bool bLookingForBibleDB = false;
+	bool bLookingForBibleDBUUID = false;
 	bool bLookingForDictDB = false;
 	bool bLookingForTTSServerURL = false;
 	bool bLookingForWebChannelHostPort = false;
@@ -216,6 +217,9 @@ int main(int argc, char *argv[])
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"", "Errors").arg(strArg));
 				}
+			} else if (bLookingForBibleDBUUID) {
+				bLookingForBibleDBUUID = false;
+				pApp->setSelectedMainBibleDB(strArg);
 			} else if (bLookingForDictDB) {
 				bLookingForDictDB = false;
 				if (strArg.toUInt() < dictionaryDescriptorCount()) {
@@ -236,6 +240,7 @@ int main(int argc, char *argv[])
 			}
 		} else if ((!bLookingForSettings) &&
 					(!bLookingForBibleDB) &&
+					(!bLookingForBibleDBUUID) &&
 					(!bLookingForDictDB) &&
 					(!bLookingForTTSServerURL) &&
 					(!bLookingForWebChannelHostPort)) {
@@ -246,6 +251,8 @@ int main(int argc, char *argv[])
 				bBuildDB = true;
 			} else if (strArg.compare("-bbl", Qt::CaseInsensitive) == 0) {
 				bLookingForBibleDB = true;
+			} else if (strArg.compare("-bbluuid", Qt::CaseInsensitive) == 0) {
+				bLookingForBibleDBUUID = true;
 			} else if (strArg.compare("-dct", Qt::CaseInsensitive) == 0) {
 				bLookingForDictDB = true;
 			} else if (strArg.compare("-stealth", Qt::CaseInsensitive) == 0) {
@@ -275,6 +282,10 @@ int main(int argc, char *argv[])
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForBibleDB = false;
 			}
+			if (bLookingForBibleDBUUID) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor UUID, but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForBibleDBUUID = false;
+			}
 			if (bLookingForDictDB) {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForDictDB = false;
@@ -297,6 +308,10 @@ int main(int argc, char *argv[])
 	}
 	if (bLookingForBibleDB) {
 		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor Index, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForBibleDBUUID) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor UUID, but none was specified.", "Errors"));
 		bBadArgs = true;
 	}
 	if (bLookingForDictDB) {
@@ -325,6 +340,8 @@ int main(int argc, char *argv[])
 		std::cout << "Options\n";
 		std::cout << "-h, --help   = Show this usage information\n\n";
 		std::cout << "-builddb     = Build Bible Database (Requires /data from KJVDataParse)\n\n";
+		std::cout << "-bbluuid <uuid> = Bible Database UUID to use\n";
+		std::cout << "               (for building or initial search window)\n";
 		std::cout << "-bbl <index> = Bible Database Index to use\n";
 		std::cout << "               (for building or initial search window)\n";
 		for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
