@@ -16,7 +16,7 @@ my $challenge = cookie('hash');
 my $response = param 'verify';
 my $resolution = param 'resolution';
 my $bbl = param 'bbl';
-my $bible = $bbl;
+my $bible = '85D8A6B0-E670-11E2-A28F-0800200C9A66';
 
 # Limit uncontrolled input:
 if ($resolution eq '1024x768') {
@@ -30,17 +30,23 @@ if ($resolution eq '1024x768') {
 
 # Limit uncontrolled input and remap Bible indexes accordingly:
 if ($bbl eq '1') {
-  $bible = '1';
+  # KJV
+  $bible = '85D8A6B0-E670-11E2-A28F-0800200C9A66';
 } elsif ($bbl eq '2') {
-  $bible = '12';
+  # KJV1611
+  $bible = '8D999FF0-D650-11E3-9C1A-0800200C9A66';
 } elsif ($bbl eq '3') {
-  $bible = '21';
+  # RV1865mv20180504
+  $bible = '28A10630-5728-11E8-B566-0800200C9A66';
 } elsif ($bbl eq '4') {
-  $bible = '16';
+  # RVG2010_20150120
+  $bible = '925744F0-6B1B-11E5-A837-0800200C9A66';
 } elsif ($bbl eq '5') {
-  $bible = '7';
+  # GERLUT1545
+  $bible = 'D7376840-C75F-11E3-9C1A-0800200C9A66';
 } else {
-  $bible = '1';
+  # KJV (default)
+  $bible = '85D8A6B0-E670-11E2-A28F-0800200C9A66';
 }
 
 # Verify Submission

@@ -6,7 +6,7 @@ usage() {
         echo
     fi
     echo "Usage: ${NAME} [--listen PORT] [--vnc VNC_HOST:PORT] [--cert CERT] [--web WEB]"
-    echo "               [--kjpbs PATH] [--res RESOLUTION] [--depth DEPTH] [--bbl BBLNDX]"
+    echo "               [--kjpbs PATH] [--res RESOLUTION] [--depth DEPTH] [--bbluuid UUID]"
     echo "               [--user USERID] [--instance INSTID] [--runtime TIME]"
     echo
     echo "Starts the WebSockets proxy and a mini-webserver and "
@@ -28,8 +28,8 @@ usage() {
     echo "                          Default: 1280x1024"
     echo "    --depth DEPTH         Canvas Color Depth"
     echo "                          Default: 16"
-    echo "    --bbl BBLNDX          Bible Database Descriptor Index"
-    echo "                          Default: 1    (KJV)"
+    echo "    --bbluuid UUID        Bible Database Descriptor Index"
+    echo "                          Default: 85D8A6B0-E670-11E2-A28F-0800200C9A66 (KJV)"
     echo "    --instance INSTID     Screen Instance, should match VNC_HOST PORT"
     echo "                          Default: 0"
     echo "    --runtime TIME        Maximum time to allow KJPBS to run"
@@ -48,7 +48,7 @@ USERID="kjpbs"
 KJPBS_PATH="/var/www/KingJamesPureBibleSearch/KJVCanOpener/app/KingJamesPureBibleSearch"
 RESOLUTION="1280x1024"
 DEPTH="16"
-BBL="1"
+BBLUUID="85D8A6B0-E670-11E2-A28F-0800200C9A66"
 INSTANCE="0"
 RUNTIME=""
 proxy_pid=""
@@ -87,7 +87,7 @@ while [ "$*" ]; do
     --kjpbs)   KJPBS_PATH="${OPTARG}"; shift      ;;
     --res)     RESOLUTION="${OPTARG}"; shift      ;;
     --depth)   DEPTH="${OPTARG}"; shift           ;;
-    --bbl)     BBL="${OPTARG}"; shift             ;;
+    --bbluuid) BBLUUID="${OPTARG}"; shift         ;;
     --instance) INSTANCE="${OPTARG}"; shift       ;;
     --runtime) RUNTIME="${OPTARG}"; shift         ;;
     -h|--help) usage                              ;;
@@ -139,10 +139,10 @@ fi
 
 echo "Starting KJPBS on port ${VNC_DEST}:${INSTANCE}"
 if [ -n "${RUNTIME}" ]; then
-    QWS_DEPTH=${DEPTH} QWS_SIZE=${RESOLUTION} timeout --signal=SIGUSR1 --kill-after=5m ${RUNTIME} ${KJPBS_PATH} -bbl ${BBL} -qws -display VNC:${INSTANCE} > /dev/null 2>&1 &
+    QWS_DEPTH=${DEPTH} QWS_SIZE=${RESOLUTION} timeout --signal=SIGUSR1 --kill-after=5m ${RUNTIME} ${KJPBS_PATH} -bbluuid ${BBLUUID} -qws -display VNC:${INSTANCE} > /dev/null 2>&1 &
     kjpbs_pid="$!"
 else
-    QWS_DEPTH=${DEPTH} QWS_SIZE=${RESOLUTION} ${KJPBS_PATH} -bbl ${BBL} -qws -display VNC:${INSTANCE} > /dev/null 2>&1 &
+    QWS_DEPTH=${DEPTH} QWS_SIZE=${RESOLUTION} ${KJPBS_PATH} -bbluuid ${BBLUUID} -qws -display VNC:${INSTANCE} > /dev/null 2>&1 &
     kjpbs_pid="$!"
 fi
 sleep 1

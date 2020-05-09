@@ -55,14 +55,14 @@ sub test_kjpbs_nodes {
 }
 
 #
-# (index) launch_node(resolution, bbl, runtime)
+# (index) launch_node(resolution, bbluuid, runtime)
 #
 # Launches next available node using specified resolution and
 #  Bible Database.  Returns index of the launched node or -1
 #  if the launch failed (i.e. no available nodes):  Execution
 #  is halted after the prescribed runtime:  Example args:
 #	<resolution> : 1280x1024
-#	<bbl> : 1
+#	<bbluuid> : 85D8A6B0-E670-11E2-A28F-0800200C9A66
 #	<runtime> : 3600s
 #
 # (Repeats node test prior to launching)
@@ -78,7 +78,7 @@ sub launch_node {
   }
   
   my $resolution = $Args[0];
-  my $bbl = $Args[1];
+  my $bbluuid = $Args[1];
   my $runtime = $Args[2];
 
   test_kjpbs_nodes();
@@ -89,7 +89,7 @@ sub launch_node {
       my $VNCPort = $services[$i][4];
       my $noVNCPort = $services[$i][3];
 #      system("sudo -u $user QWS_DEPTH=16 QWS_SIZE=$resolution $kjpbsApp -qws -display VNC:$ndxLaunched > /dev/null 2>&1 &");
-      system("sudo -u $user $noVNCLaunch --vnc localhost:$VNCPort --listen $noVNCPort --user $user --kjpbs $kjpbsApp --res $resolution --bbl $bbl --instance $i --runtime $runtime  > /dev/null 2>&1 &");
+      system("sudo -u $user $noVNCLaunch --vnc localhost:$VNCPort --listen $noVNCPort --user $user --kjpbs $kjpbsApp --res $resolution --bbluuid $bbluuid --instance $i --runtime $runtime  > /dev/null 2>&1 &");
     }
   }
 
