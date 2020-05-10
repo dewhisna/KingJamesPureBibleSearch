@@ -109,17 +109,20 @@ QVariant CDictDatabaseListModel::data(const QModelIndex &index, int role) const
 	} else if (index.column() == 1) {
 		if ((role == Qt::DisplayRole) ||
 			(role == Qt::EditRole)) {
+			QString strText;
 			if (dctDesc.m_dtoFlags & DTO_AutoLoad) {
-				return QString("[%1]").arg(tr("Loaded - Cannot be unloaded", "DictDBStatus"));
+				strText = tr("Loaded - Cannot be unloaded", "DictDBStatus");
 			} else if (CPersistentSettings::instance()->mainDictDatabaseUUID().compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
-				return QString("[%1]").arg(tr("Loaded - Selected as Initial Database", "DictDBStatus"));
+				strText = tr("Loaded - Selected as Initial Database", "DictDBStatus");
 			} else if ((m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) && (bLoadOnStart)) {
-				return QString("[%1]").arg(tr("Loaded, Auto-Reloaded at startup", "DictDBStatus"));
+				strText = tr("Loaded, Auto-Reloaded at startup", "DictDBStatus");
 			} else if (m_mapAvailableToLoadedIndex.value(ndxDB, -1) != -1) {
-				return QString("[%1]").arg(tr("Loaded, Will Not Auto-Reload at startup", "DictDBStatus"));
+				strText = tr("Loaded, Will Not Auto-Reload at startup", "DictDBStatus");
 			} else {
-				return QString("[%1]").arg(tr("Not Loaded", "DictDBStatus"));
+				strText = tr("Not Loaded", "DictDBStatus");
 			}
+			if (dctDesc.m_dtoFlags & DTO_Discovered) strText += QString(", %1").arg(tr("Auto-Discovered", "DictDBStatus"));
+			return QString("[%1]").arg(strText);
 		}
 	}
 

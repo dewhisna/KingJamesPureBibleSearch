@@ -43,6 +43,7 @@
 #include <QTextDocument>
 #include <QFileInfo>
 #include <QDir>
+#include <QDirIterator>
 #include <QCoreApplication>
 
 #if !defined(IS_CONSOLE_APP) && (QT_VERSION >= 0x050400)		// Functor calls was introduced in Qt 5.4
@@ -243,7 +244,7 @@ void TBibleDatabaseList::findBibleDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
-	// TODO : Add local file Bible Database discovery to this
+	// First: Add databases from our internal descriptor list:
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 		TBibleDescriptor bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
@@ -272,6 +273,64 @@ void TBibleDatabaseList::findBibleDatabases()
 		}
 		m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
 	}
+
+	// Insertion Helper:
+	auto fnInsertDiscovery = [this](const TBibleDescriptor &bblDesc)->void
+	{
+		// Sort the list as we insert them:
+		int nInsertPoint = 0;
+		while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
+			// Sort by Specific language, then by description:
+			int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
+			int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
+			int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
+			int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
+			if ((nLangComp < 0) ||
+				((nLangComp == 0) && (nDescComp < 0)) ||
+				((nLangComp == 0) && (nDescComp == 0))) break;
+			++nInsertPoint;
+		}
+		m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
+	};
+
+	// Second: Do Discovery of CCDB database files (first so they have priority over S3DB)
+	QDirIterator diCCDB(bibleDatabasePath(), QStringList() << "bbl-*.ccdb", QDir::Files, QDirIterator::Subdirectories);
+	while (diCCDB.hasNext()) {
+		QFileInfo fiBbl(diCCDB.next());
+		bool bInList = false;
+		for (int dbNdx = 0; ((dbNdx < m_lstAvailableDatabaseDescriptors.size()) && !bInList); ++dbNdx) {
+			if (fiBbl == QFileInfo(m_lstAvailableDatabaseDescriptors.at(dbNdx).m_strCCDBFilename)) {
+				bInList = true;
+				continue;
+			}
+		}
+
+		if (!bInList) {
+			CReadDatabase rdb;
+			TBibleDescriptor bblDesc = rdb.discoverCCDBBibleDatabase(fiBbl.canonicalFilePath());
+			if (bblDesc.isValid()) fnInsertDiscovery(bblDesc);
+		}
+	}
+
+	// Third: Do Discovery of S3DB database files
+	QDirIterator diS3DB(bibleDatabasePath(), QStringList() << "bbl-*.s3db", QDir::Files, QDirIterator::Subdirectories);
+	while (diS3DB.hasNext()) {
+		QFileInfo fiBbl(diS3DB.next());
+		bool bInList = false;
+		for (int dbNdx = 0; ((dbNdx < m_lstAvailableDatabaseDescriptors.size()) && !bInList); ++dbNdx) {
+			if (fiBbl == QFileInfo(m_lstAvailableDatabaseDescriptors.at(dbNdx).m_strS3DBFilename)) {
+				bInList = true;
+				continue;
+			}
+		}
+
+		if (!bInList) {
+			CReadDatabase rdb;
+			TBibleDescriptor bblDesc = rdb.discoverS3DBBibleDatabase(fiBbl.canonicalFilePath());
+			if (bblDesc.isValid()) fnInsertDiscovery(bblDesc);
+		}
+	}
+
 	m_bHaveSearchedAvailableDatabases = true;
 	emit changedAvailableBibleDatabaseList();
 }
@@ -474,16 +533,61 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
-	// TODO : Add local file Dictionary Database discovery to this
+	// First: Add databases from our internal descriptor list:
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
-		TDictionaryDescriptor dictDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
-		dictDesc.m_strCCDBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dictDesc.m_strCCDBFilename).absoluteFilePath();
-		dictDesc.m_strS3DBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dictDesc.m_strS3DBFilename).absoluteFilePath();
+		TDictionaryDescriptor dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
+		dctDesc.m_strCCDBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dctDesc.m_strCCDBFilename).absoluteFilePath();
+		dctDesc.m_strS3DBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dctDesc.m_strS3DBFilename).absoluteFilePath();
 		CReadDatabase rdbMain;
-		if (!rdbMain.haveDictionaryDatabaseFiles(dictDesc)) continue;
-		m_lstAvailableDatabaseDescriptors.append(dictDesc);
+		if (!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) continue;
+		m_lstAvailableDatabaseDescriptors.append(dctDesc);
 	}
+
+	// Second: Do Discovery of CCDB database files (first so they have priority over S3DB)
+	QDirIterator diCCDB(dictionaryDatabasePath(), QStringList() << "dct-*.ccdb", QDir::Files, QDirIterator::Subdirectories);
+	while (diCCDB.hasNext()) {
+		QFileInfo fiDct(diCCDB.next());
+		bool bInList = false;
+		for (int dbNdx = 0; ((dbNdx < m_lstAvailableDatabaseDescriptors.size()) && !bInList); ++dbNdx) {
+			if (fiDct == QFileInfo(m_lstAvailableDatabaseDescriptors.at(dbNdx).m_strCCDBFilename)) {
+				bInList = true;
+				continue;
+			}
+		}
+
+		if (!bInList) {
+			CReadDatabase rdb;
+			TDictionaryDescriptor dctDesc = rdb.discoverCCDBDictionaryDatabase(fiDct.canonicalFilePath());
+			if (dctDesc.isValid()) {
+				if (fiDct.fileName().startsWith("dct-t-", Qt::CaseInsensitive)) dctDesc.m_dtoFlags |= DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags);
+				m_lstAvailableDatabaseDescriptors.append(dctDesc);
+			}
+		}
+	}
+
+	// Third: Do Discovery of S3DB database files
+	QDirIterator diS3DB(dictionaryDatabasePath(), QStringList() << "dct-*.s3db", QDir::Files, QDirIterator::Subdirectories);
+	while (diS3DB.hasNext()) {
+		QFileInfo fiDct(diS3DB.next());
+		bool bInList = false;
+		for (int dbNdx = 0; ((dbNdx < m_lstAvailableDatabaseDescriptors.size()) && !bInList); ++dbNdx) {
+			if (fiDct == QFileInfo(m_lstAvailableDatabaseDescriptors.at(dbNdx).m_strS3DBFilename)) {
+				bInList = true;
+				continue;
+			}
+		}
+
+		if (!bInList) {
+			CReadDatabase rdb;
+			TDictionaryDescriptor dctDesc = rdb.discoverS3DBDictionaryDatabase(fiDct.canonicalFilePath());
+			if (dctDesc.isValid()) {
+				if (fiDct.fileName().startsWith("dct-t-", Qt::CaseInsensitive)) dctDesc.m_dtoFlags |= DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags);
+				m_lstAvailableDatabaseDescriptors.append(dctDesc);
+			}
+		}
+	}
+
 	m_bHaveSearchedAvailableDatabases = true;
 	emit changedAvailableDictionaryDatabaseList();
 }

@@ -1432,6 +1432,9 @@ bool CReadDatabase::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSet
 	return bSuccess;
 }
 
+// Note: Primary use of ReadSpecialBibleDatabase is in external command-line
+//	applications like KJVDiff where a specific non-registered (i.e. no internal
+//	descriptor) database is explicitly loaded by filename:
 bool CReadDatabase::ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain)
 {
 	QFileInfo fiCCDB(QDir(TBibleDatabaseList::bibleDatabasePath()), strCCDBPathFilename);
@@ -1477,6 +1480,37 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	return bSuccess;
 }
 
+TBibleDescriptor CReadDatabase::discoverCCDBBibleDatabase(const QString &strFilePathName)
+{
+	assert(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
+
+	TBibleDescriptor bblDesc = { BTO_None, "", "", "", "", "", "", "", "" };
+	bblDesc.m_strCCDBFilename = strFilePathName;
+	QFileInfo fiCCDB(bblDesc.m_strCCDBFilename);
+	if (fiCCDB.exists() && fiCCDB.isFile()) {
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
+		assert(!m_pBibleDatabase.isNull());
+
+		QFile fileCCDB;
+		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
+		if (fileCCDB.open(QIODevice::ReadOnly)) {
+			QtIOCompressor compCCDB(&fileCCDB);
+			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
+			if (compCCDB.open(QIODevice::ReadOnly)) {
+				CScopedCSVStream ccdb(m_pCCDatabase, new CCSVStream(&compCCDB));
+				if (ReadDBInfoTable()) {
+					m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_Discovered;
+					bblDesc = m_pBibleDatabase->m_descriptor;
+				}
+			}
+		}
+
+		m_pBibleDatabase.clear();
+	}
+
+	return bblDesc;
+}
+
 bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain)
 {
 	bool bSuccess = false;
@@ -1518,6 +1552,41 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	return bSuccess;
 }
 
+TBibleDescriptor CReadDatabase::discoverS3DBBibleDatabase(const QString &strFilePathName)
+{
+	assert(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
+
+	TBibleDescriptor bblDesc = { BTO_None, "", "", "", "", "", "", "", "" };
+	bblDesc.m_strS3DBFilename = strFilePathName;
+#ifndef NOT_USING_SQL
+	QFileInfo fiS3DB(bblDesc.m_strS3DBFilename);
+	if (fiS3DB.exists() && fiS3DB.isFile()) {
+		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
+		assert(!m_pBibleDatabase.isNull());
+
+		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
+		m_myDatabase.setDatabaseName(fiS3DB.absoluteFilePath());
+		m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
+
+		if (m_myDatabase.open()) {
+			if (ReadDBInfoTable()) {
+				m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_Discovered;
+				bblDesc = m_pBibleDatabase->m_descriptor;
+			}
+			m_myDatabase.close();
+		}
+
+		m_myDatabase = QSqlDatabase();
+		QSqlDatabase::removeDatabase(g_constrMainReadConnection);
+
+		m_pBibleDatabase.clear();
+	}
+#else
+#endif	// !NOT_USING_SQL
+
+	return bblDesc;
+}
+
 // ============================================================================
 
 bool CReadDatabase::readDictionaryStub(bool bLiveDB)
@@ -1533,8 +1602,6 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 
 	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
 	assert(!m_pDictionaryDatabase.isNull());
-
-	m_pDictionaryDatabase->m_descriptor.m_strLanguage = dctDesc.m_strLanguage;
 
 	QFileInfo fiSQL(dctDesc.m_strS3DBFilename);
 	QFileInfo fiCC(dctDesc.m_strCCDBFilename);
@@ -1601,5 +1668,92 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 	return bSuccess;
 }
 
-// ============================================================================
+TDictionaryDescriptor CReadDatabase::discoverCCDBDictionaryDatabase(const QString &strFilePathName)
+{
+	assert(m_pDictionaryDatabase.isNull());		// Must be run on a new CReadDatabase object
 
+	TDictionaryDescriptor dctDesc = { DTO_None, "", "", "", "", "", "" };
+	dctDesc.m_strCCDBFilename = strFilePathName;
+
+	// TODO : NOTE: For Dictionary Databases the UUID, Language, DBName,
+	//	and DBDesc are NOT contained in the database file itself like
+	//	it is for the Bible Databases.  This currently means we don't
+	//	know how to do discovery for Dictionary Databases in any
+	//	meaningful way without having an internal descriptor.
+	//	Figure out how to work around this!!
+
+#if (0)
+	QFileInfo fiCCDB(dctDesc.m_strCCDBFilename);
+	if (fiCCDB.exists() && fiCCDB.isFile()) {
+		m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
+		assert(!m_pDictionaryDatabase.isNull());
+
+		QFile fileCCDB;
+		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
+		if (fileCCDB.open(QIODevice::ReadOnly)) {
+			QtIOCompressor compCCDB(&fileCCDB);
+			compCCDB.setStreamFormat(QtIOCompressor::ZlibFormat);
+			if (compCCDB.open(QIODevice::ReadOnly)) {
+				CScopedCSVStream ccdb(m_pCCDatabase, new CCSVStream(&compCCDB));
+				if (ReadDictionaryDBInfo()) {
+					m_pDictionaryDatabase->m_descriptor.m_dtoFlags |= DTO_Discovered;
+					dctDesc = m_pDictionaryDatabase->m_descriptor;
+				}
+			}
+		}
+
+		m_pDictionaryDatabase.clear();
+	}
+#endif
+
+	return dctDesc;
+}
+
+TDictionaryDescriptor CReadDatabase::discoverS3DBDictionaryDatabase(const QString &strFilePathName)
+{
+	assert(m_pDictionaryDatabase.isNull());		// Must be run on a new CReadDatabase object
+
+	TDictionaryDescriptor dctDesc = { DTO_None, "", "", "", "", "", "" };
+	dctDesc.m_strS3DBFilename = strFilePathName;
+
+	// TODO : NOTE: For Dictionary Databases the UUID, Language, DBName,
+	//	and DBDesc are NOT contained in the database file itself like
+	//	it is for the Bible Databases.  This currently means we don't
+	//	know how to do discovery for Dictionary Databases in any
+	//	meaningful way without having an internal descriptor.
+	//	Figure out how to work around this!!
+
+#if (0)
+
+#ifndef NOT_USING_SQL
+	QFileInfo fiS3DB(dctDesc.m_strS3DBFilename);
+	if (fiS3DB.exists() && fiS3DB.isFile()) {
+		m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
+		assert(!m_pDictionaryDatabase.isNull());
+
+		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, dctDesc.m_strUUID);
+		m_pDictionaryDatabase->m_myDatabase.setDatabaseName(fiS3DB.absoluteFilePath());
+		m_pDictionaryDatabase->m_myDatabase.setConnectOptions("QSQLITE_OPEN_READONLY");
+
+		if (m_pDictionaryDatabase->m_myDatabase.open()) {
+			if (ReadDictionaryDBInfo()) {
+				m_pDictionaryDatabase->m_descriptor.m_dtoFlags |= DTO_Discovered;
+				dctDesc = m_pDictionaryDatabase->m_descriptor;
+			}
+			m_pDictionaryDatabase->m_myDatabase.close();
+		}
+
+		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
+		QSqlDatabase::removeDatabase(dctDesc.m_strUUID);
+
+		m_pDictionaryDatabase.clear();
+	}
+#else
+#endif	// !NOT_USING_SQL
+
+#endif
+
+	return dctDesc;
+}
+
+// ============================================================================

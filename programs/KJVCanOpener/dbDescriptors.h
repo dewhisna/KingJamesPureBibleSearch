@@ -35,7 +35,8 @@
 enum BibleTypeOptions {
 	BTO_None = 0x0,						// Default for no options
 	BTO_SpecialTest = 0x1,				// Is Special Test Database entry
-	BTO_AutoLoad = 0x2					// AutoLoad database at app start
+	BTO_AutoLoad = 0x2,					// AutoLoad database at app start
+	BTO_Discovered = 0x4,				// Discovered via disk search instead of internal descriptor list
 };
 Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
 
@@ -93,9 +94,12 @@ enum DictionaryTypeOptions {
 	DTO_SpecialTest = 0x1,				// Is Special Test Database entry
 	DTO_AutoLoad = 0x2,					// AutoLoad database at app start
 	DTO_IgnoreLang = 0x4,				// Ignore language code (causes the language check to be ignored allowing the dictionary to be used with Bible databases of unmatching languages)
-	DTO_DisableTracking = 0x8,			// Disable auto tracking of Bible text work in the dictionary
+	DTO_DisableTracking = 0x8,			// Disable auto tracking of Bible text word in the dictionary
 	DTO_Topical = 0x10,					// Dictionary is a Topical Index/Dictionary
-	DTO_TimeLineDictionary = 0x20		// Timeline dictionary, such as Ussher's Annals of the World
+	DTO_TimeLineDictionary = 0x20,		// Timeline dictionary, such as Ussher's Annals of the World
+	DTO_Strongs = 0x40,					// Strongs Concordance
+	DTO_Preferred = 0x80,				// Dictionary is a preferred choice when auto-finding companion dictionary, such as having multiple Strongs Concordances
+	DTO_Discovered = 0x100,				// Discovered via disk search instead of internal descriptor list
 };
 Q_DECLARE_FLAGS(DictionaryTypeOptionsFlags, DictionaryTypeOptions)
 
