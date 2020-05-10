@@ -1618,8 +1618,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 											".book { font-size:xx-large; font-weight:bold; }\n"
 											".chapter { font-size:x-large; font-weight:bold; }\n"
 											".verse { display: inline-block; }\n"
-											".word { float: left; padding: 0em 0.5em 0.5em 0em; }\n"
-											".ref { float: left; padding: 0em 0.5em 0.5em 0em; }\n"
+											".word { float: left; padding: 0em 0.5em %4em 0em; }\n"
+											".ref { float: left; padding: 0em 0.5em %4em 0em; }\n"
 											".stack { display: block; }\n"
 											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 											".category { font-size:medium; font-weight:normal; }\n"
@@ -1628,7 +1628,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 											"</style></head><body>\n")
 											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
 											.arg(strCopyFont)																// Copy Font
-											.arg(QString("%1").arg(nLineHeight*100, 0, 'f', 0) + "%"));						// Line-Height
+											.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? 125.0 : nLineHeight*100, 0, 'f', 0) + "%")		// Line-Height
+											.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0)));			// .word/.ref padding bottom in em's
 	}
 
 	CRelIndex relPrev = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
