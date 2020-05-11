@@ -37,6 +37,7 @@ enum BibleTypeOptions {
 	BTO_SpecialTest = 0x1,				// Is Special Test Database entry
 	BTO_AutoLoad = 0x2,					// AutoLoad database at app start
 	BTO_Discovered = 0x4,				// Discovered via disk search instead of internal descriptor list
+	BTO_Preferred = 0x8,				// Bible is a preferred choice, for example Full KJV Database vs Standard KJV Database
 };
 Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
 
@@ -105,6 +106,7 @@ Q_DECLARE_FLAGS(DictionaryTypeOptionsFlags, DictionaryTypeOptions)
 
 #define defaultDictionaryTypeFlags		(DTO_None)
 #define defaultTopicalDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Topical)
+#define defaultStrongsDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Strongs)
 
 typedef struct {
 	DictionaryTypeOptionsFlags m_dtoFlags;

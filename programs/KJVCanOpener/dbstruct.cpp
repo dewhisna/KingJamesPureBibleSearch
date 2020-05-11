@@ -248,49 +248,86 @@ void TBibleDatabaseList::findBibleDatabases()
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 		TBibleDescriptor bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
-		bblDesc.m_strCCDBFilename = QFileInfo(QDir(bibleDatabasePath()), bblDesc.m_strCCDBFilename).absoluteFilePath();
-		bblDesc.m_strS3DBFilename = QFileInfo(QDir(bibleDatabasePath()), bblDesc.m_strS3DBFilename).absoluteFilePath();
+
+		// Empty filename is reserved special-case:
+		if (!bblDesc.m_strCCDBFilename.isEmpty()) {
+			bblDesc.m_strCCDBFilename = QFileInfo(QDir(bibleDatabasePath()), bblDesc.m_strCCDBFilename).absoluteFilePath();
+		}
+		if (!bblDesc.m_strS3DBFilename.isEmpty()) {
+			bblDesc.m_strS3DBFilename = QFileInfo(QDir(bibleDatabasePath()), bblDesc.m_strS3DBFilename).absoluteFilePath();
+		}
+		if (bblDesc.m_strCCDBFilename.isEmpty() && bblDesc.m_strS3DBFilename.isEmpty()) continue;
+
 		CReadDatabase rdbMain;
 		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
-		// Sort the list as we insert them:
-		int nInsertPoint = 0;
-		while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
-			BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
-			// Sort by Specific descriptor ID, language, then by description, then by general descriptor ID:
-			int nBIndex1 = BDEIndex(nBDE);
-			int nBIndex2 = BDEIndex(bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID));
-			int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
-			int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
-			int nBDEComp = ((nBIndex1 < nBIndex2) ? -1 : ((nBIndex2 < nBIndex1) ? 1 : 0));
-			int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
-			int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
-			if ((nBDEComp < 0) ||
-				((nBDEComp == 0) && (nLangComp < 0)) ||
-				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp < 0)) ||
-				((nBDEComp == 0) && (nLangComp == 0) && (nDescComp == 0) &&
-				 (nBDE < bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID)))) break;
-			++nInsertPoint;
+
+		// If the database exists, see if this is the preferred one.  If
+		//	so, displace the existing one with the new one, otherwise
+		//	skip it to avoid duplicates:
+		bool bExists = false;
+		for (int ndxDesc = 0; ((ndxDesc < m_lstAvailableDatabaseDescriptors.size()) && !bExists); ++ndxDesc) {
+			if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+				bExists = true;
+				if (bblDesc.m_btoFlags & BTO_Preferred) {
+					m_lstAvailableDatabaseDescriptors[ndxDesc] = bblDesc;
+				}
+			}
 		}
-		m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
+		if (!bExists) {
+			// Sort the list as we insert them:
+			int nInsertPoint = 0;
+			while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
+				BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
+				// Sort by Specific descriptor ID, language, then by description, then by general descriptor ID:
+				int nBIndex1 = BDEIndex(nBDE);
+				int nBIndex2 = BDEIndex(bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID));
+				int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
+				int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
+				int nBDEComp = ((nBIndex1 < nBIndex2) ? -1 : ((nBIndex2 < nBIndex1) ? 1 : 0));
+				int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
+				int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
+				if ((nBDEComp < 0) ||
+					((nBDEComp == 0) && (nLangComp < 0)) ||
+					((nBDEComp == 0) && (nLangComp == 0) && (nDescComp < 0)) ||
+					((nBDEComp == 0) && (nLangComp == 0) && (nDescComp == 0) &&
+					 (nBDE < bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID)))) break;
+				++nInsertPoint;
+			}
+			m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
+		}
 	}
 
 	// Insertion Helper:
 	auto fnInsertDiscovery = [this](const TBibleDescriptor &bblDesc)->void
 	{
-		// Sort the list as we insert them:
-		int nInsertPoint = 0;
-		while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
-			// Sort by Specific language, then by description:
-			int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
-			int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
-			int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
-			int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
-			if ((nLangComp < 0) ||
-				((nLangComp == 0) && (nDescComp < 0)) ||
-				((nLangComp == 0) && (nDescComp == 0))) break;
-			++nInsertPoint;
+		// If the database exists, see if this is the preferred one.  If
+		//	so, displace the existing one with the new one, otherwise
+		//	skip it to avoid duplicates:
+		bool bExists = false;
+		for (int ndxDesc = 0; ((ndxDesc < m_lstAvailableDatabaseDescriptors.size()) && !bExists); ++ndxDesc) {
+			if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+				bExists = true;
+				if (bblDesc.m_btoFlags & BTO_Preferred) {
+					m_lstAvailableDatabaseDescriptors[ndxDesc] = bblDesc;
+				}
+			}
 		}
-		m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
+		if (!bExists) {
+			// Sort the list as we insert them:
+			int nInsertPoint = 0;
+			while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
+				// Sort by Specific language, then by description:
+				int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
+				int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
+				int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
+				int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
+				if ((nLangComp < 0) ||
+					((nLangComp == 0) && (nDescComp < 0)) ||
+					((nLangComp == 0) && (nDescComp == 0))) break;
+				++nInsertPoint;
+			}
+			m_lstAvailableDatabaseDescriptors.insert(nInsertPoint, bblDesc);
+		}
 	};
 
 	// Second: Do Discovery of CCDB database files (first so they have priority over S3DB)
@@ -533,15 +570,51 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
+	// Insertion Helper:
+	auto fnInsertDiscovery = [this](const TDictionaryDescriptor &dctDesc)->void
+	{
+		// If the database exists, see if this is the preferred one.  If
+		//	so, displace the existing one with the new one, otherwise
+		//	skip it to avoid duplicates:
+		bool bExists = false;
+		for (int ndxDesc = 0; ((ndxDesc < m_lstAvailableDatabaseDescriptors.size()) && !bExists); ++ndxDesc) {
+			if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
+				bExists = true;
+				if (dctDesc.m_dtoFlags & DTO_Preferred) {
+					m_lstAvailableDatabaseDescriptors[ndxDesc] = dctDesc;
+				}
+			}
+		}
+		if (!bExists) {
+			m_lstAvailableDatabaseDescriptors.append(dctDesc);
+		}
+	};
+
 	// First: Add databases from our internal descriptor list:
 	m_lstAvailableDatabaseDescriptors.clear();
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 		TDictionaryDescriptor dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
-		dctDesc.m_strCCDBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dctDesc.m_strCCDBFilename).absoluteFilePath();
-		dctDesc.m_strS3DBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dctDesc.m_strS3DBFilename).absoluteFilePath();
+
+		// Empty filename is special-case for inclusion in Bible Database:
+		if (!dctDesc.m_strCCDBFilename.isEmpty()) {
+			dctDesc.m_strCCDBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dctDesc.m_strCCDBFilename).absoluteFilePath();
+		}
+		if (!dctDesc.m_strS3DBFilename.isEmpty()) {
+			dctDesc.m_strS3DBFilename = QFileInfo(QDir(dictionaryDatabasePath()), dctDesc.m_strS3DBFilename).absoluteFilePath();
+		}
+		if (dctDesc.m_strCCDBFilename.isEmpty() && dctDesc.m_strS3DBFilename.isEmpty()) {
+			// If this is a Strongs Dictionary that's embedded in the main
+			//	Bible Database and the main Bible Database is available, include
+			//	the Dictionary entry:
+			if (TBibleDatabaseList::availableBibleDatabaseDescriptor(dctDesc.m_strUUID).isValid()) {
+				fnInsertDiscovery(dctDesc);
+			}
+			continue;
+		}
+
 		CReadDatabase rdbMain;
 		if (!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) continue;
-		m_lstAvailableDatabaseDescriptors.append(dctDesc);
+		fnInsertDiscovery(dctDesc);
 	}
 
 	// Second: Do Discovery of CCDB database files (first so they have priority over S3DB)
@@ -561,7 +634,7 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 			TDictionaryDescriptor dctDesc = rdb.discoverCCDBDictionaryDatabase(fiDct.canonicalFilePath());
 			if (dctDesc.isValid()) {
 				if (fiDct.fileName().startsWith("dct-t-", Qt::CaseInsensitive)) dctDesc.m_dtoFlags |= DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags);
-				m_lstAvailableDatabaseDescriptors.append(dctDesc);
+				fnInsertDiscovery(dctDesc);
 			}
 		}
 	}
@@ -583,7 +656,7 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 			TDictionaryDescriptor dctDesc = rdb.discoverS3DBDictionaryDatabase(fiDct.canonicalFilePath());
 			if (dctDesc.isValid()) {
 				if (fiDct.fileName().startsWith("dct-t-", Qt::CaseInsensitive)) dctDesc.m_dtoFlags |= DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags);
-				m_lstAvailableDatabaseDescriptors.append(dctDesc);
+				fnInsertDiscovery(dctDesc);
 			}
 		}
 	}

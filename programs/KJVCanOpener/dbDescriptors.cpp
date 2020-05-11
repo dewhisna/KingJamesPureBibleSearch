@@ -42,31 +42,31 @@ namespace {
 
 	// Bible Database Descriptor Constants:
 	// ------------------------------------
-	const char *constUUID_SPECIAL_TEST =		"00000000-0000-11E3-8FFD-0800200C9A66";
-	const char *constUUID_KJV =					"85D8A6B0-E670-11E2-A28F-0800200C9A66";
-	const char *constUUID_RVG2010_20140126 =	"9233CB60-141A-11E3-8FFD-0800200C9A66";
-	const char *constUUID_KJF2006 =				"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
-	const char *constUUID_KJVPCE =				"C9BA8970-A114-11E3-A5E2-0800200C9A66";
-	const char *constUUID_KJVA =				"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
-	const char *constUUID_UKJV =				"BA852FE0-C762-11E3-9C1A-0800200C9A66";
-	const char *constUUID_GERLUT1545 =			"D7376840-C75F-11E3-9C1A-0800200C9A66";
-	const char *constUUID_RV1865lcbp20100713 =	"9378F5B0-CE8F-11E3-9C1A-0800200C9A66";
-	const char *constUUID_RV1602Prrb20110825 =	"94B7B600-CF39-11E3-9C1A-0800200C9A66";
-	const char *constUUID_GERSCH2000 =			"D326F220-CFFC-11E3-9C1A-0800200C9A66";
-	const char *constUUID_KJV1611A =			"8BFE29A0-D014-11E3-9C1A-0800200C9A66";
-	const char *constUUID_KJV1611 =				"8D999FF0-D650-11E3-9C1A-0800200C9A66";
-	const char *constUUID_RV1865sbv20140622 =	"919DAB50-1151-11E4-9191-0800200C9A66";
-	const char *constUUID_RVG2010_20140705 =	"92EF65E0-56F0-11E4-8ED6-0800200C9A66";
-	const char *constUUID_KJF2015 =				"36708290-9BB0-11E4-BD06-0800200C9A66";
-	const char *constUUID_RVG2010_20150120 =	"925744F0-6B1B-11E5-A837-0800200C9A66";
-	const char *constUUID_TR_20140413_X1 =		"4D025330-5BAC-11E7-9598-0800200C9A66";
-	const char *constUUID_TR_20140413_X2 =		"4C0C5630-5C77-11E7-9598-0800200C9A66";
-	const char *constUUID_SPMT_20120627 =		"5939EB40-5BAC-11E7-9598-0800200C9A66";
-	const char *constUUID_LXX_20080722 =		"4F4BD170-6264-11E7-9598-0800200C9A66";
-	const char *constUUID_RV1865mv20180504 =	"28A10630-5728-11E8-B566-0800200C9A66";
-	const char *constUUID_RUSSYNODAL_20101106 =	"B5F0F4C0-28E5-11E9-B56E-0800200C9A66";
-	const char *constUUID_ASV_20061025 =		"6DA72D40-A830-11E9-B475-0800200C9A66";
-	const char *constUUID_ISV_20100807 =		"7C305670-A830-11E9-B475-0800200C9A66";
+	const char * const constUUID_SPECIAL_TEST =			"00000000-0000-11E3-8FFD-0800200C9A66";
+	const char * const constUUID_KJV =					"85D8A6B0-E670-11E2-A28F-0800200C9A66";
+	const char * const constUUID_RVG2010_20140126 =		"9233CB60-141A-11E3-8FFD-0800200C9A66";
+	const char * const constUUID_KJF2006 =				"31FC2ED0-141B-11E3-8FFD-0800200C9A66";
+	const char * const constUUID_KJVPCE =				"C9BA8970-A114-11E3-A5E2-0800200C9A66";
+	const char * const constUUID_KJVA =					"B93D0E40-BA16-11E3-A5E2-0800200C9A66";
+	const char * const constUUID_UKJV =					"BA852FE0-C762-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_GERLUT1545 =			"D7376840-C75F-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_RV1865lcbp20100713 =	"9378F5B0-CE8F-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_RV1602Prrb20110825 =	"94B7B600-CF39-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_GERSCH2000 =			"D326F220-CFFC-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_KJV1611A =				"8BFE29A0-D014-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_KJV1611 =				"8D999FF0-D650-11E3-9C1A-0800200C9A66";
+	const char * const constUUID_RV1865sbv20140622 =	"919DAB50-1151-11E4-9191-0800200C9A66";
+	const char * const constUUID_RVG2010_20140705 =		"92EF65E0-56F0-11E4-8ED6-0800200C9A66";
+	const char * const constUUID_KJF2015 =				"36708290-9BB0-11E4-BD06-0800200C9A66";
+	const char * const constUUID_RVG2010_20150120 =		"925744F0-6B1B-11E5-A837-0800200C9A66";
+	const char * const constUUID_TR_20140413_X1 =		"4D025330-5BAC-11E7-9598-0800200C9A66";
+	const char * const constUUID_TR_20140413_X2 =		"4C0C5630-5C77-11E7-9598-0800200C9A66";
+	const char * const constUUID_SPMT_20120627 =		"5939EB40-5BAC-11E7-9598-0800200C9A66";
+	const char * const constUUID_LXX_20080722 =			"4F4BD170-6264-11E7-9598-0800200C9A66";
+	const char * const constUUID_RV1865mv20180504 =		"28A10630-5728-11E8-B566-0800200C9A66";
+	const char * const constUUID_RUSSYNODAL_20101106 =	"B5F0F4C0-28E5-11E9-B56E-0800200C9A66";
+	const char * const constUUID_ASV_20061025 =			"6DA72D40-A830-11E9-B475-0800200C9A66";
+	const char * const constUUID_ISV_20100807 =			"7C305670-A830-11E9-B475-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -136,21 +136,24 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ASV_1901_20061025", "en", QString::fromUtf8("American Standard Version (1901)"), QString::fromUtf8("American Standard Version (1901) (20061025)"), constUUID_ASV_20061025, "bbl-asv1901-20061025.s3db", "bbl-asv1901-20061025.ccdb", constUUID_ASV_20061025 },
 		// International Standard Version (2001):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ISV_2001_20100807", "en", QString::fromUtf8("International Standard Version (2001)"), QString::fromUtf8("International Standard Version (2001) (20100807)"), constUUID_ISV_20100807, "bbl-isv2001-20100807.s3db", "bbl-isv2001-20100807.ccdb", constUUID_ISV_20100807 },
+		// KJV Full database (with Strongs Lemma/Morph):
+		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
 	};
 
 	//////////////////////////////////////////////////////////////////////
 
 	// Dictionary Database Descriptor Constants:
 	// -----------------------------------------
-	const char *constUUID_DCT_SPECIAL_TEST =	"00000000-0000-11E3-8224-0800200C9A66";
-	const char *constUUID_DCT_WEB1828 =			"6A94E150-1E6C-11E3-8224-0800200C9A66";
-	const char *constUUID_DCT_WEB1913 =			"70C95C30-3893-11E4-916C-0800200C9A66";
-	const char *constUUID_DCT_WEB1806 =			"8d71d7c0-3d4a-11e4-916c-0800200c9a66";
-	const char *constUUID_DCT_USSHER =			"92f1c570-3d4a-11e4-916c-0800200c9a66";
-	const char *constUUID_DCT_NAVE =			"160E7960-5FEE-11E4-9803-0800200C9A66";
-	const char *constUUID_DCT_THOMPSON =		"356898E0-5FEE-11E4-9803-0800200C9A66";
-	const char *constUUID_DCT_TOPICAL =			"48A64970-5FEE-11E4-9803-0800200C9A66";
-	const char *constUUID_DCT_TORREY =			"53A8BCE0-5FEE-11E4-9803-0800200C9A66";
+	const char * const constUUID_DCT_SPECIAL_TEST =	"00000000-0000-11E3-8224-0800200C9A66";
+	const char * const constUUID_DCT_WEB1828 =		"6A94E150-1E6C-11E3-8224-0800200C9A66";
+	const char * const constUUID_DCT_WEB1913 =		"70C95C30-3893-11E4-916C-0800200C9A66";
+	const char * const constUUID_DCT_WEB1806 =		"8d71d7c0-3d4a-11e4-916c-0800200c9a66";
+	const char * const constUUID_DCT_USSHER =		"92f1c570-3d4a-11e4-916c-0800200c9a66";
+	const char * const constUUID_DCT_NAVE =			"160E7960-5FEE-11E4-9803-0800200C9A66";
+	const char * const constUUID_DCT_THOMPSON =		"356898E0-5FEE-11E4-9803-0800200C9A66";
+	const char * const constUUID_DCT_TOPICAL =		"48A64970-5FEE-11E4-9803-0800200C9A66";
+	const char * const constUUID_DCT_TORREY =		"53A8BCE0-5FEE-11E4-9803-0800200C9A66";
+	const char * const constUUID_DCT_STRONGS =		constUUID_KJV;		// Uses same UUID since the Strongs Dictionary is embedded in the extended KJV database
 
 	const TDictionaryDescriptor constDictionaryDescriptors[] =
 	{
@@ -171,7 +174,9 @@ namespace {
 		// Topical Study Dictionary:
 		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Topical Study"), QString::fromUtf8("Topical Study Dictionary"), constUUID_DCT_TOPICAL, "dct-t-topical.s3db", "dct-t-topical.ccdb" },
 		// Torrey's New Topical Textbook:
-		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Torrey's New Topical Textbook"), QString::fromUtf8("Torrey's New Topical Textbook"), constUUID_DCT_TORREY, "dct-t-torrey.s3db", "dct-t-torrey.ccdb" }
+		{ DictionaryTypeOptionsFlags(defaultTopicalDctTypeFlags), "en", QString::fromUtf8("Torrey's New Topical Textbook"), QString::fromUtf8("Torrey's New Topical Textbook"), constUUID_DCT_TORREY, "dct-t-torrey.s3db", "dct-t-torrey.ccdb" },
+		// KJV Strongs (note: no files as it's embedded in the KJV Full Bible Database):
+		{ DictionaryTypeOptionsFlags(defaultStrongsDctTypeFlags | DTO_Preferred), "en", QString::fromUtf8("Strong's"), QString::fromUtf8("Strong's Dictionary of Bible Words"), constUUID_DCT_STRONGS, "", "" },
 	};
 
 }	// namespace
