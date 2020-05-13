@@ -1164,11 +1164,11 @@ class CStrongsEntry
 public:
 	CStrongsEntry() { }
 	CStrongsEntry(QChar chrLangCode, unsigned int nStrongsIndex)
-		:	m_chrLangCode(chrLangCode),
+		:	m_chrLangCode(chrLangCode.toUpper()),
 			m_nStrongsIndex(nStrongsIndex)
 	{ }
 	CStrongsEntry(const QString &strStrongsTextIndex)
-		:	m_chrLangCode(!strStrongsTextIndex.isEmpty() ? strStrongsTextIndex.at(0) : '?'),
+		:	m_chrLangCode(!strStrongsTextIndex.isEmpty() ? strStrongsTextIndex.at(0).toUpper() : '?'),
 			m_nStrongsIndex(strStrongsTextIndex.mid(1).toUInt())
 	{ }
 
@@ -1645,10 +1645,10 @@ typedef QMap<QString, TDictionaryDatabaseSettings> TDictionaryDatabaseSettingsMa
 // CDictionaryDatabase - Class to define a Dictionary Database file
 class CDictionaryDatabase
 {
-private:
+protected:
 	CDictionaryDatabase(const TDictionaryDescriptor &dctDesc);		// Creatable by CReadDatabase
 public:
-	~CDictionaryDatabase();
+	virtual ~CDictionaryDatabase();
 
 	DictionaryTypeOptionsFlags flags() const { return m_descriptor.m_dtoFlags; }
 	QString language() const { return m_descriptor.m_strLanguage; }
@@ -1667,13 +1667,14 @@ public:
 #endif
 	}
 
-	QString soundEx(const QString &strDecomposedDictionaryWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Dictionary Word (calculations done based on this Dictionary Database language)
+	virtual QString soundEx(const QString &strDecomposedDictionaryWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Dictionary Word (calculations done based on this Dictionary Database language)
 
-	QString definition(const QString &strWord) const;		// Lookup and return definition for word
-	bool wordExists(const QString &strWord) const;			// Lookup word and return true/false on its existence
+	virtual QString definition(const QString &strWord) const;		// Lookup and return definition for word
+	virtual bool wordExists(const QString &strWord) const;			// Lookup word and return true/false on its existence
 
-	inline const TDictionaryWordListMap &mapWordList() const { return m_mapWordDefinitions; }
-	inline const QStringList &lstWordList() const { return m_lstWordList; }
+	virtual const CDictionaryWordEntry &wordDefinitionsEntry(const QString &strKeyWord) const;		// Lookup by lower-case decomposed word from word-list map
+	virtual int wordCount() const;							// Count of words in m_lstWordList
+	virtual QString wordEntry(int ndx) const;				// Entry from m_lstWordList
 
 private:
 	// CReadDatabase needed to load the database.  After that everything
@@ -1697,6 +1698,47 @@ private:
 Q_DECLARE_METATYPE(CDictionaryDatabase *)
 typedef QSharedPointer<CDictionaryDatabase> CDictionaryDatabasePtr;
 Q_DECLARE_METATYPE(CDictionaryDatabasePtr)
+
+// ----------------------------------------------------------------------------
+
+// CStrongsDictionaryDatabase - Class to define a Strongs Dictionary Database file
+class CStrongsDictionaryDatabase : public CDictionaryDatabase
+{
+protected:
+	CStrongsDictionaryDatabase(const TDictionaryDescriptor &dctDesc, CBibleDatabasePtr pBibleDatabase)		// Creatable by CReadDatabase
+		:	CDictionaryDatabase(dctDesc),
+			m_pBibleDatabase(pBibleDatabase)
+	{
+		assert(!m_pBibleDatabase.isNull());
+	}
+public:
+	virtual ~CStrongsDictionaryDatabase() { }
+
+	virtual QString soundEx(const QString &strDecomposedDictionaryWord, bool bCache = true) const override;		// Return and/or calculate soundEx for the specified Dictionary Word (calculations done based on this Dictionary Database language)
+
+	virtual QString definition(const QString &strWord) const override;		// Lookup and return definition for word
+	virtual bool wordExists(const QString &strWord) const override;			// Lookup word and return true/false on its existence
+
+	// WARNING: wordDefinitionsEntry() is NOT thread-safe in CStrongsDictionaryDatabase!!
+	//	As such, use the CSearchStrongsDictionaryListModel and not the CSearchDictionaryListModel.
+	//	the wordDefinitionsEntry() is here only as a placeholder so compilation will succeed.
+	//	Since there are no actual words in the Strongs Database (only indexes), it would be a
+	//	waste of resouces to use CSearchDictionaryListModel anyway (i.e. it's really slow!)
+	virtual const CDictionaryWordEntry &wordDefinitionsEntry(const QString &strKeyWord) const override;		// Lookup by lower-case decomposed word from word-list map
+	virtual int wordCount() const override;							// Count of words in m_lstWordList
+	virtual QString wordEntry(int ndx) const override;				// Entry from m_lstWordList
+
+private:
+	// CReadDatabase needed to load the database.  After that everything
+	//	is read-only.
+	//
+	friend class CReadDatabase;
+
+	CBibleDatabasePtr m_pBibleDatabase;
+	mutable CDictionaryWordEntry m_tmpDictionaryWordEntry;			// Temporary word return for wordDefinitionsEntry().
+};
+
+// ----------------------------------------------------------------------------
 
 class  TDictionaryDatabaseList : public QObject, protected QList<CDictionaryDatabasePtr>
 {

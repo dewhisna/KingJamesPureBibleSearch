@@ -1336,6 +1336,14 @@ bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) cons
 
 bool CReadDatabase::haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const
 {
+	if (dctDesc.m_strCCDBFilename.isEmpty() && dctDesc.m_strS3DBFilename.isEmpty()) {
+		// Empty filenames is special-case to refer back to a dictionary integrated in
+		//	the Bible Database.  So see if we can read the Bible Database, and if not,
+		//	we can't read the Dictionary Database either:
+		if (!TBibleDatabaseList::availableBibleDatabaseDescriptor(dctDesc.m_strUUID).isValid()) return false;
+		return true;
+	}
+
 	QFileInfo fiSQL(dctDesc.m_strS3DBFilename);
 	QFileInfo fiCC(dctDesc.m_strCCDBFilename);
 	return ((fiCC.exists() && fiCC.isFile()) ||
@@ -1599,6 +1607,31 @@ bool CReadDatabase::readDictionaryStub(bool bLiveDB)
 bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB, bool bSetAsMain)
 {
 	bool bSuccess = false;
+
+	if (dctDesc.m_strCCDBFilename.isEmpty() && dctDesc.m_strS3DBFilename.isEmpty()) {
+		// Empty filenames is special-case to refer back to a dictionary integrated in
+		//	the Bible Database:
+		TBibleDescriptor bblDesc = TBibleDatabaseList::availableBibleDatabaseDescriptor(dctDesc.m_strUUID);
+		if (!bblDesc.isValid()) return false;		// We can't read the Dictionary Database if we can't read the Bible Database
+		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dctDesc.m_strUUID);
+		if (pBibleDatabase.isNull()) {
+			if (!ReadBibleDatabase(bblDesc)) return false;		// Read the Bible Database to get the Dictionary Database, if it fails the Dictionary failed too
+		}
+
+		// Logic for Reading Specific Special Bible Database Internal Dictionaries:
+		if (dctDesc.m_dtoFlags & DTO_Strongs) {		// Handle Strongs Dictionary:
+			m_pDictionaryDatabase = QSharedPointer<CStrongsDictionaryDatabase>(new CStrongsDictionaryDatabase(dctDesc, pBibleDatabase));
+			assert(!m_pDictionaryDatabase.isNull());
+
+			m_pDictionaryDatabase->m_mapWordDefinitions.clear();		// These will remain empty and lookups done via the Strongs portion of the Bible Database
+			m_pDictionaryDatabase->m_lstWordList.clear();
+
+			TDictionaryDatabaseList::instance()->addDictionaryDatabase(m_pDictionaryDatabase, bSetAsMain);
+			return true;
+		}
+
+		return false;
+	}
 
 	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
 	assert(!m_pDictionaryDatabase.isNull());

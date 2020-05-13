@@ -82,9 +82,13 @@ void CDictionaryLineEdit::setDictionary(CDictionaryDatabasePtr pDictionary)
 		m_pCompleter = nullptr;
 	}
 
-	m_pCompleter = new SearchCompleter_t(m_pDictionaryDatabase, *this, this);
-//	m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
-	// TODO : ??? Add AccentSensitivity to completer ???
+	if (m_pDictionaryDatabase->descriptor().m_dtoFlags & DTO_Strongs) {
+		m_pCompleter = new CStrongsDictionarySearchCompleter(m_pDictionaryDatabase, *this, this);
+	} else {
+		m_pCompleter = new SearchCompleter_t(m_pDictionaryDatabase, *this, this);
+//		m_pCompleter->setCaseSensitivity(isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive);
+		// TODO : ??? Add AccentSensitivity to completer ???
+	}
 
 	m_pCompleter->setCompletionFilterMode(CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 

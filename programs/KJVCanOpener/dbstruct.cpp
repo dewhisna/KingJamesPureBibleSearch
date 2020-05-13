@@ -46,6 +46,8 @@
 #include <QDirIterator>
 #include <QCoreApplication>
 
+#include <iterator>
+
 #if !defined(IS_CONSOLE_APP) && (QT_VERSION >= 0x050400)		// Functor calls was introduced in Qt 5.4
 #include <QTimer>
 #endif
@@ -2471,6 +2473,74 @@ bool CDictionaryDatabase::wordExists(const QString &strWord) const
 	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false).toLower();
 	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
 	return (itrWord != m_mapWordDefinitions.end());
+}
+
+const CDictionaryWordEntry &CDictionaryDatabase::wordDefinitionsEntry(const QString &strKeyWord) const
+{
+	return m_mapWordDefinitions.at(strKeyWord);
+}
+
+int CDictionaryDatabase::wordCount() const
+{
+	return m_lstWordList.size();
+}
+
+QString CDictionaryDatabase::wordEntry(int ndx) const
+{
+	assert((ndx >= 0) && (ndx < m_lstWordList.size()));
+	return m_lstWordList.at(ndx);
+}
+
+// ----------------------------------------------------------------------------
+
+QString CStrongsDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord, bool bCache) const
+{
+	Q_UNUSED(bCache);
+	return strDecomposedDictionaryWord;
+}
+
+QString CStrongsDictionaryDatabase::definition(const QString &strWord) const
+{
+	CStrongsEntry anEntry(strWord);
+	const TStrongsIndexMap::const_iterator itrStrongs = m_pBibleDatabase->strongsIndexMap().find(anEntry.strongsMapIndex());
+	if (itrStrongs == m_pBibleDatabase->strongsIndexMap().cend()) return QString();
+
+	QString strDefinition;
+	strDefinition += itrStrongs->second.strongsTextIndex() + " : " + itrStrongs->second.orthography() +
+						" (" + itrStrongs->second.transliteration() + ") [" + itrStrongs->second.pronunciation() +
+						"] : " + itrStrongs->second.definition();
+	return strDefinition;
+}
+
+bool CStrongsDictionaryDatabase::wordExists(const QString &strWord) const
+{
+	CStrongsEntry anEntry(strWord);
+	return (m_pBibleDatabase->strongsIndexMap().find(anEntry.strongsMapIndex()) != m_pBibleDatabase->strongsIndexMap().cend());
+}
+
+const CDictionaryWordEntry &CStrongsDictionaryDatabase::wordDefinitionsEntry(const QString &strKeyWord) const
+{
+	m_tmpDictionaryWordEntry = CDictionaryWordEntry();
+
+	CStrongsEntry anEntry(strKeyWord);
+	if (wordExists(anEntry.strongsMapIndex())) {
+		m_tmpDictionaryWordEntry = CDictionaryWordEntry(anEntry.strongsTextIndex());
+	}
+	return m_tmpDictionaryWordEntry;
+}
+
+int CStrongsDictionaryDatabase::wordCount() const
+{
+	return m_pBibleDatabase->strongsIndexMap().size();
+}
+
+QString CStrongsDictionaryDatabase::wordEntry(int ndx) const
+{
+	assert((ndx >= 0) && (ndx < wordCount()));
+	const TStrongsIndexMap &mapStrongs = m_pBibleDatabase->strongsIndexMap();
+	TStrongsIndexMap::const_iterator itrStrongs = mapStrongs.cbegin();
+	std::advance(itrStrongs, ndx);
+	return itrStrongs->second.strongsTextIndex();
 }
 
 // ============================================================================

@@ -137,29 +137,6 @@ void CDoubleSpinBox::keyPressEvent(QKeyEvent *pEvent)
 
 // ============================================================================
 
-#if QT_VERSION < 0x050000
-
-bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
-{
-	// The act of popping our completer, will cause the inputContext to
-	//		shift focus from the editor to the popup and after dismissing the
-	//		popup, it doesn't go back to the editor.  So, since we are eating
-	//		FocusOut events in the popup, push the inputContext focus back to
-	//		the editor when we "focus out".  It's our focusProxy anyway:
-	if ((ev->type() == QEvent::FocusOut) && (obj == widget())) {
-		if ((popup()) && (popup()->isVisible())) {
-			QInputContext *pInputContext = popup()->inputContext();
-			if (pInputContext) pInputContext->setFocusWidget(popup());
-		}
-	}
-
-	return QCompleter::eventFilter(obj, ev);
-}
-
-#endif
-
-// ============================================================================
-
 CSingleLineTextEdit::CSingleLineTextEdit(int nMinHeight, QWidget *pParent)
 	:	QTextEdit(pParent),
 		m_nMinHeight(nMinHeight),

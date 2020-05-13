@@ -105,50 +105,6 @@ signals:
 
 // ============================================================================
 
-#if QT_VERSION < 0x050000
-
-// Forward declares:
-class CParsedPhrase;
-
-// CComposingCompleter -- Needed to fix a bug in Qt 4.8.x QCompleter whereby
-//		inputMethod events get redirected to the popup, but don't come back
-//		to the editor because inputContext()->setFocusWidget() never gets
-//		called again for the editor:
-class CComposingCompleter : public CSearchCompleter
-{
-	Q_OBJECT
-
-public:
-	CComposingCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
-		:	CSearchCompleter(parsedPhrase, parentWidget)
-	{
-
-	}
-
-	CComposingCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
-		:	CSearchCompleter(pDictionary, editorWord, parentWidget)
-	{
-
-	}
-
-	~CComposingCompleter()
-	{
-
-	}
-
-	virtual bool eventFilter(QObject *obj, QEvent *ev);
-};
-
-typedef CComposingCompleter SearchCompleter_t;
-
-#else
-
-typedef CSearchCompleter SearchCompleter_t;
-
-#endif
-
-// ============================================================================
-
 class CSingleLineTextEdit : public QTextEdit
 {
 	Q_OBJECT

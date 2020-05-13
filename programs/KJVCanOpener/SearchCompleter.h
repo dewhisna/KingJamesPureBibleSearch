@@ -156,6 +156,28 @@ private:
 	const QTextEdit &m_editorWord;
 };
 
+// ----------------------------------------------------------------------------
+
+class CSearchStrongsDictionaryListModel : public QAbstractListModel
+{
+	Q_OBJECT
+
+public:
+	CSearchStrongsDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = nullptr);
+	virtual ~CSearchStrongsDictionaryListModel();
+
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+	virtual QVariant data(const QModelIndex &index, int role) const override;
+
+	virtual QString cursorWord() const;
+
+private:
+	Q_DISABLE_COPY(CSearchStrongsDictionaryListModel)
+	CDictionaryDatabasePtr m_pDictionaryDatabase;
+	const QTextEdit &m_editorWord;
+};
+
 #endif
 
 // ============================================================================
@@ -258,6 +280,7 @@ public:
 
 	CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget);
 	CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget);
+	CSearchCompleter(QWidget *parentWidget);
 	virtual ~CSearchCompleter();
 
 	virtual CSearchStringListModel *searchStringListModel() { return m_pSearchStringListModel; }
@@ -274,11 +297,88 @@ public slots:
 	virtual void setFilterMatchString();
 	virtual void setWordsFromPhrase(bool bForceUpdate = false);
 
-private:
+protected:
 	SEARCH_COMPLETION_FILTER_MODE_ENUM m_nCompletionFilterMode;
+	QString m_strFilterMatchString;
+
+private:
 	CSearchStringListModel *m_pSearchStringListModel;
 	CSoundExSearchCompleterFilter *m_pSoundExFilterModel;
-	QString m_strFilterMatchString;
+};
+
+// ============================================================================
+
+#if QT_VERSION < 0x050000
+
+// Forward declares:
+class CParsedPhrase;
+
+// CComposingCompleter -- Needed to fix a bug in Qt 4.8.x QCompleter whereby
+//		inputMethod events get redirected to the popup, but don't come back
+//		to the editor because inputContext()->setFocusWidget() never gets
+//		called again for the editor:
+class CComposingCompleter : public CSearchCompleter
+{
+	Q_OBJECT
+
+public:
+	CComposingCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
+		:	CSearchCompleter(parsedPhrase, parentWidget)
+	{
+
+	}
+
+	CComposingCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
+		:	CSearchCompleter(pDictionary, editorWord, parentWidget)
+	{
+
+	}
+
+	CComposingCompleter(QWidget *parentWidget)
+		:	CSearchCompleter(parentWidget)
+	{
+
+	}
+
+	~CComposingCompleter()
+	{
+
+	}
+
+	virtual bool eventFilter(QObject *obj, QEvent *ev);
+};
+
+typedef CComposingCompleter SearchCompleter_t;
+
+#else
+
+typedef CSearchCompleter SearchCompleter_t;
+
+#endif
+
+// ============================================================================
+
+class CStrongsDictionarySearchCompleter : public SearchCompleter_t
+{
+	Q_OBJECT
+
+public:
+	CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget);
+	virtual ~CStrongsDictionarySearchCompleter() { }
+
+	using CSearchCompleter::completionFilterMode;
+	virtual void setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nCompletionFilterMode) override { m_nCompletionFilterMode = nCompletionFilterMode; }
+
+	using CSearchCompleter::filterMatchString;
+
+	virtual void selectFirstMatchString() override;
+
+public slots:
+	virtual void setFilterMatchString() override;
+	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;
+
+private:
+	CSearchStrongsDictionaryListModel *m_pStrongsListModel;
 };
 
 #endif

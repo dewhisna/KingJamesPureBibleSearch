@@ -39,6 +39,10 @@
 
 #include <algorithm>
 
+#if QT_VERSION < 0x050000
+#include <QInputContext>
+#endif
+
 // ============================================================================
 
 class TBasicWordHelper
@@ -341,9 +345,9 @@ CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pD
 	assert(!pDictionary.isNull());
 
 	m_lstBasicWords.clear();
-	m_lstBasicWords.reserve(m_pDictionaryDatabase->lstWordList().size());
-	for (int ndx = 0; ndx < m_pDictionaryDatabase->lstWordList().size(); ++ndx) {
-		m_lstBasicWords.append(&m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(ndx)));
+	m_lstBasicWords.reserve(m_pDictionaryDatabase->wordCount());
+	for (int ndx = 0; ndx < m_pDictionaryDatabase->wordCount(); ++ndx) {
+		m_lstBasicWords.append(&m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(ndx)));
 	}
 }
 
@@ -357,22 +361,22 @@ int CSearchDictionaryListModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid())
 		return 0;
 
-	return m_pDictionaryDatabase->lstWordList().size();
+	return m_pDictionaryDatabase->wordCount();
 }
 
 QVariant CSearchDictionaryListModel::data(const QModelIndex &index, int role) const
 {
-	if ((index.row() < 0) || (index.row() >= m_pDictionaryDatabase->lstWordList().size()))
+	if ((index.row() < 0) || (index.row() >= m_pDictionaryDatabase->wordCount()))
 		return QVariant();
 
 	if (role == Qt::DisplayRole)
-		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).renderedWord();
+		return m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(index.row())).renderedWord();
 
 	if (role == Qt::EditRole)
-		return m_pDictionaryDatabase->mapWordList().at(m_pDictionaryDatabase->lstWordList().at(index.row())).decomposedWord();
+		return m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(index.row())).decomposedWord();
 
 	if (role == SOUNDEX_ENTRY_ROLE)
-		return m_pDictionaryDatabase->soundEx(m_pDictionaryDatabase->lstWordList().at(index.row()));
+		return m_pDictionaryDatabase->soundEx(m_pDictionaryDatabase->wordEntry(index.row()));
 
 	return QVariant();
 }
@@ -411,6 +415,48 @@ void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 
 #ifdef QT_WIDGETS_LIB
 
+CSearchStrongsDictionaryListModel::CSearchStrongsDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent)
+	:	QAbstractListModel(parent),
+		m_pDictionaryDatabase(pDictionary),
+		m_editorWord(editorWord)
+{
+	assert(!pDictionary.isNull());
+}
+
+CSearchStrongsDictionaryListModel::~CSearchStrongsDictionaryListModel()
+{
+}
+
+int CSearchStrongsDictionaryListModel::rowCount(const QModelIndex &parent) const
+{
+	if (parent.isValid())
+		return 0;
+
+	return m_pDictionaryDatabase->wordCount();
+}
+
+QVariant CSearchStrongsDictionaryListModel::data(const QModelIndex &index, int role) const
+{
+	if ((index.row() < 0) || (index.row() >= m_pDictionaryDatabase->wordCount()))
+		return QVariant();
+
+	if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+		return m_pDictionaryDatabase->wordEntry(index.row());
+
+	return QVariant();
+}
+
+QString CSearchStrongsDictionaryListModel::cursorWord() const
+{
+	return m_editorWord.toPlainText();
+}
+
+#endif
+
+// ============================================================================
+
+#ifdef QT_WIDGETS_LIB
+
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_nCompletionFilterMode(SCFME_NORMAL),
@@ -441,6 +487,16 @@ CSearchCompleter::CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTe
 	// Note: CompletionMode, CompletionRole, and ModelSorting properties are set in setCompletionFilterMode(), as they depend on the mode:
 	setCompletionFilterMode(m_nCompletionFilterMode);
 	setModel(m_pSoundExFilterModel);
+}
+
+CSearchCompleter::CSearchCompleter(QWidget *parentWidget)
+	:	QCompleter(parentWidget),
+		m_nCompletionFilterMode(SCFME_NORMAL),
+		m_pSearchStringListModel(nullptr),
+		m_pSoundExFilterModel(nullptr)
+{
+	setWidget(parentWidget);
+	setCaseSensitivity(Qt::CaseInsensitive);
 }
 
 CSearchCompleter::~CSearchCompleter()
@@ -1109,3 +1165,56 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 
 // ============================================================================
 
+#if QT_VERSION < 0x050000
+
+bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
+{
+	// The act of popping our completer, will cause the inputContext to
+	//		shift focus from the editor to the popup and after dismissing the
+	//		popup, it doesn't go back to the editor.  So, since we are eating
+	//		FocusOut events in the popup, push the inputContext focus back to
+	//		the editor when we "focus out".  It's our focusProxy anyway:
+	if ((ev->type() == QEvent::FocusOut) && (obj == widget())) {
+		if ((popup()) && (popup()->isVisible())) {
+			QInputContext *pInputContext = popup()->inputContext();
+			if (pInputContext) pInputContext->setFocusWidget(popup());
+		}
+	}
+
+	return QCompleter::eventFilter(obj, ev);
+}
+
+#endif
+
+// ============================================================================
+
+#ifdef QT_WIDGETS_LIB
+
+CStrongsDictionarySearchCompleter::CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
+	:	SearchCompleter_t(parentWidget),
+		m_pStrongsListModel(nullptr)
+{
+	m_pStrongsListModel = new CSearchStrongsDictionaryListModel(pDictionary, editorWord, this);
+	setModel(m_pStrongsListModel);
+	setFilterMode(Qt::MatchStartsWith);
+}
+
+void CStrongsDictionarySearchCompleter::selectFirstMatchString()
+{
+}
+
+void CStrongsDictionarySearchCompleter::setFilterMatchString()
+{
+	assert(m_pStrongsListModel != nullptr);
+	m_strFilterMatchString = m_pStrongsListModel->cursorWord();
+	setCompletionPrefix(m_strFilterMatchString);
+}
+
+void CStrongsDictionarySearchCompleter::setWordsFromPhrase(bool bForceUpdate)
+{
+	Q_UNUSED(bForceUpdate);
+}
+
+#endif
+
+// ============================================================================
