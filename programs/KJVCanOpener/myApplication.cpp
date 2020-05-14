@@ -1559,9 +1559,17 @@ int CMyApplication::execute(bool bBuildDB)
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(), TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strS3DBFilename).absoluteFilePath();
+			QString strKJVSQLDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
+					m_bblDescSelectedForBuild.isValid() ?
+						m_bblDescSelectedForBuild.m_strS3DBFilename :
+						TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strS3DBFilename
+					).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(), TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strCCDBFilename).absoluteFilePath();
+			QString strKJVCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
+					m_bblDescSelectedForBuild.isValid() ?
+						m_bblDescSelectedForBuild.m_strCCDBFilename :
+						TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strCCDBFilename
+					).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));

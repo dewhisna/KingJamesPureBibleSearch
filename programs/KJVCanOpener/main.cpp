@@ -213,7 +213,11 @@ int main(int argc, char *argv[])
 			} else if (bLookingForBibleDB) {
 				bLookingForBibleDB = false;
 				if (strArg.toUInt() < bibleDescriptorCount()) {
+					// Note: Assume this will be for either reading or for building.
+					//	If at the end of parsing options we had no -builddb, then we
+					//	will remove the descriptor:
 					pApp->setSelectedMainBibleDB(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(strArg.toUInt())).m_strUUID);
+					pApp->setSelectedBibleBuildDBDescriptor(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(strArg.toUInt())));
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Bible Database Index \"%1\"", "Errors").arg(strArg));
 				}
@@ -391,6 +395,9 @@ int main(int argc, char *argv[])
 		delete pApp;
 		return 0;
 	}
+
+	// Clear Build Descriptor if we aren't building:
+	if (!bBuildDB) pApp->setSelectedBibleBuildDBDescriptor(TBibleDescriptor());
 
 	pApp->setFileToLoad(strKJSFile);
 	pApp->setTTSServerURL(strTTSServerURL);

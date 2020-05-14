@@ -139,6 +139,7 @@ public:
 
 	QString selectedMainBibleDB() const { return m_strSelectedMainBibleDB; }
 	void setSelectedMainBibleDB(const QString &strUUID) { m_strSelectedMainBibleDB = strUUID; }
+	void setSelectedBibleBuildDBDescriptor(const TBibleDescriptor &desc) { m_bblDescSelectedForBuild = desc; }
 
 	QString selectedMainDictDB() const { return m_strSelectedMainDictDB; }
 	void setSelectedMainDictDB(const QString &strUUID) { m_strSelectedMainDictDB = strUUID; }
@@ -281,6 +282,7 @@ protected:
 	static QPointer<CWebChannelServer> m_pWebChannelServer;	// "Global" singletons for WebChannel
 #endif
 	QString m_strSelectedMainBibleDB;					// Selected (or Default) Main Bible Database UUID
+	TBibleDescriptor m_bblDescSelectedForBuild;			// Selected Bible Database Descriptor when Building Database and using -bbl index (so that filename is correct)
 	QString m_strSelectedMainDictDB;					// Selected (or Default) Main Dictionary Database UUID
 	DelayedExecutionTimer m_dlyNotesFilesAutoSave;		// Delay timer for notes file auto-save trigger
 };
