@@ -402,6 +402,7 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 	// Incoming URL Format:		dict/Web-1828://Word
 	//							dict/Web-1913://Word
 	//							bible://Reference		-> converted to bible/://Reference in ReadDB so that parsing works!!
+	//							strong://TextIndex		-> converted to strong/://TextIndex in ReadDB so that parsing works!!
 
 	QString strAnchor = link.toString();
 
@@ -416,10 +417,19 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 
 	QUrl urlResolved(strAnchor);
 
-	// Scheme = "dict" or "bible"
+	// Scheme = "dict" or "bible" or "strong"
 	// Host = Word/Reference (Note: Reference decode doesn't work correctly as "host", use strValue)
 
 	if (urlResolved.scheme().compare("dict", Qt::CaseInsensitive) == 0) {
+		if (ndxDblSlash != -1) {
+			setWord(strValue, false);
+		} else {
+			setWord(urlResolved.host(), false);
+		}
+	} else if (urlResolved.scheme().compare("strong", Qt::CaseInsensitive) == 0) {
+		if (!(m_pDictionaryDatabase->descriptor().m_dtoFlags & DTO_Strongs)) {
+			// TODO : Find/Load Strongs Dictionary if this isn't it...
+		}
 		if (ndxDblSlash != -1) {
 			setWord(strValue, false);
 		} else {
