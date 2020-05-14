@@ -202,6 +202,7 @@ int main(int argc, char *argv[])
 	bool bLookingForBibleDB = false;
 	bool bLookingForBibleDBUUID = false;
 	bool bLookingForDictDB = false;
+	bool bLookingForDictDBUUID = false;
 	bool bLookingForTTSServerURL = false;
 	bool bLookingForWebChannelHostPort = false;
 	for (int ndx = 1; ndx < argc; ++ndx) {
@@ -231,6 +232,9 @@ int main(int argc, char *argv[])
 				} else {
 					displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized Dictionary Database Index \"%1\"", "Errors").arg(strArg));
 				}
+			} else if (bLookingForDictDBUUID) {
+				bLookingForDictDBUUID = false;
+				pApp->setSelectedMainDictDB(strArg);
 			} else if (bLookingForTTSServerURL) {
 				strTTSServerURL = strArg;
 				bLookingForTTSServerURL = false;
@@ -246,6 +250,7 @@ int main(int argc, char *argv[])
 					(!bLookingForBibleDB) &&
 					(!bLookingForBibleDBUUID) &&
 					(!bLookingForDictDB) &&
+					(!bLookingForDictDBUUID) &&
 					(!bLookingForTTSServerURL) &&
 					(!bLookingForWebChannelHostPort)) {
 			if ((strArg.compare("-h", Qt::CaseInsensitive) == 0) ||
@@ -259,6 +264,8 @@ int main(int argc, char *argv[])
 				bLookingForBibleDBUUID = true;
 			} else if (strArg.compare("-dct", Qt::CaseInsensitive) == 0) {
 				bLookingForDictDB = true;
+			} else if (strArg.compare("-dctuuid", Qt::CaseInsensitive) == 0) {
+				bLookingForDictDBUUID = true;
 			} else if (strArg.compare("-stealth", Qt::CaseInsensitive) == 0) {
 				bStealthMode = true;
 			} else if (strArg.compare("-settings", Qt::CaseInsensitive) == 0) {
@@ -294,6 +301,10 @@ int main(int argc, char *argv[])
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForDictDB = false;
 			}
+			if (bLookingForDictDBUUID) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor UUID, but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForDictDBUUID = false;
+			}
 			if (bLookingForTTSServerURL) {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Text-To-Speech Server URL, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForTTSServerURL = false;
@@ -320,6 +331,10 @@ int main(int argc, char *argv[])
 	}
 	if (bLookingForDictDB) {
 		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor Index, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForDictDBUUID) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Dictionary Descriptor UUID, but none was specified.", "Errors"));
 		bBadArgs = true;
 	}
 	if (bLookingForTTSServerURL) {
@@ -352,6 +367,8 @@ int main(int argc, char *argv[])
 			std::cout << QString("    %1 : %2\n").arg(dbNdx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx)).m_strDBDesc).toUtf8().data();
 		}
 		std::cout << "\n";
+		std::cout << "-dctuuid <uuid> = Dictionary Database UUID to use\n";
+		std::cout << "               (for initial search window)\n";
 		std::cout << "-dct <indx>  = Dictionary Database Index to use\n";
 		std::cout << "               (for initial search window)\n";
 		for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
