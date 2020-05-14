@@ -676,7 +676,7 @@ bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QStr
 			m_vctParseState.push_back(SIPSE_REFERENCE);
 		}	// Ignore references with no target
 	}
-	// Ignore other elements, like 'lb'
+	// Ignore other elements, like 'lb' (lb will get converted in the endElement)
 
 	return true;
 }
@@ -773,8 +773,10 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 			m_vctParseState.pop_back();
 			characters("</a>");
 		}
+	} else if (localName.compare("lb", Qt::CaseInsensitive) == 0) {
+		characters("<br/>");
 	}
-	// Ignore other elements, like 'lb'
+	// Ignore other elements
 
 	return true;
 }
