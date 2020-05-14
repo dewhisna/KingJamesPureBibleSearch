@@ -520,6 +520,7 @@ class CStrongsImpXmlHandler : public QXmlDefaultHandler
 public:
 	CStrongsImpXmlHandler(const QString &strExpectedTextIndex)
 		:	m_strongsEntry(strExpectedTextIndex),
+			m_bRefIsStrongs(false),
 			m_strExpectedTextIndex(strExpectedTextIndex)
 	{ }
 
@@ -546,6 +547,8 @@ private:
 	CStrongsEntry m_strongsEntry;
 
 	QVector<STRONGS_IMP_PARSER_STATE> m_vctParseState;	// Parse State Stack
+	bool m_bRefIsStrongs;						// Set to True in the SIPSE_REFERENCE state if the reference is for Strongs
+	QString m_strRefText;						// Text inside the <a> tags for references for Strongs format conversion
 	QString m_strExpectedTextIndex;				// Strongs Text Index expected from IMP file during construction of this parser (ex: 'G0001')
 	QString m_strErrorString;
 
@@ -672,7 +675,9 @@ bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QStr
 		ndx = findAttribute(atts, "target");
 		if (ndx != -1) {
 			// Push the reference attribute into current text element before we push the reference state
-			characters(QString("<a target=\"%1\">").arg(atts.value(ndx).replace("Strong:", "strong://", Qt::CaseInsensitive)));
+			m_bRefIsStrongs = (atts.value(ndx).indexOf("Strong:", 0, Qt::CaseInsensitive) >= 0);
+			m_strRefText.clear();
+			characters(QString("<a href=\"%1\">").arg(atts.value(ndx).replace("Strong:", "strong://", Qt::CaseInsensitive)));
 			m_vctParseState.push_back(SIPSE_REFERENCE);
 		}	// Ignore references with no target
 	}
@@ -770,6 +775,11 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 	} else if (localName.compare("ref", Qt::CaseInsensitive) == 0) {
 		assert(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_REFERENCE) {
+			if (m_bRefIsStrongs) {
+				m_bRefIsStrongs = false;		// Clear flag so character push goes to parent:
+				CStrongsEntry tmpEntry(m_strRefText);
+				characters(tmpEntry.strongsTextIndex());
+			}
 			m_vctParseState.pop_back();
 			characters("</a>");
 		}
@@ -785,6 +795,11 @@ bool CStrongsImpXmlHandler::characters(const QString &ch)
 {
 	assert(!m_vctParseState.isEmpty());
 	STRONGS_IMP_PARSER_STATE parseState = m_vctParseState.back();
+
+	if ((parseState == SIPSE_REFERENCE) && m_bRefIsStrongs) {
+		m_strRefText += ch;
+		return true;
+	}
 
 	// Push data inside references and render elements up to
 	//	the parent element:
