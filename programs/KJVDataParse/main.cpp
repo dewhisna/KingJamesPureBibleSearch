@@ -672,7 +672,7 @@ bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QStr
 		ndx = findAttribute(atts, "target");
 		if (ndx != -1) {
 			// Push the reference attribute into current text element before we push the reference state
-			characters(QString("<a target=\"%1\">").arg(atts.value(ndx).replace("Strong:", "strong/://", Qt::CaseInsensitive)));
+			characters(QString("<a target=\"%1\">").arg(atts.value(ndx).replace("Strong:", "strong://", Qt::CaseInsensitive)));
 			m_vctParseState.push_back(SIPSE_REFERENCE);
 		}	// Ignore references with no target
 	}
