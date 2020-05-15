@@ -440,16 +440,10 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 				(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
 				(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_dtoFlags & DTO_IgnoreLang)) {
 				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
-				if (!pDictDatabase.isNull()) {
-					return pDictDatabase;
-				} else {
+				if (!pDictDatabase.isNull()) return pDictDatabase;
 #ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
-					if (TDictionaryDatabaseList::loadDictionaryDatabase(strUUIDSelMain, false, pParentWidget)) {
-						pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
-						assert(!pDictDatabase.isNull());
-						if (!pDictDatabase.isNull()) return pDictDatabase;
-					}
-				}
+				pDictDatabase = TDictionaryDatabaseList::loadDictionaryDatabase(strUUIDSelMain, false, pParentWidget);
+				if (!pDictDatabase.isNull()) return pDictDatabase;
 #endif
 			}
 		}
@@ -473,11 +467,8 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		if ((strLanguage.isEmpty()) ||
 			(lstAvailableDictDescs.at(ndx).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
 			(lstAvailableDictDescs.at(ndx).m_dtoFlags & DTO_IgnoreLang)) {
-			if (TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableDictDescs.at(ndx).m_strUUID, false, pParentWidget)) {
-				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
-				assert(!pDictDatabase.isNull());
-				if (!pDictDatabase.isNull()) return pDictDatabase;
-			}
+			pDictDatabase = TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableDictDescs.at(ndx).m_strUUID, false, pParentWidget);
+			if (!pDictDatabase.isNull()) return pDictDatabase;
 		}
 	}
 #endif
@@ -485,9 +476,55 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	return CDictionaryDatabasePtr();
 }
 
-bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
+CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadStrongsDictionary(const QString &strBibleUUID, const QString &strLanguage, QWidget *pParentWidget)
 {
-	if (strUUID.isEmpty()) return false;
+	// First, since the Strong's Database is generally integral to the Bible
+	//	Database, see if the specified Bible Database UUID is a dictionary too,
+	//	and if so return it as top preference:
+	if (!strBibleUUID.isEmpty()) {
+		CDictionaryDatabasePtr pDictDatabase = loadDictionaryDatabase(strBibleUUID, false, pParentWidget);
+		if (!pDictDatabase.isNull()) return pDictDatabase;
+	}
+
+	TDictionaryDescriptor preferredDesc = { DTO_None, "", "", "", "", "", "" };
+	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = availableDictionaryDatabases();
+
+	// First try to find the best matching the language given:
+	if (strLanguage.isEmpty()) {
+		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+			const TDictionaryDescriptor &dctDesc = lstAvailableDictDescs.at(ndx);
+			if (!(dctDesc.m_dtoFlags & DTO_Strongs)) continue;
+
+			if ((!dctDesc.m_strLanguage.isEmpty()) &&
+				(strLanguage.compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
+				if ((!preferredDesc.isValid()) ||
+					(!(preferredDesc.m_dtoFlags & DTO_Preferred) && (dctDesc.m_dtoFlags & DTO_Preferred))) {
+					preferredDesc = dctDesc;
+				}
+			}
+		}
+	}
+	// Next try to find the best matching without language:
+	if (!preferredDesc.isValid() || !(preferredDesc.m_dtoFlags & DTO_Preferred)) {
+		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+			const TDictionaryDescriptor &dctDesc = lstAvailableDictDescs.at(ndx);
+			if (!(dctDesc.m_dtoFlags & DTO_Strongs)) continue;
+
+			if ((!preferredDesc.isValid()) ||
+				(!(preferredDesc.m_dtoFlags & DTO_Preferred) && (dctDesc.m_dtoFlags & DTO_Preferred))) {
+				preferredDesc = dctDesc;
+			}
+		}
+	}
+
+	return loadDictionaryDatabase(preferredDesc.m_strUUID, false, pParentWidget);
+}
+
+CDictionaryDatabasePtr TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain, QWidget *pParent)
+{
+	if (strUUID.isEmpty()) return CDictionaryDatabasePtr();
+	CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
+	if (!pDictDatabase.isNull()) return pDictDatabase;
 	TDictionaryDescriptor dctDesc = availableDictionaryDatabaseDescriptor(strUUID);
 	CBusyCursor iAmBusy(nullptr);
 	CReadDatabase rdbMain(pParent);
@@ -510,9 +547,9 @@ bool TDictionaryDatabaseList::loadDictionaryDatabase(const QString &strUUID, boo
 #else
 		displayWarning(pParent, tr("Load Dictionary Database", "Errors"), tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
 #endif
-		return false;
+		return CDictionaryDatabasePtr();
 	}
-	return true;
+	return rdbMain.dictionaryDatabase();
 }
 
 void TDictionaryDatabaseList::setMainDictionaryDatabase(const QString &strUUID)

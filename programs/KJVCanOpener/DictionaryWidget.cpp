@@ -427,13 +427,19 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 			setWord(urlResolved.host(), false);
 		}
 	} else if (urlResolved.scheme().compare("strong", Qt::CaseInsensitive) == 0) {
+#ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 		if (!(m_pDictionaryDatabase->descriptor().m_dtoFlags & DTO_Strongs)) {
-			// TODO : Find/Load Strongs Dictionary if this isn't it...
+			CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::locateAndLoadStrongsDictionary(QString(), m_pDictionaryDatabase->language(), this);
+			if (!pDictDatabase.isNull()) {
+				m_pDictionaryDatabase = pDictDatabase;
+				ui.editDictionaryWord->setDictionary(pDictDatabase);
+			}
 		}
+#endif
 		if (ndxDblSlash != -1) {
-			setWord(strValue, false);
+			setWord(strValue.toUpper(), false);
 		} else {
-			setWord(urlResolved.host(), false);
+			setWord(urlResolved.host().toUpper(), false);
 		}
 	} else if (urlResolved.scheme().compare("bible", Qt::CaseInsensitive) == 0) {
 		if (ndxDblSlash != -1) {
@@ -556,12 +562,8 @@ void CDictionaryWidget::en_selectDictionary(QAction *pAction)
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
 #ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 		if (pDictDatabase.isNull()) {
-			if (TDictionaryDatabaseList::instance()->loadDictionaryDatabase(strUUID, false, this)) {
-				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUID);
-				assert(!pDictDatabase.isNull());
-			} else {
-				return;
-			}
+			pDictDatabase = TDictionaryDatabaseList::instance()->loadDictionaryDatabase(strUUID, false, this);
+			if (pDictDatabase.isNull()) return;
 		}
 #else
 		assert(!pDictDatabase.isNull());

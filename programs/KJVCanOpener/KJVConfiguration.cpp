@@ -1441,8 +1441,8 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 
 	QString strUUID = ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString();
 	// Must set main dict first so list model will update correctly:
-	if (TDictionaryDatabaseList::instance()->atUUID(strUUID).isNull()) TDictionaryDatabaseList::loadDictionaryDatabase(strUUID, false, this);
-	TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(strUUID);
+	TDictionaryDatabaseList::loadDictionaryDatabase(strUUID, false, this);
+	TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(strUUID);	// Set separately here since bAutoSetAsMain arg in call above only sets it if it isn't set
 	CPersistentSettings::instance()->setMainDictDatabaseUUID(ui.comboBoxMainDictDatabaseSelect->itemData(index, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
 	m_pDictDatabaseListModel->setData(strUUID, m_pDictDatabaseListModel->data(strUUID, Qt::CheckStateRole), Qt::CheckStateRole);		// Update entry to same check to force status text update
 	setSettingControls();

@@ -55,6 +55,9 @@ public:
 	bool ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain = false);		// If an absolute path is given, it's used, else the path is considered relative to m_strBibleDatabasePath
 	bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
 
+	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
+	CDictionaryDatabasePtr dictionaryDatabase() const { return m_pDictionaryDatabase; }
+
 	TBibleDescriptor discoverCCDBBibleDatabase(const QString &strFilePathName);
 	TBibleDescriptor discoverS3DBBibleDatabase(const QString &strFilePathName);
 

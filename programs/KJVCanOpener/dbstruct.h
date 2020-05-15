@@ -1757,8 +1757,9 @@ public:
 	}
 
 	static CDictionaryDatabasePtr locateAndLoadDictionary(const QString &strLanguage, QWidget *pParentWidget = nullptr);		// Locates and loads the best candidate dictionary for the specified language based on MainDictionary and DictionaryLoad settings
+	static CDictionaryDatabasePtr locateAndLoadStrongsDictionary(const QString &strBibleUUID, const QString &strLanguage, QWidget *pParentWidget = nullptr);		// Locates and loads the best candidate Strong's Dictionary for the specified language and DictionaryLoad settings
 
-	static bool loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
+	static CDictionaryDatabasePtr loadDictionaryDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
 	CDictionaryDatabasePtr mainDictionaryDatabase() const { return m_pMainDictionaryDatabase; }
 	void setMainDictionaryDatabase(const QString &strUUID);
 	bool haveMainDictionaryDatabase() const { return (!m_pMainDictionaryDatabase.isNull()); }
