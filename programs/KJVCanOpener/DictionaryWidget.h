@@ -73,7 +73,6 @@ protected:
 private:
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
 	SearchCompleter_t *m_pCompleter;			// Word completer
-	bool m_bUpdateInProgress;
 	DelayedExecutionTimer m_dlyUpdateCompleter;		// Activation delay for completer update to avoid extra updates
 };
 

@@ -39,8 +39,7 @@
 
 CDictionaryLineEdit::CDictionaryLineEdit(QWidget *pParent)
 	:	CSingleLineTextEdit(DICTIONARY_COMPLETER_BUTTON_SIZE_Y, pParent),
-		m_pCompleter(nullptr),
-		m_bUpdateInProgress(false)
+		m_pCompleter(nullptr)
 {
 
 }
