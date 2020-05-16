@@ -432,6 +432,7 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 		} else {
 			setWord(urlResolved.host(), false);
 		}
+		en_wordChanged();		// Trigger immediately so we don't have the m_dlyTextChanged time delay
 	} else if (urlResolved.scheme().compare("strong", Qt::CaseInsensitive) == 0) {
 #ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 		if (!(m_pDictionaryDatabase->descriptor().m_dtoFlags & DTO_Strongs)) {
@@ -447,6 +448,7 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 		} else {
 			setWord(urlResolved.host().toUpper(), false);
 		}
+		en_wordChanged();		// Trigger immediately so we don't have the m_dlyTextChanged time delay
 	} else if (urlResolved.scheme().compare("bible", Qt::CaseInsensitive) == 0) {
 		if (ndxDblSlash != -1) {
 			if (!(m_pDictionaryDatabase->flags() & DTO_DisableTracking)) {
