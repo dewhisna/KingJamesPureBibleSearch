@@ -202,7 +202,11 @@
 					} else {
 						basePort = "9340";
 					}
-					baseUrl = "ws://" + location.host + ":" + basePort;
+					if (location.protocol !== "https:") {
+						baseUrl = "ws://" + location.host + ":" + basePort;
+					} else {
+						baseUrl = "wss://" + location.host + "/ws/";
+					}
 				}
 				output("Connecting to WebSocket server at " + baseUrl + ".");
 				var socket = new WebSocket(baseUrl);
@@ -331,7 +335,7 @@
 // ndxBrowserCurrent is obsolete (doesn't make much sense) if we employ caching:
 //							ndxBrowserCurrent = ndxRel;
 
-							addPage(nChp, strHtmlScripture + '<div class="kjpbs_link"><a href="http://www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>');
+							addPage(nChp, strHtmlScripture + '<div class="kjpbs_link"><a href="//www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>');
 
 							var opts = strParam.split(",");
 							// Select the text from the navigation if 'highlightAnchor' option and anchor is valid:
@@ -1601,7 +1605,7 @@
 						<tr>
 							<td>
 								<hr />
-								<div class="kjpbs_link"><a href="http://www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>
+								<div class="kjpbs_link"><a href="//www.purebiblesearch.com/" target="_blank">Visit PureBibleSearch.com</a></div>
 								<hr />
 							</td>
 						</tr>
