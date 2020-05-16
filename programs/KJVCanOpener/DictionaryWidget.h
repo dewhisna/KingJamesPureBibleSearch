@@ -36,6 +36,7 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QPointer>
+#include <QUrl>
 
 // ============================================================================
 
@@ -138,6 +139,7 @@ private:
 	bool m_bIgnoreNextWordChange;	// Used to ignore the automatic word update when navigating to a passage via an embedded link, as that is annoying
 	QString m_strLastWordDictionaryUUID;	// UUID of the dictionary used to display the last word whose definition is displayed.  Used to determine if an update is needed on database change
 	bool m_bHaveURLLastWord;		// Set to true if we have a valid word URL for our last word -- cleared when we encounter an unfound word.  This is needed so that entering an invalid word and then entering the same previous valid word will actually navigate to it.
+	QUrl m_urlLastWord;				// Last word URL navigated to
 	Ui::CDictionaryWidget ui;
 };
 

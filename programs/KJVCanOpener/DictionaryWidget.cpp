@@ -355,13 +355,17 @@ void CDictionaryWidget::en_wordChanged()
 {
 	QString strWord = ui.editDictionaryWord->toPlainText().trimmed();
 
-	QUrl strURLLastWord = ui.definitionBrowser->source();
+	// Note: if we read the ui.definitionBrowser->source() here in
+	//	response to an en_wordChanged event caused by an en_sourceChanged
+	//	event, the source we would read will have already been updated.
+	//	Therefore, we must compare against the source we saved from the
+	//	last comparison...
 
 	if (m_bIgnoreNextWordChange) {
 		m_bIgnoreNextWordChange = false;
 		m_bDoingUpdate = true;
 		// Restore last word:
-		if (strURLLastWord.hasFragment()) setWord(strURLLastWord.fragment(), false);
+		if (m_urlLastWord.hasFragment()) setWord(m_urlLastWord.fragment(), false);
 		m_bDoingUpdate = false;
 		return;
 	}
@@ -373,19 +377,22 @@ void CDictionaryWidget::en_wordChanged()
 	//		changed, in which case we need to trigger an update to display the
 	//		definition for the new dictionary:
 	if (m_bHaveURLLastWord &&
-		strURLLastWord.hasFragment() && (strURLLastWord.fragment() == strWord) &&
+		m_urlLastWord.hasFragment() && (m_urlLastWord.fragment() == strWord) &&
 		(m_pDictionaryDatabase->compatibilityUUID() == m_strLastWordDictionaryUUID)) return;
 
 	m_strLastWordDictionaryUUID = m_pDictionaryDatabase->compatibilityUUID();
-	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(strWord));
 	if (m_pDictionaryDatabase->wordExists(strWord)) {
 		m_bDoingUpdate = true;
 		ui.definitionBrowser->setSource(QUrl(QString("#%1").arg(strWord)));
+		m_urlLastWord = ui.definitionBrowser->source();
 		m_bHaveURLLastWord = true;
 		m_bDoingUpdate = false;
 	} else {
 		m_bHaveURLLastWord = false;
 	}
+	// Must set this AFTER setting the source above or else setting the
+	//	source the first time will clear us:
+	ui.definitionBrowser->setHtml(m_pDictionaryDatabase->definition(strWord));
 }
 
 void CDictionaryWidget::en_sourceChanged(const QUrl &src)
