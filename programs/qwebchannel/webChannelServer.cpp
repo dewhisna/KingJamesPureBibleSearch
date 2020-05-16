@@ -27,6 +27,7 @@
 #include "webChannelGeoLocate.h"
 #include <QUrl>
 #include <QWebSocket>
+#include <QNetworkRequest>
 #include <QCoreApplication>
 
 #include <QDateTime>
@@ -212,7 +213,7 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 #if DEBUG_WEBCHANNEL_SERVER_CONNECTIONS
 	qDebug("Client Connection from: \"%s\" (%s) port %d  --  %d Connections",
 			pClient->socket()->peerName().toUtf8().data(),
-			pClient->socket()->peerAddress().toString().toUtf8().data(),
+			peerAddressOfSocket(pClient).toUtf8().data(),
 			pClient->socket()->peerPort(),
 			m_mapChannels.size());
 #endif
@@ -220,7 +221,7 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 	std::cout << QString("%1 UTC : Connected : \"%2\" (%3) port %4 -- %5 Connections\n")
 							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(pClient->socket()->peerName())
-							.arg(pClient->socket()->peerAddress().toString())
+							.arg(peerAddressOfSocket(pClient))
 							.arg(pClient->socket()->peerPort())
 							.arg(m_mapChannels.size())
 							.toUtf8().data();
@@ -228,7 +229,7 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 #endif
 
 	// Trigger GeoLocate:
-	m_pGeoLocater->locate(pClientChannel, pClient->socket()->peerAddress().toString());
+	m_pGeoLocater->locate(pClientChannel, peerAddressOfSocket(pClient));
 }
 
 void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
@@ -242,7 +243,7 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 #if DEBUG_WEBCHANNEL_SERVER_CONNECTIONS
 	qDebug("Client Disconnection from: \"%s\" (%s) port %d  --  %d Connections",
 			pClient->socket()->peerName().toUtf8().data(),
-			pClient->socket()->peerAddress().toString().toUtf8().data(),
+			peerAddressOfSocket(pClient).toUtf8().data(),
 			pClient->socket()->peerPort(),
 			m_mapChannels.size());
 #endif
@@ -250,7 +251,7 @@ void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 	std::cout << QString("%1 UTC : Disconnected : \"%2\" (%3) port %4 -- %5 Connections\n")
 							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(pClient->socket()->peerName())
-							.arg(pClient->socket()->peerAddress().toString())
+							.arg(peerAddressOfSocket(pClient))
 							.arg(pClient->socket()->peerPort())
 							.arg(m_mapChannels.size())
 							.toUtf8().data();
@@ -361,7 +362,7 @@ void CWebChannelServer::close()
 #if DEBUG_WEBCHANNEL_SERVER_CONNECTIONS
 		qDebug("Client Disconnection from: \"%s\" (%s) port %d  --  %d Connections",
 				itrClientMap.key()->socket()->peerName().toUtf8().data(),
-				itrClientMap.key()->socket()->peerAddress().toString().toUtf8().data(),
+				peerAddressOfSocket(itrClientMap.key()).toUtf8().data(),
 				itrClientMap.key()->socket()->peerPort(),
 				nNumConnections);
 #endif
@@ -369,7 +370,7 @@ void CWebChannelServer::close()
 	std::cout << QString("%1 UTC : Disconnected : \"%2\" (%3) port %4 -- %5 Connections\n")
 							.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 							.arg(itrClientMap.key()->socket()->peerName())
-							.arg(itrClientMap.key()->socket()->peerAddress().toString())
+							.arg(peerAddressOfSocket(itrClientMap.key()))
 							.arg(itrClientMap.key()->socket()->peerPort())
 							.arg(nNumConnections)
 							.toUtf8().data();
@@ -393,7 +394,7 @@ void CWebChannelServer::close()
 bool CWebChannelServer::disconnectClient(const QString &strClientIP, const QString &strClientPort)
 {
 	for (TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin(); itrClientMap != m_mapChannels.end(); ++itrClientMap) {
-		if ((itrClientMap.key()->socket()->peerAddress().toString().compare(strClientIP, Qt::CaseInsensitive) == 0) &&
+		if ((peerAddressOfSocket(itrClientMap.key()).compare(strClientIP, Qt::CaseInsensitive) == 0) &&
 			(itrClientMap.key()->socket()->peerPort() == strClientPort.toUInt())) {
 			itrClientMap.key()->socket()->close(QWebSocketProtocol::CloseCodeGoingAway, "disconnectClient");
 			return true;
@@ -418,7 +419,7 @@ bool CWebChannelServer::sendMessage(const QString &strClientIP, const QString &s
 {
 	TWebChannelClientMap::iterator itrClientMap = m_mapChannels.begin();
 	do {
-		if ((itrClientMap.key()->socket()->peerAddress().toString().compare(strClientIP, Qt::CaseInsensitive) == 0) &&
+		if ((peerAddressOfSocket(itrClientMap.key()).compare(strClientIP, Qt::CaseInsensitive) == 0) &&
 			(itrClientMap.key()->socket()->peerPort() == strClientPort.toUInt())) {
 			break;
 		}
@@ -443,7 +444,7 @@ void CWebChannelServer::setClientThreadIndex(const CWebChannelClient *pClient)
 			std::cout << QString("%1 UTC : Setting Thread : \"%2\" (%3) port %4 : Index %5\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(peerAddressOfSocket(itrClientMap.key()))
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->threadIndex())
 									.toUtf8().data();
@@ -463,7 +464,7 @@ void CWebChannelServer::setClientIdle(const CWebChannelClient *pClient)
 			std::cout << QString("%1 UTC : Idle Status : \"%2\" (%3) port %4 : %5\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(peerAddressOfSocket(itrClientMap.key()))
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->isIdle() ? "Idle" : "Active")
 									.toUtf8().data();
@@ -483,7 +484,7 @@ void CWebChannelServer::killClient(const CWebChannelClient *pClient)
 			std::cout << QString("%1 UTC : Killing Unresponsive Client : \"%2\" (%3) port %4\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(peerAddressOfSocket(itrClientMap.key()))
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.toUtf8().data();
 			std::cout.flush();
@@ -503,7 +504,7 @@ void CWebChannelServer::setClientUserAgent(const CWebChannelClient *pClient)
 			std::cout << QString("%1 UTC : UserAgent : \"%2\" (%3) port %4 : %5\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(peerAddressOfSocket(itrClientMap.key()))
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(pClientChannel->userAgent())
 									.toUtf8().data();
@@ -526,7 +527,7 @@ void CWebChannelServer::setClientBibleUUID(const CWebChannelClient *pClient)
 											"%1 UTC : Select Bible : \"%2\" (%3) port %4 : invalid/unknown%5%6\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(peerAddressOfSocket(itrClientMap.key()))
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(bValid ? pClientChannel->bibleUUID() : QString())
 									.arg(bValid ? pBibleDatabase->description() : QString())
@@ -551,7 +552,7 @@ void CWebChannelServer::setClientLocation(const CWebChannelClient *pClient, cons
 			std::cout << QString("%1 UTC : GeoLocate : \"%2\" (%3) port %4 : %5\n")
 									.arg(QDateTime::currentDateTimeUtc().toString(Qt::ISODate))
 									.arg(itrClientMap.key()->socket()->peerName())
-									.arg(itrClientMap.key()->socket()->peerAddress().toString())
+									.arg(peerAddressOfSocket(itrClientMap.key()))
 									.arg(itrClientMap.key()->socket()->peerPort())
 									.arg(strLocationInfo)
 									.toUtf8().data();
@@ -585,6 +586,27 @@ void CWebChannelServer::stopListening()
 void CWebChannelServer::startListening()
 {
 	if (!m_server.isListening()) m_server.listen(m_HostAddress, m_nHostPort);
+}
+
+// ----------------------------------------------------------------------------
+
+// Helper function to resolve the Client IP address.  This is needed to support
+//	connections through webserver reverse proxy so that we return the IP address
+//	of the client connection and not the websever.
+//	This will return the regular peerAddress unless there's an X-Forwarded-For
+//	header present:
+QString CWebChannelServer::peerAddressOfSocket(const WebSocketTransport *pClient)
+{
+	assert(pClient != nullptr);
+	QString strPeerAddress = pClient->socket()->peerAddress().toString();
+
+#if QT_VERSION >= 0x050600		// QWebSocket::request() was added in Qt 5.6
+	if (pClient->socket()->request().hasRawHeader(QString("X-Forwarded-For").toUtf8())) {
+		strPeerAddress = pClient->socket()->request().rawHeader(QString("X-Forwarded-For").toUtf8());
+	}
+#endif
+
+	return strPeerAddress;
 }
 
 // ============================================================================

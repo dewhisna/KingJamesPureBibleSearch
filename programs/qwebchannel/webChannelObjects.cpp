@@ -287,7 +287,7 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 		CMMDBLookup mmdb;
 		QString strJSON;
 		QByteArray baData;
-		QString strIPAddress = itrChannels.key()->socket()->peerAddress().toString();
+		QString strIPAddress = CWebChannelServer::peerAddressOfSocket(itrChannels.key());
 		if (mmdb.lookup(strJSON, strIPAddress)) {
 			baData = strJSON.toUtf8();
 			QJsonParseError jsonError;
@@ -352,7 +352,7 @@ void CWebChannelAdminObjects::getConnectionsList(const QString &strKey)
 
 		strClients += QString("<tr><td>%1</td><td>%2</td><td>:%3</td><td style=\"text-align:center;\">%4</td><td>%5</td><td style=\"text-align:center;\">%6</td><td style=\"white-space:nowrap;\">%7</td><td style=\"white-space:nowrap;\">%8</td></tr>\n")
 					.arg(itrChannels.key()->socket()->peerName() + (bAdmin ? QString("%1(Admin)").arg(!itrChannels.key()->socket()->peerName().isEmpty() ? " " : "") : ""))
-					.arg(itrChannels.key()->socket()->peerAddress().toString())
+					.arg(CWebChannelServer::peerAddressOfSocket(itrChannels.key()))
 					.arg(itrChannels.key()->socket()->peerPort())
 					.arg(!pClientChannel.isNull() ? pClientChannel->threadIndex() : -1)
 					.arg(!pClientChannel.isNull() ? pClientChannel->connectionTime() : "")

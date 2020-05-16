@@ -125,6 +125,8 @@ public:
 	void setClientUserAgent(const CWebChannelClient *pClient);
 	void setClientBibleUUID(const CWebChannelClient *pClient);
 
+	static QString peerAddressOfSocket(const WebSocketTransport *pClient);
+
 protected:
 	friend class CWebChannelAdminObjects;
 
