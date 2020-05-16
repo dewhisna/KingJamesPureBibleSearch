@@ -2903,6 +2903,50 @@ crontab -e
     # end of crontab
 
 
+-----------------------
+Setting up LetsEncrypt:
+-----------------------
+(Proxy stuff needed for WebChannel reverse proxy for secure connection)
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo a2enmod proxy_wstunnel
+sudo a2enmod remoteip
+
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt-get update
+sudo apt-get install certbot python3-certbot-apache
+
+Edit the /etc/apache2/sites-available files for mediadrop.conf and mediadropdev.conf
+and comment out the WSGI entries completely (for example):
+
+#	WSGIDaemonProcess mcore \
+#	   processes=2 \
+#	   threads=1 \
+#	   display-name=%{GROUP} \
+#	   python-home=/var/www/mediadrop/venv \
+#	   python-path=/var/www/mediadrop/venv/lib/python2.7/site-packages \
+#	   python-eggs=/var/www/mediadrop/data/python-egg-cache
+#
+#	WSGIProcessGroup mcore
+#
+#	# Intercept all requests to /media/* and pass them to mediadrop.wsgi
+#	WSGIScriptAlias /media /var/www/mediadrop/mod_wsgi/mediadrop.wsgi
+
+Then, run:
+sudo certbot --apache
+
+After configuration, reedit the above files and uncomment them completely
+in the newly generated *-le-ssl.conf files, but only uncomment the last
+two entries in the mediadrop.conf/mediadropdev.conf non-ssl version (example):
+
+	WSGIProcessGroup mcore
+
+	# Intercept all requests to /media/* and pass them to mediadrop.wsgi
+	WSGIScriptAlias /media /var/www/mediadrop/mod_wsgi/mediadrop.wsgi
+
+And restart the server:
+sudo service apache2 restart
+
 
 ===============================================================================
 ===============================================================================
