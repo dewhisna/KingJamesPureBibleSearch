@@ -1196,7 +1196,9 @@ CStrongsDictionarySearchCompleter::CStrongsDictionarySearchCompleter(CDictionary
 {
 	m_pStrongsListModel = new CSearchStrongsDictionaryListModel(pDictionary, editorWord, this);
 	setModel(m_pStrongsListModel);
+#if QT_VERSION >= 0x050200		// Filter Mode was introduced in Qt 5.2
 	setFilterMode(Qt::MatchStartsWith);
+#endif
 }
 
 void CStrongsDictionarySearchCompleter::selectFirstMatchString()

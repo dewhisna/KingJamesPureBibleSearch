@@ -258,9 +258,9 @@ void CVerseTextRichifier::writeLemma(CRichifierBaton &parseBaton) const
 	if (parseBaton.m_bOutput && parseBaton.m_bUsesHTML) {
 		if (parseBaton.m_pCurrentLemma) {
 			parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">%1&nbsp;</span><span class=\"stack\">%2&nbsp;</span><span class=\"stack\">%3&nbsp;</span>")
-												.arg(parseBaton.m_pCurrentLemma->text().join(' '))
-												.arg(parseBaton.m_pCurrentLemma->strongs().join(' '))
-												.arg(parseBaton.m_pCurrentLemma->morph().join(' ')));
+												.arg(parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
+												.arg(parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
+												.arg(parseBaton.m_pCurrentLemma->morph().join(QChar(' '))));
 		} else {
 			parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span>"));
 		}

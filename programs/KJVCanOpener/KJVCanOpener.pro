@@ -60,6 +60,8 @@ testlib:QT.testlib.CONFIG -= console
 
 console:DEFINES += IS_CONSOLE_APP
 
+!console:lessThan(QT_MAJOR_VERSION,5):DEFINES *= QT_WIDGETS_LIB
+
 # Include QWebChannel support on Qt 5.5+, if it's been selected:
 unix:!emscripten:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG *= webchannel
 webchannel:include(../qwebchannel/qwebchannel.pri)

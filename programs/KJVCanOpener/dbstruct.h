@@ -810,7 +810,12 @@ public:
 		// QHash). Therefore, provide a commutative combiner, too.
 		typedef uint result_type;
 		template <typename T>
+#if QT_VERSION >= 0x050000
 		Q_DECL_CONSTEXPR result_type operator()(uint seed, const T &t) const Q_DECL_NOEXCEPT_EXPR(noexcept(qHash(t)))
+#else
+		// Backward compatibility for old VNC 4.8.7 build:
+		constexpr result_type operator()(uint seed, const T &t) const noexcept(noexcept(qHash(t)))
+#endif
 		{ return seed + qHash(t); } // don't use xor!
 	};
 
@@ -836,7 +841,12 @@ public:
 	int removeDuplicates();
 };
 
+#if QT_VERSION >= 0x050000
 Q_DECL_CONST_FUNCTION Q_DECL_PURE_FUNCTION inline uint qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
+#else
+// Backward compatibility for old VNC 4.8.7 build:
+__attribute__((const)) __attribute__((pure)) inline uint qHash(const CPhraseEntry &key, uint seed = 0) noexcept
+#endif
 {
 	// Note: Aren't hashing "disable" because it doesn't affect the main key value equality
 	std::vector<uint> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };

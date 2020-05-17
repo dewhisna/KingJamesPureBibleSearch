@@ -36,7 +36,7 @@ typedef QStyleOptionFrame QStyleOptionFrameV2_t;
 #include <QStyleOptionViewItemV4>
 typedef QStyleOptionViewItemV4 QStyleOptionViewItemV4_t;
 
-#include <QStyleOptionFrame2>
+#include <QStyleOptionFrameV2>
 typedef QStyleOptionFrameV2 QStyleOptionFrameV2_t;
 #endif
 
