@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 	tsOut << QString("\t\t<Style id=\"pinned_scroll\">\n");
 	tsOut << QString("\t\t\t<IconStyle>\n");
 	tsOut << QString("\t\t\t\t<Icon>\n");
-	tsOut << QString("\t\t\t\t\t<href>http://webchannel.purebiblesearch.com/pinned-scroll.png</href>\n");
+	tsOut << QString("\t\t\t\t\t<href>https://webchannel.purebiblesearch.com/pinned-scroll.png</href>\n");
 	tsOut << QString("\t\t\t\t</Icon>\n");
 	tsOut << QString("\t\t\t</IconStyle>\n");
 	tsOut << QString("\t\t</Style>\n");

@@ -119,8 +119,8 @@ namespace {
 		"Revelation"
 	};
 
-	const QString g_constrFCBHNonDramaURL = "http://audios.dewtronics.com/KingJamesBible/ON_NonDrama/%1";
-	const QString g_constrFCBHDramaURL = "http://audios.dewtronics.com/KingJamesBible/ON_Drama/%1";
+	const QString g_constrFCBHNonDramaURL = "https://audios.dewtronics.com/KingJamesBible/ON_NonDrama/%1";
+	const QString g_constrFCBHDramaURL = "https://audios.dewtronics.com/KingJamesBible/ON_Drama/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -194,7 +194,7 @@ namespace {
 		"Revelations",
 	};
 
-	const QString g_constrScourbyNDURL = "http://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama/%1";
+	const QString g_constrScourbyNDURL = "https://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama/%1";
 
 	// Book names as they appear on the Scourby NonDrama recording #2 files:
 	const QString g_arrconstrScourbyND2Books[NUM_BK] = {
@@ -266,7 +266,7 @@ namespace {
 		"Revelation"
 	};
 
-	const QString g_constrScourbyND2URL = "http://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama2/%1";
+	const QString g_constrScourbyND2URL = "https://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama2/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -410,7 +410,7 @@ namespace {
 		"Rev"
 	};
 
-	const QString g_constrScourbyWDURL = "http://audios.dewtronics.com/KingJamesBible/Scourby/Drama/%1";
+	const QString g_constrScourbyWDURL = "https://audios.dewtronics.com/KingJamesBible/Scourby/Drama/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -484,7 +484,7 @@ namespace {
 		"Revelation"
 	};
 
-	const QString g_constrDWURL = "http://audios.dewtronics.com/KingJamesBible/DanWagner/%1";
+	const QString g_constrDWURL = "https://audios.dewtronics.com/KingJamesBible/DanWagner/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -558,7 +558,7 @@ namespace {
 		"Rev"
 	};
 
-	const QString g_constrSJURL = "http://audios.dewtronics.com/KingJamesBible/StephenJohnston/%1";
+	const QString g_constrSJURL = "https://audios.dewtronics.com/KingJamesBible/StephenJohnston/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -632,7 +632,7 @@ namespace {
 		"Revelation"
 	};
 
-	const QString g_constrCGURL = "http://audios.dewtronics.com/KingJamesBible/ChristopherGlyn/%1";
+	const QString g_constrCGURL = "https://audios.dewtronics.com/KingJamesBible/ChristopherGlyn/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -706,7 +706,7 @@ namespace {
 		"REV"
 	};
 
-	const QString g_constrWWURL = "http://audios.dewtronics.com/KingJamesBible/WillardWaggoner/%1";
+	const QString g_constrWWURL = "https://audios.dewtronics.com/KingJamesBible/WillardWaggoner/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -780,7 +780,7 @@ namespace {
 		"Revelation"
 	};
 
-	const QString g_constrSherbergJonesURL = "http://audios.dewtronics.com/KingJamesBible/SherbergJones/%1";
+	const QString g_constrSherbergJonesURL = "https://audios.dewtronics.com/KingJamesBible/SherbergJones/%1";
 
 	// ------------------------------------------------------------------------
 
@@ -820,7 +820,7 @@ namespace {
 		"Revelación",
 	};
 
-	const QString g_constrRV1865URL = "http://audios.dewtronics.com/ReinaValera1865/%1";
+	const QString g_constrRV1865URL = "https://audios.dewtronics.com/ReinaValera1865/%1";
 
 	// ------------------------------------------------------------------------
 
