@@ -60,8 +60,8 @@ if ($result) {
   $nodeID = launch_node($resolution, $bible, '60m');
 
   if ($nodeID > -1) {
-    $launchURL = "http://vnc.purebiblesearch.com:" . $services[$nodeID][3];
-    $launchURL .= "/vnc.html?host=vnc.purebiblesearch.com&port=" . $services[$nodeID][3];
+    $launchURL = "https://vnc.purebiblesearch.com/" . $services[$nodeID][3];
+    $launchURL .= "/vnc.html?host=vnc.purebiblesearch.com&encrypt=1&path=" . $services[$nodeID][3] . "/websockify";
     $launchURL .= "&true_color=1&autoconnect=1&cursor=0";
 
     sleep 5;
