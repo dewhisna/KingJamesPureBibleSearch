@@ -2948,6 +2948,125 @@ And restart the server:
 sudo service apache2 restart
 
 
+Note: The new webchannel-le-ssl.conf file will need a reverse proxy websocket
+tunnel:
+
+	ProxyPreserveHost On
+	ProxyPass "/ws/" "ws://localhost:9340/"
+	ProxyPassReverse "/ws/" "ws://localhost:9340/"
+
+
+Note: The new 000-default-le-ssl.conf file will need a reverse proxy websocket
+and http tunnel:
+
+	ProxyPreserveHost On
+
+	ProxyPass "/6080/websockify" "ws://localhost:6080/websockify"
+	ProxyPassReverse "/6080/websockify" "ws://localhost:6080/websockify"
+	ProxyPass "/6080/" "http://localhost:6080/"
+	ProxyPassReverse "/6080/" "http://localhost:6080/"
+
+	ProxyPass "/6081/websockify" "ws://localhost:6081/websockify"
+	ProxyPassReverse "/6081/websockify" "ws://localhost:6081/websockify"
+	ProxyPass "/6081/" "http://localhost:6081/"
+	ProxyPassReverse "/6081/" "http://localhost:6081/"
+
+	ProxyPass "/6082/websockify" "ws://localhost:6082/websockify"
+	ProxyPassReverse "/6082/websockify" "ws://localhost:6082/websockify"
+	ProxyPass "/6082/" "http://localhost:6082/"
+	ProxyPassReverse "/6082/" "http://localhost:6082/"
+
+	ProxyPass "/6083/websockify" "ws://localhost:6083/websockify"
+	ProxyPassReverse "/6083/websockify" "ws://localhost:6083/websockify"
+	ProxyPass "/6083/" "http://localhost:6083/"
+	ProxyPassReverse "/6083/" "http://localhost:6083/"
+
+	ProxyPass "/6084/websockify" "ws://localhost:6084/websockify"
+	ProxyPassReverse "/6084/websockify" "ws://localhost:6084/websockify"
+	ProxyPass "/6084/" "http://localhost:6084/"
+	ProxyPassReverse "/6084/" "http://localhost:6084/"
+
+	ProxyPass "/6085/websockify" "ws://localhost:6085/websockify"
+	ProxyPassReverse "/6085/websockify" "ws://localhost:6085/websockify"
+	ProxyPass "/6085/" "http://localhost:6085/"
+	ProxyPassReverse "/6085/" "http://localhost:6085/"
+
+	ProxyPass "/6086/websockify" "ws://localhost:6086/websockify"
+	ProxyPassReverse "/6086/websockify" "ws://localhost:6086/websockify"
+	ProxyPass "/6086/" "http://localhost:6086/"
+	ProxyPassReverse "/6086/" "http://localhost:6086/"
+
+	ProxyPass "/6087/websockify" "ws://localhost:6087/websockify"
+	ProxyPassReverse "/6087/websockify" "ws://localhost:6087/websockify"
+	ProxyPass "/6087/" "http://localhost:6087/"
+	ProxyPassReverse "/6087/" "http://localhost:6087/"
+
+	ProxyPass "/6088/websockify" "ws://localhost:6088/websockify"
+	ProxyPassReverse "/6088/websockify" "ws://localhost:6088/websockify"
+	ProxyPass "/6088/" "http://localhost:6088/"
+	ProxyPassReverse "/6088/" "http://localhost:6088/"
+
+	ProxyPass "/6089/websockify" "ws://localhost:6089/websockify"
+	ProxyPassReverse "/6089/websockify" "ws://localhost:6089/websockify"
+	ProxyPass "/6089/" "http://localhost:6089/"
+	ProxyPassReverse "/6089/" "http://localhost:6089/"
+
+	ProxyPass "/6090/websockify" "ws://localhost:6090/websockify"
+	ProxyPassReverse "/6090/websockify" "ws://localhost:6090/websockify"
+	ProxyPass "/6090/" "http://localhost:6090/"
+	ProxyPassReverse "/6090/" "http://localhost:6090/"
+
+	ProxyPass "/6091/websockify" "ws://localhost:6091/websockify"
+	ProxyPassReverse "/6091/websockify" "ws://localhost:6091/websockify"
+	ProxyPass "/6091/" "http://localhost:6091/"
+	ProxyPassReverse "/6091/" "http://localhost:6091/"
+
+	ProxyPass "/6092/websockify" "ws://localhost:6092/websockify"
+	ProxyPassReverse "/6092/websockify" "ws://localhost:6092/websockify"
+	ProxyPass "/6092/" "http://localhost:6092/"
+	ProxyPassReverse "/6092/" "http://localhost:6092/"
+
+	ProxyPass "/6093/websockify" "ws://localhost:6093/websockify"
+	ProxyPassReverse "/6093/websockify" "ws://localhost:6093/websockify"
+	ProxyPass "/6093/" "http://localhost:6093/"
+	ProxyPassReverse "/6093/" "http://localhost:6093/"
+
+	ProxyPass "/6094/websockify" "ws://localhost:6094/websockify"
+	ProxyPassReverse "/6094/websockify" "ws://localhost:6094/websockify"
+	ProxyPass "/6094/" "http://localhost:6094/"
+	ProxyPassReverse "/6094/" "http://localhost:6094/"
+
+	ProxyPass "/6095/websockify" "ws://localhost:6095/websockify"
+	ProxyPassReverse "/6095/websockify" "ws://localhost:6095/websockify"
+	ProxyPass "/6095/" "http://localhost:6095/"
+	ProxyPassReverse "/6095/" "http://localhost:6095/"
+
+	ProxyPass "/6096/websockify" "ws://localhost:6096/websockify"
+	ProxyPassReverse "/6096/websockify" "ws://localhost:6096/websockify"
+	ProxyPass "/6096/" "http://localhost:6096/"
+	ProxyPassReverse "/6096/" "http://localhost:6096/"
+
+	ProxyPass "/6097/websockify" "ws://localhost:6097/websockify"
+	ProxyPassReverse "/6097/websockify" "ws://localhost:6097/websockify"
+	ProxyPass "/6097/" "http://localhost:6097/"
+	ProxyPassReverse "/6097/" "http://localhost:6097/"
+
+	ProxyPass "/6098/websockify" "ws://localhost:6098/websockify"
+	ProxyPassReverse "/6098/websockify" "ws://localhost:6098/websockify"
+	ProxyPass "/6098/" "http://localhost:6098/"
+	ProxyPassReverse "/6098/" "http://localhost:6098/"
+
+	ProxyPass "/6099/websockify" "ws://localhost:6099/websockify"
+	ProxyPassReverse "/6099/websockify" "ws://localhost:6099/websockify"
+	ProxyPass "/6099/" "http://localhost:6099/"
+	ProxyPassReverse "/6099/" "http://localhost:6099/"
+
+	ProxyPass "/6100/websockify" "ws://localhost:6100/websockify"
+	ProxyPassReverse "/6100/websockify" "ws://localhost:6100/websockify"
+	ProxyPass "/6100/" "http://localhost:6100/"
+	ProxyPassReverse "/6100/" "http://localhost:6100/"
+
+
 ===============================================================================
 ===============================================================================
 
