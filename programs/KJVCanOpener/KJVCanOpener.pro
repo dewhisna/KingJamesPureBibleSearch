@@ -45,7 +45,7 @@ defined(qtHaveModule, test) {
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 # WebEngine introduced in Qt 5.4:
-!console:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,3)) {
+!emscripten:!console:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,3)) {
 	QT *= webenginewidgets
 	DEFINES *= USING_QT_WEBENGINE
 }
