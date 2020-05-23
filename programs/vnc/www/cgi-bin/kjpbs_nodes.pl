@@ -7,27 +7,27 @@ use IO::Socket;
 # [ STATUS, ServiceName, IPAddress, noVNCPort, VNCPort, UserID ]
 
 our @services = (
-  [ '0', 'KJPBS Node 01', 'vnc.purebiblesearch.com', '6080', '5900', 'pbsuser01' ],
-  [ '0', 'KJPBS Node 02', 'vnc.purebiblesearch.com', '6081', '5901', 'pbsuser02' ],
-  [ '0', 'KJPBS Node 03', 'vnc.purebiblesearch.com', '6082', '5902', 'pbsuser03' ],
-  [ '0', 'KJPBS Node 04', 'vnc.purebiblesearch.com', '6083', '5903', 'pbsuser04' ],
-  [ '0', 'KJPBS Node 05', 'vnc.purebiblesearch.com', '6084', '5904', 'pbsuser05' ],
-  [ '0', 'KJPBS Node 06', 'vnc.purebiblesearch.com', '6085', '5905', 'pbsuser06' ],
-  [ '0', 'KJPBS Node 07', 'vnc.purebiblesearch.com', '6086', '5906', 'pbsuser07' ],
-  [ '0', 'KJPBS Node 08', 'vnc.purebiblesearch.com', '6087', '5907', 'pbsuser08' ],
-  [ '0', 'KJPBS Node 09', 'vnc.purebiblesearch.com', '6088', '5908', 'pbsuser09' ],
-  [ '0', 'KJPBS Node 10', 'vnc.purebiblesearch.com', '6089', '5909', 'pbsuser10' ],
-  [ '0', 'KJPBS Node 11', 'vnc.purebiblesearch.com', '6090', '5910', 'pbsuser11' ],
-  [ '0', 'KJPBS Node 12', 'vnc.purebiblesearch.com', '6091', '5911', 'pbsuser12' ],
-  [ '0', 'KJPBS Node 13', 'vnc.purebiblesearch.com', '6092', '5912', 'pbsuser13' ],
-  [ '0', 'KJPBS Node 14', 'vnc.purebiblesearch.com', '6093', '5913', 'pbsuser14' ],
-  [ '0', 'KJPBS Node 15', 'vnc.purebiblesearch.com', '6094', '5914', 'pbsuser15' ],
-  [ '0', 'KJPBS Node 16', 'vnc.purebiblesearch.com', '6095', '5915', 'pbsuser16' ],
-  [ '0', 'KJPBS Node 17', 'vnc.purebiblesearch.com', '6096', '5916', 'pbsuser17' ],
-  [ '0', 'KJPBS Node 18', 'vnc.purebiblesearch.com', '6097', '5917', 'pbsuser18' ],
-  [ '0', 'KJPBS Node 19', 'vnc.purebiblesearch.com', '6098', '5918', 'pbsuser19' ],
-  [ '0', 'KJPBS Node 20', 'vnc.purebiblesearch.com', '6099', '5919', 'pbsuser20' ],
-  [ '0', 'KJPBS SPECIAL', 'vnc.purebiblesearch.com', '6100', '5920', 'kjpbs' ]
+  [ '0', 'KJPBS Node 01', 'localhost', '6080', '5900', 'pbsuser01' ],
+  [ '0', 'KJPBS Node 02', 'localhost', '6081', '5901', 'pbsuser02' ],
+  [ '0', 'KJPBS Node 03', 'localhost', '6082', '5902', 'pbsuser03' ],
+  [ '0', 'KJPBS Node 04', 'localhost', '6083', '5903', 'pbsuser04' ],
+  [ '0', 'KJPBS Node 05', 'localhost', '6084', '5904', 'pbsuser05' ],
+  [ '0', 'KJPBS Node 06', 'localhost', '6085', '5905', 'pbsuser06' ],
+  [ '0', 'KJPBS Node 07', 'localhost', '6086', '5906', 'pbsuser07' ],
+  [ '0', 'KJPBS Node 08', 'localhost', '6087', '5907', 'pbsuser08' ],
+  [ '0', 'KJPBS Node 09', 'localhost', '6088', '5908', 'pbsuser09' ],
+  [ '0', 'KJPBS Node 10', 'localhost', '6089', '5909', 'pbsuser10' ],
+  [ '0', 'KJPBS Node 11', 'localhost', '6090', '5910', 'pbsuser11' ],
+  [ '0', 'KJPBS Node 12', 'localhost', '6091', '5911', 'pbsuser12' ],
+  [ '0', 'KJPBS Node 13', 'localhost', '6092', '5912', 'pbsuser13' ],
+  [ '0', 'KJPBS Node 14', 'localhost', '6093', '5913', 'pbsuser14' ],
+  [ '0', 'KJPBS Node 15', 'localhost', '6094', '5914', 'pbsuser15' ],
+  [ '0', 'KJPBS Node 16', 'localhost', '6095', '5915', 'pbsuser16' ],
+  [ '0', 'KJPBS Node 17', 'localhost', '6096', '5916', 'pbsuser17' ],
+  [ '0', 'KJPBS Node 18', 'localhost', '6097', '5917', 'pbsuser18' ],
+  [ '0', 'KJPBS Node 19', 'localhost', '6098', '5918', 'pbsuser19' ],
+  [ '0', 'KJPBS Node 20', 'localhost', '6099', '5919', 'pbsuser20' ],
+  [ '0', 'KJPBS SPECIAL', 'localhost', '6100', '5920', 'kjpbs' ]
 );
 
 
