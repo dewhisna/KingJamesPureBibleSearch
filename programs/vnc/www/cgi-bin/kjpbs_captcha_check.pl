@@ -74,11 +74,11 @@ if ($result) {
     print header;
     print start_html('King James Pure Bible Search VNC Service');
     print "<p>Sorry, all King James Pure Bible Search VNC Sessions are in use.</p>\n<br><br>\n";
-    print "<a href=\"//vnc.purebiblesearch.com/status/\">Click here to see status</a><br>\n";
+    print "<a href=\"" . CGI->protocol() . "://vnc.purebiblesearch.com/status/\">Click here to see status</a><br>\n";
     print end_html;
   }
 } else {
-  print redirect("//vnc.purebiblesearch.com/?resolution=$resolution&bbl=$bbl");
+  print redirect(CGI->protocol() . "://vnc.purebiblesearch.com/?resolution=$resolution&bbl=$bbl");
 }
 
 exit;
