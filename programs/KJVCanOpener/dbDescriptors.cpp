@@ -88,7 +88,7 @@ namespace {
 	{
 		// Special Test Value:
 		{ BibleTypeOptionsFlags(BTO_SpecialTest), "SPECIAL", "en", QString::fromUtf8("Special Test"), QString::fromUtf8("Special Test Bible Database"), constUUID_SPECIAL_TEST, "bbl-specTest.s3db", "bbl-specTest.ccdb", constUUID_SPECIAL_TEST },
-		// KJV:
+		// KJV standard database (w/o Strongs Lemma/Morph):
 		{ BibleTypeOptionsFlags(BTO_AutoLoad), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769.s3db", "bbl-kjv1769.ccdb", constUUID_KJV },
 		// RVG2010-20140126:
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RVG2010-20140126", "es", QString::fromUtf8("Reina-Valera Gómez 2010"), QString::fromUtf8("Reina-Valera Gómez 2010 Version (20140126)"), constUUID_RVG2010_20140126, "bbl-rvg2010-20140126.s3db", "bbl-rvg2010-20140126.ccdb", constUUID_RVG2010 },
@@ -137,7 +137,7 @@ namespace {
 		// International Standard Version (2001):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ISV_2001_20100807", "en", QString::fromUtf8("International Standard Version (2001)"), QString::fromUtf8("International Standard Version (2001) (20100807)"), constUUID_ISV_20100807, "bbl-isv2001-20100807.s3db", "bbl-isv2001-20100807.ccdb", constUUID_ISV_20100807 },
 		// KJV Full database (with Strongs Lemma/Morph):
-		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
+		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred | BTO_HasStrongs), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
 	};
 
 	//////////////////////////////////////////////////////////////////////

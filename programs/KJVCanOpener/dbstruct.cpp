@@ -645,7 +645,8 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 			// If this is a Strongs Dictionary that's embedded in the main
 			//	Bible Database and the main Bible Database is available, include
 			//	the Dictionary entry:
-			if (TBibleDatabaseList::availableBibleDatabaseDescriptor(dctDesc.m_strUUID).isValid()) {
+			if ((TBibleDatabaseList::availableBibleDatabaseDescriptor(dctDesc.m_strUUID).isValid()) &&
+				(TBibleDatabaseList::availableBibleDatabaseDescriptor(dctDesc.m_strUUID).m_btoFlags & BTO_HasStrongs)) {
 				fnInsertDiscovery(dctDesc);
 			}
 			continue;

@@ -38,6 +38,7 @@ enum BibleTypeOptions {
 	BTO_AutoLoad = 0x2,					// AutoLoad database at app start
 	BTO_Discovered = 0x4,				// Discovered via disk search instead of internal descriptor list
 	BTO_Preferred = 0x8,				// Bible is a preferred choice, for example Full KJV Database vs Standard KJV Database
+	BTO_HasStrongs = 0x10,				// True if this Bible Database has a Strongs Dictionary (Used when resolving ambiguous Bible Databases, like full vs standard KJV)
 };
 Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
 
