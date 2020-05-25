@@ -171,7 +171,11 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_bCopySuperscriptions(false),
 		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
+#ifndef EMSCRIPTEN
 		m_nCopyMimeType(CMTE_ALL),
+#else
+		m_nCopyMimeType(CMTE_TEXT),
+#endif
 		// ----
 		m_bSearchResultsAddBlankLineBetweenVerses(false),
 		m_nSearchResultsVerseCopyOrder(VCOE_SELECTED),
