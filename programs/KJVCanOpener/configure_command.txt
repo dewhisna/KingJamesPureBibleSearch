@@ -2786,17 +2786,18 @@ sudo apt-get install nasm
 ----- libx264:
 sudo apt-get install libx264-dev
 ----- libx265:
-sudo apt-get install cmake mercurial
+sudo apt-get install cmake mercurial			## <<< mercurial no longer needed for multicoreware/x265
 cd ~/ffmpeg_sources
-hg clone https://bitbucket.org/multicoreware/x265
-cd ~/ffmpeg_sources/x265/build/linux
+## hg clone https://bitbucket.org/multicoreware/x265	## <<< moved from mercurial to git
+git clone https://bitbucket.org/multicoreware/x265_git.git
+cd ~/ffmpeg_sources/x265_git/build/linux
 PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_SHARED:bool=off ../../source
 make
 make install
 make clean
 ----- libfdk-aac:
 sudo apt-get install libfdk-aac0 libfdk-aac-dev		## <<< This is on Ubuntu 14.04 and 16.04 only
-sudo apt-get install libfdk-aac1 libfdk-aac-dev		## <<< This is new package on Ubuntu 18.04
+sudo apt-get install libfdk-aac1 libfdk-aac-dev		## <<< This is new package on Ubuntu 18.04 and 20.04
 ----- libmp3lame:
 sudo apt-get install libmp3lame0 libmp3lame-dev
 ----- libopus:
@@ -2805,6 +2806,7 @@ sudo apt-get install libopus0 libopus-dev
 sudo apt-get install libvpx1 libvpx-dev		## <<< This is on Ubuntu 14.04 only
 sudo apt-get install libvpx3 libvpx-dev		## <<< This is new package on Ubuntu 16.04
 sudo apt-get install libvpx5 libvpx-dev		## <<< This is new package on Ubuntu 18.04
+sudo apt-get install libvpx6 libvpx-dev		## <<< This is new package on Ubuntu 20.04
 ----- ffmpeg:
 cd ~/ffmpeg_sources
 wget http://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
