@@ -547,6 +547,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
 		bIsScriptureBrowser = true;
 	}
+	Q_UNUSED(bIsScriptureBrowser);		// Eliminate unused set variable warnings on some targets
 
 	if (ev->type() == QEvent::FocusIn) {
 		emit T::activatedScriptureText();
