@@ -537,7 +537,7 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 #endif
 		CUserNoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
 		userNote.setText(m_strXMLBuffer);
-		userNote.m_lstKeywords = m_strKeywords.split(QChar(','), QString::SkipEmptyParts);
+		userNote.m_lstKeywords = m_strKeywords.split(QChar(','), My_QString_SkipEmptyParts);
 		userNote.setVerseCount(m_nCount);
 		if (!m_strBackgroundColor.isEmpty()) userNote.setBackgroundColor(QColor(m_strBackgroundColor));
 		userNote.setIsVisible(m_bVisible);

@@ -213,7 +213,7 @@ void CWebChannelSearchResults::internal_setSearchPhrases(const QString &strPhras
 	m_searchResultsData.m_SearchCriteria.setSearchWithin(m_pBibleDatabase, strSearchWithin);
 	m_searchResultsData.m_SearchCriteria.setSearchScopeMode(static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(nSearchScope));
 
-	QStringList lstPhrases = strPhrases.split(";", QString::SkipEmptyParts);
+	QStringList lstPhrases = strPhrases.split(";", My_QString_SkipEmptyParts);
 	if (lstPhrases.size() > MAX_SEARCH_PHRASES) {
 		lstPhrases.erase(lstPhrases.begin() + MAX_SEARCH_PHRASES, lstPhrases.end());
 	}

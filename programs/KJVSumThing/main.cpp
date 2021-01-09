@@ -360,8 +360,8 @@ static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseLis
 
 		QString strPhrase1 = lst1.at(ndx).caseSensitive() ? lst1.at(ndx).text() : lst1.at(ndx).text().toLower();
 		QString strPhrase2 = lst2.at(ndx).caseSensitive() ? lst2.at(ndx).text() : lst2.at(ndx).text().toLower();
-		QStringList lstPhrase1 = strPhrase1.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
-		QStringList lstPhrase2 = strPhrase2.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+		QStringList lstPhrase1 = strPhrase1.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+		QStringList lstPhrase2 = strPhrase2.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 
 		if (lstPhrase1.size() < lstPhrase2.size()) return true;
 		if (lstPhrase1.size() > lstPhrase2.size()) return false;

@@ -405,7 +405,7 @@ bool CNoteKeywordWidget::haveUnenteredKeywords() const
 	assert(m_nMode == KWME_EDITOR);
 
 	bool bHaveUnenteredKeywords = false;
-	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
+	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), My_QString_SkipEmptyParts);
 	for (int ndx = 0; ndx < lstNewKeywords.size(); ++ndx) {
 		QString strNewKeyword = lstNewKeywords.at(ndx).trimmed();
 
@@ -433,7 +433,7 @@ void CNoteKeywordWidget::en_keywordEntered()
 	m_bDoingUpdate = true;
 
 	bool bDataChanged = false;
-	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), QString::SkipEmptyParts);
+	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), My_QString_SkipEmptyParts);
 	for (int ndx = 0; ndx < lstNewKeywords.size(); ++ndx) {
 		QString strNewKeyword = lstNewKeywords.at(ndx).trimmed();
 

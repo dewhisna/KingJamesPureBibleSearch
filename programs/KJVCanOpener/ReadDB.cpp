@@ -455,7 +455,7 @@ bool CReadDatabase::ReadBooksTable()
 		entryBook.m_nTstBkNdx = lstFields.at(1).toUInt();
 		entryBook.m_nTstNdx = lstFields.at(2).toUInt();
 		entryBook.m_strBkName = lstFields.at(3);
-		entryBook.m_lstBkAbbr = lstFields.at(4).split(QChar(';'), QString::SkipEmptyParts);
+		entryBook.m_lstBkAbbr = lstFields.at(4).split(QChar(';'), My_QString_SkipEmptyParts);
 		entryBook.m_strTblName = lstFields.at(5);
 		entryBook.m_nNumChp = lstFields.at(6).toUInt();
 		entryBook.m_nNumVrs = lstFields.at(7).toUInt();

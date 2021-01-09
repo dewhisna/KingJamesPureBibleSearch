@@ -1300,7 +1300,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 		return;
 	}
 
-	QStringList lstMsg = strMessage.split(";", QString::KeepEmptyParts);
+	QStringList lstMsg = strMessage.split(";", My_QString_KeepEmptyParts);
 	assert(lstMsg.size() >= 1);
 	if (lstMsg.size() < 1) return;
 
@@ -1705,7 +1705,7 @@ int CMyApplication::execute(bool bBuildDB)
 
 	// Launch WebChannel:
 	if (!m_strWebChannelHostPort.isEmpty()) {
-		QStringList lstHostPort = m_strWebChannelHostPort.split(QChar(','), QString::KeepEmptyParts);
+		QStringList lstHostPort = m_strWebChannelHostPort.split(QChar(','), My_QString_KeepEmptyParts);
 		assert(lstHostPort.size() >= 1);
 		quint16 nPort = lstHostPort.at(0).toUInt();
 		if (nPort) {

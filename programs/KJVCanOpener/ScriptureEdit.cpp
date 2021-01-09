@@ -445,7 +445,7 @@ void CScriptureText<T,U>::en_readSelection()
 	//		but there isn't likely to be a ton of them run together, which will achieve the
 	//		goal of not overflowing the buffer:
 	static const QRegExp regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
-	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts);
+	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence, My_QString_SkipEmptyParts);
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
 		//		some special characters (like specialized apostrophes) mess up the

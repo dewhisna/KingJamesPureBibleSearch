@@ -1088,7 +1088,7 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
 	m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
 	m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
 	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strOsisAbbr);
-	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), QString::SkipEmptyParts));
+	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
 	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
 
 	TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();

@@ -284,7 +284,7 @@ void CSubPhrase::ClearPhase()
 
 void CSubPhrase::ParsePhrase(const QString &strPhrase)
 {
-	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 	m_strCursorWord.clear();
 	m_nCursorWord = m_lstWords.size();
 }
@@ -298,7 +298,7 @@ void CSubPhrase::ParsePhrase(const QStringList &lstPhrase)
 
 void CSubPhrase::AppendPhrase(const QString &strPhrase)
 {
-	m_lstWords.append(strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts));
+	m_lstWords.append(strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts));
 	m_strCursorWord.clear();
 	m_nCursorWord = m_lstWords.size();
 }
@@ -583,17 +583,17 @@ QString CParsedPhrase::phraseToSpeak() const
 
 const QStringList CParsedPhrase::phraseWords() const
 {
-	return phrase().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	return phrase().split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 }
 
 const QStringList CParsedPhrase::phraseWordsRaw() const
 {
-	return phraseRaw().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	return phraseRaw().split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 }
 
 const QStringList CParsedPhrase::phraseWordsToSpeak() const
 {
-	return phraseToSpeak().split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	return phraseToSpeak().split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 }
 
 void CParsedPhrase::clearCache() const
@@ -675,13 +675,13 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	assert(!m_lstSubPhrases.isEmpty());
 
 	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
-	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 
 	strLeftText.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
-	QStringList lstLeftWords = strLeftText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	QStringList lstLeftWords = strLeftText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 
 	strRightText.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
-	QStringList lstRightWords = strRightText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+	QStringList lstRightWords = strRightText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 
 	assert(lstCompleteWords.size() == (lstLeftWords.size() + lstRightWords.size()));
 

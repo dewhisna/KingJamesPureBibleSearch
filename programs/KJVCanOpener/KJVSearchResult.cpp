@@ -442,10 +442,10 @@ void CSearchResultsTreeView::en_speechPlay()
 		if (item.verseIndex().isNull()) continue;
 		CRelIndex ndxVerse = item.getIndex();
 		ndxVerse.setWord(0);
-		lstSentences.append(vlmodel()->bibleDatabase()->PassageReferenceText(ndxVerse, true).split(regexpSentence, QString::SkipEmptyParts));
+		lstSentences.append(vlmodel()->bibleDatabase()->PassageReferenceText(ndxVerse, true).split(regexpSentence, My_QString_SkipEmptyParts));
 		CParsedPhrase phrase;
 		phrase.ParsePhrase(item.getVersePlainText(true));
-		lstSentences.append(phrase.phraseToSpeak().split(regexpSentence, QString::SkipEmptyParts));
+		lstSentences.append(phrase.phraseToSpeak().split(regexpSentence, My_QString_SkipEmptyParts));
 	}
 
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {

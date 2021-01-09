@@ -56,6 +56,17 @@
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif
 
+// Qt Deprecation/Reorganization-isms so that we can compile without issues
+//		on Qt 4, Qt 5, and Qt 6:
+
+#if QT_VERSION >= 0x050F00
+#define My_QString_KeepEmptyParts Qt::KeepEmptyParts
+#define My_QString_SkipEmptyParts Qt::SkipEmptyParts
+#else
+#define My_QString_KeepEmptyParts QString::KeepEmptyParts
+#define My_QString_SkipEmptyParts QString::SkipEmptyParts
+#endif
+
 // ============================================================================
 
 #define KJPBS_CCDB_VERSION		1			// Current version of our CCDB file format
