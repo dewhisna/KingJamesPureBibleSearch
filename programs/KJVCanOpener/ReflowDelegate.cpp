@@ -30,7 +30,7 @@
 #include <QResizeEvent>
 #include <QScrollBar>
 #include <QPainter>
-#include <QTime>
+#include <QElapsedTimer>
 #include <QAbstractItemModel>
 
 #include <algorithm>
@@ -435,7 +435,7 @@ void CReflowDelegate::reflowTick()
 		//	be ticking so thus must be that the current position was invalidated, and we need to start over:
 		if (!m_itrReflowIndex) m_itrReflowIndex = pView->model();
 
-		QTime timeSlice;
+		QElapsedTimer timeSlice;
 		timeSlice.start();
 
 		// prevent lazy sizeHint updates; this *is* the routine that comes back through to fix them
