@@ -204,7 +204,7 @@ Qt::DropActions CMatchingPhrasesListModel::supportedDropActions() const
 
 Qt::ItemFlags CMatchingPhrasesListModel::flags(const QModelIndex &index) const
 {
-	if (!index.isValid()) return 0;
+	if (!index.isValid()) return Qt::ItemFlags();
 
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }

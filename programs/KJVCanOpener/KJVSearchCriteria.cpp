@@ -437,14 +437,14 @@ Qt::ItemFlags CSearchWithinModel::flags(const QModelIndex &index) const
 
 	if (index.data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>() == CSearchCriteria::SSI_COLOPHON) {
 		return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled |
-				(m_bBibleHasColophons ? Qt::ItemIsEnabled : static_cast<Qt::ItemFlags>(0)) |
-				(m_bBibleHasColophons ? Qt::ItemIsUserCheckable : static_cast<Qt::ItemFlags>(0));
+				(m_bBibleHasColophons ? Qt::ItemIsEnabled : Qt::ItemFlags()) |
+				(m_bBibleHasColophons ? Qt::ItemIsUserCheckable : Qt::ItemFlags());
 	}
 
 	if (index.data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>() == CSearchCriteria::SSI_SUPERSCRIPTION) {
 		return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled |
-				(m_bBibleHasSuperscriptions ? Qt::ItemIsEnabled : static_cast<Qt::ItemFlags>(0)) |
-				(m_bBibleHasSuperscriptions ? Qt::ItemIsUserCheckable : static_cast<Qt::ItemFlags>(0));
+				(m_bBibleHasSuperscriptions ? Qt::ItemIsEnabled : Qt::ItemFlags()) |
+				(m_bBibleHasSuperscriptions ? Qt::ItemIsUserCheckable : Qt::ItemFlags());
 	}
 
 	if (pSearchWithinModelIndex->ssme() != CSearchCriteria::SSME_BOOK) {
