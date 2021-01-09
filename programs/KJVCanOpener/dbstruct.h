@@ -836,10 +836,10 @@ public:
 };
 
 #if QT_VERSION >= 0x050000
-Q_DECL_CONST_FUNCTION Q_DECL_PURE_FUNCTION inline uint qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
+Q_DECL_CONST_FUNCTION inline uint qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
 #else
 // Backward compatibility for old VNC 4.8.7 build:
-__attribute__((const)) __attribute__((pure)) inline uint qHash(const CPhraseEntry &key, uint seed = 0) noexcept
+__attribute__((const)) inline uint qHash(const CPhraseEntry &key, uint seed = 0) noexcept
 #endif
 {
 	// Note: Aren't hashing "disable" because it doesn't affect the main key value equality
