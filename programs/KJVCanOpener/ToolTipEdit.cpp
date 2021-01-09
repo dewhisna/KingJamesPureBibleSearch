@@ -31,6 +31,10 @@
 
 #include <QMainWindow>
 #include <QApplication>
+#if QT_VERSION >= 0x050B00
+#include <QGuiApplication>
+#include <QScreen>
+#endif
 #include <QDesktopWidget>
 #include <QEvent>
 #include <QMouseEvent>
@@ -477,7 +481,11 @@ bool CTipEdit::event(QEvent *e)
 void CTipEdit::wheelEvent(QWheelEvent *e)
 {
 	if (e->modifiers() & Qt::ControlModifier) {
+#if QT_VERSION >= 0x050000
+		const int delta = e->angleDelta().y();
+#else
 		const int delta = e->delta();
+#endif
 		if (delta < 0) {
 			zoomOut();
 		} else if (delta > 0) {
@@ -493,10 +501,18 @@ void CTipEdit::wheelEvent(QWheelEvent *e)
 
 int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
 {
+#if QT_VERSION >= 0x050B00
+	if (QGuiApplication::primaryScreen()->virtualSiblings().size() > 1) {
+		QScreen *screen = QGuiApplication::screenAt(pos);
+		return screen ? QGuiApplication::screens().indexOf(screen) : 0;
+	} else
+		return QApplication::desktop()->screenNumber(w);
+#else
 	if (QApplication::desktop()->isVirtualDesktop())
 		return QApplication::desktop()->screenNumber(pos);
 	else
 		return QApplication::desktop()->screenNumber(w);
+#endif
 }
 
 void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
@@ -516,6 +532,36 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 		}
 	}
 
+#if QT_VERSION >= 0x050B00
+
+	const QScreen *pScreen = QGuiApplication::screens().value(getTipScreen(pos, w),
+                                                             QGuiApplication::primaryScreen());
+
+	QRect screen;
+
+	// a QScreen's handle *should* never be null, so this is a bit paranoid
+	if (pScreen) {
+#ifdef Q_OS_MAC
+		// When in full screen mode, there is no Dock nor Menu so we can use
+		// the whole screen for displaying the tooltip. However when not in
+		// full screen mode we need to save space for the dock, so we use
+		// availableGeometry instead.
+
+		assert(!g_pMyApplication.isNull());
+		CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
+
+		if ((pCanOpener != nullptr) && (pCanOpener->isFullScreen())) {
+			screen = pScreen->geometry();
+		} else {
+			screen = pScreen->availableGeometry();
+		}
+#else
+		screen = pScreen->geometry();
+#endif
+	}
+
+#else
+
 #ifdef Q_OS_MAC
 	// When in full screen mode, there is no Dock nor Menu so we can use
 	// the whole screen for displaying the tooltip. However when not in
@@ -534,6 +580,8 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	QRect screen = QApplication::desktop()->screenGeometry(getTipScreen(pos, w));
 #endif
 
+#endif	// QT_VERSION
+
 	QPoint p = pos;
 	p += QPoint(2,
 #ifdef Q_OS_WIN32
@@ -545,18 +593,20 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 
 	p.ry() -= this->height()/2;
 
-	if (p.x() + this->width() > screen.x() + screen.width())
-		p.rx() -= 4 + this->width();
-	if (p.y() + this->height() > screen.y() + screen.height())
-		p.ry() -= 24 + this->height()/2;
-	if (p.y() < screen.y())
-		p.setY(screen.y());
-	if (p.x() + this->width() > screen.x() + screen.width())
-		p.setX(screen.x() + screen.width() - this->width());
-	if (p.x() < screen.x())
-		p.setX(screen.x());
-	if (p.y() + this->height() > screen.y() + screen.height())
-		p.setY(screen.y() + screen.height() - this->height()/2);
+	if (!screen.isNull()) {
+		if (p.x() + this->width() > screen.x() + screen.width())
+			p.rx() -= 4 + this->width();
+		if (p.y() + this->height() > screen.y() + screen.height())
+			p.ry() -= 24 + this->height()/2;
+		if (p.y() < screen.y())
+			p.setY(screen.y());
+		if (p.x() + this->width() > screen.x() + screen.width())
+			p.setX(screen.x() + screen.width() - this->width());
+		if (p.x() < screen.x())
+			p.setX(screen.x());
+		if (p.y() + this->height() > screen.y() + screen.height())
+			p.setY(screen.y() + screen.height() - this->height()/2);
+	}
 
 	this->move(p);
 }
