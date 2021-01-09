@@ -882,6 +882,27 @@ Note: When building for Qt 5.5.1, it seems to be setup for Wayland and so the li
 is missing when running on stock Kubuntu 14.04, so "-libinput" must be eliminated when doing
 the WebChannel build (not that it was ever needed anyway for the console version).
 
+===============================================================================
+
+
+====================
+  Qt 5.15.2 Linux
+====================
+
+sudo apt-get build-dep qtbase5-dev qtbase5-dev-tools qtwebengine5-dev qttools5-dev-tools
+
+sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb-util-dev libxcb-dri3-dev
+
+sudo apt-get install libnss3-dev flex   (webengine)
+
+cd ~/Qt/
+tar -Jxvf ~/Downloads/software/Qt/5.15.2/qt-everywhere-src-5.15.2.tar.xz
+mv qt-everywhere-src-5.15.2 5.15.2-src
+mkdir 5.15.2-build
+cd 5.15.2-build
+../5.15.2-src/configure -release -opensource -confirm-license -verbose -prefix /home/dewhisna/Qt/5.15.2 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
+
+
 
 ===============================================================================
 ===============================================================================
