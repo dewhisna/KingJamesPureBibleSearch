@@ -89,22 +89,29 @@ public:
 // ============================================================================
 
 //
-// CScriptureWebView - Base Class for viewing interlinear text with Lemmas and Morphology
+// CScriptureWebEngineView - Base Class for viewing interlinear text with Lemmas and Morphology
 //
+
+class CVerseListModel;			// Forward declaration
 
 class CScriptureWebEngineView : public QWebEngineView
 {
 	Q_OBJECT
 
 public:
-	explicit CScriptureWebEngineView(QWidget *pParent = nullptr);
+	explicit CScriptureWebEngineView(CVerseListModel *pSearchResultsListModel, QWidget *pParent = nullptr);
 	virtual ~CScriptureWebEngineView();
+
+	void load(const QUrl &url);
 
 protected slots:
 	void en_loadFinished(bool bOK);
 
 	void en_setFont(const QFont& aFont);
 	void en_setTextBrightness(bool bInvert, int nBrightness);
+
+private:
+	CVerseListModel *m_pSearchResultsListModel;
 };
 
 // ============================================================================

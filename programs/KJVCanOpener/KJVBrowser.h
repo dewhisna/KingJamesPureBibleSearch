@@ -62,7 +62,7 @@ class CKJVBrowser : public QWidget
 	Q_OBJECT
 
 public:
-	explicit CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
+	explicit CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	virtual ~CKJVBrowser();
 
 	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
@@ -198,6 +198,7 @@ private:
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	CRelIndex m_ndxCurrent;
+	CVerseListModel *m_pSearchResultsListModel;
 	CSearchResultHighlighter m_SearchResultsHighlighter;
 	CSearchResultHighlighter m_ExcludedSearchResultsHighlighter;
 	bool m_bShowExcludedSearchResults;

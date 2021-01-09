@@ -54,12 +54,13 @@
 
 // ============================================================================
 
-CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
+CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
 	m_ndxCurrent(0),
-	m_SearchResultsHighlighter(pModel, false),
-	m_ExcludedSearchResultsHighlighter(pModel, true),
+	m_pSearchResultsListModel(pSearchResultsListModel),
+	m_SearchResultsHighlighter(pSearchResultsListModel, false),
+	m_ExcludedSearchResultsHighlighter(pSearchResultsListModel, true),
 	m_bShowExcludedSearchResults(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()),
 	m_bDoingUpdate(false),
 #ifndef PLASTIQUE_STATIC
@@ -98,8 +99,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pModel, CBibleDatabasePtr pBibleDataba
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
 
 // Data Connections:
-	connect(pModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
-	connect(pModel, SIGNAL(verseListChanged()), this, SLOT(en_SearchResultsVerseListChanged()));
+	connect(pSearchResultsListModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
+	connect(pSearchResultsListModel, SIGNAL(verseListChanged()), this, SLOT(en_SearchResultsVerseListChanged()));
 
 // UI Connections:
 	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), &m_dlyGotoIndex, SLOT(trigger(const TPhraseTag &)));
@@ -371,7 +372,7 @@ void CKJVBrowser::initialize()
 	++nNextCol;
 
 #ifdef USING_QT_WEBENGINE
-	m_pWebEngineView = new CScriptureWebEngineView(this);
+	m_pWebEngineView = new CScriptureWebEngineView(m_pSearchResultsListModel, this);
 	m_pWebEngineView->setObjectName(QString::fromUtf8("textBrowserWebEngine"));
 	m_pWebEngineView->setMouseTracking(true);
 	ui.gridLayout->addWidget(m_pWebEngineView, 1, nNextCol, 1, 1);
@@ -640,6 +641,10 @@ void CKJVBrowser::en_SearchResultsVerseListAboutToChange()
 void CKJVBrowser::en_SearchResultsVerseListChanged()
 {
 	doHighlighting();					// Highlight using new tags
+
+#ifdef USING_QT_WEBENGINE
+	m_pWebEngineView->reload();
+#endif
 }
 
 void CKJVBrowser::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)

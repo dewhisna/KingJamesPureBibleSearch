@@ -26,6 +26,9 @@
 #include "dbstruct.h"
 #include "PhraseEdit.h"
 #include "PersistentSettings.h"
+#include "Highlighter.h"
+#include "myApplication.h"
+#include "KJVCanOpener.h"
 
 #include <QWebEngineSettings>
 #include <QWebEngineUrlRequestInterceptor>
@@ -110,8 +113,9 @@ void CKJPBSWebViewSchemeHandler::requestStarted(QWebEngineUrlRequestJob *request
 
 // ============================================================================
 
-CScriptureWebEngineView::CScriptureWebEngineView(QWidget *pParent)
-	:	QWebEngineView(pParent)
+CScriptureWebEngineView::CScriptureWebEngineView(CVerseListModel *pSearchResultsListModel, QWidget *pParent)
+	:	QWebEngineView(pParent),
+		m_pSearchResultsListModel(pSearchResultsListModel)
 {
 //	setWindowFlags(Qt::Tool | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowTitleHint);
 //	setWindowTitle(tr("King James Pure Bible Search", "MainMenu"));
@@ -169,6 +173,63 @@ void CScriptureWebEngineView::en_setTextBrightness(bool bInvert, int nBrightness
 		page()->setBackgroundColor(CPersistentSettings::textBackgroundColor(bInvert, nBrightness));
 		reload();		// Needed to update the css
 	}
+}
+
+void CScriptureWebEngineView::load(const QUrl &url)
+{
+	QString strPath = url.path();
+	QStringList lstPath = strPath.split('/');
+	if ((lstPath.size() == 2) && lstPath.at(0).isEmpty()) {		// Empty (0) means absolute path (currently the only allowed form)
+		lstPath[0] = url.host();				// Switch (0) to bible-uuid, with (1) RelIndex
+	} else if ((lstPath.size() == 3) && lstPath.at(0).isEmpty()) {	// Empty (0) means absolute path (currently the only allowed form)
+		lstPath.removeAt(0);					// Make (0) bible-uuid, with (1) RelIndex
+	} else {
+		return;
+	}
+
+	CBibleDatabasePtr pBibleDatabase;
+
+	assert(!g_pMyApplication.isNull());
+	CKJVCanOpener *pCanOpener = g_pMyApplication->findCanOpenerFromChild<CScriptureWebEngineView>(this);
+	assert(pCanOpener != nullptr);
+	if (pCanOpener != nullptr) {
+		pBibleDatabase = pCanOpener->bibleDatabase();
+	}
+	CSearchResultHighlighter searchResultsHighlighter(m_pSearchResultsListModel, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
+
+	if (pBibleDatabase.isNull()) {
+		pBibleDatabase = TBibleDatabaseList::instance()->atUUID(lstPath.at(0));
+		if (pBibleDatabase.isNull()) {
+			return;
+		}
+	}
+
+	QTextDocument doc;
+	CPhraseNavigator navigator(pBibleDatabase, doc);
+
+	// Don't use defaultDocumentToChapterFlags here so we can
+	//	suppress UserNotes and CrossRefs:
+	QString strHTML = navigator.setDocumentToChapter(CRelIndex(lstPath.at(1)),
+														CPhraseNavigator::TRO_Subtitles |
+														CPhraseNavigator::TRO_Colophons |
+														CPhraseNavigator::TRO_Superscriptions |
+														CPhraseNavigator::TRO_Category |
+														CPhraseNavigator::TRO_ScriptureBrowser |
+														CPhraseNavigator::TRO_UseLemmas,
+													 &searchResultsHighlighter);
+	int nPos = strHTML.indexOf("<style type=\"text/css\">\n");
+	assert(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
+	nPos = strHTML.indexOf("body", nPos);
+	assert(nPos > -1);
+	nPos = strHTML.indexOf("{", nPos);
+	assert(nPos > -1);
+	if (nPos > -1) {
+		strHTML.insert(nPos+1, QString(" background-color:%1; color: %2;\n")
+						.arg(CPersistentSettings::instance()->textBackgroundColor().name())
+						.arg(CPersistentSettings::instance()->textForegroundColor().name()));
+	}
+
+	setHtml(strHTML, url);
 }
 
 // ============================================================================
