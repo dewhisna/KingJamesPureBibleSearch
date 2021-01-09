@@ -35,6 +35,9 @@ greaterThan(QT_MAJOR_VERSION,4) {
 
 QT       *= core gui xml
 
+# Qt6 drops SAX XML Parser which we need.  For now, get it from the Qt5 compatibility shim:
+greaterThan(QT_MAJOR_VERSION,5):QT*=core5compat
+
 defined(qtHaveModule, test) {
 	qtHaveModule(sql):QT *= sql
 } else {
