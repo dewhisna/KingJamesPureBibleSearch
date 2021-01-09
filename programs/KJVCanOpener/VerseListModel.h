@@ -602,19 +602,7 @@ public:
 	// Data for one parsed TPhraseTagList (Used one for Search Results and one for each Highlighter)
 	class TVerseListModelResults {
 	public:
-		TVerseListModelResults(const TVerseListModelResults &other)
-			:	m_mapVerses(other.m_mapVerses),
-				m_lstVerseIndexes(other.m_lstVerseIndexes),
-				m_mapExtraVerseIndexes(other.m_mapExtraVerseIndexes),
-				m_mapSizeHints(other.m_mapSizeHints),
-				m_private(other.m_private),
-				m_strResultsName(other.m_strResultsName),
-				m_nResultsType(other.m_nResultsType),
-				m_nDefaultNodeType(other.m_nDefaultNodeType),
-				m_nSpecialIndex(other.m_nSpecialIndex)
-		{
-
-		}
+		TVerseListModelResults(const TVerseListModelResults &other) = default;
 
 	protected:
 		friend class CVerseListModel;

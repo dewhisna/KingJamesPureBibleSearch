@@ -92,13 +92,7 @@ protected:
 public:
 	CUserNoteEntry();
 
-	CUserNoteEntry(const CUserNoteEntry &other)
-		:	m_strText(other.m_strText),
-			m_lstKeywords(other.m_lstKeywords),
-			m_PassageTag(other.m_PassageTag),
-			m_clrBackground(other.m_clrBackground),
-			m_bIsVisible(other.m_bIsVisible)
-	{ }
+	CUserNoteEntry(const CUserNoteEntry &other) = default;
 
 	~CUserNoteEntry() { }
 

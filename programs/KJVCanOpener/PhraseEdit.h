@@ -291,6 +291,16 @@ public:
 		if (m_pParsedPhrase != nullptr) m_pParsedPhrase->unregisterSmartPointer(this);
 	}
 
+	CParsedPhrasePtr & operator=(const CParsedPhrasePtr &aSrc)
+	{
+		// Need to have explicit operator=() since we have explicit copy constructor.
+		//	Plus, we need to diddle the smart pointer registration:
+		if (m_pParsedPhrase != nullptr) m_pParsedPhrase->unregisterSmartPointer(this);
+		m_pParsedPhrase = aSrc.m_pParsedPhrase;
+		if (m_pParsedPhrase != nullptr) m_pParsedPhrase->registerSmartPointer(this);
+		return *this;
+	}
+
 	inline const CParsedPhrase &operator*() const { return *m_pParsedPhrase; }
 	inline operator const CParsedPhrase*() const { return m_pParsedPhrase; }
 	inline const CParsedPhrase *operator->() const { return m_pParsedPhrase; }

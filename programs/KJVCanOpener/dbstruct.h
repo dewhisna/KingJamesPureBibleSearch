@@ -82,10 +82,7 @@ class CBasicHighlighter;
 
 class CRelIndex {
 public:
-	CRelIndex(const CRelIndex &ndx)
-		:	m_ndx(ndx.index())
-	{
-	}
+	CRelIndex(const CRelIndex &ndx) = default;
 	CRelIndex(uint32_t ndx = 0)
 		:	m_ndx(ndx)
 	{
@@ -331,6 +328,8 @@ public:
 	{
 
 	}
+
+	TCrossReferenceMap & operator=(const TCrossReferenceMap &aMap) = default;
 
 	inline bool haveCrossReferencesFor(const CRelIndex &ndx) const
 	{
@@ -617,15 +616,10 @@ class CConcordanceEntry : public CBasicWordEntry
 {
 public:
 	CConcordanceEntry(TWordListMap::const_iterator itrEntryWord, int nAltWordIndex, int nIndex = 0);
+	CConcordanceEntry(const CConcordanceEntry &src) = default;
 	virtual ~CConcordanceEntry() { }
 
-	CConcordanceEntry & operator=(const CConcordanceEntry &src)
-	{
-		m_itrEntryWord = src.m_itrEntryWord;
-		m_nAltWordIndex = src.m_nAltWordIndex;
-		m_nIndex = src.m_nIndex;
-		return *this;
-	}
+	CConcordanceEntry & operator=(const CConcordanceEntry &src) = default;
 
 	virtual const QString &word() const { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
 	virtual const QString &decomposedWord() const { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
@@ -979,7 +973,7 @@ class TPhraseTagList : public QList<TPhraseTag>
 public:
 	TPhraseTagList();
 	TPhraseTagList(const TPhraseTag &aTag);
-	TPhraseTagList(const TPhraseTagList &src);
+	TPhraseTagList(const TPhraseTagList &src) = default;
 	TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
 
 	bool isSet() const;

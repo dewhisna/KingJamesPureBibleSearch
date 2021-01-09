@@ -46,10 +46,7 @@ public:
 	CNoteKeywordModelItemData()
 		:	m_bChecked(false)
 	{ }
-	CNoteKeywordModelItemData(const CNoteKeywordModelItemData &other)
-		:	m_strKeyword(other.m_strKeyword),
-			m_bChecked(other.m_bChecked)
-	{ }
+	CNoteKeywordModelItemData(const CNoteKeywordModelItemData &other) = default;
 	CNoteKeywordModelItemData(const QString &strKeyword, bool bChecked)
 		:	m_strKeyword(strKeyword),
 			m_bChecked(bChecked)

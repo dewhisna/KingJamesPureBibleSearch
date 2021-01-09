@@ -2755,12 +2755,6 @@ TPhraseTagList::TPhraseTagList(const TPhraseTag &aTag)
 	append(aTag);
 }
 
-TPhraseTagList::TPhraseTagList(const TPhraseTagList &src)
-	:	QList<TPhraseTag>(src)
-{
-
-}
-
 TPhraseTagList::TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags)
 	:	QList<TPhraseTag>()
 {
