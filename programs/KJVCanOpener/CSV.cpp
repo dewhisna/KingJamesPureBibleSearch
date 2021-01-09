@@ -73,7 +73,11 @@ CCSVStream::CCSVStream(QString *pStr, QIODevice::OpenMode nFilemode)
 
 CCSVStream &CCSVStream::endLine()
 {
+#if QT_VERSION >= 0x050E00
+	m_stream << Qt::endl;
+#else
 	m_stream << endl;
+#endif
 	m_bBeginningOfLine = true;
 	return *this;
 }
