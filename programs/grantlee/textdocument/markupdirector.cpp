@@ -602,7 +602,11 @@ QSet< int > MarkupDirector::getElementsToClose( QTextBlock::iterator it ) const
 
   if ( it.atEnd() ) {
     // End of block?. Close all open tags.
+#if QT_VERSION >= 0x050E00
+    QSet< int > elementsToClose = QSet< int >(d->m_openElements.begin(), d->m_openElements.end());
+#else
     QSet< int > elementsToClose = d->m_openElements.toSet();
+#endif
     return elementsToClose.unite( d->m_elementsToOpen );
   }
 
@@ -801,7 +805,7 @@ QList< int > MarkupDirector::getElementsToOpen( QTextBlock::iterator it )
   }
 
   if ( d->m_elementsToOpen.size() <= 1 ) {
-    return d->m_elementsToOpen.toList();
+    return d->m_elementsToOpen.values();
   }
   return sortOpeningOrder( d->m_elementsToOpen, it );
 
