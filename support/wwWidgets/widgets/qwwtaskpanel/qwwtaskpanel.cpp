@@ -32,7 +32,7 @@ TaskHeader::TaskHeader(QWidget *w, QWidget *parent) : QFrame(parent) {
     setFrameRect(rect().adjusted(0, 8, 0, 0));
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     QHBoxLayout *l = new QHBoxLayout(this);
-    l->setMargin(1);
+    l->setContentsMargins(1, 1, 1, 1);
     m_spacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
     l->addItem(m_spacer);
     m_text = new QLabel;
@@ -98,7 +98,7 @@ Task::Task(QWidget *body, QWidget *parent) : QWidget(parent) {
     m_animator.setEasingCurve(QEasingCurve(QEasingCurve::InOutSine));
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setSpacing(0);
-    l->setMargin(0);
+    l->setContentsMargins(0, 0, 0, 0);
     m_header = new TaskHeader(body);
 
     l->addWidget(m_header);
@@ -215,7 +215,7 @@ QwwTaskPanel::QwwTaskPanel(QWidget *parent) : QWidget(parent)
         /*: QScrollArea(parent)*/ {
     QScrollArea *sa = new QScrollArea(this);
     QVBoxLayout *la = new QVBoxLayout(this);
-    la->setMargin(0);
+    la->setContentsMargins(0, 0, 0, 0);
     la->addWidget(sa);
     m_animated = false;
     m_panel = new QWidget(sa->viewport());

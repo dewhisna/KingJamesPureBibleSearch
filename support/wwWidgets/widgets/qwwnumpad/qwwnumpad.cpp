@@ -76,7 +76,7 @@ void QwwNumPadPrivate::_q_clicked(int id) {
 QwwNumPad::QwwNumPad(QWidget *parent) : QWidget(parent), QwwPrivatable(new QwwNumPadPrivate(this)) {
     QGridLayout *l = new QGridLayout(this);
     l->setSpacing(2);
-    l->setMargin(2);
+    l->setContentsMargins(2, 2, 2, 2);
     QButtonGroup *group = new QButtonGroup(this);
     for (int i=0;i<9;i++) {
         QToolButton *b = new QToolButton;
@@ -128,7 +128,7 @@ void QwwNumPad::animateClick(const QString & button, int msec) {
 #if QT_VERSION < 0x050000
     char key = button[0].toAscii();
 #else
-	char key = button[0].toLatin1();
+    char key = button[0].toLatin1();
 #endif
     QList<QToolButton*> items;
     QString name;
@@ -145,10 +145,15 @@ void QwwNumPad::animateClick(const QString & button, int msec) {
 #if QT_VERSION < 0x050000
     QToolButton *buttonPtr = qFindChild<QToolButton*>(this, name);
 #else
-	QToolButton *buttonPtr = this->findChild<QToolButton *>(name);
+    QToolButton *buttonPtr = this->findChild<QToolButton *>(name);
 #endif
     if (!buttonPtr) return;
+#if QT_VERSION < 0x060000
     buttonPtr->animateClick(msec);
+#else
+    buttonPtr->animateClick();
+    Q_UNUSED(msec);
+#endif
 }
 
 #include "moc_qwwnumpad.cpp"

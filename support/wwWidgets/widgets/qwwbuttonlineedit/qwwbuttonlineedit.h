@@ -56,7 +56,11 @@ public:
 #endif
 public slots:
     void setRegExp(const QString &);
+#if QT_VERSION >= 0x050100
+    void setRegExp(const QRegularExpression &);
+#else
     void setRegExp(const QRegExp &);
+#endif
     void setIcon(const QIcon &);
     void setAutoRaise(bool);
     void setButtonVisible(bool);

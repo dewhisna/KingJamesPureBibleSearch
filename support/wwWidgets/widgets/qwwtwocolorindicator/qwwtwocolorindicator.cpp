@@ -224,7 +224,11 @@ void QwwTwoColorIndicator::setActive(bool a) {
  * \internal
  */
 QSize QwwTwoColorIndicator::sizeHint() const {
+#if QT_VERSION < 0x060000
     return QSize(50,50).expandedTo(QApplication::globalStrut()*1.5);
+#else
+    return QSize(50,50);
+#endif
 }
 
 
@@ -232,7 +236,11 @@ QSize QwwTwoColorIndicator::sizeHint() const {
  * \internal
  */
 QSize QwwTwoColorIndicator::minimumSizeHint() const {
+#if QT_VERSION < 0x060000
     return QSize(20,20).expandedTo(QApplication::globalStrut());
+#else
+    return QSize(20,20);
+#endif
 }
 
 /*!
@@ -361,9 +369,17 @@ void QwwTwoColorIndicator::dropEvent(QDropEvent *ev) {
         col = qvariant_cast<QColor>(ev->mimeData()->colorData());
     else
         col.setNamedColor(ev->mimeData()->text());
+#if QT_VERSION < 0x060000
     if (d->foregroundRect().contains(ev->pos())) {
+#else
+    if (d->foregroundRect().contains(ev->position().toPoint())) {
+#endif
         setFgColor(col);
+#if QT_VERSION < 0x060000
     } else if (d->backgroundRect().contains(ev->pos())) {
+#else
+    } else if (d->backgroundRect().contains(ev->position().toPoint())) {
+#endif
         setBgColor(col);
     }
     ev->setDropAction(Qt::CopyAction);

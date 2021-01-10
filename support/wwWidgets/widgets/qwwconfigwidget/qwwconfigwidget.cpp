@@ -64,9 +64,9 @@ QwwConfigWidget::QwwConfigWidget(QWidget *parent)
     d->view->setItemDelegate(new ConfigWidgetDelegate(d->view));
     d->layout = new QHBoxLayout(this);
     d->layout->addWidget(d->view);
-    d->layout->setMargin(0);
+    d->layout->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout *vl = new QVBoxLayout;
-    vl->setMargin(0);
+    vl->setContentsMargins(0, 0, 0, 0);
     vl->setSpacing(2);
     d->layout->addLayout(vl);
     d->titleLabel = new QLabel;

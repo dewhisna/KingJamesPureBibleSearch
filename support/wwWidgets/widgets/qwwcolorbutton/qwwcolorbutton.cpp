@@ -26,13 +26,14 @@
 #if QT_VERSION >= 0x050B00
 #include <QGuiApplication>
 #include <QScreen>
+#else
+#include <QDesktopWidget>
 #endif
 #include <QDrag>
 #include <QMouseEvent>
 #include <QMimeData>
 #include <QDragEnterEvent>
 #include <QDropEvent>
-#include <QDesktopWidget>
 #include <QPointer>
 #include "colormodel.h"
 
@@ -95,7 +96,7 @@ public:
     QwwColorPopup(ColorModel *model, QWidget *parent = 0) : QWidget(parent, Qt::Popup) {
         QVBoxLayout *l = new QVBoxLayout(this);
         l->setSpacing(0);
-        l->setMargin(0);
+        l->setContentsMargins(0, 0, 0, 0);
         view = new QListView;
         view->setFlow(QListView::LeftToRight);
         view->setResizeMode(QListView::Adjust);

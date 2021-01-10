@@ -187,7 +187,11 @@ QSize QwwRichTextButton::sizeHint() const {
     int m = style()->pixelMetric(QStyle::PM_ButtonMargin, &opt, this);
     m+=style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     m*=2;
+#if QT_VERSION < 0x060000
     return QSize(80,25).expandedTo(QApplication::globalStrut()).expandedTo(document()->size().toSize()+QSize(m, m));
+#else
+    return QSize(80,25).expandedTo(document()->size().toSize()+QSize(m, m));
+#endif
 }
 
 /*!
@@ -259,7 +263,11 @@ void QwwRichTextButtonPrivate::_q_documentDestroyed() {
  * \internal
  */
 QSize QwwRichTextButton::minimumSizeHint() const {
+#if QT_VERSION < 0x060000
     return QSize(80, 25).expandedTo(QApplication::globalStrut());
+#else
+    return QSize(80, 25);
+#endif
 }
 
 /*!

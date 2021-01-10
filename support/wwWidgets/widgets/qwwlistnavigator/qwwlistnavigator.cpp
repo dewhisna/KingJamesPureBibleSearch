@@ -134,7 +134,7 @@ QwwListNavigator::QwwListNavigator(QWidget * parent) : QAbstractSlider(parent), 
     setOrientation(Qt::Horizontal);
     d->buttons = (Buttons)(FirstButton|PrevButton|Slider|NextButton|LastButton);
     QHBoxLayout *l = new QHBoxLayout(this);
-    l->setMargin(0);
+    l->setContentsMargins(0, 0, 0, 0);
     QToolButton *fir = new QToolButton;
     fir->setIcon(wwWidgets::icon("go-first", QPixmap(":/go-first.png")));
     fir->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -247,7 +247,7 @@ void QwwListNavigator::sliderChange(SliderChange change) {
         QSizePolicy sp = sizePolicy();
         sp.transpose();
         setSizePolicy(sp);
-        l->setMargin(0);
+        l->setContentsMargins(0, 0, 0, 0);
         l->addWidget(d->widgets[FirstButton]);
         l->addWidget(d->widgets[PrevButton]);
         l->addWidget(d->widgets[Slider]);

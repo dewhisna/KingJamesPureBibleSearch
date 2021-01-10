@@ -108,9 +108,19 @@ QwwLed::~QwwLed() {
  */
 QSize QwwLed::sizeHint() const {
     Q_D(const QwwLed);
-    if (d->shape == Circular)
+    if (d->shape == Circular) {
+#if QT_VERSION < 0x060000
         return QSize(25,25).expandedTo(QApplication::globalStrut());
-    else return QSize(25,15).expandedTo(QApplication::globalStrut());
+#else
+        return QSize(25,25);
+#endif
+    } else {
+#if QT_VERSION < 0x060000
+        return QSize(25,15).expandedTo(QApplication::globalStrut());
+#else
+        return QSize(25,15);
+#endif
+    }
 }
 
 
@@ -164,7 +174,7 @@ void QwwLed::paintEvent(QPaintEvent * ) {
         p.setBrush(grad);
         QPen pe = p.pen();
         pe.setWidth(d->width);
-        pe.setColor(palette().color(QPalette::Foreground));
+        pe.setColor(palette().color(QPalette::WindowText));
         p.setPen(pe);
 
         p.drawEllipse(r.adjusted(d->width,d->width,-d->width,-d->width));
