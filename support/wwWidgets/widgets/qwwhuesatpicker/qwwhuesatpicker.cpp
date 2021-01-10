@@ -189,7 +189,7 @@ void QwwHueSatPicker::paintEvent(QPaintEvent *) {
         drawCrosshair(&p, d->m_pt);
     } else {
         QIcon i(d->px);
-        i.paint(&p, rct, 0, QIcon::Disabled);
+        i.paint(&p, rct, Qt::AlignmentFlag(), QIcon::Disabled);
     }
 }
 

@@ -79,7 +79,7 @@ void QwwLongSpinBoxPrivate::updateButtons() {
     Q_Q(QwwLongSpinBox);
     QStyleOptionSpinBox opt;
     opt.init(q);
-    opt.activeSubControls = 0;
+    opt.activeSubControls = QStyle::SubControls();
     opt.buttonSymbols = q->buttonSymbols();
     opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxFrame;
     opt.stepEnabled = q->stepEnabled();
@@ -358,7 +358,7 @@ void QwwLongSpinBox::fixup(QString & input) const {
 QAbstractSpinBox::StepEnabled QwwLongSpinBox::stepEnabled() const {
     if (wrapping())
         return StepUpEnabled|StepDownEnabled;
-    StepEnabled se = 0;
+    StepEnabled se = QAbstractSpinBox::StepEnabled();
     if (value()<maximum()) se |= StepUpEnabled;
     if (value()>minimum()) se |= StepDownEnabled;
     return se;

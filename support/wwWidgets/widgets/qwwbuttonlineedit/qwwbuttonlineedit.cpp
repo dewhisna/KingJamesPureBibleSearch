@@ -44,16 +44,18 @@ void QwwButtonLineEditPrivate::updateButtonPosition(int w) {
 //         int w = button->sizeHint().width();
     if(position==QwwButtonLineEdit::None){
         button->hide();
-    } else if(visible)
+    } else if(visible) {
         button->show();
-	if(position == QwwButtonLineEdit::RightInside){
-	    button->setGeometry(ncr.right()-w+3, ncr.top()+2, w-4, ncr.height()-4);
-	} else if (position == QwwButtonLineEdit::RightOutside)
-            button->setGeometry(ncr.right()-w+1, ncr.top(), w, ncr.height());
-        else if(position == QwwButtonLineEdit::LeftInside){
-	    button->setGeometry(ncr.left()+2, ncr.top()+2, w-4, ncr.height()-4);
-	} else
-            button->setGeometry(ncr.left(), ncr.top(), w, ncr.height());
+    }
+    if(position == QwwButtonLineEdit::RightInside) {
+        button->setGeometry(ncr.right()-w+3, ncr.top()+2, w-4, ncr.height()-4);
+    } else if (position == QwwButtonLineEdit::RightOutside) {
+        button->setGeometry(ncr.right()-w+1, ncr.top(), w, ncr.height());
+    } else if(position == QwwButtonLineEdit::LeftInside) {
+        button->setGeometry(ncr.left()+2, ncr.top()+2, w-4, ncr.height()-4);
+    } else {
+        button->setGeometry(ncr.left(), ncr.top(), w, ncr.height());
+    }
 }
 
 

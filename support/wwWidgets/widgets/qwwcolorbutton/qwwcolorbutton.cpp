@@ -23,6 +23,10 @@
 #include <QtDebug>
 #include <QEvent>
 #include <QApplication>
+#if QT_VERSION >= 0x050B00
+#include <QGuiApplication>
+#include <QScreen>
+#endif
 #include <QDrag>
 #include <QMouseEvent>
 #include <QMimeData>
@@ -176,8 +180,13 @@ public:
             q->connect(popup->colorView(), SIGNAL(clicked(const QModelIndex&)), q, SLOT(_q_activated(const QModelIndex&)));
 			QPoint p = q->rect().bottomLeft();
 			p = q->mapToGlobal(p);
+#if QT_VERSION >= 0x050B00
+			const QScreen *pScreen = QGuiApplication::primaryScreen();
+			QRect avail = (pScreen ? pScreen->availableGeometry() : QRect());
+#else
 			QRect avail = QDesktopWidget().availableGeometry();
-			int hei = avail.height()-p.y();
+#endif
+			int hei = (!avail.isNull() ? avail.height()-p.y() : 0);
 			popup->move(p);
 			QSize hint = sizeHint();
 			if ((hint.height()>hei) && (hei > 0))

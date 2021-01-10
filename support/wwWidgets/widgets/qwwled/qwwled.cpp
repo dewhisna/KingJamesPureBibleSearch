@@ -152,7 +152,7 @@ QColor QwwLed::color() const {
 void QwwLed::paintEvent(QPaintEvent * ) {
     Q_D(QwwLed);
     QPainter p(this);
-    QColor bgColor = palette().background().color();
+    QColor bgColor = palette().window().color();
     if (d->shape==Circular) {
         int sidesize = qMin(width(), height());
         p.setRenderHint(QPainter::Antialiasing);
@@ -179,7 +179,7 @@ void QwwLed::paintEvent(QPaintEvent * ) {
             opt.state |= QStyle::State_Sunken;
         QBrush br(isChecked() ? d->color : bgColor);
         if (d->shape==RectangularPlain)
-            qDrawPlainRect(&p, opt.rect, opt.palette.foreground().color(), d->width, &br);
+            qDrawPlainRect(&p, opt.rect, opt.palette.windowText().color(), d->width, &br);
         else
             qDrawShadePanel(&p, opt.rect, opt.palette, d->shape==RectangularSunken, d->width, &br);
 

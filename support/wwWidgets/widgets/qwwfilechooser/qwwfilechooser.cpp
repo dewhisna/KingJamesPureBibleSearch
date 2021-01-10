@@ -17,7 +17,8 @@
 #endif
 #include <QToolButton>
 
-#include <QDirModel>
+#include <QFileSystemModel>
+#include <QFileIconProvider>
 #include <QString>
 #include <QShortcut>
 #include <QPainter>
@@ -42,7 +43,7 @@ public:
         if (m) {
             model = m;
         } else {
-            model = new QDirModel(q);
+            model = new QFileSystemModel(q);
         }
 #if QT_VERSION >= 0x040200 && !defined(QT_NO_COMPLETER)
         completer->setModel(model);
@@ -103,7 +104,7 @@ QwwFileChooser::QwwFileChooser(QWidget *parent) : QwwButtonLineEdit(*new QwwFile
 
 //     connect(this, SIGNAL(textEdited(const QString&)), d->completer, SLOT(setCompletionPrefix(const QString&)));
 #endif
-    setModel(new QDirModel(this));
+    setModel(new QFileSystemModel(this));
     setButtonPosition(RightOutside);
     connect(this, SIGNAL(buttonClicked()), this, SLOT(chooseFile()));
     setAutoRaise(true);
@@ -227,7 +228,7 @@ void QwwFileChooser::chooseFile() {
                 path = QFileDialog::getOpenFileName(this, tr("Choose file"), text(), filter());
             break;
         case QFileDialog::Directory:
-            path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), text(), 0);
+            path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), text(), QFileDialog::Options());
             break;
         case QFileDialog::DirectoryOnly:
             path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), text());

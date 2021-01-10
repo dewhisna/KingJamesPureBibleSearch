@@ -14,6 +14,8 @@
 #ifndef WW_NO_TASKPANEL
 #include "qwwtaskpanel_p.h"
 
+#include <QEasingCurve>
+
 
 /*
  *
@@ -93,7 +95,7 @@ Task::Task(QWidget *body, QWidget *parent) : QWidget(parent) {
     m_animBody = 0;
     m_animator.setDuration(1200);
     m_animator.setUpdateInterval(20);
-    m_animator.setCurveShape(QTimeLine::EaseInOutCurve);
+    m_animator.setEasingCurve(QEasingCurve(QEasingCurve::InOutSine));
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setSpacing(0);
     l->setMargin(0);
@@ -137,7 +139,11 @@ void Task::setOpen(bool o) {
 
             body()->setAttribute(Qt::WA_WState_ExplicitShowHide, true);
             body()->setAttribute(Qt::WA_WState_Hidden, false);
+#if QT_VERSION >= 0x050000
+            m_animpix = body()->grab();
+#else
             m_animpix = QPixmap::grabWidget(body());
+#endif
             body()->setAttribute(Qt::WA_WState_Hidden, true);
             if (o) {
                 m_animator.setDirection(QTimeLine::Forward);

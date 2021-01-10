@@ -41,7 +41,11 @@ public:
     }
     QSize sizeHint ( const QStyleOptionViewItem & option, const QModelIndex & index ) const {
         QSize ds = option.decorationSize;
+#if QT_VERSION >= 0x050B00
+        int totalwidth = option.fontMetrics.horizontalAdvance(index.data(Qt::DisplayRole).toString());
+#else
         int totalwidth = option.fontMetrics.width(index.data(Qt::DisplayRole).toString());
+#endif
         QSize ts;
 //         if(totalwidth>option.rect.width())
 //             ts = QSize(totalwidth/2, 2*option.fontMetrics.height());
