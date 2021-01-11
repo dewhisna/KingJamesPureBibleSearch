@@ -214,7 +214,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             if (opt->state & State_NoChange)
                 p->setPen(opt->palette.dark().color());
             else
-                p->setPen(opt->palette.foreground().color());
+                p->setPen(opt->palette.windowText().color());
             p->drawPolyline(a);
         }
         if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
@@ -257,7 +257,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             p->drawPolyline(a);
             a.setPoints(INTARRLEN(pts5), pts5);
             a.translate(r.x(), r.y());
-            QColor fillColor = on ? opt->palette.dark().color() : opt->palette.background().color();
+            QColor fillColor = on ? opt->palette.dark().color() : opt->palette.window().color();
             p->setPen(fillColor);
             p->setBrush(on ? opt->palette.brush(QPalette::Dark) :
                          opt->palette.brush(QPalette::Window));

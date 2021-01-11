@@ -80,7 +80,7 @@ inline QPixmap styleCachePixmap(const QSize &size)
     int txType = painter->deviceTransform().type() | painter->worldTransform().type(); \
     bool doPixmapCache = (txType <= QTransform::TxTranslate) \
             || (painter->deviceTransform().type() == QTransform::TxScale); \
-    if (doPixmapCache && QPixmapCache::find(unique, internalPixmapCache)) { \
+    if (doPixmapCache && QPixmapCache::find(unique, &internalPixmapCache)) { \
         painter->drawPixmap(option->rect.topLeft(), internalPixmapCache); \
     } else { \
         if (doPixmapCache) { \

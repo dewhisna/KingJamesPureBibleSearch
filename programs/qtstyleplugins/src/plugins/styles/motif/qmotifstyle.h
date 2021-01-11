@@ -45,6 +45,7 @@
 #include <QtWidgets/qcommonstyle.h>
 #include <QtCore/qdatetime.h>
 #include <QtCore/qpointer.h>
+#include <QElapsedTimer>
 
 QT_BEGIN_HEADER
 
@@ -112,7 +113,7 @@ private:
     QList<QProgressBar *> bars;
     int animationFps;
     int animateTimer;
-    QTime startTime;
+    QElapsedTimer startTime;
     int animateStep;
 };
 

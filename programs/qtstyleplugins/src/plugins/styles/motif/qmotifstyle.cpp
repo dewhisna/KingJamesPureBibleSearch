@@ -745,7 +745,11 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
     case PE_IndicatorProgressChunk:
         {
             bool vertical = false;
+#if QT_VERSION < 0x050000
             if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt))
+#else
+            if (const QStyleOptionProgressBar *pb2 = qstyleoption_cast<const QStyleOptionProgressBar *>(opt))
+#endif
                 vertical = (pb2->orientation == Qt::Vertical);
             if (!vertical) {
                 p->fillRect(opt->rect.x(), opt->rect.y(), opt->rect.width(),
@@ -851,7 +855,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
     case CE_PushButtonBevel:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             int diw, x1, y1, x2, y2;
-            p->setPen(opt->palette.foreground().color());
+            p->setPen(opt->palette.windowText().color());
             p->setBrush(QBrush(opt->palette.button().color(), Qt::NoBrush));
             diw = proxy()->pixelMetric(PM_ButtonDefaultIndicator);
             opt->rect.getCoords(&x1, &y1, &x2, &y2);
@@ -909,7 +913,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
                 p->fillRect(opt->rect.adjusted(default_frame, default_frame,
                                                -default_frame, -default_frame),
-                                               tab->palette.background());
+                                               tab->palette.window());
 
                 if (tab->shape == QTabBar::RoundedWest) {
                     tabDark = opt->palette.light().color();
@@ -947,8 +951,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 if (opt->state & State_Selected) {
                     p->fillRect(QRect(tabRect.left()+1, tabRect.bottom()-frame_offset,
                                       tabRect.width()-3, 2),
-                                tab->palette.brush(QPalette::Active, QPalette::Background));
-                    p->setPen(tab->palette.background().color());
+                                tab->palette.brush(QPalette::Active, QPalette::Window));
+                    p->setPen(tab->palette.window().color());
                     p->drawLine(tabRect.left()+1, tabRect.bottom(),
                                 tabRect.left()+1, tabRect.top()+2);
                     p->setPen(tabLight);
@@ -998,7 +1002,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             bool vertical = false;
             bool invert = false;
             bool bottomToTop = false;
+#if QT_VERSION < 0x050000
             if (const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt)) {
+#else
+            if (const QStyleOptionProgressBar *pb2 = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
+#endif
                 vertical = (pb2->orientation == Qt::Vertical);
                 invert = pb2->invertedAppearance;
                 bottomToTop = pb2->bottomToTop;
@@ -1087,7 +1095,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     proxy()->drawItemText(p, menuitem->rect.adjusted(10, 0, -5, 0), Qt::AlignLeft | Qt::AlignVCenter,
                                  menuitem->palette, menuitem->state & State_Enabled, menuitem->text,
                                  QPalette::Text);
+#if QT_VERSION >= 0x050B00
+                    textWidth = menuitem->fontMetrics.horizontalAdvance(menuitem->text) + 10;
+#else
                     textWidth = menuitem->fontMetrics.width(menuitem->text) + 10;
+#endif
                     y += menuitem->fontMetrics.height() / 2;
                     p->setFont(oldFont);
                 }
@@ -1263,7 +1275,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             bool inverted = false;
 
             // Get extra style options if version 2
+#if QT_VERSION < 0x050000
             const QStyleOptionProgressBarV2 *pb2 = qstyleoption_cast<const QStyleOptionProgressBarV2 *>(opt);
+#else
+            const QStyleOptionProgressBar *pb2 = qstyleoption_cast<const QStyleOptionProgressBar *>(opt);
+#endif
             if (pb2) {
                 vertical = (pb2->orientation == Qt::Vertical);
                 inverted = pb2->invertedAppearance;
@@ -1278,7 +1294,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
             QPalette pal2 = pb->palette;
             // Correct the highlight color if it is the same as the background
-            if (pal2.highlight() == pal2.background())
+            if (pal2.highlight() == pal2.window())
                 pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
                                                                      QPalette::Highlight));
             bool reverse = ((!vertical && (pb->direction == Qt::RightToLeft)) || vertical);
@@ -1965,8 +1981,13 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
     case SE_ProgressBarContents:
         if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             int textw = 0;
+#if QT_VERSION >= 0x050B00
+            if (pb->textVisible)
+                textw = pb->fontMetrics.horizontalAdvance(QLatin1String("100%")) + 6;
+#else
             if (pb->textVisible)
                 textw = pb->fontMetrics.width(QLatin1String("100%")) + 6;
+#endif
 
             if (pb->textAlignment == Qt::AlignLeft || pb->textAlignment == Qt::AlignCenter) {
                 rect = opt->rect;
