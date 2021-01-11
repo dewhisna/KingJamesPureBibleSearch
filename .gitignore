@@ -28,6 +28,7 @@
 /programs/qt-speech/festival/speech_tools/
 /programs/**/build-*/
 /programs/qt-speech/build-*/
+/support/build-*/
 
 # Non-distributed Output Packages:
 /Output/KingJamesPureBibleSearch-3_0_0-1-x86_64-unsigned.dmg
