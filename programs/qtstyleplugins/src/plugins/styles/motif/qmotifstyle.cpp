@@ -895,8 +895,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 newBtn.rect = QRect(ir.right() - mbi - 3, ir.y() + 4,  mbi, ir.height() - 8);
                 proxy()->drawPrimitive(PE_IndicatorArrowDown, &newBtn, p, widget);
             }
-            break;
         }
+        break;
 
 #ifndef QT_NO_TABBAR
     case CE_TabBarTabShape:
@@ -989,7 +989,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             } else {
                 QCommonStyle::drawControl(element, opt, p, widget);
             }
-            break; }
+        }
+        break;
 #endif // QT_NO_TABBAR
     case CE_ProgressBarGroove:
         qDrawShadePanel(p, opt->rect, opt->palette, true, 2);
@@ -1054,10 +1055,11 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 }
             }
             p->setTransform(oldMatrix, false);
-            break;
         }
+        break;
 
-    case CE_MenuTearoff: {
+    case CE_MenuTearoff:
+    {
         if (opt->state & State_Selected) {
             if (pixelMetric(PM_MenuPanelWidth, opt, widget) > 1)
                 qDrawShadePanel(p, opt->rect.x(), opt->rect.y(), opt->rect.width(),
@@ -1075,7 +1077,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         p->setPen(QPen(opt->palette.light().color(), 1, Qt::DashLine));
         p->drawLine(opt->rect.x()+2, opt->rect.y()+opt->rect.height()/2, opt->rect.x()+opt->rect.width()-4,
                     opt->rect.y()+opt->rect.height()/2);
-        break; }
+        break;
+    }
 
     case CE_MenuItem:
         if (const QStyleOptionMenuItem *menuitem = qstyleoption_cast<const QStyleOptionMenuItem *>(opt)) {
@@ -1227,7 +1230,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     arrowOpt.state = ((opt->state & State_Enabled) ? State_Enabled : State_None);
                 proxy()->drawPrimitive(arrow, &arrowOpt, p, widget);
             }
-            break; }
+        }
+        break;
 
     case CE_MenuBarItem:
         if (opt->state & State_Selected)  // active item
@@ -1302,16 +1306,14 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 reverse = !reverse;
             int w = rect.width();
             if (pb->minimum == 0 && pb->maximum == 0) {
-                QRect progressBar;
-                 // draw busy indicator
-                 int x = (animateStep*8)% (w * 2);
-                 if (x > w)
-                     x = 2 * w - x;
-                 x = reverse ? rect.right() - x : x + rect.x();
-                 p->setTransform(m, true);
-                 p->setPen(QPen(pal2.highlight().color(), 4));
-                 p->drawLine(x, rect.y(), x, rect.height());
-
+                // draw busy indicator
+                int x = (animateStep*8)% (w * 2);
+                if (x > w)
+                    x = 2 * w - x;
+                x = reverse ? rect.right() - x : x + rect.x();
+                p->setTransform(m, true);
+                p->setPen(QPen(pal2.highlight().color(), 4));
+                p->drawLine(x, rect.y(), x, rect.height());
             } else
                 QCommonStyle::drawControl(element, opt, p, widget);
         }
@@ -1788,7 +1790,8 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
             default:
                 break;
             }
-            break; }
+        }
+        break;
 #endif // QT_NO_SPINBOX
 #ifndef QT_NO_SLIDER
     case CC_Slider:

@@ -478,6 +478,7 @@ static void qBrushSetAlphaF(QBrush *brush, qreal alpha)
         default:
             qWarning("QPlastiqueStyle::qBrushLight() - unknown gradient type"
                      " - falling back to QLinearGradient");
+            // fall through
         case QGradient::LinearGradient: {
             QLinearGradient grad = *static_cast<const QLinearGradient *>(gradient);
             grad.setStops(stops);
@@ -541,6 +542,7 @@ static QBrush qBrushLight(QBrush brush, int light)
         default:
             qWarning("QPlastiqueStyle::qBrushLight() - unknown gradient type"
                      " - falling back to QLinearGradient");
+            // fall through
         case QGradient::LinearGradient: {
             QLinearGradient grad = *static_cast<const QLinearGradient *>(gradient);
             grad.setStops(stops);
@@ -603,6 +605,7 @@ static QBrush qBrushDark(QBrush brush, int dark)
         default:
             qWarning("QPlastiqueStyle::qBrushDark() - unknown gradient type"
                      " - falling back to QLinearGradient");
+            // fall through
         case QGradient::LinearGradient: {
             QLinearGradient grad = *static_cast<const QLinearGradient *>(gradient);
             grad.setStops(stops);
@@ -1376,8 +1379,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 qt_plastique_draw_frame(painter, option->rect, option, QFrame::Sunken);
 
             painter->restore();
-            break;
         }
+        break;
 #endif // QT_NO_LINEEDIT
     case PE_FrameDockWidget:
     case PE_FrameMenu:
@@ -5219,17 +5222,19 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                         ret.adjust(0, 0, -delta, 0);
                     if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                         ret.adjust(0, 0, -delta, 0);
-                    ret.adjusted(indent, 0, -indent, 0);
+                    ret.adjust(indent, 0, -indent, 0);
                 }
                 break;
             case SC_TitleBarContextHelpButton:
                 if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
                     offset += delta;
+                // fall through
             case SC_TitleBarMinButton:
                 if (!isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
                     offset += delta;
                 else if (sc == SC_TitleBarMinButton)
                     break;
+                // fall through
             case SC_TitleBarNormalButton:
                 if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
                     offset += delta;
@@ -5237,21 +5242,25 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                     offset += delta;
                 else if (sc == SC_TitleBarNormalButton)
                     break;
+                // fall through
             case SC_TitleBarMaxButton:
                 if (!isMaximized && (tb->titleBarFlags & Qt::WindowMaximizeButtonHint))
                     offset += delta;
                 else if (sc == SC_TitleBarMaxButton)
                     break;
+                // fall through
             case SC_TitleBarShadeButton:
                 if (!isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
                     offset += delta;
                 else if (sc == SC_TitleBarShadeButton)
                     break;
+                // fall through
             case SC_TitleBarUnshadeButton:
                 if (isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
                     offset += delta;
                 else if (sc == SC_TitleBarUnshadeButton)
                     break;
+                // fall through
             case SC_TitleBarCloseButton:
                 if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
                     offset += delta;
@@ -5453,8 +5462,8 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
             if (slider->tickPosition & QSlider::TicksAbove)
                 ++size;
             ret = size;
-            break;
         }
+        break;
 #endif // QT_NO_SLIDER
     case PM_ScrollBarExtent:
         ret = 16;
@@ -5806,9 +5815,11 @@ int QPlastiqueStyle::layoutSpacing(QSizePolicy::ControlType control1,
     case CT1(QSizePolicy::CheckBox):
         if (orientation == Qt::Vertical)
             return 2;
+        break;
     case CT1(QSizePolicy::RadioButton):
         if (orientation == Qt::Vertical)
             return 1;
+        break;
     }
 
     if (orientation == Qt::Horizontal
