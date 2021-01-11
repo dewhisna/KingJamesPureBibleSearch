@@ -41,7 +41,8 @@
 #include <QToolTip>
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
-#ifndef PLASTIQUE_STATIC
+
+#if QT_VERSION >= 0x050000
 #include <QStyle>
 #include <QStyleFactory>
 #include <QProxyStyle>
@@ -63,8 +64,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 	m_ExcludedSearchResultsHighlighter(pSearchResultsListModel, true),
 	m_bShowExcludedSearchResults(CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()),
 	m_bDoingUpdate(false),
-#ifndef PLASTIQUE_STATIC
-	m_pPlastiqueStyle(nullptr),
+#if QT_VERSION >= 0x050000
+	m_pChapterScrollerStyle(nullptr),
 #endif
 #ifdef USING_QT_WEBENGINE
 	m_pWebEngineView(nullptr),
@@ -78,8 +79,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 
 	ui.setupUi(this);
 
-#ifndef PLASTIQUE_STATIC
-	m_pPlastiqueStyle = new QProxyStyle(QStyleFactory::create("plastique"));
+#if QT_VERSION >= 0x050000
+	m_pChapterScrollerStyle = new QProxyStyle(QStyleFactory::create("fusion"));
 #endif
 
 	initialize();
@@ -169,10 +170,10 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 
 CKJVBrowser::~CKJVBrowser()
 {
-#ifndef PLASTIQUE_STATIC
-	if (m_pPlastiqueStyle) {
-		delete m_pPlastiqueStyle;
-		m_pPlastiqueStyle = nullptr;
+#if QT_VERSION >= 0x050000
+	if (m_pChapterScrollerStyle) {
+		delete m_pChapterScrollerStyle;
+		m_pChapterScrollerStyle = nullptr;
 	}
 #endif
 }
@@ -523,11 +524,11 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 void CKJVBrowser::setupChapterScrollbar()
 {
 	if (ui.scrollbarChapter != nullptr) {
-#ifndef PLASTIQUE_STATIC
-		assert(m_pPlastiqueStyle != nullptr);
-		ui.scrollbarChapter->setStyle(m_pPlastiqueStyle);
+#if QT_VERSION >= 0x050000
+		assert(m_pChapterScrollerStyle != nullptr);
+		ui.scrollbarChapter->setStyle(m_pChapterScrollerStyle);
 #else
-		ui.scrollbarChapter->setStyle(&m_PlastiqueStyle);
+		ui.scrollbarChapter->setStyle(&m_ChapterScrollerStyle);
 #endif
 		ui.scrollbarChapter->setRange(1, m_pBibleDatabase->bibleEntry().m_nNumChp);
 		ui.scrollbarChapter->setTracking(true);

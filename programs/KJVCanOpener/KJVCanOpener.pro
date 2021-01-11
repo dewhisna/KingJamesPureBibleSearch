@@ -141,20 +141,6 @@ QtSpeech {
 }
 
 
-# Add the Plastique Style:
-# In Qt4, Plastique is built-in to Qt itself:
-!console:lessThan(QT_MAJOR_VERSION,5):DEFINES += PLASTIQUE_STATIC
-!console:greaterThan(QT_MAJOR_VERSION,4) {
-	static {
-		include(../qtstyleplugins/src/qtstyleplugins.pri)
-		DEFINES += PLASTIQUE_STATIC
-	} else {
-		# Use Dynamic Plugin Style:
-		QTPLUGIN += qplastiquestyle
-		DEFINES -= PLASTIQUE_STATIC
-	}
-}
-
 # The following is absolutely needed on Qt5.2.0 and Qt5.2.1 (on Mac), or else we'll crash in the
 #	failure of the accessibility factory from creating an accessibility
 #	object.  Should probably be there for all platforms to make sure the
