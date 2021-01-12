@@ -48,7 +48,7 @@ defined(qtHaveModule, test) {
 greaterThan(QT_MAJOR_VERSION,4):QT+=widgets
 
 # WebEngine introduced in Qt 5.4:
-!emscripten:!console:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,3)) {
+!emscripten:!console:if(equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,3) | greaterThan(QT_MAJOR_VERSION,5)) {
 	QT *= webenginewidgets
 	DEFINES *= USING_QT_WEBENGINE
 }
@@ -66,7 +66,7 @@ console:DEFINES += IS_CONSOLE_APP
 !console:lessThan(QT_MAJOR_VERSION,5):DEFINES *= QT_WIDGETS_LIB
 
 # Include QWebChannel support on Qt 5.5+, if it's been selected:
-unix:!emscripten:!mac:!vnc:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)):CONFIG *= webchannel
+unix:!emscripten:!mac:!vnc:if(equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4) | greaterThan(QT_MAJOR_VERSION,5)):CONFIG *= webchannel
 webchannel:include(../qwebchannel/qwebchannel.pri)
 
 if(!emscripten|wasm) {
@@ -146,7 +146,7 @@ QtSpeech {
 #	object.  Should probably be there for all platforms to make sure the
 #	accessibility support gets loaded:
 # Was fixed on the Mac in Qt5.3.0 -- having this defined caused a (non-fatal) redundant definition:
-!console:!emscripten:!win32:if(!contains(QT_CONFIG, static) | lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3)):QTPLUGIN += qtaccessiblewidgets
+!console:!emscripten:!win32:if(equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3) | lessThan(QT_MAJOR_VERSION,5) | !contains(QT_CONFIG, static)):QTPLUGIN += qtaccessiblewidgets
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -180,7 +180,7 @@ modeltest {
 
 # Enable workarounds for some QTBUGs:
 DEFINES += WORKAROUND_QTBUG_13768											# Hover attribute for QSplitter
-equals(QT_MAJOR_VERSION,5):if(lessThan(QT_MINOR_VERSION,2) | equals(QT_MINOR_VERSION,2):equals(QT_PATCH_VERSION,0)):DEFINES += WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug
+equals(QT_MAJOR_VERSION,5):if(equals(QT_MINOR_VERSION,2):equals(QT_PATCH_VERSION,0) | lessThan(QT_MINOR_VERSION,2)):DEFINES += WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):CONFIG += WORKAROUND_QTBUG_34490		# iOS Font Bug
 ios:greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_35787		# iOS SplashScreen Bug
 greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_BROWSER_BOUNCE	# Not a submitted Qt bug, that I know of, but a Qt 5 bug
@@ -272,7 +272,7 @@ lessThan(QT_MAJOR_VERSION,5) {
 
 # On Qt 5.3.0, they apparently fixed this where we don't need qsqlite, and adding this
 #	on that version causes "Redundant entries in QTPLUGIN: qsqlite"
-ios:if(!contains(QT_CONFIG, static)):if(lessThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3)):QTPLUGIN += qsqlite
+ios:if(!contains(QT_CONFIG, static)):if(equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3) | lessThan(QT_MAJOR_VERSION,5)):QTPLUGIN += qsqlite
 
 TARGET = KingJamesPureBibleSearch
 TEMPLATE = app

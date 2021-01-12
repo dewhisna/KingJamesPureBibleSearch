@@ -2,7 +2,7 @@
 	included_modules += qwebchannel/qwebchannel.pri
 
 	# QWebChannel support only on Qt 5.5+:
-	webchannel:if(greaterThan(QT_MAJOR_VERSION,5) | equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4)) {
+	webchannel:if(equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4) | greaterThan(QT_MAJOR_VERSION,5)) {
 
 		INCLUDEPATH += $$PWD
 		DEPENDPATH += $$PWD
@@ -81,7 +81,7 @@
 		QMAKE_EXTRA_COMPILERS += webChannelKeyGen
 
 	} else {
-		error("WebChannel support build requires Qt 5.5+")
+		webchannel:error("WebChannel support build requires Qt 5.5+")
 	}
 
 }
