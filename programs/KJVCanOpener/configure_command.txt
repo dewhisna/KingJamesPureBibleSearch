@@ -903,6 +903,22 @@ cd 5.15.2-build
 ../5.15.2-src/configure -release -opensource -confirm-license -verbose -prefix /home/dewhisna/Qt/5.15.2 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
 
 
+====================
+  Qt 6.0.0 Linux
+====================
+
+Same dependencies as 5.15.2?  (see above)
+
+sudo apt-get install libclang-dev
+
+cd ~/Qt/
+tar -Jxvf ~/Downloads/software/Qt/6.0.0/qt-everywhere-src-6.0.0.tar.xz
+mv qt-everywhere-src-6.0.0 6.0.0-src
+mkdir 6.0.0-build
+cd 6.0.0-build
+../6.0.0-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.0.0 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
+
+
 
 ===============================================================================
 ===============================================================================
