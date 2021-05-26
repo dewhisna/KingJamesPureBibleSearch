@@ -216,7 +216,7 @@
 					});
 					outputHTML = outputHTML + "</table>";
 					if ((json.latitude) && (json.longitude)) {
-						outputHTML = outputHTML + "<iframe src='https://maps.google.com/maps?z=12&t=m&q=loc:" + json.latitude + "+" + json.longitude + "&output=embed'></iframe>";
+						outputHTML = outputHTML + "<iframe src='https://maps.google.com/maps/place/" + json.latitude + "," + json.longitude + "'></iframe>";
 					}
 					$("#geolocateDetailsDialog").html(outputHTML);
 					$("#geolocateDetailsDialog").dialog("open");
@@ -225,7 +225,7 @@
 
 			// mapLatLong:
 			function mapLatLong(lat, lng) {
-				window.open('https://maps.google.com/maps?z=12&t=m&q=loc:' + lat + '+' + lng + '&output=embed', "GeoLocate Map", "width=800, height=600");
+				window.open('https://maps.google.com/maps/place/' + lat + ',' + lng, "GeoLocate Map", "width=800, height=600");
 			}
 
 		</script>
