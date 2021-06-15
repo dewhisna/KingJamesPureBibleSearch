@@ -137,10 +137,9 @@ CCSVStream &CCSVStream::operator >>(QString &aString)
 	bool bQuoted = false;
 	bool bQuoteLiteral = false;
 	bool bNonWhitespaceSeen = false;
-	bool bEndOfField = ((m_stream.atEnd()) && (m_strUngetBuff.isEmpty()));
 
 	QChar ch;
-	while (!bEndOfField) {
+	while (!atEnd()) {
 		if (m_strUngetBuff.size()) {
 			ch = m_strUngetBuff.at(0);
 			m_strUngetBuff = m_strUngetBuff.mid(1);
@@ -191,11 +190,11 @@ CCSVStream &CCSVStream::operator >>(QString &aString)
 		}
 
 		if ((!bQuoted) && (ch == m_chrDelim)) {
-			bEndOfField = true;
-		} else if (((!bQuoted) && (ch == '\n')) || ((m_stream.atEnd()) && (m_strUngetBuff.isEmpty()))) {
+			break;	// Hitting the delimiter ends the field
+		} else if ((!bQuoted && (ch == '\n')) || atEnd()) {
 			if (ch != '\n') aString.append(ch);
-			bEndOfField = true;
 			m_bEndOfLine = true;
+			break;	// Hitting the newline or end-of-stream ends the field and the line
 		} else {
 			aString.append(ch);
 		}
@@ -224,7 +223,7 @@ CCSVStream &CCSVStream::operator >>(QStringList &aStringList)
 QList<QStringList> CCSVStream::readAll()
 {
 	QList<QStringList> lstStringLists;
-	while (!atEndOfStream()) {
+	while (!atEnd()) {
 		QStringList aStringList;
 		*this >> aStringList;
 		lstStringLists.append(aStringList);

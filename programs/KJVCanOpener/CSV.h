@@ -43,10 +43,9 @@ public:
 	void setDevice(QIODevice *pIOD) { m_stream.setDevice(pIOD); }
 	void unsetDevice() { m_stream.setDevice(nullptr); }
 
-	bool atEndOfStream() const { return m_stream.atEnd(); }
-	bool atEndOfLine() const { return m_bEndOfLine; }
-	bool atEnding() const { return atEndOfStream() || atEndOfLine(); }
-	bool atBeginningOfLine() const { return m_bBeginningOfLine; }
+	bool atEnd() const { return (m_stream.atEnd() && m_strUngetBuff.isEmpty()); }
+	bool atEndOfLine() const { return (atEnd() || m_bEndOfLine); }	// for reading
+	bool atBeginningOfLine() const { return m_bBeginningOfLine; }	// for writing
 
 	// Excel seems to do identical quoting for tab-delimited text and
 	//	seemingly other delimiters like '|', so allow changing the delimiter:

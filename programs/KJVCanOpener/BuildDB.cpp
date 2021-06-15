@@ -290,7 +290,7 @@ bool CBuildDatabase::BuildTestamentTable()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -432,7 +432,7 @@ bool CBuildDatabase::BuildBooksTable()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -580,7 +580,7 @@ bool CBuildDatabase::BuildChaptersTable()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -727,7 +727,7 @@ bool CBuildDatabase::BuildVerseTables()
 
 		QList<QStringList> lstArrCCData;
 
-		while (!csv.atEndOfStream()) {
+		while (!csv.atEnd()) {
 			QStringList sl;
 			csv >> sl;
 
@@ -875,7 +875,7 @@ bool CBuildDatabase::BuildWordsTable()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -1010,7 +1010,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -1139,7 +1139,7 @@ bool CBuildDatabase::BuildPhrasesTable()
 		}
 	}
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -1301,7 +1301,7 @@ bool CBuildDatabase::BuildLemmasTable()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 
@@ -1428,7 +1428,7 @@ bool CBuildDatabase::BuildStrongsTable()
 
 	QList<QStringList> lstArrCCData;
 
-	while (!csv.atEndOfStream()) {
+	while (!csv.atEnd()) {
 		QStringList sl;
 		csv >> sl;
 

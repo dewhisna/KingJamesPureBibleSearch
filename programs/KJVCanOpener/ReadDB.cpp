@@ -136,7 +136,7 @@ static bool queryFieldsToStringList(QWidget *pParent, QStringList &lstFields, co
 static bool readCCDatabaseRecord(QWidget *pParent, QStringList &lstFields, CCSVStream *pStream, int nMinFields)
 {
 	lstFields.clear();
-	if (!pStream->atEndOfStream()) {
+	if (!pStream->atEnd()) {
 		(*pStream) >> lstFields;
 	} else {
 		displayWarning(pParent, g_constrReadDatabase, QObject::tr("Unexpected end of Bible CCDatabase file", "ReadDB"));
@@ -235,10 +235,10 @@ public:
 		}
 	}
 
-	bool atEndOfStream() const
+	bool atEnd() const
 	{
 		if (m_pCSVStream != nullptr) {
-			return m_pCSVStream->atEndOfStream();
+			return m_pCSVStream->atEnd();
 		}
 		return false;
 	}
@@ -749,7 +749,7 @@ bool CReadDatabase::ReadWordsTable()
 
 		QString strAltWords = lstFields.at(4);
 		CCSVStream csvWord(&strAltWords, QIODevice::ReadOnly);
-		while (!csvWord.atEndOfStream()) {
+		while (!csvWord.atEnd()) {
 			QString strTemp;
 			csvWord >> strTemp;
 			if (!strTemp.isEmpty()) {
@@ -766,7 +766,7 @@ bool CReadDatabase::ReadWordsTable()
 		QString strAltWordCounts = lstFields.at(5);
 		CCSVStream csvWordCount(&strAltWordCounts, QIODevice::ReadOnly);
 		unsigned int nAltCount = 0;
-		while (!csvWordCount.atEndOfStream()) {
+		while (!csvWordCount.atEnd()) {
 			QString strTemp;
 			csvWordCount >> strTemp;
 			if (!strTemp.isEmpty()) {
@@ -1000,7 +1000,7 @@ bool CReadDatabase::ReadLEMMASTable()
 	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
 #endif
 
-	if (dbParser.atEndOfStream()) return true;		// Lemmas are optional and old databases won't have them
+	if (dbParser.atEnd()) return true;		// Lemmas are optional and old databases won't have them
 
 	if (!dbParser.findTable("LEMMAS")) {
 		if (!m_pCCDatabase.isNull()) {
@@ -1041,7 +1041,7 @@ bool CReadDatabase::ReadSTRONGSTable()
 	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
 #endif
 
-	if (dbParser.atEndOfStream()) return true;		// Strongs is optional and old databases won't have it
+	if (dbParser.atEnd()) return true;		// Strongs is optional and old databases won't have it
 
 	if (!dbParser.findTable("STRONGS")) {
 		if (!m_pCCDatabase.isNull()) {
