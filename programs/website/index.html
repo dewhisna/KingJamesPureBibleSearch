@@ -269,7 +269,7 @@
 			Self-Exetracting Multi-platform binary download<br>
 			Runs on all <a href="https://wiki.linuxfoundation.org/lsb/start">Linux Standard Base</a> 4.0+ Compliant Systems<br>
 			Requires "lsb" package to be installed via your system package manager<br>
-			or with a command such as &quot;sudo apt-get install lsb&quot;.<br><br>
+			or with a command such as &quot;sudo apt-get install lsb&quot;. (SEE BELOW! **)<br><br>
 			<a href="//cloud.dewtronics.com/KingJamesPureBibleSearch/kjvpurebiblesearch-3.0.0-2.i486.run">Download for 32-Bit Linux Systems...</a><br>
 			<pre>md5sum: 446b834f3acf163dc62937c3914b1237 *kjvpurebiblesearch-3.0.0-2.i486.run</pre><br>
 			<a href="//cloud.dewtronics.com/KingJamesPureBibleSearch/kjvpurebiblesearch-3.0.0-2.x86_64.run">Download for 64-Bit Linux Systems...</a><br>
@@ -297,6 +297,68 @@ it executable by you, and double-click it to run it.&nbsp; Note that some Linux
 distributions may have an incorrect text file association with this file-type.
 If the graphical method doesn't work, please try the terminal method above.
 </pre>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="1" align="center" nowrap>
+			&nbsp;
+		</td>
+		<td colspan="2" align="left" nowrap>
+			<hr>
+<pre>
+** Due to recent changes in Linux regarding LSB, some users are experiencing
+difficulties getting the LSB prerequisite installed.  This is due to Debian dropping
+support for LSB -- See <a href="https://wiki.debian.org/DebianLsb">DebianLSB</a> and <a href="https://wiki.debian.org/LSB">LSB - Debian Wiki</a>.  This applies to all DEB-based
+Linux distributions, including Debian, Ubuntu, Mint, Knoppix, Kali, etc.<br>
+It's possible that RPM-based distros, like RedHat, Fedora, CentOS, OpenSUSE,
+Mandrake, etc., may have similar issues, but that's not been confirmed.  If you are
+using a RPM-based system and experience similar issues, you can try these steps,
+but switch the 'apt-get' command to your system's installer app name, like 'yum',
+and drop the 'alien' dependency, since it will already support RPM packages.<br>
+After working with several users to get their KJPBS installation working, I've
+come up with the following that works for most Debian-based Linux installations:<br>
+If the &quot;sudo apt-get install lsb&quot; fails on your system, try instead to install the
+two main LSB pieces needed with: &quot;sudo apt-get install lsb-base lsb-release&quot;.
+And, you'll also need to make sure 'alien' is installed with: &quot;sudo apt-get install alien&quot;.
+Alien is needed to convert and install RPM format packages used by LSB on DEB systems
+(like Debian, Ubuntu, etc.).  Then, follow the instructions above to download and
+install KJPBS.  After installation, if KJPBS runs and works, then all is well and you
+are done.  However, it's been found that some systems fail to be able to launch KJPBS.<br>
+If it won't launch after installation, either from the applications menu or from the
+command-line with &quot;/opt/kjvpurebiblesearch/KJVCanOpener/app/KingJamesPureBibleSearch&quot;,
+and this includes the &quot;run&quot; and &quot;run-stealth&quot; scripts from the portable zip files
+below, and you get a strange &quot;File not found&quot; error or &quot;No such file or directory&quot;
+error, then you may need to fix the system interpreter that launches KJPBS.  The confusing
+part about the &quot;File not found&quot; or &quot;No such file or directory&quot; error from the operating
+system is that it doesn't tell you what file isn't found.  On the surface, it seems that
+the file it can't find is the KJPBS executable itself, but that's not the case.<br>
+If you run the 'file' command on the KJPBS executable, with:
+&quot;file /opt/kjvpurebiblesearch/KJVCanOpener/app/KingJamesPureBibleSearch&quot;
+(or other path if you are using the portable zip version), it will let you see the
+interpreter it's searching for to launch KJPBS and will show something like:<br>
+KingJamesPureBibleSearch: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux),
+dynamically linked, interpreter /lib64/ld-lsb-x86-64.so.3, for GNU/Linux 2.6.24,
+BuildID[sha1]=24583c61449057c877b50c2b715998ddd0dc1cbf, not stripped<br>
+In this example, the file that usually isn't found is &quot;/lib64/ld-lsb-x86-64.so.3&quot;.  This
+is often due to incomplete system LSB packages that fail to create a symbolic link in the
+library folders for this interpreter.  If you run &quot;ls /lib64/&quot;, you should see an entry for
+the 'ld-linux-x86-64' library that's needed.  On most systems, this is usually called
+&quot;ld-linux-x86-64.so.2&quot;.  You then need to use the 'ln' command to add a link for
+&quot;/lib64/ld-lsb-x86-64.so.3&quot; to point to that &quot;ld-linux-x86-64.so.2&quot; library.
+To do that, you need to run: &quot;sudo ln -s /lib64/ld-linux-x86-64.so.2 /lib64/ld-lsb-x86-64.so.3&quot;.
+Once you add the missing link to the interpreter, you should be able to launch and run KJPBS.<br>
+To summarize, the commands usually needed are:
+    sudo apt-get install lsb-base lsb-release
+    sudo apt-get install alien
+    sudo ln -s /lib64/ld-linux-x86-64.so.2 /lib64/ld-lsb-x86-64.so.3<br>
+Note that on a 32-bit system, these instructions are the same, except the link will usually be
+to the 32-bit folder and something like &quot;/lib/ld-lsb.so.3&quot; that needs to point to &quot;/lib/ld-linux.so.2&quot;.
+This would use &quot;sudo ln -s /lib/ld-lsb.so.3 /lib/ld-linux.so.2&quot; for the last command.<br>
+Yes, this is a bit confusing, but it's a one-time step needed to setup KJPBS to run on your
+system.  At some point in the future, I will have to find a different mechanism to replace
+LSB use in KJPBS on Linux.
+</pre>
+			<hr>
 		</td>
 	</tr>
 	<tr>
