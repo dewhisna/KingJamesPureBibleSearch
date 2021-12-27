@@ -10,10 +10,10 @@ export BUILD_HOME=/home/$USER
 export INSTALL_DIR=/usr/local/bin/
 
 export QT=$BUILD_HOME/Qt
-export QT_DIR=$QT/5.13.0/5.13.0/gcc_64
+export QT_DIR=$QT/5.15.2
 
 export PROJECT_DIR=$BUILD_HOME/Documents/programs/Bible
-export KJPBS_BUILD=Qt_5_13_0_gcc_64
+export KJPBS_BUILD=Qt_5_15_2_gcc_64
 
 
 # ------------------
@@ -39,8 +39,8 @@ apt-get install -y gperf bison
 apt-get install -y libmaxminddb0 libmaxminddb-dev mmdb-bin geoipupdate
 apt-get install -y libgl1-mesa-dev
 # Easiest to slurp in Qt5 build dependencies, since we are building Qt5 as a pre-requisite:
-# apt-get build-dep -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5 libqt5sql5
-apt-get install -y libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5 libqt5sql5
+# apt-get build-dep -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5 libqt5sql5 libqt5webengine5
+apt-get install -y libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5 libqt5sql5 libqt5webengine5
 # A few helpers:
 apt-get install -y perl python
 apt-get install -y binfmt-support
@@ -70,7 +70,7 @@ chmod 755 /bin/startup
 cd $BUILD_HOME
 git clone https://github.com/gdraheim/docker-systemctl-replacement.git
 cd docker-systemctl-replacement
-git checkout 73b5aff2ba6abfd254d236f1df22ff4971d44660    # v1.4.3245
+git checkout e4ebd56fee93e4867b2adab0df0043ba0f4d5019    # v1.5.4505
 mv /bin/systemctl /bin/systemctl.orig
 cp files/docker/systemctl.py /bin/systemctl
 chmod 755 /bin/systemctl
@@ -93,12 +93,12 @@ git submodule update --init --recursive
 # ---------------------
 # Get prebuilt Qt:
 # ---------------------
-# From: http://download.qt-project.org/official_releases/qt/5.13/5.13.0/
-#   Or: https://download.qt.io/official_releases/qt/5.13/5.13.0/
+# From: http://download.qt-project.org/official_releases/qt/5.15/5.15.2/
+#   Or: https://download.qt.io/official_releases/qt/5.15/5.15.2/
 cd $BUILD_HOME
-wget --no-verbose -nc http://vnc.purebiblesearch.com/c5ee798b-c224-4d6e-b457-1c648a99a3a8/Qt_5.13.0_gcc_64.tar.xz
-echo '155e0b96430e41f24b7b70d7d55e58a850f0c6b0  Qt_5.13.0_gcc_64.tar.xz' | sha1sum -c
-tar -xf Qt_5.13.0_gcc_64.tar.xz
+wget --no-verbose -nc http://vnc.purebiblesearch.com/ebe899bf-1dff-4b04-8e1b-8e63895a963d/Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
+echo '8287879f0bd6233a050befb3b3f893cf12a6d0cb  Qt_5.15.2_18.04_bionic_gcc_64.tar.xz' | sha1sum -c
+tar -Jxf Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
 chown -R $USER:$USER Qt/
 # ---------------------
 # Link Qt5 Source -> Qt4 Paths used in KJPBS:

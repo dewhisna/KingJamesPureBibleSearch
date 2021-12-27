@@ -14,7 +14,7 @@ env:
  # ---------------------
  # webchannel daemon build ( TODO: Rework this script to use these variables to create a build-matrix):
  # ---------------------
- - QT_DIR=$HOME/Qt/5.13.0/5.13.0/gcc_64 KJPBS_BUILD=Qt_5_13_0_gcc_64
+ - QT_DIR=$HOME/Qt/5.15.2 KJPBS_BUILD=Qt_5_15_2_gcc_64
 
 compiler:
  - gcc
@@ -41,8 +41,8 @@ before_install:
  - sudo apt-get install -qq --yes libmaxminddb0 libmaxminddb-dev mmdb-bin geoipupdate
  - sudo apt-get install -qq --yes libgl1-mesa-dev
  # Easiest to slurp in Qt5 build dependencies, since we are building Qt5 as a pre-requisite:
- # sudo apt-get build-dep -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5
- - sudo apt-get install -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5
+ # sudo apt-get build-dep -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5 libqt5sql5 libqt5webengine5
+ - sudo apt-get install -qq --yes libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5 libqt5webchannel5 libqt5sql5 libqt5webengine5
  # A few helpers:
  - sudo apt-get install -qq --yes perl python
  - sudo apt-get install -qq --yes binfmt-support
@@ -57,12 +57,12 @@ install:
  # ---------------------
  # Get prebuilt Qt:
  # ---------------------
- # From: http://download.qt-project.org/official_releases/qt/5.13/5.13.0/
- #   Or: https://download.qt.io/official_releases/qt/5.13/5.13.0/
+ # From: http://download.qt-project.org/official_releases/qt/5.15/5.15.2/
+ #   Or: https://download.qt.io/official_releases/qt/5.15/5.15.2/
  - cd ~/
- - wget -nc http://vnc.purebiblesearch.com/c5ee798b-c224-4d6e-b457-1c648a99a3a8/Qt_5.13.0_gcc_64.tar.xz
- - echo '155e0b96430e41f24b7b70d7d55e58a850f0c6b0  Qt_5.13.0_gcc_64.tar.xz' | sha1sum -c
- - tar -xf Qt_5.13.0_gcc_64.tar.xz
+ - wget -nc http://vnc.purebiblesearch.com/ebe899bf-1dff-4b04-8e1b-8e63895a963d/Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
+ - echo '8287879f0bd6233a050befb3b3f893cf12a6d0cb  Qt_5.15.2_18.04_bionic_gcc_64.tar.xz' | sha1sum -c
+ - tar -Jxf Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
  - sudo chown -R $USER:$USER Qt/
  # ---------------------
  # Link Qt5 Source -> Qt4 Paths used in KJPBS:
