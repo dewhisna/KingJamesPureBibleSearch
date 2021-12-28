@@ -13,22 +13,22 @@ export QT=$BUILD_HOME/Qt
 export QT_DIR=$QT/5.15.2
 
 export PROJECT_DIR=$BUILD_HOME/Documents/programs/Bible
-export KJPBS_BUILD=Qt_5_15_2_gcc_64
+export BUILD_TARGET=Qt_5_15_2_gcc_64
 
 
 # ------------------
 # Create KJPBS User and VNC startup users:
 # ------------------
-useradd -m -U -G adm,dialout,cdrom,sudo,dip,plugdev -s /bin/bash kjpbs
-echo kjpbs:U6aMy0wojraho | chpasswd -e
-#passwd --expire kjpbs
+useradd -m -U -G adm,dialout,cdrom,sudo,dip,plugdev -s /bin/bash $USER
+echo $USER:U6aMy0wojraho | chpasswd -e
+#passwd --expire $USER
 
 
 # ---------------------
 # Install Dependencies:
 # ---------------------
 apt-get update
-apt-get install -y software-properties-common
+apt-get install -y software-properties-common apt-utils
 #sed -i '/^#\s*deb-src /s/^#\s*//' "/etc/apt/sources.list"
 add-apt-repository -y ppa:maxmind/ppa
 apt-get update
@@ -101,7 +101,7 @@ echo '8287879f0bd6233a050befb3b3f893cf12a6d0cb  Qt_5.15.2_18.04_bionic_gcc_64.ta
 tar -Jxf Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
 chown -R $USER:$USER Qt/
 # ---------------------
-# Link Qt5 Source -> Qt4 Paths used in KJPBS:
+# Link Qt5 Source -> Qt4 Paths for zlib:
 #  This has already been applied to the prebuilt binary
 #  above.  If building a custom Qt, apply the follow to
 #  copy the 3rdparty/zlib* source folders (from the Qt
@@ -118,8 +118,8 @@ chown -R $USER:$USER Qt/
 # Build QtStylePlugins:
 # ---------------------
 cd $PROJECT_DIR/KingJamesPureBibleSearch/programs
-mkdir -p build-qtstyleplugins-$KJPBS_BUILD
-cd build-qtstyleplugins-$KJPBS_BUILD
+mkdir -p build-qtstyleplugins-$BUILD_TARGET
+cd build-qtstyleplugins-$BUILD_TARGET
 $QT_DIR/bin/qmake CONFIG+=static CONFIG+=release CONFIG+=force-debug-info ../qtstyleplugins/qtstyleplugins.pro
 make -j 4
 make install
@@ -129,8 +129,8 @@ make install
 # Build wwWidgets:
 # ---------------------
 cd $QT
-mkdir -p build-wwwidgets4-$KJPBS_BUILD/Release
-cd build-wwwidgets4-$KJPBS_BUILD/Release
+mkdir -p build-wwwidgets4-$BUILD_TARGET/Release
+cd build-wwwidgets4-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release $PROJECT_DIR/KingJamesPureBibleSearch/support/wwWidgets/wwwidgets4.pro
 make -j 4
 make install
@@ -147,8 +147,8 @@ mkdir -p $BUILD_HOME/KJVDataParse
 # ---------------------
 # Configure and Build KJPBS GUI:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release CONFIG+=nospeech ../../KJVCanOpener/KJVCanOpener.pro
 make -j 4
 cp KingJamesPureBibleSearch $BUILD_HOME/KJVCanOpener/app/
@@ -158,8 +158,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KingJamesPureBibleSearch $INSTALL_DIR/KingJam
 # ---------------------
 # Configure and Build KJPBS WebChannel:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release CONFIG+=console CONFIG+=nospeech CONFIG+=webchannel ../../KJVCanOpener/KJVCanOpener.pro
 make -j 4
 cp KingJamesPureBibleSearch $BUILD_HOME/KJVCanOpener/app/KingJamesPureBibleSearch_webchannel
@@ -174,14 +174,14 @@ EOF
 ) > $INSTALL_DIR/webchannel
 chmod 755 $INSTALL_DIR/webchannel
 
-cp -r $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$KJPBS_BUILD/Release/html/* /var/www/html/
+cp -r $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVCanOpener_webchannel-$BUILD_TARGET/Release/html/* /var/www/html/
 
 
 # ---------------------
 # Configure and Build KJVDataParse:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDataParse-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDataParse-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDataParse-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDataParse-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVDataParse/KJVDataParse.pro
 make -j 4
 cp KJVDataParse $BUILD_HOME/KJVCanOpener/app/
@@ -191,8 +191,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KJVDataParse $INSTALL_DIR/KJVDataParse
 # ---------------------
 # Configure and Build KJVDictWord:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDictWord-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDictWord-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDictWord-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDictWord-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVDictWord/KJVDictWord.pro
 make -j 4
 cp KJVDictWord $BUILD_HOME/KJVCanOpener/app/
@@ -202,8 +202,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KJVDictWord $INSTALL_DIR/KJVDictWord
 # ---------------------
 # Configure and Build KJVDiff:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDiff-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDiff-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDiff-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVDiff-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVDiff/KJVDiff.pro
 make -j 4
 cp KJVDiff $BUILD_HOME/KJVCanOpener/app/
@@ -213,8 +213,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KJVDiff $INSTALL_DIR/KJVDiff
 # ---------------------
 # Configure and Build KJVLookup:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVLookup-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVLookup-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVLookup-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVLookup-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVLookup/KJVLookup.pro
 make -j 4
 cp KJVLookup $BUILD_HOME/KJVCanOpener/app/
@@ -224,8 +224,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KJVLookup $INSTALL_DIR/KJVLookup
 # ---------------------
 # Configure and Build KJVPhraseSearch:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVPhraseSearch-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVPhraseSearch/KJVPhraseSearch.pro
 make -j 4
 cp KJVPhraseSearch $BUILD_HOME/KJVCanOpener/app/
@@ -235,8 +235,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KJVPhraseSearch $INSTALL_DIR/KJVPhraseSearch
 # ---------------------
 # Configure and Build KJVSearch:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSearch-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSearch-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSearch-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSearch-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVSearch/KJVSearch.pro
 make -j 4
 cp KJVSearch $BUILD_HOME/KJVCanOpener/app/
@@ -246,8 +246,8 @@ ln -s $BUILD_HOME/KJVCanOpener/app/KJVSearch $INSTALL_DIR/KJVSearch
 # ---------------------
 # Configure and Build KJVSumThing:
 # ---------------------
-mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSumThing-$KJPBS_BUILD/Release
-cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSumThing-$KJPBS_BUILD/Release
+mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSumThing-$BUILD_TARGET/Release
+cd $PROJECT_DIR/KingJamesPureBibleSearch/programs/build-KJVSumThing-$BUILD_TARGET/Release
 $QT_DIR/bin/qmake CONFIG+=release ../../KJVSumThing/KJVSumThing.pro
 make -j 4
 cp KJVSumThing $BUILD_HOME/KJVCanOpener/app/
