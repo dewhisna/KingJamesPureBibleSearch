@@ -21,39 +21,40 @@ KJPBS Tools Built:
 ================================================================================
 Installing Docker on Ubuntu (See Docker website for other operating systems)
 ================================================================================
-From: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+From: https://docs.docker.com/engine/install/ubuntu/
 
 
 Remove Old Dockers:
-$ sudo apt-get remove docker docker-engine docker.io
+$ sudo apt-get remove docker docker-engine docker.io containerd runc
 
 Install Dependencies:
 $ sudo apt-get update
 $ sudo apt-get install \
-    apt-transport-https \
     ca-certificates \
     curl \
+    gnupg \
+    lsb-release \
+    apt-transport-https \
     software-properties-common
 
 Add Signature:
-$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 $ sudo apt-key fingerprint 0EBFCD88
 
 Verify:
-pub   4096R/0EBFCD88 2017-02-22
-      Key fingerprint = 9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88
-uid                  Docker Release (CE deb) <docker@docker.com>
-sub   4096R/F273FCD8 2017-02-22
+pub   rsa4096 2017-02-22 [SCEA]
+      9DC8 5822 9FC7 DD38 854A  E2D8 8D81 803C 0EBF CD88
+uid           [ unknown] Docker Release (CE deb) <docker@docker.com>
+sub   rsa4096 2017-02-22 [S]
 
 Add Repository:
-$ sudo add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-   $(lsb_release -cs) \
-   stable"
+$ echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 Install Docker:
 $ sudo apt-get update
-$ sudo apt-get install docker-ce
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io
 
 Add yourself to the Docker Group:
 $ sudo usermod -aG docker your-user-id
