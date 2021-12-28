@@ -27,7 +27,9 @@
     {
       "type": "docker-tag",
       "repository": "localhost:5000/dewtronics/kjpbs",
-      "tag": "latest",
+      "tags": [
+        "latest"
+      ],
       "force": true
     }
   ]
