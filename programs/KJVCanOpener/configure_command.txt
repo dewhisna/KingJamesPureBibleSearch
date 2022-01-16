@@ -919,6 +919,29 @@ cd 6.0.0-build
 ../6.0.0-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.0.0 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
 
 
+====================
+  Qt 6.2.2 Linux
+====================
+
+Same dependencies as 5.15.2?  (see above)
+
+sudo apt-get install libclang-dev
+
+Also, needs these for webengine:
+sudo apt-get install nodejs libxshmfence-dev libxkbfile-dev
+
+cd ~/Qt/
+tar -Jxvf ~/Downloads/software/Qt/6.2.2/qt-everywhere-src-6.2.2.tar.xz
+mv qt-everywhere-src-6.2.2 6.2.2-src
+mkdir 6.2.2-build
+cd 6.2.2-build
+../6.2.2-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.2.2 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
+cmake --build . --parallel
+cmake --install .
+
+Note: For QtWebEngine: node.js version 10.19 or later is required as well as libxshmfence-dev
+
+
 
 ===============================================================================
 ===============================================================================
