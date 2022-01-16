@@ -81,7 +81,7 @@ QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
     connect(fcb, SIGNAL(activated(int)), this, SLOT(setFont_h()));
     fsp = new QComboBox(this);
     m_actions[FontSizeAction] = tb->addWidget(fsp);
-    connect(fsp, SIGNAL(activated(const QString &)), this, SLOT(setFont_h()));
+    connect(fsp, SIGNAL(activated(int)), this, SLOT(setFont_h()));
     foreach(int s, QFontDatabase::standardSizes())
     fsp->addItem(QString::number(s));
 
@@ -218,7 +218,11 @@ void QwwRichTextEdit::setFont_h(){
 void QwwRichTextEdit::setFont(const QFont &f){
     QTextCursor cur = textCursor();
     QTextCharFormat fmt;
-    fmt.setFontFamily(f.family());
+#if QT_VERSION >= 0x050D00
+    fmt.setFontFamilies(f.families());
+#else
+	fmt.setFontFamily(f.family());
+#endif
     fmt.setFontPointSize(f.pointSize());
     cur.mergeCharFormat(fmt);
     setTextCursor(cur);
