@@ -48,7 +48,6 @@
 
 #include <QDateTime>
 #include <QBuffer>
-#include <QRegExp>
 #include <QByteArray>
 
 // ============================================================================
@@ -440,7 +439,11 @@ QString CMMDBLookup::getMetaDataDetail() const
 
 #ifdef USING_MMDB
 
+#if QT_VERSION >= 0x060000
+	QDateTime dtBuildEpoch = QDateTime::fromSecsSinceEpoch(m_pMMDB->metadata.build_epoch);
+#else
 	QDateTime dtBuildEpoch = QDateTime::fromTime_t(m_pMMDB->metadata.build_epoch);
+#endif
 	QString strEpochDate = QString("%1 UTC").arg(dtBuildEpoch.toString("yyyy-MM-dd HH:mm:ss"));
 	strMetaData = QString(	"  MMDB Database metadata\n"
 							"    Node count:    %1\n"

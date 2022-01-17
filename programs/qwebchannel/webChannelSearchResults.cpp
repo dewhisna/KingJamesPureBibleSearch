@@ -34,6 +34,12 @@
 #include <QStringList>
 #include <QTextDocument>
 
+#if QT_VERSION >= 0x050500
+#include <QRegularExpression>
+#else
+#include <QRegExp>
+#endif
+
 #ifdef IS_CONSOLE_APP
 #include <QDateTime>
 #include <iostream>
@@ -333,7 +339,11 @@ void CWebChannelSearchResults::autoCorrect(const QString &strElementID, const QS
 		strBasePhrase += pCurrentSubPhrase->phraseWords().at(ndx) + " ";
 	}
 	QString strCursorWord = pCurrentSubPhrase->GetCursorWord();
+#if QT_VERSION >= 0x050500
+	int nPreRegExp = strCursorWord.indexOf(QRegularExpression("[\\[\\]\\*\\?]"));
+#else
 	int nPreRegExp = strCursorWord.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+#endif
 	if (nPreRegExp != -1) strCursorWord = strCursorWord.left(nPreRegExp);
 	lstNextWords.reserve(thePhrase.nextWordsList().size());
 	for (int ndx = 0; ndx < thePhrase.nextWordsList().size(); ++ndx) {
