@@ -146,7 +146,7 @@ QtSpeech {
 #	object.  Should probably be there for all platforms to make sure the
 #	accessibility support gets loaded:
 # Was fixed on the Mac in Qt5.3.0 -- having this defined caused a (non-fatal) redundant definition:
-!console:!emscripten:!win32:if(equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3) | lessThan(QT_MAJOR_VERSION,5) | !contains(QT_CONFIG, static)):QTPLUGIN += qtaccessiblewidgets
+!vnc:!console:!emscripten:!win32:if(equals(QT_MAJOR_VERSION,5):lessThan(QT_MINOR_VERSION,3) | lessThan(QT_MAJOR_VERSION,5) | !contains(QT_CONFIG, static)):QTPLUGIN += qtaccessiblewidgets
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
