@@ -27,8 +27,13 @@
 #include "BusyCursor.h"
 
 #include <QString>
-#include <QStringRef>
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#endif
+#if QT_VERSION < 0x050F00
 #include <QRegExp>
+#endif
 #include <QTimer>
 
 #ifdef QT_WIDGETS_LIB
@@ -106,49 +111,81 @@ public:
 		return -1;
 	}
 
+#if QT_VERSION >= 0x050F00
+	int indexOf_renderedWord(const QRegularExpression &rx, int nFrom = 0) const
+#else
 	int indexOf_renderedWord(const QRegExp &rx, int nFrom = 0) const
+#endif
 	{
 		if (nFrom < 0)
 			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
 		for (int i = nFrom; i < m_lstBasicWords.size(); ++i) {
+#if QT_VERSION >= 0x050F00
+			if (rx.match(m_lstBasicWords.at(i)->renderedWord()).hasMatch())
+#else
 			if (rx.exactMatch(m_lstBasicWords.at(i)->renderedWord()))
+#endif
 				return i;
 		}
 		return -1;
 	}
 
+#if QT_VERSION >= 0x050F00
+	int lastIndexOf_renderedWord(const QRegularExpression &rx, int nFrom = -1) const
+#else
 	int lastIndexOf_renderedWord(const QRegExp &rx, int nFrom = -1) const
+#endif
 	{
 		if (nFrom < 0)
 			nFrom += m_lstBasicWords.size();
 		else if (nFrom >= m_lstBasicWords.size())
 			nFrom = m_lstBasicWords.size() - 1;
 		for (int i = nFrom; i >= 0; --i) {
+#if QT_VERSION >= 0x050F00
+			if (rx.match(m_lstBasicWords.at(i)->renderedWord()).hasMatch())
+#else
 			if (rx.exactMatch(m_lstBasicWords.at(i)->renderedWord()))
+#endif
 				return i;
 			}
 		return -1;
 	}
 
+#if QT_VERSION >= 0x050F00
+	int indexOf_decomposedWord(const QRegularExpression &rx, int nFrom = 0) const
+#else
 	int indexOf_decomposedWord(const QRegExp &rx, int nFrom = 0) const
+#endif
 	{
 		if (nFrom < 0)
 			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
 		for (int i = nFrom; i < m_lstBasicWords.size(); ++i) {
+#if QT_VERSION >= 0x050F00
+			if (rx.match(m_lstBasicWords.at(i)->decomposedWord()).hasMatch())
+#else
 			if (rx.exactMatch(m_lstBasicWords.at(i)->decomposedWord()))
+#endif
 				return i;
 		}
 		return -1;
 	}
 
+#if QT_VERSION >= 0x050F00
+	int lastIndexOf_decomposedWord(const QRegularExpression &rx, int nFrom = -1) const
+#else
 	int lastIndexOf_decomposedWord(const QRegExp &rx, int nFrom = -1) const
+#endif
 	{
 		if (nFrom < 0)
 			nFrom += m_lstBasicWords.size();
 		else if (nFrom >= m_lstBasicWords.size())
 			nFrom = m_lstBasicWords.size() - 1;
 		for (int i = nFrom; i >= 0; --i) {
+#if QT_VERSION >= 0x050F00
+			if (rx.match(m_lstBasicWords.at(i)->decomposedWord()).hasMatch())
+#else
 			if (rx.exactMatch(m_lstBasicWords.at(i)->decomposedWord()))
+#endif
 				return i;
 			}
 		return -1;
@@ -194,8 +231,13 @@ QString CSearchStringListModel::deApostrHyphen(const QString &strWord, bool bRem
 
 QString CSearchStringListModel::deApostrophe(const QString &strWord, bool bRemove)
 {
+#if QT_VERSION >= 0x050000
+	static const QString strApostropheRegExp = QChar('[') + QRegularExpression::escape(g_strApostrophes) + QChar(']');
+	static const QRegularExpression expApostrophe(strApostropheRegExp);
+#else
 	static const QString strApostropheRegExp = QChar('[') + QRegExp::escape(g_strApostrophes) + QChar(']');
 	static const QRegExp expApostrophe(strApostropheRegExp);
+#endif
 
 	QString strDecomposed = strWord;
 
@@ -210,8 +252,13 @@ QString CSearchStringListModel::deApostrophe(const QString &strWord, bool bRemov
 
 QString CSearchStringListModel::deHyphen(const QString &strWord, bool bRemove)
 {
+#if QT_VERSION >= 0x050000
+	static const QString strHyphenRegExp = QChar('[') + QRegularExpression::escape(g_strHyphens) + QChar(']');
+	static const QRegularExpression expHyphen(strHyphenRegExp);
+#else
 	static const QString strHyphenRegExp = QChar('[') + QRegExp::escape(g_strHyphens) + QChar(']');
 	static const QRegExp expHyphen(strHyphenRegExp);
+#endif
 
 	QString strDecomposed;
 
@@ -538,7 +585,11 @@ void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENU
 void CSearchCompleter::setFilterMatchString()
 {
 	QString strPrefix = m_pSearchStringListModel->cursorWord();
+#if QT_VERSION >= 0x050500
+	int nPreRegExp = strPrefix.indexOf(QRegularExpression("[\\[\\]\\*\\?]"));
+#else
 	int nPreRegExp = strPrefix.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+#endif
 	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
 	QString strPrefixDecomposed = CSearchStringListModel::decompose(strPrefix, true);
 
@@ -786,7 +837,11 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 	m_nFirstDecomposedMatchStringIndex = -1;
 	QString strDecomposedFilterString = CSearchStringListModel::decompose(m_strFilterFixedString, true);
 	if (!m_strFilterFixedString.isEmpty()) {
+#if QT_VERSION >= 0x050F00
+		QRegularExpression expPrefix(QRegularExpression::wildcardToRegularExpression(strDecomposedFilterString + "*"), QRegularExpression::CaseInsensitiveOption);
+#else
 		QRegExp expPrefix(strDecomposedFilterString + "*", Qt::CaseInsensitive, QRegExp::Wildcard);
+#endif
 
 		if (m_bSoundExEnabled) {
 			QString strSoundEx = m_pSearchStringListModel->soundEx(strDecomposedFilterString, false);
@@ -932,6 +987,18 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 
 	// Enhanced Non-Census Mode:
 	if (nOption == SEOME_ENHANCED) {
+#if QT_VERSION >= 0x050000
+		strSoundEx.remove(QRegularExpression("^P(?=[SF])"));			// Replace PS at start of word with S and PF at start of word with F
+		strSoundEx.replace(QRegularExpression("^[AI](?=[AEIO])"), "E");	// Replace A or I with E at start of word when followed by [AEIO]
+
+		strSoundEx.replace(QRegularExpression("DG"), "G");				// Replace DG with G
+		strSoundEx.replace(QRegularExpression("GH"), "H");				// Replace GH with H
+		strSoundEx.replace(QRegularExpression("[KG]N"), "N");			// Replace KN and GN (not "ng") with N
+		strSoundEx.replace(QRegularExpression("MB"), "M");				// Replace MB with M
+		strSoundEx.replace(QRegularExpression("PH"), "F");				// Replace PH wtih F
+		strSoundEx.replace(QRegularExpression("TCH"), "CH");			// Replace TCH with CH
+		strSoundEx.replace(QRegularExpression("MP(?=[STZ])"), "M");		// Replace MP with M when followed by S, Z, or T
+#else
 		strSoundEx.remove(QRegExp("^P(?=[SF])"));				// Replace PS at start of word with S and PF at start of word with F
 		strSoundEx.replace(QRegExp("^[AI](?=[AEIO])"), "E");	// Replace A or I with E at start of word when followed by [AEIO]
 
@@ -942,6 +1009,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 		strSoundEx.replace(QRegExp("PH"), "F");					// Replace PH wtih F
 		strSoundEx.replace(QRegExp("TCH"), "CH");				// Replace TCH with CH
 		strSoundEx.replace(QRegExp("MP(?=[STZ])"), "M");		// Replace MP with M when followed by S, Z, or T
+#endif
 	}
 
 	assert(strSoundEx.size());
@@ -957,7 +1025,11 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 	//		before performing the test for adjacent
 	//		digits:
 	if ((nOption == SEOME_CLASSIC) || (nOption == SEOME_ENHANCED)) {
+#if QT_VERSION >= 0x050000
+		strSoundEx.remove(QRegularExpression("[HW]"));			// Note, strSoundEx[0] won't get removed here because of above preserving it
+#else
 		strSoundEx.remove(QRegExp("[HW]"));						// Note, strSoundEx[0] won't get removed here because of above preserving it
+#endif
 	}
 
 	// Perform classic SoundEx replacements:
@@ -984,6 +1056,15 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 //				in your word that you can't assign three numbers, append with zeros until there are three numbers.
 //				If you have more than 3 letters, just retain the first 3 numbers.
 
+#if QT_VERSION >= 0x050000
+			strSoundEx.replace(QRegularExpression("[AEIOUYHW]"), "0");	// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
+			strSoundEx.replace(QRegularExpression("[BPFV]"), "1");		// [BPFV] => 1
+			strSoundEx.replace(QRegularExpression("[CSGJKQXZ]"), "2");	// [CSGJKQXZ] => 2
+			strSoundEx.replace(QRegularExpression("[DT]"), "3");		// [DT] => 3
+			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
+			strSoundEx.replace(QRegularExpression("[MN]"), "5");		// [MN] => 5
+			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+#else
 			strSoundEx.replace(QRegExp("[AEIOUYHW]"), "0");				// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
 			strSoundEx.replace(QRegExp("[BPFV]"), "1");					// [BPFV] => 1
 			strSoundEx.replace(QRegExp("[CSGJKQXZ]"), "2");				// [CSGJKQXZ] => 2
@@ -991,6 +1072,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
 			strSoundEx.replace(QRegExp("[MN]"), "5");					// [MN] => 5
 			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+#endif
 			break;
 
 		case SELE_FRENCH:
@@ -1020,6 +1102,18 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 //					que la première de ces lettres.
 //			    8. Renvoyer les quatre premiers octets complétés par des zéros.
 
+#if QT_VERSION >= 0x050000
+			strSoundEx.replace(QRegularExpression("[AEIOUYHW]"), "0");	// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
+			strSoundEx.replace(QRegularExpression("[BP]"), "1");		// [BP] => 1
+			strSoundEx.replace(QRegularExpression("[CKQ]"), "2");		// [CKQ] => 2
+			strSoundEx.replace(QRegularExpression("[DT]"), "3");		// [DT] => 3
+			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
+			strSoundEx.replace(QRegularExpression("[MN]"), "5");		// [MN] => 5
+			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+			strSoundEx.replace(QRegularExpression("[GJ]"), "7");		// [GJ] => 7
+			strSoundEx.replace(QRegularExpression("[XZS]"), "8");		// [XZS] => 8
+			strSoundEx.replace(QRegularExpression("[FV]"), "9");		// [FV] => 9
+#else
 			strSoundEx.replace(QRegExp("[AEIOUYHW]"), "0");				// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
 			strSoundEx.replace(QRegExp("[BP]"), "1");					// [BP] => 1
 			strSoundEx.replace(QRegExp("[CKQ]"), "2");					// [CKQ] => 2
@@ -1030,6 +1124,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 			strSoundEx.replace(QRegExp("[GJ]"), "7");					// [GJ] => 7
 			strSoundEx.replace(QRegExp("[XZS]"), "8");					// [XZS] => 8
 			strSoundEx.replace(QRegExp("[FV]"), "9");					// [FV] => 9
+#endif
 			break;
 
 		case SELE_SPANISH:
@@ -1060,6 +1155,21 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 //			(remove) : Y -> before a vowel in the same syllable, or between two vowels in the same word, is a consonant,
 //					and sounds like the English y in the words yard, yell, you
 
+#if QT_VERSION >= 0x050000
+			strSoundEx.replace("CH", "7");								// Proceso letras dobles primero.
+			strSoundEx.replace("LL", "7");
+			strSoundEx.replace(QRegularExpression("Y$"), "7");			// Y al final de la palabra.
+			strSoundEx.replace(QRegularExpression("Y(?=[bcdfghjklmnpqrstvwxz])"), "7");	// Y antes de una consonante.
+			strSoundEx.replace(QRegularExpression("[AEIOU]Y"), "07");	// Y después de una vocal : Note: QRegExp doesn't support look-behind, so combining this with "0" substitution for vowels that follows
+
+			strSoundEx.replace(QRegularExpression("[AEIOUYHW]"), "0");	// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
+			strSoundEx.replace(QRegularExpression("[BPFV]"), "1");		// [BPFV] => 1
+			strSoundEx.replace(QRegularExpression("[CSGJKQXZ]"), "2");	// [CSGJKQXZ] => 2
+			strSoundEx.replace(QRegularExpression("[DT]"), "3");		// [DT] => 3
+			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
+			strSoundEx.replace(QRegularExpression("[MN]"), "5");					// [MN] => 5
+			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+#else
 			strSoundEx.replace("CH", "7");								// Proceso letras dobles primero.
 			strSoundEx.replace("LL", "7");
 			strSoundEx.replace(QRegExp("Y$"), "7");						// Y al final de la palabra.
@@ -1073,6 +1183,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
 			strSoundEx.replace(QRegExp("[MN]"), "5");					// [MN] => 5
 			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+#endif
 			break;
 
 		case SELE_GERMAN:
@@ -1126,6 +1237,15 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 //			so wird der rechte Konsonant NICHT verworfen. Ist allerdings ein H oder ein W das Trennzeichen,
 //			so wird der rechte Konsonant wie bei der Aufeinanderfolgende Buchstaben-Regel verworfen.
 
+#if QT_VERSION >= 0x050000
+			strSoundEx.replace(QRegularExpression("[AEIOUYHW]"), "0");	// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
+			strSoundEx.replace(QRegularExpression("[BPFV]"), "1");		// [BPFV] => 1
+			strSoundEx.replace(QRegularExpression("[CSGJKQXZ]"), "2");	// [CSGJKQXZ] => 2
+			strSoundEx.replace(QRegularExpression("[DT]"), "3");		// [DT] => 3
+			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
+			strSoundEx.replace(QRegularExpression("[MN]"), "5");		// [MN] => 5
+			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+#else
 			strSoundEx.replace(QRegExp("[AEIOUYHW]"), "0");				// [AEIOUYHW] => 0 (Special case for doing separation, except H or W as found above)
 			strSoundEx.replace(QRegExp("[BPFV]"), "1");					// [BPFV] => 1
 			strSoundEx.replace(QRegExp("[CSGJKQXZ]"), "2");				// [CSGJKQXZ] => 2
@@ -1133,6 +1253,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 			strSoundEx.replace(QChar('L'), QChar('4'));					// L => 4
 			strSoundEx.replace(QRegExp("[MN]"), "5");					// [MN] => 5
 			strSoundEx.replace(QChar('R'), QChar('6'));					// R => 6
+#endif
 
 			// TODO : Complete German Rules
 			break;

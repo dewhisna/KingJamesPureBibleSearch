@@ -29,12 +29,14 @@
 #if QT_VERSION >= 0x050000
 #include <QStyleOptionViewItem>
 typedef QStyleOptionViewItem QStyleOptionViewItemV4_t;
+typedef QStyleOptionViewItem QStyleOptionViewItemV2_t;
 
 #include <QStyleOptionFrame>
 typedef QStyleOptionFrame QStyleOptionFrameV2_t;
 #else
 #include <QStyleOptionViewItemV4>
 typedef QStyleOptionViewItemV4 QStyleOptionViewItemV4_t;
+typedef QStyleOptionViewItemV2 QStyleOptionViewItemV2_t;
 
 #include <QStyleOptionFrameV2>
 typedef QStyleOptionFrameV2 QStyleOptionFrameV2_t;

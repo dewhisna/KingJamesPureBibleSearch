@@ -320,7 +320,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.usernotesToolBar->addSeparator();
 
 	m_pActionUserNoteEditor = new QAction(QIcon(":/res/App-edit-icon-128.png"), tr("Add/Edit/Remove Note...", "MainMenu"), this);
-	m_pActionUserNoteEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
+	m_pActionUserNoteEditor->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_M));
 	m_pActionUserNoteEditor->setStatusTip(tr("Add/Edit/Remove Note to current verse or passage", "MainMenu"));
 	m_pActionUserNoteEditor->setToolTip(tr("Add/Edit/Remove Note to current verse or passage", "MainMenu"));
 	m_pActionUserNoteEditor->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
@@ -329,7 +329,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.usernotesToolBar->addSeparator();
 
 	m_pActionCrossRefsEditor = new QAction(QIcon(":/res/insert-cross-reference.png"), tr("Add/Edit/Remove Cross Reference...", "MainMenu"), this);
-	m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_R));
+	m_pActionCrossRefsEditor->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
 	m_pActionCrossRefsEditor->setStatusTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another", "MainMenu"));
 	m_pActionCrossRefsEditor->setToolTip(tr("Add/Edit/Remove Cross Reference to link this verse or passage with another", "MainMenu"));
 	m_pActionCrossRefsEditor->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
@@ -352,9 +352,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	m_pActionSpeechPlay = new QAction(style()->standardIcon(QStyle::SP_MediaPlay), tr("Play", "MainMenu"), this);
 #ifndef Q_OS_MAC
-	m_pActionSpeechPlay->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+	m_pActionSpeechPlay->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_O));
 #else
-	m_pActionSpeechPlay->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_O));
+	m_pActionSpeechPlay->setShortcut(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_O));
 #endif
 	m_pActionSpeechPlay->setStatusTip(tr("Play Text-To-Speech for Current Selection and/or Chapter", "MainMenu"));
 	m_pActionSpeechPlay->setToolTip(tr("Play Text-To-Speech", "MainMenu"));
@@ -364,9 +364,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #if 0
 	m_pActionSpeechPause = new QAction(style()->standardIcon(QStyle::SP_MediaPause), tr("Pause", "MainMenu"), this);
 #ifndef Q_OS_MAC
-	m_pActionSpeechPause->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
+	m_pActionSpeechPause->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_I));
 #else
-	m_pActionSpeechPause->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_I));
+	m_pActionSpeechPause->setShortcut(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_I));
 #endif
 	m_pActionSpeechPause->setStatusTip(tr("Pause Text-To-Speech currently in progress", "MainMenu"));
 	m_pActionSpeechPause->setToolTip(tr("Pause Text-To-Speech", "MainMenu"));
@@ -376,9 +376,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	m_pActionSpeechStop = new QAction(style()->standardIcon(QStyle::SP_MediaStop), tr("Stop", "MainMenu"), this);
 #ifndef Q_OS_MAC
-	m_pActionSpeechStop->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_U));
+	m_pActionSpeechStop->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
 #else
-	m_pActionSpeechStop->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_U));
+	m_pActionSpeechStop->setShortcut(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_U));
 #endif
 	m_pActionSpeechStop->setStatusTip(tr("Stop Text-To-Speech currently in progress", "MainMenu"));
 	m_pActionSpeechStop->setToolTip(tr("Stop Text-To-Speech", "MainMenu"));
@@ -387,9 +387,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	m_pActionSpeakSelection = new QAction("speakSelection", this);
 #ifndef Q_OS_MAC
-	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_X));
+	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_X));
 #else
-	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_X));
+	m_pActionSpeakSelection->setShortcut(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_X));
 #endif
 
 	if (actionSpeechPause())
@@ -496,12 +496,12 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.mainToolBar->addAction(pAction);
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File...", "MainMenu"), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL + Qt::Key_O));
+	pAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search File...", "MainMenu"), this, SLOT(en_OpenSearch()), QKeySequence(Qt::CTRL | Qt::Key_O));
 	pAction->setStatusTip(tr("Load Search Phrases from a previously saved King James Search File", "MainMenu"));
 	pAction->setToolTip(tr("Load Search Phrases from a previously saved King James Search File", "MainMenu"));
 	ui.mainToolBar->addAction(pAction);
 
-	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Save Search File...", "MainMenu"), this, SLOT(en_SaveSearch()), QKeySequence(Qt::CTRL + Qt::Key_S));
+	pAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Save Search File...", "MainMenu"), this, SLOT(en_SaveSearch()), QKeySequence(Qt::CTRL | Qt::Key_S));
 	pAction->setStatusTip(tr("Save current Search Phrases to a King James Search File", "MainMenu"));
 	pAction->setToolTip(tr("Save current Search Phrases to a King James Search File", "MainMenu"));
 	ui.mainToolBar->addAction(pAction);
@@ -512,8 +512,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	pAction = pFileMenu->addAction(QIcon(":/res/edit_clear.png"), tr("Cl&ear Search Phrases", "MainMenu"), this, SLOT(en_ClearSearchPhrases()));
 	QList<QKeySequence> lstShortcuts;
-	lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_E));
-	lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_E));
+	lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::Key_E));
+	lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
 	pAction->setShortcuts(lstShortcuts);
 	pAction->setStatusTip(tr("Clear All Search Phrases, but keep Search Scope and Search Within Settings", "MainMenu"));
 	pAction->setToolTip(tr("Clear All Search Phrases, but keep Search Scope and Search Within Settings", "MainMenu"));
@@ -521,7 +521,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	pFileMenu->addSeparator();
 
-	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication.data(), SLOT(closeAllCanOpeners()), QKeySequence(Qt::CTRL + Qt::Key_Q));
+	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication.data(), SLOT(closeAllCanOpeners()), QKeySequence(Qt::CTRL | Qt::Key_Q));
 	pAction->setStatusTip(tr("Exit the King James Pure Bible Search Application", "MainMenu"));
 	pAction->setToolTip(tr("Exit Application", "MainMenu"));
 	pAction->setMenuRole(QAction::QuitRole);
@@ -656,13 +656,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionShowMissingLeafs->setEnabled(nTreeMode != CVerseListModel::VTME_LIST);
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), m_pActionShowMissingLeafs);
 
-	m_pActionExpandAll = m_pViewMenu->addAction(tr("E&xpand All", "MainMenu"), m_pSearchResultWidget, SIGNAL(expandAll()), QKeySequence(Qt::CTRL + Qt::Key_U));
+	m_pActionExpandAll = m_pViewMenu->addAction(tr("E&xpand All", "MainMenu"), m_pSearchResultWidget, SIGNAL(expandAll()), QKeySequence(Qt::CTRL | Qt::Key_U));
 	m_pActionExpandAll->setStatusTip(tr("Expand all tree nodes in Search Results (Warning: May be slow if there are a lot of search results!)", "MainMenu"));
 	m_pActionExpandAll->setEnabled(false);
 	connect(m_pSearchResultWidget, SIGNAL(canExpandAll(bool)), m_pActionExpandAll, SLOT(setEnabled(bool)));
 	m_pSearchResultWidget->getLocalEditMenu()->insertAction(m_pSearchResultWidget->getLocalEditMenuInsertionPoint(), m_pActionExpandAll);
 
-	m_pActionCollapseAll = m_pViewMenu->addAction(tr("Collap&se All", "MainMenu"), m_pSearchResultWidget, SIGNAL(collapseAll()), QKeySequence(Qt::CTRL + Qt::Key_I));
+	m_pActionCollapseAll = m_pViewMenu->addAction(tr("Collap&se All", "MainMenu"), m_pSearchResultWidget, SIGNAL(collapseAll()), QKeySequence(Qt::CTRL | Qt::Key_I));
 	m_pActionCollapseAll->setStatusTip(tr("Collapse all tree nodes in Search Results", "MainMenu"));
 	m_pActionCollapseAll->setEnabled(false);
 	connect(m_pSearchResultWidget, SIGNAL(canCollapseAll(bool)), m_pActionCollapseAll, SLOT(setEnabled(bool)));
@@ -702,7 +702,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pViewMenu->addSeparator();
 	m_pSearchResultWidget->getLocalEditMenu()->addSeparator();			// Put details at the end
 
-	m_pActionViewDetails = m_pViewMenu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), tr("View &Details...", "MainMenu"), this, SLOT(en_viewDetails()), QKeySequence(Qt::CTRL + Qt::Key_D));
+	m_pActionViewDetails = m_pViewMenu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), tr("View &Details...", "MainMenu"), this, SLOT(en_viewDetails()), QKeySequence(Qt::CTRL | Qt::Key_D));
 	m_pActionViewDetails->setStatusTip(tr("View Passage Details", "MainMenu"));
 	m_pActionViewDetails->setEnabled(false);
 	connect(this, SIGNAL(canShowDetails(bool)), m_pActionViewDetails, SLOT(setEnabled(bool)));
@@ -711,22 +711,22 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// --- Navigate Menu
 	QMenu *pNavMenu = ui.menuBar->addMenu(tr("&Navigate", "MainMenu"));
 
-	pAction = pNavMenu->addAction(tr("Beginning of Bible", "MainMenu"), m_pBrowserWidget, SLOT(en_Bible_Beginning()), QKeySequence(Qt::ALT + Qt::Key_Home));
+	pAction = pNavMenu->addAction(tr("Beginning of Bible", "MainMenu"), m_pBrowserWidget, SLOT(en_Bible_Beginning()), QKeySequence(Qt::ALT | Qt::Key_Home));
 	pAction->setStatusTip(tr("Goto the very Beginning of the Bible", "MainMenu"));
 	connect(pAction, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	pAction = pNavMenu->addAction(tr("Ending of Bible", "MainMenu"), m_pBrowserWidget, SLOT(en_Bible_Ending()), QKeySequence(Qt::ALT + Qt::Key_End));
+	pAction = pNavMenu->addAction(tr("Ending of Bible", "MainMenu"), m_pBrowserWidget, SLOT(en_Bible_Ending()), QKeySequence(Qt::ALT | Qt::Key_End));
 	pAction->setStatusTip(tr("Goto the very End of the Bible", "MainMenu"));
 	connect(pAction, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionBookBackward = pNavMenu->addAction(tr("Book Backward", "MainMenu"), m_pBrowserWidget, SLOT(en_Book_Backward()), QKeySequence(Qt::CTRL + Qt::Key_PageUp));
+	m_pActionBookBackward = pNavMenu->addAction(tr("Book Backward", "MainMenu"), m_pBrowserWidget, SLOT(en_Book_Backward()), QKeySequence(Qt::CTRL | Qt::Key_PageUp));
 	m_pActionBookBackward->setStatusTip(tr("Move Backward one Book", "MainMenu"));
 	connect(m_pActionBookBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionBookForward = pNavMenu->addAction(tr("Book Forward", "MainMenu"), m_pBrowserWidget, SLOT(en_Book_Forward()), QKeySequence(Qt::CTRL + Qt::Key_PageDown));
+	m_pActionBookForward = pNavMenu->addAction(tr("Book Forward", "MainMenu"), m_pBrowserWidget, SLOT(en_Book_Forward()), QKeySequence(Qt::CTRL | Qt::Key_PageDown));
 	m_pActionBookForward->setStatusTip(tr("Move Forward one Book", "MainMenu"));
 	connect(m_pActionBookForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionChapterBackward = pNavMenu->addAction(tr("Chapter Backward", "MainMenu"), m_pBrowserWidget, SLOT(en_ChapterBackward()), QKeySequence(Qt::ALT + Qt::Key_PageUp));
+	m_pActionChapterBackward = pNavMenu->addAction(tr("Chapter Backward", "MainMenu"), m_pBrowserWidget, SLOT(en_ChapterBackward()), QKeySequence(Qt::ALT | Qt::Key_PageUp));
 	m_pActionChapterBackward->setStatusTip(tr("Move Backward one Chapter", "MainMenu"));
 	connect(m_pActionChapterBackward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	m_pActionChapterForward = pNavMenu->addAction(tr("Chapter Forward", "MainMenu"), m_pBrowserWidget, SLOT(en_ChapterForward()), QKeySequence(Qt::ALT + Qt::Key_PageDown));
+	m_pActionChapterForward = pNavMenu->addAction(tr("Chapter Forward", "MainMenu"), m_pBrowserWidget, SLOT(en_ChapterForward()), QKeySequence(Qt::ALT | Qt::Key_PageDown));
 	m_pActionChapterForward->setStatusTip(tr("Move Forward one Chapter", "MainMenu"));
 	connect(m_pActionChapterForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
 	connect(m_pBrowserWidget, SIGNAL(en_gotoIndex(const TPhraseTag &)), this, SLOT(en_gotoIndex(const TPhraseTag &)));
@@ -734,7 +734,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pNavMenu->addSeparator();
 
 	m_pActionNavBackward = new QAction(QIcon(":/res/Nav3_Arrow_Left.png"), tr("History &Backward", "MainMenu"), this);
-	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Left));
+	m_pActionNavBackward->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Left));
 	m_pActionNavBackward->setStatusTip(tr("Go Backward in Navigation History", "MainMenu"));
 	ui.browserNavigationToolBar->addAction(m_pActionNavBackward);
 	connect(m_pBrowserWidget, SIGNAL(backwardAvailable(bool)), m_pActionNavBackward, SLOT(setEnabled(bool)));
@@ -744,7 +744,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pNavMenu->addAction(m_pActionNavBackward);
 
 	m_pActionNavForward = new QAction(QIcon(":/res/Nav3_Arrow_Right.png"), tr("History &Forward", "MainMenu"), this);
-	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Right));
+	m_pActionNavForward->setShortcut(QKeySequence(Qt::ALT | Qt::Key_Right));
 	m_pActionNavForward->setStatusTip(tr("Go Forward in Navigation History", "MainMenu"));
 	ui.browserNavigationToolBar->addAction(m_pActionNavForward);
 	connect(m_pBrowserWidget, SIGNAL(forwardAvailable(bool)), m_pActionNavForward, SLOT(setEnabled(bool)));
@@ -753,13 +753,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionNavForward->setEnabled(m_pBrowserWidget->isForwardAvailable());
 	pNavMenu->addAction(m_pActionNavForward);
 
-	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), tr("History &Home", "MainMenu"), m_pBrowserWidget, SIGNAL(home()), QKeySequence(Qt::ALT + Qt::Key_Up));
+	m_pActionNavHome = pNavMenu->addAction(QIcon(":/res/go_home.png"), tr("History &Home", "MainMenu"), m_pBrowserWidget, SIGNAL(home()), QKeySequence(Qt::ALT | Qt::Key_Up));
 	m_pActionNavHome->setStatusTip(tr("Jump to History Home Passage", "MainMenu"));
 	m_pActionNavHome->setEnabled(m_pBrowserWidget->isBackwardAvailable() ||
 									m_pBrowserWidget->isForwardAvailable());
 
 	m_pActionNavClear = new QAction(QIcon(":/res/Actions-edit-clear-icon-128.png"), tr("&Clear Navigation History", "MainMenu"), this);
-	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Delete));
+	m_pActionNavClear->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Delete));
 	m_pActionNavClear->setStatusTip(tr("Clear All Passage Navigation History", "MainMenu"));
 	ui.browserNavigationToolBar->addAction(m_pActionNavClear);
 	connect(m_pActionNavClear, SIGNAL(triggered()), this, SLOT(en_clearBrowserHistory()));
@@ -781,7 +781,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 //	m_pActionJump = new QAction(QIcon(":/res/go_jump2.png"), tr("Passage &Navigator", "MainMenu"), this);
 	m_pActionJump = new QAction(QIcon(":/res/green_arrow.png"), tr("Passage &Navigator", "MainMenu"), this);
-	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+	m_pActionJump->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
 	m_pActionJump->setStatusTip(tr("Display the Passage Navigator Widget", "MainMenu"));
 	ui.browserNavigationToolBar->addAction(m_pActionJump);
 	connect(m_pActionJump, SIGNAL(triggered()), this, SLOT(en_PassageNavigatorTriggered()));
@@ -807,47 +807,47 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setMenuRole(QAction::PreferencesRole);
 
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F1));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F1));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchGeneralSettingsConfig()));
 
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F2));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F2));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchCopyOptionsConfig()));
 
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F3));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F3));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchTextColorAndFontsConfig()));
 
 #if !defined(VNCSERVER) && !defined(EMSCRIPTEN)
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F4));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F4));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchNotesFileSettingsConfig()));
 #endif
 
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F5));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F5));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchBibleDatabaseConfig()));
 
 #if defined(USING_DICTIONARIES)
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F6));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F6));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchDictDatabaseConfig()));
 #endif
 
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F7));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F7));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchLocaleSettingsConfig()));
 
 #ifndef VNCSERVER
 	pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_F8));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F8));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(en_LaunchTTSOptionsConfig()));
 #endif
@@ -863,7 +863,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionBibleDatabasesList->setToolTip(tr("Create New Search Window", "MainMenu"));
 	if (TBibleDatabaseList::availableBibleDatabases().size() == 1) {
 		// If we only have a single available database, treat it in the old fashion of a single "New Search Window" button:
-		m_pActionBibleDatabasesList->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+		m_pActionBibleDatabasesList->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
 		connect(m_pActionBibleDatabasesList, SIGNAL(triggered()), this, SLOT(en_NewCanOpener()));
 	} else {
 		// Otherwise, we'll setup a submenu:
@@ -875,7 +875,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	}
 	pWindowMenu->addAction(m_pActionBibleDatabasesList);
 
-	pAction = pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window", "MainMenu"), this, SLOT(close()), QKeySequence(Qt::CTRL + Qt::Key_W));
+	pAction = pWindowMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this Search Window", "MainMenu"), this, SLOT(close()), QKeySequence(Qt::CTRL | Qt::Key_W));
 	pAction->setStatusTip(tr("Close this King James Pure Bible Search Window", "MainMenu"));
 	pAction->setToolTip(tr("Close this Search Window", "MainMenu"));
 
@@ -897,7 +897,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help", "MainMenu"));
 
 #ifndef VNCSERVER
-	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help", "MainMenu"), this, SLOT(en_HelpManual()), QKeySequence(Qt::SHIFT + Qt::Key_F1));
+	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help", "MainMenu"), this, SLOT(en_HelpManual()), QKeySequence(Qt::SHIFT | Qt::Key_F1));
 	pAction->setStatusTip(tr("Display the Users Manual", "MainMenu"));
 
 	pAction = pHelpMenu->addAction(QIcon(":/res/package_network-128.png"), tr("Goto PureBibleSearch.com...", "MainMenu"), this, SLOT(en_PureBibleSearchDotCom()), QKeySequence(Qt::Key_F2));
@@ -919,7 +919,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	for (int ndx=0; ndx<NUM_QUICK_ACTIONS; ++ndx) {
 		m_lstpQuickActivate.append(new QAction(this));
-		m_lstpQuickActivate.at(ndx)->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0 + ndx));
+		m_lstpQuickActivate.at(ndx)->setShortcut(QKeySequence(Qt::CTRL | static_cast<Qt::Key>(Qt::Key_0 + ndx)));
 		connect(m_lstpQuickActivate.at(ndx), SIGNAL(triggered()), this, SLOT(en_QuickActivate()));
 	}
 	addActions(m_lstpQuickActivate);
@@ -2093,7 +2093,7 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 		QAction *pAction = new QAction(TBibleDatabaseList::instance()->at(ndx)->description(), m_pActionGroupBibleDatabasesList);
 		pAction->setData(TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID());
 		if (TBibleDatabaseList::instance()->at(ndx)->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
-			pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+			pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
 		}
 		m_pActionBibleDatabasesList->menu()->addAction(pAction);
 	}
@@ -2106,7 +2106,7 @@ void CKJVCanOpener::en_updateBibleDatabasesList()
 			QAction *pAction = new QAction(pBibleDatabase->description(), m_pActionGroupBibleDatabasesList);
 			pAction->setData(pBibleDatabase->compatibilityUUID());
 			if (pBibleDatabase->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
-				pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+				pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
 			}
 			m_pActionBibleDatabasesList->menu()->addAction(pAction);
 		} else {

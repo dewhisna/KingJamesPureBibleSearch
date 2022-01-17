@@ -50,7 +50,11 @@ CCSVStream::CCSVStream()
 		m_bBeginningOfLine(true),
 		m_chrDelim(L',')
 {
+#if QT_VERSION >= 0x060000
+	m_stream.setEncoding(QStringConverter::Utf8);
+#else
 	m_stream.setCodec("UTF-8");
+#endif
 }
 
 CCSVStream::CCSVStream(QIODevice *pIOD)
@@ -59,7 +63,11 @@ CCSVStream::CCSVStream(QIODevice *pIOD)
 		m_bBeginningOfLine(true),
 		m_chrDelim(L',')
 {
+#if QT_VERSION >= 0x060000
+	m_stream.setEncoding(QStringConverter::Utf8);
+#else
 	m_stream.setCodec("UTF-8");
+#endif
 }
 
 CCSVStream::CCSVStream(QString *pStr, QIODevice::OpenMode nFilemode)
@@ -68,7 +76,11 @@ CCSVStream::CCSVStream(QString *pStr, QIODevice::OpenMode nFilemode)
 		m_bBeginningOfLine(true),
 		m_chrDelim(L',')
 {
+#if QT_VERSION >= 0x060000
+	m_stream.setEncoding(QStringConverter::Utf8);
+#else
 	m_stream.setCodec("UTF-8");
+#endif
 }
 
 CCSVStream &CCSVStream::endLine()

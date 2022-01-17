@@ -70,7 +70,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	ui.scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
 	// Create pushButton for inserting a new Search Phrase:
-	QKeySequence ksAddSearchPhrase(QKeySequence(Qt::CTRL + Qt::Key_P));
+	QKeySequence ksAddSearchPhrase(QKeySequence(Qt::CTRL | Qt::Key_P));
 	QString strAddButtonText = tr("Add Phrase to Search Criteria", "MainMenu");
 	strAddButtonText += QString(" (%1)").arg(ksAddSearchPhrase.toString(QKeySequence::NativeText));
 	m_buttonAddSearchPhrase.setText(strAddButtonText);

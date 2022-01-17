@@ -162,8 +162,12 @@ QSize CSingleLineTextEdit::sizeHint() const
 #endif
 	QStyleOptionFrameV2_t opt;
 	opt.initFrom(this);
+#if QT_VERSION >= 0x060000
+	QSize szHint = style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h), this);
+#else
 	QSize szHint = style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w, h).
 											 expandedTo(QApplication::globalStrut()), this);
+#endif
 	return (QSize(szHint.width(), ((m_nMinHeight != -1) ? qMax(szHint.height(), m_nMinHeight) : szHint.height())));
 }
 

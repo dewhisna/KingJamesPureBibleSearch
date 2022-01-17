@@ -125,6 +125,7 @@ public slots:
 	void en_HighlighterEnableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled);
 
 	void en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName);
+	void en_comboBoxHighlightersTextChanged(int ndxUserDefinedHighlighterName);
 	void en_addHighlighterClicked();
 	void en_removeHighlighterClicked();
 	void en_renameHighlighterClicked();

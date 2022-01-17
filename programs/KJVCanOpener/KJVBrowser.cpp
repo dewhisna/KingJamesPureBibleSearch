@@ -187,7 +187,11 @@ bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 		(ev->type() == QEvent::MouseMove) &&
 		(ui.scrollbarChapter->isSliderDown())) {
 		QMouseEvent *pMouseEvent = static_cast<QMouseEvent*>(ev);
+#if QT_VERSION >= 0x060000
+		m_ptChapterScrollerMousePos = pMouseEvent->globalPosition().toPoint();
+#else
 		m_ptChapterScrollerMousePos = pMouseEvent->globalPos();
+#endif
 	}
 #ifdef USING_QT_WEBENGINE
 //	if ((m_pWebEngineView != nullptr) &&

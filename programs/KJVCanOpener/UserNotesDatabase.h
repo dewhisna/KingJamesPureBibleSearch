@@ -28,7 +28,8 @@
 #include "PersistentSettings.h"
 
 #include <map>
-#include <QtXml>
+#include <QXmlAttributes>
+#include <QXmlDefaultHandler>
 #include <QSharedPointer>
 #include <QIODevice>
 #include <QStringList>

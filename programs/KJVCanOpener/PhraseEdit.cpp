@@ -42,7 +42,12 @@
 #include <QPair>
 #include <QSet>
 
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#endif
+#if QT_VERSION < 0x050F00
 #include <QRegExp>
+#endif
 
 #include <algorithm>
 #include <string>
@@ -284,7 +289,11 @@ void CSubPhrase::ClearPhase()
 
 void CSubPhrase::ParsePhrase(const QString &strPhrase)
 {
+#if QT_VERSION >= 0x050E00
+	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	m_lstWords = strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 	m_strCursorWord.clear();
 	m_nCursorWord = m_lstWords.size();
 }
@@ -298,7 +307,11 @@ void CSubPhrase::ParsePhrase(const QStringList &lstPhrase)
 
 void CSubPhrase::AppendPhrase(const QString &strPhrase)
 {
+#if QT_VERSION >= 0x050E00
+	m_lstWords.append(strPhrase.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts));
+#else
 	m_lstWords.append(strPhrase.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts));
+#endif
 	m_strCursorWord.clear();
 	m_nCursorWord = m_lstWords.size();
 }
@@ -583,17 +596,29 @@ QString CParsedPhrase::phraseToSpeak() const
 
 const QStringList CParsedPhrase::phraseWords() const
 {
+#if QT_VERSION >= 0x050E00
+	return phrase().split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	return phrase().split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 }
 
 const QStringList CParsedPhrase::phraseWordsRaw() const
 {
+#if QT_VERSION >= 0x050E00
+	return phraseRaw().split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	return phraseRaw().split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 }
 
 const QStringList CParsedPhrase::phraseWordsToSpeak() const
 {
+#if QT_VERSION >= 0x050E00
+	return phraseToSpeak().split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	return phraseToSpeak().split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 }
 
 void CParsedPhrase::clearCache() const
@@ -654,7 +679,11 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	bool bLIsOR = (chrL == QChar('|'));
 	bool bLIsSeparator = (bLIsSpace || bLIsOR);
 
+#if QT_VERSION >= 0x050500
+	if (chrL.isNull() || bLIsSeparator) strRightText = strRightText.mid(strRightText.indexOf(QRegularExpression("\\S")));
+#else
 	if (chrL.isNull() || bLIsSeparator) strRightText = strRightText.mid(strRightText.indexOf(QRegExp("\\S")));
+#endif
 
 	QChar chrR = (strRightText.size() ? strRightText.at(0) : QChar());
 	bool bRIsSpace = chrR.isSpace();
@@ -662,7 +691,11 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	bool bRIsSeparator = (bRIsSpace || bRIsOR);
 
 	if (!bRIsSeparator) {
+#if QT_VERSION >= 0x050500
+		int nPosRSpace = strRightText.indexOf(QRegularExpression("\\s+"));
+#else
 		int nPosRSpace = strRightText.indexOf(QRegExp("\\s+"));
+#endif
 		strLeftText += strRightText.left(nPosRSpace);
 		if (nPosRSpace != -1) {
 			strRightText = strRightText.mid(nPosRSpace);
@@ -675,13 +708,25 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	assert(!m_lstSubPhrases.isEmpty());
 
 	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+#if QT_VERSION >= 0x050E00
+	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	QStringList lstCompleteWords = strComplete.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 
 	strLeftText.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+#if QT_VERSION >= 0x050E00
+	QStringList lstLeftWords = strLeftText.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	QStringList lstLeftWords = strLeftText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 
 	strRightText.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
+#if QT_VERSION >= 0x050E00
+	QStringList lstRightWords = strRightText.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 	QStringList lstRightWords = strRightText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 
 	assert(lstCompleteWords.size() == (lstLeftWords.size() + lstRightWords.size()));
 
@@ -830,7 +875,11 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 
 		QString strCurWordKey = strCurWordDecomp.toLower();
 		QString strCurWordWildKey = strCurWordKey;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)
+#if QT_VERSION >= 0x050500
+		int nPreRegExp = strCurWordWildKey.indexOf(QRegularExpression("[\\[\\]\\*\\?]"));
+#else
 		int nPreRegExp = strCurWordWildKey.indexOf(QRegExp("[\\[\\]\\*\\?]"));
+#endif
 
 		if (nPreRegExp == -1) {
 			if ((ndx == (subPhrase.m_lstWords.size()-1)) &&
@@ -839,9 +888,15 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 			}
 		}
 
+#if QT_VERSION >= 0x050F00
+		QRegularExpression expCurWordWildKey(QRegularExpression::wildcardToRegularExpression(strCurWordWildKey), QRegularExpression::CaseInsensitiveOption);
+		QRegularExpression expCurWordExactKey(QRegularExpression::wildcardToRegularExpression(strCurWordKey), QRegularExpression::CaseInsensitiveOption);
+		QRegularExpression expCurWord(QRegularExpression::wildcardToRegularExpression(strCurWord), (isCaseSensitive() ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption));
+#else
 		QRegExp expCurWordWildKey(strCurWordWildKey, Qt::CaseInsensitive, QRegExp::Wildcard);
 		QRegExp expCurWordExactKey(strCurWordKey, Qt::CaseInsensitive, QRegExp::Wildcard);
 		QRegExp expCurWord(strCurWord, (isCaseSensitive() ? Qt::CaseSensitive : Qt::CaseInsensitive), QRegExp::Wildcard);
+#endif
 
 		if ((ndx == 0) || (bInFirstWordStar)) {				// If we're matching the first word, build complete index to start off the compare:
 			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWordWildKey);
@@ -862,7 +917,11 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 				assert(nLastWord != -1);			// Should have at least one match since forward search matched above!
 
 				for (int ndxWord = nFirstWord; ndxWord <= nLastWord; ++ndxWord) {
+#if QT_VERSION >= 0x050F00
+					if (!expCurWordExactKey.match(m_pBibleDatabase->lstWordList().at(ndxWord)).hasMatch()) continue;
+#else
 					if (!expCurWordExactKey.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
+#endif
 					TWordListMap::const_iterator itrWordMap = m_pBibleDatabase->mapWordList().find(m_pBibleDatabase->lstWordList().at(ndxWord));
 					assert(itrWordMap != m_pBibleDatabase->mapWordList().end());
 					if (itrWordMap == m_pBibleDatabase->mapWordList().end()) continue;
@@ -877,7 +936,11 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 							const QString &strAltWord = ((!isAccentSensitive()) ?
 									 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? wordEntry.m_lstDecomposedAltWords.at(ndxAltWord) : wordEntry.m_lstDecomposedHyphenAltWords.at(ndxAltWord)) :
 									 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? wordEntry.m_lstDeApostrAltWords.at(ndxAltWord) : wordEntry.m_lstDeApostrHyphenAltWords.at(ndxAltWord)));
+#if QT_VERSION >= 0x050F00
+							if (expCurWord.match(strAltWord).hasMatch()) {
+#else
 							if (expCurWord.exactMatch(strAltWord)) {
+#endif
 								subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(),
 																	&wordEntry.m_ndxNormalizedMapping[nCount],
 																	&wordEntry.m_ndxNormalizedMapping[nCount+wordEntry.m_lstAltWordCount.at(ndxAltWord)]);
@@ -899,7 +962,11 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 					const QString &strNextWord = ((!isAccentSensitive()) ?
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->decomposedWord() : pNextWordEntry->decomposedHyphenWord()) :
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->deApostrWord() : pNextWordEntry->deApostrHyphenWord()));
+#if QT_VERSION >= 0x050F00
+					if (expCurWord.match(strNextWord).hasMatch()) {
+#else
 					if (expCurWord.exactMatch(strNextWord)) {
+#endif
 						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					}
 				}

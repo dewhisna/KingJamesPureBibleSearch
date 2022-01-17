@@ -511,15 +511,25 @@ QStyleOptionViewItemV4_t CReflowDelegate::viewOptions(const QModelIndex &index)
 {
 	class CSneakyItemView : public QTreeView {
 	public:
+#if QT_VERSION >= 0x060000
+		QStyleOptionViewItem viewOptions() const
+		{
+			QStyleOptionViewItem vwOptions;
+			QTreeView::initViewItemOption(&vwOptions);
+			return vwOptions;
+		}
+#else
 		QStyleOptionViewItem viewOptions() const { return QTreeView::viewOptions(); }
-		QStyleOptionViewItemV4_t viewOptionsV4() const {
+#endif
+		QStyleOptionViewItemV4_t viewOptionsV4() const
+		{
 			// based on QAbstractItemViewPrivate::viewOptionsV4():
 			QStyleOptionViewItemV4_t option = viewOptions();
-			if (this->wordWrap()) option.features = QStyleOptionViewItemV2::WrapText;
+			if (this->wordWrap()) option.features = QStyleOptionViewItemV2_t::WrapText;
 			option.locale = locale();
 			option.locale.setNumberOptions(QLocale::OmitGroupSeparator);
 			option.widget = this;
-			return QAbstractItemView::viewOptions();
+			return viewOptions();					// TODO : Investigate this -- shouldn't it be returning 'option'?
 		}
 	};
 

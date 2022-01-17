@@ -448,7 +448,11 @@ Qt::ItemFlags CSearchWithinModel::flags(const QModelIndex &index) const
 	}
 
 	if (pSearchWithinModelIndex->ssme() != CSearchCriteria::SSME_BOOK) {
+#if QT_VERSION >= 0x050600
+		return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsAutoTristate;
+#else
 		return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsTristate;
+#endif
 	}
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsUserCheckable;
 }

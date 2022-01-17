@@ -29,7 +29,11 @@
 #include "PhraseEdit.h"
 #include "Highlighter.h"
 
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#else
 #include <QRegExp>
+#endif
 
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
@@ -524,7 +528,11 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 			strTemplate.append('J');
 		}
 		if (ndxWord == 1) {
+#if QT_VERSION >= 0x050000
+			lstWords[0].remove(QRegularExpression("[JjTtDd]"));
+#else
 			lstWords[0].remove(QRegExp("[JjTtDd]"));
+#endif
 			strTemplate.append(lstWords.at(0));
 		}
 		if (bAddAnchors) {
@@ -547,7 +555,11 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		if (bAddAnchors) {
 			strTemplate.append('a');
 		}
+#if QT_VERSION >= 0x050000
+		lstWords[ndxWord].remove(QRegularExpression("[JjTtDd]"));
+#else
 		lstWords[ndxWord].remove(QRegExp("[JjTtDd]"));
+#endif
 		strTemplate.append(lstWords.at(ndxWord));
 		if (lstWordsOfJesus.at(ndxWord-1)) {
 			strTemplate.append('j');

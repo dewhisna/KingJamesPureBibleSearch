@@ -36,7 +36,11 @@
 #include <stdint.h>
 #include <QString>
 #include <QStringList>
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#else
 #include <QRegExp>
+#endif
 #include <QList>
 #include <QMap>
 #include <QMultiMap>
@@ -846,7 +850,10 @@ public:
 	int removeDuplicates();
 };
 
-#if QT_VERSION >= 0x050000
+#if QT_VERSION >= 0x060000
+// Qt6 changes the signature of this from uint to size_t
+Q_DECL_CONST_FUNCTION inline size_t qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
+#elif QT_VERSION >= 0x050000
 Q_DECL_CONST_FUNCTION inline uint qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
 #else
 // Backward compatibility for old VNC 4.8.7 build:
@@ -854,7 +861,11 @@ __attribute__((const)) inline uint qHash(const CPhraseEntry &key, uint seed = 0)
 #endif
 {
 	// Note: Aren't hashing "disable" because it doesn't affect the main key value equality
+#if QT_VERSION >= 0x060000
+	std::vector<size_t> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };
+#else
 	std::vector<uint> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };
+#endif
 	return std::accumulate(vctHashes.begin(), vctHashes.end(), seed, CPhraseEntry::QHashCombineCommutative());
 }
 
@@ -1193,7 +1204,11 @@ public:
 	QString strongsTextIndex() const { return QString("%1%2").arg(m_chrLangCode).arg(m_nStrongsIndex, 4, 10, QChar('0')); }
 
 	QString orthography() const { return m_strOrthography; }
+#if QT_VERSION >= 0x050000
+	QString orthographyPlainText() const { QString strResult = m_strOrthography; return strResult.remove(QRegularExpression("<[^>]*>")); }
+#else
 	QString orthographyPlainText() const { QString strResult = m_strOrthography; return strResult.remove(QRegExp("<[^>]*>")); }
+#endif
 	void setOrthography(const QString &strOrthography) { m_strOrthography = strOrthography; }
 
 	QString transliteration() const { return m_strTransliteration; }

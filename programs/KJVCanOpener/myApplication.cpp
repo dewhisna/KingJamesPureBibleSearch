@@ -26,6 +26,10 @@
 #include "ReportError.h"
 #include "BusyCursor.h"
 
+#if !defined(QT_NO_WARNING_OUTPUT)
+#include <QDebug>
+#endif
+
 #if defined(VNCSERVER) || defined(USING_WEBCHANNEL)
 #include <signal.h>
 #include <sys/types.h>
@@ -58,8 +62,8 @@
 #include <QProxyStyle>
 #include <QFont>
 #include <QFontDatabase>
-#include <QDesktopWidget>
 #if QT_VERSION < 0x050000
+#include <QDesktopWidget>
 #include <QDesktopServices>
 #else
 #include <QStandardPaths>

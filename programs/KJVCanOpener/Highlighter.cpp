@@ -375,20 +375,20 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 #ifndef Q_OS_MAC
 		switch (ndx) {
 			case 0:
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_H));
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_H));
 				break;
 			case 1:
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_J));
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_J));
 				break;
 			case 2:
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_K));
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_K));
 				break;
 			case 3:
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::Key_L));
-				lstShortcuts.append(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_L));
 				break;
 			default:
 				break;
@@ -396,20 +396,20 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 #else
 		switch (ndx) {
 			case 0:
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_H));
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::Key_H));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_H));
 				break;
 			case 1:
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_J));
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::Key_J));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_J));
 				break;
 			case 2:
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_K));
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::Key_K));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_K));
 				break;
 			case 3:
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::Key_L));
-				lstShortcuts.append(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::Key_L));
+				lstShortcuts.append(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_L));
 				break;
 			default:
 				break;

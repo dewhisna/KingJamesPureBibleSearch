@@ -58,7 +58,7 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 	assert(m_pEditVersePreview != nullptr);
 
 	QAction *pAction = new QAction(this);
-	pAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
 	addAction(pAction);
 	connect(pAction, SIGNAL(triggered()), m_pEditVersePreview, SLOT(showDetails()));
 

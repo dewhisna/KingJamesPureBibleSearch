@@ -25,7 +25,12 @@
 
 #include "SearchCompleter.h"
 
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#else
 #include <QRegExp>
+#endif
 #include <QStringList>
 
 #ifdef QT_WIDGETS_LIB
@@ -61,24 +66,24 @@ CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
 	m_pEditMenu = new QMenu(tr("&Edit", "MainMenu"), ui.editPassageReference);
 	m_pEditMenu->setStatusTip(tr("Passage Reference Editor Operations", "MainMenu"));
 
-	m_pActionUndo = m_pEditMenu->addAction(tr("&Undo", "MainMenu"), ui.editPassageReference, SLOT(undo()), QKeySequence(Qt::CTRL + Qt::Key_Z));
+	m_pActionUndo = m_pEditMenu->addAction(tr("&Undo", "MainMenu"), ui.editPassageReference, SLOT(undo()), QKeySequence(Qt::CTRL | Qt::Key_Z));
 	m_pActionUndo->setStatusTip(tr("Undo last operation to the Passage Reference Editor", "MainMenu"));
 	m_pActionUndo->setEnabled(false);
 //	connect(m_pActionUndo, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionRedo = m_pEditMenu->addAction(tr("&Redo", "MainMenu"), ui.editPassageReference, SLOT(redo()), QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Z));
+	m_pActionRedo = m_pEditMenu->addAction(tr("&Redo", "MainMenu"), ui.editPassageReference, SLOT(redo()), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z));
 	m_pActionRedo->setStatusTip(tr("Redo last operation on the Passage Reference Editor", "MainMenu"));
 	m_pActionRedo->setEnabled(false);
 //	connect(m_pActionRedo, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	m_pActionCut = m_pEditMenu->addAction(tr("Cu&t", "MainMenu"), ui.editPassageReference, SLOT(cut()), QKeySequence(Qt::CTRL + Qt::Key_X));
+	m_pActionCut = m_pEditMenu->addAction(tr("Cu&t", "MainMenu"), ui.editPassageReference, SLOT(cut()), QKeySequence(Qt::CTRL | Qt::Key_X));
 	m_pActionCut->setStatusTip(tr("Cut selected text from the Passage Reference Editor to the clipboard", "MainMenu"));
 	m_pActionCut->setEnabled(false);
 //	connect(m_pActionCut, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionCopy = m_pEditMenu->addAction(tr("&Copy", "MainMenu"), ui.editPassageReference, SLOT(copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy = m_pEditMenu->addAction(tr("&Copy", "MainMenu"), ui.editPassageReference, SLOT(copy()), QKeySequence(Qt::CTRL | Qt::Key_C));
 	m_pActionCopy->setStatusTip(tr("Copy selected text from the Passage Reference Editor to the clipboard", "MainMenu"));
 	m_pActionCopy->setEnabled(false);
 //	connect(m_pActionCopy, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
-	m_pActionPaste = m_pEditMenu->addAction(tr("&Paste", "MainMenu"), ui.editPassageReference, SLOT(paste()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionPaste = m_pEditMenu->addAction(tr("&Paste", "MainMenu"), ui.editPassageReference, SLOT(paste()), QKeySequence(Qt::CTRL | Qt::Key_V));
 	m_pActionPaste->setStatusTip(tr("Paste text on clipboard into the Passage Reference Editor", "MainMenu"));
 	m_pActionPaste->setEnabled(true);
 //	connect(m_pActionPaste, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
@@ -87,7 +92,7 @@ CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
 	m_pActionDelete->setEnabled(false);
 //	connect(m_pActionDelete, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), ui.editPassageReference, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), ui.editPassageReference, SLOT(selectAll()), QKeySequence(Qt::CTRL | Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(tr("Select All Text in the Passage Reference Editor", "MainMenu"));
 	m_pActionSelectAll->setEnabled(false);
 //	connect(m_pActionSelectAll, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
@@ -275,7 +280,11 @@ TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference
 	//		- (8) will be the Word Number, the value in the "[]" tags, if specified, or empty if not
 	//
 
+#if QT_VERSION >= 0x050000
+	QRegularExpression expReference("\\s*(\\d)?\\s*(\\w+)\\s*(\\d{1,3})?\\s*[:.]?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*,?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*\\[?\\s*(\\d{1,3})?\\s*\\]?", QRegularExpression::CaseInsensitiveOption);
+#else
 	QRegExp expReference("\\s*(\\d)?\\s*(\\w+)\\s*(\\d{1,3})?\\s*[:.]?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*,?\\s*(\\d{1,3})?\\s*[-–]?\\s*(\\d{1,3})?\\s*\\[?\\s*(\\d{1,3})?\\s*\\]?", Qt::CaseInsensitive);
+#endif
 
 #define PARSENDX_ALL			0
 #define PARSENDX_PREBOOK		1
@@ -287,8 +296,16 @@ TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference
 #define PARSENDX_RANGEEND2		7
 #define PARSENDX_WORD			8
 
+#if QT_VERSION >= 0x050000
+	QRegularExpressionMatch expRefMatch = expReference.match(strPassageReference);
+	QStringList lstMatches = expRefMatch.capturedTexts();
+	qsizetype nPos = expRefMatch.capturedStart();
+	assert(expReference.captureCount() == 8);
+	while (lstMatches.size() <= expReference.captureCount()) lstMatches.append(QString());
+#else
 	int nPos = expReference.indexIn(strPassageReference);
 	QStringList lstMatches = expReference.capturedTexts();
+#endif
 	TPhraseTag tagResult;
 
 #if 0
@@ -383,12 +400,22 @@ void CPassageReferenceResolver::buildSoundExTables()
 		QStringList lstSoundEx;
 		for (int nAbbr = 0; nAbbr <= book.m_lstBkAbbr.size(); ++nAbbr) {		// Index 0 will be used for entire book name others will index into abbr array
 			QString strBookName = ((nAbbr == 0) ? book.m_strBkName.toLower() : book.m_lstBkAbbr.at(nAbbr-1).toLower());
+#if QT_VERSION >= 0x050000
+			strBookName.replace(QRegularExpression("\\s"), QString());
+			QRegularExpression regexpPrefix("^(\\d*)?");
+			QRegularExpressionMatch regexpPrefixMatch = regexpPrefix.match(strBookName);
+			qsizetype nPosPrefix = regexpPrefixMatch.capturedStart();
+			assert(nPosPrefix != -1);
+			assert(regexpPrefixMatch.capturedTexts().size() == 2);
+			QString strPrefix = regexpPrefixMatch.capturedTexts().at(1);
+#else
 			strBookName.replace(QRegExp("\\s"), QString());
 			QRegExp regexpPrefix("^(\\d*)?");
 			int nPosPrefix = regexpPrefix.indexIn(strBookName);
 			assert(nPosPrefix != -1);
 			assert(regexpPrefix.capturedTexts().size() == 2);
 			QString strPrefix = regexpPrefix.capturedTexts().at(1);
+#endif
 			lstSoundEx.append(strPrefix + CSoundExSearchCompleterFilter::soundEx(strBookName,
 																			CSoundExSearchCompleterFilter::languageValue(m_pBibleDatabase->language()),
 																			PASSAGE_SOUNDEX_LENGTH,
@@ -412,7 +439,11 @@ uint32_t CPassageReferenceResolver::resolveBook(const QString &strPreBook, const
 		const CBookEntry &book = *m_pBibleDatabase->bookEntry(nBk);
 		for (int nAbbr = 0; nAbbr <= book.m_lstBkAbbr.size(); ++nAbbr) {		// Index 0 will be used for entire book name others will index into abbr array
 			QString strBibleBookName = ((nAbbr == 0) ? book.m_strBkName.toLower() : book.m_lstBkAbbr.at(nAbbr-1).toLower());
+#if QT_VERSION >= 0x050000
+			strBibleBookName.replace(QRegularExpression("\\s"), QString());
+#else
 			strBibleBookName.replace(QRegExp("\\s"), QString());
+#endif
 			if ((strSoundEx.compare(m_lstBookSoundEx.at(nBk-1).at(nAbbr)) == 0) || (strBibleBookName.startsWith(strBookName))) {
 				lstResolvedBooks.append(nBk);
 				break;			// Only need to add the book once
@@ -426,7 +457,11 @@ uint32_t CPassageReferenceResolver::resolveBook(const QString &strPreBook, const
 			const CBookEntry &book = *m_pBibleDatabase->bookEntry(lstResolvedBooks.at(ndx));
 			for (int nAbbr = 0; nAbbr <= book.m_lstBkAbbr.size(); ++nAbbr) {		// Index 0 will be used for entire book name others will index into abbr array
 				QString strBibleBookName = ((nAbbr == 0) ? book.m_strBkName.toLower() : book.m_lstBkAbbr.at(nAbbr-1).toLower());
+#if QT_VERSION >= 0x050000
+				strBibleBookName.replace(QRegularExpression("\\s"), QString());
+#else
 				strBibleBookName.replace(QRegExp("\\s"), QString());
+#endif
 				if (strBibleBookName.startsWith(strBookName)) {
 					if ((nResolvedBook == 0) || (strBibleBookName.compare(strBookName) == 0)) {
 						nResolvedBook = lstResolvedBooks.at(ndx);

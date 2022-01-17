@@ -57,6 +57,12 @@
 #include <QMessageBox>
 #include <QDesktopServices>
 
+#if QT_VERSION >= 0x050E00
+#include <QRegularExpression>
+#else
+#include <QRegExp>
+#endif
+
 #ifdef USING_QT_SPEECH
 #include <QtSpeech>
 #endif
@@ -155,7 +161,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	m_pEditMenu = new QMenu(QObject::tr("&Edit", "MainMenu"), this);
 	m_pEditMenu->setStatusTip(QObject::tr("Scripture Text Edit Operations", "MainMenu"));
-	m_pActionCopy = m_pEditMenu->addAction(QObject::tr("&Copy as shown", "MainMenu"), this, SLOT(en_copy()), QKeySequence(Qt::CTRL + Qt::Key_C));
+	m_pActionCopy = m_pEditMenu->addAction(QObject::tr("&Copy as shown", "MainMenu"), this, SLOT(en_copy()), QKeySequence(Qt::CTRL | Qt::Key_C));
 	m_pActionCopy->setStatusTip(QObject::tr("Copy selected passage browser text, as shown, to the clipboard", "MainMenu"));
 	m_pActionCopy->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
@@ -164,7 +170,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyPlain->setEnabled(false);
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyRaw = m_pEditMenu->addAction(QObject::tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL + Qt::Key_T));
+	m_pActionCopyRaw = m_pEditMenu->addAction(QObject::tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()), QKeySequence(Qt::CTRL | Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip(QObject::tr("Copy selected passage browser text as raw phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
@@ -173,7 +179,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyVeryRaw->setEnabled(false);
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
 	m_pEditMenu->addSeparator();
-	m_pActionCopyVerses = m_pEditMenu->addAction(QObject::tr("Copy as &Verses", "MainMenu"), this, SLOT(en_copyVerses()), QKeySequence(Qt::CTRL + Qt::Key_V));
+	m_pActionCopyVerses = m_pEditMenu->addAction(QObject::tr("Copy as &Verses", "MainMenu"), this, SLOT(en_copyVerses()), QKeySequence(Qt::CTRL | Qt::Key_V));
 	m_pActionCopyVerses->setStatusTip(QObject::tr("Copy selected passage browser text as Formatted Verses to the clipboard", "MainMenu"));
 	m_pActionCopyVerses->setEnabled(false);
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
@@ -186,20 +192,20 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionCopyReferenceDetails->setStatusTip(QObject::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard", "MainMenu"));
 	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(QObject::tr("Copy Passage Stat&istics (Book/Chapter/Verse)", "MainMenu"), this, SLOT(en_copyPassageStatistics()));
 	m_pActionCopyPassageStatistics->setStatusTip(QObject::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard", "MainMenu"));
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(QObject::tr("Copy Entire Passage Detai&ls", "MainMenu"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL + Qt::Key_B));
+	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(QObject::tr("Copy Entire Passage Detai&ls", "MainMenu"), this, SLOT(en_copyEntirePassageDetails()), QKeySequence(Qt::CTRL | Qt::Key_B));
 	m_pActionCopyEntirePassageDetails->setStatusTip(QObject::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard", "MainMenu"));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL + Qt::Key_A));
+	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL | Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(QObject::tr("Select all current passage browser text", "MainMenu"));
 	m_pEditMenu->addSeparator();
 	if (m_pFindDialog != nullptr) {
-		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL + Qt::Key_F));
+		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()), QKeySequence(Qt::CTRL | Qt::Key_F));
 		m_pActionFind->setStatusTip(QObject::tr("Find text within the passage browser", "MainMenu"));
 		m_pActionFind->setEnabled(T::useFindDialog());
 		m_pActionFindNext = m_pEditMenu->addAction(QObject::tr("Find &Next", "MainMenu"), m_pFindDialog, SLOT(findNext()), QKeySequence(Qt::Key_F3));
 		m_pActionFindNext->setStatusTip(QObject::tr("Find next occurrence of text within the passage browser", "MainMenu"));
 		m_pActionFindNext->setEnabled(T::useFindDialog());
-		m_pActionFindPrev = m_pEditMenu->addAction(QObject::tr("Find &Previous", "MainMenu"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT + Qt::Key_F3));
+		m_pActionFindPrev = m_pEditMenu->addAction(QObject::tr("Find &Previous", "MainMenu"), m_pFindDialog, SLOT(findPrev()), QKeySequence(Qt::SHIFT | Qt::Key_F3));
 		m_pActionFindPrev->setStatusTip(QObject::tr("Find previous occurrence of text within the passage browser", "MainMenu"));
 		m_pActionFindPrev->setEnabled(T::useFindDialog());
 	}
@@ -216,7 +222,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
-	U::setToolTip(QString(QObject::tr("Press %1 to see Passage Details", "MainMenu")).arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)));
+	U::setToolTip(QString(QObject::tr("Press %1 to see Passage Details", "MainMenu")).arg(QKeySequence(Qt::CTRL | Qt::Key_D).toString(QKeySequence::NativeText)));
 
 	m_pStatusAction = new QAction(this);
 
@@ -226,9 +232,9 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 		pSpeechAction = new QAction("readFromCursor", this);
 #ifndef Q_OS_MAC
-		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_R));
+		pSpeechAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R));
 #else
-		pSpeechAction->setShortcut(QKeySequence(Qt::META + Qt::SHIFT + Qt::Key_R));
+		pSpeechAction->setShortcut(QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_R));
 #endif
 		T::addAction(pSpeechAction);
 		T::connect(pSpeechAction, SIGNAL(triggered()), this, SLOT(en_readFromCursor()));
@@ -444,7 +450,11 @@ void CScriptureText<T,U>::en_readSelection()
 	//		This will combine questions and exclamations, joining them with adjacent statements,
 	//		but there isn't likely to be a ton of them run together, which will achieve the
 	//		goal of not overflowing the buffer:
+#if QT_VERSION >= 0x050E00
+	static const QRegularExpression regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
+#else
 	static const QRegExp regexpSentence("[;.:]");			// Note: Don't include '?' or it will get trimmed -- causing TTS to not do proper inflection (similar for '!')
+#endif
 	QStringList lstSentences = m_lstSelectedPhrases.phraseToSpeak().split(regexpSentence, My_QString_SkipEmptyParts);
 	for (int ndx = 0; ndx < lstSentences.size(); ++ndx) {
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
@@ -792,12 +802,12 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 		QAction *pActionNavigator = menu->addAction(QIcon(":/res/green_arrow.png"), QObject::tr("Passage &Navigator...", "MainMenu"));
 		T::connect(pActionNavigator, SIGNAL(triggered()), this, SLOT(showPassageNavigator()));
 		pActionNavigator->setEnabled(true);
-		pActionNavigator->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_G));
+		pActionNavigator->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
 	}
 	menu->addSeparator();
 	QAction *pActionDetails = menu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), QObject::tr("View &Details...", "MainMenu"));
 	pActionDetails->setEnabled(haveDetails());
-	pActionDetails->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_D));
+	pActionDetails->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
 #ifndef USE_ASYNC_DIALOGS
 	menu->exec(T::viewport()->mapToGlobal(pos));

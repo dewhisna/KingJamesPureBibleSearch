@@ -58,7 +58,11 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QTimer>
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#else
 #include <QRegExp>
+#endif
 #include <QFileDialog>
 #ifdef USING_QT_SPEECH
 #include <QtSpeech>
@@ -177,7 +181,6 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 
 	m_pHorzLayout = new QHBoxLayout(m_pWidget);
 	m_pHorzLayout->setObjectName(QString("hboxLayout_%1").arg(strUserDefinedHighlighterName));
-	m_pHorzLayout->setMargin(0);
 	m_pHorzLayout->setContentsMargins(0, 0, 0, 0);
 
 	m_pColorButton = new QwwColorButton(m_pWidget);
@@ -426,7 +429,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	ui.toolButtonRemoveHighlighter->setEnabled(false);
 	ui.toolButtonRenameHighlighter->setEnabled(false);
 
-	connect(ui.comboBoxHighlighters, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
+	connect(ui.comboBoxHighlighters, SIGNAL(currentIndexChanged(int)), this, SLOT(en_comboBoxHighlightersTextChanged(int)));
 	connect(ui.comboBoxHighlighters, SIGNAL(editTextChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
 	connect(ui.comboBoxHighlighters, SIGNAL(enterPressed()), ui.toolButtonAddHighlighter, SLOT(click()));
 
@@ -798,6 +801,16 @@ void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &str
 													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
 	ui.toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
 	ui.toolButtonRenameHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
+}
+
+void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(int ndxUserDefinedHighlighterName)
+{
+	// Note: In Qt 5.15+, they deprecated the currentIndexChanged(const QString &) signal
+	//	that we originally had connected to en_comboBoxHighlightersTextChanged().  Instead,
+	//	you have to call itemIndex() on the combo box and use that.  Hence, this slot that's
+	//	needed as a helper to get the text and turn around and call the real
+	//	en_comboBoxHighlightersTextChanged().
+	en_comboBoxHighlightersTextChanged(ui.comboBoxHighlighters->itemText(ndxUserDefinedHighlighterName));
 }
 
 void CKJVTextFormatConfig::en_addHighlighterClicked()
@@ -1520,7 +1533,11 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 	m_bLoadingData = true;
 
 	ui.editPrimaryUserNotesFilename->setText(m_pUserNotesDatabase->filePathName());
+#if QT_VERSION >= 0x050000
+	ui.editBackupExtension->setText(CPersistentSettings::instance()->notesBackupFilenamePostfix().remove(QRegularExpression("^\\.*")));
+#else
 	ui.editBackupExtension->setText(CPersistentSettings::instance()->notesBackupFilenamePostfix().remove(QRegExp("^\\.*")));
+#endif
 	ui.checkBoxKeepBackup->setChecked(CPersistentSettings::instance()->keepNotesBackup());
 
 	ui.spinBoxAutoSaveTime->setValue(CPersistentSettings::instance()->notesFileAutoSaveTime());
@@ -1533,7 +1550,11 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 
 void CKJVUserNotesDatabaseConfig::saveSettings()
 {
+#if QT_VERSION >= 0x050000
+	QString strExtension = ui.editBackupExtension->text().trimmed().remove(QRegularExpression("^\\.*")).trimmed();
+#else
 	QString strExtension = ui.editBackupExtension->text().trimmed().remove(QRegExp("^\\.*")).trimmed();
+#endif
 	strExtension = "." + strExtension;
 	CPersistentSettings::instance()->setKeepNotesBackup(ui.checkBoxKeepBackup->isChecked() && !strExtension.isEmpty());
 	CPersistentSettings::instance()->setNotesBackupFilenamePostfix(strExtension);

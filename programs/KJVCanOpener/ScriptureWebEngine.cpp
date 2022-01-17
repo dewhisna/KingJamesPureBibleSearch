@@ -34,6 +34,9 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineUrlRequestInfo>
 #include <QWebEngineUrlRequestJob>
+#if QT_VERSION >= 0x060000
+#include <QWebEngineProfile>
+#endif
 
 #include <QBuffer>
 #include <QUrl>
@@ -159,7 +162,16 @@ void CScriptureWebEngineView::en_loadFinished(bool bOK)
 
 void CScriptureWebEngineView::en_setFont(const QFont& aFont)
 {
+#if QT_VERSION >= 0x060000
+	// TODO : Fix this once Qt6 stabilizes.  Their documentation says to use
+	//	QWebEngineSettings::defaultSettings(), yet that function doesn't exist
+	//	and is commented out in the Qt Source Code.  Their commented out code,
+	//	however, is what is here below since QWebEngineSettings::globalSettings()
+	//	no longer exists either:
+	QWebEngineSettings *pSettings = QWebEngineProfile::defaultProfile()->settings();
+#else
 	QWebEngineSettings *pSettings = QWebEngineSettings::globalSettings();
+#endif
 	assert(pSettings != nullptr);
 
 	pSettings->setFontFamily(QWebEngineSettings::StandardFont, aFont.family());

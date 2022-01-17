@@ -31,6 +31,10 @@
 #include <QTextStream>
 #include <QScopedPointer>
 
+#if QT_VERSION >= 0x060000
+#include <QStringConverter>
+#endif
+
 // ============================================================================
 
 class CCSVStream {
@@ -53,14 +57,18 @@ public:
 	void setDelimiter(QChar ch) { m_chrDelim = ch; }
 
 	CCSVStream &endLine();
-	static QString escape(const QString &aString, bool bForceQuote = false, QChar chrDelim = L',');
+	static QString escape(const QString &aString, bool bForceQuote = false, QChar chrDelim = ',');
 
 	// template overloads allowing this class to handle any data types that QTextStream can:
 	template <class T> CCSVStream &operator <<(const T &val) {
 		QBuffer tmpBuff;
 		tmpBuff.open(QIODevice::WriteOnly);
 		QTextStream aStream(&tmpBuff);
+#if QT_VERSION >= 0x060000
+		aStream.setEncoding(QStringConverter::Utf16);
+#else
 		aStream.setCodec("UTF-16");
+#endif
 		aStream << val;
 		tmpBuff.close();
 		return (*this << QString((QChar *)tmpBuff.buffer().data(), tmpBuff.buffer().size() / sizeof(QChar)));
@@ -72,7 +80,11 @@ public:
 		QBuffer tmpBuff(&data);
 		tmpBuff.open(QIODevice::ReadOnly);
 		QTextStream aStream(&tmpBuff);
+#if QT_VERSION >= 0x060000
+		aStream.setEncoding(QStringConverter::Utf16);
+#else
 		aStream.setCodec("UTF-16");
+#endif
 		aStream >> val;
 		tmpBuff.close();
 		return retVal;

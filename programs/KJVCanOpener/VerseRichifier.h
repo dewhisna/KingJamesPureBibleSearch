@@ -143,14 +143,14 @@ public:
 		calcHash();
 	}
 
-	inline uint hash() const { return m_nHash; }
+	inline size_t hash() const { return m_nHash; }
 
 protected:
 	void setUsesHTML(bool bUsesHTML) { m_bUsesHTML = bUsesHTML; }
 
 	void calcHash()
 	{
-		m_nHash = qHash((m_bAddRichPs119HebrewPrefix ? 'M' : 'm') +
+		m_nHash = qHash(QString((m_bAddRichPs119HebrewPrefix ? 'M' : 'm')) +
 						'T' + m_strTransChangeAddedBegin +
 						't' + m_strTransChangeAddedEnd +
 						'J' + m_strWordsOfJesusBegin +
@@ -166,7 +166,7 @@ protected:
 
 private:
 	bool m_bUsesHTML;
-	uint m_nHash;
+	size_t m_nHash;
 	bool m_bAddRichPs119HebrewPrefix;
 	QString m_strTransChangeAddedBegin;
 	QString m_strTransChangeAddedEnd;

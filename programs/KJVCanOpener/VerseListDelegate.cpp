@@ -277,7 +277,7 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 //						return true;
 //					}
 
-					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details", "MainMenu").arg(QKeySequence(Qt::CTRL + Qt::Key_D).toString(QKeySequence::NativeText)), view);
+					QToolTip::showText(event->globalPos(), tr("Press %1 to see Phrase Details", "MainMenu").arg(QKeySequence(Qt::CTRL | Qt::Key_D).toString(QKeySequence::NativeText)), view);
 					return true;
 				}
 			} else if (pSearchResultsView->viewMode() == CVerseListModel::VVME_HIGHLIGHTERS) {

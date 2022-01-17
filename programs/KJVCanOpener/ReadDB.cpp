@@ -111,9 +111,17 @@ static bool queryFieldsToStringList(QWidget *pParent, QStringList &lstFields, co
 	lstFields.reserve(nCount);
 	for (int ndx = 0; ndx < nCount; ++ndx) {
 		QVariant varValue = query.value(ndx);
+#if QT_VERSION >= 0x060000
+		if (varValue.metaType().id() == QMetaType::Bool) {
+#else
 		if (varValue.type() == QVariant::Bool) {
+#endif
 			lstFields.append(QString(varValue.toBool() ? "1" : "0"));
-		} else if (varValue.type() == QVariant::ByteArray) {
+#if QT_VERSION >= 0x060000
+		} else if (varValue.metaType().id() == QMetaType::QByteArray) {
+#else
+	} else if (varValue.type() == QVariant::ByteArray) {
+#endif
 			if (bBlobsAreIndexes) {
 				lstFields.append(convertIndexBlobToIndexList(varValue.toByteArray()));
 			} else {

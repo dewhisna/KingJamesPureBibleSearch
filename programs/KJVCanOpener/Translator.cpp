@@ -53,7 +53,7 @@ QString g_strTranslationFilenamePrefix;
 CTranslator::CTranslator(const QString &strLangName, const QString &strTranslationFilename, QObject *pParent)
 	:	QObject(pParent),
 		m_strLangName(strLangName),
-		m_locale((strLangName.isEmpty()) ? QLocale::system() : strLangName),
+		m_locale((strLangName.isEmpty()) ? QLocale::system() : QLocale(strLangName)),
 		m_bLoaded(false)
 {
 	m_bLoaded = m_translatorApp.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);

@@ -28,6 +28,7 @@
 #include <QClipboard>
 #include <QDataStream>
 #include <QByteArray>
+#include <QIODevice>
 
 #include <assert.h>
 

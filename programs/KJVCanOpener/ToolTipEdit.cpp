@@ -35,7 +35,9 @@
 #include <QGuiApplication>
 #include <QScreen>
 #endif
+#if QT_VERSION < 0x050E00
 #include <QDesktopWidget>
+#endif
 #include <QEvent>
 #include <QMouseEvent>
 #include <QTimerEvent>
@@ -505,8 +507,14 @@ int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
 	if (QGuiApplication::primaryScreen()->virtualSiblings().size() > 1) {
 		QScreen *screen = QGuiApplication::screenAt(pos);
 		return screen ? QGuiApplication::screens().indexOf(screen) : 0;
-	} else
+	} else {
+#if QT_VERSION >= 0x050E00
+		QScreen *screen = w ? w->screen() : nullptr;
+		return screen ? QGuiApplication::screens().indexOf(screen) : 0;
+#else
 		return QApplication::desktop()->screenNumber(w);
+#endif
+	}
 #else
 	if (QApplication::desktop()->isVirtualDesktop())
 		return QApplication::desktop()->screenNumber(pos);
