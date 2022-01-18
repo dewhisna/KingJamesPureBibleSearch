@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 			relIndexWord1.setWord(1);
 			const CVerseEntry *pVerse = pBibleDatabase->verseEntry(relIndexWord1);
 			std::cout << ": ";
-			if (pVerse != NULL) {
+			if (pVerse != nullptr) {
 				std::cout << CVerseTextRichifier::parse(relIndexWord1, pBibleDatabase.data(), pVerse, tagsPlain).toUtf8().data();
 			} else {
 				std::cout << ": <NULL>";

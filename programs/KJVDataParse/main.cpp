@@ -2778,7 +2778,7 @@ int main(int argc, char *argv[])
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
 		bool bHadBook = true;
-		if ((pBook == NULL) || (pBook->m_strTblName.isEmpty())) {
+		if ((pBook == nullptr) || (pBook->m_strTblName.isEmpty())) {
 			bHadBook = false;
 			pBook = xmlHandler.addBookToBibleDatabase(nBk);
 			std::cerr << QString("\n*** WARNING: Module is missing Book : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0))).toUtf8().data();
@@ -2802,23 +2802,23 @@ int main(int argc, char *argv[])
 			if ((nChp != 0) && (nChp > static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()))) {
 				std::cerr << QString("\n*** WARNING: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			}
-			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : NULL);
+			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : nullptr);
 			bool bChapterMissing = false;
 			Q_UNUSED(bChapterMissing);
-			if ((nChp != 0) && (pChapter == NULL)) {
+			if ((nChp != 0) && (pChapter == nullptr)) {
 				bChapterMissing = true;
 				if ((nChp >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse.chapter()) && (bHadBook)) {
 					std::cerr << QString("\n*** WARNING: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 				}
 				pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0), true);
-				if (pChapter == NULL) {
+				if (pChapter == nullptr) {
 					std::cerr << "*** Unable to create missing chapter\n";
 					continue;
 				} else {
 					(const_cast<CBookEntry*>(pBook))->m_nNumChp++;
 				}
 			}
-			if (pChapter != NULL) {
+			if (pChapter != nullptr) {
 				(const_cast<CChapterEntry*>(pChapter))->m_nWrdAccum = nWordAccum;
 
 				std::cerr << ".";
@@ -2826,7 +2826,7 @@ int main(int argc, char *argv[])
 
 //			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			unsigned int nVerseWordAccum = 0;
-			unsigned int nVersesExpected = ((pChapter != NULL) ? qMax(pChapter->m_nNumVrs, static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0)) : 0);
+			unsigned int nVersesExpected = ((pChapter != nullptr) ? qMax(pChapter->m_nNumVrs, static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0)) : 0);
 
 			// Remove empty non-canonical verses that got added posthumous during parsing
 			//	that are trailing at the end of the chapter (leave any in the middle of
@@ -2834,7 +2834,7 @@ int main(int argc, char *argv[])
 			if (nChp > 0) {		// Do this only for non-colophons
 				for (unsigned int nVrs=nVersesExpected; nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0); --nVrs) {
 					const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
-					if ((pVerse != NULL) && (pVerse->m_nNumWrd == 0) && (pVerse->m_strTemplate.trimmed().isEmpty())) {
+					if ((pVerse != nullptr) && (pVerse->m_nNumWrd == 0) && (pVerse->m_strTemplate.trimmed().isEmpty())) {
 						// Ideally, we would also delete the verse here from pBibleDatabase->m_lstBookVerses,
 						//	but that's a private member, and since we are using the counts to output the
 						//	verses below, rather than the extents of that member, we can simply decrement
@@ -2849,20 +2849,20 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			for (unsigned int nVrs=((pChapter != NULL) ? (pChapter->m_bHaveSuperscription ? 0 : 1) : 0); nVrs<=nVersesExpected; ++nVrs) {
+			for (unsigned int nVrs=((pChapter != nullptr) ? (pChapter->m_bHaveSuperscription ? 0 : 1) : 0); nVrs<=nVersesExpected; ++nVrs) {
 				if ((nVrs != 0) && (nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0))) {
 					std::cerr << QString("\n*** WARNING: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
 				bool bVerseMissing = false;
-				if (pVerse == NULL) {
+				if (pVerse == nullptr) {
 					if ((nChp == 0) || (nVrs == 0)) assert(false);
 					bVerseMissing = true;
 					if ((CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) && (bHadBook)) {
 						std::cerr << QString("\n*** WARNING: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 					}
 					pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0), true);
-					if (pVerse == NULL) {
+					if (pVerse == nullptr) {
 						std::cerr << "*** Unable to create missing verse\n";
 						continue;
 					} else {
@@ -2967,7 +2967,7 @@ int main(int argc, char *argv[])
 							  << pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0)).toUtf8().data() << "\n";
 				}
 			}
-			if (pChapter != NULL) {
+			if (pChapter != nullptr) {
 				if (nVerseWordAccum != pChapter->m_nNumWrd) {
 					std::cerr << QString("\n*** Error: %1 Chapter Word Count (%2) doesn't match sum of Verse Word Counts (%3)!\n")
 													.arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0)))
@@ -2985,7 +2985,7 @@ int main(int argc, char *argv[])
 				nChapterWordAccum += nVerseWordAccum;		// Book has words of Colophons that aren't part of chapters proper
 			}
 
-			if (pChapter != NULL) {
+			if (pChapter != nullptr) {
 				// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
 				fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
 								   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
@@ -3338,20 +3338,20 @@ int main(int argc, char *argv[])
 	std::cerr << "Checking Indexes";
 	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
-		assert(pBook != NULL);
+		assert(pBook != nullptr);
 		for (unsigned int nChp=(pBook->m_bHaveColophon ? 0 : 1); nChp<=pBook->m_nNumChp; ++nChp) {
-			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : NULL);
+			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : nullptr);
 			unsigned int nStartVerse = 1;
 			if (nChp != 0) {
-				assert(pChapter != NULL);
+				assert(pChapter != nullptr);
 				nStartVerse = (pChapter->m_bHaveSuperscription ? 0 : 1);
 			} else {
 				nStartVerse = 0;
 			}
 
-			for (unsigned int nVrs=nStartVerse; nVrs<= ((pChapter != NULL) ? pChapter->m_nNumVrs : 0); ++nVrs) {
+			for (unsigned int nVrs=nStartVerse; nVrs<= ((pChapter != nullptr) ? pChapter->m_nNumVrs : 0); ++nVrs) {
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
-				assert(pVerse != NULL);
+				assert(pVerse != nullptr);
 				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
 					uint32_t nNormalAccum = pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd));
 					uint32_t nNormalNoAccum = pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, nWrd));
@@ -3415,7 +3415,7 @@ int main(int argc, char *argv[])
 
 	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(i);
-		assert(pBook != NULL);
+		assert(pBook != nullptr);
 		for (unsigned int j=1; j<=pBook->m_nNumChp; ++j) {
 			std::cout << QString("%1 Chapter %2 : Verses: %3  Words: %4\n")
 						.arg(pBook->m_strBkName)

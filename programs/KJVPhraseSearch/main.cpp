@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
 		QStringList lstPhrase;
 		for (int nCount = 1; nCount < nMinLen; ++nCount) {
 			const CConcordanceEntry *pConcordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(nNormalIndex+nCount-1);
-			if (pConcordEntry == NULL) break;
+			if (pConcordEntry == nullptr) break;
 			if (bCaseSensitive) {
 				lstPhrase.append(pConcordEntry->renderedWord());
 			} else {
@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
 				break;
 			}
 			const CConcordanceEntry *pConcordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(nNormalIndex+nCount-1);
-			if (pConcordEntry == NULL) break;
+			if (pConcordEntry == nullptr) break;
 			if (bCaseSensitive) {
 				lstPhrase.append(pConcordEntry->renderedWord());
 			} else {

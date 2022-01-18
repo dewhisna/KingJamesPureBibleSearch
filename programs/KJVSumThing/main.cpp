@@ -159,7 +159,7 @@ public:
 			lstPhrase.reserve(m_nTargetLength);
 			for (int ndx = 0; ndx < m_nTargetLength; ++ndx) {
 				const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+ndx);
-				if (pConcordEntry == NULL) {
+				if (pConcordEntry == nullptr) {
 					m_bSensitivityOptionsChanged = false;
 					return false;
 				}
@@ -202,7 +202,7 @@ public:
 			lstPhrase.reserve(m_nTargetLength+1);
 			for (int ndx = 0; ndx < m_nTargetLength+1; ++ndx) {
 				const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+ndx);
-				if (pConcordEntry == NULL) {
+				if (pConcordEntry == nullptr) {
 					m_bSensitivityOptionsChanged = false;
 					return false;
 				}
@@ -213,7 +213,7 @@ public:
 			primarySubPhrase()->ParsePhrase(lstPhrase);
 		} else {
 			const CConcordanceEntry *pConcordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(m_nNormalIndex+m_nTargetLength);
-			if (pConcordEntry == NULL) return false;
+			if (pConcordEntry == nullptr) return false;
 			primarySubPhrase()->AppendPhrase(isCaseSensitive() ? pConcordEntry->renderedWord() : pConcordEntry->renderedWord().toLower());
 		}
 
