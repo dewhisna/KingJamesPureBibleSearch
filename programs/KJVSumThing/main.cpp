@@ -37,7 +37,11 @@
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
+#if QT_VERSION >= 0x050E00
+#include <QRegularExpression>
+#else
 #include <QRegExp>
+#endif
 #include <QSharedPointer>
 #include <QList>
 #include <QMap>
@@ -360,8 +364,13 @@ static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseLis
 
 		QString strPhrase1 = lst1.at(ndx).caseSensitive() ? lst1.at(ndx).text() : lst1.at(ndx).text().toLower();
 		QString strPhrase2 = lst2.at(ndx).caseSensitive() ? lst2.at(ndx).text() : lst2.at(ndx).text().toLower();
+#if QT_VERSION >= 0x050E00
+		QStringList lstPhrase1 = strPhrase1.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+		QStringList lstPhrase2 = strPhrase2.normalized(QString::NormalizationForm_C).split(QRegularExpression("\\s+"), My_QString_SkipEmptyParts);
+#else
 		QStringList lstPhrase1 = strPhrase1.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 		QStringList lstPhrase2 = strPhrase2.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
+#endif
 
 		if (lstPhrase1.size() < lstPhrase2.size()) return true;
 		if (lstPhrase1.size() > lstPhrase2.size()) return false;

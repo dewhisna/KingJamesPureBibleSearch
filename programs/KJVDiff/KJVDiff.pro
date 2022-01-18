@@ -29,6 +29,10 @@
 
 QT       += core gui xml
 
+# Qt6 drops SAX XML Parser which we need.  For now, get it from the Qt5 compatibility shim:
+greaterThan(QT_MAJOR_VERSION,5):QT*=core5compat
+DEFINES *= QT_DEPRECATED_WARNINGS
+
 # Workaround QTBUG-30594 (was fixed in 4.8.5):
 equals(QT_MAJOR_VERSION,4):equals(QT_MINOR_VERSION,8):lessThan(QT_PATCH_VERSION,5):QMAKE_CXXFLAGS += -Wno-unused-local-typedefs
 

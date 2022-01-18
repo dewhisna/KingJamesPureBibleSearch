@@ -29,6 +29,10 @@
 
 QT       += core gui sql xml
 
+# Qt6 drops SAX XML Parser which we need.  For now, get it from the Qt5 compatibility shim:
+greaterThan(QT_MAJOR_VERSION,5):QT*=core5compat
+DEFINES *= QT_DEPRECATED_WARNINGS
+
 TARGET = KJVDictWord
 CONFIG   += console
 CONFIG   -= app_bundle
