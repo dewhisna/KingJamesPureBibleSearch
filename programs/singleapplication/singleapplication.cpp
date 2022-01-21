@@ -25,7 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QtCore/QDataStream>
 #include <QtCore/QHash>
 #include <QtCore/QReadWriteLock>
+#if QT_VERSION >= 0x050000
+#include <QtCore/QRegularExpression>
+#else
 #include <QtCore/QRegExp>
+#endif
 #include <QtCore/QSharedMemory>
 #include <QtCore/QString>
 
@@ -194,7 +198,11 @@ public:
 
 void SingleApplicationPrivate::init()
 {
+#if QT_VERSION >= 0x050000
+	key.replace(QRegularExpression(QLatin1String("[^A-Za-z0-9]")), QString());
+#else
 	key.replace(QRegExp(QLatin1String("[^A-Za-z0-9]")), QString());
+#endif
 	if(key.isEmpty())
 		key = QLatin1String("SADEFAULTKEY");
 	uniqueKey = QString("_sa_").append(key).append(QLatin1Char('_')).append(login().toUtf8().toHex());
