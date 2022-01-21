@@ -4,6 +4,7 @@
 #include <QToolBar>
 #include <QResizeEvent>
 #include <QAction>
+#include <QActionGroup>
 #include <QFontComboBox>
 #include <QTextList>
 #include <QScrollBar>
