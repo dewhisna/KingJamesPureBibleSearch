@@ -1,11 +1,13 @@
 /.project
 *.pro.user*
+CMakeLists.txt.user*
 
 .make.cache
 .qmake.cache
 .qmake.vars
 
 *~
+*.bak
 *.a
 *.la
 *.lib
@@ -47,6 +49,8 @@
 /programs/KJVCanOpener/db/bbl-rv1865sbv20140622.ccdb
 /programs/KJVCanOpener/db/bbl-kjf2006.ccdb
 /programs/KJVCanOpener/db/bbl-kjf2015-workinprogress.ccdb
+/programs/KJVCanOpener/db/bbl-isv2001-20100807.ccdb
+/programs/KJVCanOpener/db/bbl-isv2001-20100807.s3db
 
 # GeoIP database files (as these are updated dynamically):
 /programs/KJVCanOpener/geoip/*.dat
