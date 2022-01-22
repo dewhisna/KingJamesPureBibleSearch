@@ -40,10 +40,8 @@
 #include <QList>
 #include <QMap>
 #include <QSet>
-//#include <QtXml>
 #include <QStringList>
 #include <QtGlobal>
-#include <QSettings>
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
 #endif
