@@ -222,7 +222,7 @@ CPersistentSettings::CPersistentSettings(QObject *parent)
 		m_bStealthMode(false)
 {
 #ifndef NO_PERSISTENT_SETTINGS
-	// Must set these in main() before caling settings!:
+	// Must set these in main() before calling settings!:
 	assert(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
 	assert(QCoreApplication::organizationName().compare(VER_ORGNAME_STR_QT) == 0);
 	assert(QCoreApplication::organizationDomain().compare(VER_ORGDOMAIN_STR_QT) == 0);

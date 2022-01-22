@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QCoreApplication>
+#include <QProcessEnvironment>
 
 #include <iterator>
 
@@ -63,6 +64,13 @@
 
 #include "PathConsts.h"
 
+namespace {
+	// Env constants:
+	// --------------
+	const QString constrEnvKey("KJPBS_BASE_PATH");
+
+}	// namespace
+
 // ============================================================================
 
 const QString &initialAppDirPath()
@@ -71,9 +79,20 @@ const QString &initialAppDirPath()
 
 	if (g_strAppDirPath.isEmpty()) {
 #ifdef Q_OS_ANDROID
-		g_strAppDirPath = QDir::homePath();
+		g_strAppDirPath = QFileInfo(QDir::homePath(), g_constrKJPBSBasePath).absoluteFilePath();
 #else
-		g_strAppDirPath = QCoreApplication::applicationDirPath();
+		// Use app relative path as default:
+		g_strAppDirPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrKJPBSBasePath).absoluteFilePath();
+
+		// Note: We can't use persistent settings here, either
+		//	directly or indirectly, as we will clash with stealth
+		//	mode.  If we do an indirect QSettings, it would create
+		//	a settings file on the user's PC and taint it.  If we
+		//	do it directly, we'll assert in the setting of the
+		//	CPersistentSettings stealth settings path ...
+
+		// Environment variable takes precedence:
+		g_strAppDirPath = QProcessEnvironment::systemEnvironment().value(constrEnvKey, g_strAppDirPath);
 #endif
 	}
 

@@ -39,23 +39,29 @@ namespace {
 //	const char * const g_constrPluginsPath = "assets:/plugins/";
 //	const char * const g_constrPluginsPath = "/data/data/com.dewtronics.KingJamesPureBibleSearch/qt-reserved-files/plugins/";
 
-	const char * const g_constrBibleDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
-	const char * const g_constrDictionaryDatabasePath = "../qt-reserved-files/files/KJVCanOpener/db/";
-	const char * const g_constrTranslationsPath = "../qt-reserved-files/files/KJVCanOpener/translations/";
+	const char * const g_constrBibleDatabasePath = "db/";
+	const char * const g_constrDictionaryDatabasePath = "db/";
+	const char * const g_constrTranslationsPath = "translations/";
+
+	const char * const g_constrKJPBSBasePath = "../qt-reserved-files/files/KJVCanOpener/";
 #elif defined(Q_OS_IOS)
 	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
-	const char * const g_constrPluginsPath = "./Frameworks/";
+	const char * const g_constrPluginsPath = "../../Frameworks/";
 
-	const char * const g_constrBibleDatabasePath = "./assets/KJVCanOpener/db/";
-	const char * const g_constrDictionaryDatabasePath = "./assets/KJVCanOpener/db/";
-	const char * const g_constrTranslationsPath = "./assets/KJVCanOpener/translations/";
+	const char * const g_constrBibleDatabasePath = "db/";
+	const char * const g_constrDictionaryDatabasePath = "db/";
+	const char * const g_constrTranslationsPath = "translations/";
+
+	const char * const g_constrKJPBSBasePath = "./assets/KJVCanOpener/";
 #elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
 	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
 	const char * const g_constrPluginsPath = "../PlugIns/";
 
-	const char * const g_constrBibleDatabasePath = "../Resources/db/";
-	const char * const g_constrDictionaryDatabasePath = "../Resources/db/";
-	const char * const g_constrTranslationsPath = "../Resources/translations/";
+	const char * const g_constrBibleDatabasePath = "db/";
+	const char * const g_constrDictionaryDatabasePath = "db/";
+	const char * const g_constrTranslationsPath = "translations/";
+
+	const char * const g_constrKJPBSBasePath = "../Resources/";
 #elif defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	// No plugins on Empscripten
@@ -69,24 +75,21 @@ namespace {
 		const char * const g_constrDictionaryDatabasePath = "data/";
 		const char * const g_constrTranslationsPath = "data/";
 	#endif
-#elif defined(VNCSERVER)
-	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
-	const char * const g_constrPluginsPath = "../../KJVCanOpener/plugins/";
 
-	const char * const g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
-	const char * const g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
-	const char * const g_constrTranslationsPath = "../../KJVCanOpener/translations/";
+	const char * const g_constrKJPBSBasePath = "";
 #else
-	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
-	const char * const g_constrPluginsPath = "../../KJVCanOpener/plugins/";
+	// --------------------------------------------------------------------------------------------------------- Linux, VNCSERVER, and Win32 ----------------
+	const char * const g_constrPluginsPath = "plugins/";
 
-	const char * const g_constrBibleDatabasePath = "../../KJVCanOpener/db/";
-	const char * const g_constrDictionaryDatabasePath = "../../KJVCanOpener/db/";
-	const char * const g_constrTranslationsPath = "../../KJVCanOpener/translations/";
+	const char * const g_constrBibleDatabasePath = "db/";
+	const char * const g_constrDictionaryDatabasePath = "db/";
+	const char * const g_constrTranslationsPath = "translations/";
+
+	const char * const g_constrKJPBSBasePath = "../../KJVCanOpener/";
 #endif
 
 #ifdef USING_MMDB
-	const char * const g_constrMMDBPath = "../../KJVCanOpener/geoip/GeoLite2-City.mmdb";
+	const char * const g_constrMMDBPath = "geoip/GeoLite2-City.mmdb";
 #endif
 
 	//////////////////////////////////////////////////////////////////////

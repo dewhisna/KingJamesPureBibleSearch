@@ -168,81 +168,7 @@ namespace {
 
 #ifdef LOAD_APPLICATION_FONTS
 
-#ifdef Q_OS_ANDROID
-	// --------------------------------------------------------------------------------------------------------- Android ------------------------
-	const char *g_constrScriptBLFontFilename = "../qt-reserved-files/files/KJVCanOpener/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "../qt-reserved-files/files/KJVCanOpener/fonts/DejaVuSerif.ttf";
-#elif defined(Q_OS_IOS)
-	// --------------------------------------------------------------------------------------------------------- iOS ----------------------------
-#ifndef WORKAROUND_QTBUG_34490
-	const char *g_constrScriptBLFontFilename = "./assets/KJVCanOpener/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "./assets/KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "./assets/KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "./assets/KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "./assets/KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "./assets/KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "./assets/KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "./assets/KJVCanOpener/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "./assets/KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "./assets/KJVCanOpener/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "./assets/KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "./assets/KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "./assets/KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "./assets/KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "./assets/KJVCanOpener/fonts/DejaVuSerif.ttf";
-#endif
-#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
-	// --------------------------------------------------------------------------------------------------------- Mac ----------------------------
-	const char *g_constrScriptBLFontFilename = "../Resources/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "../Resources/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "../Resources/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "../Resources/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "../Resources/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "../Resources/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "../Resources/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "../Resources/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "../Resources/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "../Resources/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "../Resources/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "../Resources/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "../Resources/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "../Resources/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "../Resources/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "../Resources/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../Resources/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "../Resources/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "../Resources/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "../Resources/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "../Resources/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "../Resources/fonts/DejaVuSerif.ttf";
-#elif defined(EMSCRIPTEN)
+#if defined(EMSCRIPTEN)
 	// --------------------------------------------------------------------------------------------------------- EMSCRIPTEN ---------------------
 	// Note: Emscripten uses auto-loading of .qpf fonts from deployed qt-fonts folder,
 	//	except for WebAssembly (WASM), which has them embedded as resources instead.
@@ -286,54 +212,29 @@ namespace {
 		const char *g_constrDejaVuSerif_Italic = "data/DejaVuSerif-Italic.ttf";
 		const char *g_constrDejaVuSerif = "data/DejaVuSerif.ttf";
 	#endif
-#elif defined(VNCSERVER)
-	// --------------------------------------------------------------------------------------------------------- VNCSERVER ----------------------
-	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "../../KJVCanOpener/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "../../KJVCanOpener/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
 #else
-	// --------------------------------------------------------------------------------------------------------- Linux and Win32 ----------------
-	const char *g_constrScriptBLFontFilename = "../../KJVCanOpener/fonts/SCRIPTBL.TTF";
-	const char *g_constrDejaVuSans_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSans-BoldOblique.ttf";
-	const char *g_constrDejaVuSans_Bold = "../../KJVCanOpener/fonts/DejaVuSans-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-BoldOblique.ttf";
-	const char *g_constrDejaVuSansCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Bold.ttf";
-	const char *g_constrDejaVuSansCondensed_Oblique = "../../KJVCanOpener/fonts/DejaVuSansCondensed-Oblique.ttf";
-	const char *g_constrDejaVuSansCondensed = "../../KJVCanOpener/fonts/DejaVuSansCondensed.ttf";
-	const char *g_constrDejaVuSans_ExtraLight = "../../KJVCanOpener/fonts/DejaVuSans-ExtraLight.ttf";
-	const char *g_constrDejaVuSansMono_BoldOblique = "../../KJVCanOpener/fonts/DejaVuSansMono-BoldOblique.ttf";
-	const char *g_constrDejaVuSansMono_Bold = "../../KJVCanOpener/fonts/DejaVuSansMono-Bold.ttf";
-	const char *g_constrDejaVuSansMono_Oblique = "../../KJVCanOpener/fonts/DejaVuSansMono-Oblique.ttf";
-	const char *g_constrDejaVuSansMono = "../../KJVCanOpener/fonts/DejaVuSansMono.ttf";
-	const char *g_constrDejaVuSans_Oblique = "../../KJVCanOpener/fonts/DejaVuSans-Oblique.ttf";
-	const char *g_constrDejaVuSans = "../../KJVCanOpener/fonts/DejaVuSans.ttf";
-	const char *g_constrDejaVuSerif_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerif-BoldItalic.ttf";
-	const char *g_constrDejaVuSerif_Bold = "../../KJVCanOpener/fonts/DejaVuSerif-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_BoldItalic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-BoldItalic.ttf";
-	const char *g_constrDejaVuSerifCondensed_Bold = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Bold.ttf";
-	const char *g_constrDejaVuSerifCondensed_Italic = "../../KJVCanOpener/fonts/DejaVuSerifCondensed-Italic.ttf";
-	const char *g_constrDejaVuSerifCondensed = "../../KJVCanOpener/fonts/DejaVuSerifCondensed.ttf";
-	const char *g_constrDejaVuSerif_Italic = "../../KJVCanOpener/fonts/DejaVuSerif-Italic.ttf";
-	const char *g_constrDejaVuSerif = "../../KJVCanOpener/fonts/DejaVuSerif.ttf";
+	const char *g_constrScriptBLFontFilename = "fonts/SCRIPTBL.TTF";
+	const char *g_constrDejaVuSans_BoldOblique = "fonts/DejaVuSans-BoldOblique.ttf";
+	const char *g_constrDejaVuSans_Bold = "fonts/DejaVuSans-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_BoldOblique = "fonts/DejaVuSansCondensed-BoldOblique.ttf";
+	const char *g_constrDejaVuSansCondensed_Bold = "fonts/DejaVuSansCondensed-Bold.ttf";
+	const char *g_constrDejaVuSansCondensed_Oblique = "fonts/DejaVuSansCondensed-Oblique.ttf";
+	const char *g_constrDejaVuSansCondensed = "fonts/DejaVuSansCondensed.ttf";
+	const char *g_constrDejaVuSans_ExtraLight = "fonts/DejaVuSans-ExtraLight.ttf";
+	const char *g_constrDejaVuSansMono_BoldOblique = "fonts/DejaVuSansMono-BoldOblique.ttf";
+	const char *g_constrDejaVuSansMono_Bold = "fonts/DejaVuSansMono-Bold.ttf";
+	const char *g_constrDejaVuSansMono_Oblique = "fonts/DejaVuSansMono-Oblique.ttf";
+	const char *g_constrDejaVuSansMono = "fonts/DejaVuSansMono.ttf";
+	const char *g_constrDejaVuSans_Oblique = "fonts/DejaVuSans-Oblique.ttf";
+	const char *g_constrDejaVuSans = "fonts/DejaVuSans.ttf";
+	const char *g_constrDejaVuSerif_BoldItalic = "fonts/DejaVuSerif-BoldItalic.ttf";
+	const char *g_constrDejaVuSerif_Bold = "fonts/DejaVuSerif-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_BoldItalic = "fonts/DejaVuSerifCondensed-BoldItalic.ttf";
+	const char *g_constrDejaVuSerifCondensed_Bold = "fonts/DejaVuSerifCondensed-Bold.ttf";
+	const char *g_constrDejaVuSerifCondensed_Italic = "fonts/DejaVuSerifCondensed-Italic.ttf";
+	const char *g_constrDejaVuSerifCondensed = "fonts/DejaVuSerifCondensed.ttf";
+	const char *g_constrDejaVuSerif_Italic = "fonts/DejaVuSerif-Italic.ttf";
+	const char *g_constrDejaVuSerif = "fonts/DejaVuSerif.ttf";
 #endif
 
 #ifndef WORKAROUND_QTBUG_34490
