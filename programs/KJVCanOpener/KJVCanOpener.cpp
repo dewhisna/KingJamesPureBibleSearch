@@ -163,7 +163,9 @@ namespace {
 	const QString constrCurrentIndexKey("CurrentIndex");
 	const QString constrCurrentHighlighterKey("CurrentHighlighter");
 	const QString constrHasFocusKey("HasFocus");
-	const QString constrFontKey("Font");
+	const QString constrFontKey("Font");				// Deprecated entry name -- here only for old value deletion (replaced by FontName and FontSize)
+	const QString constrFontNameKey("FontName");
+	const QString constrFontSizeKey("FontSize");
 	const QString constrAutoExpandSearchResultsTreeViewKey("AutoExpandSearchResultsTreeView");
 	const QString constrHideNotFoundInStatisticsKey("HideNotFoundInStatistics");
 	const QString constrShowHighlightersInSearchResultsKey("ShowHighlightingInSearchResults");
@@ -175,7 +177,9 @@ namespace {
 	const QString constrLastReferenceKey("LastReference");
 	const QString constrLastSelectionSizeKey("SelectionSize");
 	//const QString constrHasFocusKey("HasFocus");
-	//const QString constrFontKey("Font");
+	//const QString constrFontKey("Font");				// Deprecated entry name -- here only for old value deletion (replaced by FontName and FontSize)
+	//const QString constrFontNameKey("FontName");
+	//const QString constrFontSizeKey("FontSize");
 	const QString constrNavigationActivationDelayKey("NavigationActivationDelay");
 	const QString constrPassageReferenceActivationDelayKey("PassageReferenceActivationDelay");
 	const QString constrShowExcludedSearchResultsKey("ShowExcludedSearchResults");
@@ -188,7 +192,9 @@ namespace {
 
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
-	//const QString constrFontKey("Font");
+	//const QString constrFontKey("Font");				// Deprecated entry name -- here only for old value deletion (replaced by FontName and FontSize)
+	//const QString constrFontNameKey("FontName");
+	//const QString constrFontSizeKey("FontSize");
 	const QString constrDictionaryCompleterFilterModeKey("DictionaryCompleterFilterMode");
 	const QString constrDictionaryActivationDelayKey("DictionaryActivationDelay");
 
@@ -208,7 +214,9 @@ namespace {
 	const QString constrCopyColophonsKey("CopyColophons");
 	const QString constrCopySuperscriptionsKey("CopySuperscriptions");
 	const QString constrCopyFontSelectionKey("CopyFontSelection");
-	const QString constrCopyFontKey("CopyFont");
+	const QString constrCopyFontKey("CopyFont");		// Deprecated entry name -- here only for old value deletion (replaced by CopyFontName and CopyFontSize)
+	const QString constrCopyFontNameKey("CopyFontName");
+	const QString constrCopyFontSizeKey("CopyFontSize");
 	const QString constrCopyMimeTypeKey("CopyMimeType");
 	const QString constrCopySearchResultsAddBlankLineBetweenVersesKey("SearchResultsAddBlankLineBetweenVerses");
 	const QString constrSearchResultsVerseCopyOrderKey("SearchResultsVerseCopyOrder");
@@ -1137,7 +1145,10 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 														(m_pSearchResultWidget->currentVerseIndex().specialIndex() == -1)) ? QString() :
 														m_pSearchResultWidget->vlmodel()->results(VLMRTE_HIGHLIGHTERS, m_pSearchResultWidget->currentVerseIndex().specialIndex()).resultsName());
 		settings.setValue(constrHasFocusKey, m_pSearchResultWidget->hasFocusSearchResult());
-		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontSearchResults().toString());
+		settings.remove(constrFontKey);		// Remove deprecated font value
+		settings.setValue(constrFontNameKey, CPersistentSettings::instance()->fontSearchResults().family());
+		settings.setValue(constrFontSizeKey, CPersistentSettings::instance()->fontSearchResults().pointSize());
+
 		settings.setValue(constrAutoExpandSearchResultsTreeViewKey, CPersistentSettings::instance()->autoExpandSearchResultsTree());
 		settings.setValue(constrHideNotFoundInStatisticsKey, CPersistentSettings::instance()->hideNotFoundInStatistcs());
 		settings.setValue(constrShowHighlightersInSearchResultsKey, m_pSearchResultWidget->showHighlightersInSearchResults());
@@ -1193,7 +1204,9 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
 		settings.setValue(constrLastSelectionSizeKey, tag.count());
 		settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
-		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontScriptureBrowser().toString());
+		settings.remove(constrFontKey);		// Remove deprecated font value
+		settings.setValue(constrFontNameKey, CPersistentSettings::instance()->fontScriptureBrowser().family());
+		settings.setValue(constrFontSizeKey, CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
 		settings.setValue(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay());
 		settings.setValue(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay());
 		settings.setValue(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser());
@@ -1210,7 +1223,9 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 		// Dictionary Widget Settings:
 		settings.beginGroup(constrDictionaryGroup);
-		settings.setValue(constrFontKey, CPersistentSettings::instance()->fontDictionary().toString());
+		settings.remove(constrFontKey);		// Remove deprecated font value
+		settings.setValue(constrFontNameKey, CPersistentSettings::instance()->fontDictionary().family());
+		settings.setValue(constrFontSizeKey, CPersistentSettings::instance()->fontDictionary().pointSize());
 		settings.setValue(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay());
 		settings.setValue(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 		settings.endGroup();
@@ -1231,7 +1246,9 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrCopyColophonsKey, CPersistentSettings::instance()->copyColophons());
 		settings.setValue(constrCopySuperscriptionsKey, CPersistentSettings::instance()->copySuperscriptions());
 		settings.setValue(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection());
-		settings.setValue(constrCopyFontKey, CPersistentSettings::instance()->fontCopyFont().toString());
+		settings.remove(constrCopyFontKey);		// Remove deprecated font value
+		settings.setValue(constrCopyFontNameKey, CPersistentSettings::instance()->fontCopyFont().family());
+		settings.setValue(constrCopyFontSizeKey, CPersistentSettings::instance()->fontCopyFont().pointSize());
 		settings.setValue(constrCopyMimeTypeKey, CPersistentSettings::instance()->copyMimeType());
 		settings.setValue(constrCopySearchResultsAddBlankLineBetweenVersesKey, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses());
 		settings.setValue(constrSearchResultsVerseCopyOrderKey, CPersistentSettings::instance()->searchResultsVerseCopyOrder());
@@ -1284,7 +1301,6 @@ void CKJVCanOpener::restorePersistentSettings()
 
 	if (CPersistentSettings::instance()->settings() != nullptr) {
 		QSettings &settings(*CPersistentSettings::instance()->settings());
-		QString strFont;
 
 		// Main App and Toolbars RestoreState:
 		if (bIsFirstCanOpener) {
@@ -1538,17 +1554,11 @@ void CKJVCanOpener::restorePersistentSettings()
 		if (m_pSearchResultWidget->viewMode() != CVerseListModel::VVME_HIGHLIGHTERS) strHighlighterName.clear();		// Make sure we load the correct verseIndex below for Search Results and UserNotes, etc
 		bFocusSearchResults = settings.value(constrHasFocusKey, false).toBool();
 		if (bIsFirstCanOpener) {
-			strFont = settings.value(constrFontKey).toString();
-			if (!strFont.isEmpty()) {
-				QFont aFont;
-				aFont.fromString(strFont);
-				// Just use face-name and point size from the stored font.  This is to work around the
-				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-				//		or something:
-				QFont aFont2;
-				aFont2.setFamily(aFont.family());
-				aFont2.setPointSizeF(aFont.pointSizeF());
-				CPersistentSettings::instance()->setFontSearchResults(aFont2);
+			QString strFontName = settings.value(constrFontNameKey, CPersistentSettings::instance()->fontSearchResults().family()).toString();
+			int nFontSize = settings.value(constrFontSizeKey, CPersistentSettings::instance()->fontSearchResults().pointSize()).toInt();
+
+			if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+				CPersistentSettings::instance()->setFontSearchResults(QFont(strFontName, nFontSize));
 			}
 		}
 		settings.endGroup();
@@ -1568,18 +1578,13 @@ void CKJVCanOpener::restorePersistentSettings()
 			if (ndxLastBrowsed.isSet()) m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastBrowsed, strHighlighterName), false);
 		}
 		if (bIsFirstCanOpener) {
-			strFont = settings.value(constrFontKey).toString();
-			if (!strFont.isEmpty()) {
-				QFont aFont;
-				aFont.fromString(strFont);
-				// Just use face-name and point size from the stored font.  This is to work around the
-				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-				//		or something:
-				QFont aFont2;
-				aFont2.setFamily(aFont.family());
-				aFont2.setPointSizeF(aFont.pointSizeF());
-				CPersistentSettings::instance()->setFontScriptureBrowser(aFont2);
+			QString strFontName = settings.value(constrFontNameKey, CPersistentSettings::instance()->fontScriptureBrowser().family()).toString();
+			int nFontSize = settings.value(constrFontSizeKey, CPersistentSettings::instance()->fontScriptureBrowser().pointSize()).toInt();
+
+			if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+				CPersistentSettings::instance()->setFontScriptureBrowser(QFont(strFontName, nFontSize));
 			}
+
 			CPersistentSettings::instance()->setNavigationActivationDelay(settings.value(constrNavigationActivationDelayKey, CPersistentSettings::instance()->navigationActivationDelay()).toInt());
 			CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
 			CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(settings.value(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()).toBool());
@@ -1598,18 +1603,14 @@ void CKJVCanOpener::restorePersistentSettings()
 		// Dictionary Widget Settings:
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrDictionaryGroup);
-			strFont = settings.value(constrFontKey).toString();
-			if (!strFont.isEmpty()) {
-				QFont aFont;
-				aFont.fromString(strFont);
-				// Just use face-name and point size from the stored font.  This is to work around the
-				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-				//		or something:
-				QFont aFont2;
-				aFont2.setFamily(aFont.family());
-				aFont2.setPointSizeF(aFont.pointSizeF());
-				CPersistentSettings::instance()->setFontDictionary(aFont2);
+
+			QString strFontName = settings.value(constrFontNameKey, CPersistentSettings::instance()->fontDictionary().family()).toString();
+			int nFontSize = settings.value(constrFontSizeKey, CPersistentSettings::instance()->fontDictionary().pointSize()).toInt();
+
+			if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+				CPersistentSettings::instance()->setFontDictionary(QFont(strFontName, nFontSize));
 			}
+
 			CPersistentSettings::instance()->setDictionaryActivationDelay(settings.value(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay()).toInt());
 			CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode()).toUInt()));
 			settings.endGroup();
@@ -1632,18 +1633,14 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setCopyColophons(settings.value(constrCopyColophonsKey, CPersistentSettings::instance()->copyColophons()).toBool());
 			CPersistentSettings::instance()->setCopySuperscriptions(settings.value(constrCopySuperscriptionsKey, CPersistentSettings::instance()->copySuperscriptions()).toBool());
 			CPersistentSettings::instance()->setCopyFontSelection(static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(settings.value(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection()).toUInt()));
-			strFont = settings.value(constrCopyFontKey).toString();
-			if (!strFont.isEmpty()) {
-				QFont aCopyFont;
-				aCopyFont.fromString(strFont);
-				// Just use face-name and point size from the stored font.  This is to work around the
-				//		past bugs on Mac that caused us to get stuck if the user picked strike-through
-				//		or something:
-				QFont aCopyFont2;
-				aCopyFont2.setFamily(aCopyFont.family());
-				aCopyFont2.setPointSizeF(aCopyFont.pointSizeF());
-				CPersistentSettings::instance()->setFontCopyFont(aCopyFont2);
+
+			QString strFontName = settings.value(constrCopyFontNameKey, CPersistentSettings::instance()->fontCopyFont().family()).toString();
+			int nFontSize = settings.value(constrCopyFontSizeKey, CPersistentSettings::instance()->fontCopyFont().pointSize()).toInt();
+
+			if ((!strFontName.isEmpty()) && (nFontSize>0)) {
+				CPersistentSettings::instance()->setFontCopyFont(QFont(strFontName, nFontSize));
 			}
+
 			CPersistentSettings::instance()->setCopyMimeType(static_cast<COPY_MIME_TYPE_ENUM>(settings.value(constrCopyMimeTypeKey, CPersistentSettings::instance()->copyMimeType()).toUInt()));
 			CPersistentSettings::instance()->setSearchResultsAddBlankLineBetweenVerses(settings.value(constrCopySearchResultsAddBlankLineBetweenVersesKey, CPersistentSettings::instance()->searchResultsAddBlankLineBetweenVerses()).toBool());
 			CPersistentSettings::instance()->setSearchResultsVerseCopyOrder(static_cast<VERSE_COPY_ORDER_ENUM>(settings.value(constrSearchResultsVerseCopyOrderKey, CPersistentSettings::instance()->searchResultsVerseCopyOrder()).toUInt()));
