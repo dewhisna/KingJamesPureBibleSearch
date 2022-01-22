@@ -530,7 +530,9 @@ endif()
 
 
 if(WEBCHANNEL)
-	add_subdirectory(../qwebchannel qwebchannel)
+	if(NOT TARGET qwebchannel)
+		add_subdirectory(../qwebchannel qwebchannel)
+	endif()
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		USING_WEBCHANNEL
 	)
@@ -547,7 +549,9 @@ endif()
 
 
 if(USING_wwWidgets)
-	add_subdirectory(../../support/wwWidgets wwWidgets)
+	if(NOT TARGET wwWidgets)
+		add_subdirectory(../../support/wwWidgets wwWidgets)
+	endif()
 	target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 		wwWidgets
 	)
@@ -602,7 +606,9 @@ if(OPTION_TEXT_TO_SPEECH)
 	# Add QtSpeech, but exclude from 'all' build so it doesn't get
 	#       "installed" with this application binary "make install":
 	# TODO : Add cmake file for qtspeech and include it here:
-#	add_subdirectory(../qt-speech QtSpeech EXCLUDE_FROM_ALL)
+#	if(NOT TARGET qt-speech)
+#		add_subdirectory(../qt-speech QtSpeech EXCLUDE_FROM_ALL)
+#	endif()
 
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		USING_QT_SPEECH
@@ -628,17 +634,23 @@ endif()
 
 # Add QtIOCompressor, but exclude from 'all' build so it doesn't get
 #       "installed" with this application binary "make install":
-add_subdirectory(../qtiocompressor/src QtIOCompressor EXCLUDE_FROM_ALL)
+if(NOT TARGET QtIOCompressor)
+	add_subdirectory(../qtiocompressor/src QtIOCompressor EXCLUDE_FROM_ALL)
+endif()
 
 
 # Add grantlee, but exclude from 'all' build so it doesn't get
 #       "installed" with this application binary "make install":
-add_subdirectory(../grantlee/textdocument grantlee EXCLUDE_FROM_ALL)
+if(NOT TARGET grantlee)
+	add_subdirectory(../grantlee/textdocument grantlee EXCLUDE_FROM_ALL)
+endif()
 
 
 # Add QtFindReplaceDialog, but exclude from 'all' build so it doesn't get
 #       "installed" with this application binary "make install":
-add_subdirectory(../QtFindReplaceDialog/dialogs QtFindReplaceDialog EXCLUDE_FROM_ALL)
+if(NOT TARGET QtFindReplaceDialog)
+	add_subdirectory(../QtFindReplaceDialog/dialogs QtFindReplaceDialog EXCLUDE_FROM_ALL)
+endif()
 
 
 if(NOT CONSOLE AND NOT WASM AND NOT EMSCRIPTEN AND NOT VNC AND NOT ANDRIOD AND NOT IOS)
@@ -648,7 +660,9 @@ if(NOT CONSOLE AND NOT WASM AND NOT EMSCRIPTEN AND NOT VNC AND NOT ANDRIOD AND N
 		)
 		# Add SingleApplication, but exclude from 'all' build so it doesn't get
 		#       "installed" with this application binary "make install":
-		add_subdirectory(../singleapplication SingleApplication EXCLUDE_FROM_ALL)
+		if(NOT TARGET singleapplication)
+			add_subdirectory(../singleapplication SingleApplication EXCLUDE_FROM_ALL)
+		endif()
 		target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 			singleapplication
 		)
@@ -660,7 +674,9 @@ if(NOT CONSOLE AND NOT WASM AND NOT EMSCRIPTEN AND NOT VNC AND NOT ANDRIOD AND N
 		)
 		# Add QtSingleApplication, but exclude from 'all' build so it doesn't get
 		#       "installed" with this application binary "make install":
-		add_subdirectory(../qtsingleapplication/src QtSingleApplication EXCLUDE_FROM_ALL)
+		if(NOT TARGET qtsingleapplication)
+			add_subdirectory(../qtsingleapplication/src QtSingleApplication EXCLUDE_FROM_ALL)
+		endif()
 		target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 			qtsingleapplication
 		)
@@ -753,7 +769,9 @@ if(DEBUG_MODEL_TEST)
 	# Add modeltest, but exclude from 'all' build so it doesn't get
 	#       "installed" with this application binary "make install":
 	# TODO : Add cmake file for modeltest and include it here:
+#	if(NOT TARGET modeltest)
 #	add_subdirectory(../modeltest modeltest EXCLUDE_FROM_ALL)
+#	endif()
 endif()
 
 #!emscripten:!vnc:declarative_debug:CONFIG *= signalspy
