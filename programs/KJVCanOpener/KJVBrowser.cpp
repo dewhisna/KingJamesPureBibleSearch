@@ -414,8 +414,8 @@ void CKJVBrowser::initialize()
 #if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
 	// Setup Browser Display Mode Menu:
 	QMenu *pMenu = new QMenu(this);
-	pMenu->addAction(tr("Bible Text", "BrowserDisplayModes"), [this]()->void { this->setBrowserDisplayMode(BDME_BIBLE_TEXT); } );
-	QAction *pAction = pMenu->addAction(tr("Lemma/Morphography", "BrowserDisplayModes"), [this]()->void { this->setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY); } );
+	pMenu->addAction(tr("Bible Text", "BrowserDisplayModes"), this, [this]()->void { this->setBrowserDisplayMode(BDME_BIBLE_TEXT); } );
+	QAction *pAction = pMenu->addAction(tr("Lemma/Morphography", "BrowserDisplayModes"), this, [this]()->void { this->setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY); } );
 	// Don't allow switching to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
 	#ifdef USING_QT_WEBENGINE

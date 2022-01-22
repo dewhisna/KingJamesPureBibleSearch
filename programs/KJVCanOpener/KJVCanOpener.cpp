@@ -2862,7 +2862,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		if (pDlgConfigure) {
 			if (pDlgConfigure->restartApp()) {
 #if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
-				QTimer::singleShot(10, [this]()->void { g_pMyApplication->restartApp(this); });
+				QTimer::singleShot(10, this, [this]()->void { g_pMyApplication->restartApp(this); });
 #else
 				Q_UNUSED(this);
 				QTimer::singleShot(10, g_pMyApplication.data(), SLOT(restartApp()));
