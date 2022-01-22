@@ -151,6 +151,9 @@ bool CBuildDatabase::BuildDBInfoTable()
 
 	// Open the table data file:
 	QSettings settingsDBInfo(QFileInfo(QDir(initialAppDirPath()), QString("../../KJVCanOpener/db/data/DBInfo.ini")).absoluteFilePath(), QSettings::IniFormat);
+#if QT_VERSION < 0x060000
+	settingsDBInfo.setIniCodec("UTF-8");
+#endif
 	settingsDBInfo.beginGroup("BibleDBInfo");
 	QString strDBLang = settingsDBInfo.value("Language").toString();
 	QString strDBName = settingsDBInfo.value("Name").toString();

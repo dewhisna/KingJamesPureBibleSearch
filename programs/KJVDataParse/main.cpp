@@ -2714,6 +2714,9 @@ int main(int argc, char *argv[])
 	}
 
 	QSettings settingsDBInfo(dirOutput.absoluteFilePath("DBInfo.ini"), QSettings::IniFormat);
+#if QT_VERSION < 0x060000
+	settingsDBInfo.setIniCodec("UTF-8");
+#endif
 	settingsDBInfo.clear();
 	settingsDBInfo.beginGroup("BibleDBInfo");
 	settingsDBInfo.setValue("Language", xmlHandler.language());

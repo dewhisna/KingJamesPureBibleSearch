@@ -74,8 +74,8 @@
 
 // ============================================================================
 
-#define KJS_FILE_VERSION 2				// Current KJS File Version (King James Search file)
-#define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings
+#define KJS_FILE_VERSION 3				// Current KJS File Version (King James Search file)
+#define KJVAPP_REGISTRY_VERSION 1		// Version of Registry Settings (update when changing main window layout and/or state properties)
 #define PS_SPLITTER_VERSION 1			// Persistent Settings -- Splitter Version (update when changing splitter layout and/or state properties)
 
 #define NUM_QUICK_ACTIONS 10
@@ -1934,6 +1934,9 @@ QString CKJVCanOpener::determineBibleUUIDForKJVSearchFile(const QString &strFile
 
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return QString();
+#if QT_VERSION < 0x060000
+	kjsFile.setIniCodec("UTF-8");
+#endif
 
 	QString strBblUUID;
 	kjsFile.beginGroup("KJVPureBibleSearch");
@@ -1951,6 +1954,9 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
+#if QT_VERSION < 0x060000
+	kjsFile.setIniCodec("UTF-8");
+#endif
 
 	unsigned int nFileVersion = 0;
 	QString strBblUUID;
@@ -2004,6 +2010,9 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 
 	QSettings kjsFile(strFilePathName, QSettings::IniFormat);
 	if (kjsFile.status() != QSettings::NoError) return false;
+#if QT_VERSION < 0x060000
+	kjsFile.setIniCodec("UTF-8");
+#endif
 
 	kjsFile.clear();
 

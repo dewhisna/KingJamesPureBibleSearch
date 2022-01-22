@@ -242,6 +242,9 @@ void CPersistentSettings::setStealthMode(const QString &strFilename)
 	m_bStealthMode = true;
 	if (!strFilename.isEmpty()) {
 		m_pSettings = new QSettings(strFilename, QSettings::IniFormat, this);
+#if QT_VERSION < 0x060000
+		m_pSettings->setIniCodec("UTF-8");
+#endif
 	}
 }
 
@@ -256,6 +259,9 @@ QSettings *CPersistentSettings::settings()
 	if ((m_pSettings == nullptr) && (!m_bStealthMode)) {
 		// Create NON-Stealth Settings:
 		m_pSettings = new QSettings(this);
+#if QT_VERSION < 0x060000
+		m_pSettings->setIniCodec("UTF-8");
+#endif
 	}
 	return m_pSettings;
 }
