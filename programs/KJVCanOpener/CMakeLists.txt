@@ -53,6 +53,10 @@ set(QT_OPTIONAL_COMPONENTS
 
 # -----------------------------------------------------------------------------
 
+include(../qwebchannel/qwebchannel.cmake)
+
+# -----------------------------------------------------------------------------
+
 # Compile Options
 
 include(CMakeDependentOption)
@@ -113,7 +117,7 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(WEBCHANNEL)
-	list(APPEND QT_COMPONENTS WebChannel)
+	list(APPEND QT_COMPONENTS ${qwebchannel_QT_COMPONENTS})
 endif()
 
 
@@ -141,6 +145,8 @@ if(NOT CONSOLE)
 endif()
 
 # -----------------------------------------------------------------------------
+
+list(REMOVE_DUPLICATES QT_COMPONENTS)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS ${QT_COMPONENTS} ${QT_COMPONENTS_NOLINK} OPTIONAL_COMPONENTS ${QT_OPTIONAL_COMPONENTS})
 if(QT_VERSION_MAJOR EQUAL 6)
@@ -446,6 +452,13 @@ endif()
 
 # =============================================================================
 
+if(WEBCHANNEL)
+	list(APPEND KJVCanOpener_SOURCES ${qwebchannel_SOURCES})
+	list(APPEND KJVCanOpener_HEADERS ${qwebchannel_SHARED_HEADERS} ${qwebchannel_PRIVATE_HEADERS})
+endif()
+
+# =============================================================================
+
 set(KJVCanOpener_TARGET KingJamesPureBibleSearch)
 
 add_executable(${KJVCanOpener_TARGET} ${GUI_TYPE}
@@ -530,20 +543,7 @@ endif()
 
 
 if(WEBCHANNEL)
-	if(NOT TARGET qwebchannel)
-		add_subdirectory(../qwebchannel qwebchannel)
-	endif()
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		USING_WEBCHANNEL
-	)
-	if(OPTION_USE_MMDB)
-		target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-			USING_MMDB
-		)
-	endif()
-	target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
-		qwebchannel
-	)
+	setup_qwebchannel_subtargets(${KJVCanOpener_TARGET})
 endif()
 
 
