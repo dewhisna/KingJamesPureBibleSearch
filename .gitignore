@@ -28,9 +28,7 @@ CMakeLists.txt.user*
 # Build targets:
 /programs/qt-speech/festival/festival/
 /programs/qt-speech/festival/speech_tools/
-/programs/**/build-*/
-/programs/qt-speech/build-*/
-/support/build-*/
+/**/build-*/
 
 # Non-distributed Output Packages:
 /Output/KingJamesPureBibleSearch-3_0_0-1-x86_64-unsigned.dmg
