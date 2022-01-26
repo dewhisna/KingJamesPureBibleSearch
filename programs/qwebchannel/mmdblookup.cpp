@@ -313,9 +313,9 @@ CMMDBLookup::CMMDBLookup()
 		int status = MMDB_open(m_strMMDBPath.toUtf8().data(), MMDB_MODE_MMAP, m_pMMDB);
 
 		if (MMDB_SUCCESS != status) {
-			m_strLastError = QString("Can't open %s - %s").arg(m_strMMDBPath).arg(MMDB_strerror(status));
+			m_strLastError = QString("Can't open %1 - %2").arg(m_strMMDBPath).arg(MMDB_strerror(status));
 			if (MMDB_IO_ERROR == status) {
-				m_strLastError += QString(" : IO error: %s").arg(strerror(errno));		// Thread safe???
+				m_strLastError += QString(" : IO error: %1").arg(strerror(errno));		// Thread safe???
 			}
 			delete m_pMMDB;
 			m_pMMDB = nullptr;
