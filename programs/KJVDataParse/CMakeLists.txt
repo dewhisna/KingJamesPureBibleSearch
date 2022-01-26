@@ -168,6 +168,14 @@ set(TRANSLATIONS_QT)
 
 # =============================================================================
 
+if(WIN32)
+	set(MY_COMPILE_OPTIONS "/W3")
+else()
+	set(MY_COMPILE_OPTIONS "-Wall")
+endif()
+
+# -----------------------------------------------------------------------------
+
 set(KJVDataParse_TARGET KJVDataParse)
 
 add_executable(${KJVDataParse_TARGET} ${GUI_TYPE}
@@ -176,6 +184,7 @@ add_executable(${KJVDataParse_TARGET} ${GUI_TYPE}
 	${KJVDataParse_FORMS}
 	${KJVDataParse_RESOURCES}
 )
+target_compile_options(${KJVDataParse_TARGET} PUBLIC ${MY_COMPILE_OPTIONS})
 
 target_link_libraries(${KJVDataParse_TARGET} PRIVATE
 	${QT_LINK_LIBS}

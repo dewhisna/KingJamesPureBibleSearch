@@ -161,6 +161,14 @@ set(TRANSLATIONS_QT)
 
 # =============================================================================
 
+if(WIN32)
+	set(MY_COMPILE_OPTIONS "/W3")
+else()
+	set(MY_COMPILE_OPTIONS "-Wall")
+endif()
+
+# -----------------------------------------------------------------------------
+
 set(KJVDiff_TARGET KJVDiff)
 
 add_executable(${KJVDiff_TARGET} ${GUI_TYPE}
@@ -169,6 +177,7 @@ add_executable(${KJVDiff_TARGET} ${GUI_TYPE}
 	${KJVDiff_FORMS}
 	${KJVDiff_RESOURCES}
 )
+target_compile_options(${KJVDiff_TARGET} PUBLIC ${MY_COMPILE_OPTIONS})
 
 target_link_libraries(${KJVDiff_TARGET} PRIVATE
 	${QT_LINK_LIBS}

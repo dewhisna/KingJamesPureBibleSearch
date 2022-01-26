@@ -169,6 +169,14 @@ set(TRANSLATIONS_QT)
 
 # =============================================================================
 
+if(WIN32)
+	set(MY_COMPILE_OPTIONS "/W3")
+else()
+	set(MY_COMPILE_OPTIONS "-Wall")
+endif()
+
+# -----------------------------------------------------------------------------
+
 set(KJVLookup_TARGET KJVLookup)
 
 add_executable(${KJVLookup_TARGET} ${GUI_TYPE}
@@ -177,6 +185,7 @@ add_executable(${KJVLookup_TARGET} ${GUI_TYPE}
 	${KJVLookup_FORMS}
 	${KJVLookup_RESOURCES}
 )
+target_compile_options(${KJVLookup_TARGET} PUBLIC ${MY_COMPILE_OPTIONS})
 
 target_link_libraries(${KJVLookup_TARGET} PRIVATE
 	${QT_LINK_LIBS}

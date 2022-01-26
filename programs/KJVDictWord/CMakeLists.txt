@@ -165,6 +165,14 @@ set(TRANSLATIONS_QT)
 
 # =============================================================================
 
+if(WIN32)
+	set(MY_COMPILE_OPTIONS "/W3")
+else()
+	set(MY_COMPILE_OPTIONS "-Wall")
+endif()
+
+# -----------------------------------------------------------------------------
+
 set(KJVDictWord_TARGET KJVDictWord)
 
 add_executable(${KJVDictWord_TARGET} ${GUI_TYPE}
@@ -173,6 +181,7 @@ add_executable(${KJVDictWord_TARGET} ${GUI_TYPE}
 	${KJVDictWord_FORMS}
 	${KJVDictWord_RESOURCES}
 )
+target_compile_options(${KJVDictWord_TARGET} PUBLIC ${MY_COMPILE_OPTIONS})
 
 target_link_libraries(${KJVDictWord_TARGET} PRIVATE
 	${QT_LINK_LIBS}
