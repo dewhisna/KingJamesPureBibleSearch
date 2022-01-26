@@ -28,8 +28,6 @@
 #include <QFileInfoList>
 #include <QCoreApplication>
 
-#include <assert.h>
-
 // ============================================================================
 
 namespace {
@@ -116,8 +114,8 @@ QString CTranslator::nativeLanguageName() const
 CTranslatorList::CTranslatorList(QObject *pParent)
 	:	QObject(pParent)
 {
-	assert(!g_strTranslationsPath.isEmpty());			// Must set global translations path before creating this singleton!
-	assert(!g_strTranslationFilenamePrefix.isEmpty());	// Must set global translations filename prefix before creating this singleton!
+	Q_ASSERT(!g_strTranslationsPath.isEmpty());			// Must set global translations path before creating this singleton!
+	Q_ASSERT(!g_strTranslationFilenamePrefix.isEmpty());	// Must set global translations filename prefix before creating this singleton!
 
 	QDir dirTranslations(g_strTranslationsPath, g_strTranslationFilenamePrefix + ".*" + QString(constrTranslationFilenameSuffix));
 	QFileInfoList lstTranslationFiles = dirTranslations.entryInfoList();

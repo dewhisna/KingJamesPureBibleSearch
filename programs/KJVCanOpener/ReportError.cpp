@@ -78,7 +78,7 @@ static void asyncShowNewMessageBox(QWidget *parent,
 		{
 			Q_UNUSED(nResult);
 			QMessageBox::StandardButton nRetVal = QMessageBox::NoButton;
-			assert(!pMsgBox.isNull());
+			Q_ASSERT(!pMsgBox.isNull());
 			if (pMsgBox) {
 				nRetVal = pMsgBox->standardButton(pMsgBox->clickedButton());
 			}

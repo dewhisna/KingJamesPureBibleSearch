@@ -35,8 +35,6 @@
 #include <QJsonValue>
 #include <QJsonParseError>
 
-#include <assert.h>
-
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
 #define NUM_BK_NT 27u
@@ -175,21 +173,21 @@ int main(int argc, char *argv[])
 
 	fileOut.write(QString("<div type=\"x-testament\">\n").toUtf8().data());
 
-	assert(jsonRV1865.isArray());
+	Q_ASSERT(jsonRV1865.isArray());
 	unsigned int nVerseIndex = 0;
 	QJsonArray arrRV1865(jsonRV1865.array());
 	for (QJsonArray::const_iterator itr = arrRV1865.constBegin(); itr != arrRV1865.constEnd(); ++itr) {
 		const QJsonValue valEntry = *itr;
-		assert(valEntry.isObject());
+		Q_ASSERT(valEntry.isObject());
 		const QJsonObject objEntry(valEntry.toObject());
 		nVerseIndex++;
-		assert(objEntry.value("pk").toVariant().toUInt() == nVerseIndex);
+		Q_ASSERT(objEntry.value("pk").toVariant().toUInt() == nVerseIndex);
 		const QJsonObject objVerseEntry(objEntry.value("fields").toObject());
 		nNextBk = objVerseEntry.value("book_id").toVariant().toUInt();
 		nNextChp = objVerseEntry.value("chapter_id").toVariant().toUInt();
 		nNextVrs = objVerseEntry.value("verse_id").toVariant().toUInt();
 
-		assert((nNextBk > 0) && (nNextBk <= NUM_BK));
+		Q_ASSERT((nNextBk > 0) && (nNextBk <= NUM_BK));
 
 		if (nNextBk > 0) nNextTst = 1;
 		if (nNextBk > NUM_BK_OT) nNextTst = 2;
@@ -231,7 +229,7 @@ int main(int argc, char *argv[])
 			fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nNextVrs).arg(objVerseEntry.value("text").toString()).toUtf8().data());
 			std::cerr << ".";
 		} else {
-			assert(false);
+			Q_ASSERT(false);
 		}
 		nVrs = nNextVrs;
 	}

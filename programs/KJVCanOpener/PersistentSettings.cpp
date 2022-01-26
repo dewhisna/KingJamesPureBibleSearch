@@ -32,8 +32,6 @@
 #include <QApplication>
 #endif
 
-#include <assert.h>
-
 #ifdef USING_QT_SPEECH
 #include <QtSpeech>
 #endif
@@ -223,9 +221,9 @@ CPersistentSettings::CPersistentSettings(QObject *parent)
 {
 #ifndef NO_PERSISTENT_SETTINGS
 	// Must set these in main() before calling settings!:
-	assert(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
-	assert(QCoreApplication::organizationName().compare(VER_ORGNAME_STR_QT) == 0);
-	assert(QCoreApplication::organizationDomain().compare(VER_ORGDOMAIN_STR_QT) == 0);
+	Q_ASSERT(QCoreApplication::applicationName().compare(VER_APPNAME_STR_QT) == 0);
+	Q_ASSERT(QCoreApplication::organizationName().compare(VER_ORGNAME_STR_QT) == 0);
+	Q_ASSERT(QCoreApplication::organizationDomain().compare(VER_ORGDOMAIN_STR_QT) == 0);
 #else
 	// If running without Persistent Settings, use Stealth Mode:
 	setStealthMode(QString());
@@ -238,7 +236,7 @@ CPersistentSettings::~CPersistentSettings()
 
 void CPersistentSettings::setStealthMode(const QString &strFilename)
 {
-	assert(m_pSettings == nullptr);			// Can only set once
+	Q_ASSERT(m_pSettings == nullptr);			// Can only set once
 	m_bStealthMode = true;
 	if (!strFilename.isEmpty()) {
 		m_pSettings = new QSettings(strFilename, QSettings::IniFormat, this);
@@ -419,7 +417,7 @@ void CPersistentSettings::setFontDictionary(const QFont &aFont)
 
 void CPersistentSettings::setTextBrightness(bool bInvert, int nBrightness)
 {
-	assert((nBrightness >= 0) && (nBrightness <= 100));
+	Q_ASSERT((nBrightness >= 0) && (nBrightness <= 100));
 	if (nBrightness < 0) nBrightness = 0;
 	if (nBrightness > 100) nBrightness = 100;
 	if ((m_pPersistentSettingData->m_nTextBrightness != nBrightness) ||
@@ -445,7 +443,7 @@ QColor CPersistentSettings::textForegroundColor() const
 
 QColor CPersistentSettings::textForegroundColor(bool bInvert, int nBrightness)
 {
-	assert((nBrightness >= 0) && (nBrightness <= 100));
+	Q_ASSERT((nBrightness >= 0) && (nBrightness <= 100));
 	QColor clrForeground = (bInvert ? QColor(255, 255, 255) : QColor(0, 0, 0));
 	return (bInvert ? clrForeground.darker(300 - (nBrightness * 2)) : clrForeground.lighter(300 - (nBrightness * 2)));
 }
@@ -457,7 +455,7 @@ QColor CPersistentSettings::textBackgroundColor() const
 
 QColor CPersistentSettings::textBackgroundColor(bool bInvert, int nBrightness)
 {
-	assert((nBrightness >= 0) && (nBrightness <= 100));
+	Q_ASSERT((nBrightness >= 0) && (nBrightness <= 100));
 	QColor clrBackground = (bInvert ? QColor(0, 0, 0) : QColor(255, 255, 255));
 	return (bInvert ? clrBackground.lighter(300 - (nBrightness * 2)) : clrBackground.darker(300 - (nBrightness * 2)));
 }

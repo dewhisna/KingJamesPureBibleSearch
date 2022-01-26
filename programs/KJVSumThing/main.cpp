@@ -151,8 +151,8 @@ public:
 
 	bool samePhraseLength()
 	{
-		assert(m_nTargetLength != 0);
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(m_nTargetLength != 0);
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 
 		if (m_bSensitivityOptionsChanged) {
 			QStringList lstPhrase;
@@ -177,7 +177,7 @@ public:
 			int nSaveTargetLength = m_nTargetLength;		// Use for comparison.  The cache had better be at the same level!
 			*this = *itrCache;
 			m_nNormalIndex = nSaveNormalIndex;
-			assert(m_nTargetLength == nSaveTargetLength);
+			Q_ASSERT(m_nTargetLength == nSaveTargetLength);
 			// Note: Since the object was previously stored in the cache
 			//	after calling this function, m_bSensitivityOptionsChanged
 			//	will already be false in the cached copy
@@ -195,7 +195,7 @@ public:
 
 	bool nextPhraseLength()
 	{
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 
 		if (m_bSensitivityOptionsChanged) {
 			QStringList lstPhrase;
@@ -224,7 +224,7 @@ public:
 			int nSaveTargetLength = m_nTargetLength;		// Use for comparison.  The cache had better be at the same level!
 			*this = *itrCache;
 			m_nNormalIndex = nSaveNormalIndex;
-			assert(m_nTargetLength == (nSaveTargetLength+1));	// Compare to +1 since we will be incrementing it below
+			Q_ASSERT(m_nTargetLength == (nSaveTargetLength+1));	// Compare to +1 since we will be incrementing it below
 			m_nTargetLength = nSaveTargetLength;			// Restore so we don't over increment below
 			// Note: Since the object was previously stored in the cache
 			//	after calling this function, m_bSensitivityOptionsChanged
@@ -249,7 +249,7 @@ public:
 			// Note: bSearchWithinIsEntireBible is only an optimization to keep from
 			//		having to calculate it from the searchCriteria itself:
 	{
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 		// If we've only found one possible match OR if this phrase
 		//	isn't within the searchCriteria, then consider it converged:
 		TPhraseTag tagPhrase(m_pBibleDatabase->DenormalizeIndex(m_nNormalIndex), m_nTargetLength);
@@ -269,7 +269,7 @@ public:
 			// Note: bSearchWithinIsEntireBible is only an optimization to keep from
 			//		having to calculate it from the searchCriteria itself:
 	{
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 		const TPhraseTagList &lstPhraseTags = GetPhraseTagSearchResults();
 		TPhraseTagList &lstWithinPhraseTags = GetWithinPhraseTagSearchResultsNonConst();
 		if (!lstWithinPhraseTags.isEmpty()) return;
@@ -352,7 +352,7 @@ static QString renderResult(const CRenderFormat &aFormat, const CPhraseList &lst
 
 static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseList &lst2)
 {
-	assert(lst1.size() == lst2.size());
+	Q_ASSERT(lst1.size() == lst2.size());
 	for (int ndx = 0; ndx < lst1.size(); ++ndx) {
 		// Sort Accent ahead of Case:
 		if (lst1.at(ndx).accentSensitive() != lst2.at(ndx).accentSensitive()) {
@@ -385,14 +385,14 @@ static bool ascendingLessThanTextFirst(const CPhraseList &lst1, const CPhraseLis
 		//	list (which can happen by finding the same phrase again later).
 		//	But, the occurrence count had better be the same since we should
 		//	have the same results for the same phrase:
-		assert(lst1.at(ndx).extraInfo().toInt() == lst2.at(ndx).extraInfo().toInt());
+		Q_ASSERT(lst1.at(ndx).extraInfo().toInt() == lst2.at(ndx).extraInfo().toInt());
 	}
 	return false;
 }
 
 static bool ascendingLessThanModulusFirst(const CPhraseList &lst1, const CPhraseList &lst2)
 {
-	assert(lst1.size() == lst2.size());
+	Q_ASSERT(lst1.size() == lst2.size());
 	int nCounts1 = 0;
 	int nCounts2 = 0;
 	for (int ndx = 0; ndx < lst1.size(); ++ndx) {

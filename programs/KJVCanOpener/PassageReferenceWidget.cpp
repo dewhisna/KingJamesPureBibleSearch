@@ -39,8 +39,6 @@
 #include <QMenu>
 #endif
 
-#include <assert.h>
-
 #define PASSAGE_SOUNDEX_LENGTH 4
 #define PASSAGE_SOUNDEX_MODE CSoundExSearchCompleterFilter::SEOME_ENHANCED
 
@@ -138,7 +136,7 @@ void CPassageReferenceWidget::setPassageReference(const QString &strPassageRefer
 
 bool CPassageReferenceWidget::eventFilter(QObject *pObject, QEvent *pEvent)
 {
-	assert(pEvent != nullptr);
+	Q_ASSERT(pEvent != nullptr);
 	if ((pObject == ui.editPassageReference) && (pEvent->type() == QEvent::FocusIn)) emit activatedPassageReference();
 
 	return QWidget::eventFilter(pObject, pEvent);
@@ -165,7 +163,7 @@ void CPassageReferenceWidget::keyPressEvent(QKeyEvent *event)
 
 void CPassageReferenceWidget::en_passageReferenceContextMenuRequested(const QPoint &pos)
 {
-	assert(m_pEditMenu != nullptr);
+	Q_ASSERT(m_pEditMenu != nullptr);
 #ifndef USE_ASYNC_DIALOGS
 	m_pEditMenu->exec(ui.editPassageReference->mapToGlobal(pos));
 #else
@@ -185,7 +183,7 @@ void CPassageReferenceWidget::en_setMenuEnables(const QString &strText)
 
 void CPassageReferenceWidget::en_PassageReferenceChanged(const QString &strText)
 {
-	assert(!m_pRefResolver.isNull());		// Run initialize first!
+	Q_ASSERT(!m_pRefResolver.isNull());		// Run initialize first!
 	if (m_pRefResolver.isNull()) return;
 
 	m_tagPhrase = m_pRefResolver->resolve(strText);
@@ -207,13 +205,13 @@ CPassageReferenceResolver::CPassageReferenceResolver(CBibleDatabasePtr pBibleDat
 	:	QObject(pParent),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	buildSoundExTables();
 }
 
 TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	if (m_pBibleDatabase.isNull()) return TPhraseTag();
 
 	//	From: http://stackoverflow.com/questions/9974012/php-preg-match-bible-scripture-format
@@ -300,7 +298,7 @@ TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference
 	QRegularExpressionMatch expRefMatch = expReference.match(strPassageReference);
 	QStringList lstMatches = expRefMatch.capturedTexts();
 	qsizetype nPos = expRefMatch.capturedStart();
-	assert(expReference.captureCount() == 8);
+	Q_ASSERT(expReference.captureCount() == 8);
 	while (lstMatches.size() <= expReference.captureCount()) lstMatches.append(QString());
 #else
 	int nPos = expReference.indexIn(strPassageReference);
@@ -315,7 +313,7 @@ TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference
 	}
 #endif
 
-	assert(lstMatches.size() == 9);
+	Q_ASSERT(lstMatches.size() == 9);
 
 	if ((nPos != -1) && (lstMatches.size() == 9)) {
 		CRelIndex ndxResolved;
@@ -391,7 +389,7 @@ TPhraseTag CPassageReferenceResolver::resolve(const QString &strPassageReference
 
 void CPassageReferenceResolver::buildSoundExTables()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	m_lstBookSoundEx.clear();
 	m_lstBookSoundEx.reserve(m_pBibleDatabase->bibleEntry().m_nNumBk);
 
@@ -405,15 +403,15 @@ void CPassageReferenceResolver::buildSoundExTables()
 			QRegularExpression regexpPrefix("^(\\d*)?");
 			QRegularExpressionMatch regexpPrefixMatch = regexpPrefix.match(strBookName);
 			qsizetype nPosPrefix = regexpPrefixMatch.capturedStart();
-			assert(nPosPrefix != -1);
-			assert(regexpPrefixMatch.capturedTexts().size() == 2);
+			Q_ASSERT(nPosPrefix != -1);
+			Q_ASSERT(regexpPrefixMatch.capturedTexts().size() == 2);
 			QString strPrefix = regexpPrefixMatch.capturedTexts().at(1);
 #else
 			strBookName.replace(QRegExp("\\s"), QString());
 			QRegExp regexpPrefix("^(\\d*)?");
 			int nPosPrefix = regexpPrefix.indexIn(strBookName);
-			assert(nPosPrefix != -1);
-			assert(regexpPrefix.capturedTexts().size() == 2);
+			Q_ASSERT(nPosPrefix != -1);
+			Q_ASSERT(regexpPrefix.capturedTexts().size() == 2);
 			QString strPrefix = regexpPrefix.capturedTexts().at(1);
 #endif
 			lstSoundEx.append(strPrefix + CSoundExSearchCompleterFilter::soundEx(strBookName,
@@ -427,7 +425,7 @@ void CPassageReferenceResolver::buildSoundExTables()
 
 uint32_t CPassageReferenceResolver::resolveBook(const QString &strPreBook, const QString &strBook) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	QString strBookName = strPreBook.toLower() + strBook.toLower();
 	QString strSoundEx = strPreBook + CSoundExSearchCompleterFilter::soundEx(strBookName,
 																			 CSoundExSearchCompleterFilter::languageValue(m_pBibleDatabase->language()),

@@ -173,8 +173,8 @@ CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigur
 		m_pColorButton(nullptr),
 		m_pEnableCheckbox(nullptr)
 {
-	assert(pList != nullptr);
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(pList != nullptr);
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	m_pWidget = new QWidget(pList);
 	m_pWidget->setObjectName(QString("widget_%1").arg(strUserDefinedHighlighterName));
@@ -296,8 +296,8 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	m_bIsDirty(false),
 	m_bLoadingData(false)
 {
-	assert(!pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -307,7 +307,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	//		one that we can set the database on:
 
 	int ndx = ui.splitter->indexOf(ui.treeViewSearchResultsPreview);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 
 	m_pSearchResultsTreeView = new CSearchResultsTreeView(pBibleDatabase, g_pUserNotesDatabase, this);
@@ -331,7 +331,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	//		one that we can set the database on:
 
 	ndx = ui.splitterDictionary->indexOf(ui.textScriptureBrowserPreview);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 
 	m_pScriptureBrowser = new CScriptureBrowser(pBibleDatabase, this);
@@ -362,7 +362,7 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	//		one that we can set the database on:
 
 	ndx = ui.splitterDictionary->indexOf(ui.widgetDictionary);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 
 	if (!pDictionary.isNull()) {
@@ -764,8 +764,8 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 {
 	if (m_bLoadingData) return;
 
-	assert(!g_pUserNotesDatabase.isNull());
-	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterColor(strUserDefinedHighlighterName, color);
 	recalcColorListWidth();			// If color was previously invalid and is now valid, we'll have a preview to paint and so the width can change
 	navigateToDemoText();
@@ -785,8 +785,8 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 {
 	if (m_bLoadingData) return;
 
-	assert(!g_pUserNotesDatabase.isNull());
-	assert(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	g_pUserNotesDatabase->setHighlighterEnabled(strUserDefinedHighlighterName, bEnabled);
 	navigateToDemoText();
 	m_bIsDirty = true;
@@ -796,7 +796,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 
 void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	ui.toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
 													(strUserDefinedHighlighterName.size() <= MAX_HIGHLIGHTER_NAME_SIZE));
 	ui.toolButtonRemoveHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
@@ -817,9 +817,9 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
-	assert(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	Q_ASSERT(!strUserDefinedHighlighterName.isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 	if (strUserDefinedHighlighterName.size() > MAX_HIGHLIGHTER_NAME_SIZE) return;
 
@@ -840,18 +840,18 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
-	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	Q_ASSERT(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
 	bool bCantRemove = g_pUserNotesDatabase->existsHighlighterTagsFor(strUserDefinedHighlighterName);
 
 	if (!bCantRemove) {
 		g_pUserNotesDatabase->removeHighlighter(strUserDefinedHighlighterName);
-		assert(!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+		Q_ASSERT(!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 		int nComboIndex = ui.comboBoxHighlighters->findText(strUserDefinedHighlighterName);
-		assert(nComboIndex != -1);
+		Q_ASSERT(nComboIndex != -1);
 		if (nComboIndex != -1) {
 			ui.comboBoxHighlighters->removeItem(nComboIndex);
 		}
@@ -866,7 +866,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 			break;
 		}
 	}
-	assert(nListWidgetIndex != -1);
+	Q_ASSERT(nListWidgetIndex != -1);
 	if (nListWidgetIndex != -1) {
 		if (!bCantRemove) {
 			QListWidgetItem *pItem = ui.listWidgetHighlighterColors->takeItem(nListWidgetIndex);
@@ -907,9 +907,9 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	QString strUserDefinedHighlighterName = ui.comboBoxHighlighters->currentText().trimmed();
-	assert(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
+	Q_ASSERT(!strUserDefinedHighlighterName.isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName));
 	if ((strUserDefinedHighlighterName.isEmpty()) || (!g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName))) return;
 
 	bool bCantRename = g_pUserNotesDatabase->existsHighlighterTagsFor(strUserDefinedHighlighterName);
@@ -933,20 +933,20 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 				break;
 			}
 		}
-		assert(nListWidgetIndex != -1);
+		Q_ASSERT(nListWidgetIndex != -1);
 		if (nListWidgetIndex != -1) {
 			QListWidgetItem *pItem = ui.listWidgetHighlighterColors->takeItem(nListWidgetIndex);
 			delete pItem;
 		}
 		if (!g_pUserNotesDatabase->renameHighlighter(strUserDefinedHighlighterName, dlgRename.newName())) {
-			assert(false);
+			Q_ASSERT(false);
 			return;
 		}
 
 		new CHighlighterColorButton(this, ui.listWidgetHighlighterColors, dlgRename.newName());
 
 		int nComboIndex = ui.comboBoxHighlighters->findText(strUserDefinedHighlighterName);
-		assert(nComboIndex != -1);
+		Q_ASSERT(nComboIndex != -1);
 		if (nComboIndex != -1) {
 			ui.comboBoxHighlighters->setItemText(nComboIndex, dlgRename.newName());
 		}
@@ -1013,7 +1013,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 		//		Solution was to iterate over the buttons in our QListWidget of Highlighter Set buttons.. <sigh>
 		for (int ndx = 0; ndx < ui.listWidgetHighlighterColors->count(); ++ndx) {
 			CHighlighterColorButton *pColorButton = static_cast<CHighlighterColorButton *>(ui.listWidgetHighlighterColors->item(ndx));
-			assert(pColorButton != nullptr);
+			Q_ASSERT(pColorButton != nullptr);
 			if (pColorButton == nullptr) continue;
 			if (!g_pUserNotesDatabase->highlighterDefinition(pColorButton->highlighterName()).isValid()) continue;
 			if (!g_pUserNotesDatabase->highlighterEnabled(pColorButton->highlighterName())) continue;
@@ -1250,7 +1250,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 		bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
 								  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
 		if (!bCanBeSensitive) {
-			assert(bdbSettings.hyphenSensitive() == false);
+			Q_ASSERT(bdbSettings.hyphenSensitive() == false);
 		}
 		ui.checkBoxHideHyphens->setEnabled(true);
 		ui.comboBoxHyphenHideMode->setEnabled(true);
@@ -1267,7 +1267,7 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 
 void CKJVBibleDatabaseConfig::en_loadBibleDatabase(const QString &strUUID)
 {
-	assert(!strUUID.isEmpty());
+	Q_ASSERT(!strUUID.isEmpty());
 	TBibleDatabaseList::loadBibleDatabase(strUUID, false, this);
 }
 
@@ -1276,7 +1276,7 @@ void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, b
 	Q_UNUSED(strUUID);
 	Q_UNUSED(bAutoLoad);
 
-	assert(!m_bLoadingData);
+	Q_ASSERT(!m_bLoadingData);
 	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our word-diff preview to change
 	ui.treeBibleDatabases->resizeColumnToContents(0);
 	ui.treeBibleDatabases->resizeColumnToContents(1);
@@ -1302,7 +1302,7 @@ void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 void CKJVBibleDatabaseConfig::en_displayBibleInformation()
 {
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 
 #ifndef USE_ASYNC_DIALOGS
 	CBibleDatabaseInfoDialogPtr pDlg(pBibleDatabase, this);
@@ -1428,7 +1428,7 @@ void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
 
 void CKJVDictDatabaseConfig::en_loadDictDatabase(const QString &strUUID)
 {
-	assert(!strUUID.isEmpty());
+	Q_ASSERT(!strUUID.isEmpty());
 	TDictionaryDatabaseList::loadDictionaryDatabase(strUUID, false, this);
 }
 
@@ -1437,7 +1437,7 @@ void CKJVDictDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bo
 	Q_UNUSED(strUUID);
 	Q_UNUSED(bAutoLoad);
 
-	assert(!m_bLoadingData);
+	Q_ASSERT(!m_bLoadingData);
 	if (strUUID.compare(m_strSelectedDatabaseUUID, Qt::CaseInsensitive) == 0) setSettingControls(m_strSelectedDatabaseUUID);		// Changing load status may cause our preview to change
 	ui.treeDictDatabases->resizeColumnToContents(0);
 	ui.treeDictDatabases->resizeColumnToContents(1);
@@ -1466,7 +1466,7 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 void CKJVDictDatabaseConfig::en_displayDictInformation()
 {
 	CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
-	assert(!pDictDatabase.isNull());
+	Q_ASSERT(!pDictDatabase.isNull());
 
 #ifndef USE_ASYNC_DIALOGS
 	CDictDatabaseInfoDialogPtr pDlg(pDictDatabase, this);
@@ -1490,12 +1490,12 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 		m_bIsDirty(false),
 		m_bLoadingData(false)
 {
-	assert(!pUserNotesDatabase.isNull());
+	Q_ASSERT(!pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
 	int ndx = ui.horizontalLayoutNoteBackgroundColor->indexOf(ui.buttonDefaultNoteBackgroundColor);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 
 	delete ui.buttonDefaultNoteBackgroundColor;
 
@@ -1842,7 +1842,7 @@ void CConfigSearchOptions::saveSettings()
 		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
 		m_bIsDirty = false;
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
 	CPersistentSettings::instance()->setAutoCompleterActivationDelay(ui.spinAutoCompleterActivationDelay->value());
@@ -2008,20 +2008,20 @@ void CConfigBrowserOptions::saveSettings()
 		CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(ui.comboBoxChapterScrollbarMode->itemData(nIndex).toUInt()));
 		m_bIsDirty = false;
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	nIndex = ui.comboBoxDefaultDisplayMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(ui.comboBoxDefaultDisplayMode->itemData(nIndex).toUInt()));
 		m_bIsDirty = false;
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	nIndex = ui.comboBoxVerseRenderingMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	CPersistentSettings::instance()->setScriptureBrowserLineHeight(ui.spinBoxLineHeight->value());
 	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
@@ -2151,7 +2151,7 @@ void CConfigDictionaryOptions::saveSettings()
 		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboDictionaryCompleterMode->itemData(nIndex).toUInt()));
 		m_bIsDirty = false;
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	CPersistentSettings::instance()->setDictionaryActivationDelay(ui.spinDictionaryActivationDelay->value());
 }
@@ -2183,7 +2183,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 		m_bLoadingData(false),
 		m_pEditCopyOptionPreview(nullptr)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -2325,7 +2325,7 @@ void CConfigCopyOptions::initialize()
 	m_pEditCopyOptionPreview->setContextMenuPolicy(Qt::DefaultContextMenu);
 
 	int nIndex = ui.verticalLayoutCopyOptionPreview->indexOf(ui.editCopyOptionPreview);
-	assert(nIndex != -1);
+	Q_ASSERT(nIndex != -1);
 	delete ui.editCopyOptionPreview;
 	ui.editCopyOptionPreview = nullptr;
 	ui.verticalLayoutCopyOptionPreview->insertWidget(nIndex, m_pEditCopyOptionPreview);
@@ -2499,7 +2499,7 @@ void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -2543,7 +2543,7 @@ void CConfigCopyOptions::en_changedVerseNumberDelimiterMode(int nIndex)
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -2587,7 +2587,7 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(nIndex).toUInt()));
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -2601,7 +2601,7 @@ void CConfigCopyOptions::en_changedVerseRenderingModeCopying(int nIndex)
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(nIndex).toUInt()));
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -2646,7 +2646,7 @@ void CConfigCopyOptions::en_changedCopyFontSelection(int nIndex)
 		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
 		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -2682,7 +2682,7 @@ void CConfigCopyOptions::en_changedCopyMimeType(int nIndex)
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setCopyMimeType(static_cast<COPY_MIME_TYPE_ENUM>(ui.comboBoxCopyMimeType->itemData(nIndex).toUInt()));
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 	m_bIsDirty = true;
 	emit dataChanged(false);
@@ -2705,7 +2705,7 @@ void CConfigCopyOptions::en_changedSearchResultsVerseCopyOrder(int nIndex)
 		VERSE_COPY_ORDER_ENUM nVCOE = static_cast<VERSE_COPY_ORDER_ENUM>(ui.comboBoxSearchResultsVerseCopyOrder->itemData(nIndex).toUInt());
 		CPersistentSettings::instance()->setSearchResultsVerseCopyOrder(nVCOE);
 	} else {
-		assert(false);
+		Q_ASSERT(false);
 	}
 
 	m_bIsDirty = true;
@@ -2754,7 +2754,7 @@ void CConfigCopyOptions::en_changedCopyWrdNdxInSearchResultsRefs(bool bCopy)
 
 void CConfigCopyOptions::setVerseCopyPreview()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	QString strHtml;
 	QTextDocument doc;
@@ -2783,7 +2783,7 @@ void CConfigCopyOptions::setVerseCopyPreview()
 
 void CConfigCopyOptions::setSearchResultsRefsPreview()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	TPhraseTagList lstTags;
 	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 1)));
@@ -2799,7 +2799,7 @@ void CConfigCopyOptions::setSearchResultsRefsPreview()
 CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -2846,7 +2846,7 @@ CKJVLocaleConfig::CKJVLocaleConfig(QWidget *parent)
 	QList<CTranslatorList::TLanguageName> lstLanguages = CTranslatorList::instance()->languageList();
 	ui.comboBoxLanguageList->addItem(tr("< System Locale >", "languageNames"), QString());
 	for (int ndx = 0; ndx < lstLanguages.size(); ++ndx) {
-		assert(!lstLanguages.at(ndx).first.isEmpty());
+		Q_ASSERT(!lstLanguages.at(ndx).first.isEmpty());
 		if (lstLanguages.at(ndx).first.isEmpty()) continue;
 		ui.comboBoxLanguageList->addItem(lstLanguages.at(ndx).second, lstLanguages.at(ndx).first);
 	}
@@ -2868,7 +2868,7 @@ void CKJVLocaleConfig::loadSettings()
 	int nIndex = ui.comboBoxLanguageList->findData(CPersistentSettings::instance()->applicationLanguage());
 	if (nIndex == -1) {
 		nIndex = ui.comboBoxLanguageList->findData(QString());
-		assert(nIndex != -1);
+		Q_ASSERT(nIndex != -1);
 	}
 	ui.comboBoxLanguageList->setCurrentIndex(nIndex);
 
@@ -2888,7 +2888,7 @@ void CKJVLocaleConfig::en_changeApplicationLanguage(int nIndex)
 {
 	if (m_bLoadingData) return;
 
-	assert(nIndex != -1);
+	Q_ASSERT(nIndex != -1);
 	if (nIndex == -1) return;
 
 	QString strLangName = ui.comboBoxLanguageList->itemData(nIndex).toString();
@@ -2920,7 +2920,7 @@ CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
 	ui.comboBoxTTSVoiceSelection->clear();
 	QtSpeech::TVoiceNamesList lstVoiceNames = QtSpeech::voices();
 	for (int ndx = 0; ndx < lstVoiceNames.size(); ++ndx) {
-		assert(!lstVoiceNames.at(ndx).isEmpty());
+		Q_ASSERT(!lstVoiceNames.at(ndx).isEmpty());
 		if (lstVoiceNames.at(ndx).isEmpty()) continue;
 		ui.comboBoxTTSVoiceSelection->addItem(lstVoiceNames.at(ndx).name, lstVoiceNames.at(ndx).id);
 	}
@@ -2996,7 +2996,7 @@ void CKJVTTSOptionsConfig::en_changedTTSVoiceSelection(int nIndex)
 {
 	if (m_bLoadingData) return;
 
-	assert(nIndex != -1);
+	Q_ASSERT(nIndex != -1);
 	if (nIndex == -1) return;
 
 	QString strVoiceID = ui.comboBoxTTSVoiceSelection->itemData(nIndex).toString();
@@ -3028,8 +3028,8 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #endif
 		m_pLocaleConfig(nullptr)
 {
-	assert(!pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
 	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
@@ -3097,7 +3097,7 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 		case CPSE_DEFAULT:
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -3215,8 +3215,8 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 		m_bNeedRestart(false),
 		m_bRestartApp(false)
 {
-	assert(!pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 #ifdef MODELTEST
 	if (g_pdlgColor == nullptr) g_pdlgColor = new QColorDialog(this);
@@ -3322,7 +3322,7 @@ void CKJVConfigurationDialog::reject()
 
 void CKJVConfigurationDialog::apply()
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	// Make sure our persistent settings have been updated, and we'll
 	//		copy the settings over to the original, making them permanent
@@ -3362,7 +3362,7 @@ void CKJVConfigurationDialog::apply()
 
 void CKJVConfigurationDialog::restore(bool bRecopy)
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	// Restore original settings by switching back to the original
 	//		settings without copying:
@@ -3384,7 +3384,7 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 {
 	if (m_bHandlingPageSwap) return;
 
-	assert(m_nLastIndex != -1);				// We should have set our initial page index and can never navigate away from some page!
+	Q_ASSERT(m_nLastIndex != -1);				// We should have set our initial page index and can never navigate away from some page!
 	if (m_nLastIndex == index) return;
 
 	auto &&fnFinalCompletion = [this, index]()->void {
@@ -3436,8 +3436,8 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 
 void CKJVConfigurationDialog::en_setToLastIndex()
 {
-	assert(m_bHandlingPageSwap);
-	assert(m_nLastIndex != -1);
+	Q_ASSERT(m_bHandlingPageSwap);
+	Q_ASSERT(m_nLastIndex != -1);
 	m_pConfiguration->setCurrentIndex(m_nLastIndex);
 	m_bHandlingPageSwap = false;
 }

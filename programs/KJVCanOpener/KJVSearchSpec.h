@@ -39,8 +39,6 @@
 #include <QFrame>
 #include <QPushButton>
 
-#include <assert.h>
-
 // ============================================================================
 
 class CSearchPhraseScrollArea : public QScrollArea

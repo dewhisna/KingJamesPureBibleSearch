@@ -24,8 +24,6 @@
 #include "CSV.h"
 #include <QFile>
 
-#include <assert.h>
-
 // ============================================================================
 
 CCSVStream &endl(CCSVStream &aStream)
@@ -37,7 +35,7 @@ CCSVStream &flush(CCSVStream &aStream)
 {
 	if (aStream.device()) {
 		QFile *pFile = qobject_cast<QFile *>(aStream.device());
-		assert(pFile != nullptr);
+		Q_ASSERT(pFile != nullptr);
 		pFile->flush();
 	}
 	return aStream;

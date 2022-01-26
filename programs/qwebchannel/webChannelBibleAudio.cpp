@@ -847,7 +847,7 @@ CWebChannelBibleAudio *CWebChannelBibleAudio::instance()
 
 QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibleDatabase, const CRelIndex &ndxRel, BibleAudioSourcesFlags flagsBAS)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 
 	CRelIndex ndxDecolophonated(ndxRel);
 	if (ndxDecolophonated.isColophon()) {

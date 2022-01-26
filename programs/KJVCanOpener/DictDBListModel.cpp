@@ -53,12 +53,12 @@ void CDictDatabaseListModel::updateDictDatabaseList()
 
 void CDictDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 {
-	assert((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabaseDescriptors.size()));
+	Q_ASSERT((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabaseDescriptors.size()));
 
 	bool bFound = false;
 	for (int ndxLoaded = 0; ndxLoaded < TDictionaryDatabaseList::instance()->size(); ++ndxLoaded) {
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->at(ndxLoaded);
-		assert(!pDictDatabase.isNull());
+		Q_ASSERT(!pDictDatabase.isNull());
 		if (pDictDatabase.isNull()) continue;
 		if (pDictDatabase->compatibilityUUID().compare(m_lstAvailableDatabaseDescriptors.at(nAvailableDBIndex).m_strUUID, Qt::CaseInsensitive) == 0) {
 			m_mapAvailableToLoadedIndex[nAvailableDBIndex] = ndxLoaded;
@@ -220,7 +220,7 @@ Qt::ItemFlags CDictDatabaseListModel::flags(const QModelIndex &index) const
 
 	int ndxDB = index.row();
 
-	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabaseDescriptors.size()));
+	Q_ASSERT((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabaseDescriptors.size()));
 
 	bool bCheckable = (!(m_lstAvailableDatabaseDescriptors.at(ndxDB).m_dtoFlags & DTO_AutoLoad));
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | (bCheckable ? Qt::ItemIsUserCheckable : Qt::NoItemFlags) | Qt::ItemIsSelectable;

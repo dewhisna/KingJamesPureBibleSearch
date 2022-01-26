@@ -44,8 +44,6 @@
 #include <QPointer>
 #include <QToolBar>
 
-#include <assert.h>
-
 // ============================================================================
 
 // Forward Declares:
@@ -97,14 +95,14 @@ public:
 		CKJVCanOpenerCloseGuard(CKJVCanOpener *pCanOpener)
 			:	m_pCanOpener(pCanOpener)
 		{
-			assert(!m_pCanOpener.isNull());
+			Q_ASSERT(!m_pCanOpener.isNull());
 			m_bPreviousCanClose = m_pCanOpener->canClose();
 			m_pCanOpener->setCanClose(false);
 		}
 
 		~CKJVCanOpenerCloseGuard()
 		{
-			assert(!m_pCanOpener.isNull());
+			Q_ASSERT(!m_pCanOpener.isNull());
 			if (!m_pCanOpener.isNull()) m_pCanOpener->setCanClose(m_bPreviousCanClose);
 		}
 

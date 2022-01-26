@@ -35,8 +35,6 @@
 #include <QMessageBox>
 #include <QTextCursor>
 
-#include <assert.h>
-
 // ============================================================================
 
 namespace {
@@ -65,8 +63,8 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
-	assert(!m_pBibleDatabase.isNull());
-	assert(!m_pUserNotesDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
 	// Create a working copy and initialize it to the existing database:
 	m_pWorkingUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
@@ -83,7 +81,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	//		one that we can set the database on:
 
 	ndx = ui.verticalLayoutSource->indexOf(ui.editSourcePassage);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 
 	m_pEditSourcePassage = new CScriptureEdit(m_pBibleDatabase, this);
@@ -115,7 +113,7 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 	//		one that we can set the database on:
 
 	ndx = ui.verticalLayoutRefList->indexOf(ui.treeCrossRefs);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 
 	m_pCrossRefTreeView = new CSearchResultsTreeView(m_pBibleDatabase, m_pWorkingUserNotesDatabase, this);
@@ -216,7 +214,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 
 void CKJVCrossRefEditDlg::saveCrossRefs()
 {
-	assert(!m_pUserNotesDatabase.isNull());
+	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
 	m_pUserNotesDatabase->setCrossRefsMap(m_pWorkingUserNotesDatabase->crossRefsMap());
 	m_bIsDirty = false;
@@ -262,17 +260,17 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
 void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &index)
 {
 	CRelIndex ndxInitial = m_pCrossRefTreeView->vlmodel()->logicalIndexForModelIndex(index);
-	assert(ndxInitial.isSet());
-	assert(ndxInitial.word() == 0);
+	Q_ASSERT(ndxInitial.isSet());
+	Q_ASSERT(ndxInitial.word() == 0);
 	CRelIndex ndxTarget = navigateCrossRef(ndxInitial);
-	assert(ndxTarget.word() == 0);
+	Q_ASSERT(ndxTarget.word() == 0);
 	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
 	ndxSource.setWord(0);		// Note: This is needed because passages always begin at word 1 and our cross-refs are always indexed from 0
 	if ((ndxTarget.isSet()) && (ndxInitial != ndxTarget)) {
 		bool bRemove = m_pWorkingUserNotesDatabase->removeCrossReference(ndxSource, ndxInitial);
-		assert(bRemove);
+		Q_ASSERT(bRemove);
 		bool bAdd = m_pWorkingUserNotesDatabase->setCrossReference(ndxSource, ndxTarget);
-		assert(bAdd);
+		Q_ASSERT(bAdd);
 		if (bAdd || bRemove) m_bIsDirty = true;
 	}
 }

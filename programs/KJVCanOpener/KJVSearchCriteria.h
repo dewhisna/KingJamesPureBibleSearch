@@ -103,7 +103,7 @@ public:
 	}
 	bool phraseIsCompletelyWithin(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &phraseTag) const
 	{
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		TTagBoundsPair phraseBounds(phraseTag.bounds(pBibleDatabase.data()));
 		CRelIndex ndxLo = pBibleDatabase->DenormalizeIndex(phraseBounds.lo());
 		CRelIndex ndxHi = pBibleDatabase->DenormalizeIndex(phraseBounds.hi());
@@ -123,7 +123,7 @@ public:
 	}
 	bool withinIsEntireBible(CBibleDatabasePtr pBibleDatabase, bool bIgnorePseudoVerses = false) const
 	{
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		bool bIsEntire = true;
 		for (uint32_t nBk = 1; ((bIsEntire) && (nBk <= pBibleDatabase->bibleEntry().m_nNumBk)); ++nBk) {
 			if (m_setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == m_setSearchWithin.end()) bIsEntire = false;
@@ -144,7 +144,7 @@ public:
 		// Check for "Entire Bible" shortcut (i.e. empty string or single "0"):
 		if ((lstIndexes.size() == 0) ||
 			((lstIndexes.size() == 1) && (lstIndexes.at(0).toUInt() == 0))) {
-			assert(!pBibleDatabase.isNull());
+			Q_ASSERT(!pBibleDatabase.isNull());
 			for (uint32_t nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 				m_setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
 			}

@@ -47,7 +47,7 @@ CWebChannelClient::CWebChannelClient(CWebChannelServer *pParent)
 		m_nChannelState(WCCS_CREATED),
 		m_pWebChannelServer(pParent)
 {
-	assert(m_pWebChannelServer != nullptr);
+	Q_ASSERT(m_pWebChannelServer != nullptr);
 
 	m_strConnectionTime = QDateTime::currentDateTimeUtc().toString(Qt::ISODate);
 
@@ -117,31 +117,31 @@ void CWebChannelClient::sendBroadcast(const QString &strMessage)
 
 void CWebChannelClient::setThreadIndex()
 {
-	assert(m_pWebChannelServer != nullptr);
+	Q_ASSERT(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientThreadIndex(this);
 }
 
 void CWebChannelClient::setIdle()
 {
-	assert(m_pWebChannelServer != nullptr);
+	Q_ASSERT(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientIdle(this);
 }
 
 void CWebChannelClient::killWebChannel()
 {
-	assert(m_pWebChannelServer != nullptr);
+	Q_ASSERT(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->killClient(this);
 }
 
 void CWebChannelClient::setUserAgent()
 {
-	assert(m_pWebChannelServer != nullptr);
+	Q_ASSERT(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientUserAgent(this);
 }
 
 void CWebChannelClient::setBibleUUID()
 {
-	assert(m_pWebChannelServer != nullptr);
+	Q_ASSERT(m_pWebChannelServer != nullptr);
 	m_pWebChannelServer->setClientBibleUUID(this);
 }
 
@@ -235,7 +235,7 @@ void CWebChannelServer::en_clientConnected(WebSocketTransport* pClient)
 void CWebChannelServer::en_clientDisconnected(WebSocketTransport* pClient)
 {
 	TWebChannelClientMap::iterator itrClientMap = m_mapChannels.find(pClient);
-	assert(itrClientMap != m_mapChannels.end());
+	Q_ASSERT(itrClientMap != m_mapChannels.end());
 	if (itrClientMap != m_mapChannels.end()) {
 		QPointer<CWebChannelClient> pClientChannel = itrClientMap.value();
 		if (!pClientChannel.isNull()) delete pClientChannel;
@@ -338,7 +338,7 @@ void CWebChannelServer::en_checkClientStates()
 
 	// Close and remove prescribed clients (removal happens in disconnect signal processing):
 	for (int i = 0; i < lstClientsToDrop.size(); ++i) {
-		assert(lstClientsToDrop.at(i) != nullptr);
+		Q_ASSERT(lstClientsToDrop.at(i) != nullptr);
 		lstClientsToDrop.at(i)->socket()->close(QWebSocketProtocol::CloseCodeGoingAway, "disconnectClient");
 	}
 }
@@ -597,7 +597,7 @@ void CWebChannelServer::startListening()
 //	header present:
 QString CWebChannelServer::peerAddressOfSocket(const WebSocketTransport *pClient)
 {
-	assert(pClient != nullptr);
+	Q_ASSERT(pClient != nullptr);
 	QString strPeerAddress = pClient->socket()->peerAddress().toString();
 
 #if QT_VERSION >= 0x050600		// QWebSocket::request() was added in Qt 5.6

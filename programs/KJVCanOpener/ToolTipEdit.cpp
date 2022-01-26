@@ -83,7 +83,7 @@ CTipEdit *CTipEdit::instance(const CKJVCanOpener *pCanOpener)
 
 void CTipEdit::setInstance(CTipEdit *pTipEdit)
 {
-	assert(m_pParentCanOpener != nullptr);
+	Q_ASSERT(m_pParentCanOpener != nullptr);
 	return m_pParentCanOpener->setTipEdit(pTipEdit);
 }
 
@@ -97,7 +97,7 @@ bool CTipEdit::tipEditIsPinned(const CKJVCanOpener *pCanOpener)
 
 void CTipEdit::setTipEditIsPinned(bool bIsPinned)
 {
-	assert(m_pParentCanOpener != nullptr);
+	Q_ASSERT(m_pParentCanOpener != nullptr);
 	return m_pParentCanOpener->setTipEditIsPinned(bIsPinned);
 }
 
@@ -136,7 +136,7 @@ CTipEdit::CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent)
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	setWindowTitle(tr("Details : King James Pure Bible Search", "MainMenu"));
 
-	assert(m_pParentCanOpener != nullptr);
+	Q_ASSERT(m_pParentCanOpener != nullptr);
 
 	m_pPushButton = new QPushButton(this);
 	m_pPushButton->setFlat(true);
@@ -245,7 +245,7 @@ void CTipEdit::adjustToolTipSize()
 	document()->setTextWidth(document()->idealWidth());
 	QSize docSize = document()->size().toSize();
 
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 	if (widget) {
 		resize(QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra);
@@ -555,7 +555,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 		// full screen mode we need to save space for the dock, so we use
 		// availableGeometry instead.
 
-		assert(!g_pMyApplication.isNull());
+		Q_ASSERT(!g_pMyApplication.isNull());
 		CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 
 		if ((pCanOpener != nullptr) && (pCanOpener->isFullScreen())) {
@@ -576,7 +576,7 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 	// full screen mode we need to save space for the dock, so we use
 	// availableGeometry instead.
 
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
 
 	QRect screen;

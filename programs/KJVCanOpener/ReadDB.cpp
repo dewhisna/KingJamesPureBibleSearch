@@ -31,8 +31,6 @@
 #include "SearchCompleter.h"
 #include "ReportError.h"
 
-#include <assert.h>
-
 #ifndef NOT_USING_SQL
 #include <QtSql>
 #include <QSqlQuery>
@@ -228,7 +226,7 @@ public:
 
 	void startQueryLoop(const QString &strFieldNameList)
 	{
-		assert(!m_strTableName.isEmpty());
+		Q_ASSERT(!m_strTableName.isEmpty());
 		m_bContinue = false;
 		if (m_pCSVStream != nullptr) {
 			m_bContinue = (m_nRecordCount > 0);
@@ -313,7 +311,7 @@ CReadDatabase::~CReadDatabase()
 
 bool CReadDatabase::ReadDBInfoTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Database Info Table:
 
@@ -401,7 +399,7 @@ bool CReadDatabase::ReadDBInfoTable()
 
 bool CReadDatabase::ReadTestamentTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Testament Table
 
@@ -434,7 +432,7 @@ bool CReadDatabase::ReadTestamentTable()
 
 bool CReadDatabase::ReadBooksTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Books Table
 
@@ -504,7 +502,7 @@ bool CReadDatabase::ReadBooksTable()
 		nWrdAccum += m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd;
 	}
 
-	assert(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
+	Q_ASSERT(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
 
 // Used for debugging:
 #ifdef NEVER
@@ -525,7 +523,7 @@ bool CReadDatabase::ReadBooksTable()
 
 bool CReadDatabase::ReadChaptersTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Chapters (LAYOUT) table:
 
@@ -571,11 +569,11 @@ bool CReadDatabase::ReadChaptersTable()
 
 bool CReadDatabase::ReadVerseTables()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Book Verses tables:
 
-	assert(m_pBibleDatabase->m_lstBooks.size() != 0);		// Must read BookEntries before BookVerses
+	Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() != 0);		// Must read BookEntries before BookVerses
 
 	unsigned int nWrdAccum = 0;			// Accum by Verse
 	unsigned int nWrdAccum2 = 0;		// Accum by Chapter
@@ -655,7 +653,7 @@ bool CReadDatabase::ReadVerseTables()
 				nWrdAccum += entryVerse.m_nNumWrd;
 				nWrdAccum3 += entryVerse.m_nNumWrd;
 			}
-			assert(nWrdAccum3 == theChapter.m_nNumWrd);		// Quick check to make sure the word count of the verses in the chapter matches the word count for the whole chapter
+			Q_ASSERT(nWrdAccum3 == theChapter.m_nNumWrd);		// Quick check to make sure the word count of the verses in the chapter matches the word count for the whole chapter
 		}
 
 // Used for debugging:
@@ -677,8 +675,8 @@ bool CReadDatabase::ReadVerseTables()
 
 	}
 
-	assert(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
-	assert(nWrdAccum2 == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
+	Q_ASSERT(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
+	Q_ASSERT(nWrdAccum2 == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
 
 	return true;
 }
@@ -690,7 +688,7 @@ static bool ascendingLessThanStrings(const QString &s1, const QString &s2)
 
 bool CReadDatabase::ReadWordsTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Words table:
 
@@ -745,7 +743,7 @@ bool CReadDatabase::ReadWordsTable()
 		} else {
 			// If folding duplicate words into single entry from decomposed indexes,
 			//		they better be the same exact word:
-			assert(entryWord.m_strWord.compare(strKey) == 0);
+			Q_ASSERT(entryWord.m_strWord.compare(strKey) == 0);
 			// Combine special flags to form overall logic:
 			if (entryWord.m_bCasePreserve != bCasePreserve) entryWord.m_bCasePreserve = true;		// Special word of either form is still the "special word"
 			if (entryWord.m_bIsProperWord != bIsProperWord) entryWord.m_bIsProperWord = false;		// If two words that are considered the same have different "proper" status, fold it into being "ordinary"
@@ -832,7 +830,7 @@ bool CReadDatabase::ReadWordsTable()
 	std::sort(m_pBibleDatabase->m_lstWordList.begin(), m_pBibleDatabase->m_lstWordList.end(), ascendingLessThanStrings);
 	std::sort(m_pBibleDatabase->m_lstConcordanceWords.begin(), m_pBibleDatabase->m_lstConcordanceWords.end(), TConcordanceListSortPredicate::ascendingLessThanWordCaseInsensitive);
 
-	assert(m_pBibleDatabase->m_lstWordList.size() == static_cast<int>(m_pBibleDatabase->m_mapWordList.size()));
+	Q_ASSERT(m_pBibleDatabase->m_lstWordList.size() == static_cast<int>(m_pBibleDatabase->m_mapWordList.size()));
 
 	// Now that we have the sorted indexes, we need to remap back to what came from what for our mapping:
 	QVector<int> lstSortIndex;
@@ -848,9 +846,9 @@ bool CReadDatabase::ReadWordsTable()
 		// Now that we've built the concordance list and have sorted it, we'll set our normalized indices:
 		unsigned int ndxMapping = 0;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
-			assert(ndxWord < m_pBibleDatabase->m_lstConcordanceWords.size());
+			Q_ASSERT(ndxWord < m_pBibleDatabase->m_lstConcordanceWords.size());
 			for (unsigned int ndxAltCount=0; ndxAltCount<entryWord.m_lstAltWordCount.at(ndxAltWord); ++ndxAltCount) {
-				assert(ndxMapping < entryWord.m_ndxNormalizedMapping.size());
+				Q_ASSERT(ndxMapping < entryWord.m_ndxNormalizedMapping.size());
 				if (entryWord.m_ndxNormalizedMapping.at(ndxMapping) > nNumWordsInText) {
 					displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Invalid WORDS mapping.  Check database integrity!\n\nWord: \"%1\"  Index: %2", "ReadDB").arg(entryWord.m_lstAltWords.at(ndxAltWord)).arg(entryWord.m_ndxNormalizedMapping.at(ndxMapping)));
 					return false;
@@ -861,8 +859,8 @@ bool CReadDatabase::ReadWordsTable()
 			ndxWord++;
 		}
 	}
-	assert(m_pBibleDatabase->m_lstConcordanceMapping.size() == (nNumWordsInText + 1));
-	assert(ndxWord == m_pBibleDatabase->m_lstConcordanceWords.size());
+	Q_ASSERT(m_pBibleDatabase->m_lstConcordanceMapping.size() == (nNumWordsInText + 1));
+	Q_ASSERT(ndxWord == m_pBibleDatabase->m_lstConcordanceWords.size());
 
 
 // Code to dump all of the SoundEx values for the words in this database, used
@@ -921,7 +919,7 @@ bool CReadDatabase::ReadWordsTable()
 
 bool CReadDatabase::ReadFOOTNOTESTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Footnotes table:
 
@@ -944,7 +942,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 		QString strFootnoteText;
 		CFootnoteEntry footnote;
 		CRelIndex ndxRel(lstFields.at(0).toUInt());
-		assert(ndxRel.isSet());
+		Q_ASSERT(ndxRel.isSet());
 		if (!ndxRel.isSet()) continue;
 		strFootnoteText = lstFields.at(2);
 		if (strFootnoteText.isEmpty()) strFootnoteText = lstFields.at(1);
@@ -961,7 +959,7 @@ bool CReadDatabase::ReadFOOTNOTESTable()
 
 bool CReadDatabase::ReadPHRASESTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Phrases table:
 
@@ -998,7 +996,7 @@ bool CReadDatabase::ReadPHRASESTable()
 
 bool CReadDatabase::ReadLEMMASTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Lemmas table:
 
@@ -1027,7 +1025,7 @@ bool CReadDatabase::ReadLEMMASTable()
 		if (!dbParser.readNextRecord(lstFields, 3)) return false;
 
 		CLemmaEntry lemma(TPhraseTag(lstFields.at(0).toUInt(), lstFields.at(1).toUInt()), lstFields.at(2));
-		assert(lemma.tag().isSet());
+		Q_ASSERT(lemma.tag().isSet());
 		if (!lemma.tag().isSet() || (lemma.count() == 0)) continue;
 		m_pBibleDatabase->m_mapLemmaEntries[lemma.tag().relIndex()] = lemma;
 	}
@@ -1039,7 +1037,7 @@ bool CReadDatabase::ReadLEMMASTable()
 
 bool CReadDatabase::ReadSTRONGSTable()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Read the Strongs table:
 
@@ -1084,7 +1082,7 @@ bool CReadDatabase::ReadSTRONGSTable()
 
 bool CReadDatabase::ValidateData()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	unsigned int ncntTstTot = 0;	// Total number of Testaments
 	unsigned int ncntBkTot = 0;		// Total number of Books (all Testaments)
@@ -1207,7 +1205,7 @@ bool CReadDatabase::ValidateData()
 		CRelIndex ndxRel = m_pBibleDatabase->DenormalizeIndex(nWrd);
 		if (m_pBibleDatabase->NormalizeIndex(ndxRel.index()) != nWrd) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Normalize/Denormalize Index Check Failed!\n\nNormal->Relative->Normal:\n%1->%2->%3", "ReadDB").arg(nWrd).arg(ndxRel.index()).arg(m_pBibleDatabase->NormalizeIndex(ndxRel)));
-			assert(false);
+			Q_ASSERT(false);
 		}
 	}
 #endif
@@ -1219,7 +1217,7 @@ bool CReadDatabase::ValidateData()
 
 bool CReadDatabase::ReadDictionaryDBInfo()
 {
-	assert(!m_pDictionaryDatabase.isNull());
+	Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 	// Read the Dictionary Info table:
 
@@ -1255,7 +1253,7 @@ bool CReadDatabase::ReadDictionaryDBInfo()
 
 bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 {
-	assert(!m_pDictionaryDatabase.isNull());
+	Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 	// Read the Dictionary Defintions table:
 
@@ -1300,7 +1298,7 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 
 QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictionaryDatabase, const CDictionaryWordEntry &wordEntry)
 {
-	assert(pDictionaryDatabase != nullptr);
+	Q_ASSERT(pDictionaryDatabase != nullptr);
 
 	QStringList lstDefinitions;
 
@@ -1470,7 +1468,7 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	QFileInfo fiCCDB(bblDesc.m_strCCDBFilename);
 	if (fiCCDB.exists() && fiCCDB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 
 		QFile fileCCDB;
 		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
@@ -1502,14 +1500,14 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 
 TBibleDescriptor CReadDatabase::discoverCCDBBibleDatabase(const QString &strFilePathName)
 {
-	assert(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
+	Q_ASSERT(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
 
 	TBibleDescriptor bblDesc = { BTO_None, "", "", "", "", "", "", "", "" };
 	bblDesc.m_strCCDBFilename = strFilePathName;
 	QFileInfo fiCCDB(bblDesc.m_strCCDBFilename);
 	if (fiCCDB.exists() && fiCCDB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 
 		QFile fileCCDB;
 		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
@@ -1538,7 +1536,7 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	QFileInfo fiS3DB(bblDesc.m_strS3DBFilename);
 	if (fiS3DB.exists() && fiS3DB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 
 #ifndef NOT_USING_SQL
 		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
@@ -1574,7 +1572,7 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 
 TBibleDescriptor CReadDatabase::discoverS3DBBibleDatabase(const QString &strFilePathName)
 {
-	assert(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
+	Q_ASSERT(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
 
 	TBibleDescriptor bblDesc = { BTO_None, "", "", "", "", "", "", "", "" };
 	bblDesc.m_strS3DBFilename = strFilePathName;
@@ -1582,7 +1580,7 @@ TBibleDescriptor CReadDatabase::discoverS3DBBibleDatabase(const QString &strFile
 	QFileInfo fiS3DB(bblDesc.m_strS3DBFilename);
 	if (fiS3DB.exists() && fiS3DB.isFile()) {
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 
 		m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainReadConnection);
 		m_myDatabase.setDatabaseName(fiS3DB.absoluteFilePath());
@@ -1633,7 +1631,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 		// Logic for Reading Specific Special Bible Database Internal Dictionaries:
 		if (dctDesc.m_dtoFlags & DTO_Strongs) {		// Handle Strongs Dictionary:
 			m_pDictionaryDatabase = QSharedPointer<CStrongsDictionaryDatabase>(new CStrongsDictionaryDatabase(dctDesc, pBibleDatabase));
-			assert(!m_pDictionaryDatabase.isNull());
+			Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 			m_pDictionaryDatabase->m_mapWordDefinitions.clear();		// These will remain empty and lookups done via the Strongs portion of the Bible Database
 			m_pDictionaryDatabase->m_lstWordList.clear();
@@ -1646,7 +1644,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 	}
 
 	m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
-	assert(!m_pDictionaryDatabase.isNull());
+	Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 	QFileInfo fiSQL(dctDesc.m_strS3DBFilename);
 	QFileInfo fiCC(dctDesc.m_strCCDBFilename);
@@ -1696,7 +1694,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 		}
 
 		if ((!bLiveDB) || (!bSuccess)) {
-			assert(m_pDictionaryDatabase->m_myDatabase.contains(dctDesc.m_strUUID));
+			Q_ASSERT(m_pDictionaryDatabase->m_myDatabase.contains(dctDesc.m_strUUID));
 			m_pDictionaryDatabase->m_myDatabase.close();
 			m_pDictionaryDatabase->m_myDatabase = QSqlDatabase();
 			QSqlDatabase::removeDatabase(dctDesc.m_strUUID);
@@ -1715,7 +1713,7 @@ bool CReadDatabase::ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc,
 
 TDictionaryDescriptor CReadDatabase::discoverCCDBDictionaryDatabase(const QString &strFilePathName)
 {
-	assert(m_pDictionaryDatabase.isNull());		// Must be run on a new CReadDatabase object
+	Q_ASSERT(m_pDictionaryDatabase.isNull());		// Must be run on a new CReadDatabase object
 
 	TDictionaryDescriptor dctDesc = { DTO_None, "", "", "", "", "", "" };
 	dctDesc.m_strCCDBFilename = strFilePathName;
@@ -1731,7 +1729,7 @@ TDictionaryDescriptor CReadDatabase::discoverCCDBDictionaryDatabase(const QStrin
 	QFileInfo fiCCDB(dctDesc.m_strCCDBFilename);
 	if (fiCCDB.exists() && fiCCDB.isFile()) {
 		m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
-		assert(!m_pDictionaryDatabase.isNull());
+		Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 		QFile fileCCDB;
 		fileCCDB.setFileName(fiCCDB.absoluteFilePath());
@@ -1756,7 +1754,7 @@ TDictionaryDescriptor CReadDatabase::discoverCCDBDictionaryDatabase(const QStrin
 
 TDictionaryDescriptor CReadDatabase::discoverS3DBDictionaryDatabase(const QString &strFilePathName)
 {
-	assert(m_pDictionaryDatabase.isNull());		// Must be run on a new CReadDatabase object
+	Q_ASSERT(m_pDictionaryDatabase.isNull());		// Must be run on a new CReadDatabase object
 
 	TDictionaryDescriptor dctDesc = { DTO_None, "", "", "", "", "", "" };
 	dctDesc.m_strS3DBFilename = strFilePathName;
@@ -1774,7 +1772,7 @@ TDictionaryDescriptor CReadDatabase::discoverS3DBDictionaryDatabase(const QStrin
 	QFileInfo fiS3DB(dctDesc.m_strS3DBFilename);
 	if (fiS3DB.exists() && fiS3DB.isFile()) {
 		m_pDictionaryDatabase = QSharedPointer<CDictionaryDatabase>(new CDictionaryDatabase(dctDesc));
-		assert(!m_pDictionaryDatabase.isNull());
+		Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 		m_pDictionaryDatabase->m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, dctDesc.m_strUUID);
 		m_pDictionaryDatabase->m_myDatabase.setDatabaseName(fiS3DB.absoluteFilePath());

@@ -33,8 +33,6 @@
 #include <QStringList>
 #include <QVariant>
 
-#include <assert.h>
-
 // ============================================================================
 
 Q_DECLARE_METATYPE(CKJVSearchPhraseEdit*)

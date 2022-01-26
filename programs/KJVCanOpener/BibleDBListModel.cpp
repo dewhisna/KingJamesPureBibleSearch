@@ -53,12 +53,12 @@ void CBibleDatabaseListModel::updateBibleDatabaseList()
 
 void CBibleDatabaseListModel::locateLoadedDatabase(int nAvailableDBIndex)
 {
-	assert((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabaseDescriptors.size()));
+	Q_ASSERT((nAvailableDBIndex >= 0) && (nAvailableDBIndex < m_lstAvailableDatabaseDescriptors.size()));
 
 	bool bFound = false;
 	for (int ndxLoaded = 0; ndxLoaded < TBibleDatabaseList::instance()->size(); ++ndxLoaded) {
 		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->at(ndxLoaded);
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) continue;
 		if (pBibleDatabase->compatibilityUUID().compare(m_lstAvailableDatabaseDescriptors.at(nAvailableDBIndex).m_strUUID, Qt::CaseInsensitive) == 0) {
 			m_mapAvailableToLoadedIndex[nAvailableDBIndex] = ndxLoaded;
@@ -218,7 +218,7 @@ Qt::ItemFlags CBibleDatabaseListModel::flags(const QModelIndex &index) const
 
 	int ndxDB = index.row();
 
-	assert((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabaseDescriptors.size()));
+	Q_ASSERT((ndxDB >= 0) && (ndxDB < m_lstAvailableDatabaseDescriptors.size()));
 
 	QString strMainDBUUID = CPersistentSettings::instance()->mainBibleDatabaseUUID();
 	bool bCheckable = ((strMainDBUUID.compare(m_lstAvailableDatabaseDescriptors.at(ndxDB).m_strUUID, Qt::CaseInsensitive) != 0) &&

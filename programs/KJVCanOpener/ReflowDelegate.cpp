@@ -34,7 +34,6 @@
 #include <QAbstractItemModel>
 
 #include <algorithm>
-#include <assert.h>
 
 #define REFLOW_BATCH_SIZE 100			// Number of items to update per reflowTick
 #define REFLOW_TIMESLICE 100			// Maximum reflowTick timeslice in milliseconds
@@ -47,7 +46,7 @@ CScrollPreserver::CScrollPreserver(QTreeView *pView)
 		m_nMode(SPME_Invalid),
 		m_nOffset(0)
 {
-	assert(pView != nullptr);
+	Q_ASSERT(pView != nullptr);
 
 	if (pView->verticalScrollMode() == QAbstractItemView::ScrollPerPixel) {
 		m_index = pView->selectionModel()->currentIndex();
@@ -69,7 +68,7 @@ CScrollPreserver::~CScrollPreserver()
 		int dy = deltaY();
 		if (dy != 0) {
 			QScrollBar *pVBar = parentView()->verticalScrollBar();
-			assert(pVBar != nullptr);
+			Q_ASSERT(pVBar != nullptr);
 			pVBar->setValue(pVBar->value() + dy);
 		}
 	}
@@ -126,7 +125,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate, bool
 		m_nSizeHintCacheMode(SHCME_CachedOnly),
 		m_bReflowDisabled(bReflowDisabled)
 {
-	assert(parent != nullptr);
+	Q_ASSERT(parent != nullptr);
 
 	setItemDelegate(parent->itemDelegate());
 
@@ -240,7 +239,7 @@ void CReflowDelegate::setOnlyLeaves(bool bOnlyLeaves)
 		m_bOnlyLeaves = bOnlyLeaves;
 
 		QTreeView *pView = parentView();
-		assert(pView != nullptr);
+		Q_ASSERT(pView != nullptr);
 		for (CModelRowForwardIterator itr(pView->model()); itr; ++itr) {
 			if (itr.hasChildren()) {
 				if (!bWasOnlyLeaves) {
@@ -265,7 +264,7 @@ void CReflowDelegate::layoutRow(const QStyleOptionViewItem &option, const QModel
 	if (!index.isValid() || (m_bOnlyLeaves && index.model()->hasChildren(index))) return;
 
 	QTreeView *pView = parentView();
-	assert(pView != nullptr);
+	Q_ASSERT(pView != nullptr);
 	QModelIndex ndxParent(index.parent());
 	int nColumnCount = index.model()->columnCount(ndxParent);
 
@@ -369,7 +368,7 @@ void CReflowDelegate::startReflow()
 void CReflowDelegate::reflowViewport()
 {
 	QTreeView *pView = parentView();
-	assert(pView != nullptr);
+	Q_ASSERT(pView != nullptr);
 	QRect rcVisible = pView->viewport()->rect();
 
 	QModelIndex ndxTop = pView->indexAt(rcVisible.topLeft());
@@ -429,7 +428,7 @@ void CReflowDelegate::reflowTick()
 {
 	if (QApplication::mouseButtons() == 0) {		// Only do reflow if user doesn't have a mouse button pressed:
 		QTreeView *pView = parentView();
-		assert(pView != nullptr);
+		Q_ASSERT(pView != nullptr);
 
 		// QModelIndex() marks the *end* of iteration.  But if we'd really finished, the timer wouldn't still
 		//	be ticking so thus must be that the current position was invalidated, and we need to start over:
@@ -477,7 +476,7 @@ void CReflowDelegate::reflowTick()
 		} else {
 			// For models with no hierarchy, it's OK to do them all at once:
 			QAbstractItemModel *pModel = pView->model();
-			assert(pModel != nullptr);
+			Q_ASSERT(pModel != nullptr);
 			sizeHintChanged(pModel->index(0,0), pModel->index(pModel->rowCount()-1, 0));
 		}
 
@@ -534,7 +533,7 @@ QStyleOptionViewItemV4_t CReflowDelegate::viewOptions(const QModelIndex &index)
 	};
 
 	QTreeView *pView = parentView();
-	assert(pView != nullptr);
+	Q_ASSERT(pView != nullptr);
 	QStyleOptionViewItemV4_t option = static_cast<CSneakyItemView *>(pView)->viewOptionsV4();
 	option.rect = pView->visualRect(index);
 	return option;

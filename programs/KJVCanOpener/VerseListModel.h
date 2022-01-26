@@ -49,8 +49,6 @@
 
 #include <algorithm>
 
-#include <assert.h>
-
 // ============================================================================
 
 // Verse List Model Results Type Enum:
@@ -189,7 +187,7 @@ public:
 	TVerseIndexPtr verseIndex() const { return m_pVerseIndex; }
 
 	inline QString getHeading(bool bForCopying = false) const {		// bForCopying = false for Showing/Displaying the heading, true for Copy mode
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 		if (m_pBibleDatabase.isNull()) return QString();
 		bool bSearchRefs = ((verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS) ||
 							(verseIndex()->resultsType() == VLMRTE_SEARCH_RESULTS_EXCLUDED));		// For Search Results, show word positions too
@@ -235,7 +233,7 @@ public:
 	}
 
 	inline QString getToolTip(const CSearchResultsData &searchResultsData) const {
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 		if (m_pBibleDatabase.isNull()) return QString();
 		QString strToolTip;
 		strToolTip += m_pBibleDatabase->SearchResultToolTip(getIndex(), RIMASK_BOOK | RIMASK_CHAPTER | RIMASK_VERSE);
@@ -252,7 +250,7 @@ public:
 				// Note: This CAN legitimately be NULL if we are intentionally dumping our SearchPhrase
 				//		data.  See CWebChannelObjects::en_searchResultsReady() and the clearing of the
 				//		Parsed Phrases in order to free memory for additional users.  So don't assert here:
-				//assert(pPhrase != nullptr);
+				//Q_ASSERT(pPhrase != nullptr);
 				if (pPhrase == nullptr) continue;
 				if (verseIndex()->resultsType() != VLMRTE_SEARCH_RESULTS_EXCLUDED) {
 					QString strSearchWithinDescription = searchResultsData.m_SearchCriteria.searchWithinDescription(m_pBibleDatabase);
@@ -314,7 +312,7 @@ public:
 	inline uint32_t getChapter() const { return m_pVerseIndex->relIndex().chapter(); }	// Chapter Number within Book (1-n)
 	inline uint32_t getVerse() const { return m_pVerseIndex->relIndex().verse(); }		// Verse Number within Chapter (1-n)
 	uint32_t getIndexNormalized() const {
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 		if (m_pBibleDatabase.isNull()) return 0;
 		return m_pBibleDatabase->NormalizeIndex(m_pVerseIndex->relIndex());
 	}
@@ -325,12 +323,12 @@ public:
 		return TPhraseTag(m_pVerseIndex->relIndex(), m_pBibleDatabase->verseEntry(m_pVerseIndex->relIndex())->m_nNumWrd);
 	}
 	inline unsigned int getPhraseSize(int nTag) const {
-		assert((nTag >= 0) && (nTag < m_lstTags.size()));
+		Q_ASSERT((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return 0;
 		return m_lstTags.at(nTag).count();
 	}
 	inline CRelIndex getPhraseReference(int nTag) const {
-		assert((nTag >= 0) && (nTag < m_lstTags.size()));
+		Q_ASSERT((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((nTag < 0) || (nTag >= m_lstTags.size())) return CRelIndex();
 		return m_lstTags.at(nTag).relIndex();
 	}
@@ -340,9 +338,9 @@ public:
 
 	QStringList getWordList(int nTag) const
 	{
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 		if (m_pBibleDatabase.isNull()) return QStringList();
-		assert((nTag >= 0) && (nTag < m_lstTags.size()));
+		Q_ASSERT((nTag >= 0) && (nTag < m_lstTags.size()));
 		if ((!isSet()) || (nTag < 0) || (nTag >= m_lstTags.size())) return QStringList();
 		QStringList strWords;
 		unsigned int nNumWords = m_lstTags.at(nTag).count();
@@ -365,7 +363,7 @@ public:
 	}
 	static QStringList getVerseAsWordList(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase)
 	{
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QStringList();
 		if (!ndx.isSet()) return QStringList();
 		QStringList strWords;
@@ -449,7 +447,7 @@ public:
 									const CVerseTextRichifierTags &richifierTags,
 									const CBasicHighlighter *pHighlighter = nullptr)
 	{
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
 		return pBibleDatabase->richVerseText(ndx, richifierTags, false, pHighlighter);
@@ -559,7 +557,7 @@ public:
 	}
 	static VERSE_VIEW_MODE_ENUM VLMRTE_to_VVME(VERSE_LIST_MODEL_RESULTS_TYPE_ENUM nResultsType)
 	{
-		assert(nResultsType != VLMRTE_UNDEFINED);
+		Q_ASSERT(nResultsType != VLMRTE_UNDEFINED);
 		return static_cast<VERSE_VIEW_MODE_ENUM>(nResultsType);
 	}
 
@@ -797,11 +795,11 @@ public:
 			case VLMRTE_CROSS_REFS:
 				return m_crossRefsResults;
 			default:
-				assert(false);
+				Q_ASSERT(false);
 		}
 
 		if (nSpecialIndex == -1) return m_undefinedResults;
-		assert((nSpecialIndex >= 0) && (nSpecialIndex < m_vlmrListHighlighters.size()));
+		Q_ASSERT((nSpecialIndex >= 0) && (nSpecialIndex < m_vlmrListHighlighters.size()));
 		return m_vlmrListHighlighters.at(nSpecialIndex);
 	}
 	const TVerseListModelResults &results(const TVerseIndex &ndxVerse) const
@@ -812,7 +810,7 @@ public:
 	{
 		if (!index.isValid()) return results(VVME_to_VLMRTE(m_private.m_nViewMode), -1);
 		TVerseIndex *pVerseIndex = toVerseIndex(index);
-		assert(pVerseIndex->resultsType() == VVME_to_VLMRTE(m_private.m_nViewMode));
+		Q_ASSERT(pVerseIndex->resultsType() == VVME_to_VLMRTE(m_private.m_nViewMode));
 
 		return results(*toVerseIndex(index));
 	}

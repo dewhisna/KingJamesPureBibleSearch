@@ -30,8 +30,6 @@
 #include <QByteArray>
 #include <QIODevice>
 
-#include <assert.h>
-
 CMimeHelper::CMimeHelper()
 {
 
@@ -50,7 +48,7 @@ void CMimeHelper::addPhraseTagToClipboard(const TPhraseTag &tag)
 
 void CMimeHelper::addPhraseTagToMimeData(QMimeData *pMime, const TPhraseTag &tag)
 {
-	assert(pMime != nullptr);
+	Q_ASSERT(pMime != nullptr);
 	QByteArray arrData;
 	QDataStream ds(&arrData, QIODevice::WriteOnly);
 	ds << tag;
@@ -59,7 +57,7 @@ void CMimeHelper::addPhraseTagToMimeData(QMimeData *pMime, const TPhraseTag &tag
 
 TPhraseTag CMimeHelper::getPhraseTagFromMimeData(const QMimeData *pMime)
 {
-	assert(pMime != nullptr);
+	Q_ASSERT(pMime != nullptr);
 	QByteArray arrData(pMime->data(g_constrPhraseTagMimeType));
 	QDataStream ds(arrData);
 	TPhraseTag tag;

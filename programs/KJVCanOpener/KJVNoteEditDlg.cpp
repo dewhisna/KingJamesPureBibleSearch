@@ -73,8 +73,8 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		m_bIsDirty(false),
 		m_bHaveGeometry(false)
 {
-	assert(!pBibleDatabase.isNull());
-	assert(!pUserNotesDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(!pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -91,7 +91,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	//	Swapout the textEdit from the layout with a QwwRichTextEdit:
 
 	ndx = ui.gridLayoutMain->indexOf(ui.textEdit);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 	ui.gridLayoutMain->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
@@ -113,7 +113,7 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	//	Swapout the buttonBackgroundColor from the layout with a QwwColorButton:
 
 	ndx = ui.verticalLayoutBackgroundButtons->indexOf(ui.buttonBackgroundColor);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 
 	m_pBackgroundColorButton = new QwwColorButton(this);
@@ -140,9 +140,9 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 
 	// Setup Dialog buttons:
 
-	assert(ui.buttonBox->button(QDialogButtonBox::Ok) != nullptr);
+	Q_ASSERT(ui.buttonBox->button(QDialogButtonBox::Ok) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Ok)->setIcon(QIcon(":/res/ok_blue-24.png"));
-	assert(ui.buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
+	Q_ASSERT(ui.buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
 	ui.buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
 	m_pDeleteNoteButton = ui.buttonBox->addButton(tr("Delete Note", "MainMenu"), QDialogButtonBox::ActionRole);
 	m_pDeleteNoteButton->setIcon(QIcon(":/res/deletered1-24.png"));
@@ -204,8 +204,8 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 
 void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 {
-	assert(m_pRichTextEdit != nullptr);
-	assert(!m_pUserNotesDatabase.isNull());
+	Q_ASSERT(m_pRichTextEdit != nullptr);
+	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
 	m_ndxLocation = ndxLocation;
 	m_ndxLocation.setWord(0);		// Work with whole verses only
@@ -231,8 +231,8 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 
 void CKJVNoteEditDlg::accept()
 {
-	assert(m_pRichTextEdit != nullptr);
-	assert(!m_pUserNotesDatabase.isNull());
+	Q_ASSERT(m_pRichTextEdit != nullptr);
+	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
 	if (ui.widgetNoteKeywords->haveUnenteredKeywords()) {
 		int nResult = displayWarning(this, windowTitle(), tr("It appears you have typed some keyword text, but "
@@ -303,8 +303,8 @@ void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
 
 void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 {
-	assert(button != nullptr);
-	assert(!m_pUserNotesDatabase.isNull());
+	Q_ASSERT(button != nullptr);
+	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
 	if (button == m_pDeleteNoteButton) {
 		int nResult = displayWarning(this, windowTitle(), tr("Are you sure you want to completely delete this note??", "Errors"),

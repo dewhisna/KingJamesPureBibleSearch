@@ -41,8 +41,6 @@
 #include <algorithm>
 #include <string>
 
-#include <assert.h>
-
 #define PHRASE_COMPLETER_BUTTON_SIZE_X 24
 #define PHRASE_COMPLETER_BUTTON_SIZE_Y 24
 
@@ -78,7 +76,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 		m_pActionSelectAll(nullptr),
 		m_pStatusAction(nullptr)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 
 	setAcceptRichText(false);
 	setUndoRedoEnabled(false);		// TODO : If we ever address what to do with undo/redo, then re-enable this
@@ -389,7 +387,7 @@ bool CPhraseLineEdit::canInsertFromMimeData(const QMimeData *source) const
 
 void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (!(textInteractionFlags() & Qt::TextEditable) || !source) return;
 
@@ -501,12 +499,12 @@ void CPhraseLineEdit::contextMenuEvent(QContextMenuEvent *event)
 
 void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	if (m_pBibleDatabase.isNull()) return;
-	assert(m_pCommonPhrasesCompleter != nullptr);
+	Q_ASSERT(m_pCommonPhrasesCompleter != nullptr);
 	if (m_pCommonPhrasesCompleter == nullptr) return;
 	CPhraseListModel *pModel = (CPhraseListModel *)(m_pCommonPhrasesCompleter->model());
-	assert(pModel != nullptr);
+	Q_ASSERT(pModel != nullptr);
 	if (pModel == nullptr) return;
 
 	CPhraseList phrases = m_pBibleDatabase->phraseList();
@@ -533,7 +531,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	m_pMatchingPhrasesModel(nullptr),
 	m_bMatchingPhrasesModelCurrent(false)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -549,7 +547,7 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	//		can set the database on:
 
 	int ndx = ui.gridLayout->indexOf(ui.editPhrase);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 	int nRow;
 	int nCol;
@@ -627,7 +625,7 @@ CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
 
 bool CKJVSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
 {
-	assert(pEvent != nullptr);
+	Q_ASSERT(pEvent != nullptr);
 
 	if ((pEvent->type() == QEvent::KeyPress) && (pObject == ui.treeViewMatchingPhrases)) {
 		QKeyEvent *pKeyEvent = static_cast<QKeyEvent *>(pEvent);
@@ -722,7 +720,7 @@ CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
 
 void CKJVSearchPhraseEdit::en_phraseChanged()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Hide list of matching phrases so we can invalidate its
 	//		contents.  It will update when uses expands it:
@@ -732,7 +730,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	setShowMatchingPhrases(false, true);		// This must always be done so we can invalidate our listModel()
 
 	const CParsedPhrase *pPhrase = parsedPhrase();
-	assert(pPhrase != nullptr);
+	Q_ASSERT(pPhrase != nullptr);
 
 	// Make sure any pending updates are complete:
 	phraseEditor()->processPendingUpdateCompleter();
@@ -878,7 +876,7 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 	QStringList lstMatchingPhrases = (bClearMatchingPhraseList ? QStringList() : phraseEditor()->GetMatchingPhrases());
 
 	if (((!ui.treeViewMatchingPhrases->isVisible()) && (bShow) && (!m_bMatchingPhrasesModelCurrent)) || (bClearMatchingPhraseList)) {
-		assert(m_pMatchingPhrasesModel != nullptr);
+		Q_ASSERT(m_pMatchingPhrasesModel != nullptr);
 		int nPhraseTreeHeight = 0;
 		m_pMatchingPhrasesModel->setStringList(lstMatchingPhrases);
 		m_bMatchingPhrasesModelCurrent = !bClearMatchingPhraseList;

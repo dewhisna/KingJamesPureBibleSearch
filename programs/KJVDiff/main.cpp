@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 	}
 	if (nReadStatus != 0) return nReadStatus;
 
-	assert(TBibleDatabaseList::instance()->size() == 2);
+	Q_ASSERT(TBibleDatabaseList::instance()->size() == 2);
 	CBibleDatabasePtr pBible1 = TBibleDatabaseList::instance()->at(0);
 	CBibleDatabasePtr pBible2 = TBibleDatabaseList::instance()->at(1);
 
@@ -384,7 +384,7 @@ int main(int argc, char *argv[])
 			const CBookEntry *pBook1 = pBible1->bookEntry(nBk);
 			const CBookEntry *pBook2 = pBible2->bookEntry(nBk);
 			if ((pBook1 == nullptr) || (pBook2 == nullptr)) {
-				assert((pBook1 != nullptr) || (pBook2 != nullptr));		// Must have one or the other!
+				Q_ASSERT((pBook1 != nullptr) || (pBook2 != nullptr));		// Must have one or the other!
 				std::cout << "\nBook: ";
 				std::cout << ((pBook1 != nullptr) ? passageReference(pBible1, bUseAbbrevRefs, ndxBook, true).toUtf8().data() : "<<missing>>");
 				std::cout << " : ";
@@ -401,7 +401,7 @@ int main(int argc, char *argv[])
 				const CChapterEntry *pChapter1 = ((nChp1 != 0) ? pBible1->chapterEntry(ndxChapter1) : nullptr);
 				const CChapterEntry *pChapter2 = ((nChp2 != 0) ? pBible2->chapterEntry(ndxChapter2) : nullptr);
 				if ((nChp1 != 0) || (nChp2 != 0)) {
-					assert((pChapter1 != nullptr) || (pChapter2 != nullptr));		// Must have one or the other!
+					Q_ASSERT((pChapter1 != nullptr) || (pChapter2 != nullptr));		// Must have one or the other!
 					if ((pChapter1 == nullptr) || (pChapter2 == nullptr)) {
 						std::cout << "\nChapter: ";
 						std::cout << ((pChapter1 != nullptr) ? passageReference(pBible1, bUseAbbrevRefs, ndxChapter1, true).toUtf8().data() : "<<missing>>");
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
 					CRelIndex ndxVerse2 = CRelIndex(nBk, nChp2, nVrs2, ((nChp2 == 0) || (nVrs2 == 0)) ? 1 : 0);
 					const CVerseEntry *pVerse1 = pBible1->verseEntry(ndxVerse1);
 					const CVerseEntry *pVerse2 = pBible2->verseEntry(ndxVerse2);
-					assert((pVerse1 != nullptr) || (pVerse2 != nullptr));		// Must have one or the other!
+					Q_ASSERT((pVerse1 != nullptr) || (pVerse2 != nullptr));		// Must have one or the other!
 					QString strRef1 = ((pVerse1 != nullptr) ? passageReference(pBible1, bUseAbbrevRefs, ndxVerse1, true) : QString("<<missing>>"));
 					QString strRef2 = ((pVerse2 != nullptr) ? passageReference(pBible2, bUseAbbrevRefs, ndxVerse2, true) : QString("<<missing>>"));
 					QString strDiffText = QString("%1 : %2\n").arg(strRef1).arg(strRef2);
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
 
 				int nComp = strKeyWord1.compare(strKeyWord2);
 				if (nComp == 0) {
-					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
+					Q_ASSERT(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
 					if (itrWordEntry1->word() != itrWordEntry2->word()) {
 						strWordDiffOutput += itrWordEntry1->word() + QString(" ").repeated(COLUMN_SPACE + nMaxWordSize - itrWordEntry1->word().size()) + itrWordEntry2->word() + "\n";
 					}
@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
 				} else {
 					// We can only be here if nothing is greater than something or we
 					//		ran out of input on both sides and yet didn't exit the loop:
-					assert(false);
+					Q_ASSERT(false);
 				}
 			}
 		} else {
@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
 
 				int nComp = strKeyWord1.compare(strKeyWord2);
 				if (nComp == 0) {
-					assert(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
+					Q_ASSERT(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
 					if (!bEOL1) ++itrWordEntry1;
 					if (!bEOL2) ++itrWordEntry2;
 				} else if (nComp < 0) {
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
 				} else {
 					// We can only be here if nothing is greater than something or we
 					//		ran out of input on both sides and yet didn't exit the loop:
-					assert(false);
+					Q_ASSERT(false);
 				}
 			}
 		}

@@ -35,8 +35,6 @@
 #include <QStringList>
 #include <QMetaType>
 
-#include <assert.h>
-
 // ============================================================================
 
 #define KJN_FILE_VERSION 1				// Current KJN File Version (King James Notes file)
@@ -111,7 +109,7 @@ public:
 
 	const QStringList &keywordList() const { return m_lstKeywords; }
 	int keywordCount() const { return m_lstKeywords.size(); }
-	QString keyword(int ndx) const { assert((ndx >= 0) && (ndx < m_lstKeywords.size())); return m_lstKeywords.at(ndx); }
+	QString keyword(int ndx) const { Q_ASSERT((ndx >= 0) && (ndx < m_lstKeywords.size())); return m_lstKeywords.at(ndx); }
 	void setKeywordList(const QStringList &lstKeywords) { m_lstKeywords = lstKeywords; }
 	void addKeyword(const QString &strKeyword) { if (!m_lstKeywords.contains(strKeyword, Qt::CaseInsensitive)) m_lstKeywords.append(strKeyword); }
 	void clearKeywords() { m_lstKeywords.clear(); }
@@ -207,7 +205,7 @@ public:
 
 	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
 	{
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		return highlighterTagsFor(pBibleDatabase->highlighterUUID());
 	}
 	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
@@ -218,7 +216,7 @@ public:
 	}
 	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), strUserDefinedHighlighterName);
 	}
 	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const

@@ -52,8 +52,6 @@
 #include <algorithm>
 #include <string>
 
-#include <assert.h>
-
 // ============================================================================
 
 //#define DEBUG_CURSOR_SELECTION
@@ -365,7 +363,7 @@ CParsedPhrase &CParsedPhrase::operator=(const CParsedPhrase &aSrc)
 		}
 		*subPhrase = *aSrc.m_lstSubPhrases.at(ndx).data();
 	}
-	assert(!m_lstSubPhrases.isEmpty());
+	Q_ASSERT(!m_lstSubPhrases.isEmpty());
 
 	m_bHasChanged = false;
 
@@ -416,7 +414,7 @@ bool CParsedPhrase::atEndOfSubPhrase() const
 {
 	if (m_nActiveSubPhrase < 0) return true;
 
-	assert((m_nActiveSubPhrase >=0) && (m_nActiveSubPhrase < m_lstSubPhrases.size()));
+	Q_ASSERT((m_nActiveSubPhrase >=0) && (m_nActiveSubPhrase < m_lstSubPhrases.size()));
 	return (m_lstSubPhrases.at(m_nActiveSubPhrase)->GetCursorWordPos() == m_lstSubPhrases.at(m_nActiveSubPhrase)->m_lstWords.size());
 }
 
@@ -439,7 +437,7 @@ unsigned int CParsedPhrase::GetNumberOfMatches() const
 
 const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_cache_lstPhraseTagResults.size()) return m_cache_lstPhraseTagResults;
 	if (m_lstSubPhrases.isEmpty()) return m_cache_lstPhraseTagResults;		// This condition should never happen since we always have m_pPrimarySubPhrase in the list
@@ -498,7 +496,7 @@ static bool ascendingLessThanMatchingPhrases(const QPair<QString, int> &s1, cons
 
 QStringList CParsedPhrase::GetMatchingPhrases() const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	const TPhraseTagList &lstTags = GetPhraseTagSearchResults();
 	QList<QPair<QString, int> > lstMatchingPhrasesSort;
@@ -539,7 +537,7 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 QString CParsedPhrase::GetCursorWord() const
 {
 	if (m_nActiveSubPhrase < 0) return QString();
-	assert(m_nActiveSubPhrase < m_lstSubPhrases.size());
+	Q_ASSERT(m_nActiveSubPhrase < m_lstSubPhrases.size());
 
 	return m_lstSubPhrases.at(m_nActiveSubPhrase)->GetCursorWord();
 }
@@ -547,7 +545,7 @@ QString CParsedPhrase::GetCursorWord() const
 int CParsedPhrase::GetCursorWordPos() const
 {
 	if (m_nActiveSubPhrase < 0) return -1;
-	assert(m_nActiveSubPhrase < m_lstSubPhrases.size());
+	Q_ASSERT(m_nActiveSubPhrase < m_lstSubPhrases.size());
 
 	int posWord = 0;
 	for (int ndxSubPhrase=0; ndxSubPhrase<m_nActiveSubPhrase; ++ndxSubPhrase) {
@@ -669,7 +667,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	myCursor.selectCursorToLineEnd();
 	QString strComplete = myCursor.selectedText();
 
-	assert(nCursorPos <= strComplete.size());
+	Q_ASSERT(nCursorPos <= strComplete.size());
 
 	QString strLeftText = strComplete.left(nCursorPos);
 	QString strRightText = strComplete.mid(nCursorPos);
@@ -705,7 +703,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	}
 
 	ParsePhrase(strComplete);
-	assert(!m_lstSubPhrases.isEmpty());
+	Q_ASSERT(!m_lstSubPhrases.isEmpty());
 
 	strComplete.replace(QString("|"), QString(" | "));		// Make sure we have separation around the "OR" operators so we break them into individual elements below...
 #if QT_VERSION >= 0x050E00
@@ -728,7 +726,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	QStringList lstRightWords = strRightText.normalized(QString::NormalizationForm_C).split(QRegExp("\\s+"), My_QString_SkipEmptyParts);
 #endif
 
-	assert(lstCompleteWords.size() == (lstLeftWords.size() + lstRightWords.size()));
+	Q_ASSERT(lstCompleteWords.size() == (lstLeftWords.size() + lstRightWords.size()));
 
 	int nCursorWord = (lstLeftWords.size() ? lstLeftWords.size()-1 : 0);
 	QString strCursorWord = (lstLeftWords.size() ? lstLeftWords.last() : QString());
@@ -763,11 +761,11 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	//		above after the call to ParsePhrase(strComplete), so there's no need to
 	//		recheck that:
 	if (m_nActiveSubPhrase == -1) {
-		assert(nCursorWord == 0);		// If we aren't at a non-existent word at the end of an empty phrase, then something went wrong above
+		Q_ASSERT(nCursorWord == 0);		// If we aren't at a non-existent word at the end of an empty phrase, then something went wrong above
 		m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
 		if (nCursorWord < m_lstSubPhrases[m_nActiveSubPhrase]->m_lstWords.size()) {
 			// I don't think this case can ever happen, as we should have set the word in the loop above:
-			assert(false);
+			Q_ASSERT(false);
 			m_lstSubPhrases[m_nActiveSubPhrase]->m_strCursorWord = m_lstSubPhrases.at(m_nActiveSubPhrase)->m_lstWords.at(nCursorWord);
 		} else {
 			m_lstSubPhrases[m_nActiveSubPhrase]->m_strCursorWord = QString();
@@ -783,7 +781,7 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase, bool bFindWords)
 	clearCache();
 
 	QStringList lstPhrases = strPhrase.split(QChar('|'));
-	assert(lstPhrases.size() >= 1);
+	Q_ASSERT(lstPhrases.size() >= 1);
 
 	m_lstSubPhrases.clear();
 	m_lstSubPhrases.reserve(lstPhrases.size());
@@ -797,7 +795,7 @@ void CParsedPhrase::ParsePhrase(const QString &strPhrase, bool bFindWords)
 		}
 		subPhrase->ParsePhrase(lstPhrases.at(ndx));
 	}
-	assert(!m_lstSubPhrases.isEmpty());
+	Q_ASSERT(!m_lstSubPhrases.isEmpty());
 
 	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
 	if (bFindWords) FindWords();
@@ -831,7 +829,7 @@ void CParsedPhrase::ParsePhrase(const QStringList &lstPhrase, bool bFindWords)
 		if (ndxFrom != -1) ++ndxFrom;			// Skip the 'OR'
 	}
 
-	assert(!m_lstSubPhrases.isEmpty());			// Should have inserted a phrase above
+	Q_ASSERT(!m_lstSubPhrases.isEmpty());			// Should have inserted a phrase above
 	if (m_lstSubPhrases.isEmpty()) attachSubPhrase(m_pPrimarySubPhrase);	// Failsafe
 
 	m_nActiveSubPhrase = m_lstSubPhrases.size()-1;
@@ -854,10 +852,10 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 {
 	clearCache();			// Clear cache since it will no longer be valid
 
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	int nCursorWord = subPhrase.m_nCursorWord;
-	assert((nCursorWord >= 0) && (nCursorWord <= subPhrase.m_lstWords.size()));
+	Q_ASSERT((nCursorWord >= 0) && (nCursorWord <= subPhrase.m_lstWords.size()));
 
 	bool bComputedNextWords = false;
 	if (!bResume) {
@@ -914,7 +912,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 			} else {
 				bInFirstWordStar = false;
 				int nLastWord = m_pBibleDatabase->lstWordList().lastIndexOf(expCurWordWildKey);
-				assert(nLastWord != -1);			// Should have at least one match since forward search matched above!
+				Q_ASSERT(nLastWord != -1);			// Should have at least one match since forward search matched above!
 
 				for (int ndxWord = nFirstWord; ndxWord <= nLastWord; ++ndxWord) {
 #if QT_VERSION >= 0x050F00
@@ -923,7 +921,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 					if (!expCurWordExactKey.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
 #endif
 					TWordListMap::const_iterator itrWordMap = m_pBibleDatabase->mapWordList().find(m_pBibleDatabase->lstWordList().at(ndxWord));
-					assert(itrWordMap != m_pBibleDatabase->mapWordList().end());
+					Q_ASSERT(itrWordMap != m_pBibleDatabase->mapWordList().end());
 					if (itrWordMap == m_pBibleDatabase->mapWordList().end()) continue;
 
 					const CWordEntry &wordEntry = itrWordMap->second;		// Entry for current word
@@ -958,7 +956,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 				for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 					if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) > m_pBibleDatabase->bibleEntry().m_nNumWrd) continue;
 					const CConcordanceEntry *pNextWordEntry = m_pBibleDatabase->concordanceEntryForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
-					assert(pNextWordEntry != nullptr);
+					Q_ASSERT(pNextWordEntry != nullptr);
 					const QString &strNextWord = ((!isAccentSensitive()) ?
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->decomposedWord() : pNextWordEntry->decomposedHyphenWord()) :
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->deApostrWord() : pNextWordEntry->deApostrHyphenWord()));
@@ -999,7 +997,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
 							int nConcordanceIndex = m_pBibleDatabase->concordanceIndexForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
-							assert(nConcordanceIndex != -1);
+							Q_ASSERT(nConcordanceIndex != -1);
 							setNextWords.insert(nConcordanceIndex);
 						}
 					}
@@ -1203,7 +1201,7 @@ void CPhraseNavigator::en_changedCopyOptions()
 
 int CPhraseNavigator::anchorPosition(const QString &strAnchorName) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (strAnchorName.isEmpty()) return -1;
 
@@ -1258,7 +1256,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool bClear, const TPhraseTagList &tagsCurrent) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	CPhraseCursor myCursor(&m_TextDocument);
 
@@ -1308,7 +1306,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 			if ((aHighlighter.isContinuous()) & (ndxNormalStart != ndxNormalEnd)) {
 				CRelIndex ndxCurrentWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalStart));
 				const CVerseEntry *pCurrentWordVerseEntry = m_pBibleDatabase->verseEntry(ndxCurrentWord);
-				assert(pCurrentWordVerseEntry != nullptr);
+				Q_ASSERT(pCurrentWordVerseEntry != nullptr);
 				if (pCurrentWordVerseEntry) {
 					unsigned int nVrsWordCount = pCurrentWordVerseEntry->m_nNumWrd;
 					uint32_t ndxNormalLastVerseWord = ndxNormalStart + nVrsWordCount - ndxCurrentWord.word();
@@ -1318,9 +1316,9 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					if (nNextLastVerseWordPos != -1) {
 						nNextLastVerseWordPos += m_pBibleDatabase->wordAtIndex(ndxNormalLastVerseWord).size();
 					} else {
-						assert(false);
+						Q_ASSERT(false);
 					}
-					assert(nWordEndPos <= nNextLastVerseWordPos);
+					Q_ASSERT(nWordEndPos <= nNextLastVerseWordPos);
 					nWordEndPos = nNextLastVerseWordPos;
 					ndxNormalStart = ndxNormalLastVerseWord;
 				}
@@ -1333,7 +1331,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					myCursor.mergeCharFormat(fmtNew);
 					myCursor.clearSelection();
 				} else {
-					assert(false);
+					Q_ASSERT(false);
 				}
 			}
 
@@ -1357,14 +1355,14 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 
 		// Main Chapter:
 		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxDisplay);
-		assert(pChapter != nullptr);
+		Q_ASSERT(pChapter != nullptr);
 		tagsCurrentDisplay.append((TPhraseTag(ndxDisplay, pChapter->m_nNumWrd)));
 
 		// Verse Before:
 		CRelIndex ndxVerseBefore = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndxDisplay.book(), ndxDisplay.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter
 		if (ndxVerseBefore.isSet()) {
 			const CVerseEntry *pVerseBefore = m_pBibleDatabase->verseEntry(ndxVerseBefore);
-			assert(pVerseBefore != nullptr);
+			Q_ASSERT(pVerseBefore != nullptr);
 			tagsCurrentDisplay.append(TPhraseTag(ndxVerseBefore, pVerseBefore->m_nNumWrd));
 		}
 
@@ -1372,17 +1370,17 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 		CRelIndex ndxVerseAfter = m_pBibleDatabase->calcRelIndex(0, 0, 1, 0, 0, CRelIndex(ndxDisplay.book(), ndxDisplay.chapter(), 1, 1), false);	// Calculate first verse of next chapter
 		if (ndxVerseAfter.isSet()) {
 			const CVerseEntry *pVerseAfter = m_pBibleDatabase->verseEntry(ndxVerseAfter);
-			assert(pVerseAfter != nullptr);
+			Q_ASSERT(pVerseAfter != nullptr);
 			tagsCurrentDisplay.append(TPhraseTag(ndxVerseAfter, pVerseAfter->m_nNumWrd));
 		}
 
 		// If this book has a colophon and this is the last chapter of that book, we
 		//	need to add it as well:
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxDisplay.book());
-		assert(pBook != nullptr);
+		Q_ASSERT(pBook != nullptr);
 		if ((pBook->m_bHaveColophon) && (ndxDisplay.chapter() == pBook->m_nNumChp)) {
 			const CVerseEntry *pBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxDisplay.book(), 0, 0, 0));
-			assert(pBookColophon != nullptr);
+			Q_ASSERT(pBookColophon != nullptr);
 			tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxDisplay.book(), 0, 0, 1), pBookColophon->m_nNumWrd));
 		}
 
@@ -1391,10 +1389,10 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 		//	and other markup for it:
 		if ((ndxVerseBefore.isSet()) && (ndxVerseBefore.book() != ndxDisplay.book())) {
 			const CBookEntry *pBookVerseBefore = m_pBibleDatabase->bookEntry(ndxVerseBefore.book());
-			assert(pBookVerseBefore != nullptr);
+			Q_ASSERT(pBookVerseBefore != nullptr);
 			if (pBookVerseBefore->m_bHaveColophon) {
 				const CVerseEntry *pPrevBookColophon = m_pBibleDatabase->verseEntry(CRelIndex(ndxVerseBefore.book(), 0, 0, 0));
-				assert(pPrevBookColophon != nullptr);
+				Q_ASSERT(pPrevBookColophon != nullptr);
 				tagsCurrentDisplay.append(TPhraseTag(CRelIndex(ndxVerseBefore.book(), 0, 0, 1), pPrevBookColophon->m_nNumWrd));
 			}
 		}
@@ -1405,8 +1403,8 @@ TPhraseTagList CPhraseNavigator::currentChapterDisplayPhraseTagList(const CRelIn
 
 QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO)
 {
-	assert(!m_pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	bool bTotalColophonAnchor = (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
 
@@ -1417,7 +1415,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	if (ndx.book() == 0) return QString();
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
-		assert(false);
+		Q_ASSERT(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -1454,7 +1452,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -1582,8 +1580,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
 {
-	assert(!m_pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	bool bTotalColophonAnchor = (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
 	bool bTotalSuperscriptionAnchor =  (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoSuperscriptAnchors));
@@ -1608,7 +1606,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndx);
 	if (pChapter == nullptr) {
-		assert(false);
+		Q_ASSERT(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -1616,7 +1614,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	}
 
 	if (ndx.chapter() > book.m_nNumChp) {
-		assert(false);
+		Q_ASSERT(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -1660,7 +1658,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -1906,7 +1904,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		ndxVerse = CRelIndex(ndx.book(), ndx.chapter(), ndxVrs+1, 0);
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
 		if (pVerse == nullptr) {
-			assert(false);
+			Q_ASSERT(false);
 			continue;
 		}
 		if ((!bStartedText) && (pVerse->m_nNumWrd == 0)) continue;			// Don't print verses that are empty if we haven't started printing anything for the chapter yet
@@ -2061,7 +2059,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		CRelIndex ndxBookNext(relNext.book(), 0, 0, 0);
 		const CBookEntry &bookNext = *m_pBibleDatabase->bookEntry(relNext.book());
 		const CChapterEntry *pChapterNext = m_pBibleDatabase->chapterEntry(ndxBookChapNext);
-		assert(pChapterNext != nullptr);
+		Q_ASSERT(pChapterNext != nullptr);
 
 		// Print Heading for this Book:
 		if (relNext.book() != ndx.book()) {
@@ -2216,7 +2214,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		m_TextDocument.clear();
@@ -2230,7 +2228,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 	}
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
-		assert(false);
+		Q_ASSERT(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -2238,7 +2236,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 	}
 
 	if (ndx.chapter() > m_pBibleDatabase->bookEntry(ndx.book())->m_nNumChp) {
-		assert(false);
+		Q_ASSERT(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -2249,7 +2247,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 
 	if (((pChapter != nullptr) && (ndx.verse() > pChapter->m_nNumVrs)) ||
 		((pChapter == nullptr) && (ndx.verse() != 0))) {
-		assert(false);
+		Q_ASSERT(false);
 		if ((flagsTRO & TRO_InnerHTML) == 0) {
 			emit changedDocumentText();
 		}
@@ -2281,7 +2279,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -2322,7 +2320,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 	do {
 		const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxVerse);
 		if (pVerse == nullptr) {
-			assert(false);
+			Q_ASSERT(false);
 			if ((flagsTRO & TRO_InnerHTML) == 0) {
 				emit changedDocumentText();
 			}
@@ -2453,7 +2451,7 @@ typedef QList<TRelIndexPair> TRelIndexPairList;
 
 QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	m_TextDocument.clear();
 
@@ -2476,7 +2474,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 		CRelIndex ndxLocalFirst = m_pBibleDatabase->calcRelIndex(tagPassage.relIndex(), CBibleDatabase::RIME_Absolute);
 		if (!ndxLocalFirst.isSet()) continue;	// Above absolute calculation can deem the reference invalid
 		if (ndxLocalFirst != tagPassage.relIndex()) continue;		// If for some reason the above absolute calculation (normalization) changed our reference (i.e. incomplete text database), toss it as it isn't in this database anyway
-		assert(ndxLocalFirst.word() == 1);		// Passages should always begin with the first word of a verse.  Plus this must point to first word so normalize will work correctly
+		Q_ASSERT(ndxLocalFirst.word() == 1);		// Passages should always begin with the first word of a verse.  Plus this must point to first word so normalize will work correctly
 		CRelIndex ndxLocalLast;
 		if ((ndxLocalFirst.isColophon()) || (ndxLocalFirst.isSuperscription())) {
 			ndxLocalLast = ndxLocalFirst;
@@ -2484,7 +2482,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 			ndxLocalLast = m_pBibleDatabase->calcRelIndex(0, tagPassage.verseCount()-1, 0, 0, 0, ndxLocalFirst);		// Add number of verses to find last verse to output
 		}
 		if (!ndxLocalLast.isSet()) continue;	// Note: If the passage tag we were given is totally outside of the text of the Bible Database, the calculate ndxLocalLast won't be set, so toss this entry
-		assert(ndxLocalLast.word() == 1);		// Note: When we calculate next verse, we'll automatically resolve to the first word.  Leave it at 1st word so our loop compare will work
+		Q_ASSERT(ndxLocalLast.word() == 1);		// Note: When we calculate next verse, we'll automatically resolve to the first word.  Leave it at 1st word so our loop compare will work
 
 		if ((ndxLocalFirst.isColophon()) && (!CPersistentSettings::instance()->copyColophons())) continue;
 		if ((ndxLocalFirst.isSuperscription()) && (!CPersistentSettings::instance()->copySuperscriptions())) continue;
@@ -2518,7 +2516,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -2574,7 +2572,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 											.arg((!ndxFirst.isSuperscription()) ? QString("%1").arg(ndxFirst.verse()) : m_pBibleDatabase->translatedSuperscriptionString())
 											.arg((!ndxLast.isSuperscription()) ? QString("%1").arg(ndxLast.verse()) : m_pBibleDatabase->translatedSuperscriptionString());
 				} else {
-					assert(false);		// Colophons (chapter==0) can't have superscriptions or verses
+					Q_ASSERT(false);		// Colophons (chapter==0) can't have superscriptions or verses
 				}
 			}
 		} else {
@@ -2731,7 +2729,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 						scriptureHTML.appendLiteralText(QString("%1").arg(strBookChapterVerse));
 						break;
 					default:
-						assert(false);
+						Q_ASSERT(false);
 						break;
 				}
 				if (CPersistentSettings::instance()->verseNumbersInBold()) scriptureHTML.endBold();
@@ -2814,7 +2812,7 @@ QString CPhraseNavigator::referenceStartingDelimiter()
 		case RDME_PARENTHESES:
 			return QString("(");
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 	return QString();
@@ -2832,7 +2830,7 @@ QString CPhraseNavigator::referenceEndingDelimiter()
 		case RDME_PARENTHESES:
 			return QString(")");
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 	return QString();
@@ -2840,7 +2838,7 @@ QString CPhraseNavigator::referenceEndingDelimiter()
 
 CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCursor, bool bRecursion) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	TPhraseTag tag;
 
@@ -2973,7 +2971,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 	unsigned int nWordCount = 0;
 
 	if ((ndxNormFirst != 0) && (ndxNormLast != 0)) {
-		assert(ndxNormLast >= ndxNormFirst);
+		Q_ASSERT(ndxNormLast >= ndxNormFirst);
 		nWordCount = (ndxNormLast - ndxNormFirst + 1);
 	}
 
@@ -3009,7 +3007,7 @@ CSelectionPhraseTagList CPhraseNavigator::getSelection(const CPhraseCursor &aCur
 
 CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aCursor) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	CSelectedPhraseList lstSelectedPhrases;
 
@@ -3040,7 +3038,7 @@ CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aC
 		static const CVerseTextPlainRichifierTags tagsRichifier;
 		while ((nCount > 0) && (ndxRel.isSet())) {
 			const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxRel);
-			assert(pVerse != nullptr);
+			Q_ASSERT(pVerse != nullptr);
 			strPhrase += CVerseTextRichifier::parse(ndxRel, m_pBibleDatabase.data(), pVerse, tagsRichifier, false, &nCount);
 			if (nCount) {
 				// Goto the first word of this verse and add the number of words in this verse to get to start of next verse:
@@ -3069,7 +3067,7 @@ CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aC
 
 void CPhraseNavigator::removeAnchors()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Note: I discovered in this that just moving the cursor one character
 	//		to the right at a time and looking for anchors wasn't sufficient.
@@ -3119,7 +3117,7 @@ void CPhraseNavigator::removeAnchors()
 
 void CPhraseEditNavigator::selectWords(const TPhraseTag &tag)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	CRelIndex ndxScroll = tag.relIndex();
 	if (!ndxScroll.isColophon()) {
@@ -3172,9 +3170,9 @@ CSelectedPhraseList CPhraseEditNavigator::getSelectedPhrases() const
 
 bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	assert(pHelpEvent != nullptr);
+	Q_ASSERT(pHelpEvent != nullptr);
 	CSelectionPhraseTagList lstRefSelection = getSelection(m_TextEditor.cursorForPosition(pHelpEvent->pos()));
 	TPhraseTag tagReference = TPhraseTag(lstRefSelection.primarySelection().relIndex(), 1);
 	QString strToolTip = getToolTip(tagReference, selection);
@@ -3203,7 +3201,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, const Q
 
 bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	QString strToolTip = getToolTip(tag, selection);
 
@@ -3233,7 +3231,7 @@ bool CPhraseEditNavigator::handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursor
 
 void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	doHighlighting(aHighlighter, true);
 	TPhraseTagList tagsToHighlight;
@@ -3256,7 +3254,7 @@ void CPhraseEditNavigator::highlightCursorFollowTag(CCursorFollowHighlighter &aH
 
 QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType, bool bPlainText)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 
 	QString strToolTip;
 
@@ -3297,7 +3295,7 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 						}
 						if ((ndx == 7u) && (nCount > 7u)) strToolTip += " ...";
 					} else {
-						assert(false);
+						Q_ASSERT(false);
 						strToolTip += "???";
 					}
 					strToolTip += "\"\n";
@@ -3307,7 +3305,7 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 			if ((nToolTipType == TTE_COMPLETE) ||
 				(nToolTipType == TTE_STATISTICS_ONLY)) {
 				if (ndxReference.book() != 0) {
-					assert(ndxReference.book() <= pBibleDatabase->bibleEntry().m_nNumBk);
+					Q_ASSERT(ndxReference.book() <= pBibleDatabase->bibleEntry().m_nNumBk);
 					if (ndxReference.book() <= pBibleDatabase->bibleEntry().m_nNumBk) {
 						if (nToolTipType == TTE_COMPLETE) {
 							if (!bPlainText) {
@@ -3321,13 +3319,13 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 												"    " + tr("%n Verse(s)", "Statistics", pBibleDatabase->bookEntry(ndxReference.book())->m_nNumVrs) + "\n"
 												"    " + tr("%n Word(s)", "Statistics", pBibleDatabase->bookEntry(ndxReference.book())->m_nNumWrd) + "\n";
 						if (ndxReference.chapter() != 0) {
-							assert(ndxReference.chapter() <= pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
+							Q_ASSERT(ndxReference.chapter() <= pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp);
 							if (ndxReference.chapter() <= pBibleDatabase->bookEntry(ndxReference.book())->m_nNumChp) {
 								strToolTip += QString("\n%1 %2 ").arg(pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()) + tr("contains:", "Statistics") + "\n"
 												"    " + tr("%n Verse(s)", "Statistics", pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) + "\n"
 												"    " + tr("%n Word(s)", "Statistics", pBibleDatabase->chapterEntry(ndxReference)->m_nNumWrd) + "\n";
 								if ((!bHaveSelection) && (ndxReference.verse() != 0)) {
-									assert(ndxReference.verse() <= pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
+									Q_ASSERT(ndxReference.verse() <= pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs);
 									if (ndxReference.verse() <= pBibleDatabase->chapterEntry(ndxReference)->m_nNumVrs) {
 										strToolTip += QString("\n%1 %2:%3 ").arg(pBibleDatabase->bookName(ndxReference)).arg(ndxReference.chapter()).arg(ndxReference.verse()) + tr("contains:", "Statistics") + "\n"
 												"    " + tr("%n Word(s)", "Statistics", pBibleDatabase->verseEntry(ndxReference)->m_nNumWrd) + "\n";

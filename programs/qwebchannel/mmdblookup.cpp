@@ -44,7 +44,6 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <assert.h>
 
 #include <QDateTime>
 #include <QBuffer>
@@ -94,7 +93,7 @@ protected:
 	static ssize_t fileWrite(void *cookie, const char *buffer, size_t size)
 	{
 		CFileBuffer *pBuffer = static_cast<CFileBuffer*>(cookie);
-		assert(pBuffer != nullptr);
+		Q_ASSERT(pBuffer != nullptr);
 		if (pBuffer) {
 			return pBuffer->write(buffer, size);
 		} else {
@@ -113,7 +112,7 @@ protected:
 	static int fileClose(void *cookie)
 	{
 		CFileBuffer *pBuffer = static_cast<CFileBuffer*>(cookie);
-		assert(pBuffer != nullptr);
+		Q_ASSERT(pBuffer != nullptr);
 		if (pBuffer) {
 			pBuffer->m_pFile = nullptr;
 			pBuffer->close();
@@ -140,7 +139,7 @@ static void print_indentation(QBuffer &buffer, int i)
 
 static MMDB_entry_data_list_s *entry_data_list_to_JSON(QBuffer &buffer, MMDB_entry_data_list_s *entry_data_list, int indent, int *status)
 {
-	assert(entry_data_list != nullptr);
+	Q_ASSERT(entry_data_list != nullptr);
 
 	switch (entry_data_list->entry_data.type) {
 		case MMDB_DATA_TYPE_MAP:

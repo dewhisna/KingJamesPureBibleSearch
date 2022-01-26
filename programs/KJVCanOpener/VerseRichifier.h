@@ -223,7 +223,7 @@ private:
 				m_bInSearchResult(false),
 				m_pCurrentLemma(nullptr)
 		{
-			assert(pBibleDatabase != nullptr);
+			Q_ASSERT(pBibleDatabase != nullptr);
 			m_strVerseText.reserve(1024);					// Avoid reallocations
 			m_ndxCurrent.setWord(0);						// Set ndxCurrent to be whole verse start, but nStartWord=Target First Word (set above)
 			if (m_nStartWord == 1) m_nStartWord = 0;		// Starting at first word includes pretext prior to word

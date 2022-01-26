@@ -54,8 +54,6 @@
 #include <QPoint>
 #include <QRect>
 
-#include <assert.h>
-
 // ============================================================================
 
 // Forward declarations:
@@ -88,7 +86,7 @@ public:
 	bool isActive() const;
 
 	inline CVerseListModel *vlmodel() const {
-		assert(model() != nullptr);
+		Q_ASSERT(model() != nullptr);
 		return static_cast<CVerseListModel *>(model());
 	}
 

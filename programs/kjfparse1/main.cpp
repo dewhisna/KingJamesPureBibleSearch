@@ -33,8 +33,6 @@
 #include <QByteArray>
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 
-#include <assert.h>
-
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
 #define NUM_BK_NT 27u
@@ -233,7 +231,7 @@ int main(int argc, char *argv[])
 					fileOut.write(QString("<div osisID=\"%1.c\" type=\"colophon\">%2</div>").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(convertVerseText(strLine.mid(1).trimmed())).toUtf8());
 					fileOut.write(QString("</verse>\n").toUtf8());
 				} else {
-					assert(false);			// Colophon tags are always following a verse!
+					Q_ASSERT(false);			// Colophon tags are always following a verse!
 				}
 			} else if (strLine.at(0).isDigit()) {
 				if (!strVerseText.isEmpty()) {

@@ -45,8 +45,6 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 
-#include <assert.h>
-
 // Forward Declarations
 class CMatchingPhrasesListModel;
 
@@ -91,8 +89,8 @@ public:
 	virtual bool isExcluded() const { return CParsedPhrase::isExcluded(); }
 	virtual void setExclude(bool bExclude);
 
-	inline bool isDisabled() const { assert(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
-	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); assert(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
+	inline bool isDisabled() const { Q_ASSERT(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
+	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); Q_ASSERT(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 
 	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords);
 

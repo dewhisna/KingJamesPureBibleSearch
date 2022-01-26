@@ -32,8 +32,6 @@
 #include <QtSql>
 #include <QSqlQuery>
 
-#include <assert.h>
-
 
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
@@ -193,7 +191,7 @@ int main(int argc, char *argv[])
 		nNextChp = query.value(1).toUInt();
 		nNextVrs = query.value(2).toUInt();
 
-		assert((nNextBk > 0) && (nNextBk <= NUM_BK));
+		Q_ASSERT((nNextBk > 0) && (nNextBk <= NUM_BK));
 
 		if (nNextBk > 0) nNextTst = 1;
 		if (nNextBk > NUM_BK_OT) nNextTst = 2;
@@ -235,7 +233,7 @@ int main(int argc, char *argv[])
 			fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nNextVrs).arg(query.value(3).toString().trimmed()).toUtf8().data());
 			std::cerr << ".";
 		} else {
-			assert(false);
+			Q_ASSERT(false);
 		}
 		nVrs = nNextVrs;
 	}

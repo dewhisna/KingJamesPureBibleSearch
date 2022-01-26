@@ -72,7 +72,7 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 
 void CDictionaryLineEdit::setDictionary(CDictionaryDatabasePtr pDictionary)
 {
-	assert(!pDictionary.isNull());
+	Q_ASSERT(!pDictionary.isNull());
 	m_pDictionaryDatabase = pDictionary;
 
 	m_dlyUpdateCompleter.untrigger();
@@ -205,7 +205,7 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const Q
 		m_bIgnoreNextWordChange(false),
 		m_bHaveURLLastWord(false)
 {
-	assert(!m_pDictionaryDatabase.isNull());
+	Q_ASSERT(!m_pDictionaryDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -331,7 +331,7 @@ CDictionaryWidget::~CDictionaryWidget()
 
 bool CDictionaryWidget::eventFilter(QObject *pObject, QEvent *pEvent)
 {
-	assert(pEvent != nullptr);
+	Q_ASSERT(pEvent != nullptr);
 
 	if ((pObject == ui.definitionBrowser) && (pEvent->type() == QEvent::FocusIn)) {
 		emit activatedDictionary(false);
@@ -464,7 +464,7 @@ void CDictionaryWidget::en_definitionBrowserContextMenuRequested(const QPoint &p
 	bool bPopupSave = m_bDoingPopup;
 	m_bDoingPopup = true;
 
-	assert(m_pEditMenuDictionary != nullptr);
+	Q_ASSERT(m_pEditMenuDictionary != nullptr);
 #ifndef USE_ASYNC_DIALOGS
 	m_pEditMenuDictionary->exec(ui.definitionBrowser->viewport()->mapToGlobal(pos));
 #else
@@ -479,7 +479,7 @@ void CDictionaryWidget::en_editDictionaryWordContextMenuRequested(const QPoint &
 	bool bPopupSave = m_bDoingPopup;
 	m_bDoingPopup = true;
 
-	assert(m_pEditMenuDictWord != nullptr);
+	Q_ASSERT(m_pEditMenuDictWord != nullptr);
 #ifndef USE_ASYNC_DIALOGS
 	m_pEditMenuDictWord->exec(ui.editDictionaryWord->viewport()->mapToGlobal(pos));
 #else
@@ -503,8 +503,8 @@ void CDictionaryWidget::setTextBrightness(bool bInvert, int nBrightness)
 
 void CDictionaryWidget::en_updateDictionaryDatabasesList()
 {
-	assert(m_pActionDictDatabasesList != nullptr);
-	assert(m_pActionDictDatabasesList->menu() != nullptr);
+	Q_ASSERT(m_pActionDictDatabasesList != nullptr);
+	Q_ASSERT(m_pActionDictDatabasesList->menu() != nullptr);
 
 	if (!m_pActionGroupDictDatabasesList.isNull()) delete m_pActionGroupDictDatabasesList;
 	m_pActionGroupDictDatabasesList = new QActionGroup(this);
@@ -541,7 +541,7 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 			}
 		} else {
 			TDictionaryDescriptor dctDesc = lstAvailableDictDescs.at(ndx);
-			assert(dctDesc.isValid());
+			Q_ASSERT(dctDesc.isValid());
 			if ((m_strLanguage.isEmpty()) || (dctDesc.m_strLanguage.compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
 				(dctDesc.m_dtoFlags & DTO_IgnoreLang)) {
 				QAction *pAction = new QAction(dctDesc.m_strDBDesc, m_pActionGroupDictDatabasesList);
@@ -561,7 +561,7 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 
 void CDictionaryWidget::en_selectDictionary(QAction *pAction)
 {
-	assert(pAction != nullptr);
+	Q_ASSERT(pAction != nullptr);
 
 	if (pAction != nullptr) {
 		QString strUUID = pAction->data().toString();
@@ -574,7 +574,7 @@ void CDictionaryWidget::en_selectDictionary(QAction *pAction)
 			if (pDictDatabase.isNull()) return;
 		}
 #else
-		assert(!pDictDatabase.isNull());
+		Q_ASSERT(!pDictDatabase.isNull());
 #endif
 
 		m_pDictionaryDatabase = pDictDatabase;

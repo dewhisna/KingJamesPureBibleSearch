@@ -400,7 +400,7 @@ static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage,
 	bool bIsProperWord = true;
 
 	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJVPCE) || (nBDE == BDE_KJVA)) {
-		assert(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
+		Q_ASSERT(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
 
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
 			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
@@ -497,7 +497,7 @@ static QString stringifyAttributes(const QXmlAttributes &attr)
 //	QStringList lstPairs = str.split(',');
 //	for (int i=0; i<lstPairs.count(); ++i) {
 //		QStringList lstEntry = lstPairs.at(i).split('=');
-//		assert(lstEntry.count() == 2);
+//		Q_ASSERT(lstEntry.count() == 2);
 //		if (lstEntry.count() != 2) {
 //			std::cerr << "\n*** Error: Attributes->String failure\n";
 //			continue;
@@ -589,10 +589,10 @@ void CStrongsImpXmlHandler::beginRenderElement(const QString &strRendType)
 
 void CStrongsImpXmlHandler::endRenderElement()
 {
-	assert(!m_vctParseState.isEmpty());
-	assert(m_vctParseState.back() == SIPSE_RENDER);
+	Q_ASSERT(!m_vctParseState.isEmpty());
+	Q_ASSERT(m_vctParseState.back() == SIPSE_RENDER);
 	m_vctParseState.pop_back();
-	assert(!m_lstRenderElementStack.isEmpty());
+	Q_ASSERT(!m_lstRenderElementStack.isEmpty());
 	characters(m_lstRenderElementStack.back());
 	m_lstRenderElementStack.pop_back();
 }
@@ -698,7 +698,7 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 	Q_UNUSED(qName);
 
 	if (localName.compare("entryFree", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_ENTRYFREE) {
 			m_vctParseState.pop_back();
 		} else {
@@ -706,7 +706,7 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 			return false;
 		}
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_TITLE) {
 			// Make sure all of our indexes match:
 			StrongsIndexSortPredicate isp;
@@ -727,10 +727,10 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 		}
 
 	} else if (localName.compare("orth", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_RENDER) {
 			endRenderElement();
-			assert(!m_vctParseState.isEmpty());
+			Q_ASSERT(!m_vctParseState.isEmpty());
 		}
 		if ((m_vctParseState.back() == SIPSE_ORTH) ||
 			(m_vctParseState.back() == SIPSE_TRANSLITERATION)) {
@@ -750,10 +750,10 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 			return false;
 		}
 	} else if (localName.compare("pron", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_RENDER) {
 			endRenderElement();
-			assert(!m_vctParseState.isEmpty());
+			Q_ASSERT(!m_vctParseState.isEmpty());
 		}
 		if (m_vctParseState.back() == SIPSE_PRONUNCIATION) {
 			m_vctParseState.pop_back();
@@ -762,10 +762,10 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 			return false;
 		}
 	} else if (localName.compare("def", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_RENDER) {
 			endRenderElement();
-			assert(!m_vctParseState.isEmpty());
+			Q_ASSERT(!m_vctParseState.isEmpty());
 		}
 		if (m_vctParseState.back() == SIPSE_DEFINITION) {
 			m_vctParseState.pop_back();
@@ -774,12 +774,12 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 			return false;
 		}
 	} else if (localName.compare("hi", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_RENDER) {
 			endRenderElement();
 		}
 	} else if (localName.compare("ref", Qt::CaseInsensitive) == 0) {
-		assert(!m_vctParseState.isEmpty());
+		Q_ASSERT(!m_vctParseState.isEmpty());
 		if (m_vctParseState.back() == SIPSE_REFERENCE) {
 			if (m_bRefIsStrongs) {
 				m_bRefIsStrongs = false;		// Clear flag so character push goes to parent:
@@ -799,7 +799,7 @@ bool CStrongsImpXmlHandler::endElement(const QString &namespaceURI, const QStrin
 
 bool CStrongsImpXmlHandler::characters(const QString &ch)
 {
-	assert(!m_vctParseState.isEmpty());
+	Q_ASSERT(!m_vctParseState.isEmpty());
 	STRONGS_IMP_PARSER_STATE parseState = m_vctParseState.back();
 
 	if ((parseState == SIPSE_REFERENCE) && m_bRefIsStrongs) {
@@ -812,7 +812,7 @@ bool CStrongsImpXmlHandler::characters(const QString &ch)
 	int ndxParent = 2;
 	while ((parseState == SIPSE_REFERENCE) ||
 			(parseState == SIPSE_RENDER)) {
-		assert(m_vctParseState.size() >= ndxParent);
+		Q_ASSERT(m_vctParseState.size() >= ndxParent);
 		parseState = m_vctParseState.at(m_vctParseState.size()-ndxParent);
 		++ndxParent;
 	}
@@ -839,7 +839,7 @@ bool CStrongsImpXmlHandler::characters(const QString &ch)
 		case SIPSE_REFERENCE:
 		case SIPSE_RENDER:
 			// This state can't happen due to parent seeking above
-			assert(false);
+			Q_ASSERT(false);
 			return false;
 	}
 
@@ -977,7 +977,7 @@ protected:
 		//			vice versa.  So, do these in order of precedence:
 		if (m_bInColophon) return m_ndxColophon;
 		if (m_bInSuperscription) return m_ndxSuperscription;
-		assert(m_bInVerse);
+		Q_ASSERT(m_bInVerse);
 		return m_ndxCurrent;
 	}
 	CVerseEntry &activeVerseEntry()
@@ -1053,7 +1053,7 @@ static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
 		nTst = 3;
 	} else {
 		nTst = 0;
-		assert(false);			// Can't happen if our NUM_BK_xx values are correct!
+		Q_ASSERT(false);			// Can't happen if our NUM_BK_xx values are correct!
 	}
 
 	return nTst;
@@ -1427,7 +1427,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					std::cerr << stringifyAttributes(atts).toUtf8().data() << "\n";
 				}
 			} else if (m_xfteFormatType == XFTE_ZEFANIA) {
-				assert((m_ndxCurrent.verse() == 0) && (m_ndxCurrent.word() == 0));
+				Q_ASSERT((m_ndxCurrent.verse() == 0) && (m_ndxCurrent.word() == 0));
 				ndx = findAttribute(atts, "cnumber");
 				if (ndx != -1) {
 					m_ndxCurrent = CRelIndex(m_ndxCurrent.book(), atts.value(ndx).toUInt(), 0, 0);
@@ -1448,7 +1448,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				if (m_ndxCurrent.chapter() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
 					addBookToBibleDatabase(nBk+1);
 				}
-				assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
+				Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 				if (m_ndxCurrent.chapter() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
 					for (CRelIndex ndxAddChp = CRelIndex(nBk+1, 1, 0, 0); ndxAddChp != m_ndxCurrent; ndxAddChp.setChapter(ndxAddChp.chapter()+1)) {
 						m_pBibleDatabase->m_mapChapters[ndxAddChp];			// Make sure the chapter entry is created for the empty chapters
@@ -1734,7 +1734,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 			m_ndxCurrent = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 		}
 // Technically, we shouldn't have a chapter inside verse, but some modules use it as a special inner marking (like FrePGR, for example):
-//		assert(m_bInVerse == false);
+//		Q_ASSERT(m_bInVerse == false);
 //		if (m_bInVerse) {
 //			std::cerr << "\n*** End-of-Chapter found before End-of-Verse\n";
 //			m_bInVerse = false;
@@ -1796,7 +1796,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 		//		and we were actually given a <seg> variant to capture...
 	} else if (m_bInColophon && !m_bUseBracketColophons) {
 		if (!m_bDisableColophons) {
-			assert(m_ndxColophon.isSet());
+			Q_ASSERT(m_ndxColophon.isSet());
 			if (m_ndxColophon.isSet()) {
 				// TODO : Eventually remove the "footnote" version of colophon?
 				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
@@ -1806,7 +1806,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 		}
 	} else if ((m_bInSuperscription) && (!m_bInForeignText)) {
 		if (!m_bDisableSuperscriptions) {
-			assert(m_ndxSuperscription.isSet());
+			Q_ASSERT(m_ndxSuperscription.isSet());
 			if (m_ndxSuperscription.isSet()) {
 				// TODO : Eventually remove the "footnote" version of superscription?
 				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxSuperscription];
@@ -1815,12 +1815,12 @@ bool COSISXmlHandler::characters(const QString &ch)
 			charactersVerseEntry(m_ndxSuperscription, strTemp);
 		}
 	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInForeignText)) {
-		assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
+		Q_ASSERT((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
 		charactersVerseEntry(m_ndxCurrent, strTemp);
 //		std::cout << strTemp.toUtf8().data();
 	} else if (((m_bInVerse) || (m_bInColophon && !m_bDisableColophons) || (m_bInSuperscription && !m_bDisableSuperscriptions)) && (m_bInNotes)) {
 		if (m_bInVerse || (m_bInColophon && !m_bNoColophonVerses) || (m_bInSuperscription && !m_bNoSuperscriptionVerses)) {
-			assert((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
+			Q_ASSERT((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
 			charactersVerseEntry(m_ndxCurrent, strTemp);
 		}
 	}
@@ -2035,9 +2035,9 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 			unsigned int nTst = bookIndexToTestamentIndex(relIndex.book());
 			if (CRelIndex(0, relIndex.chapter(), relIndex.verse(), 0) == g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse) nVerseOffset = g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse.verse();
 			m_pBibleDatabase->m_EntireBible.m_nNumVrs += nVerseOffset;
-			assert(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
+			Q_ASSERT(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
 			m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
-			assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
+			Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
 			m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_nNumVrs += nVerseOffset;
 			m_pBibleDatabase->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumVrs += nVerseOffset;
 		}
@@ -2048,7 +2048,7 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	}
 
 	if (nVT == VT_COLOPHON) {
-		assert(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
+		Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
 		m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_bHaveColophon = true;
 	}
 
@@ -2079,7 +2079,7 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 		if (bLocalDisableSuperscription || m_bNoSuperscriptionVerses || m_bDisableSuperscriptions) return;
 	}
 
-	assert(!strText.contains(g_chrParseTag, Qt::CaseInsensitive));
+	Q_ASSERT(!strText.contains(g_chrParseTag, Qt::CaseInsensitive));
 	if (strText.contains(g_chrParseTag, Qt::CaseInsensitive)) {
 		std::cerr << "\n*** ERROR: Text contains the special parse tag!!  Change the tag in KJVDataParse and try again!\n";
 	}
@@ -2251,12 +2251,12 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				}
 				bHaveDoneTemplateWord = true;
 			}
-			assert(!verse.m_lstParseStack.isEmpty());
+			Q_ASSERT(!verse.m_lstParseStack.isEmpty());
 			if (!verse.m_lstParseStack.isEmpty()) {
 				QString strParse = verse.m_lstParseStack.at(0);
 				verse.m_lstParseStack.pop_front();
 				int nPos = strParse.indexOf(':');
-				assert(nPos != -1);		// Every ParseStack entry must contain a ':'
+				Q_ASSERT(nPos != -1);		// Every ParseStack entry must contain a ':'
 				QString strOp = strParse.left(nPos);
 				if (strOp.compare("L") == 0) {
 					tagLemmaEntry.setRelIndex(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), nWordCount+1));
@@ -2332,7 +2332,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 
 					ndxLastFootnoteActive = ndxFootnoteActive;
 				} else {
-					assert(false);		// Unknown ParseStack Operator!
+					Q_ASSERT(false);		// Unknown ParseStack Operator!
 				}
 			}
 		} else if (bInlineNote) {
@@ -2356,8 +2356,8 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				strRichWord += strTemp.at(0);
 			} else {
 				if (bInWord) {
-					assert(!strRichWord.isEmpty());
-					assert(!strWord.isEmpty());
+					Q_ASSERT(!strRichWord.isEmpty());
+					Q_ASSERT(!strWord.isEmpty());
 
 					if ((strRichWord.size() == 1) &&
 						((g_strHyphens.contains(strRichWord.at(0))) ||
@@ -2376,7 +2376,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 						// Remove trailing hyphens from words and put them in the template.
 						//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
 						while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
-							assert(!strWord.isEmpty());
+							Q_ASSERT(!strWord.isEmpty());
 							strPostTemplate += strRichWord.at(strRichWord.size()-1);
 							strRichWord = strRichWord.left(strRichWord.size()-1);
 							strWord = strWord.left(strWord.size()-1);
@@ -2434,7 +2434,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 		strTemp = strTemp.right(strTemp.size()-1);
 	}
 
-	assert(verse.m_lstParseStack.isEmpty());		// We should have exhausted the stack above!
+	Q_ASSERT(verse.m_lstParseStack.isEmpty());		// We should have exhausted the stack above!
 
 	if (bInWord) {
 		if ((strRichWord.size() == 1) &&
@@ -2454,7 +2454,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			// Remove trailing hyphens from words and put them in the template.
 			//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
 			while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
-				assert(!strWord.isEmpty());
+				Q_ASSERT(!strWord.isEmpty());
 				strPostTemplate += strRichWord.at(strRichWord.size()-1);
 				strRichWord = strRichWord.left(strRichWord.size()-1);
 				strWord = strWord.left(strWord.size()-1);
@@ -2492,7 +2492,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 //std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)).toUtf8().data() << "\n";
 //std::cout << verse..m_strText.toUtf8().data() << "\n" << verse.m_strTemplate.toUtf8().data << "\n" << verse.m_lstWords.join(",").toUtf8().data() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toUtf8().data();
 
-	assert(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
+	Q_ASSERT(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
 	if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd) {
 		std::cerr << "\n" << m_pBibleDatabase->PassageReferenceText(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)).toUtf8().data();
 		std::cerr << "\n*** Error: Verse word count doesn't match template word count!!!\n";
@@ -2859,7 +2859,7 @@ int main(int argc, char *argv[])
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
 				bool bVerseMissing = false;
 				if (pVerse == nullptr) {
-					if ((nChp == 0) || (nVrs == 0)) assert(false);
+					if ((nChp == 0) || (nVrs == 0)) Q_ASSERT(false);
 					bVerseMissing = true;
 					if ((CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) && (bHadBook)) {
 						std::cerr << QString("\n*** WARNING: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
@@ -2884,13 +2884,13 @@ int main(int argc, char *argv[])
 					if (nNormal != pVerse->m_nWrdAccum+1) {
 						std::cerr << QString("\n**** Error: Normal for CRelIndex(%1, %2, %3, 1)->%4 != %5\n")
 									 .arg(nBk).arg(nChp).arg(nVrs).arg(nNormal).arg(pVerse->m_nWrdAccum+1).toUtf8().data();
-						assert(nNormal == (pVerse->m_nWrdAccum+1));
+						Q_ASSERT(nNormal == (pVerse->m_nWrdAccum+1));
 					}
 					CRelIndex ndxDenormal = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+1);
 					if (ndxDenormal != CRelIndex(nBk, nChp, nVrs, 1)) {
 						std::cerr << QString("\n*** Error: Denormal for %1  !=  CRelIndex(%2, %3, %4, 1)->%5\n")
 									 .arg(ndxDenormal.index()).arg(nBk).arg(nChp).arg(nVrs).arg(CRelIndex(nBk, nChp, nVrs, 1).index()).toUtf8().data();
-						assert(ndxDenormal == CRelIndex(nBk, nChp, nVrs, 1));
+						Q_ASSERT(ndxDenormal == CRelIndex(nBk, nChp, nVrs, 1));
 					}
 				} else {
 					if (!bVerseMissing) {
@@ -2954,8 +2954,8 @@ int main(int argc, char *argv[])
 */
 
 				// Now use the words we've gathered from this verse to build the Word Lists and Concordance:
-				assert(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstWords.size()));
-				assert(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstRichWords.size()));
+				Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstWords.size()));
+				Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstRichWords.size()));
 				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
 					QString strWord = pVerse->m_lstWords.at(nWrd-1);
 					QString strRichWord = pVerse->m_lstRichWords.at(nWrd-1);
@@ -3076,8 +3076,8 @@ int main(int argc, char *argv[])
 		wordEntryDb.m_bCasePreserve = isSpecialWord(nBDE, xmlHandler.language(), wordEntryDb);
 		wordEntryDb.m_bIsProperWord = isProperWord(nBDE, xmlHandler.language(), wordEntryDb);
 
-		assert(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
-		assert(wordEntryDb.m_lstAltWords.size() > 0);
+		Q_ASSERT(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
+		Q_ASSERT(wordEntryDb.m_lstAltWords.size() > 0);
 
 		if ((nWordIndex % 100) == 0) std::cerr << ".";
 
@@ -3152,8 +3152,8 @@ int main(int argc, char *argv[])
 
 		fileWordSummary.write(QString("\"%1\",\"%2\",%3").arg(wordEntryDb.m_strWord).arg(strAltWords).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8());
 
-		assert(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
-		assert(wordEntryDb.m_lstAltWords.size() > 0);
+		Q_ASSERT(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
+		Q_ASSERT(wordEntryDb.m_lstAltWords.size() > 0);
 
 		if ((nWordIndex % 100) == 0) std::cerr << ".";
 		nWordIndex++;
@@ -3165,8 +3165,8 @@ int main(int argc, char *argv[])
 
 		for (TNormalizedIndexList::const_iterator itr = wordEntryDb.m_ndxNormalizedMapping.begin(); itr != wordEntryDb.m_ndxNormalizedMapping.end(); ++itr) {
 			CRelIndex ndx(pBibleDatabase->DenormalizeIndex(*itr));
-			assert(ndx.isSet());
-			assert(ndx.book() != 0);
+			Q_ASSERT(ndx.isSet());
+			Q_ASSERT(ndx.book() != 0);
 			if (ndx.book() <= NUM_BK_OT) {
 				arrTestamentWordCounts[0]++;
 				arrTotalTestamentWordCounts[0]++;
@@ -3341,12 +3341,12 @@ int main(int argc, char *argv[])
 	std::cerr << "Checking Indexes";
 	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
-		assert(pBook != nullptr);
+		Q_ASSERT(pBook != nullptr);
 		for (unsigned int nChp=(pBook->m_bHaveColophon ? 0 : 1); nChp<=pBook->m_nNumChp; ++nChp) {
 			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : nullptr);
 			unsigned int nStartVerse = 1;
 			if (nChp != 0) {
-				assert(pChapter != nullptr);
+				Q_ASSERT(pChapter != nullptr);
 				nStartVerse = (pChapter->m_bHaveSuperscription ? 0 : 1);
 			} else {
 				nStartVerse = 0;
@@ -3354,21 +3354,21 @@ int main(int argc, char *argv[])
 
 			for (unsigned int nVrs=nStartVerse; nVrs<= ((pChapter != nullptr) ? pChapter->m_nNumVrs : 0); ++nVrs) {
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
-				assert(pVerse != nullptr);
+				Q_ASSERT(pVerse != nullptr);
 				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
 					uint32_t nNormalAccum = pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd));
 					uint32_t nNormalNoAccum = pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, nWrd));
 					if (nNormalAccum != nNormalNoAccum) {
 						std::cerr << QString("\n*** Error: CRelIndex(%1, %2, %3, %4) : NormalAccum->%5 != NormalNoAccum->%6\n")
 									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(nNormalAccum).arg(nNormalNoAccum).toUtf8().data();
-						assert(nNormalAccum == nNormalNoAccum);
+						Q_ASSERT(nNormalAccum == nNormalNoAccum);
 					}
 					CRelIndex ndxDenormalAccum = pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum+nWrd);
 					CRelIndex ndxDenormalNoAccum = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+nWrd);
 					if (ndxDenormalAccum != ndxDenormalNoAccum) {
 						std::cerr << QString("\n*** Error: CRelIndex(%1, %2, %3, %4)->Accum:%5  DenormalAccum->%6 != DenormalNoAccum=%7\n")
 									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(pVerse->m_nWrdAccum+nWrd).arg(ndxDenormalAccum.index()).arg(ndxDenormalNoAccum.index()).toUtf8().data();
-						assert(ndxDenormalAccum == ndxDenormalNoAccum);
+						Q_ASSERT(ndxDenormalAccum == ndxDenormalNoAccum);
 					}
 					CRelIndex ndxTest = CRelIndex(nBk, nChp, nVrs, nWrd);
 					uint32_t nNormal = pBibleDatabase->NormalizeIndex(ndxTest);
@@ -3376,7 +3376,7 @@ int main(int argc, char *argv[])
 					if (ndxDenormal != ndxTest) {
 						std::cerr << QString("\n*** Error: Roundtrip : CRelIndex(%1, %2, %3, %4)=%5 -> Normal=%6 -> Denormal=%7\n")
 									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(ndxTest.index()).arg(nNormal).arg(ndxDenormal.index()).toUtf8().data();
-						assert(ndxDenormal == ndxTest);
+						Q_ASSERT(ndxDenormal == ndxTest);
 					}
 				}
 			}
@@ -3418,7 +3418,7 @@ int main(int argc, char *argv[])
 
 	for (unsigned int i=1; i<=pBibleDatabase->bibleEntry().m_nNumBk; ++i) {
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(i);
-		assert(pBook != nullptr);
+		Q_ASSERT(pBook != nullptr);
 		for (unsigned int j=1; j<=pBook->m_nNumChp; ++j) {
 			std::cout << QString("%1 Chapter %2 : Verses: %3  Words: %4\n")
 						.arg(pBook->m_strBkName)

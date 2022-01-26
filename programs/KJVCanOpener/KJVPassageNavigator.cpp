@@ -31,8 +31,6 @@
 
 #include <QTextCursor>
 
-#include <assert.h>
-
 // ============================================================================
 
 // Placeholder Constructor:
@@ -49,13 +47,13 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 		m_nRefType(nRefType),
 		m_bDoingUpdate(false)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
 	initialize();
 
-	assert(m_pEditVersePreview != nullptr);
+	Q_ASSERT(m_pEditVersePreview != nullptr);
 
 	QAction *pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
@@ -171,13 +169,13 @@ void CKJVPassageNavigator::initialize()
 	if ((m_flagsRefTypes & NRTO_Chapter) || (bAllTypes)) ui.comboRefType->addItem(tr("Chapter", "Scope"), static_cast<int>(NRTE_CHAPTER));
 	if ((m_flagsRefTypes & NRTO_Book) || (bAllTypes)) ui.comboRefType->addItem(tr("Book", "Scope"), static_cast<int>(NRTE_BOOK));
 	int nTypeIndex = ui.comboRefType->findData(static_cast<int>(m_nRefType));
-	assert(nTypeIndex != -1);
+	Q_ASSERT(nTypeIndex != -1);
 	ui.comboRefType->setCurrentIndex(nTypeIndex);
 
 	ui.comboBookDirect->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
-		assert(pBook != nullptr);
+		Q_ASSERT(pBook != nullptr);
 		if (pBook->m_nNumWrd == 0) continue;		// Skip books that are empty (partial database support)
 		ui.comboBookDirect->addItem(pBook->m_strBkName, ndxBk);
 	}
@@ -190,7 +188,7 @@ void CKJVPassageNavigator::initialize()
 
 void CKJVPassageNavigator::reset()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (isAbsolute()) {
 		setPassage(TPhraseTag(CRelIndex(1, 1, 1, 1), m_tagPassage.count()));		// Default to Genesis 1:1 [1]
@@ -277,7 +275,7 @@ void CKJVPassageNavigator::en_RefTypeChanged(int nType)
 
 void CKJVPassageNavigator::en_BookDirectChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -295,7 +293,7 @@ void CKJVPassageNavigator::en_BookDirectChanged(int index)
 
 void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -314,7 +312,7 @@ void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
 
 void CKJVPassageNavigator::en_VerseDirectChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -334,7 +332,7 @@ void CKJVPassageNavigator::en_VerseDirectChanged(int index)
 
 void CKJVPassageNavigator::en_WordDirectChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -355,7 +353,7 @@ void CKJVPassageNavigator::en_WordDirectChanged(int index)
 
 void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	// Special "not set" case:
 	if (!ndx.isSet()) {
@@ -370,12 +368,12 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 	// It's OK for the whole reference to not be set (above), but not one specific piece only:
 	if ((ndx.book() == 0) || (ndx.chapter() == 0) || (ndx.verse() == 0) || (ndx.word() == 0)) {
-		assert(false);
+		Q_ASSERT(false);
 		return;
 	}
 
 	if (ndx.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
-		assert(false);
+		Q_ASSERT(false);
 		return;
 	}
 
@@ -395,7 +393,7 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	ui.comboChapterDirect->setCurrentIndex(ui.comboChapterDirect->findData(ndx.chapter()));
 
 	if (ndx.chapter() > book.m_nNumChp) {
-		assert(false);
+		Q_ASSERT(false);
 		end_update();
 		return;
 	}
@@ -412,7 +410,7 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 	ui.comboVerseDirect->setCurrentIndex(ui.comboVerseDirect->findData(ndx.verse()));
 
 	if (ndx.verse() > chapter.m_nNumVrs) {
-		assert(false);
+		Q_ASSERT(false);
 		end_update();
 		return;
 	}
@@ -455,7 +453,7 @@ TPhraseTag CKJVPassageNavigator::passage() const
 			tagPassage = TPhraseTag(CRelIndex(m_tagPassage.relIndex().book(), 0, 0, 0), m_tagPassage.count());
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -492,7 +490,7 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 
 void CKJVPassageNavigator::CalcPassage()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui.chkboxReverse->isChecked()));
 	ui.editResolved->setText(m_pBibleDatabase->PassageReferenceText(passage().relIndex()));
@@ -536,7 +534,7 @@ void CKJVPassageNavigator::setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType)
 	begin_update();
 
 	int nTypeIndex = ui.comboRefType->findData(static_cast<int>(nRefType));
-	assert(nTypeIndex != -1);
+	Q_ASSERT(nTypeIndex != -1);
 	if (nTypeIndex != -1) {
 		m_nRefType = nRefType;
 		ui.comboRefType->setCurrentIndex(nTypeIndex);
@@ -553,7 +551,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tag
 
 void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	begin_update();
 
@@ -605,7 +603,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 
 void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	begin_update();
 

@@ -93,8 +93,6 @@
 #endif
 #include "ReadDB.h"
 
-#include <assert.h>
-
 #ifdef IS_CONSOLE_APP
 #include <iostream>
 #endif
@@ -359,21 +357,21 @@ void CMyDaemon::hupSignalHandler(int)
 {
 	char a = 1;
 	ssize_t szWrite = ::write(m_sighupFd[0], &a, sizeof(a));
-	assert(szWrite == sizeof(a));
+	Q_ASSERT(szWrite == sizeof(a));
 }
 
 void CMyDaemon::termSignalHandler(int)
 {
 	char a = 1;
 	ssize_t szWrite = ::write(m_sigtermFd[0], &a, sizeof(a));
-	assert(szWrite == sizeof(a));
+	Q_ASSERT(szWrite == sizeof(a));
 }
 
 void CMyDaemon::usr1SignalHandler(int)
 {
 	char a = 1;
 	ssize_t szWrite = ::write(m_sigusr1Fd[0], &a, sizeof(a));
-	assert(szWrite == sizeof(a));
+	Q_ASSERT(szWrite == sizeof(a));
 }
 
 void CMyDaemon::handleSigHup()
@@ -381,7 +379,7 @@ void CMyDaemon::handleSigHup()
 	m_psnHup->setEnabled(false);
 	char tmp;
 	ssize_t szRead = ::read(m_sighupFd[1], &tmp, sizeof(tmp));
-	assert(szRead == sizeof(tmp));
+	Q_ASSERT(szRead == sizeof(tmp));
 
 	// do Qt stuff
 	if (!m_pMyApplication.isNull()) {
@@ -400,7 +398,7 @@ void CMyDaemon::handleSigTerm()
 	m_psnTerm->setEnabled(false);
 	char tmp;
 	ssize_t szRead = ::read(m_sigtermFd[1], &tmp, sizeof(tmp));
-	assert(szRead == sizeof(tmp));
+	Q_ASSERT(szRead == sizeof(tmp));
 
 	// do Qt stuff
 	if (!m_pMyApplication.isNull()) {
@@ -419,7 +417,7 @@ void CMyDaemon::handleSigUsr1()
 	m_psnUsr1->setEnabled(false);
 	char tmp;
 	ssize_t szRead = ::read(m_sigusr1Fd[1], &tmp, sizeof(tmp));
-	assert(szRead == sizeof(tmp));
+	Q_ASSERT(szRead == sizeof(tmp));
 
 #if defined(VNCSERVER)
 	// do Qt stuff
@@ -569,7 +567,7 @@ void CMyApplication::completeInterAppSplash()
 {
 	if (m_pSplash != nullptr) {
 #ifdef SHOW_SPLASH_SCREEN
-		assert(m_splashTimer.isValid());
+		Q_ASSERT(m_splashTimer.isValid());
 		do {
 			processEvents();
 		} while (!m_splashTimer.hasExpired(g_connInterAppSplashTimeMS));
@@ -747,7 +745,7 @@ bool CMyApplication::notify(QObject *pReceiver, QEvent *pEvent)
 		qDebug("std::exception was caught: %s", ex.what());
 	} catch (...) {
 		qDebug("Unknown exception was caught");
-		assert(false);
+		Q_ASSERT(false);
 	}
 
 	return false;
@@ -775,7 +773,7 @@ bool CMyApplication::event(QEvent *event) {
 #ifdef SIGNAL_SPY_DEBUG
 Q4puGenericSignalSpy *CMyApplication::createSpy(QObject *pOwner, QObject *pSpyOn)
 {
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	Q4puGenericSignalSpy *pSpy = new Q4puGenericSignalSpy((pOwner != nullptr) ? pOwner : g_pMyApplication);
 
 	QObject::connect(pSpy, SIGNAL(caughtSignal(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSignal(const QString &)));
@@ -810,7 +808,7 @@ void CMyApplication::en_clearingSpeechQueue()
 	// Note: This function may get called multiple times during a queue clear because the
 	//		QtSpeech::clearQueue can get called multiple times because of multiple widgets
 	//		trying to handle the speechStop button...
-	assert(!m_pSpeech.isNull());
+	Q_ASSERT(!m_pSpeech.isNull());
 	if (connect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)), Qt::UniqueConnection)) {
 #ifndef IS_CONSOLE_APP
 		setOverrideCursor(Qt::WaitCursor);
@@ -821,7 +819,7 @@ void CMyApplication::en_clearingSpeechQueue()
 void CMyApplication::en_speechFinished(bool bQueueEmpty)
 {
 	if (bQueueEmpty) {
-		assert(!m_pSpeech.isNull());
+		Q_ASSERT(!m_pSpeech.isNull());
 		disconnect(m_pSpeech.data(), SIGNAL(finished(bool)), this, SLOT(en_speechFinished(bool)));
 #ifndef IS_CONSOLE_APP
 		restoreOverrideCursor();
@@ -915,7 +913,7 @@ int CMyApplication::dictDatabaseCanOpenerRefCount(const QString &strDctUUID) con
 void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 {
 	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pKJVCanOpener);
-	assert(ndxCanOpener != -1);
+	Q_ASSERT(ndxCanOpener != -1);
 	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
 	if (!g_pMdiArea.isNull()) {
@@ -952,7 +950,7 @@ void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 
 #endif
 
-	assert(false);
+	Q_ASSERT(false);
 	m_nLastActivateCanOpener = -1;
 }
 
@@ -967,7 +965,7 @@ CKJVCanOpener *CMyApplication::activeCanOpener() const
 template<class T>
 CKJVCanOpener *CMyApplication::findCanOpenerFromChild(const T *pChild) const
 {
-	assert(pChild != nullptr);
+	Q_ASSERT(pChild != nullptr);
 	for (int ndxCanOpener = 0; ndxCanOpener < m_lstKJVCanOpeners.size(); ++ndxCanOpener) {
 		QList<T *>lstFoundChildren = m_lstKJVCanOpeners.at(ndxCanOpener)->findChildren<T *>(pChild->objectName());
 		for (int ndxChild = 0; ndxChild < lstFoundChildren.size(); ++ndxChild) {
@@ -993,7 +991,7 @@ template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<CScriptureWebEngi
 
 void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
 {
-	assert(pCanOpener != nullptr);
+	Q_ASSERT(pCanOpener != nullptr);
 	if (!g_pMdiArea.isNull()) {
 		QList<QMdiSubWindow *> lstSubWindows = g_pMdiArea->subWindowList();
 		for (int ndx = 0; ndx < lstSubWindows.size(); ++ndx) {
@@ -1010,7 +1008,7 @@ void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
 
 void CMyApplication::activateCanOpener(int ndx) const
 {
-	assert((ndx >= 0) && (ndx < m_lstKJVCanOpeners.size()));
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstKJVCanOpeners.size()));
 	if ((ndx < 0) || (ndx >= m_lstKJVCanOpeners.size())) return;
 
 	activateCanOpener(m_lstKJVCanOpeners.at(ndx));
@@ -1025,7 +1023,7 @@ void CMyApplication::activateAllCanOpeners() const
 
 void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 {
-	assert(canQuit());
+	Q_ASSERT(canQuit());
 	if (!canQuit()) return;
 
 	int nLastCanOpener = 0;
@@ -1070,7 +1068,7 @@ void CMyApplication::restartApp(CKJVCanOpener *pCallingCanOpener)
 
 void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)
 {
-	assert(pAction != nullptr);
+	Q_ASSERT(pAction != nullptr);
 	int nIndex = pAction->data().toInt();
 	activateCanOpener(nIndex);
 }
@@ -1151,7 +1149,7 @@ void CMyApplication::en_notesFileAutoSaveTriggered()
 
 void CMyApplication::en_changedUserNotesDatabase()
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	if ((CPersistentSettings::instance()->notesFileAutoSaveTime() > 0) && (!m_dlyNotesFilesAutoSave.isTriggered())) {
 		if (g_pUserNotesDatabase->isDirty()) m_dlyNotesFilesAutoSave.trigger();
 	} else if (!g_pUserNotesDatabase->isDirty()) {
@@ -1206,7 +1204,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 	}
 
 	QStringList lstMsg = strMessage.split(";", My_QString_KeepEmptyParts);
-	assert(lstMsg.size() >= 1);
+	Q_ASSERT(lstMsg.size() >= 1);
 	if (lstMsg.size() < 1) return;
 
 	QString strKJSFileName;
@@ -1249,7 +1247,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 			if (nIndex == -1) {
 				if (m_lstKJVCanOpeners.size() > 1) nIndex = 0;
 			} else {
-				assert(false);
+				Q_ASSERT(false);
 				return;
 			}
 			activateCanOpener(nIndex);
@@ -1282,7 +1280,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 				if (pBibleDatabase.isNull()) pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 				setFileToLoad(strKJSFileName);
 				pCanOpener = createKJVCanOpener(pBibleDatabase);
-				assert(pCanOpener != nullptr);
+				Q_ASSERT(pCanOpener != nullptr);
 			} else {
 				pCanOpener = m_lstKJVCanOpeners.at(0);
 				if (!strKJSFileName.isEmpty()) pCanOpener->openKJVSearchFile(strKJSFileName);
@@ -1504,7 +1502,7 @@ int CMyApplication::execute(bool bBuildDB)
 				(m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) != 0) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
 			CReadDatabase rdbMain(m_pSplash);
-			assert(rdbMain.haveBibleDatabaseFiles(bblDesc));
+			Q_ASSERT(rdbMain.haveBibleDatabaseFiles(bblDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(bblDesc.m_strDBName) + tr("Bible", "Errors"));
 			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0))) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!", "Errors").arg(bblDesc.m_strDBDesc));
@@ -1539,7 +1537,7 @@ int CMyApplication::execute(bool bBuildDB)
 			}
 			if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
 			CReadDatabase rdbDict(m_pSplash);
-			assert(rdbDict.haveDictionaryDatabaseFiles(dctDesc));
+			Q_ASSERT(rdbDict.haveDictionaryDatabaseFiles(dctDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(dctDesc.m_strDBName) + tr("Dictionary", "Errors"));
 			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (m_strSelectedMainDictDB.compare(lstAvailableDictDescs.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0))) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
@@ -1611,7 +1609,7 @@ int CMyApplication::execute(bool bBuildDB)
 	// Launch WebChannel:
 	if (!m_strWebChannelHostPort.isEmpty()) {
 		QStringList lstHostPort = m_strWebChannelHostPort.split(QChar(','), My_QString_KeepEmptyParts);
-		assert(lstHostPort.size() >= 1);
+		Q_ASSERT(lstHostPort.size() >= 1);
 		quint16 nPort = lstHostPort.at(0).toUInt();
 		if (nPort) {
 			if (lstHostPort.size() == 1) {

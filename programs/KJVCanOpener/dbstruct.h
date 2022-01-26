@@ -54,8 +54,6 @@
 #include <QSqlDatabase>
 #endif
 
-#include <assert.h>
-
 #ifndef _countof
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif
@@ -1739,7 +1737,7 @@ protected:
 		:	CDictionaryDatabase(dctDesc),
 			m_pBibleDatabase(pBibleDatabase)
 	{
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 	}
 public:
 	virtual ~CStrongsDictionaryDatabase() { }

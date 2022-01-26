@@ -37,8 +37,6 @@
 #include <QJsonValue>
 #include <DelayedExecutionTimer.h>
 
-#include <assert.h>
-
 #define DEBUG_WEBCHANNEL_GEOLOCATE_REQUESTS 0
 #define DEBUG_WEBCHANNEL_MMDB_REQUESTS 0
 
@@ -61,7 +59,7 @@ CWebChannelGeoLocate::~CWebChannelGeoLocate()
 
 void CWebChannelGeoLocate::locate(const CWebChannelClient *pChannel, const QString &strIPAddress)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 
 	TGeoLocateClient theClient;
 	theClient.m_nLocateServer = GSE_NONE;
@@ -144,7 +142,7 @@ void CWebChannelGeoLocate::triggerInternalRequest(QObject *pInternal)
 
 void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 {
-	assert(pReply != nullptr);
+	Q_ASSERT(pReply != nullptr);
 	TGeoLocateClient theClient = m_mapChannels.value(pReply);
 	m_mapChannels.remove(pReply);
 

@@ -60,8 +60,6 @@
 #include <QJsonValue>
 #endif
 
-#include <assert.h>
-
 #include "PathConsts.h"
 
 namespace {
@@ -142,7 +140,7 @@ QString TBibleDatabaseList::availableBibleDatabasesAsJson()
 		if (!pBibleDatabase.isNull()) {
 			objBible["name"] = pBibleDatabase->description();
 		} else {
-			assert(lstAvailableBBLDescs.at(ndx).isValid());
+			Q_ASSERT(lstAvailableBBLDescs.at(ndx).isValid());
 			objBible["name"] = lstAvailableBBLDescs.at(ndx).m_strDBDesc;
 		}
 		arrBibleList.append(objBible);
@@ -183,7 +181,7 @@ void TBibleDatabaseList::removeBibleDatabase(const QString &strUUID)
 		if (pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
 			removeAt(ndx);
 			if (m_pMainBibleDatabase == pBibleDatabase) {
-				assert(false);				// Shouldn't allow removing of MainBibleDatabase -- call setMainBibleDatabase first
+				Q_ASSERT(false);				// Shouldn't allow removing of MainBibleDatabase -- call setMainBibleDatabase first
 			}
 			emit removeBibleDatabase(pBibleDatabase->compatibilityUUID());
 			emit changedBibleDatabaseList();
@@ -395,7 +393,7 @@ void TBibleDatabaseList::findBibleDatabases()
 
 void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	push_back(pBibleDatabase);
 	if (bSetAsMain) {
 		CBibleDatabasePtr pOldMain = m_pMainBibleDatabase;
@@ -588,7 +586,7 @@ void TDictionaryDatabaseList::removeDictionaryDatabase(const QString &strUUID)
 		if (pDictionaryDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
 			removeAt(ndx);
 			if (m_pMainDictionaryDatabase == pDictionaryDatabase) {
-				assert(false);				// Shouldn't allow removing of MainDictionaryDatabase -- call setMainDictionaryDatabase first
+				Q_ASSERT(false);				// Shouldn't allow removing of MainDictionaryDatabase -- call setMainDictionaryDatabase first
 			}
 			emit removeDictionaryDatabase(pDictionaryDatabase->compatibilityUUID());
 			emit changedDictionaryDatabaseList();
@@ -726,7 +724,7 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 
 void TDictionaryDatabaseList::addDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase, bool bSetAsMain)
 {
-	assert(!pDictionaryDatabase.isNull());
+	Q_ASSERT(!pDictionaryDatabase.isNull());
 	push_back(pDictionaryDatabase);
 	if (bSetAsMain) {
 		CDictionaryDatabasePtr pOldMain = m_pMainDictionaryDatabase;
@@ -933,7 +931,7 @@ CLemmaEntry::CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs)
 QString CLemmaEntry::strongs(int nIndex) const
 {
 	if ((nIndex < 0) || (nIndex >= count())) {
-		assert(false);
+		Q_ASSERT(false);
 		return QString();
 	}
 
@@ -943,7 +941,7 @@ QString CLemmaEntry::strongs(int nIndex) const
 QString CLemmaEntry::text(int nIndex) const
 {
 	if ((nIndex < 0) || (nIndex >= count())) {
-		assert(false);
+		Q_ASSERT(false);
 		return QString();
 	}
 
@@ -953,7 +951,7 @@ QString CLemmaEntry::text(int nIndex) const
 QString CLemmaEntry::morph(int nIndex) const
 {
 	if ((nIndex < 0) || (nIndex >= count())) {
-		assert(false);
+		Q_ASSERT(false);
 		return QString();
 	}
 
@@ -1106,7 +1104,7 @@ CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 		nBk--;
 	}
 	if (nBk == 0) {
-		assert(false);
+		Q_ASSERT(false);
 		return 0;
 	}
 
@@ -1115,7 +1113,7 @@ CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 		nChp--;
 	}
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
-		assert(false);
+		Q_ASSERT(false);
 		return 0;
 	}
 
@@ -1124,7 +1122,7 @@ CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 		nVrs--;
 	}
 	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
-		assert(false);
+		Q_ASSERT(false);
 		return 0;
 	}
 
@@ -1198,7 +1196,7 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
 		nBk--;
 	}
 	if (nBk == 0) {
-		assert(false);
+		Q_ASSERT(false);
 		return 0;
 	}
 
@@ -1207,7 +1205,7 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
 		nChp--;
 	}
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
-		assert(false);
+		Q_ASSERT(false);
 		return 0;
 	}
 
@@ -1216,7 +1214,7 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
 		nVrs--;
 	}
 	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
-		assert(false);
+		Q_ASSERT(false);
 		return 0;
 	}
 
@@ -1325,7 +1323,7 @@ QString CBibleDatabase::bookNameAbbr(const CRelIndex &nRelIndex) const
 	const CBookEntry &book = m_lstBooks[nBk-1];
 	if (book.m_lstBkAbbr.size() >= 2) return book.m_lstBkAbbr.at(1);		// Return preferred Common Abbreviation if it exists
 	if (book.m_lstBkAbbr.size() == 1) return book.m_lstBkAbbr.at(0);		// Return OSIS Abbreviation of there are no Common Abbreviations
-	assert(false);
+	Q_ASSERT(false);
 	return QString();
 }
 
@@ -1335,7 +1333,7 @@ QString CBibleDatabase::bookOSISAbbr(const CRelIndex &nRelIndex) const
 	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
 	const CBookEntry &book = m_lstBooks[nBk-1];
 	if (book.m_lstBkAbbr.size() >= 1) return book.m_lstBkAbbr.at(0);		// Return OSIS Abbreviation
-	assert(false);
+	Q_ASSERT(false);
 	return QString();
 }
 
@@ -1564,7 +1562,7 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 	m_nOfChp(0,0),
 	m_nOfVrs(0,0)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	switch (nRefType) {
 		case RTE_TESTAMENT:				// Calculate the Testament of the Bible
 			m_nOfBible.first = pBibleDatabase->testament(m_ndxRef);
@@ -1709,7 +1707,7 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 
 unsigned int CBibleDatabase::bookWordCountProper(unsigned int nBook) const
 {
-	assert((nBook > 0) && (nBook <= m_lstBooks.size()));
+	Q_ASSERT((nBook > 0) && (nBook <= m_lstBooks.size()));
 	const CBookEntry &bookEntry = m_lstBooks[nBook-1];
 	const TVerseEntryMap &mapVerses = m_lstBookVerses[nBook-1];
 	unsigned int nWords = bookEntry.m_nNumWrd;
@@ -1725,8 +1723,8 @@ unsigned int CBibleDatabase::bookWordCountProper(unsigned int nBook) const
 
 unsigned int CBibleDatabase::chapterWordCountProper(unsigned int nBook, unsigned int nChapter) const
 {
-	assert((nBook > 0) && (nBook <= m_lstBooks.size()));
-	assert((nChapter > 0) && (nChapter <= m_lstBooks[nBook-1].m_nNumChp));
+	Q_ASSERT((nBook > 0) && (nBook <= m_lstBooks.size()));
+	Q_ASSERT((nChapter > 0) && (nChapter <= m_lstBooks[nBook-1].m_nNumChp));
 	CRelIndex ndxChapter(nBook, nChapter, 0, 0);
 	const TVerseEntryMap &mapVerses = m_lstBookVerses.at(nBook-1);
 	const CChapterEntry &chapterEntry = m_mapChapters.at(ndxChapter);
@@ -1888,7 +1886,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		//		As a cross-check, ndxWord should be the Normalized index:
 		ndxResult = CRelIndex(nBook, nChapter, nVerse, nWord);
 		uint32_t ndxNormal = NormalizeIndex(ndxResult);
-		assert(ndxWord == ndxNormal);
+		Q_ASSERT(ndxWord == ndxNormal);
 	} else {
 		// REVERSE:
 
@@ -1903,17 +1901,17 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		// ndxWord is now pointing to the last word of the last verse of
 		//	the last chapter of the last book... or is the word of the
 		//	specified starting point...
-		assert(ndxWord != 0);
+		Q_ASSERT(ndxWord != 0);
 
 		CRelIndex ndxTarget(DenormalizeIndex(ndxWord));
-		assert(ndxTarget.index() != 0);		// Must be either the starting location or the last entry in the Bible
+		Q_ASSERT(ndxTarget.index() != 0);		// Must be either the starting location or the last entry in the Bible
 
 		// Force to the first whole chapter/verse (i.e. not colophon or superscription):
 		if (ndxTarget.verse() == 0) ndxTarget.setVerse(1);
 		if (ndxTarget.chapter() == 0) ndxTarget.setChapter(1);
 		ndxWord = NormalizeIndex(ndxTarget);
 		ndxTarget = DenormalizeIndex(ndxWord);
-		assert((ndxWord != 0) && (ndxTarget != 0));
+		Q_ASSERT((ndxWord != 0) && (ndxTarget != 0));
 
 		// In Reverse mode, we ignore the nTestament entry
 
@@ -2008,7 +2006,7 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		nBook = ndxTarget.book();					// nBook = Offset of book into Bible for final location
 		ndxTarget.setBook(1);						// Move to first book of the Bible
 		ndxWord = NormalizeIndex(ndxTarget);
-		assert(ndxWord == NormalizeIndex(CRelIndex(1,1,1,1)));		// We should be at the beginning of the Bible now
+		Q_ASSERT(ndxWord == NormalizeIndex(CRelIndex(1,1,1,1)));		// We should be at the beginning of the Bible now
 
 		// Call ourselves to calculate index from beginning of Bible:
 		ndxResult = calcRelIndex(nWord, nVerse, nChapter, nBook, 0);
@@ -2129,7 +2127,7 @@ CRelIndex CBibleDatabase::calcRelIndex(const CRelIndex &ndxStart, RELATIVE_INDEX
 
 TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBibleDatabase) const
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	if (pBibleDatabase == nullptr) return TCrossReferenceMap(*this);
 
 	TCrossReferenceMap mapScoped;
@@ -2227,20 +2225,20 @@ TPhraseTag CBibleDatabase::versePhraseTag(const CRelIndex &nRelIndex) const
 
 void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)
 {
-	assert(m_pKJPBSWordScriptureObject != nullptr);
+	Q_ASSERT(m_pKJPBSWordScriptureObject != nullptr);
 	m_pKJPBSWordScriptureObject->registerTextLayoutHandlers(pDocLayout);
 }
 
 const CTestamentEntry *CBibleDatabase::testamentEntry(uint32_t nTst) const
 {
-	assert((nTst >= 1) && (nTst <= m_lstTestaments.size()));
+	Q_ASSERT((nTst >= 1) && (nTst <= m_lstTestaments.size()));
 	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return nullptr;
 	return &m_lstTestaments.at(nTst-1);
 }
 
 const CBookCategoryEntry *CBibleDatabase::bookCategoryEntry(uint32_t nCat) const
 {
-	assert((nCat >= 1) && (nCat <= m_lstBookCategories.size()));
+	Q_ASSERT((nCat >= 1) && (nCat <= m_lstBookCategories.size()));
 	if ((nCat < 1) || (nCat > m_lstBookCategories.size())) return nullptr;
 	return &m_lstBookCategories.at(nCat-1);
 }
@@ -2316,7 +2314,7 @@ void CBibleDatabase::setRenderedWords(CWordEntry &aWordEntry) const
 		bHideHyphens = true;
 	}
 
-	assert(aWordEntry.m_lstAltWords.size() == aWordEntry.m_lstRenderedAltWords.size());
+	Q_ASSERT(aWordEntry.m_lstAltWords.size() == aWordEntry.m_lstRenderedAltWords.size());
 	for (int ndx = 0; ndx < aWordEntry.m_lstAltWords.size(); ++ndx) {
 		aWordEntry.m_lstRenderedAltWords[ndx] = (bHideHyphens ? CSearchStringListModel::deHyphen(aWordEntry.m_lstAltWords.at(ndx), true) : aWordEntry.m_lstAltWords.at(ndx));
 	}
@@ -2369,7 +2367,7 @@ QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, bool bAsRendered)
 
 QString CBibleDatabase::decomposedWordAtIndex(uint32_t ndxNormal) const
 {
-	assert((ndxNormal >= 1) && (ndxNormal < m_lstConcordanceMapping.size()));
+	Q_ASSERT((ndxNormal >= 1) && (ndxNormal < m_lstConcordanceMapping.size()));
 	if ((ndxNormal < 1) || (ndxNormal >= m_lstConcordanceMapping.size()))
 		return QString();
 
@@ -2417,7 +2415,7 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	CRelIndex ndx = ndxRel;
 	ndx.setWord(0);							// We always return the whole verse, not specific words
 	const CVerseEntry *pVerse = verseEntry(ndx);
-	assert(pVerse != nullptr);
+	Q_ASSERT(pVerse != nullptr);
 
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 	TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
@@ -2455,14 +2453,14 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 {
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedConcordanceWord];
-		assert(!language().isEmpty());
+		Q_ASSERT(!language().isEmpty());
 		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord, CSoundExSearchCompleterFilter::languageValue(language()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedConcordanceWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
-	assert(!language().isEmpty());
+	Q_ASSERT(!language().isEmpty());
 	return CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord, CSoundExSearchCompleterFilter::languageValue(language()));
 }
 
@@ -2492,12 +2490,12 @@ CDictionaryDatabase::~CDictionaryDatabase()
 {
 #ifndef NOT_USING_SQL
 	if (isLiveDatabase()) {
-		assert(m_myDatabase.contains(m_descriptor.m_strUUID));
+		Q_ASSERT(m_myDatabase.contains(m_descriptor.m_strUUID));
 		m_myDatabase.close();
 		m_myDatabase = QSqlDatabase();
 		QSqlDatabase::removeDatabase(m_descriptor.m_strUUID);
 	} else {
-		assert(!m_myDatabase.contains(m_descriptor.m_strUUID));
+		Q_ASSERT(!m_myDatabase.contains(m_descriptor.m_strUUID));
 	}
 #endif
 }
@@ -2506,14 +2504,14 @@ QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord,
 {
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedDictionaryWord];
-		assert(!language().isEmpty());
+		Q_ASSERT(!language().isEmpty());
 		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord, CSoundExSearchCompleterFilter::languageValue(language()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedDictionaryWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
-	assert(!language().isEmpty());
+	Q_ASSERT(!language().isEmpty());
 	return CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord, CSoundExSearchCompleterFilter::languageValue(language()));
 }
 
@@ -2544,7 +2542,7 @@ int CDictionaryDatabase::wordCount() const
 
 QString CDictionaryDatabase::wordEntry(int ndx) const
 {
-	assert((ndx >= 0) && (ndx < m_lstWordList.size()));
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstWordList.size()));
 	return m_lstWordList.at(ndx);
 }
 
@@ -2593,7 +2591,7 @@ int CStrongsDictionaryDatabase::wordCount() const
 
 QString CStrongsDictionaryDatabase::wordEntry(int ndx) const
 {
-	assert((ndx >= 0) && (ndx < wordCount()));
+	Q_ASSERT((ndx >= 0) && (ndx < wordCount()));
 	const TStrongsIndexMap &mapStrongs = m_pBibleDatabase->strongsIndexMap();
 	TStrongsIndexMap::const_iterator itrStrongs = mapStrongs.cbegin();
 	std::advance(itrStrongs, ndx);
@@ -2674,16 +2672,16 @@ void TPhraseTag::setFromPassageTag(const CBibleDatabase *pBibleDatabase, const T
 		m_RelIndex = CRelIndex();
 		m_nCount = 0;
 	} else if ((tagPassage.relIndex().isColophon()) || (tagPassage.relIndex().isSuperscription())) {
-		assert(pBibleDatabase != nullptr);
+		Q_ASSERT(pBibleDatabase != nullptr);
 		m_RelIndex = tagPassage.relIndex();
-		assert(m_RelIndex.word() == 1);			// All passages should start at first word of verse (see its constructors)
-		assert(tagPassage.verseCount() == 1);	// Colophons and superscriptions each constitute one pseudo-verse
+		Q_ASSERT(m_RelIndex.word() == 1);			// All passages should start at first word of verse (see its constructors)
+		Q_ASSERT(tagPassage.verseCount() == 1);	// Colophons and superscriptions each constitute one pseudo-verse
 		const CVerseEntry *pEntry = pBibleDatabase->verseEntry(m_RelIndex);
 		m_nCount = ((pEntry != nullptr) ? pEntry->m_nNumWrd : 0);
 	} else {
-		assert(pBibleDatabase != nullptr);
+		Q_ASSERT(pBibleDatabase != nullptr);
 		m_RelIndex = tagPassage.relIndex();
-		assert(m_RelIndex.word() == 1);			// All passages should start at first word of verse (see its constructors)
+		Q_ASSERT(m_RelIndex.word() == 1);			// All passages should start at first word of verse (see its constructors)
 		CRelIndex ndxStart = tagPassage.relIndex();
 		CRelIndex ndxTarget = tagPassage.relIndex();
 		if (tagPassage.verseCount() > 1) {
@@ -2698,7 +2696,7 @@ void TPhraseTag::setFromPassageTag(const CBibleDatabase *pBibleDatabase, const T
 }
 
 QString TPhraseTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (pBibleDatabase == nullptr) return QString();
 	QString strReferenceRangeText = pBibleDatabase->PassageReferenceText(m_RelIndex);
@@ -2717,14 +2715,14 @@ TTagBoundsPair TPhraseTag::bounds(const CBibleDatabase *pBibleDatabase) const
 bool TPhraseTag::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	return bounds(pBibleDatabase).completelyContains(aTag.bounds(pBibleDatabase));
 }
 
 bool TPhraseTag::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	return bounds(pBibleDatabase).intersects(aTag.bounds(pBibleDatabase));
 }
 
@@ -2732,7 +2730,7 @@ bool TPhraseTag::intersectingInsert(const CBibleDatabase *pBibleDatabase, const 
 {
 	if ((!relIndex().isSet()) || (!aTag.relIndex().isSet())) return false;
 
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	TTagBoundsPair tbpRef = bounds(pBibleDatabase);
 
@@ -2806,7 +2804,7 @@ void TPhraseTagList::setFromPassageTagList(const CBibleDatabase *pBibleDatabase,
 
 bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (!aTag.relIndex().isSet()) return false;
 
@@ -2842,7 +2840,7 @@ bool TPhraseTagList::completelyContains(const CBibleDatabase *pBibleDatabase, co
 
 bool TPhraseTagList::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (!aTag.relIndex().isSet()) return false;
 
@@ -2855,7 +2853,7 @@ bool TPhraseTagList::intersects(const CBibleDatabase *pBibleDatabase, const TPhr
 
 void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (!aTag.relIndex().isSet()) return;
 
@@ -2891,7 +2889,7 @@ void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, co
 
 void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, const TPhraseTagList &aTagList)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	if (aTagList.isEmpty()) return;
 
 	const_iterator itrNewTags = aTagList.constBegin();
@@ -2949,7 +2947,7 @@ void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, co
 			++itrNewTags;
 			if (itrNewTags != aTagList.constEnd()) tbpNew = itrNewTags->bounds(pBibleDatabase);
 		}
-		assert(bAtLeastOneIntersection);
+		Q_ASSERT(bAtLeastOneIntersection);
 		// See if any remaining indexes spilled over into the new intersection and
 		//		if so, combine them:
 		iterator itrOrgNextTag = itrOrgTags + 1;
@@ -2976,7 +2974,7 @@ void TPhraseTagList::intersectingInsert(const CBibleDatabase *pBibleDatabase, co
 
 bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	bool bRemovedIntersection = false;
 
@@ -2992,7 +2990,7 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 				continue;
 			}
 		} else if (aTag.completelyContains(pBibleDatabase, *itrTags)) {
-			assert(aTag.haveSelection());
+			Q_ASSERT(aTag.haveSelection());
 			// If the passed tag completely contains the one in the list, remove the one in the list:
 			itrTags = erase(itrTags);
 			bRemovedIntersection = true;
@@ -3038,11 +3036,11 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 					//		than the first word of the next book.  This "work-around" checks for that and manually
 					//		sets it to the next word.  It does make the assumption (and asserts if it fails) that
 					//		the last word of the tbpSrc boundary is still in this database:
-					assert(tbpNew.lo() == (tbpSrc.hi() + 1));		// If we "ran off the database", make sure it's the upper half we are keeping
+					Q_ASSERT(tbpNew.lo() == (tbpSrc.hi() + 1));		// If we "ran off the database", make sure it's the upper half we are keeping
 					if (tbpNew.lo() == (tbpSrc.hi() + 1)) {
 						CRelIndex ndxUpper = (*itrTags).relIndex();
 						ndxUpper = pBibleDatabase->DenormalizeIndex(tbpSrc.hi());
-						assert(ndxUpper.isSet());
+						Q_ASSERT(ndxUpper.isSet());
 						ndxUpper = CRelIndex(ndxUpper.book()+1, 1, 1, 1);
 						*itrTags = TPhraseTag(ndxUpper, (*itrTags).count());
 					}
@@ -3067,7 +3065,7 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 					//		sets it to the next word.  It does make the assumption (and asserts if it fails) that
 					//		the last word of the tbpSrc boundary is still in this database:
 					ndxUpper = pBibleDatabase->DenormalizeIndex(tbpSrc.hi());
-					assert(ndxUpper.isSet());
+					Q_ASSERT(ndxUpper.isSet());
 					ndxUpper = CRelIndex(ndxUpper.book()+1, 1, 1, 1);
 				}
 				append(TPhraseTag(ndxUpper, tbpRef.hi() - tbpSrc.hi()));
@@ -3083,7 +3081,7 @@ bool TPhraseTagList::removeIntersection(const CBibleDatabase *pBibleDatabase, co
 
 int TPhraseTagList::findIntersectingIndex(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag, int nStartIndex) const
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	if (nStartIndex < 0) return -1;
 	if (!aTag.isSet()) return -1;
 
@@ -3107,7 +3105,7 @@ void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const T
 		m_RelIndex.setWord(1);
 		m_nVerseCount = 1;
 	} else {
-		assert(pBibleDatabase != nullptr);
+		Q_ASSERT(pBibleDatabase != nullptr);
 		m_RelIndex = tagPhrase.relIndex();
 		m_RelIndex.setWord(1);
 		CRelIndex ndxTarget = tagPhrase.relIndex();
@@ -3120,7 +3118,7 @@ void TPassageTag::setFromPhraseTag(const CBibleDatabase *pBibleDatabase, const T
 }
 
 QString TPassageTag::PassageReferenceRangeText(const CBibleDatabase *pBibleDatabase) const {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (pBibleDatabase == nullptr) return QString();
 	CRelIndex ndxFirst(m_RelIndex);

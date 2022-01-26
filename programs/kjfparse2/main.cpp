@@ -52,8 +52,6 @@ static inline QString htmlEscape(const QString &aString)
 }
 #endif
 
-#include <assert.h>
-
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
 #define NUM_BK_NT 27u

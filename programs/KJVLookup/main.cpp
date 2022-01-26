@@ -51,7 +51,6 @@
 
 #include <iostream>
 #include <set>
-#include <assert.h>
 
 #include "../KJVCanOpener/PathConsts.h"
 
@@ -314,7 +313,7 @@ int main(int argc, char *argv[])
 	}
 
 	QTcpSocket *pClient = myServer.nextPendingConnection();
-	assert(pClient);
+	Q_ASSERT(pClient);
 	if (pClient) {
 		while (pClient->waitForReadyRead(30000)) {		// Must see commands in 30 second window
 			QByteArray baCommand = pClient->readLine();

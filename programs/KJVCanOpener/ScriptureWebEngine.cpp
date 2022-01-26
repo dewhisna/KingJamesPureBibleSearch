@@ -44,8 +44,6 @@
 #include <QStringList>
 #include <QTextDocument>
 
-#include <assert.h>
-
 // ============================================================================
 
 CKJPBSWebViewSchemeHandler::CKJPBSWebViewSchemeHandler(QObject *parent)
@@ -59,7 +57,7 @@ CKJPBSWebViewSchemeHandler::~CKJPBSWebViewSchemeHandler()
 
 void CKJPBSWebViewSchemeHandler::requestStarted(QWebEngineUrlRequestJob *request)
 {
-	assert(request != nullptr);
+	Q_ASSERT(request != nullptr);
 
 	// We will be using URLs in the forms of:
 	//	kjpbs://bible-uuid/RelIndex				<< here, the "hostname" will be the bible-uuid, and path will be /RelIndex
@@ -98,11 +96,11 @@ void CKJPBSWebViewSchemeHandler::requestStarted(QWebEngineUrlRequestJob *request
 														CPhraseNavigator::TRO_ScriptureBrowser |
 														CPhraseNavigator::TRO_UseLemmas);
 	int nPos = strHTML.indexOf("<style type=\"text/css\">\n");
-	assert(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
+	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
 	nPos = strHTML.indexOf("body", nPos);
-	assert(nPos > -1);
+	Q_ASSERT(nPos > -1);
 	nPos = strHTML.indexOf("{", nPos);
-	assert(nPos > -1);
+	Q_ASSERT(nPos > -1);
 	if (nPos > -1) {
 		strHTML.insert(nPos+1, QString(" background-color:%1; color: %2;\n")
 						.arg(CPersistentSettings::instance()->textBackgroundColor().name())
@@ -141,7 +139,7 @@ CScriptureWebEngineView::~CScriptureWebEngineView()
 void CScriptureWebEngineView::en_loadFinished(bool bOK)
 {
 	if (bOK) {
-		assert(page() != nullptr);
+		Q_ASSERT(page() != nullptr);
 		if (page()) {
 			// Chrome Hack to convert relative anchor hrefs to absolute,
 			//	from https://stackoverflow.com/questions/49116986/in-page-href-in-qtwebview-fails-to-display-anything
@@ -172,7 +170,7 @@ void CScriptureWebEngineView::en_setFont(const QFont& aFont)
 #else
 	QWebEngineSettings *pSettings = QWebEngineSettings::globalSettings();
 #endif
-	assert(pSettings != nullptr);
+	Q_ASSERT(pSettings != nullptr);
 
 	pSettings->setFontFamily(QWebEngineSettings::StandardFont, aFont.family());
 	pSettings->setFontSize(QWebEngineSettings::MinimumFontSize, aFont.pointSize());
@@ -180,7 +178,7 @@ void CScriptureWebEngineView::en_setFont(const QFont& aFont)
 
 void CScriptureWebEngineView::en_setTextBrightness(bool bInvert, int nBrightness)
 {
-	assert(page() != nullptr);
+	Q_ASSERT(page() != nullptr);
 	if (page()) {
 		page()->setBackgroundColor(CPersistentSettings::textBackgroundColor(bInvert, nBrightness));
 		reload();		// Needed to update the css
@@ -201,9 +199,9 @@ void CScriptureWebEngineView::load(const QUrl &url)
 
 	CBibleDatabasePtr pBibleDatabase;
 
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	CKJVCanOpener *pCanOpener = g_pMyApplication->findCanOpenerFromChild<CScriptureWebEngineView>(this);
-	assert(pCanOpener != nullptr);
+	Q_ASSERT(pCanOpener != nullptr);
 	if (pCanOpener != nullptr) {
 		pBibleDatabase = pCanOpener->bibleDatabase();
 	}
@@ -230,11 +228,11 @@ void CScriptureWebEngineView::load(const QUrl &url)
 														CPhraseNavigator::TRO_UseLemmas,
 													 &searchResultsHighlighter);
 	int nPos = strHTML.indexOf("<style type=\"text/css\">\n");
-	assert(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
+	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
 	nPos = strHTML.indexOf("body", nPos);
-	assert(nPos > -1);
+	Q_ASSERT(nPos > -1);
 	nPos = strHTML.indexOf("{", nPos);
-	assert(nPos > -1);
+	Q_ASSERT(nPos > -1);
 	if (nPos > -1) {
 		strHTML.insert(nPos+1, QString(" background-color:%1; color: %2;\n")
 						.arg(CPersistentSettings::instance()->textBackgroundColor().name())

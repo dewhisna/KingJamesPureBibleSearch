@@ -42,8 +42,6 @@
 #include <QTextEdit>
 #endif
 
-#include <assert.h>
-
 // ============================================================================
 
 // Forward declarations:
@@ -165,7 +163,7 @@ public:
 	int currentSubPhrase() const { return m_nActiveSubPhrase; }
 	const CSubPhrase *subPhrase(int nIndex) const
 	{
-		assert((nIndex >= 0) && (nIndex < m_lstSubPhrases.size()));
+		Q_ASSERT((nIndex >= 0) && (nIndex < m_lstSubPhrases.size()));
 		return m_lstSubPhrases.at(nIndex).data();
 	}
 	QSharedPointer<CSubPhrase> primarySubPhrase() const
@@ -396,8 +394,8 @@ public:
 	}
 	const CSelectedPhrase &primarySelectionPhrase() const
 	{
-		assert(size() != 0);
-		assert(haveSelection());
+		Q_ASSERT(size() != 0);
+		Q_ASSERT(haveSelection());
 		for (int ndx = 0; ndx < size(); ++ndx) {
 			if (at(ndx).tag().haveSelection()) return at(ndx);
 		}
@@ -680,7 +678,7 @@ public:
 			m_TextEditor(textEditor),
 			m_bUseToolTipEdit(bUseToolTipEdit)
 	{
-		assert(!m_pBibleDatabase.isNull());
+		Q_ASSERT(!m_pBibleDatabase.isNull());
 	}
 
 	// Text Selection/ToolTip Functions:

@@ -83,13 +83,13 @@ namespace {
 
 CHebrewLetters::HEB_LTR_NDX CHebrewLetters::indexOfLetter(const QChar &chrLetter)
 {
-	assert(g_HebrewLetters.size() == HEBNDX_COUNT);
+	Q_ASSERT(g_HebrewLetters.size() == HEBNDX_COUNT);
 	return static_cast<HEB_LTR_NDX>(g_HebrewLetters.indexOf(chrLetter));
 }
 
 QChar CHebrewLetters::letterForIndex(CHebrewLetters::HEB_LTR_NDX nIndex)
 {
-	assert(g_HebrewLetters.size() == HEBNDX_COUNT);
+	Q_ASSERT(g_HebrewLetters.size() == HEBNDX_COUNT);
 	int niIndex = static_cast<int>(nIndex);
 	if ((niIndex < 0) || (niIndex >= g_HebrewLetters.size())) return QChar();
 	return g_HebrewLetters.at(niIndex);

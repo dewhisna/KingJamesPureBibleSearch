@@ -280,7 +280,7 @@ public:
 
 	virtual void mousePressEvent(QMouseEvent *pEvent)
 	{
-		assert(pEvent != nullptr);
+		Q_ASSERT(pEvent != nullptr);
 #ifndef Q_OS_MAC
 		m_bControlActivation = ((pEvent->modifiers() & Qt::ControlModifier) ? true : false);
 #else
@@ -339,7 +339,7 @@ protected:
 	{
 		if (pEvent->type() == QEvent::Shortcut) {
 			QShortcutEvent *pSE = static_cast<QShortcutEvent *>(pEvent);
-			assert(m_lstShortcuts.contains(pSE->key()));
+			Q_ASSERT(m_lstShortcuts.contains(pSE->key()));
 			if (pSE->isAmbiguous()) {
 				qWarning("QAction::eventFilter: Ambiguous shortcut overload: %s", pSE->key().toString().toLatin1().constData());
 			} else {
@@ -379,7 +379,7 @@ public:
 
 	bool controlActivation() const
 	{
-		assert(m_pHighlighterToolButton != nullptr);
+		Q_ASSERT(m_pHighlighterToolButton != nullptr);
 		return m_pHighlighterToolButton->controlActivation();
 	}
 

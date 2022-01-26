@@ -349,7 +349,7 @@ QStringList CNoteKeywordWidget::selectedKeywordList() const
 
 void CNoteKeywordWidget::setKeywordList(const QStringList &lstSelectedKeywords, const QStringList &lstCompositeKeywords)
 {
-	assert(!m_bDoingUpdate);
+	Q_ASSERT(!m_bDoingUpdate);
 	m_bDoingUpdate = true;
 	m_pKeywordModel->setKeywordList(lstSelectedKeywords, lstCompositeKeywords);
 	m_pKeywordModel->sort(0);
@@ -360,7 +360,7 @@ void CNoteKeywordWidget::setKeywordList(const QStringList &lstSelectedKeywords, 
 
 void CNoteKeywordWidget::setMode(KEYWORD_WIDGET_MODE_ENUM nMode)
 {
-	assert(!m_bDoingUpdate);
+	Q_ASSERT(!m_bDoingUpdate);
 	m_bDoingUpdate = true;
 
 	m_nMode = nMode;
@@ -402,7 +402,7 @@ void CNoteKeywordWidget::setMode(KEYWORD_WIDGET_MODE_ENUM nMode)
 
 bool CNoteKeywordWidget::haveUnenteredKeywords() const
 {
-	assert(m_nMode == KWME_EDITOR);
+	Q_ASSERT(m_nMode == KWME_EDITOR);
 
 	bool bHaveUnenteredKeywords = false;
 	QStringList lstNewKeywords = ui.comboKeywords->currentText().split(QChar(','), My_QString_SkipEmptyParts);
@@ -426,7 +426,7 @@ bool CNoteKeywordWidget::haveUnenteredKeywords() const
 
 void CNoteKeywordWidget::en_keywordEntered()
 {
-	assert(m_nMode == KWME_EDITOR);
+	Q_ASSERT(m_nMode == KWME_EDITOR);
 
 	if (m_bDoingUpdate) return;
 
@@ -443,12 +443,12 @@ void CNoteKeywordWidget::en_keywordEntered()
 				int ndx = m_pKeywordModel->rowCount();
 				bool bSuccess;
 				bSuccess = m_pKeywordModel->insertRow(ndx);
-				assert(bSuccess);
+				Q_ASSERT(bSuccess);
 				QModelIndex index = m_pKeywordModel->index(ndx);
 				bSuccess = m_pKeywordModel->setData(index, strNewKeyword, Qt::EditRole);
-				assert(bSuccess);
+				Q_ASSERT(bSuccess);
 				bSuccess = m_pKeywordModel->setData(index, Qt::Checked, Qt::CheckStateRole);
-				assert(bSuccess);
+				Q_ASSERT(bSuccess);
 				bDataChanged = true;
 			} else {
 				if (!index.data(Qt::CheckStateRole).toBool()) {

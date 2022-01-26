@@ -30,8 +30,6 @@
 #include <QStringList>
 #include <QFile>
 
-#include <assert.h>
-
 
 #define NUM_BK 66u
 #define NUM_BK_OT 39u
@@ -193,7 +191,7 @@ TBook g_arrBooks[NUM_BK] =
 
 static QString convertVerseText(const QString &strVerseText, unsigned int nBook, unsigned int nChapter, unsigned int nVerse)		// note: nVerse 0 = first verse and means use subtitles.  Others mean last verse of chapter and use colophons
 {
-	assert(nBook < NUM_BK);
+	Q_ASSERT(nBook < NUM_BK);
 
 	// Markup is as follows:
 	//	[brackets] are for Italicized words
@@ -204,7 +202,7 @@ static QString convertVerseText(const QString &strVerseText, unsigned int nBook,
 	QString strVerse = strVerseText;
 	if ((nBook == (PSALMS_BOOK_NUM-1)) && (nChapter == 118) && ((nVerse % 8) == 0)) {
 		int ndxOf = strVerse.indexOf(".");
-		assert(ndxOf != -1);
+		Q_ASSERT(ndxOf != -1);
 		strVerse = strVerse.mid(ndxOf+1);
 	}
 
@@ -245,9 +243,9 @@ static QString convertVerseText(const QString &strVerseText, unsigned int nBook,
 		}
 	}
 
-	assert(nBracketsAdded == 0);
-	assert(nBracketsWordsOfJesus == 0);
-	assert(nBracketsColophon == 0);
+	Q_ASSERT(nBracketsAdded == 0);
+	Q_ASSERT(nBracketsWordsOfJesus == 0);
+	Q_ASSERT(nBracketsColophon == 0);
 
 	return strTemp;
 }

@@ -28,7 +28,7 @@
 CDictDatabaseInfoDialog::CDictDatabaseInfoDialog(CDictionaryDatabasePtr pDictDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
-	assert(!pDictDatabase.isNull());
+	Q_ASSERT(!pDictDatabase.isNull());
 
 	ui.setupUi(this);
 

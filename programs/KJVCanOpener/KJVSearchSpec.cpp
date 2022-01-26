@@ -208,7 +208,7 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
 	for (int ndx = 0; ndx < nPhrases; ++ndx) {
 		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-		assert(pPhraseEditor != nullptr);
+		Q_ASSERT(pPhraseEditor != nullptr);
 		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 		kjsFile.setArrayIndex(ndx);
 		TPhraseSettings aPhrase;
@@ -222,7 +222,7 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	// But, always open at least the minimum number of empty search phrases specified:
 	for (int ndx = nPhrases; ndx < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++ndx) {
 		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
-		assert(pPhraseEditor != nullptr);
+		Q_ASSERT(pPhraseEditor != nullptr);
 		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 	}
 	kjsFile.endArray();
@@ -233,7 +233,7 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	// Set focus to our first editor.  Note that calling of focusEditor
 	//	doesn't work when running from the constructor during a restore
 	//	operation.  So we'll set it to trigger later:
-	assert(pFirstSearchPhraseEditor != nullptr);
+	Q_ASSERT(pFirstSearchPhraseEditor != nullptr);
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 }
 
@@ -277,7 +277,7 @@ void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhr
 		m_lstSearchPhraseEditors.at(ndx)->processPendingTextChanges();
 	}
 
-	assert(pSearchPhrase != nullptr);
+	Q_ASSERT(pSearchPhrase != nullptr);
 	pSearchPhrase->focusEditor();
 	ensureSearchPhraseVisible(pSearchPhrase);
 }
@@ -305,7 +305,7 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 
 CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
 	connect(pPhraseWidget, SIGNAL(resizing(CKJVSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CKJVSearchPhraseEdit*)));
@@ -408,7 +408,7 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	if (m_bCloseAllSearchPhrasesInProgress) return;
 
-	assert(pSearchPhrase != nullptr);
+	Q_ASSERT(pSearchPhrase != nullptr);
 
 	if (pSearchPhrase->phraseEditor() == m_pLastEditorActive) m_pLastEditorActive = nullptr;
 
@@ -418,7 +418,7 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 							(pSearchPhrase->parsedPhrase()->isCompleteMatch()));
 
 	int ndx = m_lstSearchPhraseEditors.indexOf(pSearchPhrase);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx != -1) {
 		m_lstSearchPhraseEditors.removeAt(ndx);
 	}
@@ -454,7 +454,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	CPhraseList phrases;
 	for (int ndx=0; ndx<m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
-		assert(pPhrase != nullptr);
+		Q_ASSERT(pPhrase != nullptr);
 		if ((pPhrase->GetNumberOfMatches()) &&
 			(!pPhrase->isDuplicate()) &&
 			(!pPhrase->isDisabled())) {
@@ -507,7 +507,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 					} else {
 						strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
 										tr("(Found %n Time(s))", "Statistics", aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin) + "\n";
-						assert(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
+						Q_ASSERT(aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumMatchesWithin == aPhrase.extraInfo().value<TPhraseOccurrenceInfo>().m_nNumContributingMatches);
 					}
 				} else {
 					strSummary += QString("    \"%1\" ").arg(mdlPhrases.index(ndx).data().toString()) +
@@ -548,7 +548,7 @@ void CKJVSearchSpec::processAllPendingUpdateCompleter()
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		CPhraseLineEdit *pPhraseEditor = m_lstSearchPhraseEditors.at(ndx)->phraseEditor();
-		assert(pPhraseEditor != nullptr);
+		Q_ASSERT(pPhraseEditor != nullptr);
 		if (m_lstSearchPhraseEditors.at(ndx)->parsedPhrase()->isDisabled()) continue;
 		// No need to update the active one as it will handle itself:
 		if (pPhraseEditor != m_pLastEditorActive)
@@ -574,7 +574,7 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		const CParsedPhrase *pPhrase = m_lstSearchPhraseEditors.at(ndx)->parsedPhrase();
-		assert(pPhrase != nullptr);
+		Q_ASSERT(pPhrase != nullptr);
 		if (pPhrase->isDisabled()) continue;
 		pPhrase->setIsDuplicate(false);
 		pPhrase->ClearWithinPhraseTagSearchResults();

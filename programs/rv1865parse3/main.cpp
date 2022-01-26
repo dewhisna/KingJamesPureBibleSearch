@@ -32,8 +32,6 @@
 
 #include <QTextDocument>                        // Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 
-#include <assert.h>
-
 
 #define NUM_BK 66u
 #define NUM_BK_OT 39u

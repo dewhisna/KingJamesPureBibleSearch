@@ -40,8 +40,6 @@
 #include <QAbstractItemView>
 #endif
 
-#include <assert.h>
-
 #include <algorithm>
 
 #if QT_VERSION < 0x050000
@@ -389,7 +387,7 @@ CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pD
 		m_pDictionaryDatabase(pDictionary),
 		m_editorWord(editorWord)
 {
-	assert(!pDictionary.isNull());
+	Q_ASSERT(!pDictionary.isNull());
 
 	m_lstBasicWords.clear();
 	m_lstBasicWords.reserve(m_pDictionaryDatabase->wordCount());
@@ -467,7 +465,7 @@ CSearchStrongsDictionaryListModel::CSearchStrongsDictionaryListModel(CDictionary
 		m_pDictionaryDatabase(pDictionary),
 		m_editorWord(editorWord)
 {
-	assert(!pDictionary.isNull());
+	Q_ASSERT(!pDictionary.isNull());
 }
 
 CSearchStrongsDictionaryListModel::~CSearchStrongsDictionaryListModel()
@@ -553,7 +551,7 @@ CSearchCompleter::~CSearchCompleter()
 
 void CSearchCompleter::setCompletionFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nCompletionFilterMode)
 {
-	assert(m_pSoundExFilterModel != nullptr);
+	Q_ASSERT(m_pSoundExFilterModel != nullptr);
 
 	switch (nCompletionFilterMode) {
 		case SCFME_NORMAL:
@@ -663,7 +661,7 @@ void CSearchCompleter::selectFirstMatchString()
 
 void CSearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 {
-	assert(m_pSearchStringListModel != nullptr);
+	Q_ASSERT(m_pSearchStringListModel != nullptr);
 	m_pSearchStringListModel->setWordsFromPhrase(bForceUpdate);
 }
 
@@ -681,7 +679,7 @@ CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListMo
 		m_nFirstDecomposedMatchStringIndex(-1),
 		m_pSearchStringListModel(pSearchStringListModel)
 {
-	assert(m_pSearchStringListModel != nullptr);
+	Q_ASSERT(m_pSearchStringListModel != nullptr);
 	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()), Qt::DirectConnection);
 
 	connect(m_pSearchStringListModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_dataChanged(const QModelIndex &, const QModelIndex &)));
@@ -1012,7 +1010,7 @@ QString CSoundExSearchCompleterFilter::soundEx(const QString &strWordIn, SOUNDEX
 #endif
 	}
 
-	assert(strSoundEx.size());
+	Q_ASSERT(strSoundEx.size());
 
 	// The following must be done AFTER the multi-letter
 	//		replacements above since these could change
@@ -1328,7 +1326,7 @@ void CStrongsDictionarySearchCompleter::selectFirstMatchString()
 
 void CStrongsDictionarySearchCompleter::setFilterMatchString()
 {
-	assert(m_pStrongsListModel != nullptr);
+	Q_ASSERT(m_pStrongsListModel != nullptr);
 	m_strFilterMatchString = m_pStrongsListModel->cursorWord();
 	setCompletionPrefix(m_strFilterMatchString);
 }

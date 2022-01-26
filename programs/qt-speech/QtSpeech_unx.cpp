@@ -47,8 +47,6 @@
 #include <festival.h>
 #include <QTimer>
 
-#include <assert.h>
-
 namespace QtSpeech_v2 { // API v2.0
 
 // ============================================================================

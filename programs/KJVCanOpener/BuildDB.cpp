@@ -31,8 +31,6 @@
 #include "PhraseListModel.h"
 #include "ReportError.h"
 
-#include <assert.h>
-
 #ifndef NOT_USING_SQL
 #include <QtSql>
 #include <QSqlQuery>
@@ -97,14 +95,14 @@ static QByteArray convertCSVStringToIndexBlob(const QString &str)
 	uint32_t nValue;
 	for (int i=0; i<slValues.size(); ++i) {
 		nValue = slValues.at(i).toUInt();
-		assert(nValue != 0);
+		Q_ASSERT(nValue != 0);
 		for (unsigned int j=1; j<=sizeof(uint32_t); ++j) {
 			baBlob[static_cast<unsigned int>((i*sizeof(uint32_t))+(sizeof(uint32_t)-j))] = (nValue & 0xFF);
 			nValue = nValue >> 8;
 		}
 	}
-	assert((baBlob.size() % sizeof(uint32_t)) == 0);
-	assert(baBlob.size() == static_cast<int>(slValues.size() * sizeof(uint32_t)));
+	Q_ASSERT((baBlob.size() % sizeof(uint32_t)) == 0);
+	Q_ASSERT(baBlob.size() == static_cast<int>(slValues.size() * sizeof(uint32_t)));
 
 	return baBlob;
 }

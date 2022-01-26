@@ -25,8 +25,6 @@
 
 #include <QObject>
 
-#include <assert.h>
-
 // ============================================================================
 
 #ifndef _countof
@@ -190,8 +188,8 @@ unsigned int bibleDescriptorCount()
 
 const TBibleDescriptor &bibleDescriptor(BIBLE_DESCRIPTOR_ENUM nIndex)
 {
-	assert(nIndex != BDE_UNKNOWN);
-	assert(static_cast<unsigned int>(nIndex) < _countof(constBibleDescriptors));
+	Q_ASSERT(nIndex != BDE_UNKNOWN);
+	Q_ASSERT(static_cast<unsigned int>(nIndex) < _countof(constBibleDescriptors));
 	return constBibleDescriptors[nIndex];
 }
 
@@ -212,8 +210,8 @@ unsigned int dictionaryDescriptorCount()
 
 const TDictionaryDescriptor &dictionaryDescriptor(DICTIONARY_DESCRIPTOR_ENUM nIndex)
 {
-	assert(nIndex != DDE_UNKNOWN);
-	assert(static_cast<unsigned int>(nIndex) < _countof(constDictionaryDescriptors));
+	Q_ASSERT(nIndex != DDE_UNKNOWN);
+	Q_ASSERT(static_cast<unsigned int>(nIndex) < _countof(constDictionaryDescriptors));
 	return constDictionaryDescriptors[nIndex];
 }
 

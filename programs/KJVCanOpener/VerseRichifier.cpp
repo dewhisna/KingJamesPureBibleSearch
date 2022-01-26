@@ -245,7 +245,7 @@ CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerse
 		m_bUseLemmas(bUseLemmas),
 		m_bUseWordSpans(bUseWordSpans)
 {
-	assert(pVerse != nullptr);
+	Q_ASSERT(pVerse != nullptr);
 }
 
 CVerseTextRichifier::~CVerseTextRichifier()
@@ -283,12 +283,12 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 	if (m_pVerse != nullptr) {
 		lstSplit.reserve(m_pVerse->m_nNumWrd + 1);
 		lstSplit = parseBaton.m_strTemplate.split(m_chrMatchChar);
-		assert(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
-		assert(strNodeIn.isNull());
+		Q_ASSERT(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
+		Q_ASSERT(strNodeIn.isNull());
 	} else {
 		lstSplit = strNodeIn.split(m_chrMatchChar);
 	}
-	assert(lstSplit.size() != 0);
+	Q_ASSERT(lstSplit.size() != 0);
 
 	bool bStartedVerseOutput = false;		// Set to true when we first start writing output on this verse
 
@@ -385,7 +385,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 				} else if (m_chrMatchChar == QChar('D')) {
 					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
 				} else if (m_chrMatchChar == QChar('R')) {
-					assert(parseBaton.m_pHighlighter != nullptr);
+					Q_ASSERT(parseBaton.m_pHighlighter != nullptr);
 					// Note: for searchResult, we always have to check the intersection and handle
 					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
@@ -399,7 +399,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 						parseBaton.m_bInSearchResult = true;
 					}
 				} else if (m_chrMatchChar == QChar('r')) {
-					assert(parseBaton.m_pHighlighter != nullptr);
+					Q_ASSERT(parseBaton.m_pHighlighter != nullptr);
 					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
 					if ((parseBaton.m_bOutput) &&
@@ -415,7 +415,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 					if (ndxWord.word() > 1) parseBaton.m_strVerseText.append(' ');
 					parseBaton.m_strVerseText.append(m_strXlateText);		// Opening '('
 					const CFootnoteEntry *pFootnote = parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
-					assert(pFootnote != nullptr);
+					Q_ASSERT(pFootnote != nullptr);
 					parseBaton.m_strVerseText.append(pFootnote->text());
 				} else if (m_chrMatchChar == QChar('n')) {
 					parseBaton.m_strVerseText.append(m_strXlateText);		// Closing ')'
@@ -463,8 +463,8 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 										const CVerseTextRichifierTags &tags, bool bAddAnchors, int *pWordCount, const CBasicHighlighter *pHighlighter, bool bUseLemmas, bool bUseWordSpans)
 {
-	assert(pBibleDatabase != nullptr);
-	assert(pVerse != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
+	Q_ASSERT(pVerse != nullptr);
 
 	CRelIndex ndxRelVerse(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);	// Relative as verse only
 
@@ -606,7 +606,7 @@ void CVerseTextRichifierTags::setFromPersistentSettings(const CPersistentSetting
 				setTransChangeAddedTags(QString("["), QString("]"));
 				break;
 			default:
-				assert(false);
+				Q_ASSERT(false);
 				break;
 		}
 	}

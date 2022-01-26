@@ -40,8 +40,6 @@
 #include <QJsonValue>
 #endif
 
-#include <assert.h>
-
 // ============================================================================
 
 // Special Search Indexes:
@@ -100,7 +98,7 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 	:	QAbstractItemModel(pParent),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	const TRelativeIndexSet &aSetSearchWithin = aSearchCriteria.searchWithin();
 	m_bBibleHasColophons = pBibleDatabase->hasColophons();
@@ -116,14 +114,14 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 	}
 	for (unsigned int nTst = 1; nTst <= m_pBibleDatabase->bibleEntry().m_nNumTst; ++nTst) {
 		const CTestamentEntry *pTestamentEntry = m_pBibleDatabase->testamentEntry(nTst);
-		assert(pTestamentEntry != nullptr);
+		Q_ASSERT(pTestamentEntry != nullptr);
 		if (pTestamentEntry == nullptr) continue;
 		if (pTestamentEntry->m_nNumWrd == 0) continue;		// Skip testament if it has no words (like a New Testament only database)
 		CSearchWithinModelIndex *pIndexTestament = m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_TESTAMENT, nTst);
 		CSearchWithinModelIndexMap mapCategoryIndexes;
 		for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 			const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nBk);
-			assert(pBookEntry != nullptr);
+			Q_ASSERT(pBookEntry != nullptr);
 			if (pBookEntry == nullptr) continue;
 			if (pBookEntry->m_nTstNdx != nTst) continue;
 			if (pBookEntry->m_nNumWrd == 0) continue;		// Skip books if it has no words (like a Pentateuch only database)
@@ -135,7 +133,7 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 				pIndexCategory = pIndexTestament->insertIndex(CSearchCriteria::SSME_CATEGORY, pBookEntry->m_nCatNdx);
 				mapCategoryIndexes.insert(pBookEntry->m_nCatNdx, pIndexCategory);
 			}
-			assert(pIndexCategory != nullptr);
+			Q_ASSERT(pIndexCategory != nullptr);
 			CSearchWithinModelIndex *pIndexBook = pIndexCategory->insertIndex(CSearchCriteria::SSME_BOOK, nBk);
 			pIndexBook->setCheck(aSetSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) != aSetSearchWithin.end());
 		}
@@ -155,7 +153,7 @@ QString CSearchWithinModel::searchWithinDescription() const
 
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; /* Increment inside loop */) {
 		const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(*fwdItr);
-		assert(pSearchWithinModelIndex != nullptr);
+		Q_ASSERT(pSearchWithinModelIndex != nullptr);
 		// Fully checked items completely define it, so use it -- except for Category,
 		//	since they are subjective, which will translate to the child names:
 		if ((pSearchWithinModelIndex->checkState() == Qt::Checked) && (pSearchWithinModelIndex->ssme() != CSearchCriteria::SSME_CATEGORY)) {
@@ -184,7 +182,7 @@ TRelativeIndexSet CSearchWithinModel::searchWithin() const
 	bool bSelectAll = true;
 	for (CModelRowForwardIterator fwdItr(this); fwdItr; ++fwdItr) {
 		const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(*fwdItr);
-		assert(pSearchWithinModelIndex != nullptr);
+		Q_ASSERT(pSearchWithinModelIndex != nullptr);
 		CRelIndex ndxItem = fwdItr->data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>();
 		if ((ndxItem.isSet()) && (pSearchWithinModelIndex->checkState() == Qt::Checked)) {
 			setIndexes.insert(ndxItem);
@@ -229,14 +227,14 @@ QModelIndex	CSearchWithinModel::index(int row, int column, const QModelIndex &zP
 	if (!hasIndex(row, column, zParent)) return QModelIndex();
 
 	if (!zParent.isValid()) {
-		assert(row == 0);
+		Q_ASSERT(row == 0);
 		return createIndex(0, 0, fromSearchWithinModelIndex(&m_rootSearchWithinModelIndex));
 	}
 	const CSearchWithinModelIndex *pSearchWithinModelParentIndex = toSearchWithinModelIndex(zParent);
-	assert(pSearchWithinModelParentIndex != nullptr);
+	Q_ASSERT(pSearchWithinModelParentIndex != nullptr);
 	if (pSearchWithinModelParentIndex == nullptr) return QModelIndex();
 
-	assert(row < pSearchWithinModelParentIndex->childIndexCount());
+	Q_ASSERT(row < pSearchWithinModelParentIndex->childIndexCount());
 	return createIndex(row, column, fromSearchWithinModelIndex(pSearchWithinModelParentIndex->childIndex(row)));
 }
 
@@ -245,7 +243,7 @@ QModelIndex CSearchWithinModel::parent(const QModelIndex &index) const
 	if (!index.isValid()) return QModelIndex();
 
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
-	assert(pSearchWithinModelIndex != nullptr);
+	Q_ASSERT(pSearchWithinModelIndex != nullptr);
 	if (pSearchWithinModelIndex == nullptr) return QModelIndex();
 	const CSearchWithinModelIndex *pParentSearchWithinModelIndex = pSearchWithinModelIndex->parentIndex();
 	if (pParentSearchWithinModelIndex == nullptr) return QModelIndex();
@@ -258,12 +256,12 @@ QModelIndex CSearchWithinModel::parent(const QModelIndex &index) const
 
 QVariant CSearchWithinModel::data(const QModelIndex &index, int role) const
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (!index.isValid()) return QVariant();
 
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
-	assert(pSearchWithinModelIndex != nullptr);
+	Q_ASSERT(pSearchWithinModelIndex != nullptr);
 
 	return data(pSearchWithinModelIndex, role);
 }
@@ -325,19 +323,19 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 			{
 				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					(role == SWMDRE_WEBCHANNEL_ROLE)) {
-					assert(m_pBibleDatabase->testamentEntry(nItem) != nullptr);
+					Q_ASSERT(m_pBibleDatabase->testamentEntry(nItem) != nullptr);
 					return m_pBibleDatabase->testamentEntry(nItem)->m_strTstName;
 				} else {
 					return xc_dbDescriptors::translatedBibleTestamentName(m_pBibleDatabase->compatibilityUUID(), nItem);
 				}
 			}
 			case CSearchCriteria::SSME_CATEGORY:
-				assert(m_pBibleDatabase->bookCategoryEntry(nItem) != nullptr);
+				Q_ASSERT(m_pBibleDatabase->bookCategoryEntry(nItem) != nullptr);
 				return m_pBibleDatabase->bookCategoryEntry(nItem)->m_strCategoryName;
 			case CSearchCriteria::SSME_BOOK:
 			{
 				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);
-				assert(pBookEntry != nullptr);
+				Q_ASSERT(pBookEntry != nullptr);
 				QString strBook = pBookEntry->m_strBkName;
 				// role == CSearchWithinModel::SWMDRE_WEBCHANNEL_ROLE ignores description like Qt::EditRole
 				if ((role == Qt::DisplayRole) && (!pBookEntry->m_strDesc.isEmpty())) {
@@ -354,7 +352,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				return strBook;
 			}
 			default:
-				assert(false);
+				Q_ASSERT(false);
 				break;
 		}
 	} else if (role == Qt::ToolTipRole) {
@@ -382,7 +380,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 			case CSearchCriteria::SSME_BOOK:
 			{
 				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);
-				assert(pBookEntry != nullptr);
+				Q_ASSERT(pBookEntry != nullptr);
 				return QVariant::fromValue(CRelIndex(nItem, 0, 0, 0));
 			}
 			default:
@@ -398,7 +396,7 @@ bool CSearchWithinModel::setData(const QModelIndex &index, const QVariant &value
 	if (!index.isValid()) return false;
 
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
-	assert(pSearchWithinModelIndex != nullptr);
+	Q_ASSERT(pSearchWithinModelIndex != nullptr);
 
 	if (role == Qt::CheckStateRole) {
 		pSearchWithinModelIndex->setCheck(value.toBool());
@@ -419,7 +417,7 @@ void CSearchWithinModel::fireChildrenChange(const QModelIndex &index)
 {
 	if (!index.isValid()) return;
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
-	assert(pSearchWithinModelIndex != nullptr);
+	Q_ASSERT(pSearchWithinModelIndex != nullptr);
 	emit dataChanged(index, index);
 	for (int ndx = 0; ndx < pSearchWithinModelIndex->childIndexCount(); ++ndx) {
 		fireChildrenChange(createIndex(ndx, 0, fromSearchWithinModelIndex(pSearchWithinModelIndex->childIndex(ndx))));
@@ -432,7 +430,7 @@ Qt::ItemFlags CSearchWithinModel::flags(const QModelIndex &index) const
 		return Qt::ItemIsDropEnabled;
 
 	const CSearchWithinModelIndex *pSearchWithinModelIndex = toSearchWithinModelIndex(index);
-	assert(pSearchWithinModelIndex != nullptr);
+	Q_ASSERT(pSearchWithinModelIndex != nullptr);
 	if (pSearchWithinModelIndex == nullptr) return Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 
 	if (index.data(SWMDRE_REL_INDEX_ROLE).value<CRelIndex>() == CSearchCriteria::SSI_COLOPHON) {
@@ -478,7 +476,7 @@ void CSearchWithinModel::sort(int column, Qt::SortOrder order)
 {
 	Q_UNUSED(column);
 	Q_UNUSED(order);
-	assert(false);
+	Q_ASSERT(false);
 }
 
 // ============================================================================
@@ -618,12 +616,12 @@ CKJVSearchCriteriaWidget::~CKJVSearchCriteriaWidget()
 
 void CKJVSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	m_pBibleDatabase = pBibleDatabase;
 
 	begin_update();
 
-	assert(m_pSearchWithinModel == nullptr);		// Must be setting for the first time
+	Q_ASSERT(m_pSearchWithinModel == nullptr);		// Must be setting for the first time
 	QAbstractItemModel *pOldModel = ui.treeViewSearchWithin->model();
 	m_pSearchWithinModel = new CSearchWithinModel(m_pBibleDatabase, m_SearchCriteria, this);
 	ui.treeViewSearchWithin->setModel(m_pSearchWithinModel);
@@ -660,7 +658,7 @@ void CKJVSearchCriteriaWidget::en_changedSearchScopeMode(int ndx)
 
 void CKJVSearchCriteriaWidget::en_changedSearchWithin()
 {
-	assert(m_pSearchWithinModel != nullptr);
+	Q_ASSERT(m_pSearchWithinModel != nullptr);
 
 	if (m_bDoingUpdate) return;
 

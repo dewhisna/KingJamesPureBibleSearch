@@ -60,7 +60,7 @@ CHighlighterPhraseTagFwdItr::CHighlighterPhraseTagFwdItr(const i_TVerseListModel
 	:	m_pvlmResults(pvlmResults),
 		m_lstPhraseTags(m_lstDummyPhraseTags)
 {
-	assert(pvlmResults != nullptr);
+	Q_ASSERT(pvlmResults != nullptr);
 	m_itrVerses = m_pvlmResults->data.verseMap().constBegin();
 	while (m_itrVerses != m_pvlmResults->data.verseMap().constEnd()) {
 		m_itrTags = m_itrVerses->phraseTags().constBegin();
@@ -122,7 +122,7 @@ CSearchResultHighlighter::CSearchResultHighlighter(const CVerseListModel *pVerse
 		m_pVerseListModel(pVerseListModel),
 		m_bExcludedResults(bExcludedResults)
 {
-	assert(pVerseListModel);
+	Q_ASSERT(pVerseListModel);
 
 	connect(pVerseListModel, SIGNAL(destroyed()), this, SLOT(verseListModelDestroyed()));
 	connect(pVerseListModel, SIGNAL(verseListChanged()), this, SLOT(verseListChanged()));
@@ -183,7 +183,7 @@ QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &
 
 bool CSearchResultHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (!enabled()) return false;
 	if (!aTag.relIndex().isSet()) return false;
@@ -198,7 +198,7 @@ bool CSearchResultHighlighter::intersects(const CBibleDatabase *pBibleDatabase, 
 
 void CSearchResultHighlighter::verseListChanged()
 {
-	assert(m_pVerseListModel != nullptr);
+	Q_ASSERT(m_pVerseListModel != nullptr);
 	if (m_pVerseListModel == nullptr) return;
 
 	emit phraseTagsChanged();
@@ -300,7 +300,7 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
 
 	QTextCharFormat fmtNew;
@@ -361,8 +361,8 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 	:	QObject(pParent),
 		m_pActionGroupHighlighterTools(nullptr)
 {
-	assert(pParent != nullptr);
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(pParent != nullptr);
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	m_pActionGroupHighlighterTools = new QActionGroup(pParent);
 	m_pActionGroupHighlighterTools->setExclusive(false);
@@ -416,7 +416,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 		}
 #endif
 		if (lstShortcuts.size() != 2) {
-			assert(false);
+			Q_ASSERT(false);
 			continue;
 		}
 
@@ -451,7 +451,7 @@ void CHighlighterButtons::setHighlighterTips(bool bSearchResultsActive)
 
 		QList<QKeySequence> lstShortcuts = pActionToolButton->shortcuts();
 		if (lstShortcuts.size() != 2) {
-			assert(false);
+			Q_ASSERT(false);
 		} else {
 			QString strActionText;
 			if (bSearchResultsActive) {
@@ -476,7 +476,7 @@ void CHighlighterButtons::setHighlighterTips(bool bSearchResultsActive)
 
 void CHighlighterButtons::addHighlighterButtonsToToolBar(QToolBar *pToolBar)
 {
-	assert(pToolBar != nullptr);
+	Q_ASSERT(pToolBar != nullptr);
 	for (int ndx = 0; ndx < m_lstButtons.size(); ++ndx) {
 		// Originally had this addWidget call.  However, addWidget creates a new QWidgetAction
 		//		which takes ownership of the specified widget, which is undesirable since we
@@ -513,10 +513,10 @@ void CHighlighterButtons::setHighlighterLists()
 
 void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefinedHighlighterName)
 {
-	assert(!g_pUserNotesDatabase.isNull());
-	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
-	assert(m_lstButtons.size() == m_lstActionGroups.size());
-	assert(m_lstButtons.at(ndx) != nullptr);
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstButtons.size()));
+	Q_ASSERT(m_lstButtons.size() == m_lstActionGroups.size());
+	Q_ASSERT(m_lstButtons.at(ndx) != nullptr);
 	if (m_lstButtons.at(ndx) == nullptr) return;
 	QString strHighlighter = strUserDefinedHighlighterName;
 	if (m_lstActionGroups.at(ndx) == nullptr) {
@@ -533,7 +533,7 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 	}
 	m_lstActionGroups[ndx]->setExclusive(true);
 
-	assert(m_lstButtons[ndx]->menu() != nullptr);
+	Q_ASSERT(m_lstButtons[ndx]->menu() != nullptr);
 	const TUserDefinedColorMap mapHighlighters(g_pUserNotesDatabase->highlighterDefinitionsMap());
 	for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 		if ((!itrHighlighters->isValid()) || (!itrHighlighters->m_bEnabled)) continue;
@@ -551,8 +551,8 @@ void CHighlighterButtons::setHighlighterList(int ndx, const QString &strUserDefi
 
 void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserDefinedHighlighterName)
 {
-	assert(!g_pUserNotesDatabase.isNull());
-	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstButtons.size()));
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
 		m_lstButtons[ndx]->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
@@ -578,9 +578,9 @@ QIcon CHighlighterButtons::iconHighlighterPreview(const QString &strUserDefinedH
 
 void CHighlighterButtons::en_highlighterSelectionChanged(QAction *pAction)
 {
-	assert(pAction != nullptr);
+	Q_ASSERT(pAction != nullptr);
 	int ndx = pAction->data().toInt();
-	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstButtons.size()));
 
 	setHighlighterPreview(ndx, pAction->text());
 }
@@ -589,7 +589,7 @@ QString CHighlighterButtons::highlighter(int ndx) const
 {
 	if (ndx == -1) return QString();
 
-	assert((ndx >= 0) && (ndx < m_lstActionGroups.size()));
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstActionGroups.size()));
 	if ((ndx < 0) || (ndx >= m_lstActionGroups.size())) return QString();
 
 	QAction *pCurrentAction = m_lstActionGroups[ndx]->checkedAction();
@@ -600,9 +600,9 @@ QString CHighlighterButtons::highlighter(int ndx) const
 
 void CHighlighterButtons::en_highlighterToolTriggered(QAction *pAction, bool bSecondary)
 {
-	assert(pAction != nullptr);
+	Q_ASSERT(pAction != nullptr);
 	int ndx = pAction->data().toInt();
-	assert((ndx >= 0) && (ndx < m_lstButtons.size()));
+	Q_ASSERT((ndx >= 0) && (ndx < m_lstButtons.size()));
 
 	emit highlighterToolTriggered(ndx, m_lstButtons.at(ndx)->controlActivation() || bSecondary);
 }

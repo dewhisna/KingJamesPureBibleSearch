@@ -26,15 +26,13 @@
 
 #include "UserNotesDatabase.h"
 
-#include <assert.h>
-
 // ============================================================================
 
 CKJPBSWordScriptureObject::CKJPBSWordScriptureObject(CBibleDatabase *pBibleDatabase)
 	:	QObject(nullptr),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 }
 
 CKJPBSWordScriptureObject::~CKJPBSWordScriptureObject()
@@ -44,7 +42,7 @@ CKJPBSWordScriptureObject::~CKJPBSWordScriptureObject()
 
 void CKJPBSWordScriptureObject::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout)
 {
-	assert(pDocLayout != nullptr);
+	Q_ASSERT(pDocLayout != nullptr);
 	pDocLayout->registerHandler(USEROBJ_KJPBS_WORD, this);
 }
 
@@ -199,7 +197,7 @@ void CScriptureTextHtmlBuilder::endDiv()
 bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex)
 {
 	if (!relIndex.isSet()) return false;
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	QString strWordAt = pBibleDatabase->wordAtIndex(relIndex);
 	appendRawText(QString("<KJPBSWord RelIndex=\"%1\" />").arg(relIndex.asAnchor()));			// TODO: Embed Text in Object???
 	return (!strWordAt.isEmpty());
@@ -207,7 +205,7 @@ bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabas
 
 bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace)
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
@@ -247,7 +245,7 @@ bool CScriptureTextHtmlBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExp
 
 bool CScriptureTextHtmlBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	const CFootnoteEntry *pFootnote = pBibleDatabase->footnoteEntry(relNdx);
 	if (pFootnote) {
@@ -264,8 +262,8 @@ bool CScriptureTextHtmlBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatab
 
 bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
-	assert(pBibleDatabase != nullptr);
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	const TCrossReferenceMap mapCrossRefs = g_pUserNotesDatabase->crossRefsMap().createScopedMap(pBibleDatabase);
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
@@ -289,7 +287,7 @@ bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleData
 
 void CScriptureTextHtmlBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (bAddLeadInSpace) appendLiteralText(" ");
 	appendLiteralText("[");
@@ -340,7 +338,7 @@ void CScripturePlainTextBuilder::endDiv()
 bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex)
 {
 	if (!relIndex.isSet()) return false;
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 	QString strWordAt = pBibleDatabase->wordAtIndex(relIndex);
 	appendRawText(strWordAt);
 	return (!strWordAt.isEmpty());
@@ -348,7 +346,7 @@ bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDataba
 
 bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace)
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	if (g_pUserNotesDatabase->existsNoteFor(relNdx)) {
 		CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(relNdx);
@@ -388,7 +386,7 @@ bool CScripturePlainTextBuilder::addNoteFor(const CRelIndex &relNdx, bool bAddEx
 
 bool CScripturePlainTextBuilder::addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	const CFootnoteEntry *pFootnote = pBibleDatabase->footnoteEntry(relNdx);
 	if (pFootnote) {
@@ -405,8 +403,8 @@ bool CScripturePlainTextBuilder::addFootnoteFor(const CBibleDatabase *pBibleData
 
 bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
-	assert(pBibleDatabase != nullptr);
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	const TCrossReferenceMap mapCrossRefs = g_pUserNotesDatabase->crossRefsMap().createScopedMap(pBibleDatabase);
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
@@ -431,7 +429,7 @@ bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDat
 
 void CScripturePlainTextBuilder::addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace)
 {
-	assert(pBibleDatabase != nullptr);
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	if (bAddLeadInSpace) appendLiteralText(" ");
 	appendLiteralText("[");
@@ -458,7 +456,7 @@ CScriptureTextDocumentDirector::CScriptureTextDocumentDirector(CAbstractScriptur
 		m_pBuilder(pBuilder),
 		m_pBibleDatabase(pBibleDatabase)
 {
-	assert(pBuilder != nullptr);
+	Q_ASSERT(pBuilder != nullptr);
 }
 
 CScriptureTextDocumentDirector::~CScriptureTextDocumentDirector()

@@ -28,8 +28,6 @@
 #include <QAbstractItemModel>
 #include <QPersistentModelIndex>
 
-#include <assert.h>
-
 class CModelRowForwardIterator : public QObject
 {
 	Q_OBJECT
@@ -40,7 +38,7 @@ public:
 
 	CModelRowForwardIterator & operator=(const QAbstractItemModel *pModel)
 	{
-		assert(pModel != nullptr);
+		Q_ASSERT(pModel != nullptr);
 		return *this = (pModel->hasChildren() ? pModel->index(0,0) : QModelIndex());
 	}
 

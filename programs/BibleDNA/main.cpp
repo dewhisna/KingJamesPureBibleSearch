@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 		for (uint32_t ndxSeq = 0; ((ndxSeq < conSequenceLength) && (nLtr <= pGenesis->m_nNumLtr)); ++ndxSeq) {
 			CRelIndexEx relLetterIndex = pBible->DenormalizeIndexEx(nLetterNormalIndex);
 			const CConcordanceEntry *pConcordanceEntry = pBible->concordanceEntryForWordAtIndex(relLetterIndex);
-			assert(pConcordanceEntry != nullptr);
+			Q_ASSERT(pConcordanceEntry != nullptr);
 			if (pConcordanceEntry != nullptr) {
 				strSequence += pConcordanceEntry->letter(relLetterIndex.letter());
 			}
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 		}
 		std::cout << "  Pairs:" << std::endl;
 		for (int ndxPairs = 0; ndxPairs < CHebrewLetters::numberOfLetterPairs; ++ndxPairs) {
-			assert(arrPairs[ndxPairs].size() == arrPairCounts[ndxPairs]);
+			Q_ASSERT(arrPairs[ndxPairs].size() == arrPairCounts[ndxPairs]);
 			if (arrPairs[ndxPairs].isEmpty()) continue;
 			std::cout << "    Pair: " << arrPairs[ndxPairs].toStdString() << std::endl;
 		}

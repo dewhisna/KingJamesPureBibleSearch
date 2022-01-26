@@ -125,7 +125,7 @@ protected:
 		CDoUpdate(CSingleLineTextEdit *pLineEdit)
 			:	m_pLineEdit(pLineEdit)
 		{
-			assert(m_pLineEdit != nullptr);
+			Q_ASSERT(m_pLineEdit != nullptr);
 			m_bUpdateSave = m_pLineEdit->m_bUpdateInProgress;
 			m_pLineEdit->m_bUpdateInProgress = true;
 		}

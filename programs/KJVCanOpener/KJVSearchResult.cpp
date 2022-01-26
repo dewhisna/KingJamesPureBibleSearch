@@ -42,8 +42,6 @@
 
 #include "myApplication.h"
 
-#include <assert.h>
-
 #include <QVBoxLayout>
 #include <QHeaderView>
 #include <QAbstractItemView>
@@ -127,8 +125,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 		m_pReflowDelegate(nullptr),
 		m_pParentCanOpener(nullptr)
 {
-	assert(!pBibleDatabase.isNull());
-	assert(!pUserNotesDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(!pUserNotesDatabase.isNull());
 
 #ifdef SIGNAL_SPY_DEBUG
 #ifdef SEARCH_RESULTS_SPY
@@ -310,7 +308,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 #endif
 	QAbstractItemModel *pOldModel = model();
 	setModel(pModel);
-	assert(pModel == vlmodel());
+	Q_ASSERT(pModel == vlmodel());
 	if (pOldModel) delete pOldModel;
 	bool bDecorateRoot = (vlmodel()->treeMode() != CVerseListModel::VTME_LIST) ||
 						((vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS) && (vlmodel()->viewMode() != CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED));
@@ -344,7 +342,7 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
 
 #ifdef USING_QT_SPEECH
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
 	if (pSpeech != nullptr) {
@@ -382,7 +380,7 @@ void CSearchResultsTreeView::en_changedScrollbarsEnabled(bool bEnabled)
 CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 {
 	if (m_pParentCanOpener == nullptr) {
-		assert(!g_pMyApplication.isNull());
+		Q_ASSERT(!g_pMyApplication.isNull());
 		m_pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<CSearchResultsTreeView>(this);
 		// Note: It's possible for the parentCanOpener to be NULL if this function is called during
 		//		the construction process before the parent actually exists.  In that case, we'll
@@ -395,7 +393,7 @@ CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 void CSearchResultsTreeView::en_findParentCanOpener()
 {
 	CKJVCanOpener *pCanOpener = parentCanOpener();
-	assert(pCanOpener != nullptr);
+	Q_ASSERT(pCanOpener != nullptr);
 
 	if (pCanOpener != nullptr) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
@@ -427,7 +425,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 
 void CSearchResultsTreeView::en_speechPlay()
 {
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 	if (pSpeech == nullptr) return;
 
@@ -468,7 +466,7 @@ void CSearchResultsTreeView::en_speechPlay()
 
 void CSearchResultsTreeView::setSpeechActionEnables()
 {
-	assert(!g_pMyApplication.isNull());
+	Q_ASSERT(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
 	if ((pSpeech != nullptr) && (hasFocus())) {
@@ -525,7 +523,7 @@ void CSearchResultsTreeView::en_copyVerseEntry() const
 								 (vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) ? getSelectedEntries() : getSelectedVerses());
 
 	QMimeData *mime = vlmodel()->mimeDataFromVerseText(lstVerses, false);
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -536,7 +534,7 @@ void CSearchResultsTreeView::en_copyVerseEntry() const
 void CSearchResultsTreeView::en_copyVerseText() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromVerseText(getSelectedVerses(), true);
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -547,7 +545,7 @@ void CSearchResultsTreeView::en_copyVerseText() const
 void CSearchResultsTreeView::en_copyRaw() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromRawVerseText(getSelectedVerses(), false);
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -558,7 +556,7 @@ void CSearchResultsTreeView::en_copyRaw() const
 void CSearchResultsTreeView::en_copyVeryRaw() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromRawVerseText(getSelectedVerses(), true);
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -572,7 +570,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 								 (vlmodel()->viewMode() == CVerseListModel::VVME_USERNOTES)) ? getSelectedEntries() : getSelectedVerses());
 
 	QMimeData *mime = vlmodel()->mimeDataFromVerseHeadings(lstVerses, true);
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -583,7 +581,7 @@ void CSearchResultsTreeView::en_copyVerseHeadings() const
 void CSearchResultsTreeView::en_copyReferenceDetails() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromReferenceDetails(getSelectedVerses());
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -594,7 +592,7 @@ void CSearchResultsTreeView::en_copyReferenceDetails() const
 void CSearchResultsTreeView::en_copyComplete() const
 {
 	QMimeData *mime = vlmodel()->mimeDataFromCompleteVerseDetails(getSelectedVerses());
-	assert(mime != nullptr);
+	Q_ASSERT(mime != nullptr);
 	if (mime == nullptr) return;
 
 	QClipboard *clipboard = QApplication::clipboard();
@@ -613,8 +611,8 @@ void CSearchResultsTreeView::displayCopyCompleteToolTip() const
 void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, bool bSecondaryActive)
 {
 	if (!hasFocus()) return;
-	assert(parentCanOpener() != nullptr);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
-	assert(vlmodel()->userNotesDatabase() != nullptr);
+	Q_ASSERT(parentCanOpener() != nullptr);			// We should have a parentCanOpener or else we shouldn't have connected this slot yet
+	Q_ASSERT(vlmodel()->userNotesDatabase() != nullptr);
 
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
@@ -740,7 +738,7 @@ void CSearchResultsTreeView::setParsedPhrases(const CSearchResultsData &searchRe
 
 void CSearchResultsTreeView::showPassageNavigator()
 {
-	assert(!vlmodel()->bibleDatabase().isNull());
+	Q_ASSERT(!vlmodel()->bibleDatabase().isNull());
 
 	CRelIndex ndxRel;
 
@@ -748,11 +746,11 @@ void CSearchResultsTreeView::showPassageNavigator()
 	if (lstSelectedItems.size() == 1) {
 		if (!lstSelectedItems.at(0).isValid()) return;
 		ndxRel = vlmodel()->logicalIndexForModelIndex(lstSelectedItems.at(0));
-		assert(ndxRel.isSet());
+		Q_ASSERT(ndxRel.isSet());
 		if (!ndxRel.isSet()) return;
 	} else {
 		ndxRel = vlmodel()->logicalIndexForModelIndex(currentIndex());
-		assert(ndxRel.isSet());			// Should have had one or the other because of editableNodeSelected()
+		Q_ASSERT(ndxRel.isSet());			// Should have had one or the other because of editableNodeSelected()
 		if (!ndxRel.isSet()) return;
 	}
 
@@ -779,7 +777,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 
 bool CSearchResultsTreeView::event(QEvent *event)
 {
-	assert(event != nullptr);
+	Q_ASSERT(event != nullptr);
 #ifdef TOUCH_GESTURE_PROCESSING
 	if (event->type() == QEvent::Gesture) {
 		QGestureEvent *pGestureEvent = static_cast<QGestureEvent *>(event);
@@ -805,7 +803,7 @@ bool CSearchResultsTreeView::event(QEvent *event)
 
 void CSearchResultsTreeView::keyPressEvent(QKeyEvent *event)
 {
-	assert(event != nullptr);
+	Q_ASSERT(event != nullptr);
 	switch (event->key()) {
 		case Qt::Key_Select:
 			// Also do Key_Enter action.
@@ -861,7 +859,7 @@ QString CSearchResultsTreeView::debugGestureState(QGesture *pGesture) const
 bool CSearchResultsTreeView::handleTapGesture(QTapGesture *pTapGesture)
 {
 qDebug("%s", QString("Handle Tap Gesture -- %1").arg(debugGestureState(pTapGesture)).toUtf8().data());
-	assert(pTapGesture != nullptr);
+	Q_ASSERT(pTapGesture != nullptr);
 
 	if (pTapGesture->state() == Qt::GestureFinished) {
 		if (m_bDoubleTouchStarted) {
@@ -901,7 +899,7 @@ qDebug("Double-touch timed out");
 bool CSearchResultsTreeView::handleTapAndHoldGesture(QTapAndHoldGesture *pTapAndHoldGesture)
 {
 qDebug("%s", QString("Handle TapAndHold Gesture -- %1").arg(debugGestureState(pTapAndHoldGesture)).toUtf8().data());
-	assert(pTapAndHoldGesture != nullptr);
+	Q_ASSERT(pTapAndHoldGesture != nullptr);
 
 	if ((pTapAndHoldGesture->state() == Qt::GestureFinished) &&
 		(!m_bDoingPopup)) {
@@ -920,7 +918,7 @@ qDebug("%s", QString("Handle TapAndHold Gesture -- %1").arg(debugGestureState(pT
 bool CSearchResultsTreeView::handlePanGesture(QPanGesture *pPanGesture)
 {
 qDebug("%s", QString("Handle Pan Gesture -- %1").arg(debugGestureState(pPanGesture)).toUtf8().data());
-	assert(pPanGesture != nullptr);
+	Q_ASSERT(pPanGesture != nullptr);
 
 	QScrollBar *pVertSB = verticalScrollBar();
 	int nStepsToScroll = 0;
@@ -962,7 +960,7 @@ qDebug("%s", QString("Handle Pan Gesture -- %1").arg(debugGestureState(pPanGestu
 bool CSearchResultsTreeView::handleSwipeGesture(QSwipeGesture *pSwipeGesture)
 {
 qDebug("%s", QString("Handle Swipe Gesture -- %1").arg(debugGestureState(pSwipeGesture)).toUtf8().data());
-	assert(pSwipeGesture != nullptr);
+	Q_ASSERT(pSwipeGesture != nullptr);
 
 	// TODO : Something here for swipe gesture...
 
@@ -1153,7 +1151,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 			strStatusText = tr("%n Cross-Reference(s) Selected", "Statistics", nNumResultsSelected);
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -1214,7 +1212,7 @@ bool CSearchResultsTreeView::isActive() const
 
 void CSearchResultsTreeView::resizeEvent(QResizeEvent *event)
 {
-	assert(event != nullptr);
+	Q_ASSERT(event != nullptr);
 
 // This isn't needed when using the ReflowDelegate because the delegate is handling
 //	the resizeEvent as well and will invalidate our sizeHints appropriately.  Leaving
@@ -1314,7 +1312,7 @@ void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
 //		pDrag->setHotSpot(d->pressedPosition - rc.topLeft());
 		QRect rcCurrentVisual = visualRect(currentIndex());
 		QScrollBar *pVertScrollBar = verticalScrollBar();
-		assert(pVertScrollBar != nullptr);
+		Q_ASSERT(pVertScrollBar != nullptr);
 		pDrag->setHotSpot(QPoint(rcCurrentVisual.left(), rcCurrentVisual.top() + pVertScrollBar->value() + rcCurrentVisual.height()/2) - rc.topLeft());
 		Qt::DropAction aDefaultDropAction = Qt::IgnoreAction;
 //		if (d->defaultDropAction != Qt::IgnoreAction && (supportedActions & d->defaultDropAction))
@@ -1331,7 +1329,7 @@ void CSearchResultsTreeView::startDrag(Qt::DropActions supportedActions)
 
 CSearchResultsTreeView::CItemViewPaintPairs CSearchResultsTreeView::draggablePaintPairs(const QModelIndexList &lstIndexes, QRect *pRC) const
 {
-	assert(pRC != nullptr);
+	Q_ASSERT(pRC != nullptr);
 	QRect &rc = *pRC;
 	const QRect viewportRC = viewport()->rect();
 	CItemViewPaintPairs lstRet;
@@ -1349,7 +1347,7 @@ CSearchResultsTreeView::CItemViewPaintPairs CSearchResultsTreeView::draggablePai
 
 QPixmap CSearchResultsTreeView::renderToPixmap(const QModelIndexList &lstIndexes, QRect *pRC) const
 {
-	assert(pRC != nullptr);
+	Q_ASSERT(pRC != nullptr);
 
 	CItemViewPaintPairs lstPaintPairs = draggablePaintPairs(lstIndexes, pRC);
 	if (lstPaintPairs.isEmpty()) return QPixmap();
@@ -1399,8 +1397,8 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	m_pNoteKeywordWidget(nullptr),
 	m_pSearchResultsTreeView(nullptr)
 {
-	assert(!m_pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setSpacing(4);
@@ -1591,7 +1589,7 @@ void CKJVSearchResult::setSearchResultsType()
 			strResultsType = tr("Cross References", "MainMenu");
 			break;
 		default:
-			assert(false);
+			Q_ASSERT(false);
 			break;
 	}
 
@@ -1652,7 +1650,7 @@ QString CKJVSearchResult::searchResultsSummaryText() const
 
 void CKJVSearchResult::keywordListChanged(bool bInitialLoad)
 {
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;

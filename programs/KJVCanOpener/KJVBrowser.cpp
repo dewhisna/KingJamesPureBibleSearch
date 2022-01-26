@@ -28,8 +28,6 @@
 
 #include "BusyCursor.h"
 
-#include <assert.h>
-
 #include <QComboBox>
 #include <QMenu>
 #include <QTextBrowser>
@@ -74,8 +72,8 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 	m_bDoingPassageReference(false),
 	m_pScriptureBrowser(nullptr)
 {
-	assert(!m_pBibleDatabase.isNull());
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -85,7 +83,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 
 	initialize();
 
-	assert(m_pScriptureBrowser != nullptr);
+	Q_ASSERT(m_pScriptureBrowser != nullptr);
 
 	ui.lblBibleDatabaseName->setText(m_pBibleDatabase->description());
 
@@ -438,7 +436,7 @@ void CKJVBrowser::initialize()
 	ui.comboBibleChp->clear();
 	for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
-		assert(pBook != nullptr);
+		Q_ASSERT(pBook != nullptr);
 		nBibleChp += pBook->m_nNumChp;
 		if (pBook->m_nNumWrd == 0) continue;		// Skip books that are empty (partial database support)
 		ui.comboBk->addItem(pBook->m_strBkName, ndxBk);
@@ -456,7 +454,7 @@ void CKJVBrowser::initialize()
 
 void CKJVBrowser::en_changedScrollbarsEnabled(bool bEnabled)
 {
-	assert(m_pScriptureBrowser != nullptr);
+	Q_ASSERT(m_pScriptureBrowser != nullptr);
 	if (bEnabled) {
 		m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	} else {
@@ -529,7 +527,7 @@ void CKJVBrowser::setupChapterScrollbar()
 {
 	if (ui.scrollbarChapter != nullptr) {
 #if QT_VERSION >= 0x050000
-		assert(m_pChapterScrollerStyle != nullptr);
+		Q_ASSERT(m_pChapterScrollerStyle != nullptr);
 		ui.scrollbarChapter->setStyle(m_pChapterScrollerStyle);
 #else
 		ui.scrollbarChapter->setStyle(&m_ChapterScrollerStyle);
@@ -604,7 +602,7 @@ void CKJVBrowser::en_selectionChanged()
 
 void CKJVBrowser::en_sourceChanged(const QUrl &src)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -686,7 +684,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 	if (m_bShowExcludedSearchResults)
 		m_pScriptureBrowser->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
 
-	assert(!g_pUserNotesDatabase.isNull());
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase);
 	if (pmapHighlighterTags) {
 		// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
@@ -785,40 +783,40 @@ void CKJVBrowser::showPassageNavigator()
 
 void CKJVBrowser::en_Bible_Beginning()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	gotoIndex(TPhraseTag(m_pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start)));
 }
 
 void CKJVBrowser::en_Bible_Ending()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	gotoIndex(TPhraseTag(m_pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End)));
 }
 
 void CKJVBrowser::en_Book_Backward()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_PreviousBook);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::en_Book_Forward()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_NextBook);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::en_ChapterBackward()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_PreviousChapter);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
 void CKJVBrowser::en_ChapterForward()
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_NextChapter);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
@@ -827,7 +825,7 @@ void CKJVBrowser::en_ChapterForward()
 
 void CKJVBrowser::setBook(const CRelIndex &ndx)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (ndx.book() == 0) return;
 	if (ndx.book() == m_ndxCurrent.book()) return;
@@ -889,7 +887,7 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 
 void CKJVBrowser::setChapter(const CRelIndex &ndx)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 // Note: The following works great to keep from having to reload the chapter
 //	text when navigating to the same chapter.  However, the History log doesn't
@@ -946,7 +944,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 	unsigned int nBibleChp = 0;
 	for (unsigned int ndxBk=1; ndxBk<ndxVirtual.book(); ++ndxBk) {
 		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxBk);
-		assert(pBook != nullptr);
+		Q_ASSERT(pBook != nullptr);
 		if (pBook == nullptr) continue;
 		if (pBook->m_nTstNdx == book.m_nTstNdx)
 			nTstChp += pBook->m_nNumChp;
@@ -992,7 +990,7 @@ void CKJVBrowser::setWord(const TPhraseTag &tag)
 
 void CKJVBrowser::BkComboIndexChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -1006,7 +1004,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 
 void CKJVBrowser::BkChpComboIndexChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -1020,7 +1018,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 
 void CKJVBrowser::TstBkComboIndexChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -1037,7 +1035,7 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 
 void CKJVBrowser::TstChpComboIndexChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -1054,7 +1052,7 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 
 void CKJVBrowser::BibleBkComboIndexChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -1068,7 +1066,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 
 void CKJVBrowser::BibleChpComboIndexChanged(int index)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	if (m_bDoingUpdate) return;
 
@@ -1111,7 +1109,7 @@ void CKJVBrowser::en_activatedScriptureText()
 
 void CKJVBrowser::ChapterSliderMoved(int index)
 {
-	assert(ui.scrollbarChapter != nullptr);
+	Q_ASSERT(ui.scrollbarChapter != nullptr);
 	if (ui.scrollbarChapter == nullptr) return;
 
 	if (m_bDoingUpdate) return;
@@ -1134,7 +1132,7 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 //		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(QPoint( 0, 0 )), strText);
 		QStyleOptionSlider opt;
 		opt.initFrom(ui.scrollbarChapter);
-		assert(ui.scrollbarChapter->style() != nullptr);
+		Q_ASSERT(ui.scrollbarChapter->style() != nullptr);
 		QRect rcSlider = ui.scrollbarChapter->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, ui.scrollbarChapter);
 		QToolTip::showText(ui.scrollbarChapter->mapToGlobal(rcSlider.bottomLeft()), strText);
 	}
@@ -1149,7 +1147,7 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 
 void CKJVBrowser::ChapterSliderValueChanged()
 {
-	assert(ui.scrollbarChapter != nullptr);
+	Q_ASSERT(ui.scrollbarChapter != nullptr);
 	if (ui.scrollbarChapter == nullptr) return;
 
 	ChapterSliderMoved(ui.scrollbarChapter->value());

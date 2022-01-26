@@ -26,7 +26,6 @@
 #include <QGridLayout>
 
 #include <QTimer>
-#include <assert.h>
 
 CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 												 QWidget *parent,
@@ -41,7 +40,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 		m_pCancelButton(nullptr),
 		m_pNavigator(nullptr)
 {
-	assert(!m_pBibleDatabase.isNull());
+	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
 
@@ -55,7 +54,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 	//		one that we can set the database on:
 
 	int ndx = ui.gridLayout->indexOf(ui.widgetKJVPassageNavigator);
-	assert(ndx != -1);
+	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 	int nRow;
 	int nCol;
@@ -71,7 +70,7 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	// --------------------------------------------------------------
 
-	assert(m_pNavigator != nullptr);
+	Q_ASSERT(m_pNavigator != nullptr);
 
 	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(en_ApplyResolvedClicked()));

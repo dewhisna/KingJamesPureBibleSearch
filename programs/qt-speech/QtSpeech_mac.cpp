@@ -47,8 +47,6 @@
 #include <QtSpeech>
 #include <QtSpeech_mac.h>
 
-#include <assert.h>
-
 // ============================================================================
 
 namespace QtSpeech_v2 { // API v2.0
@@ -195,7 +193,7 @@ QtSpeech_th::QtSpeech_th(const QtSpeech::TVoiceName &aVoiceName, QObject *pParen
 
 QtSpeech_th::~QtSpeech_th()
 {
-	assert(m_nChannel);
+	Q_ASSERT(m_nChannel);
 
 	try {
 		SysCall( StopSpeech(m_nChannel), QtSpeech::CloseError);
@@ -261,7 +259,7 @@ void QtSpeech_th::en_sayNext(bool bInitialSay)
 
 void QtSpeech_th::speechFinished(SpeechChannel nChannel, SpeechDoneUPP_ARG2 refCon)
 {
-	assert(nChannel == m_nChannel);
+	Q_ASSERT(nChannel == m_nChannel);
 	Q_UNUSED(refCon);
 
 	if (!m_lstTalkingObjects.isEmpty()) {		// Note: can be empty if clearQueue() has been called!
@@ -433,7 +431,7 @@ void QtSpeech::clearQueue()
 
 void QtSpeech_GlobalData::speechFinished(SpeechChannel nChannel, SpeechDoneUPP_ARG2 refCon)
 {
-	assert(!g_QtSpeechGlobal.m_pSpeechTalker_th.isNull());
+	Q_ASSERT(!g_QtSpeechGlobal.m_pSpeechTalker_th.isNull());
 	if (!g_QtSpeechGlobal.m_pSpeechTalker_th.isNull()) {
 		g_QtSpeechGlobal.m_pSpeechTalker_th->speechFinished(nChannel, refCon);
 	}

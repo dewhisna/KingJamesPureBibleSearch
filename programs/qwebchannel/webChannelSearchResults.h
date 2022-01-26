@@ -107,7 +107,7 @@ private:
 
 	CPhraseNavigator &phraseNavigator() const
 	{
-		assert(!m_pPhraseNavigator.isNull());
+		Q_ASSERT(!m_pPhraseNavigator.isNull());
 		return *m_pPhraseNavigator.data();
 	}
 

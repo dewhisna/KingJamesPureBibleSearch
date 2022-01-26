@@ -44,8 +44,6 @@
 #include "version.h"
 #include "PersistentSettings.h"
 
-#include <assert.h>
-
 #include <iostream>
 
 #ifdef  USING_WEBCHANNEL
@@ -185,7 +183,7 @@ int main(int argc, char *argv[])
 
 #ifdef Q_OS_WIN
 	HANDLE hMutex = CreateMutexW(nullptr, false, L"KJVCanOpenerMutex");
-	assert(hMutex != NULL);
+	Q_ASSERT(hMutex != NULL);
 	// Note: System will automatically close the mutex object when we
 	//			exit and InnoSetup actually suggest we leave it open
 #endif

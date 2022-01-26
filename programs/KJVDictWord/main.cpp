@@ -37,7 +37,6 @@
 #include <QString>
 #include <QStringList>
 
-#include <assert.h>
 #include <string>
 #include <iostream>
 #include <algorithm>

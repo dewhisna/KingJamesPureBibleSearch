@@ -895,10 +895,10 @@ QStringList CUserNotesDatabase::compositeKeywordList() const
 
 void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
-	assert(!strUUID.isEmpty());
-	assert(!strUserDefinedHighlighterName.isEmpty());
+	Q_ASSERT(!strUUID.isEmpty());
+	Q_ASSERT(!strUserDefinedHighlighterName.isEmpty());
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
@@ -911,10 +911,10 @@ void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase,
 
 void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
-	assert(!strUUID.isEmpty());
-	assert(!strUserDefinedHighlighterName.isEmpty());
+	Q_ASSERT(!strUUID.isEmpty());
+	Q_ASSERT(!strUserDefinedHighlighterName.isEmpty());
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
@@ -929,10 +929,10 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
-	assert(!strUUID.isEmpty());
-	assert(!strUserDefinedHighlighterName.isEmpty());
+	Q_ASSERT(!strUUID.isEmpty());
+	Q_ASSERT(!strUserDefinedHighlighterName.isEmpty());
 	if ((strUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
@@ -945,7 +945,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 
 void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 
 	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(strUUID);
@@ -963,7 +963,7 @@ void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 
 void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
 
 	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(strUUID);
@@ -986,9 +986,9 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	assert(!pBibleDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
 	const QString strUUID = pBibleDatabase->highlighterUUID();
-	assert(!strUUID.isEmpty());
+	Q_ASSERT(!strUUID.isEmpty());
 	if (strUUID.isEmpty()) return;
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
@@ -1036,7 +1036,7 @@ bool CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRel
 
 bool CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
-	assert(ndxFirst != ndxSecond);
+	Q_ASSERT(ndxFirst != ndxSecond);
 	if (ndxFirst == ndxSecond) return false;
 	TCrossReferenceMap::iterator itrMapFirst = m_mapCrossReference.find(ndxFirst);
 	TCrossReferenceMap::iterator itrMapSecond = m_mapCrossReference.find(ndxSecond);
@@ -1062,7 +1062,7 @@ bool CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
 	if (itrMap == m_mapCrossReference.end()) return false;
 
 	for (TRelativeIndexSet::iterator itrSet = (itrMap->second).begin(); itrSet != (itrMap->second).end(); ++itrSet) {
-		assert(*itrSet != ndx);		// Shouldn't have any cross references to our same index, as we didn't allow them to be added
+		Q_ASSERT(*itrSet != ndx);		// Shouldn't have any cross references to our same index, as we didn't allow them to be added
 		if (*itrSet == ndx) continue;
 		m_mapCrossReference[*itrSet].erase(ndx);			// Remove all cross references of other indexes to this index
 		if (m_mapCrossReference[*itrSet].empty()) m_mapCrossReference.erase(*itrSet);			// Remove any mappings that become empty

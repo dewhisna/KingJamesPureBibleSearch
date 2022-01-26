@@ -71,8 +71,8 @@
 void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase)
 {
 	// Make sure input valid:
-	assert(!pBibleDatabase.isNull());
-	assert(!pUserNotesDatabase.isNull());
+	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(!pUserNotesDatabase.isNull());
 
 	// If calling init again, delete current data and start over:
 	if (!m_pVerseListModel.isNull()) delete m_pVerseListModel;
@@ -140,8 +140,8 @@ CWebChannelSearchResults::~CWebChannelSearchResults()
 
 bool CWebChannelSearchResults::setIdle(bool bIsIdle)
 {
-	assert(!m_pIdleTimer.isNull());
-	assert(!m_pDeadTimer.isNull());
+	Q_ASSERT(!m_pIdleTimer.isNull());
+	Q_ASSERT(!m_pDeadTimer.isNull());
 	bool bCurrentIdle = m_bIsIdle;
 	m_bIsIdle = bIsIdle;
 	if (bCurrentIdle != bIsIdle) emit idleStateChanged(bIsIdle);
@@ -235,7 +235,7 @@ void CWebChannelSearchResults::internal_setSearchPhrases(const QString &strPhras
 				m_lstParsedPhrases.append(QSharedPointer<CParsedPhrase>(new CParsedPhrase(m_pBibleDatabase)));
 				m_searchResultsData.m_lstParsedPhrases.append(m_lstParsedPhrases.last().data());
 			}
-			assert(ndxUsed < m_searchResultsData.m_lstParsedPhrases.size());
+			Q_ASSERT(ndxUsed < m_searchResultsData.m_lstParsedPhrases.size());
 			m_lstParsedPhrases[ndxUsed]->setFromPhraseEntry(aPhraseEntry, true);		// Set each phrase and search it
 			++ndxUsed;
 		}
@@ -446,7 +446,7 @@ void CWebChannelSearchResults::getMoreSearchResults()
 			//		are actually printed in the text, as the above calculation will be wrong
 			//		and generally point to the last chapter of the previous book instead:
 			const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxVerse);
-			assert(pBook);
+			Q_ASSERT(pBook);
 			if (pBook) {
 				nChp = CRefCountCalc(m_pBibleDatabase.data(),
 									 CRefCountCalc::RTE_CHAPTER, CRelIndex(ndxVerse.book(), pBook->m_nNumChp, 0, 0)).ofBible().first;
@@ -618,7 +618,7 @@ CWebChannelThread::CWebChannelThread(QObject *pParent)
 
 void CWebChannelThread::attachWebChannelSearchResults(CWebChannelSearchResults *pSearchResults)
 {
-	assert(pSearchResults != nullptr);
+	Q_ASSERT(pSearchResults != nullptr);
 	pSearchResults->moveToThread(this);
 	connect(this, SIGNAL(finished()), pSearchResults, SLOT(deleteLater()));		// When the thread ends, delete the object since it becomes detached at that point
 	connect(pSearchResults, SIGNAL(destroyed(QObject*)), CWebChannelThreadController::instance(), SLOT(en_destroyedWebChannelSearchResults(QObject*)));
@@ -676,13 +676,13 @@ CWebChannelThreadController *CWebChannelThreadController::instance()
 
 CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchResults(CWebChannelObjects *pChannel,  CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults == nullptr) {
 		// Select next open thread:
 		int ndxThreadToUse = -1;
 		int nLowCount = -1;
-		assert(m_lstNumWebChannels.size() == m_lstThreads.size());
+		Q_ASSERT(m_lstNumWebChannels.size() == m_lstThreads.size());
 		for (int ndx = 0; ndx < m_lstThreads.size(); ++ndx) {
 			if (m_lstThreads.at(ndx) && m_lstThreads.at(ndx)->isRunning()) {
 #if DEBUG_WEBCHANNEL_THREAD_ANALYSIS
@@ -740,7 +740,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 												Qt::QueuedConnection,
 												Q_ARG(CBibleDatabasePtr, pBibleDatabase),
 												Q_ARG(CUserNotesDatabasePtr, pUserNotesDatabase));
-	assert(bSuccess);
+	Q_ASSERT(bSuccess);
 
 	return pSearchResults;
 }
@@ -748,10 +748,10 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 void CWebChannelThreadController::en_destroyedWebChannelSearchResults(QObject *pObject)
 {
 	CWebChannelSearchResults *pSearchResults = static_cast<CWebChannelSearchResults *>(pObject);
-	assert(pSearchResults != nullptr);
+	Q_ASSERT(pSearchResults != nullptr);
 
 	int nThread = m_mapSearchResultsToThread.value(pSearchResults, -1);
-	assert(nThread != -1);
+	Q_ASSERT(nThread != -1);
 	if (nThread != -1) {
 		--m_lstNumWebChannels[nThread];
 		m_mapSearchResultsToThread.remove(pSearchResults);
@@ -772,7 +772,7 @@ void CWebChannelThreadController::en_destroyedWebChannelSearchResults(QObject *p
 
 void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObjects *pChannel)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	// Must remove the channel here as selectBible() will call this function to release
@@ -808,14 +808,14 @@ int CWebChannelThreadController::threadCount() const
 
 int CWebChannelThreadController::threadWebChannelCount(int nThreadIndex) const
 {
-	assert((nThreadIndex >= 0) && (nThreadIndex < m_lstNumWebChannels.size()));
+	Q_ASSERT((nThreadIndex >= 0) && (nThreadIndex < m_lstNumWebChannels.size()));
 	if ((nThreadIndex < 0) || (nThreadIndex >= m_lstNumWebChannels.size())) return 0;
 	return m_lstNumWebChannels.at(nThreadIndex);
 }
 
 bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, const QString &strUUID)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 
 	bool bSuccess = true;
 
@@ -825,14 +825,14 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 									"bibleList",
 									Qt::DirectConnection,		// This should make sure the list fires before the default selection propagates
 									Q_ARG(const QString &, TBibleDatabaseList::instance()->availableBibleDatabasesAsJson()));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
 #ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
 	if ((pBibleDatabase.isNull()) && (TBibleDatabaseList::instance()->loadBibleDatabase(strUUID, false))) {
 		pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
-		assert(!pBibleDatabase.isNull());
+		Q_ASSERT(!pBibleDatabase.isNull());
 	}
 #endif
 
@@ -846,7 +846,7 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 												Q_ARG(bool, false),
 												Q_ARG(const QString &, QString()),
 												Q_ARG(const QString &, QString()));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 
 	return bSuccess;
@@ -854,7 +854,7 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 
 void CWebChannelThreadController::setSearchPhrases(CWebChannelObjects *pChannel, const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
@@ -863,25 +863,25 @@ void CWebChannelThreadController::setSearchPhrases(CWebChannelObjects *pChannel,
 													Q_ARG(const QString &, strPhrases),
 													Q_ARG(const QString &, strSearchWithin),
 													Q_ARG(int, nSearchScope));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::getMoreSearchResults(CWebChannelObjects *pChannel)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"getMoreSearchResults",
 													Qt::QueuedConnection);
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::autoCorrect(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, int nCursorPos, const QString &strLastPhrase, int nLastCursorPos)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
@@ -892,13 +892,13 @@ void CWebChannelThreadController::autoCorrect(CWebChannelObjects *pChannel, cons
 													Q_ARG(int, nCursorPos),
 													Q_ARG(const QString &, strLastPhrase),
 													Q_ARG(int,  nLastCursorPos));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::calcUpdatedPhrase(CWebChannelObjects *pChannel, const QString &strElementID, const QString &strPhrase, const QString &strAutoCompleter, int nCursorPos)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
@@ -908,39 +908,39 @@ void CWebChannelThreadController::calcUpdatedPhrase(CWebChannelObjects *pChannel
 													Q_ARG(const QString &, strPhrase),
 													Q_ARG(const QString &, strAutoCompleter),
 													Q_ARG(int, nCursorPos));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::getSearchResultDetails(CWebChannelObjects *pChannel, uint32_t ndxLogical)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"getSearchResultDetails",
 													Qt::QueuedConnection,
 													Q_ARG(uint32_t, ndxLogical));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::resolvePassageReference(CWebChannelObjects *pChannel, const QString &strPassageReference)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"resolvePassageReference",
 													Qt::QueuedConnection,
 													Q_ARG(const QString &, strPassageReference));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::gotoIndex(CWebChannelObjects *pChannel, uint32_t ndxRel, int nMoveMode, const QString &strParam)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
@@ -949,13 +949,13 @@ void CWebChannelThreadController::gotoIndex(CWebChannelObjects *pChannel, uint32
 													Q_ARG(uint32_t, ndxRel),
 													Q_ARG(int, nMoveMode),
 													Q_ARG(const QString &, strParam));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 
 void CWebChannelThreadController::gotoChapter(CWebChannelObjects *pChannel, unsigned int nChp, const QString &strParam)
 {
-	assert(pChannel != nullptr);
+	Q_ASSERT(pChannel != nullptr);
 	CWebChannelSearchResults *pSearchResults = m_mapSearchResults.value(pChannel, nullptr);
 	if (pSearchResults) {
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
@@ -963,7 +963,7 @@ void CWebChannelThreadController::gotoChapter(CWebChannelObjects *pChannel, unsi
 													Qt::QueuedConnection,
 													Q_ARG(unsigned int, nChp),
 													Q_ARG(const QString &, strParam));
-		assert(bSuccess);
+		Q_ASSERT(bSuccess);
 	}
 }
 

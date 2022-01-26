@@ -36,8 +36,6 @@
 #include <QTextDocument>			// Needed for Qt::escape, which is in this header, not <Qt> as is assistant says
 #endif
 
-#include <assert.h>
-
 #include "../KJVCanOpener/dbDescriptors.h"
 
 // ============================================================================
@@ -187,7 +185,7 @@ static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
 		nTst = 3;
 	} else {
 		nTst = 0;
-		assert(false);			// Can't happen if our NUM_BK_xx values are correct!
+		Q_ASSERT(false);			// Can't happen if our NUM_BK_xx values are correct!
 	}
 
 	return nTst;
@@ -243,7 +241,7 @@ QString CRTFParseBaton::parseToOsis(const QString &strRTFText)
 	bool bUnbalanced = false;
 
 	for (int nMatrix = 0; nMatrix < nCount; ++nMatrix) {
-		assert(!g_lstParseMatrix[nMatrix].m_strStartTag.isEmpty());
+		Q_ASSERT(!g_lstParseMatrix[nMatrix].m_strStartTag.isEmpty());
 		while ((ndxStart = strOutText.indexOf(g_lstParseMatrix[nMatrix].m_strStartTag)) != -1) {
 			if (!g_lstParseMatrix[nMatrix].m_strEndTag.isEmpty()) {
 				ndxEnd = strOutText.indexOf(g_lstParseMatrix[nMatrix].m_strEndTag, ndxStart+g_lstParseMatrix[nMatrix].m_strStartTag.size());
@@ -461,7 +459,7 @@ int main(int argc, char *argv[])
 			fileOut.write(QString("<verse osisID=\"%1.%2.%3\">%4").arg(g_arrBooks[nBk-1].m_strOsisAbbr).arg(nChp).arg(nNextVrs).arg(rtfParseBaton.parseToOsis(strVerseText)).toUtf8().data());
 			std::cerr << ".";
 		} else {
-			assert(false);
+			Q_ASSERT(false);
 		}
 		nVrs = nNextVrs;
 	}
