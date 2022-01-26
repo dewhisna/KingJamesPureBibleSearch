@@ -147,8 +147,8 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	m_mapChannels.remove(pReply);
 
 	// If this is an internal lookup, pReply was used above to resolve our
-	//		map.  But we need to delete and destroy our dummy QObject if
-	//		and clear pReply so as not to reat it as a QNetworkReply object:
+	//		map.  But we need to delete and destroy our dummy QObject and
+	//		clear pReply so as not to treat it as a QNetworkReply object:
 	if (theClient.m_nLocateServer == GSE_INTERNAL) {
 		reinterpret_cast<QObject *>(pReply)->deleteLater();
 		pReply = nullptr;
