@@ -101,6 +101,70 @@ endif()
 
 # =============================================================================
 
+include(ExternalProject)
+
+ExternalProject_Add(fancytree
+	GIT_REPOSITORY		https://github.com/dewhisna/fancytree.git
+	GIT_TAG				aeac90258778418385ec3265cc1827fb93fa6e16
+	PREFIX				"jquery-ui/fancytree"
+	BUILD_COMMAND		""
+	BUILD_IN_SOURCE		true
+	UPDATE_COMMAND		""
+	INSTALL_COMMAND		${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/fancytree/src/fancytree/dist/" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/fancytree/dist/"
+	CONFIGURE_COMMAND	""
+)
+
+ExternalProject_Add(geolocator
+	GIT_REPOSITORY		https://github.com/dewhisna/geolocator.git
+	GIT_TAG				42f51bb6aad3c3ebace000bc7909d17312a9e7d4
+	PREFIX				"jquery-ui/geolocator"
+	BUILD_COMMAND		""
+	BUILD_IN_SOURCE		true
+	UPDATE_COMMAND		""
+	INSTALL_COMMAND		${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/geolocator/src/geolocator/src/" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/geolocator/src/"
+	CONFIGURE_COMMAND	""
+)
+
+ExternalProject_Add(jquery-loading-overlay
+	GIT_REPOSITORY		https://github.com/dewhisna/jquery-loading-overlay.git
+	GIT_TAG				8e8d26fb6964b2f790ad291c2087a3c6760b675a
+	PREFIX				"jquery-ui/jquery-loading-overlay"
+	BUILD_COMMAND		""
+	BUILD_IN_SOURCE		true
+	UPDATE_COMMAND		""
+	INSTALL_COMMAND		${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/jquery-loading-overlay/src/jquery-loading-overlay/dist/" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/jquery-loading-overlay/dist/"
+			COMMAND		${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/jquery-loading-overlay/src/jquery-loading-overlay/demo/fonts/" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/jquery-loading-overlay/demo/fonts/"
+	CONFIGURE_COMMAND	""
+)
+
+ExternalProject_Add(malihu-custom-scrollbar-plugin
+	GIT_REPOSITORY		https://github.com/dewhisna/malihu-custom-scrollbar-plugin.git
+	GIT_TAG				728a92de311a274e8c81ce9c2ff4c3d71d247d8a
+	PREFIX				"jquery-ui/malihu-custom-scrollbar-plugin"
+	BUILD_COMMAND		""
+	BUILD_IN_SOURCE		true
+	UPDATE_COMMAND		""
+	INSTALL_COMMAND		${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/malihu-custom-scrollbar-plugin/src/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js"
+			COMMAND		${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/malihu-custom-scrollbar-plugin/src/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"
+			COMMAND		${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/malihu-custom-scrollbar-plugin/src/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css"
+			COMMAND		${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/malihu-custom-scrollbar-plugin/src/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css"
+	CONFIGURE_COMMAND	""
+)
+
+ExternalProject_Add(turn.js
+	GIT_REPOSITORY		https://github.com/dewhisna/turn.js.git
+	GIT_TAG				08c1f6599a1412b145c7bf645a1f28c14db12742
+	PREFIX				"jquery-ui/turn.js"
+	BUILD_COMMAND		""
+	BUILD_IN_SOURCE		true
+	UPDATE_COMMAND		""
+	INSTALL_COMMAND		${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/turn.js/src/turn.js/turn.js" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/turn.js/turn.js"
+			COMMAND		${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/jquery-ui/turn.js/src/turn.js/turn.min.js" "${CMAKE_CURRENT_BINARY_DIR}/html/jquery/jquery-ui/turn.js/turn.min.js"
+	CONFIGURE_COMMAND	""
+)
+
+# =============================================================================
+
 function(setup_qwebchannel_subtargets Target)
 	# Note: these here HAVE to use ${qwebchannel_path} instead of
 	#	${CMAKE_CURRENT_LIST_DIR} because that value changes for
@@ -121,6 +185,14 @@ function(setup_qwebchannel_subtargets Target)
 
 	target_link_libraries(${Target} PRIVATE
 		${qwebchannel_link_libraries}
+	)
+
+	add_dependencies(${Target}
+		fancytree
+		geolocator
+		jquery-loading-overlay
+		malihu-custom-scrollbar-plugin
+		turn.js
 	)
 endfunction()
 
