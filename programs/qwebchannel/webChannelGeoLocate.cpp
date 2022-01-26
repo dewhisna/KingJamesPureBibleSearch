@@ -191,7 +191,9 @@ void CWebChannelGeoLocate::en_requestComplete(QNetworkReply *pReply)
 	QJsonDocument json = QJsonDocument::fromJson(baData, &jsonError);
 	if (jsonError.error != QJsonParseError::NoError) {
 		// Handle error:
-		emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, QString("*** JSON Error: %1").arg(jsonError.errorString()));
+		if (!baData.isEmpty()) {		// Report the JSON error only if we actually received data
+			emit locationInfo(theClient.m_pChannel, theClient.m_strIPAddress, QString("*** JSON Error: %1").arg(jsonError.errorString()));
+		}
 		if (pReply) pReply->deleteLater();
 		locateRequest(theClient);		// Try next host
 		return;
