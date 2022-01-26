@@ -91,7 +91,6 @@ mkdir -p $PROJECT_DIR
 cd $PROJECT_DIR
 git clone --depth 50 https://github.com/dewhisna/KingJamesPureBibleSearch.git
 cd KingJamesPureBibleSearch
-sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
 git submodule update --init --recursive
 
 
