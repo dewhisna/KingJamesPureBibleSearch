@@ -66,10 +66,6 @@ console:DEFINES += IS_CONSOLE_APP
 
 !console:lessThan(QT_MAJOR_VERSION,5):DEFINES *= QT_WIDGETS_LIB
 
-# Include QWebChannel support on Qt 5.5+, if it's been selected:
-unix:!emscripten:!mac:!vnc:if(equals(QT_MAJOR_VERSION,5):greaterThan(QT_MINOR_VERSION,4) | greaterThan(QT_MAJOR_VERSION,5)):CONFIG *= webchannel
-webchannel:include(../qwebchannel/qwebchannel.pri)
-
 if(!emscripten|wasm) {
 	CONFIG += wwwidgets
 }
@@ -133,7 +129,6 @@ include(../QtFindReplaceDialog/qtfindreplacedialog.pri)
 	}
 }
 vnc:QT *= network
-webchannel:QT *= network
 
 QtSpeech {
 	DEFINES += USING_QT_SPEECH
