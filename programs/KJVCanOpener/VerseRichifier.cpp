@@ -44,14 +44,15 @@
 static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 {
 	if ((ndx.book() != PSALMS_BOOK_NUM) || (ndx.chapter() != 119) || (((ndx.verse()-1)%8) != 0)) return QString();
+	CRelIndex ndxRelVerse(ndx.book(), ndx.chapter(), ndx.verse(), 0);		// Relative as verse only
 
 	QString strHebrewPrefix;
 
 	// Add special Start tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
-	if (bAddAnchors) strHebrewPrefix += QString("<a id=\"A%1\"> </a>").arg(ndx.asAnchor());
+	if (bAddAnchors) strHebrewPrefix += QString("<a id=\"A%1\"> </a>").arg(ndxRelVerse.asAnchor());
 
 #if (OUTPUT_HEBREW_PS119)
-	switch ((ndx.verse()-1)/8) {
+	switch ((ndxRelVerse.verse()-1)/8) {
 		case 0:
 			// ALEPH
 			strHebrewPrefix += QChar(0x005D0);
@@ -144,7 +145,7 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 	strHebrewPrefix += " ";
 #endif
 
-	switch ((ndx.verse()-1)/8) {
+	switch ((ndxRelVerse.verse()-1)/8) {
 		case 0:
 			strHebrewPrefix += "(ALEPH).";
 			break;
@@ -215,7 +216,7 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 
 	if (bAddAnchors) {
 		// Add special End tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
-		strHebrewPrefix += QString("<a id=\"B%1\"> </a>").arg(ndx.asAnchor());
+		strHebrewPrefix += QString("<a id=\"B%1\"> </a>").arg(ndxRelVerse.asAnchor());
 	} else {
 		// Otherwise, just add a space:
 		strHebrewPrefix += " ";
@@ -227,24 +228,55 @@ static QString psalm119HebrewPrefix(const CRelIndex &ndx, bool bAddAnchors)
 // ============================================================================
 // ============================================================================
 
-CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext)
-	:	m_pRichNext(pRichNext),
-		m_chrMatchChar(chrMatchChar),
+CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseTextRichifier *pRichNext)
+	:	m_parseBaton(parseBaton),
+		m_pRichNext(pRichNext),
 		m_pVerse(nullptr),
-		m_strXlateText(strXlateText),
 		m_bUseLemmas(false),
 		m_bUseWordSpans(false)
 {
+	static const struct {
+		QChar m_chrMatchChar;
+		FXlateText m_fncXlateText;
+	} lstMatchHandler[CVerseTextRichifierTags::VTTE_COUNT] = {
+		{ 'w', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_w - Word
+		{ 'M', [](const CRichifierBaton &baton)->QString { return (baton.m_tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(baton.m_ndxCurrent, baton.m_bAddAnchors && baton.usesHTML()) : ""); } },	// VTTE_M - Ps119 Hebrew Prefix
+		{ 'J', [](const CRichifierBaton &baton)->QString { return baton.m_tags.wordsOfJesusBegin(); } },		// VTTE_J - Words of Jesus Begin
+		{ 'j', [](const CRichifierBaton &baton)->QString { return baton.m_tags.wordsOfJesusEnd(); } },			// VTTE_j - Words of Jesus End
+		{ 'T', [](const CRichifierBaton &baton)->QString { return baton.m_tags.transChangeAddedBegin(); } },	// VTTE_T - TransChangeAdded Begin
+		{ 't', [](const CRichifierBaton &baton)->QString { return baton.m_tags.transChangeAddedEnd(); } },		// VTTE_t - TransChangeAdded End
+		{ 'D', [](const CRichifierBaton &baton)->QString { return baton.m_tags.divineNameBegin(); } },			// VTTE_D - Divine Name Begin
+		{ 'd', [](const CRichifierBaton &baton)->QString { return baton.m_tags.divineNameEnd(); } },			// VTTE_d - Divine Name End
+		{ 'A', [](const CRichifierBaton &baton)->QString {														// VTTE_A - Anchor Begin
+			if (baton.usesHTML()) {
+				CRelIndex ndxWord = baton.m_ndxCurrent;
+				ndxWord.setWord(ndxWord.word()+1);
+				return QString("<a id=\"%1\">").arg(ndxWord.asAnchor());
+			} else return QString();
+		} },
+		{ 'a', [](const CRichifierBaton &baton)->QString { return QString(baton.usesHTML() ? "</a>" : ""); } },	// VTTE_a - Anchor End
+		{ 'N', [](const CRichifierBaton &baton)->QString { return baton.m_tags.inlineNoteBegin(); } },			// VTTE_N - Inline Note Begin
+		{ 'n', [](const CRichifierBaton &baton)->QString { return baton.m_tags.inlineNoteEnd(); } },			// VTTE_n - Inline Note End
+		{ 'R', [](const CRichifierBaton &baton)->QString { return baton.m_tags.searchResultsBegin(); } },		// VTTE_R - Search Results Begin
+		{ 'r', [](const CRichifierBaton &baton)->QString { return baton.m_tags.searchResultsEnd(); } },			// VTTE_r - Search Results End
+		{ 'L', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_L - Lemma Begin (for completeness -- not used in richifier, see KJVDataParse)
+		{ 'l', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_l - Lemma End (for completeness -- not used in richifier, see KJVDataParse)
+	};
 
+	Q_ASSERT(nMatchChar < CVerseTextRichifierTags::VTTE_COUNT);
+	m_chrMatchChar = lstMatchHandler[nMatchChar].m_chrMatchChar;
+	m_fncXlateText = lstMatchHandler[nMatchChar].m_fncXlateText;
 }
 
-CVerseTextRichifier::CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bUseLemmas, bool bUseWordSpans)
-	:	m_pRichNext(pRichNext),
-		m_chrMatchChar(chrMatchChar),
+CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext, bool bUseLemmas, bool bUseWordSpans)
+	:	m_parseBaton(parseBaton),
+		m_pRichNext(pRichNext),
+		m_chrMatchChar('w'),
 		m_pVerse(pVerse),
 		m_bUseLemmas(bUseLemmas),
 		m_bUseWordSpans(bUseWordSpans)
 {
+	Q_ASSERT(nMatchChar == CVerseTextRichifierTags::VTTE_w);
 	Q_ASSERT(pVerse != nullptr);
 }
 
@@ -253,28 +285,50 @@ CVerseTextRichifier::~CVerseTextRichifier()
 
 }
 
-void CVerseTextRichifier::writeLemma(CRichifierBaton &parseBaton) const
+void CVerseTextRichifier::writeLemma() const
 {
 	if (!m_bUseLemmas) return;
-	if (!parseBaton.m_bUsesHTML) return;
+	if (!m_parseBaton.usesHTML()) return;
 
 	// Note: This finishes off the word itself too:
-	if (parseBaton.m_bOutput && parseBaton.m_bUsesHTML) {
-		if (parseBaton.m_pCurrentLemma) {
-			parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">%1&nbsp;</span><span class=\"stack\">%2&nbsp;</span><span class=\"stack\">%3&nbsp;</span>")
-												.arg(parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
-												.arg(parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
-												.arg(parseBaton.m_pCurrentLemma->morph().join(QChar(' '))));
+	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML()) {
+		if (m_parseBaton.m_pCurrentLemma) {
+			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">%1&nbsp;</span><span class=\"stack\">%2&nbsp;</span><span class=\"stack\">%3&nbsp;</span>")
+												.arg(m_parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
+												.arg(m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
+												.arg(m_parseBaton.m_pCurrentLemma->morph().join(QChar(' '))));
 		} else {
-			parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span>"));
+			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span>"));
 		}
 	}
 }
 
-void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strNodeIn) const
+void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
+{
+	CVerseTextRichifierTags::VerseWordTypeFlags nWordTypes = CVerseTextRichifierTags::VerseWordTypeFlags(CVerseTextRichifierTags::VWT_None);
+	if (m_parseBaton.m_bInTransChangeAdded) nWordTypes |= CVerseTextRichifierTags::VWT_TransChangeAdded;
+	if (m_parseBaton.m_bInWordsOfJesus) nWordTypes |= CVerseTextRichifierTags::VWT_WordsOfJesus;
+	if (m_parseBaton.m_bInSearchResult) nWordTypes |= CVerseTextRichifierTags::VWT_SearchResult;
+
+	if (!m_parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
+		if (m_parseBaton.m_bOutput) {
+			m_parseBaton.m_strVerseText.append(strWord.left(1)
+											+ m_parseBaton.m_strDivineNameFirstLetterParseText
+											+ strWord.mid(1));
+		}
+		m_parseBaton.m_strDivineNameFirstLetterParseText.clear();
+		nWordTypes |= CVerseTextRichifierTags::VWT_DivineName;
+	} else {
+		if (m_parseBaton.m_bOutput) m_parseBaton.m_strVerseText.append(strWord);
+	}
+
+	m_parseBaton.m_tags.wordCallback(strWord, nWordTypes);
+}
+
+void CVerseTextRichifier::parse(const QString &strNodeIn) const
 {
 	if (m_chrMatchChar.isNull()) {
-		parseBaton.m_strVerseText.append(strNodeIn);
+		m_parseBaton.m_strVerseText.append(strNodeIn);
 		return;
 	}
 
@@ -282,7 +336,7 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 
 	if (m_pVerse != nullptr) {
 		lstSplit.reserve(m_pVerse->m_nNumWrd + 1);
-		lstSplit = parseBaton.m_strTemplate.split(m_chrMatchChar);
+		lstSplit = m_parseBaton.m_strTemplate.split(m_chrMatchChar);
 		Q_ASSERT(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
 		Q_ASSERT(strNodeIn.isNull());
 	} else {
@@ -294,15 +348,15 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 
 	for (int i=0; i<lstSplit.size(); ++i) {
 		if (m_pVerse != nullptr) {
-			bool bOldOutputStatus = parseBaton.m_bOutput;
-			parseBaton.m_bOutput = (static_cast<unsigned int>(i) >= parseBaton.m_nStartWord);
-			if ((parseBaton.m_pWordCount != nullptr) && ((*parseBaton.m_pWordCount) == 0)) parseBaton.m_bOutput = false;
+			bool bOldOutputStatus = m_parseBaton.m_bOutput;
+			m_parseBaton.m_bOutput = (static_cast<unsigned int>(i) >= m_parseBaton.m_nStartWord);
+			if ((m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) == 0)) m_parseBaton.m_bOutput = false;
 
-			if (bOldOutputStatus && !parseBaton.m_bOutput && parseBaton.m_bUsesHTML && m_bUseLemmas && (parseBaton.m_pCurrentLemma != nullptr)) {
+			if (bOldOutputStatus && !m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_bUseLemmas && (m_parseBaton.m_pCurrentLemma != nullptr)) {
 				// If we transitioned out of output and lemma, finish writing
 				//	the lemma and close it out:
-				writeLemma(parseBaton);
-				parseBaton.m_pCurrentLemma = nullptr;
+				writeLemma();
+				m_parseBaton.m_pCurrentLemma = nullptr;
 			}
 		}
 		if (i > 0) {
@@ -310,20 +364,20 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 #ifdef OSIS_PARSER_BUILD
 				QString strWord = m_pVerse->m_lstRichWords.at(i-1);
 #else
-				QString strWord = parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
+				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
 #endif
-				parseBaton.m_ndxCurrent.setWord(i);
-				bool bWasInLemma = (parseBaton.m_pCurrentLemma != nullptr);
-				if (parseBaton.m_bOutput) {
+				m_parseBaton.m_ndxCurrent.setWord(i);
+				bool bWasInLemma = (m_parseBaton.m_pCurrentLemma != nullptr);
+				if (m_parseBaton.m_bOutput) {
 					if (!bWasInLemma || !m_bUseLemmas) {
-						if (bStartedVerseOutput && parseBaton.m_bUsesHTML) {
+						if (bStartedVerseOutput && m_parseBaton.usesHTML()) {
 							// If not in a Lemma, we need to end this word:
-							if (parseBaton.m_pCurrentLemma == nullptr) {
+							if (m_parseBaton.m_pCurrentLemma == nullptr) {
 								if (m_bUseLemmas) {
-									writeLemma(parseBaton);		// Write empty lemma
+									writeLemma();		// Write empty lemma
 								}
 								if (m_bUseLemmas || m_bUseWordSpans) {
-									parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+									m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
 								}
 							}
 						}
@@ -331,130 +385,125 @@ void CVerseTextRichifier::parse(CRichifierBaton &parseBaton, const QString &strN
 
 						// If not currently in a Lemma or not even processing Lemmas, we
 						//	need to write the word span:
-						if (parseBaton.m_bUsesHTML) {
+						if (m_parseBaton.usesHTML()) {
 							if (m_bUseLemmas || m_bUseWordSpans) {
-								parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+								m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
 							}
 							if (m_bUseLemmas) {
-								parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
 							}
 						}
 						if (m_bUseLemmas) {
-							parseBaton.m_pCurrentLemma = parseBaton.m_pBibleDatabase->lemmaEntry(parseBaton.m_ndxCurrent);
+							m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(m_parseBaton.m_ndxCurrent);
 						}
-					} else if (bWasInLemma && (!parseBaton.m_pCurrentLemma->tag().intersects(parseBaton.m_pBibleDatabase, TPhraseTag(parseBaton.m_ndxCurrent)))) {
+					} else if (bWasInLemma && (!m_parseBaton.m_pCurrentLemma->tag().intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
 						// If we were in a lemma but no longer are, we need to write the
 						//	end of the current lemma:
-						writeLemma(parseBaton);
+						writeLemma();
 						// Check for next lemma:
-						parseBaton.m_pCurrentLemma = parseBaton.m_pBibleDatabase->lemmaEntry(parseBaton.m_ndxCurrent);
-						if (parseBaton.m_bUsesHTML) {
+						m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(m_parseBaton.m_ndxCurrent);
+						if (m_parseBaton.usesHTML()) {
 							if (m_bUseLemmas || m_bUseWordSpans) {
 								// End word span:
-								parseBaton.m_strVerseText.append(QString("</span>"));
+								m_parseBaton.m_strVerseText.append(QString("</span>"));
 								// Start next word segment, regardless of whether or not we are in a Lemma:
-								parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+								m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
 							}
 							if (m_bUseLemmas) {
-								parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
 							}
 						}
 					}	// Otherwise, we are still in a Lemma and need to continue to output it...
 
-					parseBaton.m_strVerseText.append(parseBaton.m_strPrewordStack);
-					parseBaton.m_strPrewordStack.clear();
+					m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
+					m_parseBaton.m_strPrewordStack.clear();
 				}
-				if (!parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
-					if (parseBaton.m_bOutput) {
-						parseBaton.m_strVerseText.append(strWord.left(1)
-														+ parseBaton.m_strDivineNameFirstLetterParseText
-														+ strWord.mid(1));
-					}
-					parseBaton.m_strDivineNameFirstLetterParseText.clear();
-				} else {
-					if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(strWord);
-				}
-				if ((parseBaton.m_bOutput) && (parseBaton.m_pWordCount != nullptr) && ((*parseBaton.m_pWordCount) > 0)) --(*parseBaton.m_pWordCount);
+				pushWordToVerseText(strWord);
+				if ((m_parseBaton.m_bOutput) && (m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) > 0)) --(*m_parseBaton.m_pWordCount);
 			} else {
-				if (m_chrMatchChar == QChar('A')) {
-					if (parseBaton.m_bOutput && parseBaton.m_bUsesHTML) {
-						CRelIndex ndxWord = parseBaton.m_ndxCurrent;
-						ndxWord.setWord(ndxWord.word()+1);
-						parseBaton.m_strPrewordStack.append(QString("<a id=\"%1\">").arg(ndxWord.asAnchor()));
-					}
-				} else if (m_chrMatchChar == QChar('D')) {
-					parseBaton.m_strDivineNameFirstLetterParseText = m_strXlateText;
+				if (m_chrMatchChar == QChar('D')) {
+					m_parseBaton.m_strDivineNameFirstLetterParseText = m_fncXlateText(m_parseBaton);
 				} else if (m_chrMatchChar == QChar('R')) {
-					Q_ASSERT(parseBaton.m_pHighlighter != nullptr);
+					Q_ASSERT(m_parseBaton.m_pHighlighter != nullptr);
 					// Note: for searchResult, we always have to check the intersection and handle
 					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
 					//		to start/stop and which to output:
-					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-					if ((parseBaton.m_bOutput) &&
-						(!parseBaton.m_bInSearchResult) &&
-						(parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
-						parseBaton.m_strPrewordStack.append(m_strXlateText);
-						parseBaton.m_bInSearchResult = true;
+					if ((m_parseBaton.m_bOutput) &&
+						(!m_parseBaton.m_bInSearchResult) &&
+						(m_parseBaton.m_pHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
+						m_parseBaton.m_bInSearchResult = true;
 					}
 				} else if (m_chrMatchChar == QChar('r')) {
-					Q_ASSERT(parseBaton.m_pHighlighter != nullptr);
-					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+					Q_ASSERT(m_parseBaton.m_pHighlighter != nullptr);
+					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-					if ((parseBaton.m_bOutput) &&
-						(parseBaton.m_bInSearchResult) &&
-						((!parseBaton.m_pHighlighter->isContinuous()) ||
-							(!parseBaton.m_pHighlighter->intersects(parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
-						parseBaton.m_strVerseText.append(m_strXlateText);
-						parseBaton.m_bInSearchResult = false;
+					if ((m_parseBaton.m_bOutput) &&
+						(m_parseBaton.m_bInSearchResult) &&
+						((!m_parseBaton.m_pHighlighter->isContinuous()) ||
+							(!m_parseBaton.m_pHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
+						m_parseBaton.m_bInSearchResult = false;
 					}
 				} else if (m_chrMatchChar == QChar('N')) {
-					CRelIndex ndxWord = parseBaton.m_ndxCurrent;
+					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-					if (ndxWord.word() > 1) parseBaton.m_strVerseText.append(' ');
-					parseBaton.m_strVerseText.append(m_strXlateText);		// Opening '('
-					const CFootnoteEntry *pFootnote = parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
+					if (ndxWord.word() > 1) m_parseBaton.m_strVerseText.append(' ');
+					m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));		// Opening '('
+					const CFootnoteEntry *pFootnote = m_parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
 					Q_ASSERT(pFootnote != nullptr);
-					parseBaton.m_strVerseText.append(pFootnote->text());
+					m_parseBaton.m_strVerseText.append(pFootnote->text());
 				} else if (m_chrMatchChar == QChar('n')) {
-					parseBaton.m_strVerseText.append(m_strXlateText);		// Closing ')'
-					parseBaton.m_strVerseText.append(' ');			// Add separator.  Note that we will trim baton whitespace at the end anyway
+					m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));		// Closing ')'
+					m_parseBaton.m_strVerseText.append(' ');			// Add separator.  Note that we will trim baton whitespace at the end anyway
 				} else {
-					if (parseBaton.m_bOutput) {
+					if (m_chrMatchChar == QChar('T')) {
+						m_parseBaton.m_bInTransChangeAdded = true;
+					} else if (m_chrMatchChar == QChar('t')) {
+						m_parseBaton.m_bInTransChangeAdded = false;
+					} else if (m_chrMatchChar == QChar('J')) {
+						m_parseBaton.m_bInWordsOfJesus = true;
+					} else if (m_chrMatchChar == QChar('j')) {
+						m_parseBaton.m_bInWordsOfJesus = false;
+					}
+
+					if (m_parseBaton.m_bOutput) {
 						if (isStartOperator()) {
-							parseBaton.m_strPrewordStack.append(m_strXlateText);
+							m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
 						} else {
-							parseBaton.m_strVerseText.append(m_strXlateText);
+							m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
 						}
 					}
 				}
 			}
 		}
 		if (m_pRichNext) {
-			m_pRichNext->parse(parseBaton, lstSplit.at(i));
+			m_pRichNext->parse(lstSplit.at(i));
 		} else {
-			if (parseBaton.m_bOutput) parseBaton.m_strVerseText.append(lstSplit.at(i));
+			if (m_parseBaton.m_bOutput) m_parseBaton.m_strVerseText.append(lstSplit.at(i));
 		}
 	}
 	if (m_pVerse != nullptr) {
 		// Push any remaining stack:
-		parseBaton.m_strVerseText.append(parseBaton.m_strPrewordStack);
-		parseBaton.m_strPrewordStack.clear();
+		m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
+		m_parseBaton.m_strPrewordStack.clear();
 
-		if (parseBaton.m_pCurrentLemma) {
-			writeLemma(parseBaton);
-			parseBaton.m_pCurrentLemma = nullptr;
+		if (m_parseBaton.m_pCurrentLemma) {
+			writeLemma();
+			m_parseBaton.m_pCurrentLemma = nullptr;
 			if (m_bUseLemmas || m_bUseWordSpans) {		// We track lemmas even when not outputting them, so much check flag here
-				if (parseBaton.m_bUsesHTML) parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+				if (m_parseBaton.usesHTML()) m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
 			}
-		} else if (bStartedVerseOutput && parseBaton.m_bUsesHTML) {
+		} else if (bStartedVerseOutput && m_parseBaton.usesHTML()) {
 			// If not in a Lemma, we need to end this word:
 			if (m_bUseLemmas) {
-				writeLemma(parseBaton);		// Write empty lemma
+				writeLemma();		// Write empty lemma
 			}
 			if (m_bUseLemmas || m_bUseWordSpans) {
-				parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
+				m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
 			}
 		}
 	}
@@ -467,26 +516,6 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	Q_ASSERT(pVerse != nullptr);
 
 	CRelIndex ndxRelVerse(ndxRelative.book(), ndxRelative.chapter(), ndxRelative.verse(), 0);	// Relative as verse only
-
-	// Note: While it would be most optimum to reverse this and
-	//		do the verse last so we don't have to call the entire
-	//		tree for every word, we can't reverse it because doing
-	//		so then creates sub-lists of 'w' tags and then we
-	//		no longer know where we are in the list:
-	CVerseTextRichifier rich_r('r', tags.searchResultsEnd());
-	CVerseTextRichifier rich_R('R', tags.searchResultsBegin(), &rich_r);
-	CVerseTextRichifier rich_n('n', tags.inlineNoteEnd(), &rich_R);
-	CVerseTextRichifier rich_N('N', tags.inlineNoteBegin(), &rich_n);
-	CVerseTextRichifier rich_a('a', QString(tags.usesHTML() ? "</a>" : ""), &rich_N);
-	CVerseTextRichifier rich_A('A', QString(), &rich_a);
-	CVerseTextRichifier rich_d('d', tags.divineNameEnd(), &rich_A);
-	CVerseTextRichifier rich_D('D', tags.divineNameBegin(), &rich_d);				// D/d must be after J/j and T/t for font start/stop to work correctly with special first-letter text mode
-	CVerseTextRichifier rich_t('t', tags.transChangeAddedEnd(), &rich_D);
-	CVerseTextRichifier rich_T('T', tags.transChangeAddedBegin(), &rich_t);
-	CVerseTextRichifier rich_j('j', tags.wordsOfJesusEnd(), &rich_T);
-	CVerseTextRichifier rich_J('J', tags.wordsOfJesusBegin(), &rich_j);
-	CVerseTextRichifier rich_M('M', (tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(ndxRelVerse, bAddAnchors && tags.usesHTML()) : ""), &rich_J);
-	CVerseTextRichifier richVerseText('w', pVerse, &rich_M, bUseLemmas, bUseWordSpans);
 
 	QString strTemplate = pVerse->m_strTemplate;
 
@@ -574,14 +603,35 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		strTemplate.replace(QChar('w'), "Rwr");
 	}
 
-	CRichifierBaton baton(pBibleDatabase, ndxRelative, strTemplate, tags.usesHTML(), pWordCount, pHighlighter);
+	CRichifierBaton baton(tags, pBibleDatabase, ndxRelative, strTemplate, bAddAnchors, pWordCount, pHighlighter);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {
 		baton.m_strPrewordStack.append(g_chrPilcrow);
 		baton.m_strPrewordStack.append(QChar(' '));
 	}
-	richVerseText.parse(baton);
+
+	// Note: While it would be most optimum to reverse this and
+	//		do the verse last so we don't have to call the entire
+	//		tree for every word, we can't reverse it because doing
+	//		so then creates sub-lists of 'w' tags and then we
+	//		no longer know where we are in the list:
+	CVerseTextRichifier rich_r(baton, CVerseTextRichifierTags::VTTE_r);
+	CVerseTextRichifier rich_R(baton, CVerseTextRichifierTags::VTTE_R, &rich_r);
+	CVerseTextRichifier rich_n(baton, CVerseTextRichifierTags::VTTE_n, &rich_R);
+	CVerseTextRichifier rich_N(baton, CVerseTextRichifierTags::VTTE_N, &rich_n);
+	CVerseTextRichifier rich_a(baton, CVerseTextRichifierTags::VTTE_a, &rich_N);
+	CVerseTextRichifier rich_A(baton, CVerseTextRichifierTags::VTTE_A, &rich_a);
+	CVerseTextRichifier rich_d(baton, CVerseTextRichifierTags::VTTE_d, &rich_A);
+	CVerseTextRichifier rich_D(baton, CVerseTextRichifierTags::VTTE_D, &rich_d);				// D/d must be after J/j and T/t for font start/stop to work correctly with special first-letter text mode
+	CVerseTextRichifier rich_t(baton, CVerseTextRichifierTags::VTTE_t, &rich_D);
+	CVerseTextRichifier rich_T(baton, CVerseTextRichifierTags::VTTE_T, &rich_t);
+	CVerseTextRichifier rich_j(baton, CVerseTextRichifierTags::VTTE_j, &rich_T);
+	CVerseTextRichifier rich_J(baton, CVerseTextRichifierTags::VTTE_J, &rich_j);
+	CVerseTextRichifier rich_M(baton, CVerseTextRichifierTags::VTTE_M, &rich_J);
+	CVerseTextRichifier richVerseText(baton, CVerseTextRichifierTags::VTTE_w, pVerse, &rich_M, bUseLemmas, bUseWordSpans);
+
+	richVerseText.parse();
 
 	return baton.m_strVerseText.trimmed();
 }

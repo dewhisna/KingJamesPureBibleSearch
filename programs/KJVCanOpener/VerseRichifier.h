@@ -38,6 +38,37 @@ class CPersistentSettings;
 class CVerseTextRichifierTags
 {
 public:
+	enum VERSE_TEMPLATE_TAGS_ENUM		// If changing this list, update CVerseTextRichifier() constructor!
+	{
+		VTTE_w,			// Word
+		VTTE_M,			// Ps119 Hebrew Prefix
+		VTTE_J,			// Words of Jesus Begin
+		VTTE_j,			// Words of Jesus End
+		VTTE_T,			// TransChangeAdded Begin
+		VTTE_t,			// TransChangeAdded End
+		VTTE_D,			// Divine Name Begin
+		VTTE_d,			// Divine Name End
+		VTTE_A,			// Anchor Begin
+		VTTE_a,			// Anchor End
+		VTTE_N,			// Inline Note Begin
+		VTTE_n,			// Inline Note End
+		VTTE_R,			// Search Results Begin
+		VTTE_r,			// Search Results End
+		VTTE_L,			// Lemma Begin (for completeness -- not used in richifier, see KJVDataParse)
+		VTTE_l,			// Lemma End (for completeness -- not used in richifier, see KJVDataParse)
+		// ----
+		VTTE_COUNT
+	};
+
+	enum VerseWordTypes {
+		VWT_None = 0x00,						// Default for normal word in verse
+		VWT_TransChangeAdded = 0x01,			// Inside TransChangeAdded tag
+		VWT_WordsOfJesus = 0x02,				// Inside Word of Jesus tag
+		VWT_DivineName = 0x04,					// Inside Divine Name tag
+		VWT_SearchResult = 0x08,				// Inside Search Results tag
+	};
+	Q_DECLARE_FLAGS(VerseWordTypeFlags, VerseWordTypes)
+
 	CVerseTextRichifierTags()
 		:	m_bUsesHTML(true),
 			m_nHash(0),
@@ -59,10 +90,12 @@ public:
 		calcHash();
 	}
 
-	~CVerseTextRichifierTags()
+	virtual ~CVerseTextRichifierTags()
 	{
 
 	}
+
+	virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const { Q_UNUSED(strWord); Q_UNUSED(nWordTypes); };
 
 	bool usesHTML() const { return m_bUsesHTML; }
 
@@ -202,26 +235,25 @@ public:
 class CVerseTextRichifier
 {
 private:
-	CVerseTextRichifier(const QChar &chrMatchChar, const QString &strXlateText, const CVerseTextRichifier *pRichNext = nullptr);
-	CVerseTextRichifier(const QChar &chrMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
-
-	~CVerseTextRichifier();
-
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, bool bUsesHTML, int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr)
+		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, bool bAddAnchors, int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
 				m_strTemplate(strTemplate),
-				m_bUsesHTML(bUsesHTML),
+				m_bAddAnchors(bAddAnchors),
 				// ----
 				m_nStartWord(ndxRelative.word()),
 				m_pWordCount(pWordCount),
 				m_pHighlighter(pHighlighter),
 				m_bOutput(false),
+				m_bInTransChangeAdded(false),
+				m_bInWordsOfJesus(false),
 				m_bInSearchResult(false),
-				m_pCurrentLemma(nullptr)
+				m_pCurrentLemma(nullptr),
+				// ----
+				m_tags(tags)
 		{
 			Q_ASSERT(pBibleDatabase != nullptr);
 			m_strVerseText.reserve(1024);					// Avoid reallocations
@@ -230,10 +262,12 @@ private:
 			if (m_nStartWord == 0) m_bOutput = true;
 		}
 
+		bool usesHTML() const { return m_tags.usesHTML(); }
+
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;
 		QString m_strTemplate;								// Verse Template being parsed -- will be identical to the one from CVerseEntry if not doing SearchResults, or modified if we are
-		bool m_bUsesHTML;									// True if the CVerseTextRichifierTags being used supports HTML tags
+		bool m_bAddAnchors;									// True if the parsed text should have <a> anchor tags added
 		// ----
 		QString m_strVerseText;								// Verse Text being built
 		QString m_strPrewordStack;							// Verse Text to save and push at the beginning of the next word
@@ -242,13 +276,27 @@ private:
 		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
 		const CBasicHighlighter *m_pHighlighter;			// Search Results (or other) word highligher if set
 		bool m_bOutput;										// True when outputting text
+		bool m_bInTransChangeAdded;							// True when we are inside translation change addition text (i.e. italics)
+		bool m_bInWordsOfJesus;								// True when we are inside Words of Jesus text
 		bool m_bInSearchResult;								// True when we are inside intersection of m_lstTagsSearchResults, f->t triggers writing the begin tag, t->f triggers writing the end tag
 		const CLemmaEntry *m_pCurrentLemma;					// Pointer to the Lemma currently being processed or null if no Lemma exists for the current word/tag
+		// ----
+		const CVerseTextRichifierTags &m_tags;				// Tags from the caller used for parsing and callback
 	};
 
-	void parse(CRichifierBaton &parseBaton, const QString &strNodeIn = QString()) const;
-	void writeLemma(CRichifierBaton &parseBaton) const;
+	typedef QString (*FXlateText)(const CRichifierBaton &parseBaton);
+
+	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseTextRichifier *pRichNext = nullptr);
+	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
+
+	~CVerseTextRichifier();
+
+	void parse(const QString &strNodeIn = QString()) const;
+	void writeLemma() const;
 	bool isStartOperator() const { return m_chrMatchChar.isUpper(); }
+
+protected:
+	virtual void pushWordToVerseText(const QString &strWord) const;
 
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
@@ -256,10 +304,12 @@ public:
 							int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
 
 private:
+	CRichifierBaton &m_parseBaton;
+	// ----
 	const CVerseTextRichifier *m_pRichNext;
-	const QChar m_chrMatchChar;
+	QChar m_chrMatchChar;
 	const CVerseEntry *m_pVerse;
-	QString m_strXlateText;
+	FXlateText m_fncXlateText;
 	bool m_bUseLemmas;
 	bool m_bUseWordSpans;
 };
