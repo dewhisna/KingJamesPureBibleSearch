@@ -82,6 +82,10 @@ int main(int argc, char *argv[])
 	bool bSkipColophons = false;
 	bool bSkipSuperscriptions = false;
 	bool bPrintReference = false;
+	bool bPrintReferenceAbbrev = false;
+	bool bOutputTemplates = false;
+	bool bOutputVerseText = false;
+	bool bOutputTransChangeAdded = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -96,6 +100,16 @@ int main(int argc, char *argv[])
 			bSkipSuperscriptions = true;
 		} else if (strArg.compare("-r") == 0) {
 			bPrintReference = true;
+		} else if (strArg.compare("-ra") == 0) {
+			bPrintReference = true;
+			bPrintReferenceAbbrev = true;
+		} else if (strArg.compare("-t") == 0) {
+			bOutputTemplates = true;
+		} else if (strArg.compare("-x") == 0) {
+			bOutputVerseText = true;
+		} else if (strArg.compare("-a") == 0) {
+			bOutputVerseText = true;
+			bOutputTransChangeAdded = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -104,11 +118,15 @@ int main(int argc, char *argv[])
 	if ((nArgsFound != 1) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataDump Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index>\n\n").arg(argv[0]).toUtf8().data();
-		std::cerr << QString("Reads the specified database and dumps the template for each verse\n\n").toUtf8().data();
+		std::cerr << QString("Reads the specified database and dumps relevant each verse\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -r  =  Print Reference\n").toUtf8().data();
+		std::cerr << QString("  -ra =  Print Abbreviated Reference (implies -r)\n").toUtf8().data();
+		std::cerr << QString("  -t  =  Print Verse Templates\n").toUtf8().data();
+		std::cerr << QString("  -x  =  Print Verse Text\n").toUtf8().data();
+		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -143,35 +161,81 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
+	static QStringList lstVerseWords;
+
+	class CMyVerseTextRichifierTags : public CVerseTextPlainRichifierTags
+	{
+	public:
+		CMyVerseTextRichifierTags(bool bOutputText, bool bOutputTransChangeAdded)
+			:	m_bOutputText(bOutputText),
+				m_bOutputTransChangeAdded(bOutputTransChangeAdded)
+		{
+		}
+	protected:
+		virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const override
+		{
+			if ((m_bOutputText && !m_bOutputTransChangeAdded) ||
+				(m_bOutputText && m_bOutputTransChangeAdded && (nWordTypes & VWT_TransChangeAdded))) {
+				lstVerseWords.append(strWord);
+			}
+		}
+	private:
+		bool m_bOutputText;
+		bool m_bOutputTransChangeAdded;
+	} vtrt(bOutputVerseText, bOutputTransChangeAdded);
+
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
-	CRelIndex ndxVerse = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
+	CRelIndex ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
 
-	while (ndxVerse.isSet()) {
-		if ((bSkipColophons && ndxVerse.isColophon()) ||
-			(bSkipSuperscriptions && ndxVerse.isSuperscription())) {
+	while (ndxCurrent.isSet()) {
+		if ((bSkipColophons && ndxCurrent.isColophon()) ||
+			(bSkipSuperscriptions && ndxCurrent.isSuperscription())) {
 			// Must increment to next physical word index instead of using calculator movement
 			//	in order to properly traverse colophons and superscriptions:
-//			ndxVerse = pBibleDatabase->calcRelIndex(ndxVerse, CBibleDatabase::RIME_NextVerse);
-			ndxVerse = pBibleDatabase->calcRelIndex(ndxVerse, CBibleDatabase::RIME_EndOfVerse);
-			ndxVerse = pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(ndxVerse)+1);
+//			ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_NextVerse);
+			ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_EndOfVerse);
+			ndxCurrent = pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(ndxCurrent)+1);
 			continue;
 		}
 
-		const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxVerse);
+		const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxCurrent);
 		if (pVerse) {
-			if (bPrintReference) {
-				std::cout << pBibleDatabase->PassageReferenceText(ndxVerse).toUtf8().data() << " : " << pVerse->m_strTemplate.toUtf8().data() << std::endl;
-			} else{
-				std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
+			lstVerseWords.clear();
+			QString strParsedVerse = pBibleDatabase->richVerseText(ndxCurrent, vtrt);
+
+			if ((!bOutputVerseText && bOutputTemplates) ||
+				(bOutputVerseText && !lstVerseWords.isEmpty())) {
+				QString strSpacer;
+				if (bPrintReference) {
+					CRelIndex ndxVerse(ndxCurrent);
+					ndxVerse.setWord(0);
+					QString strRef = (bPrintReferenceAbbrev ?
+											pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
+											pBibleDatabase->PassageReferenceText(ndxVerse));
+					std::cout << strRef.toUtf8().data() << " : ";
+					strSpacer.fill(QChar(' '), strRef.size() + 3);
+				}
+				if (bOutputTemplates) {
+					std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
+				}
+				if (bOutputVerseText) {
+					if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
+					if (bOutputTransChangeAdded) {
+						std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
+					} else {
+						std::cout << strParsedVerse.toUtf8().data();
+					}
+					std::cout << std::endl;
+				}
 			}
 		}
 
 		// Must increment to next physical word index instead of using calculator movement
 		//	in order to properly traverse colophons and superscriptions:
-//		ndxVerse = pBibleDatabase->calcRelIndex(ndxVerse, CBibleDatabase::RIME_NextVerse);
-		ndxVerse = pBibleDatabase->calcRelIndex(ndxVerse, CBibleDatabase::RIME_EndOfVerse);
-		ndxVerse = pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(ndxVerse)+1);
+//		ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_NextVerse);
+		ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_EndOfVerse);
+		ndxCurrent = pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(ndxCurrent)+1);
 	}
 
 	// ------------------------------------------------------------------------
