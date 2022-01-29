@@ -252,6 +252,7 @@ static int languageIndex(const QString &strLanguage)
 static QList<BIBLE_DESCRIPTOR_ENUM> BDElist()
 {
 	QList<BIBLE_DESCRIPTOR_ENUM> lstBDE;
+	lstBDE.append(BDE_KJV_FULL);
 	lstBDE.append(BDE_KJV);
 	lstBDE.append(BDE_KJVA);
 	lstBDE.append(BDE_KJVPCE);

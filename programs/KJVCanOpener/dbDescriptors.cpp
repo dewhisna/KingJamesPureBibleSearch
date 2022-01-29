@@ -135,7 +135,7 @@ namespace {
 		// International Standard Version (2001):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ISV_2001_20100807", "en", QString::fromUtf8("International Standard Version (2001)"), QString::fromUtf8("International Standard Version (2001) (20100807)"), constUUID_ISV_20100807, "bbl-isv2001-20100807.s3db", "bbl-isv2001-20100807.ccdb", constUUID_ISV_20100807 },
 		// KJV Full database (with Strongs Lemma/Morph):
-		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred | BTO_HasStrongs), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769)"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
+		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred | BTO_HasStrongs), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Strongs"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
 	};
 
 	//////////////////////////////////////////////////////////////////////

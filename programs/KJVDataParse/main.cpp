@@ -407,7 +407,7 @@ static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage,
 {
 	bool bIsProperWord = true;
 
-	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJVPCE) || (nBDE == BDE_KJVA)) {
+	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJV_FULL) || (nBDE == BDE_KJVPCE) || (nBDE == BDE_KJVA)) {
 		Q_ASSERT(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
 
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {

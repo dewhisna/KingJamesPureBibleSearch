@@ -86,6 +86,7 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_RUSSYNODAL_20101106 = 22,
 	BDE_ASV_20061025 = 23,			// Other Translation for comparative studies
 	BDE_ISV_20100807 = 24,			// Other Translation for comparative studies
+	BDE_KJV_FULL = 25,				// Full KJV database with Strongs Lemma/Morph
 };
 Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 
