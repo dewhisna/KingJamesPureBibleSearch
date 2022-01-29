@@ -172,7 +172,7 @@ set(TRANSLATIONS_QT)
 if(WIN32)
 	set(MY_COMPILE_OPTIONS "/W3")
 else()
-	set(MY_COMPILE_OPTIONS "-Wall")
+	set(MY_COMPILE_OPTIONS "-Wall" "-Wextra")
 endif()
 
 # -----------------------------------------------------------------------------
