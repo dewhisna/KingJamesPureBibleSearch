@@ -65,6 +65,7 @@ namespace {
 	const char * const constUUID_RUSSYNODAL_20101106 =	"B5F0F4C0-28E5-11E9-B56E-0800200C9A66";
 	const char * const constUUID_ASV_20061025 =			"6DA72D40-A830-11E9-B475-0800200C9A66";
 	const char * const constUUID_ISV_20100807 =			"7C305670-A830-11E9-B475-0800200C9A66";
+	const char * const constUUID_RUSSYNODAL_20201221 =	"B6157FE0-8128-11EC-BF44-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -81,6 +82,11 @@ namespace {
 	//		new versions have insisted on returning to nonstandard versification and this
 	//		UUID will become the "standard" for that highlighter UUID tag:
 	const char *constUUID_RV1865mv = constUUID_RV1865mv20180504;
+
+	// Use the RUSSYNODAL_20101106 UUID for the highlighter tag for all RUSSYNODAL text.
+	//		They aren't overtly different, just marked up better in their OSIS content.
+	//		Assuming we ever complete and adopt RUSSYNODAL_20201221 and newer:
+	const char *constUUID_RUSSYNODAL = constUUID_RUSSYNODAL_20101106;
 
 	const TBibleDescriptor constBibleDescriptors[] =
 	{
@@ -129,13 +135,15 @@ namespace {
 		// RV1865-mv20180504: (Reina-Valera 1865, from Vince LaRue, Ministerios Valera 1865, 2018-05-04 Release)
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-mv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Ministerios Valera 1865 (20180504)"), constUUID_RV1865mv20180504, "bbl-rv1865mv20180504.s3db", "bbl-rv1865mv20180504.ccdb", constUUID_RV1865mv },
 		// RUSSYNODAL_20101106 (1876 Russian Synodal Bible):
-		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20101106a)"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL_20101106 },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20101106a)"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL },
 		// American Standard Version (1901):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ASV_1901_20061025", "en", QString::fromUtf8("American Standard Version (1901)"), QString::fromUtf8("American Standard Version (1901) (20061025)"), constUUID_ASV_20061025, "bbl-asv1901-20061025.s3db", "bbl-asv1901-20061025.ccdb", constUUID_ASV_20061025 },
 		// International Standard Version (2001):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ISV_2001_20100807", "en", QString::fromUtf8("International Standard Version (2001)"), QString::fromUtf8("International Standard Version (2001) (20100807)"), constUUID_ISV_20100807, "bbl-isv2001-20100807.s3db", "bbl-isv2001-20100807.ccdb", constUUID_ISV_20100807 },
 		// KJV Full database (with Strongs Lemma/Morph):
 		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred | BTO_HasStrongs), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Strongs"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
+		// RUSSYNODAL_20201221 (1876 Russian Synodal Bible):
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20201221", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20201221)"),  constUUID_RUSSYNODAL_20201221, "bbl-russynodal20201221.s3db", "bbl-russynodal20201221.ccdb", constUUID_RUSSYNODAL },
 	};
 
 	//////////////////////////////////////////////////////////////////////
