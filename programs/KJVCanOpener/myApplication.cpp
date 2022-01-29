@@ -1466,7 +1466,17 @@ int CMyApplication::execute(bool bBuildDB)
 		CBuildDatabase bdb(m_pSplash);
 		if (bBuildDB) {
 			// Database Paths for building:
-			TBibleDatabaseList::instance()->setBibleDatabasePath(true);		// Switch to build paths
+			TBibleDatabaseList::instance()->setBibleDatabasePath(false);		// Make sure we are initially on the app path
+			QString strAppDBPath = TBibleDatabaseList::bibleDatabasePath();
+			TBibleDatabaseList::instance()->setBibleDatabasePath(true);			// Switch to build path
+			if (strAppDBPath == TBibleDatabaseList::bibleDatabasePath()) {
+				int nResult =  displayWarning(m_pSplash, g_constrInitialization,
+										tr("Warning: BuildDB Environment variable is not set or is "
+											"identical to AppDB Path.  If you continue, you'll potentially "
+											"overwrite existing Bible Database Files.  Continue??", "Errors"),
+										(QMessageBox::Yes  | QMessageBox::No), QMessageBox::No);
+				if (nResult != QMessageBox::Yes) return -2;
+			}
 
 #ifdef NOT_USING_SQL
 			// If we can't support SQL, we can't:
