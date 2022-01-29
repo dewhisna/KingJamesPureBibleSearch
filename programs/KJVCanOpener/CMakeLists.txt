@@ -53,7 +53,7 @@ set(QT_OPTIONAL_COMPONENTS
 
 # -----------------------------------------------------------------------------
 
-include(../qwebchannel/qwebchannel.cmake)
+include(qwebchannel/qwebchannel.cmake)
 
 # -----------------------------------------------------------------------------
 
