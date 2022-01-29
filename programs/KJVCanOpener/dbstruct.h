@@ -1535,6 +1535,8 @@ public:
 		return instance()->m_strBibleDatabasePath;
 	}
 
+	void setBibleDatabasePath(bool bBuildDB);
+
 #ifdef USING_WEBCHANNEL
 	static QString availableBibleDatabasesAsJson();
 #endif

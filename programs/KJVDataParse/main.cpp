@@ -31,6 +31,7 @@
 
 #include "xc_KJVDataParse.h"
 
+#include <QProcessEnvironment>
 #include <QCoreApplication>
 #include <QLibraryInfo>
 #include <QObject>
@@ -61,6 +62,13 @@
 #define CHECK_INDEXES 0
 
 const unsigned int VERSION = 10000;		// Version 1.0.0
+
+namespace {
+	// Env constants:
+	// --------------
+	const QString constrBuildDBPathEnvKey("KJPBS_BUILDDB_PATH");
+
+}	// namespace
 
 #define NUM_BK 80u				// Total Books Defined
 #define NUM_BK_OT 39u			// Total Books in Old Testament
@@ -2550,6 +2558,9 @@ int main(int argc, char *argv[])
 	QString strOSISFilename;
 	QString strInfoFilename;
 	QString strOutputPath;
+	bool bLookingForOutputPath = false;
+	QString strDefaultOutputPath = QProcessEnvironment::systemEnvironment().value(constrBuildDBPathEnvKey);
+	if (!strDefaultOutputPath.isEmpty()) strDefaultOutputPath = QFileInfo(strDefaultOutputPath, "data").absoluteFilePath();
 	QString strStrongsImpPath;
 	bool bLookingforSegVariant = false;
 	QString strSegVariant;
@@ -2557,7 +2568,10 @@ int main(int argc, char *argv[])
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
 		if (!strArg.startsWith("-")) {
-			if (bLookingforSegVariant) {
+			if (bLookingForOutputPath) {
+				strOutputPath = strArg;
+				bLookingForOutputPath = false;
+			} else if (bLookingforSegVariant) {
 				strSegVariant = strArg;
 				bLookingforSegVariant = false;
 			} else {
@@ -2569,11 +2583,11 @@ int main(int argc, char *argv[])
 				} else if (nArgsFound == 3) {
 					strInfoFilename = strArg;
 				} else if (nArgsFound == 4) {
-					strOutputPath = strArg;
-				} else if (nArgsFound == 5) {
 					strStrongsImpPath = strArg;
 				}
 			}
+		} else if (strArg.compare("-o") == 0) {
+			bLookingForOutputPath = true;
 		} else if (strArg.compare("-c") == 0) {
 			bNoColophonVerses = true;
 		} else if (strArg.compare("-bc") == 0) {
@@ -2604,13 +2618,19 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if ((nArgsFound < 4) || (nArgsFound > 5) || (bUnknownOption)) {
+	if (strOutputPath.isEmpty()) strOutputPath = strDefaultOutputPath;
+
+	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> <datafile-path> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
-		std::cerr << QString("    necessary to import into KJPBS into <datafile-path>\n\n").toUtf8().data();
+		std::cerr << QString("    necessary to import into KJPBS into <datafile-path> (see -o option below)\n\n").toUtf8().data();
 		std::cerr << QString("<infofile> is the path/filename to the information file to include\n\n").toUtf8().data();
 		std::cerr << QString("Options\n").toUtf8().data();
+		std::cerr << QString("    -o <datafile-path> = Data File Output path%1\n").arg(strDefaultOutputPath.isEmpty() ? " (required)" : "").toUtf8().data();
+		if (!strDefaultOutputPath.isEmpty()) {
+			std::cerr << QString("           (optional, if not specified, will use env path of: \"%1\")\n").arg(strDefaultOutputPath).toUtf8().data();
+		}
 		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses (only as footnotes)\n").toUtf8().data();
 		std::cerr << QString("    -bc =  Enable Bracket Colophons (such as used in the TR text)\n").toUtf8().data();
 		std::cerr << QString("           (use with -c to find the bracket colophons and remove them)\n").toUtf8().data();

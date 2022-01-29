@@ -65,7 +65,8 @@
 namespace {
 	// Env constants:
 	// --------------
-	const QString constrEnvKey("KJPBS_BASE_PATH");
+	const QString constrBasePathEnvKey("KJPBS_BASE_PATH");
+	const QString constrBuildDBPathEnvKey("KJPBS_BUILDDB_PATH");
 
 }	// namespace
 
@@ -90,7 +91,7 @@ const QString &initialAppDirPath()
 		//	CPersistentSettings stealth settings path ...
 
 		// Environment variable takes precedence:
-		g_strAppDirPath = QProcessEnvironment::systemEnvironment().value(constrEnvKey, g_strAppDirPath);
+		g_strAppDirPath = QProcessEnvironment::systemEnvironment().value(constrBasePathEnvKey, g_strAppDirPath);
 #endif
 	}
 
@@ -103,11 +104,7 @@ TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 	:	QObject(pParent),
 		m_bHaveSearchedAvailableDatabases(false)
 {
-#ifndef EMSCRIPTEN
-	m_strBibleDatabasePath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
-#else
-	m_strBibleDatabasePath = g_constrBibleDatabasePath;
-#endif
+	setBibleDatabasePath(false);
 
 	// This one should be a Direct connection so that we update the database words immediately before users get updated:
 	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::DirectConnection);
@@ -116,6 +113,19 @@ TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 TBibleDatabaseList::~TBibleDatabaseList()
 {
 
+}
+
+void TBibleDatabaseList::setBibleDatabasePath(bool bBuildDB)
+{
+#ifndef EMSCRIPTEN
+	// Environment variable takes precedence over AppDir path in build mode:
+	QString strAppBaseDBPath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
+	m_strBibleDatabasePath = bBuildDB ? QProcessEnvironment::systemEnvironment().value(constrBuildDBPathEnvKey, strAppBaseDBPath)
+										: strAppBaseDBPath;
+#else
+	Q_UNUSED(bBuildDB);		// No building in Emscripten mode
+	m_strBibleDatabasePath = g_constrBibleDatabasePath;
+#endif
 }
 
 TBibleDatabaseList *TBibleDatabaseList::instance()

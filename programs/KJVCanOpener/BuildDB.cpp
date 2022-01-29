@@ -148,7 +148,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QSettings settingsDBInfo(QFileInfo(QDir(initialAppDirPath()), QString("db/data/DBInfo.ini")).absoluteFilePath(), QSettings::IniFormat);
+	QSettings settingsDBInfo(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/DBInfo.ini")).absoluteFilePath(), QSettings::IniFormat);
 #if QT_VERSION < 0x060000
 	settingsDBInfo.setIniCodec("UTF-8");
 #endif
@@ -162,7 +162,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 
 	QByteArray arrDBInfo;
 	if (!strDBInfoFilename.isEmpty()) {
-		QFile fileDBInfo(QFileInfo(QDir(initialAppDirPath()), QString("db/data/%1").arg(strDBInfoFilename)).absoluteFilePath());
+		QFile fileDBInfo(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/%1").arg(strDBInfoFilename)).absoluteFilePath());
 
 		while (1) {
 			if (!fileDBInfo.open(QIODevice::ReadOnly)) {
@@ -257,7 +257,7 @@ bool CBuildDatabase::BuildTestamentTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileTestament(QFileInfo(QDir(initialAppDirPath()), QString("db/data/TESTAMENT.csv")).absoluteFilePath());
+	QFile fileTestament(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/TESTAMENT.csv")).absoluteFilePath());
 	while (1) {
 		if (!fileTestament.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -390,7 +390,7 @@ bool CBuildDatabase::BuildBooksTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileBook(QFileInfo(QDir(initialAppDirPath()), QString("db/data/TOC.csv")).absoluteFilePath());
+	QFile fileBook(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/TOC.csv")).absoluteFilePath());
 	while (1) {
 		if (!fileBook.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -544,7 +544,7 @@ bool CBuildDatabase::BuildChaptersTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileBook(QFileInfo(QDir(initialAppDirPath()), QString("db/data/LAYOUT.csv")).absoluteFilePath());
+	QFile fileBook(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/LAYOUT.csv")).absoluteFilePath());
 	while (1) {
 		if (!fileBook.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -648,7 +648,7 @@ bool CBuildDatabase::BuildVerseTables()
 		if (m_lststrBkTblNames.at(i).isEmpty()) continue;
 		++nBooksExpected;
 
-		QFileInfo fiBook(QDir(initialAppDirPath()), QString("db/data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(m_lststrBkTblNames.at(i)));
+		QFileInfo fiBook(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/BOOK_%1_%2.csv").arg(i+1, 2, 10, QChar('0')).arg(m_lststrBkTblNames.at(i)));
 
 #ifndef NOT_USING_SQL
 		QString strCmd;
@@ -837,7 +837,7 @@ bool CBuildDatabase::BuildWordsTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileBook(QFileInfo(QDir(initialAppDirPath()), QString("db/data/WORDS.csv")).absoluteFilePath());
+	QFile fileBook(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/WORDS.csv")).absoluteFilePath());
 	while (1) {
 		if (!fileBook.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -976,7 +976,7 @@ bool CBuildDatabase::BuildFootnotesTables()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileFootnotes(QFileInfo(QDir(initialAppDirPath()), QString("db/data/FOOTNOTES.csv")).absoluteFilePath());
+	QFile fileFootnotes(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/FOOTNOTES.csv")).absoluteFilePath());
 	while (1) {
 		if (!fileFootnotes.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -1112,7 +1112,7 @@ bool CBuildDatabase::BuildPhrasesTable()
 	CPhraseList phrases;
 
 	// If this is the main phrases table, open our data file for populating it:
-	QFile filePhrases(QFileInfo(QDir(initialAppDirPath()), QString("db/data/PHRASES.csv")).absoluteFilePath());
+	QFile filePhrases(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/PHRASES.csv")).absoluteFilePath());
 	while (1) {
 		if (!filePhrases.open(QIODevice::ReadOnly)) {
 			if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -1269,7 +1269,7 @@ bool CBuildDatabase::BuildLemmasTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileLemmas(QFileInfo(QDir(initialAppDirPath()), QString("db/data/LEMMAS.csv")).absoluteFilePath());
+	QFile fileLemmas(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/LEMMAS.csv")).absoluteFilePath());
 	if (!fileLemmas.open(QIODevice::ReadOnly)) {
 		displayInformation(m_pParent, g_constrBuildDatabase,
 			QObject::tr("Failed to open %1 for reading.  Skipping Lemma Generation.", "BuildDB").arg(fileLemmas.fileName()));
@@ -1394,7 +1394,7 @@ bool CBuildDatabase::BuildStrongsTable()
 #endif	// !NOT_USING_SQL
 
 	// Open the table data file:
-	QFile fileStrongs(QFileInfo(QDir(initialAppDirPath()), QString("db/data/STRONGS.csv")).absoluteFilePath());
+	QFile fileStrongs(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/STRONGS.csv")).absoluteFilePath());
 	if (!fileStrongs.open(QIODevice::ReadOnly)) {
 		displayInformation(m_pParent, g_constrBuildDatabase,
 			QObject::tr("Failed to open %1 for reading.  Skipping Strongs Generation.", "BuildDB").arg(fileStrongs.fileName()));

@@ -1466,6 +1466,8 @@ int CMyApplication::execute(bool bBuildDB)
 		CBuildDatabase bdb(m_pSplash);
 		if (bBuildDB) {
 			// Database Paths for building:
+			TBibleDatabaseList::instance()->setBibleDatabasePath(true);		// Switch to build paths
+
 #ifdef NOT_USING_SQL
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
