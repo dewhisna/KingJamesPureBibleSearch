@@ -824,6 +824,51 @@ namespace {
 
 	// ------------------------------------------------------------------------
 
+	// 1876 Russian Synodal:
+	//	Filename format: xx/yy.mp3
+	//		xx = Book number, zero-filled to 2-digits, but strangely were
+	//				suppied in the wrong order in the NT, so we have the
+	//				mapping here below
+	//		yy = Chapter number, zero-filled to 2-digits.  In Psalms, the
+	//				chapter number will go to 3-digits, but it's not
+	//				zero-filled above the lower 2-digits.
+
+	const uint32_t g_arrconRussianSynodalBooks[NUM_BK] = {
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,			// Sounds_OT_1.zip
+		21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,		// Sounds_OT_2.zip
+		40, // Matthew (40)																// Sounds_NT.zip
+		41, // Mark (41)
+		42, // Luke (42)
+		43, // John (43)
+		44, // Acts (44)
+		52, // Romans (45)
+		53, // 1Cor (46)
+		54, // 2Cor (47)
+		55, // Galations (48)
+		56, // Ephesians (49)
+		57, // Philippians (50)
+		58, // Colossians (51)
+		59, // 1Thess (52)
+		60, // 2Thess (53)
+		61, // 1Tim (54)
+		62, // 2Tim (55)
+		63, // Titus (56)
+		64, // Philemon (57)
+		65, // Hebrews (58)
+		45, // James (59)
+		46, // 1Peter (60)
+		47, // 2Peter (61)
+		48, // 1John (62)
+		49, // 2John (63)
+		50, // 3John (64)
+		51, // Jude (65)
+		66, // Revelation (66)
+	};
+
+	const QString g_constrRussianSynodalURL = "https://audios.dewtronics.com/RussianSynodal1876/%1";
+
+	// ------------------------------------------------------------------------
+
 }	// Namespace
 
 // ============================================================================
@@ -878,6 +923,11 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 		bool bRV1865Valid = ((nTst == 2) && ((nBkTst > 0) && (nBkTst <= NUM_BK_NT)));
 		if (pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RV1865mv20180504).m_strUUID, Qt::CaseInsensitive) != 0)
 			bRV1865Valid = false;
+
+		bool bRussianSynodalValid = (((nTst > 0) && (nTst <= 2)) && (nBkTst != 0) && ((nBk > 0) && (nBk <= NUM_BK)));
+		if ((pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RUSSYNODAL_20101106).m_strUUID, Qt::CaseInsensitive) != 0) &&
+			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RUSSYNODAL_20201221).m_strUUID, Qt::CaseInsensitive) != 0))
+			bRussianSynodalValid = false;
 
 		if (bKJVValid) {
 			// Faith Comes By Hearing:
@@ -1051,6 +1101,18 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 				QJsonObject objBibleAudio;
 				objBibleAudio["name"] = "Reina Valera 1865";
 				objBibleAudio["url"] = QString(QUrl(QString(g_constrRV1865URL).arg(strRVBkChp)).toEncoded());
+				arrBibleAudioList.append(objBibleAudio);
+			}
+		}
+
+		if (bRussianSynodalValid) {
+			// 1876 Russian Synodal:
+			QString strRSBkChp = QString("%1/%2.mp3").arg(g_arrconRussianSynodalBooks[nBk-1], 2, 10, QChar('0'))
+													.arg(nChp, 2, 10, QChar('0'));
+			if (flagsBAS & BAS_1876_RUSSIAN_SYNODAL) {
+				QJsonObject objBibleAudio;
+				objBibleAudio["name"] = "1876 Russian Synodal";
+				objBibleAudio["url"] = QString(QUrl(QString(g_constrRussianSynodalURL).arg(strRSBkChp)).toEncoded());
 				arrBibleAudioList.append(objBibleAudio);
 			}
 		}

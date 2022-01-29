@@ -79,6 +79,21 @@
 	ISBN-13: 978-1600775840
 	NOT Free
 
+  RV1865 : Contact Vince LaRue at valera1865.org
+
+  Russian Synodal 1876 : https://www.ph4.org/baudio_audiobible.php?q=audio
+	Year of Audio Bible Edition: 2008
+	Bible version: 1876, Synodal Bible (Basic Russian translation)
+	Publishing house: Russian Bible Society (http://www.biblia.ru/)
+	Audiobook type: Audiobook
+	Audio codec: MP3
+	Bitrate audio: 96 kbps
+	Playing time: 5 days, 10:28:10
+	Size: 2.8 Gb
+	Copyright: Belong to Lapkin Ignatius Tikhonovich (Leviticus, Numbers,
+		Deuteronomy, Books of Kings, Books of Chronicles, Songs of Songs)
+		and the Russian Bible Society (all other books).
+
 ****************************************************************************/
 
 #ifndef WEBCHANNEL_BIBLE_AUDIO_H
@@ -107,6 +122,7 @@ public:
 		BAS_WILLARD_WAGGONER = 0x80,		// Willard Waggoner Version
 		BAS_SHERBERG_JONES = 0x100,			// Jon Sherberg and James Earl Jones Version
 		BAS_REINA_VALERA_1865 = 0x200,		// Spanish Reina-Valera 1865 Narration
+		BAS_1876_RUSSIAN_SYNODAL = 0x400,	// 1876 Russian Synodal Narration
 		BAS_ALL = 0xFFFFFFFF
 	};
 	Q_DECLARE_FLAGS(BibleAudioSourcesFlags, BibleAudioSources)
