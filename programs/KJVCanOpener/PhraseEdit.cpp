@@ -1994,7 +1994,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.flushBuffer(true);		// Stop buffering and flush
 
 		if (bInIndent) {
-			if ((vrmeMode == VRME_VPL_DS_HANGING) || (vrmeMode == VRME_VPL_DS_INDENT)) scriptureHTML.addLineBreak();
+			if ((vrmeMode == VRME_VPL_DS_HANGING) || (vrmeMode == VRME_VPL_DS_INDENT)) {
+				scriptureHTML.addLineBreak();
+				scriptureHTML.addLineBreak();
+			}
 			scriptureHTML.endIndent();
 			bInIndent = false;
 		}
