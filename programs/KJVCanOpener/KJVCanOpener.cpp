@@ -1026,11 +1026,13 @@ void CKJVCanOpener::initialize()
 			tag = TPhraseTag(ndxLastRef, nCount);
 		}
 		settings.endGroup();
+
+		setWindowTitle(windowTitle() + " - " + m_pBibleDatabase->description());
 	} else {
-		setWindowTitle(windowTitle() + " (" + tr("Stealth Mode", "KJVCanOpener") + ")");
+		setWindowTitle(windowTitle() + " - " + m_pBibleDatabase->description() + " (" + tr("Stealth Mode", "KJVCanOpener") + ")");
 	}
 #else
-	setWindowTitle(windowTitle() + " (" + tr("Lite Version", "KJVCanOpener") + ")");
+	setWindowTitle(windowTitle() + " - " + m_pBibleDatabase->description() + " (" + tr("Lite Version", "KJVCanOpener") + ")");
 #endif
 
 	// If there is no selection to highlight, default to the first sub-entity
