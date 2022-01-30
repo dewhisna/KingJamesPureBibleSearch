@@ -2149,6 +2149,11 @@ Setting up EC2 instance:
 sudo apt-get update
 sudo apt-get install joe
 sudo apt-get install build-essential
+sudo apt-get install gpg apt-transport-https wget
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/kitware.list >/dev/null
+sudo apt-get update
+sudo apt-get install cmake ninja-build
 sudo apt-get build-dep libqt4-dev		<<< build-dep not install! <<<  Use "qt4-x11" on 18.04 Bionic
 sudo apt-get install gperf bison
 sudo apt-get install libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev
@@ -2558,7 +2563,10 @@ ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/doc doc
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/fonts fonts
 ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/translations translations
-ln -s ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/geoip geoip
+mkdir geoip
+cp ~/Documents/programs/Bible/KingJamesPureBibleSearch/programs/KJVCanOpener/geoip/* geoip/
+
+edit ~/webchannel/KJVCanOpener/geoip/GeoIP.conf and set API keys
 
 
 Setting up crontab:
@@ -2954,6 +2962,8 @@ Install MaxMindDB for GeoLocate for WebChannel:
 sudo add-apt-repository ppa:maxmind/ppa
 sudo apt-get update
 sudo apt-get install libmaxminddb0 libmaxminddb-dev mmdb-bin geoipupdate
+
+edit ~/webchannel/KJVCanOpener/geoip/GeoIP.conf and set API keys
 
 crontab -e
   ADD:
