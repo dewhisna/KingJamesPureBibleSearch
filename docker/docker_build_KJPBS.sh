@@ -135,6 +135,8 @@ cmake -S ../../programs/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$QT_DIR 
 cmake --build . --target all --parallel
 cp KJVCanOpener/KingJamesPureBibleSearch $BUILD_HOME/KJVCanOpener/app/
 ln -s $BUILD_HOME/KJVCanOpener/app/KingJamesPureBibleSearch $INSTALL_DIR/KingJamesPureBibleSearch
+cp KJVDataDump/KJVDataDump $BUILD_HOME/KJVCanOpener/app/
+ln -s $BUILD_HOME/KJVCanOpener/app/KJVDataDump $INSTALL_DIR/KJVDataDump
 cp KJVDataParse/KJVDataParse $BUILD_HOME/KJVCanOpener/app/
 ln -s $BUILD_HOME/KJVCanOpener/app/KJVDataParse $INSTALL_DIR/KJVDataParse
 cp KJVDictWord/KJVDictWord $BUILD_HOME/KJVCanOpener/app/

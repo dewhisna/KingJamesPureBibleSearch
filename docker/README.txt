@@ -8,6 +8,7 @@ Using a Docker Container Image provisioned by Packer:
 
 KJPBS Tools Built:
 - KingJamesPureBibleSearch
+- KJVDataDump
 - KJVDataParse
 - KJVDictWord
 - KJVDiff
