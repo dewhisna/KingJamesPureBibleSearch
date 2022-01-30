@@ -29,6 +29,8 @@
 #include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
+// ----
+#include "../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"
 
 #include <QCoreApplication>
 #include <QLibraryInfo>
@@ -86,6 +88,7 @@ int main(int argc, char *argv[])
 	bool bOutputTemplates = false;
 	bool bOutputVerseText = false;
 	bool bOutputTransChangeAdded = false;
+	bool bOutputWebChannelBibleAudioURLs = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -110,6 +113,8 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-a") == 0) {
 			bOutputVerseText = true;
 			bOutputTransChangeAdded = true;
+		} else if (strArg.compare("-wba") == 0) {
+			bOutputWebChannelBibleAudioURLs = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -127,6 +132,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -t  =  Print Verse Templates\n").toUtf8().data();
 		std::cerr << QString("  -x  =  Print Verse Text\n").toUtf8().data();
 		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x)\n").toUtf8().data();
+		std::cerr << QString("  -wba =  Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -199,34 +205,52 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxCurrent);
-		if (pVerse) {
-			lstVerseWords.clear();
-			QString strParsedVerse = pBibleDatabase->richVerseText(ndxCurrent, vtrt);
+		if (bOutputWebChannelBibleAudioURLs) {
+			QString strJsonBA = CWebChannelBibleAudio::instance()->urlsForChapterAudio(pBibleDatabase, ndxCurrent);
 
-			if ((!bOutputVerseText && bOutputTemplates) ||
-				(bOutputVerseText && !lstVerseWords.isEmpty())) {
-				QString strSpacer;
-				if (bPrintReference) {
-					CRelIndex ndxVerse(ndxCurrent);
-					ndxVerse.setWord(0);
-					QString strRef = (bPrintReferenceAbbrev ?
-											pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
-											pBibleDatabase->PassageReferenceText(ndxVerse));
-					std::cout << strRef.toUtf8().data() << " : ";
-					strSpacer.fill(QChar(' '), strRef.size() + 3);
-				}
-				if (bOutputTemplates) {
-					std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
-				}
-				if (bOutputVerseText) {
-					if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
-					if (bOutputTransChangeAdded) {
-						std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
-					} else {
-						std::cout << strParsedVerse.toUtf8().data();
+			if (bPrintReference) {
+				CRelIndex ndxChapter(ndxCurrent);
+				ndxChapter.setVerse(0);
+				ndxChapter.setWord(0);
+				QString strRef = (bPrintReferenceAbbrev ?
+										pBibleDatabase->PassageReferenceAbbrText(ndxChapter) :
+										pBibleDatabase->PassageReferenceText(ndxChapter));
+				std::cout << strRef.toUtf8().data() << " : ";
+			}
+			std::cout << strJsonBA.toUtf8().data() << std::endl;
+
+			ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_NextChapter);
+			continue;
+		} else {
+			const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxCurrent);
+			if (pVerse) {
+				lstVerseWords.clear();
+				QString strParsedVerse = pBibleDatabase->richVerseText(ndxCurrent, vtrt);
+
+				if ((!bOutputVerseText && bOutputTemplates) ||
+					(bOutputVerseText && !lstVerseWords.isEmpty())) {
+					QString strSpacer;
+					if (bPrintReference) {
+						CRelIndex ndxVerse(ndxCurrent);
+						ndxVerse.setWord(0);
+						QString strRef = (bPrintReferenceAbbrev ?
+												pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
+												pBibleDatabase->PassageReferenceText(ndxVerse));
+						std::cout << strRef.toUtf8().data() << " : ";
+						strSpacer.fill(QChar(' '), strRef.size() + 3);
 					}
-					std::cout << std::endl;
+					if (bOutputTemplates) {
+						std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
+					}
+					if (bOutputVerseText) {
+						if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
+						if (bOutputTransChangeAdded) {
+							std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
+						} else {
+							std::cout << strParsedVerse.toUtf8().data();
+						}
+						std::cout << std::endl;
+					}
 				}
 			}
 		}

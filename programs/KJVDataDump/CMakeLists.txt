@@ -108,6 +108,8 @@ set(KJVDataDump_SOURCES
 	"../KJVCanOpener/Translator.cpp"
 	"../KJVCanOpener/UserNotesDatabase.cpp"
 	"../KJVCanOpener/VerseRichifier.cpp"
+	# ----
+	"../KJVCanOpener/qwebchannel/webChannelBibleAudio.cpp"
 )
 
 # -------------------------------------
@@ -134,6 +136,8 @@ set(KJVDataDump_HEADERS
 	"../KJVCanOpener/Translator.h"
 	"../KJVCanOpener/UserNotesDatabase.h"
 	"../KJVCanOpener/VerseRichifier.h"
+	# ----
+	"../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"
 )
 
 # -------------------------------------
@@ -187,6 +191,10 @@ target_link_libraries(${KJVDataDump_TARGET} PRIVATE
 	${QT_LINK_LIBS}
 	grantlee
 	QtIOCompressor
+)
+
+target_include_directories(${KJVDataDump_TARGET} PRIVATE
+	"../KJVCanOpener"		# Needed for dbstruct.h, etc., in WebChannel
 )
 
 if(ENABLE_TRANSLATIONS)
