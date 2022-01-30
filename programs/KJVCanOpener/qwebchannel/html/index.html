@@ -888,7 +888,7 @@
 					$.each(jsonBibleAudioList, function(index, itemData) {
 						$("<option value='" + itemData.url + "'>" + itemData.name
 							+ "</option>").appendTo("#selectBibleAudio");
-						if ((strLastBibleAudioName) && (itemData.name == strLastBibleAudioName)) {
+						if (((strLastBibleAudioName) && (itemData.name == strLastBibleAudioName)) || (jsonBibleAudioList.length == 1)) {
 							defaultAudio = itemData.url;
 						}
 					});
