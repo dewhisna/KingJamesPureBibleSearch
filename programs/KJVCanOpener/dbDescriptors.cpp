@@ -63,9 +63,20 @@ namespace {
 	const char * const constUUID_LXX_20080722 =			"4F4BD170-6264-11E7-9598-0800200C9A66";
 	const char * const constUUID_RV1865mv20180504 =		"28A10630-5728-11E8-B566-0800200C9A66";
 	const char * const constUUID_RUSSYNODAL_20101106 =	"B5F0F4C0-28E5-11E9-B56E-0800200C9A66";
+	// ----
 	const char * const constUUID_ASV_20061025 =			"6DA72D40-A830-11E9-B475-0800200C9A66";
 	const char * const constUUID_ISV_20100807 =			"7C305670-A830-11E9-B475-0800200C9A66";
+	// ----
 	const char * const constUUID_RUSSYNODAL_20201221 =	"B6157FE0-8128-11EC-BF44-0800200C9A66";
+	// ----
+	const char * const constUUID_MYBIBLE_ESV_2001 =		"7B3F4F70-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_NASB_1971 =	"7B3F4F71-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_NASB_2020 =	"7B3F4F72-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_NIV_1978 =		"7B3F4F73-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_NIV_1984 =		"7B3F4F74-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_NIV_2011 =		"7B3F4F75-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_NKJV_1982 =	"7B3F4F76-821A-11EC-BF44-0800200C9A66";
+	const char * const constUUID_MYBIBLE_TNIV_2005 =	"7B3F4F77-821A-11EC-BF44-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -136,14 +147,34 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RV1865-mv20180504", "es", QString::fromUtf8("Reina-Valera 1865"), QString::fromUtf8("Reina-Valera 1865, Ministerios Valera 1865 (20180504)"), constUUID_RV1865mv20180504, "bbl-rv1865mv20180504.s3db", "bbl-rv1865mv20180504.ccdb", constUUID_RV1865mv },
 		// RUSSYNODAL_20101106 (1876 Russian Synodal Bible):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20101106", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20101106a)"),  constUUID_RUSSYNODAL_20101106, "bbl-russynodal20101106.s3db", "bbl-russynodal20101106.ccdb", constUUID_RUSSYNODAL },
+		// ----
 		// American Standard Version (1901):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ASV_1901_20061025", "en", QString::fromUtf8("American Standard Version (1901)"), QString::fromUtf8("American Standard Version (1901) (20061025)"), constUUID_ASV_20061025, "bbl-asv1901-20061025.s3db", "bbl-asv1901-20061025.ccdb", constUUID_ASV_20061025 },
 		// International Standard Version (2001):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "ISV_2001_20100807", "en", QString::fromUtf8("International Standard Version (2001)"), QString::fromUtf8("International Standard Version (2001) (20100807)"), constUUID_ISV_20100807, "bbl-isv2001-20100807.s3db", "bbl-isv2001-20100807.ccdb", constUUID_ISV_20100807 },
+		// ----
 		// KJV Full database (with Strongs Lemma/Morph):
 		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred | BTO_HasStrongs), "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Strongs"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
 		// RUSSYNODAL_20201221 (1876 Russian Synodal Bible):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "RUSSYNODAL_20201221", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20201221)"),  constUUID_RUSSYNODAL_20201221, "bbl-russynodal20201221.s3db", "bbl-russynodal20201221.ccdb", constUUID_RUSSYNODAL },
+		// ----
+		// English Standard Version 2001:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_ESV_2001", "en", QString::fromUtf8("MyBible English Standard Version (2001)"), QString::fromUtf8("English Standard Version (2001)"), constUUID_MYBIBLE_ESV_2001, "bbl-mybible-esv-2001.s3db", "bbl-mybible-esv-2001.ccdb", constUUID_MYBIBLE_ESV_2001 },
+		// New American Standard Bible 1971:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NASB_1971", "en", QString::fromUtf8("MyBible New American Standard Bible (1971)"), QString::fromUtf8("New American Standard Bible (1971)"), constUUID_MYBIBLE_NASB_1971, "bbl-mybible-nasb-1971.s3db", "bbl-mybible-nasb-1971.ccdb", constUUID_MYBIBLE_NASB_1971 },
+		// New American Standard Bible 2020:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NASB_2020", "en", QString::fromUtf8("MyBible New American Standard Bible (2020)"), QString::fromUtf8("New American Standard Bible (2020)"), constUUID_MYBIBLE_NASB_2020, "bbl-mybible-nasb-2020.s3db", "bbl-mybible-nasb-2020.ccdb", constUUID_MYBIBLE_NASB_2020 },
+		// New International Version, 1978, Red letter edition:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NIV_1978", "en", QString::fromUtf8("MyBible New International Version (1978)"), QString::fromUtf8("New International Version, 1978, Red letter edition"), constUUID_MYBIBLE_NIV_1978, "bbl-mybible-niv-1978.s3db", "bbl-mybible-niv-1978.ccdb", constUUID_MYBIBLE_NIV_1978 },
+		// New International Version, 1984:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NIV_1984", "en", QString::fromUtf8("MyBible New International Version (1984)"), QString::fromUtf8("New International Version (1984)"), constUUID_MYBIBLE_NIV_1984, "bbl-mybible-niv-1984.s3db", "bbl-mybible-niv-1984.ccdb", constUUID_MYBIBLE_NIV_1984 },
+		// New International Version, 2011:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NIV_2011", "en", QString::fromUtf8("MyBible New International Version (2011)"), QString::fromUtf8("New International Version (2011)"), constUUID_MYBIBLE_NIV_2011, "bbl-mybible-niv-2011.s3db", "bbl-mybible-niv-2011.ccdb", constUUID_MYBIBLE_NIV_2011 },
+		// New King James Version, 1982:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NKJV_1982", "en", QString::fromUtf8("MyBible New King James Version (1982)"), QString::fromUtf8("New King James Version (1982)"), constUUID_MYBIBLE_NKJV_1982, "bbl-mybible-nkjv-1982.s3db", "bbl-mybible-nkjv-1982.ccdb", constUUID_MYBIBLE_NKJV_1982 },
+		// Today's New International Version, 2005
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_TNIV_2005", "en", QString::fromUtf8("MyBible Today's New International Version (2005)"), QString::fromUtf8("Today's New International Version (2005)"), constUUID_MYBIBLE_TNIV_2005, "bbl-mybible-tniv-2005.s3db", "bbl-mybible-tniv-2005.ccdb", constUUID_MYBIBLE_TNIV_2005 },
+		// ----
 	};
 
 	//////////////////////////////////////////////////////////////////////

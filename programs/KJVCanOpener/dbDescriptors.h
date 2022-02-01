@@ -88,6 +88,14 @@ enum BIBLE_DESCRIPTOR_ENUM {
 	BDE_ISV_20100807 = 24,			// Other Translation for comparative studies
 	BDE_KJV_FULL = 25,				// Full KJV database with Strongs Lemma/Morph
 	BDE_RUSSYNODAL_20201221 = 26,
+	BDE_MYBIBLE_ESV_2001 = 27,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_NASB_1971 = 28,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_NASB_2020 = 29,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_NIV_1978 = 30,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_NIV_1984 = 31,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_NIV_2011 = 32,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_NKJV_1982 = 33,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
+	BDE_MYBIBLE_TNIV_2005 = 34,		// Other Translation for comparative studies -- from Android MyBible App SQLite3
 };
 Q_DECLARE_METATYPE(BIBLE_DESCRIPTOR_ENUM)
 
