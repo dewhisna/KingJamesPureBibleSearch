@@ -74,6 +74,7 @@ namespace {
 #define NUM_BK_OT 39u			// Total Books in Old Testament
 #define NUM_BK_NT 27u			// Total Books in New Testament
 #define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
+#define NUM_BK_APOC2 6u			// Total Books in Extra Aprocrypha (ESV, etc)
 #define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
 typedef QList<QStringList> TChapterVerseCounts;
@@ -163,6 +164,8 @@ const QString g_arrChapterVerseCounts[NUM_BK] =
 	"14",
 	"64,70,60,61,68,63,50,32,73,89,74,53,53,49,41,24",
 	"36,32,40,50,27,31,42,36,29,38,38,45,26,46,39"
+	// ---- Extra Apocrypha/Deuterocanon:
+	// TODO
 };
 
 typedef struct {
@@ -270,7 +273,15 @@ static void g_setBooks()
 		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Bel and the Dragon", "bookname"), xc_KJVDataParse::tr("Bel", "bookabbr"), "Bel", "BEL", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The Book of Bel and the Dragon [in Daniel]", "bookdesc") },
 		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Prayer of Manasses", "bookname"), xc_KJVDataParse::tr("PrMan", "bookabbr"), "PrMan", "PRMAN", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The Prayer of Manasseh, or, The Prayer of Manasses King of Judah", "bookdesc") },
 		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Maccabees", "bookname"), xc_KJVDataParse::tr("1Macc;1Mc;1Ma", "bookabbr"), "1Macc", "MACC1", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The First Book of the Maccabees", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Maccabees", "bookname"), xc_KJVDataParse::tr("2Macc;2Mc;2Ma", "bookabbr"), "2Macc", "MACC2", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The Second Book of the Maccabees", "bookdesc") }
+		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Maccabees", "bookname"), xc_KJVDataParse::tr("2Macc;2Mc;2Ma", "bookabbr"), "2Macc", "MACC2", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The Second Book of the Maccabees", "bookdesc") },
+		// ----
+// TODO
+//		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("3 Maccabees", "bookname"), xc_KJVDataParse::tr("3Macc;3Mc;3Ma", "bookabbr"), "3Macc", "MACC3", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The Third Book of the Maccabees", "bookdesc") },
+//		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("4 Maccabees", "bookname"), xc_KJVDataParse::tr("4Macc;4Mc;4Ma", "bookabbr"), "4Macc", "MACC4", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("The Fourth Book of the Maccabees", "bookdesc") },
+//		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Letter of Jeremiah", "bookname"), xc_KJVDataParse::tr("EpJer", "bookabbr"), "EpJer", "EPJER", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("Letter (Epistle) of Jeremiah", "bookdesc") },
+//		{ CRelIndex(0, 151, 1, 0), xc_KJVDataParse::tr("Psalm 151", "bookname"), xc_KJVDataParse::tr("Ps151", "bookabbr"), "Ps151", "PS151", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("Psalm 151", "bookdesc") },
+//		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Song of the Three Young Men", "bookname"), xc_KJVDataParse::tr("Sg3", "bookabbr"), "Sg3", "SG3", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("Song of the Three Young Men", "bookdesc") },
+//		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Greek Esther", "bookname"), xc_KJVDataParse::tr("EstGr", "bookabbr"), "EstGr", "ESTGR", xc_KJVDataParse::tr("Apocrypha", "bookcategory"), xc_KJVDataParse::tr("Greek Esther", "bookdesc") },
 	};
 
 	for (unsigned int i=0; i<NUM_BK; ++i) {
