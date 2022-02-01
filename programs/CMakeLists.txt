@@ -39,5 +39,6 @@ add_subdirectory(KJVLookup)
 add_subdirectory(KJVPhraseSearch)
 add_subdirectory(KJVSearch)
 add_subdirectory(KJVSumThing)
-
+# -------------------------------------
+add_subdirectory(MyBibleParse)
 
