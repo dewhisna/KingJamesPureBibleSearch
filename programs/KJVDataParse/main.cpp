@@ -545,6 +545,8 @@ public:
 	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
 	virtual bool characters(const QString &ch) override;
 	virtual bool error(const QXmlParseException &exception) override;
+	virtual bool fatalError(const QXmlParseException &exception) override;
+	virtual bool warning(const QXmlParseException &exception) override;
 	virtual QString errorString() const override
 	{
 		return (!m_strErrorString.isEmpty() ? m_strErrorString : QXmlDefaultHandler::errorString());
@@ -857,7 +859,20 @@ bool CStrongsImpXmlHandler::characters(const QString &ch)
 bool CStrongsImpXmlHandler::error(const QXmlParseException &exception)
 {
 	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
+	std::cerr << QString("Line: %1  Column: %2\nPublicID: \"%3\"\nSystemID: \"%4\"\n")
+					.arg(exception.lineNumber()).arg(exception.columnNumber())
+					.arg(exception.publicId()).arg(exception.systemId()).toUtf8().data();
 	return true;
+}
+
+bool CStrongsImpXmlHandler::fatalError(const QXmlParseException &exception)
+{
+	return error(exception);
+}
+
+bool CStrongsImpXmlHandler::warning(const QXmlParseException &exception)
+{
+	return error(exception);
 }
 
 bool CStrongsImpXmlHandler::endDocument()
@@ -961,6 +976,8 @@ public:
 	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
 	virtual bool characters(const QString &ch) override;
 	virtual bool error(const QXmlParseException &exception) override;
+	virtual bool fatalError(const QXmlParseException &exception) override;
+	virtual bool warning(const QXmlParseException &exception) override;
 	virtual QString errorString() const override
 	{
 		return (!m_strErrorString.isEmpty() ? m_strErrorString : QXmlDefaultHandler::errorString());
@@ -1845,7 +1862,20 @@ bool COSISXmlHandler::characters(const QString &ch)
 bool COSISXmlHandler::error(const QXmlParseException &exception)
 {
 	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
+	std::cerr << QString("Line: %1  Column: %2\nPublicID: \"%3\"\nSystemID: \"%4\"\n")
+					.arg(exception.lineNumber()).arg(exception.columnNumber())
+					.arg(exception.publicId()).arg(exception.systemId()).toUtf8().data();
 	return true;
+}
+
+bool COSISXmlHandler::fatalError(const QXmlParseException &exception)
+{
+	return error(exception);
+}
+
+bool COSISXmlHandler::warning(const QXmlParseException &exception)
+{
+	return error(exception);
 }
 
 bool COSISXmlHandler::endDocument()
