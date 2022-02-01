@@ -930,6 +930,29 @@ sudo apt-get install libclang-dev
 Also, needs these for webengine:
 sudo apt-get install nodejs libxshmfence-dev libxkbfile-dev
 
+---------------
+NOTE: Qt requires nodejs 10.19+, but on Bionic 18.04, there is
+only nodejs 8.10.  So, need to do the following to move to 10.24:
+curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
+echo "deb [arch=$(dpkg --print-architecture)] https://deb.nodesource.com/node_10.x $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
+sudo apt-get update
+sudo apt-get install nodejs
+---------------
+Requires minimum of gcc 8:
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt update
+sudo apt install gcc-9 g++-9
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 7
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 7
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
+sudo update-alternatives --config gcc
+sudo update-alternatives --config g++
+gcc --version
+g++ --version
+---------------
+
+
 cd ~/Qt/
 tar -Jxvf ~/Downloads/software/Qt/6.2.2/qt-everywhere-src-6.2.2.tar.xz
 mv qt-everywhere-src-6.2.2 6.2.2-src
@@ -941,6 +964,9 @@ cmake --install .
 
 Note: For QtWebEngine: node.js version 10.19 or later is required as well as libxshmfence-dev
 
+WARNING: Need LOTS of RAM to compile, even on a 2 Core CPU, especially for WebEngine.
+8GB isn't even when running parallel on a 2 Core!  You can barely squeak by with 8GB
+if only building on a single core with nothing else running -- barely.
 
 
 ===============================================================================
