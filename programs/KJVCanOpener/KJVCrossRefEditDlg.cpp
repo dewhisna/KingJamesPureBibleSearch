@@ -243,6 +243,8 @@ void CKJVCrossRefEditDlg::reject()
 
 void CKJVCrossRefEditDlg::en_crossRefTreeViewContextMenuRequested(const QPoint &pos)
 {
+	Q_UNUSED(pos);
+
 	// TODO : Finish
 }
 

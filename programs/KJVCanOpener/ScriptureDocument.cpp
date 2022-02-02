@@ -48,11 +48,21 @@ void CKJPBSWordScriptureObject::registerTextLayoutHandlers(QAbstractTextDocument
 
 void CKJPBSWordScriptureObject::drawObject(QPainter *pPainter, const QRectF &aRect, QTextDocument *pDoc, int posInDocument, const QTextFormat &aFormat)
 {
+	Q_UNUSED(pPainter);
+	Q_UNUSED(aRect);
+	Q_UNUSED(pDoc);
+	Q_UNUSED(posInDocument);
+	Q_UNUSED(aFormat);
+
 	// TODO : COMPLETE
 }
 
 QSizeF CKJPBSWordScriptureObject::intrinsicSize(QTextDocument *pDoc, int posInDocument, const QTextFormat &aFormat)
 {
+	Q_UNUSED(pDoc);
+	Q_UNUSED(posInDocument);
+	Q_UNUSED(aFormat);
+
 	// TODO : COMPLETE
 
 	return QSizeF();
