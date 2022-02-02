@@ -2199,7 +2199,7 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetBookIndexAndCo
 		if (!bFlag) ndxBook++;
 		if (itr == itrVerse) bFlag = true;
 		uint32_t nCurrentBook = itr.key().book();
-		for (CVerseMap::const_iterator itr2 = itr+1; (itr2 != m_mapVerses.constEnd()); ++itr2) {
+		for (CVerseMap::const_iterator itr2 = std::next(itr); (itr2 != m_mapVerses.constEnd()); ++itr2) {
 			if (itr2.key().book() != nCurrentBook) break;			// Look ahead at next entry and see if it's the same book.  If not, move on to count it...
 			++itr;
 			if (itr == itrVerse) bFlag = true;
@@ -2222,7 +2222,7 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetChapterIndexAn
 		if (itr == itrVerse) bFlag = true;
 		uint32_t nCurrentBook = itr.key().book();
 		uint32_t nCurrentChapter = itr.key().chapter();
-		for (CVerseMap::const_iterator itr2 = itr+1; (itr2 != m_mapVerses.constEnd()); ++itr2) {
+		for (CVerseMap::const_iterator itr2 = std::next(itr); (itr2 != m_mapVerses.constEnd()); ++itr2) {
 			if ((itr2.key().book() != nCurrentBook) ||
 				(itr2.key().chapter() != nCurrentChapter)) break;		// Look ahead at next entry and see if it's the same book/chapter.  If not, move on to count it...
 			++itr;
