@@ -1590,7 +1590,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				startVerseEntry(m_ndxCurrent, bOpenEnded);
 			}
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && (m_bInVerse) && (localName.compare("note", Qt::CaseInsensitive) == 0)) {
+	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
+												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
+												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
+			   (localName.compare("note", Qt::CaseInsensitive) == 0)) {
 		m_bInNotes = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
