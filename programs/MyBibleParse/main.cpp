@@ -209,47 +209,47 @@ public:
 private:
 };
 
-struct TParseMatrix {
-	bool m_bRemoveTextBetween = false;
+typedef struct {
+	bool m_bRemoveTextBetween;
 	const QString m_strStartTag;
 	const QString m_strEndTag;
 	const QString m_strNewStartTag;
 	const QString m_strNewEndTag;
-	bool m_bAllowSplit = false;				// If true, the start/end can be split from previous parse
-	bool m_bSplitTrack = false;				// If true at the end of a parse, the end tag is output before exiting, and if true at the start of a parse, the start tag is output
-};
+	bool m_bAllowSplit;				// If true, the start/end can be split from previous parse
+	bool m_bSplitTrack;				// If true at the end of a parse, the end tag is output before exiting, and if true at the start of a parse, the start tag is output
+} TParseMatrix;
 
 TParseMatrix g_lstParseMatrix[] =
 {
-	{ true, "&lt;f&gt;", "&lt;/f&gt;", "", "" },											// Footnote markers
-	{ true, "&lt;n&gt;", "&lt;/n&gt;", "" ,"" },											// Endnote markers
-	{ true, "&lt;S&gt;", "&lt;/S&gt;", "" ,"" },											// Strongs numbers (remove)
-	{ false, "&lt;/S&gt;", "", "" ,"" },													// Stray Strongs numbers closing markers (remove)
-	{ false, "&lt;e&gt;",  "", "&lt;em&gt;",  "" },											// Emphasis Start
-	{ false, "&lt;/e&gt;", "", "&lt;/em&gt;", "" },											// Emphasis End
+	{ true, "&lt;f&gt;", "&lt;/f&gt;", "", "", false, false },								// Footnote markers
+	{ true, "&lt;n&gt;", "&lt;/n&gt;", "" ,"", false, false },								// Endnote markers
+	{ true, "&lt;S&gt;", "&lt;/S&gt;", "" ,"", false, false },								// Strongs numbers (remove)
+	{ false, "&lt;/S&gt;", "", "" ,"", false, false },										// Stray Strongs numbers closing markers (remove)
+	{ false, "&lt;e&gt;",  "", "&lt;em&gt;",  "", false, false },							// Emphasis Start
+	{ false, "&lt;/e&gt;", "", "&lt;/em&gt;", "", false, false },							// Emphasis End
 
-	{ false, "&lt;t&gt;", "", "", "" },														// Text quote marker for formatting
-	{ false, "&lt;/t&gt;", "", "" ,"" },													// Text quote marker for formatting
+	{ false, "&lt;t&gt;", "", "", "", false, false },										// Text quote marker for formatting
+	{ false, "&lt;/t&gt;", "", "" ,"", false, false },										// Text quote marker for formatting
 
-	{ false, "&lt;i&gt;&lt;J&gt;", "", "&lt;J&gt;&lt;i&gt;", "" },							// Put Words of Jesus markers on the output of TransChange
-	{ false, "&lt;/J&gt;&lt;/i&gt;", "", "&lt;/i&gt;&lt;/J&gt;", "" },
+	{ false, "&lt;i&gt;&lt;J&gt;", "", "&lt;J&gt;&lt;i&gt;", "", false, false },			// Put Words of Jesus markers on the output of TransChange
+	{ false, "&lt;/J&gt;&lt;/i&gt;", "", "&lt;/i&gt;&lt;/J&gt;", "", false, false },
 
-	{ false, "&lt;J&gt;", "&lt;/J&gt;", "<q who=\"Jesus\" marker=\"\">", "</q>", true },	// Words of Jesus Start/End (allow split)
-//	{ false, "&lt;J&gt;", "", "", "" },														// Words of Jesus Start (ignore markup)
-	{ false, "&lt;/J&gt;", "", "", "" },													// Words of Jesus End (ignore markup)
+	{ false, "&lt;J&gt;", "&lt;/J&gt;", "<q who=\"Jesus\" marker=\"\">", "</q>", true, false },	// Words of Jesus Start/End (allow split)
+//	{ false, "&lt;J&gt;", "", "", "", false, false },										// Words of Jesus Start (ignore markup)
+	{ false, "&lt;/J&gt;", "", "", "", false, false },										// Words of Jesus End (ignore markup)
 
-	{ false, "&lt;i&gt;", "&lt;/i&gt;", "<transChange type=\"added\">", "</transChange>" },	// TransChange (or at least italics)
+	{ false, "&lt;i&gt;", "&lt;/i&gt;", "<transChange type=\"added\">", "</transChange>", false, false },	// TransChange (or at least italics)
 // Can't enable brackets here due to other note types using them (like double brackets):
-//	{ false, "[", "]", "<transChange type=\"added\">", "</transChange>" },					// TransChange
+//	{ false, "[", "]", "<transChange type=\"added\">", "</transChange>", false, false },	// TransChange
 
-	{ false, "&lt;br/&gt;", "" ,"", "" },													// Line break formatting (remove cause it doesn't work)
-	{ false, "&lt;em&gt;", "", "", "" },													// Emphasis start (remove)
-	{ false, "&lt;/em&gt;", "", "", "" },													// Emphasis end (remove)
+	{ false, "&lt;br/&gt;", "" ,"", "", false, false },										// Line break formatting (remove cause it doesn't work)
+	{ false, "&lt;em&gt;", "", "", "", false, false },										// Emphasis start (remove)
+	{ false, "&lt;/em&gt;", "", "", "", false, false },										// Emphasis end (remove)
 
-	{ false, "&lt;/pb&gt;", "&lt;pb/&gt;", "<milestone type=\"x-p\" marker=\"¶\"/>", "" },	// Paragraph markers w/pilcrow
-	{ false, "&lt;pb/&gt;", "", "<milestone type=\"x-extra-p\"/>", "" },					// Paragraph markers (extra space -- not pilcrows)
+	{ false, "&lt;/pb&gt;", "&lt;pb/&gt;", "<milestone type=\"x-p\" marker=\"¶\"/>", "", false, false },	// Paragraph markers w/pilcrow
+	{ false, "&lt;pb/&gt;", "", "<milestone type=\"x-extra-p\"/>", "", false, false },		// Paragraph markers (extra space -- not pilcrows)
 
-//	{ false, "&lt;/pb&gt;", "" ,"" ,"" },													// Stray closing </pb> marker
+//	{ false, "&lt;/pb&gt;", "" ,"" ,"", false, false },										// Stray closing </pb> marker
 
 };
 
