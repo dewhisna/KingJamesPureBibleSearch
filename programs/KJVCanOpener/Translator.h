@@ -54,7 +54,9 @@ public:
 	QTranslator &translatorwwWidgets() { return m_translatorwwWidgets; }
 	QTranslator &translatorQt() { return m_translatorQt; }
 	QLocale &locale() { return m_locale; }
-	bool isLoaded() const { return m_bLoaded; }
+	bool isLoadedApp() const { return m_bLoadedApp; }
+	bool isLoadedwwWidgets() const { return m_bLoadedwwWidgets; }
+	bool isLoadedQt() const { return m_bLoadedQt; }
 
 private:
 	QString m_strLangName;
@@ -62,7 +64,9 @@ private:
 	QTranslator m_translatorwwWidgets;
 	QTranslator m_translatorQt;
 	QLocale m_locale;
-	bool m_bLoaded;
+	bool m_bLoadedApp;
+	bool m_bLoadedwwWidgets;
+	bool m_bLoadedQt;
 };
 
 typedef QPointer<CTranslator> TTranslatorPtr;

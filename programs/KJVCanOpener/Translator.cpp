@@ -52,11 +52,13 @@ CTranslator::CTranslator(const QString &strLangName, const QString &strTranslati
 	:	QObject(pParent),
 		m_strLangName(strLangName),
 		m_locale((strLangName.isEmpty()) ? QLocale::system() : QLocale(strLangName)),
-		m_bLoaded(false)
+		m_bLoadedApp(false),
+		m_bLoadedwwWidgets(false),
+		m_bLoadedQt(false)
 {
-	m_bLoaded = m_translatorApp.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);
-	if (m_bLoaded) {
-		m_translatorwwWidgets.load(m_locale, "wwwidgets", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+	m_bLoadedApp = m_translatorApp.load(m_locale, strTranslationFilename, g_strTranslationFilenamePrefix, g_strTranslationsPath, constrTranslationFilenameSuffix);
+	if (m_bLoadedApp) {
+		m_bLoadedwwWidgets = m_translatorwwWidgets.load(m_locale, "wwwidgets", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
 
 		// Note: Qt5 is moving toward using individual component translations with a main qt_XX.qm file that delegates
 		//		to the submodules.  However, they have only done this migration for DE, not ES or FR.  Also, we don't
@@ -69,9 +71,9 @@ CTranslator::CTranslator(const QString &strLangName, const QString &strTranslati
 		//		match the new Qt5 naming convention for use with Qt5.  And we have the old qt_XX for the Qt4 builds.
 		//		That means that here we must load qt_XX.qm for Qt4 and qtbase_XX.qm for Qt5...  (ugh!)
 #if QT_VERSION < 0x050000
-		m_translatorQt.load(m_locale, "qt", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+		m_bLoadedQt = m_translatorQt.load(m_locale, "qt", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
 #else
-		m_translatorQt.load(m_locale, "qtbase", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
+		m_bLoadedQt = m_translatorQt.load(m_locale, "qtbase", "_", g_strTranslationsPath, constrTranslationFilenameSuffix);
 #endif
 	}
 }
@@ -147,9 +149,12 @@ CTranslatorList *CTranslatorList::instance()
 bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 {
 	if (!m_pCurrentTranslator.isNull()) {
-		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorApp());
-		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorwwWidgets());
-		QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorQt());
+		if (m_pCurrentTranslator->isLoadedApp())
+			QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorApp());
+		if (m_pCurrentTranslator->isLoadedwwWidgets())
+			QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorwwWidgets());
+		if (m_pCurrentTranslator->isLoadedQt())
+			QCoreApplication::removeTranslator(&m_pCurrentTranslator->translatorQt());
 	}
 
 	if (strLangName.isEmpty()) {
@@ -160,9 +165,12 @@ bool CTranslatorList::setApplicationLanguage(const QString &strLangName)
 
 	if (m_pCurrentTranslator.isNull()) return false;
 
-	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorQt());
-	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorwwWidgets());
-	QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorApp());
+	if (m_pCurrentTranslator->isLoadedQt())
+		QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorQt());
+	if (m_pCurrentTranslator->isLoadedwwWidgets())
+		QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorwwWidgets());
+	if (m_pCurrentTranslator->isLoadedApp())
+		QCoreApplication::installTranslator(&m_pCurrentTranslator->translatorApp());
 	return true;
 }
 
@@ -173,7 +181,7 @@ QList<CTranslatorList::TLanguageName> CTranslatorList::languageList() const
 	lstLanguages.reserve(m_mapTranslators.size());
 	for (TTranslatorMap::const_iterator itr = m_mapTranslators.constBegin(); itr != m_mapTranslators.constEnd(); ++itr) {
 		if (itr.value().isNull()) continue;
-		if (!itr.value()->isLoaded()) continue;
+		if (!itr.value()->isLoadedApp()) continue;
 		lstLanguages.append(TLanguageName(itr.key(), itr.value()->nativeLanguageName()));
 	}
 
