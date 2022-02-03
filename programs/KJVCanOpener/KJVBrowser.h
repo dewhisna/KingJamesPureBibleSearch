@@ -95,6 +95,7 @@ public slots:
 	void showDetails();
 	void showPassageNavigator();
 
+	BROWSER_DISPLAY_MODE_ENUM browserDisplayMode() const { return m_nBrowserDisplayMode; }
 	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
 
 	void setNavigationActivationDelay(int nDelay);

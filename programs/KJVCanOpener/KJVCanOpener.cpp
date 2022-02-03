@@ -305,6 +305,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pTipEdit(nullptr),
 	m_bTipEditIsPinned(false)
 {
+	Q_ASSERT(!g_pMyApplication.isNull());
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	ui.setupUi(this);
@@ -403,7 +404,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	if (actionSpeechStop())
 		connect(actionSpeechStop(), SIGNAL(triggered()), this, SLOT(en_speechStop()));
 
-	Q_ASSERT(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
 	if (pSpeech != nullptr) {
@@ -982,7 +982,31 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	//		to be displayed (such as missing/broken notes file).  And we will assert
 	//		in either the Search Results Tree or the Scripture Browser trying to call
 	//		findParentCanOpener() when the parent pointers haven't been set yet:
+#if QT_VERSION >= 0x050400
+	bool bAppRestarting = g_pMyApplication->areRestarting();
+	BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode = CPersistentSettings::instance()->browserDisplayMode();
+	if (bAppRestarting) {
+		// We should have 2 CanOpeners at this point : the first is
+		//	the original CanOpener and the second is this CanOpener
+		Q_ASSERT(g_pMyApplication->canOpeners().size() >= 1);
+		nBrowserDisplayMode = g_pMyApplication->canOpeners().at(0)->m_pBrowserWidget->browserDisplayMode();
+	}
+	QTimer::singleShot(0, this, [this, bAppRestarting, nBrowserDisplayMode]() {
+		// When restarting the application, tell restorePersistentSettings that
+		//	we are creating the FirstCanOpener so that the geometry is restored
+		//	back to the startup conditions for it.  However, preserve and restore
+		//	the DisplayMode so that we maintain it across the restart, rather than
+		//	returning to the initial mode from the persistent settings:
+		restorePersistentSettings(bAppRestarting);
+		if (bAppRestarting) {
+			QTimer::singleShot(1, this, [this, nBrowserDisplayMode]() {
+				m_pBrowserWidget->setBrowserDisplayMode(nBrowserDisplayMode);
+			} );
+		}
+	});
+#else
 	QTimer::singleShot(0, this, SLOT(restorePersistentSettings()));
+#endif
 }
 
 CKJVCanOpener::~CKJVCanOpener()
@@ -1284,13 +1308,13 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 	}
 }
 
-void CKJVCanOpener::restorePersistentSettings()
+void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 {
 	Q_ASSERT(!g_pMyApplication.isNull());
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	bool bIsFirstCanOpener = g_pMyApplication->isFirstCanOpener(false);
-	bool bIsFirstCanOpenerForThisBibleDB = g_pMyApplication->isFirstCanOpener(false, m_pBibleDatabase->compatibilityUUID());
+	bool bIsFirstCanOpener = bAppRestarting || g_pMyApplication->isFirstCanOpener(false);
+	bool bIsFirstCanOpenerForThisBibleDB = bAppRestarting || g_pMyApplication->isFirstCanOpener(false, m_pBibleDatabase->compatibilityUUID());
 	if (bIsFirstCanOpener) {
 		Q_ASSERT(bIsFirstCanOpenerForThisBibleDB);
 	}

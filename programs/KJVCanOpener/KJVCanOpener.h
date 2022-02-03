@@ -113,7 +113,7 @@ public:
 
 protected slots:
 	void savePersistentSettings(bool bSaveLastSearchOnly = false);
-	void restorePersistentSettings();
+	void restorePersistentSettings(bool bAppRestarting = false);
 
 	void setCanClose(bool bCanClose)
 	{

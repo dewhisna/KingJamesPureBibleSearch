@@ -833,8 +833,8 @@ void CMyApplication::en_speechFinished(bool bQueueEmpty)
 
 CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDatabase)
 {
-	m_bAreRestarting = false;			// Once we create a new CanOpener we are no longer restarting...
 	CKJVCanOpener *pCanOpener = new CKJVCanOpener(pBibleDatabase);
+	m_bAreRestarting = false;			// Once we create a new CanOpener we are no longer restarting... But set this AFTER we create the CKJVCanOpener object so that it can properly trigger restorePersistentSettings()
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(isClosing(CKJVCanOpener*)), this, SLOT(removeKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
