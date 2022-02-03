@@ -418,6 +418,7 @@ private slots:
 	void en_changedShowExcludedSearchResults(bool bShowExcludedSearchResults);
 	void en_changedChapterScrollbarMode(int nIndex);
 	void en_changedDefaultDisplayMode(int nIndex);
+	void en_changedRandomPassageWeightMode(int nIndex);
 	void en_changedVerseRenderingMode(int nIndex);
 	void en_changedLineHeight(double nLineHeight);
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers);

@@ -90,8 +90,6 @@ option(DEBUG_MODEL_TEST "Enable QAbstractItemModel testing for CVerseListModel" 
 cmake_dependent_option(DEBUG_SIGNALSPY "Enable Signal Spy Debugging" OFF "NOT WASM;NOT EMSCRIPTEN;NOT VNC" OFF)		# make declarative_debug only?
 # -------------------------------------
 cmake_dependent_option(SHOW_SPLASH_SCREEN "Show Splash Screen" ON "NOT CONSOLE;NOT VNC" OFF)
-set(OPTION_RANDOM_PASSAGE_WEIGHT "EVEN" CACHE STRING "Random Passage Weighting : Verse Only (books with more verses picked more often) or Even with Book/Chapter/Verse (pick book, then chapter, then verse)")
-set_property(CACHE OPTION_RANDOM_PASSAGE_WEIGHT PROPERTY STRINGS "VERSE" "EVEN")
 option(SHOW_ONLY_LOADED_BIBLE_DATABASES "Show only Loaded Bible Databases in New Search Window Action" OFF)
 option(SHOW_ONLY_LOADED_DICTIONARY_DATABASES "Show only Loaded Dictionary Databases in Select Dictionary Action" OFF)
 # -------------------------------------
@@ -797,18 +795,6 @@ endif()
 if(SHOW_SPLASH_SCREEN)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		SHOW_SPLASH_SCREEN
-	)
-endif()
-
-
-if(OPTION_RANDOM_PASSAGE_WEIGHT STREQUAL "VERSE")
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		RANDOM_PASSAGE_VERSE_WEIGHT			# Weigh passages evenly by verses (books with more verses picked more often)
-	)
-else()
-	# "EVEN" (or default):
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/verse (pick book, then chapter, then verse)
 	)
 endif()
 

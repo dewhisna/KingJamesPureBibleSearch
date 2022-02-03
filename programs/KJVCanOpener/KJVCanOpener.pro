@@ -187,11 +187,6 @@ lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS		#
 # Enable Splash Screen:
 !vnc:!console:DEFINES += SHOW_SPLASH_SCREEN
 
-# Enabled desired random passage mode:
-# (Pick only one of RANDOM_PASSAGE entries)
-#DEFINES += RANDOM_PASSAGE_VERSE_WEIGHT			# Weigh passages evenly by verses (books with more verses picked more often)
-DEFINES += RANDOM_PASSAGE_EVEN_WEIGHT			# Weigh passages evenly by book/chapter/verse (pick book, then chapter, then verse)
-
 # Enable to only show loaded Bible Databases in New Search Window action:
 #DEFINES += ENABLE_ONLY_LOADED_BIBLE_DATABASES
 

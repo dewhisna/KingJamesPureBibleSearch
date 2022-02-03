@@ -1837,11 +1837,13 @@ void CConfigSearchOptions::loadSettings()
 
 void CConfigSearchOptions::saveSettings()
 {
+	bool bKeepDirty = false;
+
 	int nIndex = ui.comboSearchPhraseCompleterMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
-		m_bIsDirty = false;
 	} else {
+		bKeepDirty = true;
 		Q_ASSERT(false);
 	}
 	CPersistentSettings::instance()->setSearchActivationDelay(ui.spinSearchPhraseActivationDelay->value());
@@ -1850,6 +1852,8 @@ void CConfigSearchOptions::saveSettings()
 	CPersistentSettings::instance()->setHideMatchingPhrasesLists(ui.checkBoxHideMatchingPhrasesLists->isChecked());
 	CPersistentSettings::instance()->setAutoExpandSearchResultsTree(ui.checkBoxAutoExpandSearchResultsTree->isChecked());
 	CPersistentSettings::instance()->setHideNotFoundInStatistics(ui.checkBoxHideNotFoundInStatistics->isChecked());
+
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigSearchOptions::en_changedSearchPhraseCompleterFilterMode(int nIndex)
@@ -1931,6 +1935,11 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxDefaultDisplayMode->addItem(tr("Bible Text", "BrowserDisplayModes"), BDME_BIBLE_TEXT);
 	ui.comboBoxDefaultDisplayMode->addItem(tr("Lemma/Morphography", "BrowserDisplayModes"), BDME_LEMMA_MORPHOGRAPHY);
 
+	ui.comboBoxRandomPassageWeightMode->addItem(tr("Verse", "RandomPassageWeightModes"), RPWE_VERSE_WEIGHT);
+	ui.comboBoxRandomPassageWeightMode->addItem(tr("Even", "RandomPassageWeightModes"), RPWE_EVEN_WEIGHT);
+	ui.comboBoxRandomPassageWeightMode->setToolTip(tr("Verse: by verses (books with more verses picked more often)\n"
+														"Even: by book/chapter/verse (pick book, then chapter, then verse)", "RandomPassageWeightModes"));
+
 	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
@@ -1944,6 +1953,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
 	connect(ui.comboBoxChapterScrollbarMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedChapterScrollbarMode(int)));
 	connect(ui.comboBoxDefaultDisplayMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedDefaultDisplayMode(int)));
+	connect(ui.comboBoxRandomPassageWeightMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedRandomPassageWeightMode(int)));
 	connect(ui.comboBoxVerseRenderingMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingMode(int)));
 	connect(ui.spinBoxLineHeight, SIGNAL(valueChanged(double)), this, SLOT(en_changedLineHeight(double)));
 	connect(ui.checkBoxShowPilcrowMarkers, SIGNAL(clicked(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
@@ -1982,6 +1992,14 @@ void CConfigBrowserOptions::loadSettings()
 		ui.comboBoxDefaultDisplayMode->setCurrentIndex(0);
 	}
 
+	nIndex = ui.comboBoxRandomPassageWeightMode->findData(CPersistentSettings::instance()->randomPassageWeightMode());
+	if (nIndex != -1) {
+		ui.comboBoxRandomPassageWeightMode->setCurrentIndex(nIndex);
+	} else {
+		bKeepDirty = true;
+		ui.comboBoxRandomPassageWeightMode->setCurrentIndex(0);
+	}
+
 	nIndex = ui.comboBoxVerseRenderingMode->findData(CPersistentSettings::instance()->verseRenderingMode());
 	if (nIndex != -1) {
 		ui.comboBoxVerseRenderingMode->setCurrentIndex(nIndex);
@@ -2000,32 +2018,43 @@ void CConfigBrowserOptions::loadSettings()
 
 void CConfigBrowserOptions::saveSettings()
 {
+	bool bKeepDirty = false;
+
 	CPersistentSettings::instance()->setNavigationActivationDelay(ui.spinBrowserNavigationActivationDelay->value());
 	CPersistentSettings::instance()->setPassageReferenceActivationDelay(ui.spinBrowserPassageReferenceActivationDelay->value());
 	CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(ui.checkBoxShowExcludedSearchResults->isChecked());
 	int nIndex = ui.comboBoxChapterScrollbarMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(ui.comboBoxChapterScrollbarMode->itemData(nIndex).toUInt()));
-		m_bIsDirty = false;
 	} else {
+		bKeepDirty = true;
 		Q_ASSERT(false);
 	}
 	nIndex = ui.comboBoxDefaultDisplayMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(ui.comboBoxDefaultDisplayMode->itemData(nIndex).toUInt()));
-		m_bIsDirty = false;
 	} else {
+		bKeepDirty = true;
+		Q_ASSERT(false);
+	}
+	nIndex = ui.comboBoxRandomPassageWeightMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setRandomPassageWeightMode(static_cast<RANDOM_PASSAGE_WEIGHT_ENUM>(ui.comboBoxRandomPassageWeightMode->itemData(nIndex).toUInt()));
+	} else {
+		bKeepDirty = true;
 		Q_ASSERT(false);
 	}
 	nIndex = ui.comboBoxVerseRenderingMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
 	} else {
+		bKeepDirty = true;
 		Q_ASSERT(false);
 	}
 	CPersistentSettings::instance()->setScriptureBrowserLineHeight(ui.spinBoxLineHeight->value());
 	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
-	m_bIsDirty = false;
+
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigBrowserOptions::en_changedNavigationActivationDelay(int nValue)
@@ -2065,6 +2094,15 @@ void CConfigBrowserOptions::en_changedChapterScrollbarMode(int nIndex)
 }
 
 void CConfigBrowserOptions::en_changedDefaultDisplayMode(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nIndex);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBrowserOptions::en_changedRandomPassageWeightMode(int nIndex)
 {
 	if (m_bLoadingData) return;
 
@@ -2146,14 +2184,18 @@ void CConfigDictionaryOptions::loadSettings()
 
 void CConfigDictionaryOptions::saveSettings()
 {
+	bool bKeepDirty = false;
+
 	int nIndex = ui.comboDictionaryCompleterMode->currentIndex();
 	if (nIndex != -1) {
 		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboDictionaryCompleterMode->itemData(nIndex).toUInt()));
-		m_bIsDirty = false;
 	} else {
+		bKeepDirty = true;
 		Q_ASSERT(false);
 	}
 	CPersistentSettings::instance()->setDictionaryActivationDelay(ui.spinDictionaryActivationDelay->value());
+
+	m_bIsDirty = bKeepDirty;
 }
 
 void CConfigDictionaryOptions::en_changedDictionaryCompleterFilterMode(int nIndex)

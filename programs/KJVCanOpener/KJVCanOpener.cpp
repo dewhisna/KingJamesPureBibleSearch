@@ -187,6 +187,7 @@ namespace {
 	const QString constrLineHeightKey("LineHeight");
 	const QString constrBrowserNavigationPaneModeKey("BrowserNavigationPaneMode");
 	const QString constrBrowserDisplayModeKey("BrowserDisplayMode");
+	const QString constrRandomPassageWeightModeKey("RandomPassageWeightMode");
 
 	// Dictionary Widget:
 	const QString constrDictionaryGroup("Dictionary");
@@ -1240,6 +1241,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight());
 		settings.setValue(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode());
 		settings.setValue(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode());
+		settings.setValue(constrRandomPassageWeightModeKey, CPersistentSettings::instance()->randomPassageWeightMode());
 		settings.endGroup();
 
 		// Browser Object (used for Subwindows: FindDialog, etc):
@@ -1618,6 +1620,7 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 			CPersistentSettings::instance()->setScriptureBrowserLineHeight(settings.value(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight()).toDouble());
 			CPersistentSettings::instance()->setBrowserNavigationPaneMode(static_cast<BROWSER_NAVIGATION_PANE_MODE_ENUM>(settings.value(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode()).toInt()));
 			CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(settings.value(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode()).toInt()));
+			CPersistentSettings::instance()->setRandomPassageWeightMode(static_cast<RANDOM_PASSAGE_WEIGHT_ENUM>(settings.value(constrRandomPassageWeightModeKey, CPersistentSettings::instance()->randomPassageWeightMode()).toInt()));
 
 #if QT_VERSION >= 0x050400
 			QTimer::singleShot(1, this, [this]() { m_pBrowserWidget->setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode()); } );
@@ -2632,52 +2635,52 @@ void CKJVCanOpener::en_gotoRandomPassage()
 
 	bool bDone = false;
 	while (!bDone) {
-#if defined(RANDOM_PASSAGE_VERSE_WEIGHT)
-		// The following version creates random passage evenly weighting all verses, which causes
-		//		books with more verses to be weighted higher than those with less:
+		if (CPersistentSettings::instance()->randomPassageWeightMode() == RPWE_VERSE_WEIGHT) {
+			// The following version creates random passage evenly weighting all verses, which causes
+			//		books with more verses to be weighted higher than those with less:
 #ifdef USE_STD_RANDOM
-		std::uniform_int_distribution<unsigned int> distributionPassage(1, m_pBibleDatabase->bibleEntry().m_nNumWrd);
-		unsigned int nPassage = distributionPassage(generator);
+			std::uniform_int_distribution<unsigned int> distributionPassage(1, m_pBibleDatabase->bibleEntry().m_nNumWrd);
+			unsigned int nPassage = distributionPassage(generator);
 #else
-		unsigned int nPassage = ((static_cast<unsigned int>(rand()) % (m_pBibleDatabase->bibleEntry().m_nNumWrd * 2)) / 2) + 1;
+			unsigned int nPassage = ((static_cast<unsigned int>(rand()) % (m_pBibleDatabase->bibleEntry().m_nNumWrd * 2)) / 2) + 1;
 #endif
-		ndxPassage = m_pBibleDatabase->DenormalizeIndex(nPassage);
-		if (!ndxPassage.isSet()) continue;
-		ndxPassage.setWord(0);
-#elif defined(RANDOM_PASSAGE_EVEN_WEIGHT)
-		// Create Random Passage by even distribution of book, chapter, verse:
+			ndxPassage = m_pBibleDatabase->DenormalizeIndex(nPassage);
+			if (!ndxPassage.isSet()) continue;
+			ndxPassage.setWord(0);
+		} else if (CPersistentSettings::instance()->randomPassageWeightMode() == RPWE_EVEN_WEIGHT) {
+			// Create Random Passage by even distribution of book, chapter, verse:
 #ifdef USE_STD_RANDOM
-		std::uniform_int_distribution<unsigned int> distributionBook(1, m_pBibleDatabase->bibleEntry().m_nNumBk);
-		unsigned int nBook = distributionBook(generator);
+			std::uniform_int_distribution<unsigned int> distributionBook(1, m_pBibleDatabase->bibleEntry().m_nNumBk);
+			unsigned int nBook = distributionBook(generator);
 #else
-		unsigned int nBook = ((static_cast<unsigned int>(rand()) % (m_pBibleDatabase->bibleEntry().m_nNumBk * 2)) / 2) + 1;
+			unsigned int nBook = ((static_cast<unsigned int>(rand()) % (m_pBibleDatabase->bibleEntry().m_nNumBk * 2)) / 2) + 1;
 #endif
-		ndxPassage.setBook(nBook);
-		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(nBook);
-		if (pBook == nullptr) continue;
+			ndxPassage.setBook(nBook);
+			const CBookEntry *pBook = m_pBibleDatabase->bookEntry(nBook);
+			if (pBook == nullptr) continue;
 
 #ifdef USE_STD_RANDOM
-		std::uniform_int_distribution<unsigned int> distributionChapter(1, pBook->m_nNumChp);
-		unsigned int nChapter = distributionChapter(generator);
+			std::uniform_int_distribution<unsigned int> distributionChapter(1, pBook->m_nNumChp);
+			unsigned int nChapter = distributionChapter(generator);
 #else
-		unsigned int nChapter = ((static_cast<unsigned int>(rand()) % (pBook->m_nNumChp * 2)) / 2) + 1;
+			unsigned int nChapter = ((static_cast<unsigned int>(rand()) % (pBook->m_nNumChp * 2)) / 2) + 1;
 #endif
-		ndxPassage.setChapter(nChapter);
-		const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxPassage);
-		if (pChapter == nullptr) continue;
+			ndxPassage.setChapter(nChapter);
+			const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(ndxPassage);
+			if (pChapter == nullptr) continue;
 
 #ifdef USE_STD_RANDOM
-		std::uniform_int_distribution<unsigned int> distributionVerse(1, pChapter->m_nNumVrs);
-		unsigned int nVerse = distributionVerse(generator);
+			std::uniform_int_distribution<unsigned int> distributionVerse(1, pChapter->m_nNumVrs);
+			unsigned int nVerse = distributionVerse(generator);
 #else
-		unsigned int nVerse = ((static_cast<unsigned int>(rand()) % (pChapter->m_nNumVrs * 2)) / 2) + 1;
+			unsigned int nVerse = ((static_cast<unsigned int>(rand()) % (pChapter->m_nNumVrs * 2)) / 2) + 1;
 #endif
-		ndxPassage.setVerse(nVerse);
-		if (m_pBibleDatabase->NormalizeIndex(ndxPassage) == 0) continue;
-#else
-		// Didn't set RANDOM_PASSAGE mode in .pro file
-		Q_ASSERT(false);
-#endif
+			ndxPassage.setVerse(nVerse);
+			if (m_pBibleDatabase->NormalizeIndex(ndxPassage) == 0) continue;
+		} else {
+			// Unknown Random Passage Weight Mode
+			Q_ASSERT(false);
+		}
 
 		bDone = true;
 	}

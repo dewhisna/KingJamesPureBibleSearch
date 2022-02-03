@@ -69,6 +69,11 @@ enum VERSE_COPY_ORDER_ENUM {
 	VCOE_BIBLE_DESCENDING = 2		// Bible Order Descending
 };
 
+enum RANDOM_PASSAGE_WEIGHT_ENUM {
+	RPWE_VERSE_WEIGHT = 0,			// Weigh passages evenly by verses (books with more verses picked more often)
+	RPWE_EVEN_WEIGHT = 1,			// Weigh passages evenly by book/chapter/verse (pick book, then chapter, then verse)
+};
+
 // ============================================================================
 
 class CPersistentSettings : public QObject
@@ -128,6 +133,7 @@ public:
 	qreal scriptureBrowserLineHeight() const { return m_pPersistentSettingData->m_nScriptureBrowserLineHeight; }
 	BROWSER_NAVIGATION_PANE_MODE_ENUM browserNavigationPaneMode() const { return m_pPersistentSettingData->m_nBrowserNavigationPaneMode; }
 	BROWSER_DISPLAY_MODE_ENUM browserDisplayMode() const { return m_pPersistentSettingData->m_nBrowserDisplayMode; }
+	RANDOM_PASSAGE_WEIGHT_ENUM randomPassageWeightMode() const { return m_pPersistentSettingData->m_nRandomPassageWeightMode; };
 
 	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
@@ -235,6 +241,7 @@ signals:
 	void changedScriptureBrowserLineHeight(qreal nLineHeight);
 	void changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 	void changedBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
+	void changedRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM nRandomPassageWeightMode);
 
 	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
@@ -293,6 +300,7 @@ public slots:
 	void setScriptureBrowserLineHeight(qreal nLineHeight);
 	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
+	void setRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM nRandomPassageWeightMode);
 
 	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
@@ -378,6 +386,7 @@ private:
 		qreal m_nScriptureBrowserLineHeight;			// Line-height to use in the Scripture Browser display (1.00 to 2.00 for 100% to 200% or single to double spaced)
 		BROWSER_NAVIGATION_PANE_MODE_ENUM m_nBrowserNavigationPaneMode;			// Controls what part of the book/chapter/verse navigation pane is visible above the Scripture Browser
 		BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;	// Controls which browser mode is in use
+		RANDOM_PASSAGE_WEIGHT_ENUM m_nRandomPassageWeightMode;	// Controls how random passage selection is weighted
 		// ----
 		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation

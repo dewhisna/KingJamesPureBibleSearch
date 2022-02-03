@@ -110,7 +110,7 @@
      <item>
       <widget class="QComboBox" name="comboBoxChapterScrollbarMode">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>10</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -134,8 +134,32 @@
      <item>
       <widget class="QComboBox" name="comboBoxDefaultDisplayMode">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>10</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <widget class="QLabel" name="lblRandomPassageWeightMode">
+       <property name="text">
+        <string>Random Passage &amp;Weight Mode:</string>
+       </property>
+       <property name="buddy">
+        <cstring>comboBoxRandomPassageWeightMode</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBoxRandomPassageWeightMode">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -158,7 +182,7 @@
      <item>
       <widget class="QComboBox" name="comboBoxVerseRenderingMode">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
          <horstretch>10</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -239,6 +263,8 @@
   <tabstop>spinBrowserPassageReferenceActivationDelay</tabstop>
   <tabstop>checkBoxShowExcludedSearchResults</tabstop>
   <tabstop>comboBoxChapterScrollbarMode</tabstop>
+  <tabstop>comboBoxDefaultDisplayMode</tabstop>
+  <tabstop>comboBoxRandomPassageWeightMode</tabstop>
   <tabstop>comboBoxVerseRenderingMode</tabstop>
   <tabstop>spinBoxLineHeight</tabstop>
   <tabstop>checkBoxShowPilcrowMarkers</tabstop>
