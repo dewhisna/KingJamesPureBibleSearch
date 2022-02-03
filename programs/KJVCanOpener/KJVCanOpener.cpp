@@ -1594,6 +1594,10 @@ void CKJVCanOpener::restorePersistentSettings()
 			CPersistentSettings::instance()->setScriptureBrowserLineHeight(settings.value(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight()).toDouble());
 			CPersistentSettings::instance()->setBrowserNavigationPaneMode(static_cast<BROWSER_NAVIGATION_PANE_MODE_ENUM>(settings.value(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode()).toInt()));
 			CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(settings.value(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode()).toInt()));
+
+#if QT_VERSION >= 0x050400
+			QTimer::singleShot(1, this, [this]() { m_pBrowserWidget->setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode()); } );
+#endif
 		}
 		settings.endGroup();
 

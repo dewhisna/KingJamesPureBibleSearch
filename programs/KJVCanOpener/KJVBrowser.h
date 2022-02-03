@@ -95,6 +95,8 @@ public slots:
 	void showDetails();
 	void showPassageNavigator();
 
+	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
+
 	void setNavigationActivationDelay(int nDelay);
 	void setPassageReferenceActivationDelay(int nDelay);
 
@@ -149,7 +151,6 @@ private slots:
 	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 
 	void en_clickedSetBrowserDisplayMode();
-	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
 
 	void en_selectionChanged();
 
