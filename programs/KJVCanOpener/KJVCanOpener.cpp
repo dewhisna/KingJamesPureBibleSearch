@@ -2979,6 +2979,9 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 {
 	Q_ASSERT(!g_pMyApplication.isNull());
 
+	BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode = m_pBrowserWidget->browserDisplayMode();
+	CKJVCanOpener *pNewCanOpener = nullptr;
+
 	if (pAction != nullptr) {
 		QString strUUID = pAction->data().toString();
 
@@ -2996,11 +2999,22 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 		Q_ASSERT(!pBibleDatabase.isNull());
 #endif
 
-		g_pMyApplication->createKJVCanOpener(pBibleDatabase);
+		pNewCanOpener = g_pMyApplication->createKJVCanOpener(pBibleDatabase);
 	} else {
 		Q_ASSERT(!TBibleDatabaseList::instance()->mainBibleDatabase().isNull());
-		g_pMyApplication->createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
+		pNewCanOpener = g_pMyApplication->createKJVCanOpener(TBibleDatabaseList::instance()->mainBibleDatabase());
 	}
+
+	// Set the DisplayMode of the new browser to the same as this browser:
+	Q_ASSERT(pNewCanOpener != nullptr);
+#if QT_VERSION >= 0x050400
+	QTimer::singleShot(1, this, [pNewCanOpener, nBrowserDisplayMode]() {
+		Q_ASSERT(pNewCanOpener->m_pBrowserWidget != nullptr);
+		pNewCanOpener->m_pBrowserWidget->setBrowserDisplayMode(nBrowserDisplayMode);
+	} );
+#else
+	Q_UNUSED(nBrowserDisplayMode);
+#endif
 }
 
 #ifdef USING_QT_SPEECH
