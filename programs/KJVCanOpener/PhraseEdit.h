@@ -541,6 +541,7 @@ public:
 		TRO_NoSuperscriptAnchors = 0x400000,		// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
 		TRO_UseLemmas = 0x800000,					// Render Lemmas interlinearly with verses
 		TRO_UseWordSpans = 0x1000000,				// Output Word-Spans in HTML (this is implied when TRO_UseLemmas is specified)
+		TRO_InlineFootnotes = 0x2000000,			// Render inline footnotes in verses
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 
@@ -575,6 +576,13 @@ public:
 		CFSE_COPY_FONT = 1,							// Copy Font defined in settings
 		CFSE_SCRIPTURE_BROWSER = 2,					// Use Scripture Browser's Current font setting
 		CFSE_SEARCH_RESULTS = 3						// Use Search Results' Current font setting
+	};
+
+	enum FOOTNOTE_RENDERING_MODE_ENUM {
+		FRME_NONE = 0,								// Don't render Bible footnotes
+		FRME_INLINE = 1,							// Render footnotes inline with verse text
+		FRME_STATUS_BAR = 2,						// Render footnotes on the status bar
+		// Additional types to consider : popup and/or tooltip rendering
 	};
 
 	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = nullptr);
@@ -634,6 +642,8 @@ public:
 	{
 		return getToolTip(m_pBibleDatabase, tag, selection, nToolTipType, bPlainText);
 	}
+
+	static QString getFootnote(const CBibleDatabasePtr &pBibleDatabase, const CRelIndex &ndx, bool bPlainText = false);
 
 signals:
 	void changedDocumentText();

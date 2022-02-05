@@ -3349,6 +3349,31 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 	return strToolTip;
 }
 
+QString CPhraseNavigator::getFootnote(const CBibleDatabasePtr &pBibleDatabase, const CRelIndex &ndx, bool bPlainText)
+{
+	Q_ASSERT(!pBibleDatabase.isNull());
+
+	const CFootnoteEntry *pFootnoteWord = pBibleDatabase->footnoteEntry(ndx);
+	const CFootnoteEntry *pFootnoteVerse = nullptr;
+	const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndx);
+	if (pVerse) {
+		pFootnoteVerse = pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), pVerse->m_nNumWrd+1));
+	}
+
+	QString strFootnote;
+	if (pFootnoteWord || pFootnoteVerse) {
+		if (bPlainText) {
+			strFootnote = (pFootnoteWord != nullptr) ? pFootnoteWord->plainText(pBibleDatabase.data()) :
+																pFootnoteVerse->plainText(pBibleDatabase.data());
+		} else {
+			strFootnote = (pFootnoteWord != nullptr) ? pFootnoteWord->htmlText(pBibleDatabase.data()) :
+																pFootnoteVerse->htmlText(pBibleDatabase.data());
+		}
+	}
+
+	return strFootnote;
+}
+
 #endif
 
 // ============================================================================

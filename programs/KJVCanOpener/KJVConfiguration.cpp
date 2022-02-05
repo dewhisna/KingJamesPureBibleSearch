@@ -1948,6 +1948,10 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_INDENT);
 	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_HANGING);
 
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("None", "FootnoteRenderingModes"), CPhraseNavigator::FRME_NONE);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline", "FootnoteRenderingModes"), CPhraseNavigator::FRME_INLINE);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("Status Bar", "FootnoteRenderingModes"), CPhraseNavigator::FRME_STATUS_BAR);
+
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
 	connect(ui.checkBoxShowExcludedSearchResults, SIGNAL(clicked(bool)), this, SLOT(en_changedShowExcludedSearchResults(bool)));
@@ -1957,6 +1961,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	connect(ui.comboBoxVerseRenderingMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingMode(int)));
 	connect(ui.spinBoxLineHeight, SIGNAL(valueChanged(double)), this, SLOT(en_changedLineHeight(double)));
 	connect(ui.checkBoxShowPilcrowMarkers, SIGNAL(clicked(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
+	connect(ui.comboBoxFootnoteRenderingMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedFootnoteRenderingMode(int)));
 
 	loadSettings();
 }
@@ -2012,6 +2017,14 @@ void CConfigBrowserOptions::loadSettings()
 
 	ui.checkBoxShowPilcrowMarkers->setChecked(CPersistentSettings::instance()->showPilcrowMarkers());
 
+	nIndex = ui.comboBoxFootnoteRenderingMode->findData(CPersistentSettings::instance()->footnoteRenderingMode());
+	if (nIndex != -1) {
+		ui.comboBoxFootnoteRenderingMode->setCurrentIndex(nIndex);
+	} else {
+		bKeepDirty = true;
+		ui.comboBoxFootnoteRenderingMode->setCurrentIndex(0);
+	}
+
 	m_bLoadingData = false;
 	m_bIsDirty = bKeepDirty;
 }
@@ -2053,6 +2066,13 @@ void CConfigBrowserOptions::saveSettings()
 	}
 	CPersistentSettings::instance()->setScriptureBrowserLineHeight(ui.spinBoxLineHeight->value());
 	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
+	nIndex = ui.comboBoxFootnoteRenderingMode->currentIndex();
+	if (nIndex != -1) {
+		CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FOOTNOTE_RENDERING_MODE_ENUM>(ui.comboBoxFootnoteRenderingMode->itemData(nIndex).toUInt()));
+	} else {
+		bKeepDirty = true;
+		Q_ASSERT(false);
+	}
 
 	m_bIsDirty = bKeepDirty;
 }
@@ -2134,6 +2154,15 @@ void CConfigBrowserOptions::en_changedShowPilcrowMarkers(bool bShowPilcrowMarker
 	if (m_bLoadingData) return;
 
 	Q_UNUSED(bShowPilcrowMarkers);
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBrowserOptions::en_changedFootnoteRenderingMode(int nIndex)
+{
+	if (m_bLoadingData) return;
+
+	Q_UNUSED(nIndex);
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

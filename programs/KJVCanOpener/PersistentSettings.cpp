@@ -143,6 +143,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nBrowserNavigationPaneMode(BNPME_COMPLETE),
 		m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 		m_nRandomPassageWeightMode(RPWE_EVEN_WEIGHT),
+		m_nFootnoteRenderingMode(CPhraseNavigator::FRME_NONE),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
 #ifndef EMSCRIPTEN
@@ -336,6 +337,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_nBrowserNavigationPaneMode != pTarget->m_nBrowserNavigationPaneMode) emit changedBrowserNavigationPaneMode(pTarget->m_nBrowserNavigationPaneMode);
 		if (pSource->m_nBrowserDisplayMode != pTarget->m_nBrowserDisplayMode) emit changedBrowserDisplayMode(pTarget->m_nBrowserDisplayMode);
 		if (pSource->m_nRandomPassageWeightMode != pTarget->m_nRandomPassageWeightMode) emit changedRandomPassageWeightMode(pTarget->m_nRandomPassageWeightMode);
+		if (pSource->m_nFootnoteRenderingMode != pTarget->m_nFootnoteRenderingMode) emit changedFootnoteRenderingMode(pTarget->m_nFootnoteRenderingMode);
 
 		if (pSource->m_nDictionaryCompleterFilterMode != pTarget->m_nDictionaryCompleterFilterMode) emit changedDictionaryCompleterFilterMode(pTarget->m_nDictionaryCompleterFilterMode);
 		if (pSource->m_nDictionaryActivationDelay != pTarget->m_nDictionaryActivationDelay) emit changedDictionaryActivationDelay(pTarget->m_nDictionaryActivationDelay);
@@ -651,6 +653,14 @@ void CPersistentSettings::setRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM 
 	if (m_pPersistentSettingData->m_nRandomPassageWeightMode != nRandomPassageWeightMode) {
 		m_pPersistentSettingData->m_nRandomPassageWeightMode = nRandomPassageWeightMode;
 		emit changedRandomPassageWeightMode(m_pPersistentSettingData->m_nRandomPassageWeightMode);
+	}
+}
+
+void CPersistentSettings::setFootnoteRenderingMode(CPhraseNavigator::FOOTNOTE_RENDERING_MODE_ENUM nMode)
+{
+	if (m_pPersistentSettingData->m_nFootnoteRenderingMode != nMode) {
+		m_pPersistentSettingData->m_nFootnoteRenderingMode = nMode;
+		emit changedFootnoteRenderingMode(m_pPersistentSettingData->m_nFootnoteRenderingMode);
 	}
 }
 

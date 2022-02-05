@@ -422,6 +422,7 @@ private slots:
 	void en_changedVerseRenderingMode(int nIndex);
 	void en_changedLineHeight(double nLineHeight);
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
+	void en_changedFootnoteRenderingMode(int nIndex);
 
 // UI Private:
 private:
