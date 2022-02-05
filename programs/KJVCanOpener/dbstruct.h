@@ -1290,6 +1290,8 @@ class CReadDatabase;			// Forward declaration for class friendship
 class COSISXmlHandler;
 
 class CVerseTextRichifierTags;
+enum RichifierRenderOptions : uint32_t;
+typedef QFlags<RichifierRenderOptions> RichifierRenderOptionFlags;
 class CKJPBSWordScriptureObject;
 class QAbstractTextDocumentLayout;
 
@@ -1469,10 +1471,8 @@ public:
 
 	QString richVerseText(const CRelIndex &ndxRel,
 							const CVerseTextRichifierTags &tags,
-							bool bAddAnchors = false,
-							const CBasicHighlighter *aHighlighter = nullptr,
-							bool bUseLemmas = false,
-							bool bUseWordSpans = false) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+							RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
+							const CBasicHighlighter *aHighlighter = nullptr) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
 #endif

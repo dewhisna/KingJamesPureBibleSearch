@@ -450,7 +450,7 @@ public:
 		Q_ASSERT(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
-		return pBibleDatabase->richVerseText(ndx, richifierTags, false, pHighlighter);
+		return pBibleDatabase->richVerseText(ndx, richifierTags, RichifierRenderOptionFlags(), pHighlighter);
 	}
 
 	void sortPhraseTags()

@@ -2421,7 +2421,7 @@ QStringList CBibleDatabase::strongsIndexesFromOrthograph(const QString &strOrth)
 	return m_mapStrongsOrthographyMap.values(strOrth);
 }
 
-QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, bool bAddAnchors, const CBasicHighlighter *aHighlighter, bool bUseLemmas, bool bUseWordSpans) const
+QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags, RichifierRenderOptionFlags flagsRRO, const CBasicHighlighter *aHighlighter) const
 {
 	CRelIndex ndx = ndxRel;
 	ndx.setWord(0);							// We always return the whole verse, not specific words
@@ -2429,13 +2429,13 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	Q_ASSERT(pVerse != nullptr);
 
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-	TVerseCacheMap &cache = (bAddAnchors ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
+	TVerseCacheMap &cache = ((flagsRRO & RRO_AddAnchors) ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
 	TVerseCacheMap::iterator itr = cache.find(ndx);
 	if (itr != cache.end()) return (itr->second);
-	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, nullptr, aHighlighter, bUseLemmas, bUseWordSpans);
+	cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, flagsRRO, nullptr, aHighlighter);
 	return cache[ndx];
 #else
-	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, bAddAnchors, nullptr, aHighlighter, bUseLemmas, bUseWordSpans);
+	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, flagsRRO, nullptr, aHighlighter);
 #endif
 }
 

@@ -1546,7 +1546,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 			ndxColophon.setWord(1);
 			scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxColophon.asAnchor()));
 		}
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay), !(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
+							(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) ? RRO_AddAnchors : RichifierRenderOptionFlags()));
 		if (bTotalColophonAnchor) {
 			scriptureHTML.appendRawText("</a>");
 		}
@@ -1667,6 +1668,11 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
 	}
 
+	RichifierRenderOptionFlags flagsRRO = RRO_None;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
+	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
+	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
+
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
 											CPersistentSettings::instance()->verseRenderingModeCopying() :
 											CPersistentSettings::instance()->verseRenderingMode());
@@ -1721,11 +1727,10 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
 		scriptureHTML.appendRawText("</span>");	// Ref
-
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																	pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																	flagsRRO,
+																	pHighlighter));
 		scriptureHTML.appendRawText("</span>");	// Verse
 
 		// Add CrossRefs:
@@ -1757,8 +1762,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				}
 				scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0),
 																			((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																			(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																			pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																			flagsRRO,
+																			pHighlighter));
 				if (bTotalColophonAnchor) {
 					scriptureHTML.appendRawText("</a>");
 				}
@@ -1859,8 +1864,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChap,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																	pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																	flagsRRO,
+																	pHighlighter));
 		if (bTotalSuperscriptionAnchor) {
 			scriptureHTML.appendRawText("</a>");
 		}
@@ -1955,8 +1960,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																	pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																	flagsRRO,
+																	pHighlighter));
 		scriptureHTML.appendRawText("</span>");	// Verse
 
 		bStartedText = true;
@@ -2028,8 +2033,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			}
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook,
 																		((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																		(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																		pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																		flagsRRO,
+																		pHighlighter));
 			if (bTotalColophonAnchor) {
 				scriptureHTML.appendRawText("</a>");
 			}
@@ -2133,8 +2138,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			}
 			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBookChapNext,
 																		((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																		(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																		pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																		flagsRRO,
+																		pHighlighter));
 			if (bTotalSuperscriptionAnchor) {
 				scriptureHTML.appendRawText("</a>");
 			}
@@ -2184,8 +2189,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
-																	pHighlighter, (flagsTRO & TRO_UseLemmas), (flagsTRO & TRO_UseWordSpans)));
+																	flagsRRO,
+																	pHighlighter));
 		scriptureHTML.appendRawText("</span>");	// Verse
 
 		// Add CrossRefs:
@@ -2405,7 +2410,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 		}
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)),
+																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) ? RRO_AddAnchors : RichifierRenderOptionFlags(),
 																	pHighlighter));
 		if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
 			scriptureHTML.appendRawText("</a>");
@@ -2749,7 +2754,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 			}
 
 			scriptureHTML.appendRawText("<span class=\"verse\">");
-			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTagsCopying, false));
+			scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndx, m_richifierTagsCopying, RichifierRenderOptionFlags()));
 			scriptureHTML.appendRawText("</span>");
 
 			if ((CPersistentSettings::instance()->verseNumberDelimiterMode() == RDME_COMPLETE_REFERENCE) &&
@@ -3042,7 +3047,7 @@ CSelectedPhraseList CPhraseNavigator::getSelectedPhrases(const CPhraseCursor &aC
 		while ((nCount > 0) && (ndxRel.isSet())) {
 			const CVerseEntry *pVerse = m_pBibleDatabase->verseEntry(ndxRel);
 			Q_ASSERT(pVerse != nullptr);
-			strPhrase += CVerseTextRichifier::parse(ndxRel, m_pBibleDatabase.data(), pVerse, tagsRichifier, false, &nCount);
+			strPhrase += CVerseTextRichifier::parse(ndxRel, m_pBibleDatabase.data(), pVerse, tagsRichifier, RichifierRenderOptionFlags(), &nCount);
 			if (nCount) {
 				// Goto the first word of this verse and add the number of words in this verse to get to start of next verse:
 				ndxRel.setWord(1);

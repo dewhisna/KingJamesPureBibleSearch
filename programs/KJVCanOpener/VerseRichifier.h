@@ -232,17 +232,26 @@ public:
 
 // ============================================================================
 
+enum RichifierRenderOptions : uint32_t {
+	RRO_None = 0x0,						// Default for no options
+	RRO_AddAnchors = 0x1,				// Parsed text will have <a> anchor tags added
+	RRO_UseLemmas = 0x2,				// Render Lemmas interlinearly with verses
+	RRO_UseWordSpans = 0x4,				// Output Word-Spans in HTML (this is implied when RRO_UseLemmas is specified)
+	RRO_InlineFootnotes = 0x8,			// Render inline footnotes in verses even when the verse templates exclude inline notes
+};
+Q_DECLARE_FLAGS(RichifierRenderOptionFlags, RichifierRenderOptions)
+
 class CVerseTextRichifier
 {
 private:
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, bool bAddAnchors, int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr)
+		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, RichifierRenderOptionFlags flagsRRO, int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
 				m_strTemplate(strTemplate),
-				m_bAddAnchors(bAddAnchors),
+				m_flagsRRO(flagsRRO),
 				// ----
 				m_nStartWord(ndxRelative.word()),
 				m_pWordCount(pWordCount),
@@ -263,11 +272,12 @@ private:
 		}
 
 		bool usesHTML() const { return m_tags.usesHTML(); }
+		bool renderOption(RichifierRenderOptionFlags flagsRRO) const { return ((m_flagsRRO & flagsRRO) != 0); }
 
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;
 		QString m_strTemplate;								// Verse Template being parsed -- will be identical to the one from CVerseEntry if not doing SearchResults, or modified if we are
-		bool m_bAddAnchors;									// True if the parsed text should have <a> anchor tags added
+		RichifierRenderOptionFlags m_flagsRRO;				// Rendering Flags
 		// ----
 		QString m_strVerseText;								// Verse Text being built
 		QString m_strPrewordStack;							// Verse Text to save and push at the beginning of the next word
@@ -287,7 +297,7 @@ private:
 	typedef QString (*FXlateText)(const CRichifierBaton &parseBaton);
 
 	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseTextRichifier *pRichNext = nullptr);
-	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
+	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr);
 
 	~CVerseTextRichifier();
 
@@ -300,8 +310,8 @@ protected:
 
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
-							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), bool bAddAnchors = false,
-							int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr, bool bUseLemmas = false, bool bUseWordSpans = false);
+							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
+							int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr);
 
 private:
 	CRichifierBaton &m_parseBaton;
@@ -310,8 +320,6 @@ private:
 	QChar m_chrMatchChar;
 	const CVerseEntry *m_pVerse;
 	FXlateText m_fncXlateText;
-	bool m_bUseLemmas;
-	bool m_bUseWordSpans;
 };
 
 // ============================================================================
