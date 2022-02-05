@@ -1461,6 +1461,10 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
 	}
 
+	RichifierRenderOptionFlags flagsRRO = RRO_None;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
+	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
+
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 //		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
@@ -1546,8 +1550,9 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 			ndxColophon.setWord(1);
 			scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxColophon.asAnchor()));
 		}
-		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook, ((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-							(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) ? RRO_AddAnchors : RichifierRenderOptionFlags()));
+		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxBook,
+											((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
+											flagsRRO));
 		if (bTotalColophonAnchor) {
 			scriptureHTML.appendRawText("</a>");
 		}
@@ -1672,6 +1677,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
+	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
 
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
 											CPersistentSettings::instance()->verseRenderingModeCopying() :
@@ -2296,6 +2302,10 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 		nLineHeight = CPersistentSettings::instance()->scriptureBrowserLineHeight();
 	}
 
+	RichifierRenderOptionFlags flagsRRO = RRO_None;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
+	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
+
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 //		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
 //							.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
@@ -2410,7 +2420,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 		}
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
-																	(!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) ? RRO_AddAnchors : RichifierRenderOptionFlags(),
+																	flagsRRO,
 																	pHighlighter));
 		if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
 			scriptureHTML.appendRawText("</a>");

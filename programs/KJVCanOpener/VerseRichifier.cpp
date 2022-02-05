@@ -517,6 +517,12 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	// --------------------------------
 
+	// If the template is already inserting inline footnotes for verses, don't
+	//	add extra ones and double them up:
+	if (strTemplate.contains("N", Qt::CaseInsensitive)) flagsRRO &= ~RRO_InlineFootnotes;
+
+	// --------------------------------
+
 	// Convert WordsOfJesus, TransChangeAdded, and DivineName to per-word entities
 	//	so that displaying works correctly in per-word fields for stacking:
 	QStringList lstWords = strTemplate.split('w');
@@ -548,6 +554,10 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	}
 
 	strTemplate.clear();
+	ndxRelVerse.setWord(1);
+	if ((flagsRRO & RRO_InlineFootnotes) && (pBibleDatabase->footnoteEntry(ndxRelVerse))) {
+		strTemplate.append("Nn ");
+	}
 	for (int ndxWord = 1; ndxWord < lstWords.size(); ++ndxWord) {
 		if (lstWordsOfJesus.at(ndxWord-1)) {
 			strTemplate.append('J');
@@ -588,6 +598,11 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		strTemplate.append(lstWords.at(ndxWord));
 		if (lstWordsOfJesus.at(ndxWord-1)) {
 			strTemplate.append('j');
+		}
+
+		ndxRelVerse.setWord(ndxWord+1);
+		if ((flagsRRO & RRO_InlineFootnotes) && (pBibleDatabase->footnoteEntry(ndxRelVerse))) {
+			strTemplate.append(" Nn");
 		}
 	}
 
