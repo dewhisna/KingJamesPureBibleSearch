@@ -1838,21 +1838,11 @@ bool COSISXmlHandler::characters(const QString &ch)
 	} else if (m_bInColophon && !m_bUseBracketColophons) {
 		if (!m_bDisableColophons) {
 			Q_ASSERT(m_ndxColophon.isSet());
-			if (m_ndxColophon.isSet()) {
-				// TODO : Eventually remove the "footnote" version of colophon?
-				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxColophon];
-				footnote.setText(footnote.text() + strTemp);
-			}
 			charactersVerseEntry(m_ndxColophon, strTemp);
 		}
 	} else if ((m_bInSuperscription) && (!m_bInForeignText)) {
 		if (!m_bDisableSuperscriptions) {
 			Q_ASSERT(m_ndxSuperscription.isSet());
-			if (m_ndxSuperscription.isSet()) {
-				// TODO : Eventually remove the "footnote" version of superscription?
-				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[m_ndxSuperscription];
-				footnote.setText(footnote.text() + strTemp);
-			}
 			charactersVerseEntry(m_ndxSuperscription, strTemp);
 		}
 	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInForeignText)) {
@@ -2398,6 +2388,21 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			(strTemp.at(0) == g_chrParseTag) ||
 			(bIsHyphen) ||
 			(bIsApostrophe)) {
+
+			if (nVT == VT_COLOPHON) {
+				// Special footnote version of colophon
+				CRelIndex ndxColophon = relIndex;
+				ndxColophon.setWord(0);
+				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxColophon];
+				footnote.setText(footnote.text() + strTemp.at(0));
+			} else if (nVT == VT_SUPERSCRIPTION) {
+				// Special footnote version of superscription
+				CRelIndex ndxSuperscription = relIndex;
+				ndxSuperscription.setWord(0);
+				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxSuperscription];
+				footnote.setText(footnote.text() + strTemp.at(0));
+			}
+
 			if ((g_strAsciiWordChars.contains(strTemp.at(0))) ||
 				((bIsHyphen) && (!strRichWord.isEmpty())) ||				// Don't let words start with hyphen or apostrophe
 				((bIsApostrophe) && (!strRichWord.isEmpty()))) {
