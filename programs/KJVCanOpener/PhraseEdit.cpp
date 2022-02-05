@@ -3358,22 +3358,35 @@ QString CPhraseNavigator::getFootnote(const CBibleDatabasePtr &pBibleDatabase, c
 {
 	Q_ASSERT(!pBibleDatabase.isNull());
 
-	const CFootnoteEntry *pFootnoteWord = pBibleDatabase->footnoteEntry(ndx);
-	const CFootnoteEntry *pFootnoteVerse = nullptr;
-	const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndx);
-	if (pVerse) {
-		pFootnoteVerse = pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), pVerse->m_nNumWrd+1));
+	// First try footnote for word itself:
+	const CFootnoteEntry *pFootnote = pBibleDatabase->footnoteEntry(ndx);
+	if (pFootnote == nullptr) {
+		// Then try for next word location:
+		pFootnote = pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), ndx.word()+1));
+	}
+	if ((pFootnote == nullptr) && (ndx.word() != 0)) {
+		// Then see if there's a stacked up footnote off the end of the verse:
+		const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndx);
+		if (pVerse) {
+			pFootnote = pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), pVerse->m_nNumWrd+1));
+		}
 	}
 
 	QString strFootnote;
-	if (pFootnoteWord || pFootnoteVerse) {
-		if (bPlainText) {
-			strFootnote = (pFootnoteWord != nullptr) ? pFootnoteWord->plainText(pBibleDatabase.data()) :
-																pFootnoteVerse->plainText(pBibleDatabase.data());
-		} else {
-			strFootnote = (pFootnoteWord != nullptr) ? pFootnoteWord->htmlText(pBibleDatabase.data()) :
-																pFootnoteVerse->htmlText(pBibleDatabase.data());
+	const CFootnoteEntry *pFootnoteVerse = pBibleDatabase->footnoteEntry(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0));
+	if (pFootnote == nullptr) {
+		// Finally, try the entire verse itself as last resort (example: special colophon/superscription pseudo-footnotes)
+		pFootnote = pFootnoteVerse;
+	} else {
+		// But if we had other notes after the verse note, prepend with the verse note for consistency (like colophon/superscription above)
+		if (pFootnoteVerse) {
+			strFootnote += bPlainText ? pFootnoteVerse->plainText(pBibleDatabase.data()).trimmed() : pFootnoteVerse->htmlText(pBibleDatabase.data());
+			strFootnote += "; ";	// We already know we'll be appending more text below since pFootnote isn't nullptr
 		}
+	}
+
+	if (pFootnote) {
+		strFootnote += bPlainText ? pFootnote->plainText(pBibleDatabase.data()).trimmed() : pFootnote->htmlText(pBibleDatabase.data());
 	}
 
 	return strFootnote;
