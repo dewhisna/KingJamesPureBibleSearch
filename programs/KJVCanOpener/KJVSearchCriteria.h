@@ -332,22 +332,22 @@ public:
 	TRelativeIndexSet searchWithin() const;
 	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin);
 
-	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const override;
+	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const override;
 
-	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &zParent = QModelIndex()) const;
-	virtual QModelIndex parent(const QModelIndex &index) const;
+	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &zParent = QModelIndex()) const override;
+	virtual QModelIndex parent(const QModelIndex &index) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual QVariant data(const QModelIndex &index, int role) const override;
 	virtual QVariant data(const CSearchWithinModelIndex *pSearchWithinModelIndex, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	virtual bool insertRows(int row, int count, const QModelIndex &zParent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex());
+	virtual bool insertRows(int row, int count, const QModelIndex &zParent = QModelIndex()) override;
+	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex()) override;
 
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
 	static const CSearchWithinModelIndex *toSearchWithinModelIndex(const QModelIndex &ndx) {
 		return reinterpret_cast<const CSearchWithinModelIndex *>(ndx.internalPointer());

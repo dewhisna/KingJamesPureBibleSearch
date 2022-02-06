@@ -730,17 +730,17 @@ public:
 	inline CBibleDatabasePtr bibleDatabase() const { return m_private.m_pBibleDatabase; }
 	inline CUserNotesDatabasePtr userNotesDatabase() const { return m_private.m_pUserNotesDatabase; }
 
-	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const override;
+	virtual int columnCount(const QModelIndex &zParent = QModelIndex()) const override;
 
-	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &zParent = QModelIndex()) const;
-	virtual QModelIndex parent(const QModelIndex &index) const;
+	virtual QModelIndex	index(int row, int column = 0, const QModelIndex &zParent = QModelIndex()) const override;
+	virtual QModelIndex parent(const QModelIndex &index) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual QVariant data(const QModelIndex &index, int role) const override;
 	CRelIndex logicalIndexForModelIndex(const QModelIndex &index) const;
 	QModelIndex modelIndexForLogicalIndex(const CRelIndex &ndxLogical) const;
 	CRelIndex navigationIndexForModelIndex(const QModelIndex &index) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 	void sortModelIndexList(QModelIndexList &lstIndexes, bool bUseCopySortOption) const;				// Sorts a list of model indexes for the current set of model settings
 	static bool ascendingLessThanModelIndex(const QModelIndex &ndx1, const QModelIndex &ndx2);
@@ -748,18 +748,18 @@ public:
 	static bool descendingLessThanModelIndex(const QModelIndex &ndx1, const QModelIndex &ndx2);
 	static bool descendingLessThanXRefTargets(const QModelIndex &ndx1, const QModelIndex &ndx2);
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	virtual bool insertRows(int row, int count, const QModelIndex &zParent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex());
+	virtual bool insertRows(int row, int count, const QModelIndex &zParent = QModelIndex()) override;
+	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex()) override;
 
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-	virtual Qt::DropActions supportedDropActions() const;
-	virtual Qt::DropActions supportedDragActions() const;
-	virtual QStringList mimeTypes() const;
-	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
-	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent);
+	virtual Qt::DropActions supportedDropActions() const override;
+	virtual Qt::DropActions supportedDragActions() const override;
+	virtual QStringList mimeTypes() const override;
+	virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
+	virtual bool dropMimeData(const QMimeData *pData, Qt::DropAction nAction, int nRow, int nColumn, const QModelIndex &zParent) override;
 
 	QMimeData *mimeDataFromVerseText(const QModelIndexList &lstVersesUnsorted, bool bVerseTextOnly) const;
 	QMimeData *mimeDataFromRawVerseText(const QModelIndexList &lstVersesUnsorted, bool bVeryRaw) const;

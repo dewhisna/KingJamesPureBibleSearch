@@ -49,8 +49,8 @@ public:
 	{ }
 	virtual ~CSearchPhraseScrollArea() { }
 
-	virtual QSize minimumSizeHint() const;
-	virtual QSize sizeHint() const;
+	virtual QSize minimumSizeHint() const override;
+	virtual QSize sizeHint() const override;
 };
 
 // ============================================================================
@@ -121,7 +121,7 @@ protected slots:
 protected:
 	bool haveUserDatabase() const { return m_bHaveUserDatabase; }
 
-	virtual bool eventFilter(QObject *obj, QEvent *ev);
+	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 
 // Data Private:
 private:

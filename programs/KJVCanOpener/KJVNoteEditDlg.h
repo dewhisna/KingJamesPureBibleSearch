@@ -55,8 +55,8 @@ public:
 	void setLocationIndex(const CRelIndex &ndxLocation);
 
 public slots:
-	virtual void accept();
-	virtual void reject();
+	virtual void accept() override;
+	virtual void reject() override;
 
 private slots:
 	void en_textChanged();

@@ -46,19 +46,19 @@ public:
 	explicit CPhraseListModel(QObject *parent = nullptr);
 	CPhraseListModel(const CPhraseList &phrases, QObject *parent = nullptr);
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual QVariant data(const QModelIndex &index, int role) const override;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+	virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+	virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-	virtual Qt::DropActions supportedDropActions() const;
+	virtual Qt::DropActions supportedDropActions() const override;
 
 	CPhraseList phraseList() const;
 	void setPhraseList(const CPhraseList &phrases);
@@ -96,16 +96,16 @@ public:
 	}
 
 #if QT_VERSION >= 0x050000
-	virtual Qt::DropActions supportedDragActions() const
+	virtual Qt::DropActions supportedDragActions() const override
 	{
 		return mySupportedDragActions();
 	}
 #endif
-	virtual Qt::DropActions supportedDropActions() const;
+	virtual Qt::DropActions supportedDropActions() const override;
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-	virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
-	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+	virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
+	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
 private:
 	Qt::DropActions mySupportedDragActions() const;

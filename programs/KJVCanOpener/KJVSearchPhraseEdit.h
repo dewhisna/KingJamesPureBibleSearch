@@ -80,26 +80,26 @@ public:
 	QMenu *getEditMenu() const { return m_pEditMenu; }
 	QWidget *getDropListButton() const { return m_pButtonDroplist; }
 
-	virtual bool isCaseSensitive() const { return CParsedPhrase::isCaseSensitive(); }
-	virtual void setCaseSensitive(bool bCaseSensitive);
+	virtual bool isCaseSensitive() const override { return CParsedPhrase::isCaseSensitive(); }
+	virtual void setCaseSensitive(bool bCaseSensitive) override;
 
-	virtual bool isAccentSensitive() const { return CParsedPhrase::isAccentSensitive(); }
-	virtual void setAccentSensitive(bool bAccentSensitive);
+	virtual bool isAccentSensitive() const override { return CParsedPhrase::isAccentSensitive(); }
+	virtual void setAccentSensitive(bool bAccentSensitive) override;
 
-	virtual bool isExcluded() const { return CParsedPhrase::isExcluded(); }
-	virtual void setExclude(bool bExclude);
+	virtual bool isExcluded() const override { return CParsedPhrase::isExcluded(); }
+	virtual void setExclude(bool bExclude) override;
 
 	inline bool isDisabled() const { Q_ASSERT(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); Q_ASSERT(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
 
-	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords);
+	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords) override;
 
 	void processPendingUpdateCompleter();
 
 	int completerPopupDelay() const { return m_dlyPopupCompleter.minimumDelay(); }
 
 public slots:
-	virtual void en_textChanged();
+	virtual void en_textChanged() override;
 	void setCompleterPopupDelay(int nDelay) { m_dlyPopupCompleter.setMinimumDelay(nDelay); }
 
 private slots:
@@ -123,15 +123,15 @@ signals:
 //	virtual void enterTriggered();						// Signaled when the user presses enter/return
 
 protected:
-	virtual void insertFromMimeData(const QMimeData * source);
-	virtual bool canInsertFromMimeData(const QMimeData *source) const;
+	virtual void insertFromMimeData(const QMimeData * source) override;
+	virtual bool canInsertFromMimeData(const QMimeData *source) const override;
 
 protected:
-	virtual void focusInEvent(QFocusEvent *event);
-	virtual void resizeEvent(QResizeEvent *event);
-	virtual void contextMenuEvent(QContextMenuEvent *event);
-	virtual void setupCompleter(const QString &strText, bool bForce = false);
-	virtual void UpdateCompleter();
+	virtual void focusInEvent(QFocusEvent *event) override;
+	virtual void resizeEvent(QResizeEvent *event) override;
+	virtual void contextMenuEvent(QContextMenuEvent *event) override;
+	virtual void setupCompleter(const QString &strText, bool bForce = false) override;
+	virtual void UpdateCompleter() override;
 
 // Data Private:
 private:
@@ -164,7 +164,7 @@ public:
 	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
 	virtual ~CKJVSearchPhraseEdit();
 
-	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);
+	virtual bool eventFilter(QObject *pObject, QEvent *pEvent) override;
 
 	void setupPhrase(const TPhraseSettings &aPhrase);
 
@@ -205,7 +205,7 @@ protected slots:
 	void en_phraseClear();
 	void setPhraseButtonEnables(const QString &strUUID = QString());
 
-	virtual void resizeEvent(QResizeEvent *event);
+	virtual void resizeEvent(QResizeEvent *event) override;
 	void en_showMatchingPhrases(bool bShow);
 	void setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList);
 	void en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);

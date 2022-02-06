@@ -709,6 +709,12 @@ void CScriptureText<T,U>::mouseMoveEvent(QMouseEvent *ev)
 	U::mouseMoveEvent(ev);
 }
 
+template<>
+void CScriptureText<i_CScriptureEdit, QTextEdit>::showPassageNavigator()
+{
+	// Don't implement this because we don't want the navigator launching the navigator
+}
+
 template<class T, class U>
 void CScriptureText<T,U>::showPassageNavigator()
 {

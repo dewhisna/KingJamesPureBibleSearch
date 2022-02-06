@@ -124,8 +124,8 @@ protected slots:
 protected:
 	void initialize();
 
-	virtual void closeEvent(QCloseEvent * event);
-	virtual bool event(QEvent *pEvent);
+	virtual void closeEvent(QCloseEvent * event) override;
+	virtual bool event(QEvent *pEvent) override;
 
 	friend class CTipEdit;
 	CTipEdit *tipEdit() const { return m_pTipEdit; }

@@ -45,8 +45,8 @@ public:
 	bool isValid() const { return m_bIsValid; }
 
 public slots:
-	virtual void accept();
-	virtual void reject();
+	virtual void accept() override;
+	virtual void reject() override;
 
 private slots:
 	void en_textChanged(const QString &strURL);

@@ -42,10 +42,10 @@
 #ifndef DYNAMICTREEMODEL_H
 #define DYNAMICTREEMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
-#include <QtCore/QHash>
-#include <QtCore/QList>
+#include <QHash>
+#include <QList>
 
 
 class DynamicTreeModel : public QAbstractItemModel
@@ -55,12 +55,12 @@ class DynamicTreeModel : public QAbstractItemModel
 public:
   DynamicTreeModel(QObject *parent = nullptr);
 
-  QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
-  QModelIndex parent(const QModelIndex &index) const;
-  int rowCount(const QModelIndex &index = QModelIndex()) const;
-  int columnCount(const QModelIndex &index = QModelIndex()) const;
+  virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+  virtual QModelIndex parent(const QModelIndex &index) const override;
+  virtual int rowCount(const QModelIndex &index = QModelIndex()) const override;
+  virtual int columnCount(const QModelIndex &index = QModelIndex()) const override;
 
-  QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+  virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
   void clear();
 
@@ -134,7 +134,7 @@ public:
   ModelInsertCommand(DynamicTreeModel *model, QObject *parent = nullptr );
   virtual ~ModelInsertCommand() {}
 
-  virtual void doCommand();
+  virtual void doCommand() override;
 };
 
 
@@ -148,7 +148,7 @@ public:
 
   virtual bool emitPreSignal(const QModelIndex &srcParent, int srcStart, int srcEnd, const QModelIndex &destParent, int destRow);
 
-  virtual void doCommand();
+  virtual void doCommand() override;
 
   virtual void emitPostSignal();
 
@@ -172,8 +172,8 @@ public:
 
   virtual ~ModelResetCommand();
 
-  virtual bool emitPreSignal(const QModelIndex &srcParent, int srcStart, int srcEnd, const QModelIndex &destParent, int destRow);
-  virtual void emitPostSignal();
+  virtual bool emitPreSignal(const QModelIndex &srcParent, int srcStart, int srcEnd, const QModelIndex &destParent, int destRow) override;
+  virtual void emitPostSignal() override;
 
 };
 
@@ -188,8 +188,8 @@ public:
 
   virtual ~ModelResetCommandFixed();
 
-  virtual bool emitPreSignal(const QModelIndex &srcParent, int srcStart, int srcEnd, const QModelIndex &destParent, int destRow);
-  virtual void emitPostSignal();
+  virtual bool emitPreSignal(const QModelIndex &srcParent, int srcStart, int srcEnd, const QModelIndex &destParent, int destRow) override;
+  virtual void emitPostSignal() override;
 
 };
 

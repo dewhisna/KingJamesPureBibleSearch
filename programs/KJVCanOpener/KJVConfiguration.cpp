@@ -136,7 +136,7 @@ public:
 	CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName);
 	~CHighlighterColorButton();
 
-	virtual bool operator <(const QListWidgetItem & other) const
+	virtual bool operator <(const QListWidgetItem & other) const override
 	{
 		const CHighlighterColorButton &myOther = static_cast<const CHighlighterColorButton &>(other);
 		HighlighterNameSortPredicate sortPred;
@@ -152,8 +152,8 @@ public:
 	}
 
 protected slots:
-	virtual void en_setTextBrightness(bool bInvert, int nBrightness);
-	virtual void en_adjustDialogElementBrightnessChanged(bool bAdjust);
+	virtual void en_setTextBrightness(bool bInvert, int nBrightness) override;
+	virtual void en_adjustDialogElementBrightnessChanged(bool bAdjust) override;
 
 private:
 	void setBrightness(bool bAdjust, bool bInvert, int nBrightness);

@@ -50,8 +50,8 @@ public:
 
 	virtual void registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDocLayout);
 
-	virtual void drawObject(QPainter *pPainter, const QRectF &aRect, QTextDocument *pDoc, int posInDocument, const QTextFormat &aFormat);
-	virtual QSizeF intrinsicSize(QTextDocument *pDoc, int posInDocument, const QTextFormat &aFormat);
+	virtual void drawObject(QPainter *pPainter, const QRectF &aRect, QTextDocument *pDoc, int posInDocument, const QTextFormat &aFormat) override;
+	virtual QSizeF intrinsicSize(QTextDocument *pDoc, int posInDocument, const QTextFormat &aFormat) override;
 
 private:
 	CBibleDatabase *m_pBibleDatabase;			// Note: Not QSharedPointer version because the CBibleDatabase actually owns us
@@ -101,8 +101,8 @@ public:
 	CAbstractScriptureBuilder();
 	virtual ~CAbstractScriptureBuilder();
 
-	virtual void appendRawText( const QString &text );
-	virtual QString getResult();
+	virtual void appendRawText( const QString &text ) override;
+	virtual QString getResult() override;
 
 	virtual void startBuffered();
 	virtual void stopBuffered();
@@ -122,28 +122,28 @@ public:
 	CScriptureTextHtmlBuilder();
 	virtual ~CScriptureTextHtmlBuilder();
 
-	virtual void beginAnchorID(const QString &strID);
+	virtual void beginAnchorID(const QString &strID) override;
 
-	virtual void beginBold();
-	virtual void endBold();
+	virtual void beginBold() override;
+	virtual void endBold() override;
 
-	virtual void beginItalics();
-	virtual void endItalics();
+	virtual void beginItalics() override;
+	virtual void endItalics() override;
 
-	virtual void beginFontRelativeSize(const QString &strSize);
-	virtual void endFontRelativeSize();
+	virtual void beginFontRelativeSize(const QString &strSize) override;
+	virtual void endFontRelativeSize() override;
 
-	virtual void beginDiv(const QString &strClass = QString(), const QString &strStyle = QString());
-	virtual void endDiv();
+	virtual void beginDiv(const QString &strClass = QString(), const QString &strStyle = QString()) override;
+	virtual void endDiv() override;
 
-	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex);
+	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) override;
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false);
-	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true);
+	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false) override;
+	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true) override;
 
-	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
-	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
-	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors = false, bool bAddLeadInSpace = false);
+	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false) override;
+	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false) override;
+	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors = false, bool bAddLeadInSpace = false) override;
 };
 
 // ============================================================================
@@ -154,19 +154,19 @@ public:
 	CScripturePlainTextBuilder();
 	virtual ~CScripturePlainTextBuilder();
 
-	virtual void beginItalics();
-	virtual void endItalics();
+	virtual void beginItalics() override;
+	virtual void endItalics() override;
 
-	virtual void endDiv();
+	virtual void endDiv() override;
 
-	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex);
+	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) override;
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false);
-	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true);
+	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false) override;
+	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true) override;
 
-	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
-	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false);
-	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors = false, bool bAddLeadInSpace = false);
+	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false) override;
+	virtual void addRefLinkFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false) override;
+	virtual void addWWWLinkFor(const QString &strURL, bool bAddAnchors = false, bool bAddLeadInSpace = false) override;
 };
 
 // ============================================================================
@@ -177,7 +177,7 @@ public:
 	CScriptureTextDocumentDirector(CAbstractScriptureBuilderBase *pBuilder, const CBibleDatabase *pBibleDatabase = nullptr);
 	virtual ~CScriptureTextDocumentDirector();
 
-	virtual void processCustomFragment(const QTextFragment &aFragment, const QTextDocument *pDoc);
+	virtual void processCustomFragment(const QTextFragment &aFragment, const QTextDocument *pDoc) override;
 
 protected:
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase; }

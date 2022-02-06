@@ -95,26 +95,26 @@ public:
 	CNoteKeywordModel(QObject *pParent = nullptr);
 	virtual ~CNoteKeywordModel();
 
-	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &zParent = QModelIndex()) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual QVariant data(const QModelIndex &index, int role) const override;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 	virtual QModelIndex findKeyword(const QString &strKeyword) const;
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	virtual bool insertRows(int row, int count, const QModelIndex &zparent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex());
+	virtual bool insertRows(int row, int count, const QModelIndex &zparent = QModelIndex()) override;
+	virtual bool removeRows(int row, int count, const QModelIndex &zParent = QModelIndex()) override;
 
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
 	const CNoteKeywordModelItemDataList &itemList() const;
 	void setItemList(const CNoteKeywordModelItemDataList &aList);
 	QStringList selectedKeywordList() const;
 	void setKeywordList(const QStringList &lstSelectedKeywords = QStringList(), const QStringList &lstCompositeKeywords = QStringList());
 
-//	virtual Qt::DropActions supportedDropActions() const;
+//	virtual Qt::DropActions supportedDropActions() const override;
 
 	QMenu *contextMenu() { return &m_keywordContextMenu; }
 
@@ -159,11 +159,11 @@ public:
 	KEYWORD_WIDGET_MODE_ENUM mode() const { return m_nMode; }
 	void setMode(KEYWORD_WIDGET_MODE_ENUM nMode) { m_nMode = nMode; }
 
-	virtual void wheelEvent(QWheelEvent *pEvent);
-	virtual void mousePressEvent(QMouseEvent *pEvent);
-	virtual void mouseReleaseEvent(QMouseEvent *pEvent);
-	virtual void keyPressEvent(QKeyEvent *pEvent);
-	virtual void keyReleaseEvent(QKeyEvent *pEvent);
+	virtual void wheelEvent(QWheelEvent *pEvent) override;
+	virtual void mousePressEvent(QMouseEvent *pEvent) override;
+	virtual void mouseReleaseEvent(QMouseEvent *pEvent) override;
+	virtual void keyPressEvent(QKeyEvent *pEvent) override;
+	virtual void keyReleaseEvent(QKeyEvent *pEvent) override;
 
 private:
 	KEYWORD_WIDGET_MODE_ENUM m_nMode;

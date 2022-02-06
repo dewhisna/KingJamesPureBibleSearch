@@ -52,19 +52,19 @@ public:
 
 	explicit CSearchPhraseListModel(QObject *parent = nullptr);
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual QVariant data(const QModelIndex &index, int role) const override;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-	virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
-	virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+	virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+	virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
-	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+	virtual void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-	virtual Qt::DropActions supportedDropActions() const;
+	virtual Qt::DropActions supportedDropActions() const override;
 
 	CSearchPhraseEditList phraseEditorsList() const;
 	void setPhraseEditorsList(const CSearchPhraseEditList &lstPhraseEditors);

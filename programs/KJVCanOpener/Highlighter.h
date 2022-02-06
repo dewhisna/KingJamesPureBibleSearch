@@ -123,11 +123,11 @@ public:
 	CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults = false, QObject *parent = nullptr);
 	virtual ~CSearchResultHighlighter();
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
-	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;
 
-	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
-	virtual bool isEmpty() const;
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
+	virtual bool isEmpty() const override;
 
 	bool isExcludedResults() const { return m_bExcludedResults; }
 
@@ -176,11 +176,11 @@ public:
 		m_myPhraseTags.setPhraseTags(aCursorFollowHighlighter.m_myPhraseTags.phraseTags());
 	}
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
-	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;
 
-	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
-	virtual bool isEmpty() const;
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
+	virtual bool isEmpty() const override;
 
 	const TPhraseTagList &phraseTags() const;
 	void setPhraseTags(const TPhraseTagList &lstPhraseTags);
@@ -229,13 +229,13 @@ public:
 		m_strUserDefinedHighlighterName = aUserDefinedHighlighter.m_strUserDefinedHighlighterName;
 	}
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const;
-	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const;
+	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;
 
-	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const;
-	virtual bool isEmpty() const;
+	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
+	virtual bool isEmpty() const override;
 
-	virtual bool isContinuous() const { return true; }
+	virtual bool isContinuous() const override { return true; }
 
 	const TPhraseTagList &phraseTags() const;
 	void setPhraseTags(const TPhraseTagList &lstPhraseTags);
@@ -278,7 +278,7 @@ public:
 	{
 	}
 
-	virtual void mousePressEvent(QMouseEvent *pEvent)
+	virtual void mousePressEvent(QMouseEvent *pEvent) override
 	{
 		Q_ASSERT(pEvent != nullptr);
 #ifndef Q_OS_MAC
@@ -289,7 +289,7 @@ public:
 		QToolButton::mousePressEvent(pEvent);
 	}
 
-	virtual void mouseReleaseEvent(QMouseEvent *pEvent)
+	virtual void mouseReleaseEvent(QMouseEvent *pEvent) override
 	{
 		QToolButton::mouseReleaseEvent(pEvent);
 	}
@@ -335,7 +335,7 @@ signals:
 	void highlightTriggered(QAction *pAction, bool bSecondaryActive);		// bSecondaryActive if secondary function was selected
 
 protected:
-	virtual bool event(QEvent *pEvent)
+	virtual bool event(QEvent *pEvent) override
 	{
 		if (pEvent->type() == QEvent::Shortcut) {
 			QShortcutEvent *pSE = static_cast<QShortcutEvent *>(pEvent);
@@ -367,7 +367,7 @@ public:
 	virtual ~CHighlighterWidgetAction()
 	{ }
 
-	virtual QWidget *createWidget(QWidget *parent)
+	virtual QWidget *createWidget(QWidget *parent) override
 	{
 		m_pHighlighterToolButton = new CHighlighterToolButton(parent);
 		m_pHighlighterToolButton->setDefaultAction(m_pButtonAction);

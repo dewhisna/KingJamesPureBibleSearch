@@ -175,7 +175,7 @@ public:
 	QString webChannelHostPort() const { return m_strWebChannelHostPort; }
 	void setWebChannelHostPort(const QString &strWebChannelHostPort) { m_strWebChannelHostPort = strWebChannelHostPort; }
 
-	virtual bool notify(QObject *pReceiver, QEvent *pEvent);
+	virtual bool notify(QObject *pReceiver, QEvent *pEvent) override;
 
 	const QString fileToLoad() const { return m_strFileToLoad; }
 	void setFileToLoad(const QString &strFilename) { m_strFileToLoad = strFilename; }

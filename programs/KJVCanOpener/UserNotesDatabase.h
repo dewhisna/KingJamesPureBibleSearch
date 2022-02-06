@@ -301,12 +301,12 @@ signals:
 
 protected:
 	// XML Parsing overrides:
-	virtual bool characters(const QString &strChars);
-	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attr);
-	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName);
-	virtual QString errorString() const;
-	virtual bool startCDATA();
-	virtual bool endCDATA();
+	virtual bool characters(const QString &strChars) override;
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attr) override;
+	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
+	virtual QString errorString() const override;
+	virtual bool startCDATA() override;
+	virtual bool endCDATA() override;
 
 private:
 	void clearXMLVars();

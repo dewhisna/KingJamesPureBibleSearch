@@ -69,16 +69,16 @@ public:
 	CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate = true, bool bReflowDisabled = false);
 	~CReflowDelegate();
 
-	virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex & index) const;
-	virtual bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
+	virtual QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex & index) const override;
+	virtual bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
 
-	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
-	virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
+	virtual void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+	virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 
-	virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
-	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 	QAbstractItemDelegate *itemDelegate(const QModelIndex &index) const;
 	QAbstractItemDelegate *itemDelegate() const { return m_mapItemDelegates.value(-1); }

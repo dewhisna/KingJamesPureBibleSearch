@@ -43,14 +43,14 @@ class CVerseListDelegate : public QStyledItemDelegate
 public:
 	CVerseListDelegate(CVerseListModel &model, QObject *parent = nullptr);
 
-	virtual void paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	virtual QString displayText(const QVariant &value, const QLocale &locale) const;
+	virtual void paint(QPainter * painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	virtual QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	virtual QString displayText(const QVariant &value, const QLocale &locale) const override;
 
 signals:
 
 public slots:
-	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index);
+	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index) override;
 
 protected:
 	void SetDocumentText(const QStyleOptionViewItemV4_t &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const;

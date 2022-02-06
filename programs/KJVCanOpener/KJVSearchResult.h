@@ -163,8 +163,8 @@ signals:
 	void selectionListChanged();
 
 protected:
-	virtual bool event(QEvent *event);
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual bool event(QEvent *event) override;
+	virtual void keyPressEvent(QKeyEvent *event) override;
 #ifdef TOUCH_GESTURE_PROCESSING
 	QString debugGestureState(QGesture *pGesture) const;
 	bool handleTapGesture(QTapGesture *pTapGesture);
@@ -172,24 +172,24 @@ protected:
 	bool handlePanGesture(QPanGesture *pPanGesture);
 	bool handleSwipeGesture(QSwipeGesture *pSwipeGesture);
 #endif
-	virtual void mouseMoveEvent(QMouseEvent *ev);
-	virtual void focusInEvent(QFocusEvent *event);
-	virtual void focusOutEvent(QFocusEvent *event);
-	virtual void contextMenuEvent(QContextMenuEvent *event);
-	virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-	virtual void selectionChanged (const QItemSelection &selected, const QItemSelection &deselected);
+	virtual void mouseMoveEvent(QMouseEvent *ev) override;
+	virtual void focusInEvent(QFocusEvent *event) override;
+	virtual void focusOutEvent(QFocusEvent *event) override;
+	virtual void contextMenuEvent(QContextMenuEvent *event) override;
+	virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous) override;
+	virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
 
 	void handle_selectionChanged();
 	void displayCopyCompleteToolTip() const;
 
-	virtual void resizeEvent(QResizeEvent *event);
+	virtual void resizeEvent(QResizeEvent *event) override;
 
 	virtual QStyleOptionViewItem viewOptions() const;
 
 	typedef QPair<QRect, QModelIndex> CItemViewPaintPair;
 	typedef QList<CItemViewPaintPair> CItemViewPaintPairs;
 
-	virtual void startDrag(Qt::DropActions supportedActions);
+	virtual void startDrag(Qt::DropActions supportedActions) override;
 	CItemViewPaintPairs draggablePaintPairs(const QModelIndexList &lstIndexes, QRect *pRC) const;
 	QPixmap renderToPixmap(const QModelIndexList &lstIndexes, QRect *pRC) const;
 

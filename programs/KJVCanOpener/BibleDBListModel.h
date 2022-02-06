@@ -48,15 +48,15 @@ public:
 	CBibleDatabaseListModel(QObject *parent = nullptr);
 	virtual ~CBibleDatabaseListModel();
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
+	virtual QVariant data(const QModelIndex &index, int role) const override;
 	virtual QVariant data(const QString &strUUID, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 	virtual bool setData(const QString &strUUID, const QVariant &value, int role = Qt::EditRole);
 
-	virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 	void updateBibleDatabaseList();
 

@@ -49,7 +49,7 @@ public:
 	CComboBox(QWidget *pParent = nullptr);
 	virtual ~CComboBox();
 
-	virtual void keyPressEvent(QKeyEvent *pEvent);
+	virtual void keyPressEvent(QKeyEvent *pEvent) override;
 
 signals:
 	void enterPressed();
@@ -65,7 +65,7 @@ public:
 	CFontComboBox(QWidget *pParent = nullptr);
 	virtual ~CFontComboBox();
 
-	virtual void keyPressEvent(QKeyEvent *pEvent);
+	virtual void keyPressEvent(QKeyEvent *pEvent) override;
 
 signals:
 	void enterPressed();
@@ -81,7 +81,7 @@ public:
 	CSpinBox(QWidget *pParent = nullptr);
 	virtual ~CSpinBox();
 
-	virtual void keyPressEvent(QKeyEvent *pEvent);
+	virtual void keyPressEvent(QKeyEvent *pEvent) override;
 
 signals:
 	void enterPressed();
@@ -97,7 +97,7 @@ public:
 	CDoubleSpinBox(QWidget *pParent = nullptr);
 	virtual ~CDoubleSpinBox();
 
-	virtual void keyPressEvent(QKeyEvent *pEvent);
+	virtual void keyPressEvent(QKeyEvent *pEvent) override;
 
 signals:
 	void enterPressed();
@@ -113,11 +113,11 @@ public:
 	CSingleLineTextEdit(int nMinHeight = -1, QWidget *pParent = nullptr);
 	virtual ~CSingleLineTextEdit();
 
-	virtual QSize sizeHint() const;
+	virtual QSize sizeHint() const override;
 
 protected:
-	virtual void insertFromMimeData(const QMimeData * source);
-	virtual bool canInsertFromMimeData(const QMimeData *source) const;
+	virtual void insertFromMimeData(const QMimeData * source) override;
+	virtual bool canInsertFromMimeData(const QMimeData *source) const override;
 
 	bool updateInProgress() const { return m_bUpdateInProgress; }
 	class CDoUpdate {
@@ -149,10 +149,10 @@ protected slots:
 	virtual void en_cursorPositionChanged();
 
 protected:
-	virtual void wheelEvent(QWheelEvent *event);
-	virtual void focusInEvent(QFocusEvent *event);
-	virtual void keyPressEvent(QKeyEvent *event);
-	virtual void inputMethodEvent(QInputMethodEvent *event);
+	virtual void wheelEvent(QWheelEvent *event) override;
+	virtual void focusInEvent(QFocusEvent *event) override;
+	virtual void keyPressEvent(QKeyEvent *event) override;
+	virtual void inputMethodEvent(QInputMethodEvent *event) override;
 
 	virtual QString textUnderCursor() const;
 

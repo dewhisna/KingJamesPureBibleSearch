@@ -89,7 +89,7 @@ public:
 	inline QString historyTitle(int i) const { return m_pScriptureBrowser->historyTitle(i); }
 	inline QUrl historyUrl(int i) const { return m_pScriptureBrowser->historyUrl(i); }
 
-	virtual bool eventFilter(QObject *obj, QEvent *ev);
+	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 
 public slots:
 	void showDetails();

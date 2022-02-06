@@ -59,15 +59,15 @@ public slots:
 protected slots:
 	void insertCompletion(const QModelIndex &index);
 
-	virtual void en_cursorPositionChanged();
+	virtual void en_cursorPositionChanged() override;
 
 private slots:
 	void en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void delayed_UpdatedCompleter();
 
 protected:
-	virtual void setupCompleter(const QString &strText, bool bForce = false);
-	virtual void UpdateCompleter();
+	virtual void setupCompleter(const QString &strText, bool bForce = false) override;
+	virtual void UpdateCompleter() override;
 
 // Data Private:
 private:
@@ -94,7 +94,7 @@ public:
 
 	int dictionaryActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
 
-	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);
+	virtual bool eventFilter(QObject *pObject, QEvent *pEvent) override;
 
 signals:
 	void activatedDictionary(bool bWordEditor);

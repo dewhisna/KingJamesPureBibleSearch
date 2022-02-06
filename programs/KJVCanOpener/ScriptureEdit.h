@@ -107,11 +107,11 @@ public:
 //	void copyVersesAvailable(bool bAvailable);
 
 protected:
-	virtual bool event(QEvent *ev);
-	virtual bool eventFilter(QObject *obj, QEvent *ev);
-	virtual void mouseDoubleClickEvent(QMouseEvent *ev);
-	virtual QMimeData *createMimeDataFromSelection () const;
-	virtual void mouseMoveEvent(QMouseEvent *ev);
+	virtual bool event(QEvent *ev) override;
+	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *ev) override;
+	virtual QMimeData *createMimeDataFromSelection () const override;
+	virtual void mouseMoveEvent(QMouseEvent *ev) override;
 
 protected:
 	virtual void updateSelection();
@@ -124,45 +124,45 @@ protected:
 //protected slots:
 protected:
 #ifdef USING_QT_SPEECH
-	virtual void en_readSelection();			// Equivalent to SpeechPlay
-	virtual void en_readFromCursor();
-	virtual void setSpeechActionEnables();
+	virtual void en_readSelection() override;			// Equivalent to SpeechPlay
+	virtual void en_readFromCursor() override;
+	virtual void setSpeechActionEnables() override;
 #endif
 
-	virtual void en_findParentCanOpener();
-	virtual void en_findDialog();
+	virtual void en_findParentCanOpener() override;
+	virtual void en_findDialog() override;
 
-	virtual void en_customContextMenuRequested(const QPoint &pos);
-	virtual void en_cursorPositionChanged();
-	virtual void en_selectionChanged();
-	virtual void clearHighlighting();
+	virtual void en_customContextMenuRequested(const QPoint &pos) override;
+	virtual void en_cursorPositionChanged() override;
+	virtual void en_selectionChanged() override;
+	virtual void clearHighlighting() override;
 
-	virtual void en_detailUpdate();
+	virtual void en_detailUpdate() override;
 
-	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings) override;
 
 //public slots:
 public:
-	virtual void rerender();
-	virtual void setFont(const QFont& aFont);
-	virtual void setTextBrightness(bool bInvert, int nBrightness);
-	virtual void showDetails();
-	virtual void showPassageNavigator();
-	virtual void en_copy();
-	virtual void en_copyPlain();
-	virtual void en_copyRaw();
-	virtual void en_copyVeryRaw();
-	virtual void en_copyVerses();
-	virtual void en_copyVersesPlain();
-	virtual void en_copyReferenceDetails();
-	virtual void en_copyPassageStatistics();
-	virtual void en_copyEntirePassageDetails();
-	virtual void en_highlightPassage(int ndxHighlighterTool, bool bSecondaryActive);
-	virtual void en_anchorClicked(const QUrl &link);
-	virtual void en_showAllNotes();
-	virtual void en_hideAllNotes();
+	virtual void rerender() override;
+	virtual void setFont(const QFont& aFont) override;
+	virtual void setTextBrightness(bool bInvert, int nBrightness) override;
+	virtual void showDetails() override;
+	virtual void showPassageNavigator() override;
+	virtual void en_copy() override;
+	virtual void en_copyPlain() override;
+	virtual void en_copyRaw() override;
+	virtual void en_copyVeryRaw() override;
+	virtual void en_copyVerses() override;
+	virtual void en_copyVersesPlain() override;
+	virtual void en_copyReferenceDetails() override;
+	virtual void en_copyPassageStatistics() override;
+	virtual void en_copyEntirePassageDetails() override;
+	virtual void en_highlightPassage(int ndxHighlighterTool, bool bSecondaryActive) override;
+	virtual void en_anchorClicked(const QUrl &link) override;
+	virtual void en_showAllNotes() override;
+	virtual void en_hideAllNotes() override;
 
-	virtual void en_gotoIndex(const TPhraseTag &tag);
+	virtual void en_gotoIndex(const TPhraseTag &tag) override;
 
 private:
 	void setLastActiveTag();		// Sets last active tag from last tag if we're on an active verse/word
@@ -266,7 +266,7 @@ public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;
-//	virtual void showPassageNavigator() = 0;			-- Don't implement this because we don't want the navigator launching the navigator
+	virtual void showPassageNavigator() = 0;			// Don't implement this because we don't want the navigator launching the navigator
 	virtual void en_copy() = 0;
 	virtual void en_copyPlain() = 0;
 	virtual void en_copyRaw() = 0;

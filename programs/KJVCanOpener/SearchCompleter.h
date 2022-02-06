@@ -67,10 +67,10 @@ public:
 
 	}
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const = 0;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override = 0;
 
-	virtual QVariant data(const QModelIndex &index, int role) const = 0;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) = 0;
+	virtual QVariant data(const QModelIndex &index, int role) const override = 0;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override = 0;
 
 	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const = 0;		// Return and/or calculate soundEx for the specified Word
 	virtual QString cursorWord() const = 0;
@@ -106,18 +106,18 @@ public:
 	CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent = nullptr);
 	virtual ~CSearchParsedPhraseListModel();
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual QVariant data(const QModelIndex &index, int role) const override;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const;
-	virtual QString cursorWord() const;
+	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const override;
+	virtual QString cursorWord() const override;
 
-	virtual bool isDynamicModel() const { return true; }
+	virtual bool isDynamicModel() const override { return true; }
 
 public slots:
-	virtual void setWordsFromPhrase(bool bForceUpdate = false);
+	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;
 
 private:
 	Q_DISABLE_COPY(CSearchParsedPhraseListModel)
@@ -137,18 +137,18 @@ public:
 	CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = nullptr);
 	virtual ~CSearchDictionaryListModel();
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-	virtual QVariant data(const QModelIndex &index, int role) const;
-	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	virtual QVariant data(const QModelIndex &index, int role) const override;
+	virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const;
-	virtual QString cursorWord() const;
+	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const override;
+	virtual QString cursorWord() const override;
 
-	virtual bool isDynamicModel() const { return false; }
+	virtual bool isDynamicModel() const override { return false; }
 
 public slots:
-	virtual void setWordsFromPhrase(bool bForceUpdate = false);
+	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;
 
 private:
 	Q_DISABLE_COPY(CSearchDictionaryListModel)
@@ -208,17 +208,17 @@ public:
 	CSoundExSearchCompleterFilter(CSearchStringListModel *pSearchStringListModel, QObject *parent = nullptr);
 	~CSoundExSearchCompleterFilter();
 
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual bool hasChildren(const QModelIndex & parent = QModelIndex()) const;
-	virtual QModelIndex parent(const QModelIndex & index) const;
-	virtual QModelIndex	index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	virtual bool hasChildren(const QModelIndex & parent = QModelIndex()) const override;
+	virtual QModelIndex parent(const QModelIndex & index) const override;
+	virtual QModelIndex	index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
 
 	virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
 	virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
 
-	QVariant data(const QModelIndex &index, int role) const;
-	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+	QVariant data(const QModelIndex &index, int role) const override;
+	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
 	void setFilterFixedString(const QString &strPattern);
 	inline const QString &filterFixedString() const { return m_strFilterFixedString; }
@@ -345,7 +345,7 @@ public:
 
 	}
 
-	virtual bool eventFilter(QObject *obj, QEvent *ev);
+	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 };
 
 typedef CComposingCompleter SearchCompleter_t;

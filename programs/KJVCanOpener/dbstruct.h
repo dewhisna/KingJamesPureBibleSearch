@@ -634,12 +634,12 @@ public:
 
 	CConcordanceEntry & operator=(const CConcordanceEntry &src) = default;
 
-	virtual const QString &word() const { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
-	virtual const QString &decomposedWord() const { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
-	virtual const QString &decomposedHyphenWord() const { return m_itrEntryWord->second.m_lstDecomposedHyphenAltWords.at(m_nAltWordIndex); }
-	virtual const QString &deApostrWord() const { return m_itrEntryWord->second.m_lstDeApostrAltWords.at(m_nAltWordIndex); }
-	virtual const QString &deApostrHyphenWord() const { return m_itrEntryWord->second.m_lstDeApostrHyphenAltWords.at(m_nAltWordIndex); }
-	virtual const QString &renderedWord() const { return m_itrEntryWord->second.m_lstRenderedAltWords.at(m_nAltWordIndex); }
+	virtual const QString &word() const override { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
+	virtual const QString &decomposedWord() const override { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
+	virtual const QString &decomposedHyphenWord() const override { return m_itrEntryWord->second.m_lstDecomposedHyphenAltWords.at(m_nAltWordIndex); }
+	virtual const QString &deApostrWord() const override { return m_itrEntryWord->second.m_lstDeApostrAltWords.at(m_nAltWordIndex); }
+	virtual const QString &deApostrHyphenWord() const override { return m_itrEntryWord->second.m_lstDeApostrHyphenAltWords.at(m_nAltWordIndex); }
+	virtual const QString &renderedWord() const override { return m_itrEntryWord->second.m_lstRenderedAltWords.at(m_nAltWordIndex); }
 	inline bool isProperWord() const { return m_itrEntryWord->second.m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
 
@@ -1609,12 +1609,12 @@ public:
 		return *this;
 	}
 
-	virtual const QString &word() const { return m_strWord; }
-	virtual const QString &decomposedWord() const { return m_strDecomposedWord; }
-	virtual const QString &decomposedHyphenWord() const { return m_strDecomposedWord; }
-	virtual const QString &deApostrWord() const { return m_strDecomposedWord; }
-	virtual const QString &deApostrHyphenWord() const { return m_strDecomposedWord; }
-	virtual const QString &renderedWord() const { return m_strWord; }
+	virtual const QString &word() const override { return m_strWord; }
+	virtual const QString &decomposedWord() const override { return m_strDecomposedWord; }
+	virtual const QString &decomposedHyphenWord() const override { return m_strDecomposedWord; }
+	virtual const QString &deApostrWord() const override { return m_strDecomposedWord; }
+	virtual const QString &deApostrHyphenWord() const override { return m_strDecomposedWord; }
+	virtual const QString &renderedWord() const override { return m_strWord; }
 	const QStringList &definitions() const { return m_lstDefinitions; }
 	const QList<int> &indexes() const { return m_lstIndexes; }
 	void addDefinition(int nIndex, const QString &strDefinition)

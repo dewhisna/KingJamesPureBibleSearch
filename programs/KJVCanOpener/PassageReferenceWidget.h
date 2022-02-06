@@ -84,7 +84,7 @@ public:
 	TPhraseTag phraseTag() const { return m_tagPhrase; }
 
 protected:
-	virtual bool eventFilter(QObject *pObject, QEvent *pEvent);
+	virtual bool eventFilter(QObject *pObject, QEvent *pEvent) override;
 
 signals:
 	void activatedPassageReference();
@@ -95,8 +95,8 @@ public slots:
 	void setPassageReference(const QString &strPassageReference);
 
 protected slots:
-	virtual void focusInEvent(QFocusEvent *event);
-	virtual void keyPressEvent(QKeyEvent *event);
+	virtual void focusInEvent(QFocusEvent *event) override;
+	virtual void keyPressEvent(QKeyEvent *event) override;
 	void en_passageReferenceContextMenuRequested(const QPoint &pos);
 
 private slots:

@@ -60,7 +60,7 @@ signals:
 	void gotoIndex(const TPhraseTag &tag);
 
 public slots:
-	virtual void accept();
+	virtual void accept() override;
 
 private slots:
 	void en_modeChanged(bool bRelative);
