@@ -29,8 +29,8 @@ class Q_WW_EXPORT QwwHueSatPicker : public QFrame, public QwwPrivatable {
     Q_PROPERTY(QColor color READ color WRITE setColor)
 public:
     QwwHueSatPicker(QWidget *parent = 0);
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
     int value() const;
     QColor color() const;
     int minimumSat() const;
@@ -57,10 +57,10 @@ signals:
     void colorPicked(QColor);
 protected:
     virtual void drawCrosshair(QPainter *p, const QPoint &pt);
-    void paintEvent(QPaintEvent *pe);
-    void mousePressEvent(QMouseEvent *me);
-    void mouseMoveEvent(QMouseEvent *me);
-    void resizeEvent(QResizeEvent *);
+    virtual void paintEvent(QPaintEvent *pe) override;
+    virtual void mousePressEvent(QMouseEvent *me) override;
+    virtual void mouseMoveEvent(QMouseEvent *me) override;
+    virtual void resizeEvent(QResizeEvent *) override;
 private:
     WW_DECLARE_PRIVATE(QwwHueSatPicker);
     Q_DISABLE_COPY(QwwHueSatPicker);

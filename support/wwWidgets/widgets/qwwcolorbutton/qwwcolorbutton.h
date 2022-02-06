@@ -44,10 +44,10 @@ public slots:
 signals:
     void colorPicked(const QColor &);
 protected:
-    void mousePressEvent(QMouseEvent*);
-    void mouseMoveEvent(QMouseEvent*);
-    void dragEnterEvent(QDragEnterEvent*);
-    void dropEvent(QDropEvent*);
+    virtual void mousePressEvent(QMouseEvent*) override;
+    virtual void mouseMoveEvent(QMouseEvent*) override;
+    virtual void dragEnterEvent(QDragEnterEvent*) override;
+    virtual void dropEvent(QDropEvent*) override;
 private:
     WW_DECLARE_PRIVATE(QwwColorButton);
     Q_PRIVATE_SLOT(d_func(), void _q_clicked());

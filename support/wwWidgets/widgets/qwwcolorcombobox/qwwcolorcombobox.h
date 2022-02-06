@@ -37,7 +37,7 @@ class Q_WW_EXPORT QwwColorComboBox : public QComboBox, QwwPrivatable {
     Q_PROPERTY(QStringList colors READ colors WRITE setColors)
 public:
     QwwColorComboBox(QWidget *parent = 0);
-    ~QwwColorComboBox();
+    virtual ~QwwColorComboBox();
     void addColor ( const QColor & color, const QString & name );
     QColor color ( int index ) const;
     QStringList colors() const;
@@ -51,7 +51,7 @@ public:
 //     void addItem ( const QString & text, const QVariant & userData = QVariant() ){}
 //     void addItem ( const QIcon & icon, const QString & text, const QVariant & userData = QVariant() ){}
 //     void addItems ( const QStringList & texts ){}
-    void showPopup();
+    virtual void showPopup() override;
 public slots:
     void setCurrentColor ( const QColor & color );
 
@@ -59,10 +59,10 @@ signals:
     void activated(const QColor &);
 
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
-    void paintEvent(QPaintEvent *e);
-    void dragEnterEvent(QDragEnterEvent *);
-    void dropEvent(QDropEvent *);
+    virtual bool eventFilter(QObject *o, QEvent *e) override;
+    virtual void paintEvent(QPaintEvent *e) override;
+    virtual void dragEnterEvent(QDragEnterEvent *) override;
+    virtual void dropEvent(QDropEvent *) override;
 private:
     Q_PRIVATE_SLOT(d_func(), void _q_activated(int));
     Q_PRIVATE_SLOT(d_func(), void _q_popupDialog());

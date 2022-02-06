@@ -67,7 +67,7 @@ signals:
   void tipChanged(int);
   void closed();
 protected:
-  void changeEvent(QEvent *);
+  virtual void changeEvent(QEvent *) override;
 private:
   WW_DECLARE_PRIVATE(QwwTipWidget);
   Q_PRIVATE_SLOT(d_func(), void showTip());

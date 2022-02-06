@@ -20,7 +20,7 @@ public:
 public slots:
     void resetText();
 protected:
-    void changeEvent(QEvent *e);
+    virtual void changeEvent(QEvent *e) override;
 private:
     Q_PRIVATE_SLOT(d_func(), void _q_textChanged(const QString &));
     WW_DECLARE_PRIVATE(QwwResetLineEdit);

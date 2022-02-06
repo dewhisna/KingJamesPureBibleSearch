@@ -42,7 +42,7 @@ void setOptions(Options opt);
   void updateCurrentCharFormat(const QTextCharFormat &fmt);
   void updateCurrentBlockFormat();
 protected:
-  bool event(QEvent *e);
+  virtual bool event(QEvent *e) override;
   QAction *m_actions[10];
   QAction *cB;
   QToolBar *tb;
@@ -52,11 +52,11 @@ protected:
   QComboBox *fsp;
   QTextList *currentList;
   Options m_options;
-  void contextMenuEvent ( QContextMenuEvent * event );
+  virtual void contextMenuEvent( QContextMenuEvent * event ) override;
 #ifndef WW_NO_COLORBUTTON
   QwwColorButton *colorButton;
 #endif
-  void resizeEvent(QResizeEvent *re);
+  virtual void resizeEvent(QResizeEvent *re) override;
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QwwRichTextEdit::Options)
 #endif

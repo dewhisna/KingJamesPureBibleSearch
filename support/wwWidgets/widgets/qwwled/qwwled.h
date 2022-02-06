@@ -31,11 +31,11 @@ public:
     enum Shape { Circular, RectangularSunken, RectangularRaised, RectangularPlain};
     QwwLed(QWidget *parent = 0);
     QwwLed(const QColor &col, Shape shap = Circular, QWidget *parent = 0);
-    ~QwwLed();
-    QSize sizeHint() const;
+    virtual ~QwwLed();
+    virtual QSize sizeHint() const override;
     QColor color() const;
     bool isChecked() const;
-    int heightForWidth ( int w ) const;
+    virtual int heightForWidth ( int w ) const override;
     Shape shape() const;
     int frameWidth() const;
     int period() const;
@@ -54,9 +54,9 @@ signals:
     void toggled(bool);
     void clicked();
 protected:
-    void paintEvent(QPaintEvent *pe);
-    void mouseReleaseEvent(QMouseEvent *me);
-    void timerEvent(QTimerEvent *te);
+    virtual void paintEvent(QPaintEvent *pe) override;
+    virtual void mouseReleaseEvent(QMouseEvent *me) override;
+    virtual void timerEvent(QTimerEvent *te) override;
 private:
     WW_DECLARE_PRIVATE(QwwLed);
 };

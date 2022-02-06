@@ -29,15 +29,15 @@ class Q_WW_EXPORT QwwTextSpinBox : public QSpinBox, public QwwPrivatable {
 public:
     QwwTextSpinBox(QWidget *parent=0);
     QwwTextSpinBox(const QStringList &strings, QWidget *parent=0);
-    QValidator::State validate ( QString & input, int & pos ) const;
+    virtual QValidator::State validate ( QString & input, int & pos ) const override;
 public slots:
     void setStrings(const QStringList &s);
     const QStringList &strings() const;
 signals:
     void stringsChanged(const QStringList &);
 protected:
-    QString textFromValue ( int value ) const;
-    int valueFromText ( const QString & text ) const;
+    virtual QString textFromValue ( int value ) const override;
+    virtual int valueFromText ( const QString & text ) const override;
 private:
     WW_DECLARE_PRIVATE(QwwTextSpinBox);
 };

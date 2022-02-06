@@ -26,9 +26,9 @@ class Q_WW_EXPORT QwwHueSatRadialPicker : public QWidget, public QwwPrivatable {
 public:
     QwwHueSatRadialPicker(QWidget *parent = 0);
     int value() const;
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-    int heightForWidth(int w) const;
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
+    virtual int heightForWidth(int w) const override;
     const QColor color() const;
 public slots:
     void setValue(int v);
@@ -37,11 +37,11 @@ signals:
     void valueChanged(int);
     void colorPicked(QColor);
 protected:
-    void paintEvent(QPaintEvent*);
-    void resizeEvent(QResizeEvent *);
-    void mousePressEvent(QMouseEvent *me);
-    void mouseMoveEvent(QMouseEvent *me);
-    void changeEvent(QEvent *ce);
+    virtual void paintEvent(QPaintEvent*) override;
+    virtual void resizeEvent(QResizeEvent *) override;
+    virtual void mousePressEvent(QMouseEvent *me) override;
+    virtual void mouseMoveEvent(QMouseEvent *me) override;
+    virtual void changeEvent(QEvent *ce) override;
     virtual void drawCrosshair(QPainter *p, const QPoint &pt);
 private:
 

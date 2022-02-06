@@ -31,17 +31,17 @@ public:
     QwwRichTextButton(QTextDocument *d, QWidget *parent=0);
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
-    ~QwwRichTextButton();
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    virtual ~QwwRichTextButton();
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
     inline QString text() const { return html(); }
     QString html() const;
-    int heightForWidth ( int w ) const;
+    virtual int heightForWidth( int w ) const override;
 public slots:
     void setHtml(const QString &);
     void setText(const QString &t);
 protected:
-    void paintEvent(QPaintEvent*);
+    virtual void paintEvent(QPaintEvent*) override;
 private:
     WW_DECLARE_PRIVATE(QwwRichTextButton);
     Q_PRIVATE_SLOT(d_func(), void _q_documentSizeChanged(const QSizeF &));

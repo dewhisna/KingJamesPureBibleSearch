@@ -61,8 +61,8 @@ public slots:
     void setCurrentIndex(int);
     void setTopWidgetVisible(bool);
 protected:
-    virtual void actionEvent(QActionEvent *ev);
-    bool eventFilter(QObject *, QEvent *);
+    virtual void actionEvent(QActionEvent *ev) override;
+    virtual bool eventFilter(QObject *, QEvent *) override;
 private:
     WW_DECLARE_PRIVATE(QwwNavigationBar);
     Q_DISABLE_COPY(QwwNavigationBar);

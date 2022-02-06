@@ -11,8 +11,8 @@ class Q_WW_EXPORT QwwClearLineEdit : public QwwButtonLineEdit {
 public:
     QwwClearLineEdit(QWidget *parent=0);
 protected:
-    void paintEvent(QPaintEvent*);
-    void changeEvent(QEvent *);
+    virtual void paintEvent(QPaintEvent*) override;
+    virtual void changeEvent(QEvent *) override;
 private slots:
     void setButtonVisible(bool vis);
 private:

@@ -34,7 +34,7 @@ class Q_WW_EXPORT QwwLongSpinBox : public QAbstractSpinBox, public QwwPrivatable
 public:
     QwwLongSpinBox(QWidget *parent = 0);
 
-    virtual void stepBy ( int steps );
+    virtual void stepBy ( int steps ) override;
 
     qlonglong value() const;
 
@@ -54,8 +54,8 @@ public:
     void setSingleStep(qlonglong s);
 
     void setRange(qlonglong min, qlonglong max);
-    virtual QValidator::State validate ( QString & input, int & pos ) const;
-    virtual void fixup ( QString & input ) const;
+    virtual QValidator::State validate ( QString & input, int & pos ) const override;
+    virtual void fixup ( QString & input ) const override;
 public Q_SLOTS:
     void setValue(qlonglong v);
 Q_SIGNALS:
@@ -64,7 +64,7 @@ Q_SIGNALS:
 protected:
     virtual QString textFromValue(qlonglong value) const;
     virtual qlonglong valueFromText(const QString &text) const;
-    virtual StepEnabled stepEnabled () const;
+    virtual StepEnabled stepEnabled () const override;
 private:
     WW_DECLARE_PRIVATE(QwwLongSpinBox);
     Q_DISABLE_COPY(QwwLongSpinBox);

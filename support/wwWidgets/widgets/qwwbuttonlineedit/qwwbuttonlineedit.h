@@ -73,10 +73,10 @@ signals:
 protected:
     QwwButtonLineEdit(QwwButtonLineEditPrivate &priv, QWidget *parent);
 #if QT_VERSION < 0x040700
-    void paintEvent(QPaintEvent *);
+    virtual void paintEvent(QPaintEvent *) override;
 #endif
-    void resizeEvent(QResizeEvent *ev);
-    void actionEvent(QActionEvent *ev);
+    virtual void resizeEvent(QResizeEvent *ev) override;
+    virtual void actionEvent(QActionEvent *ev) override;
     QToolButton *button() const;
 private:
   WW_DECLARE_PRIVATE(QwwButtonLineEdit);

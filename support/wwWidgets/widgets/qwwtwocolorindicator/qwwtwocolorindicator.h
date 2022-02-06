@@ -30,8 +30,8 @@ public:
 
     const QColor &fgColor() const;
     const QColor &bgColor() const;
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
+    virtual QSize sizeHint() const override;
+    virtual QSize minimumSizeHint() const override;
     bool isActive() const;
     bool dragEnabled() const;
     void setDragEnabled(bool);
@@ -48,13 +48,13 @@ signals:
     void fgPressed();
     void bgPressed();
 protected:
-    void paintEvent(QPaintEvent*);
-    void mousePressEvent(QMouseEvent*);
-    void mouseMoveEvent(QMouseEvent*);
-    void mouseReleaseEvent(QMouseEvent*);
-    void dragEnterEvent(QDragEnterEvent*);
-    void dragMoveEvent(QDragMoveEvent*);
-    void dropEvent(QDropEvent*);
+    virtual void paintEvent(QPaintEvent*) override;
+    virtual void mousePressEvent(QMouseEvent*) override;
+    virtual void mouseMoveEvent(QMouseEvent*) override;
+    virtual void mouseReleaseEvent(QMouseEvent*) override;
+    virtual void dragEnterEvent(QDragEnterEvent*) override;
+    virtual void dragMoveEvent(QDragMoveEvent*) override;
+    virtual void dropEvent(QDropEvent*) override;
     virtual void paintSection(QPainter *p, const QRect &rect, const QColor &color);
 private:
     WW_DECLARE_PRIVATE(QwwTwoColorIndicator);

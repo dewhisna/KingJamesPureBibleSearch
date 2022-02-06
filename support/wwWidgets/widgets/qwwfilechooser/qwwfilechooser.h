@@ -53,13 +53,13 @@ public:
   void setUsesNativeFileDialog(bool n);
   const QString &filter() const;
   void setFilter(const QString &f);
-  QSize sizeHint() const;
-  QSize minimumSizeHint() const;
+  virtual QSize sizeHint() const override;
+  virtual QSize minimumSizeHint() const override;
 public slots:
   void chooseFile();
 //   void setText(const QString &t);
 protected:
-  void paintEvent(QPaintEvent *e);
+  virtual void paintEvent(QPaintEvent *e) override;
 private:
   Q_PRIVATE_SLOT(d_func(), void _q_textChanged(const QString &s));
   WW_DECLARE_PRIVATE(QwwFileChooser);

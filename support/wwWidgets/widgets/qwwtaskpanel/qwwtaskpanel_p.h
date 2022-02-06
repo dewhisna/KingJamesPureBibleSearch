@@ -28,7 +28,7 @@ public:
     void setIcon(const QIcon &i);
     inline QToolButton *toggleButton() const;
 protected:
-    void paintEvent(QPaintEvent *ev);
+    virtual void paintEvent(QPaintEvent *ev) override;
     QWidget *m_widget;
     QLabel *m_text;
     QIcon m_icon;
@@ -64,7 +64,7 @@ private slots:
     void animate(int);
     void animFinished();
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
+    virtual bool eventFilter(QObject *o, QEvent *e) override;
     TaskHeader *m_header;
     QWidget *m_body;
     QWidget *m_animBody;

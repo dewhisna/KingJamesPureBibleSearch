@@ -64,7 +64,7 @@ signals:
     void next();
     void last();
 protected:
-    void sliderChange ( SliderChange change );
+    virtual void sliderChange( SliderChange change ) override;
 private:
     Q_PRIVATE_SLOT(d_func(), void _q_valueChanged(int));
     Q_PRIVATE_SLOT(d_func(), void _q_updateLWRange());
