@@ -578,12 +578,13 @@ public:
 		CFSE_SEARCH_RESULTS = 3						// Use Search Results' Current font setting
 	};
 
-	enum FOOTNOTE_RENDERING_MODE_ENUM {
-		FRME_NONE = 0,								// Don't render Bible footnotes
-		FRME_INLINE = 1,							// Render footnotes inline with verse text
-		FRME_STATUS_BAR = 2,						// Render footnotes on the status bar
+	enum FootnoteRenderingModes {
+		FRME_NONE = 0x0,							// Don't render Bible footnotes
+		FRME_INLINE = 0x1,							// Render footnotes inline with verse text
+		FRME_STATUS_BAR = 0x2,						// Render footnotes on the status bar
 		// Additional types to consider : popup and/or tooltip rendering
 	};
+	Q_DECLARE_FLAGS(FootnoteRenderingModeFlags, FootnoteRenderingModes)
 
 	CPhraseNavigator(CBibleDatabasePtr pBibleDatabase, QTextDocument &textDocument, QObject *parent = nullptr);
 

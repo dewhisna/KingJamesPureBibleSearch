@@ -1951,6 +1951,7 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxFootnoteRenderingMode->addItem(tr("None", "FootnoteRenderingModes"), CPhraseNavigator::FRME_NONE);
 	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline", "FootnoteRenderingModes"), CPhraseNavigator::FRME_INLINE);
 	ui.comboBoxFootnoteRenderingMode->addItem(tr("Status Bar", "FootnoteRenderingModes"), CPhraseNavigator::FRME_STATUS_BAR);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline/Status Bar", "FootnoteRenderingModes"), CPhraseNavigator::FRME_INLINE | CPhraseNavigator::FRME_STATUS_BAR);
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
@@ -2017,7 +2018,7 @@ void CConfigBrowserOptions::loadSettings()
 
 	ui.checkBoxShowPilcrowMarkers->setChecked(CPersistentSettings::instance()->showPilcrowMarkers());
 
-	nIndex = ui.comboBoxFootnoteRenderingMode->findData(CPersistentSettings::instance()->footnoteRenderingMode());
+	nIndex = ui.comboBoxFootnoteRenderingMode->findData(CPersistentSettings::instance()->footnoteRenderingMode().toInt());
 	if (nIndex != -1) {
 		ui.comboBoxFootnoteRenderingMode->setCurrentIndex(nIndex);
 	} else {
@@ -2068,7 +2069,7 @@ void CConfigBrowserOptions::saveSettings()
 	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
 	nIndex = ui.comboBoxFootnoteRenderingMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FOOTNOTE_RENDERING_MODE_ENUM>(ui.comboBoxFootnoteRenderingMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FootnoteRenderingModeFlags>(ui.comboBoxFootnoteRenderingMode->itemData(nIndex).toInt()));
 	} else {
 		bKeepDirty = true;
 		Q_ASSERT(false);

@@ -656,7 +656,7 @@ void CPersistentSettings::setRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM 
 	}
 }
 
-void CPersistentSettings::setFootnoteRenderingMode(CPhraseNavigator::FOOTNOTE_RENDERING_MODE_ENUM nMode)
+void CPersistentSettings::setFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags nMode)
 {
 	if (m_pPersistentSettingData->m_nFootnoteRenderingMode != nMode) {
 		m_pPersistentSettingData->m_nFootnoteRenderingMode = nMode;

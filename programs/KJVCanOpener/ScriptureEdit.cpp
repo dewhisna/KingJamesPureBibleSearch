@@ -904,7 +904,7 @@ void CScriptureText<T,U>::updateSelection()
 		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", nWordCount);
 	}
 
-	if (CPersistentSettings::instance()->footnoteRenderingMode() == CPhraseNavigator::FRME_STATUS_BAR) {
+	if (CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_STATUS_BAR) {
 		QString strFootnote = m_navigator.getFootnote(m_pBibleDatabase, m_tagLast.relIndex(), true);
 		if (!strFootnote.isEmpty()) {
 			if (!strStatusText.isEmpty()) strStatusText += " : ";

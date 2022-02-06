@@ -96,7 +96,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM)), this, SLOT(en_changedChapterScrollbarMode()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedFootnoteRenderingMode(CPhraseNavigator::FOOTNOTE_RENDERING_MODE_ENUM)), this, SIGNAL(rerender()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags)), this, SIGNAL(rerender()));
 
 // Data Connections:
 	connect(pSearchResultsListModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
@@ -967,7 +967,7 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 
 	QString strBrowserHTML =
 	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser |
-			((CPersistentSettings::instance()->footnoteRenderingMode() == CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
+			((CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
 
 #ifdef USING_QT_WEBENGINE
 	m_pWebEngineView->load(QString("kjpbs://%1/%2#%3")
