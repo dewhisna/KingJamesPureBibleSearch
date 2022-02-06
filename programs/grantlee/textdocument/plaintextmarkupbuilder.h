@@ -110,94 +110,94 @@ public:
 
   virtual ~PlainTextMarkupBuilder();
 
-  /* reimp */ void beginStrong();
-  /* reimp */ void endStrong();
-  /* reimp */ void beginEmph();
-  /* reimp */ void endEmph();
-  /* reimp */ void beginUnderline();
-  /* reimp */ void endUnderline();
-  /* reimp */ void beginStrikeout();
-  /* reimp */ void endStrikeout();
+  virtual void beginStrong() override;
+  virtual void endStrong() override;
+  virtual void beginEmph() override;
+  virtual void endEmph() override;
+  virtual void beginUnderline() override;
+  virtual void endUnderline() override;
+  virtual void beginStrikeout() override;
+  virtual void endStrikeout() override;
 
-  /* reimp */ void beginAnchor( const QString &href = QString(), const QString &name = QString() );
+  virtual void beginAnchor( const QString &href = QString(), const QString &name = QString() ) override;
 
-  /* reimp */ void endAnchor();
+  virtual void endAnchor() override;
 
-  /* reimp */ void beginForeground( const QBrush &brush );
+  virtual void beginForeground( const QBrush &brush ) override;
 
-  /* reimp */ void endForeground();
+  virtual void endForeground() override;
 
-  /* reimp */ void beginBackground( const QBrush &brush );
+  virtual void beginBackground( const QBrush &brush ) override;
 
-  /* reimp */ void endBackground();
+  virtual void endBackground() override;
 
-  /* reimp */ void beginFont(const QString &family, int size);
+  virtual void beginFont(const QString &family, int size) override;
 
-  /* reimp */ void endFont();
+  virtual void endFont() override;
 
-  /* reimp */ void beginFontFamily( const QString &family );
+  virtual void beginFontFamily( const QString &family ) override;
 
-  /* reimp */ void endFontFamily();
+  virtual void endFontFamily() override;
 
-  /* reimp */ void beginFontPointSize( int size );
+  virtual void beginFontPointSize( int size ) override;
 
-  /* reimp */ void endFontPointSize();
+  virtual void endFontPointSize() override;
 
-  /* reimp */ void beginParagraph( Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 );
-  /* reimp */ void endParagraph();
+  virtual void beginParagraph( Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 ) override;
+  virtual void endParagraph() override;
 
-  /* reimp */ void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") );
-  /* reimp */ void endIndent();
+  virtual void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") ) override;
+  virtual void endIndent() override;
 
-  /* reimp */ void addNewline();
+  virtual void addNewline() override;
 
-  /* reimp */ void addLineBreak();
+  virtual void addLineBreak() override;
 
-  /* reimp */ void insertHorizontalRule( int width = -1 );
+  virtual void insertHorizontalRule( int width = -1 ) override;
 
-  /* reimp */ void insertImage( const QString &src, qreal width, qreal height );
+  virtual void insertImage( const QString &src, qreal width, qreal height ) override;
 
-  /* reimp */ void beginList( QTextListFormat::Style style );
+  virtual void beginList( QTextListFormat::Style style ) override;
 
-  /* reimp */ void endList();
+  virtual void endList() override;
 
-  /* reimp */ void beginListItem();
+  virtual void beginListItem() override;
 
-  /* reimp */ void endListItem();
+  virtual void endListItem() override;
 
-  /* reimp */ void beginSuperscript();
+  virtual void beginSuperscript() override;
 
-  /* reimp */ void endSuperscript();
+  virtual void endSuperscript() override;
 
-  /* reimp */ void beginSubscript();
+  virtual void beginSubscript() override;
 
-  /* reimp */ void endSubscript();
+  virtual void endSubscript() override;
 
-  /* reimp */ void beginTable( qreal cellpadding, qreal cellspacing, const QString &width );
+  virtual void beginTable( qreal cellpadding, qreal cellspacing, const QString &width ) override;
 
-  /* reimp */ void beginTableRow();
+  virtual void beginTableRow() override;
 
-  /* reimp */ void beginTableHeaderCell( const QString &width, int colSpan, int rowSpan );
+  virtual void beginTableHeaderCell( const QString &width, int colSpan, int rowSpan ) override;
 
-  /* reimp */ void beginTableCell( const QString &width, int colSpan, int rowSpan );
+  virtual void beginTableCell( const QString &width, int colSpan, int rowSpan ) override;
 
-  /* reimp */ void endTable();
+  virtual void endTable() override;
 
-  /* reimp */ void endTableRow();
+  virtual void endTableRow() override;
 
-  /* reimp */ void endTableHeaderCell();
+  virtual void endTableHeaderCell() override;
 
-  /* reimp */ void endTableCell();
+  virtual void endTableCell() override;
 
-  /* reimp */ void beginHeader( int level );
+  virtual void beginHeader( int level ) override;
 
-  /* reimp */ void endHeader( int level );
+  virtual void endHeader( int level ) override;
 
-  /* reimp */ void appendLiteralText( const QString &text );
+  virtual void appendLiteralText( const QString &text ) override;
 
-  /* reimp */ const QString escape( const QString &s ) const;
+  virtual const QString escape( const QString &s ) const override;
 
-  /* reimp */ void appendRawText( const QString &text );
+  virtual void appendRawText( const QString &text ) override;
 
   /**
     Adds a reference to @p reference to the internal list of references in the document.
@@ -207,7 +207,7 @@ public:
   /**
     Returns the finalised plain text markup, including references at the end.
   */
-  /* reimp */ QString getResult();
+  virtual QString getResult() override;
 
 private:
   PlainTextMarkupBuilderPrivate * const d_ptr;

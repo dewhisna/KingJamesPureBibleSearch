@@ -46,43 +46,43 @@ public:
   MediaWikiMarkupBuilder();
   virtual ~MediaWikiMarkupBuilder();
 
-  /* reimp */ void beginStrong();
-  /* reimp */ void endStrong();
-  /* reimp */ void beginEmph();
-  /* reimp */ void endEmph();
-  /* reimp */ void beginUnderline();
-  /* reimp */ void endUnderline();
-  /* reimp */ void beginStrikeout();
-  /* reimp */ void endStrikeout();
+  virtual void beginStrong() override;
+  virtual void endStrong() override;
+  virtual void beginEmph() override;
+  virtual void endEmph() override;
+  virtual void beginUnderline() override;
+  virtual void endUnderline() override;
+  virtual void beginStrikeout() override;
+  virtual void endStrikeout() override;
 
-  /* reimp */ void endParagraph();
-  /* reimp */ void addNewline();
+  virtual void endParagraph() override;
+  virtual void addNewline() override;
 
-  /* reimp */ void addLineBreak();
+  virtual void addLineBreak() override;
 
-  /* reimp */ void beginAnchor( const QString &href = QString(), const QString &name = QString() );
-  /* reimp */ void endAnchor();
+  virtual void beginAnchor( const QString &href = QString(), const QString &name = QString() ) override;
+  virtual void endAnchor() override;
 
-  /* reimp */ void beginHeader( int level );
-  /* reimp */ void endHeader( int level );
+  virtual void beginHeader( int level ) override;
+  virtual void endHeader( int level ) override;
 
-  /* reimp */ void beginList( QTextListFormat::Style type );
+  virtual void beginList( QTextListFormat::Style type ) override;
 
-  /* reimp */ void endList();
+  virtual void endList() override;
 
-  /* reimp */ void beginListItem();
-  /* reimp */ void endListItem();
+  virtual void beginListItem() override;
+  virtual void endListItem() override;
 
-  /* reimp */ void appendLiteralText( const QString &text );
+  virtual void appendLiteralText( const QString &text ) override;
 
   /**
     Escapes @p text appropriately for MediaWiki.
   */
-  /* reimp */ const QString escape( const QString &s ) const;
+  virtual const QString escape( const QString &s ) const override;
 
-  /* reimp */ void appendRawText( const QString &text );
+  virtual void appendRawText( const QString &text ) override;
 
-  /* reimp */ QString getResult();
+  virtual QString getResult() override;
 
 private:
   QList<QTextListFormat::Style> currentListItemStyles;
