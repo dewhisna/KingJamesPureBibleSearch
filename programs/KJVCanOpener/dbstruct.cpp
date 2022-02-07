@@ -117,6 +117,8 @@ TBibleDatabaseList::~TBibleDatabaseList()
 
 void TBibleDatabaseList::setBibleDatabasePath(bool bBuildDB)
 {
+	m_bHaveSearchedAvailableDatabases = false;		// Must repeat the search after changing the database path
+
 #ifndef EMSCRIPTEN
 	// Environment variable takes precedence over AppDir path in build mode:
 	QString strAppBaseDBPath = QFileInfo(initialAppDirPath(), g_constrBibleDatabasePath).absoluteFilePath();
