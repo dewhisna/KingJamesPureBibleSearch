@@ -1489,6 +1489,13 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 		}
 	}
 
+	// If this Bible contained a Strong Dictionary, set the flag in its descriptor,
+	//	even if the default descriptor that loaded us didn't have it set.  Do this
+	//	before adding the BibleDatabase so our descriptors will get updated:
+	if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
+		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
+	}
+
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
 	} else {
@@ -1559,6 +1566,13 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 		QSqlDatabase::removeDatabase(g_constrMainReadConnection);
 #else
 #endif	// !NOT_USING_SQL
+	}
+
+	// If this Bible contained a Strong Dictionary, set the flag in its descriptor,
+	//	even if the default descriptor that loaded us didn't have it set.  Do this
+	//	before adding the BibleDatabase so our descriptors will get updated:
+	if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
+		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
 	}
 
 	if (bSuccess) {

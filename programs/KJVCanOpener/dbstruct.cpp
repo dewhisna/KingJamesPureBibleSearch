@@ -166,6 +166,11 @@ bool TBibleDatabaseList::loadBibleDatabase(const QString &strUUID, bool bAutoSet
 {
 	if (strUUID.isEmpty()) return false;
 	TBibleDescriptor bblDesc = availableBibleDatabaseDescriptor(strUUID);
+	return loadBibleDatabase(bblDesc, bAutoSetAsMain, pParent);
+}
+
+bool TBibleDatabaseList::loadBibleDatabase(const TBibleDescriptor &bblDesc, bool bAutoSetAsMain, QWidget *pParent)
+{
 	CBusyCursor iAmBusy(nullptr);
 	CReadDatabase rdbMain(pParent);
 	if ((!rdbMain.haveBibleDatabaseFiles(bblDesc)) || (!rdbMain.ReadBibleDatabase(bblDesc, (bAutoSetAsMain && !TBibleDatabaseList::instance()->haveMainBibleDatabase())))) {
@@ -276,8 +281,15 @@ void TBibleDatabaseList::findBibleDatabases()
 {
 	if (m_bHaveSearchedAvailableDatabases) return;
 
-	// First: Add databases from our internal descriptor list:
 	m_lstAvailableDatabaseDescriptors.clear();
+
+	// First: Add entries for any database already loaded:
+	for (int ndx = 0; ndx <	size(); ++ndx) {
+		Q_ASSERT(!at(ndx).isNull());
+		m_lstAvailableDatabaseDescriptors.append(at(ndx)->descriptor());
+	}
+
+	// Second: Add databases from our internal descriptor list:
 	for (unsigned int dbNdx = 0; dbNdx < bibleDescriptorCount(); ++dbNdx) {
 		TBibleDescriptor bblDesc = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx));
 
@@ -294,13 +306,13 @@ void TBibleDatabaseList::findBibleDatabases()
 		if (!rdbMain.haveBibleDatabaseFiles(bblDesc)) continue;
 
 		// If the database exists, see if this is the preferred one.  If
-		//	so, displace the existing one with the new one, otherwise
-		//	skip it to avoid duplicates:
+		//	so, displace the existing one with the new one (unless the
+		//	database is already loaded), otherwise skip it to avoid duplicates:
 		bool bExists = false;
 		for (int ndxDesc = 0; ((ndxDesc < m_lstAvailableDatabaseDescriptors.size()) && !bExists); ++ndxDesc) {
 			if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
 				bExists = true;
-				if (bblDesc.m_btoFlags & BTO_Preferred) {
+				if ((bblDesc.m_btoFlags & BTO_Preferred) && (atUUID(bblDesc.m_strUUID).isNull())) {
 					m_lstAvailableDatabaseDescriptors[ndxDesc] = bblDesc;
 				}
 			}
@@ -362,7 +374,7 @@ void TBibleDatabaseList::findBibleDatabases()
 		}
 	};
 
-	// Second: Do Discovery of CCDB database files (first so they have priority over S3DB)
+	// Third: Do Discovery of CCDB database files (first so they have priority over S3DB)
 	QDirIterator diCCDB(bibleDatabasePath(), QStringList() << "bbl-*.ccdb", QDir::Files, QDirIterator::Subdirectories);
 	while (diCCDB.hasNext()) {
 		QFileInfo fiBbl(diCCDB.next());
@@ -381,7 +393,7 @@ void TBibleDatabaseList::findBibleDatabases()
 		}
 	}
 
-	// Third: Do Discovery of S3DB database files
+	// Fourth: Do Discovery of S3DB database files
 	QDirIterator diS3DB(bibleDatabasePath(), QStringList() << "bbl-*.s3db", QDir::Files, QDirIterator::Subdirectories);
 	while (diS3DB.hasNext()) {
 		QFileInfo fiBbl(diS3DB.next());
@@ -407,6 +419,15 @@ void TBibleDatabaseList::findBibleDatabases()
 void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool bSetAsMain)
 {
 	Q_ASSERT(!pBibleDatabase.isNull());
+
+	// Update descriptor in case reading process changed its flags, etc.
+	for (int ndxDesc = 0; (ndxDesc < m_lstAvailableDatabaseDescriptors.size()); ++ndxDesc) {
+		if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+			m_lstAvailableDatabaseDescriptors[ndxDesc] = pBibleDatabase->descriptor();
+			break;
+		}
+	}
+
 	push_back(pBibleDatabase);
 	if (bSetAsMain) {
 		CBibleDatabasePtr pOldMain = m_pMainBibleDatabase;
@@ -558,7 +579,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::loadDictionaryDatabase(const QSt
 	TDictionaryDescriptor dctDesc = availableDictionaryDatabaseDescriptor(strUUID);
 	CBusyCursor iAmBusy(nullptr);
 	CReadDatabase rdbMain(pParent);
-	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
+	if ((!rdbMain.haveDictionaryDatabaseFiles(dctDesc)) || (!rdbMain.ReadDictionaryDatabase(dctDesc, true, (bAutoSetAsMain && !TDictionaryDatabaseList::instance()->haveMainDictionaryDatabase())))) {
 		iAmBusy.earlyRestore();
 #ifndef IS_CONSOLE_APP
 #if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
@@ -643,13 +664,13 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 	auto fnInsertDiscovery = [this](const TDictionaryDescriptor &dctDesc)->void
 	{
 		// If the database exists, see if this is the preferred one.  If
-		//	so, displace the existing one with the new one, otherwise
-		//	skip it to avoid duplicates:
+		//	so, displace the existing one with the new one (unless the
+		//	database is already loaded), otherwise skip it to avoid duplicates:
 		bool bExists = false;
 		for (int ndxDesc = 0; ((ndxDesc < m_lstAvailableDatabaseDescriptors.size()) && !bExists); ++ndxDesc) {
 			if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(dctDesc.m_strUUID, Qt::CaseInsensitive) == 0) {
 				bExists = true;
-				if (dctDesc.m_dtoFlags & DTO_Preferred) {
+				if ((dctDesc.m_dtoFlags & DTO_Preferred) && (atUUID(dctDesc.m_strUUID).isNull())) {
 					m_lstAvailableDatabaseDescriptors[ndxDesc] = dctDesc;
 				}
 			}
@@ -659,8 +680,15 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 		}
 	};
 
-	// First: Add databases from our internal descriptor list:
 	m_lstAvailableDatabaseDescriptors.clear();
+
+	// First: Add entries for any database already loaded:
+	for (int ndx = 0; ndx <	size(); ++ndx) {
+		Q_ASSERT(!at(ndx).isNull());
+		m_lstAvailableDatabaseDescriptors.append(at(ndx)->descriptor());
+	}
+
+	// Second: Add databases from our internal descriptor list:
 	for (unsigned int dbNdx = 0; dbNdx < dictionaryDescriptorCount(); ++dbNdx) {
 		TDictionaryDescriptor dctDesc = dictionaryDescriptor(static_cast<DICTIONARY_DESCRIPTOR_ENUM>(dbNdx));
 
@@ -687,7 +715,7 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 		fnInsertDiscovery(dctDesc);
 	}
 
-	// Second: Do Discovery of CCDB database files (first so they have priority over S3DB)
+	// Third: Do Discovery of CCDB database files (first so they have priority over S3DB)
 	QDirIterator diCCDB(dictionaryDatabasePath(), QStringList() << "dct-*.ccdb", QDir::Files, QDirIterator::Subdirectories);
 	while (diCCDB.hasNext()) {
 		QFileInfo fiDct(diCCDB.next());
@@ -709,7 +737,7 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 		}
 	}
 
-	// Third: Do Discovery of S3DB database files
+	// Fourth: Do Discovery of S3DB database files
 	QDirIterator diS3DB(dictionaryDatabasePath(), QStringList() << "dct-*.s3db", QDir::Files, QDirIterator::Subdirectories);
 	while (diS3DB.hasNext()) {
 		QFileInfo fiDct(diS3DB.next());
@@ -738,6 +766,15 @@ void TDictionaryDatabaseList::findDictionaryDatabases()
 void TDictionaryDatabaseList::addDictionaryDatabase(CDictionaryDatabasePtr pDictionaryDatabase, bool bSetAsMain)
 {
 	Q_ASSERT(!pDictionaryDatabase.isNull());
+
+	// Update descriptor in case reading process changed its flags, etc.
+	for (int ndxDesc = 0; (ndxDesc < m_lstAvailableDatabaseDescriptors.size()); ++ndxDesc) {
+		if (m_lstAvailableDatabaseDescriptors.at(ndxDesc).m_strUUID.compare(pDictionaryDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+			m_lstAvailableDatabaseDescriptors[ndxDesc] = pDictionaryDatabase->descriptor();
+			break;
+		}
+	}
+
 	push_back(pDictionaryDatabase);
 	if (bSetAsMain) {
 		CDictionaryDatabasePtr pOldMain = m_pMainDictionaryDatabase;

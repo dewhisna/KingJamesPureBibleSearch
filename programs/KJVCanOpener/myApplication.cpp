@@ -1513,11 +1513,8 @@ int CMyApplication::execute(bool bBuildDB)
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
 				(m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) != 0) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
-			CReadDatabase rdbMain(m_pSplash);
-			Q_ASSERT(rdbMain.haveBibleDatabaseFiles(bblDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(bblDesc.m_strDBName) + tr("Bible", "Errors"));
-			if (!rdbMain.ReadBibleDatabase(bblDesc, (m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0))) {
-				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Bible Database!\n%1\nCheck Installation!", "Errors").arg(bblDesc.m_strDBDesc));
+			if (!TBibleDatabaseList::loadBibleDatabase(bblDesc, (m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) == 0), m_pSplash)) {
 				return -3;
 			}
 		}
@@ -1548,11 +1545,8 @@ int CMyApplication::execute(bool bBuildDB)
 				}
 			}
 			if (!bHaveLanguageMatch) continue;			// No need loading the dictionary for a language we don't have a Bible database for
-			CReadDatabase rdbDict(m_pSplash);
-			Q_ASSERT(rdbDict.haveDictionaryDatabaseFiles(dctDesc));
 			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(dctDesc.m_strDBName) + tr("Dictionary", "Errors"));
-			if (!rdbDict.ReadDictionaryDatabase(dctDesc, true, (m_strSelectedMainDictDB.compare(lstAvailableDictDescs.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0))) {
-				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Read and Validate Dictionary Database!\n%1\nCheck Installation!", "Errors").arg(dctDesc.m_strDBDesc));
+			if (TDictionaryDatabaseList::loadDictionaryDatabase(dctDesc.m_strUUID, (m_strSelectedMainDictDB.compare(lstAvailableDictDescs.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0), m_pSplash).isNull()) {
 				return -5;
 			}
 		}

@@ -1541,6 +1541,7 @@ public:
 	static QString availableBibleDatabasesAsJson();
 #endif
 	static bool loadBibleDatabase(const QString &strUUID, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
+	static bool loadBibleDatabase(const TBibleDescriptor &bblDesc, bool bAutoSetAsMain = false, QWidget *pParent = nullptr);
 	CBibleDatabasePtr mainBibleDatabase() const { return m_pMainBibleDatabase; }
 	void setMainBibleDatabase(const QString &strUUID);
 	bool haveMainBibleDatabase() const { return (!m_pMainBibleDatabase.isNull()); }
@@ -1555,7 +1556,7 @@ public:
 		instance()->findBibleDatabases();
 		return instance()->m_lstAvailableDatabaseDescriptors;
 	}
-	static TBibleDescriptor availableBibleDatabaseDescriptor(const QString &strUUID)
+	static const TBibleDescriptor availableBibleDatabaseDescriptor(const QString &strUUID)
 	{
 		const QList<TBibleDescriptor> &lstDesc = availableBibleDatabases();
 		for (int ndx = 0; ndx < lstDesc.size(); ++ndx) {
@@ -1804,7 +1805,7 @@ public:
 		instance()->findDictionaryDatabases();
 		return instance()->m_lstAvailableDatabaseDescriptors;
 	}
-	static TDictionaryDescriptor availableDictionaryDatabaseDescriptor(const QString &strUUID)
+	static const TDictionaryDescriptor availableDictionaryDatabaseDescriptor(const QString &strUUID)
 	{
 		const QList<TDictionaryDescriptor> &lstDesc = availableDictionaryDatabases();
 		for (int ndx = 0; ndx < lstDesc.size(); ++ndx) {
