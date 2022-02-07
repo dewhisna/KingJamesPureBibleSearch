@@ -1243,7 +1243,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode());
 		settings.setValue(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode());
 		settings.setValue(constrRandomPassageWeightModeKey, CPersistentSettings::instance()->randomPassageWeightMode());
-		settings.setValue(constrFootnoteRenderingModeKey, CPersistentSettings::instance()->footnoteRenderingMode().toInt());
+		settings.setValue(constrFootnoteRenderingModeKey, static_cast<int>(CPersistentSettings::instance()->footnoteRenderingMode()));
 		settings.endGroup();
 
 		// Browser Object (used for Subwindows: FindDialog, etc):
@@ -1623,7 +1623,7 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 			CPersistentSettings::instance()->setBrowserNavigationPaneMode(static_cast<BROWSER_NAVIGATION_PANE_MODE_ENUM>(settings.value(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode()).toInt()));
 			CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(settings.value(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode()).toInt()));
 			CPersistentSettings::instance()->setRandomPassageWeightMode(static_cast<RANDOM_PASSAGE_WEIGHT_ENUM>(settings.value(constrRandomPassageWeightModeKey, CPersistentSettings::instance()->randomPassageWeightMode()).toInt()));
-			CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FootnoteRenderingModeFlags>(settings.value(constrFootnoteRenderingModeKey, CPersistentSettings::instance()->footnoteRenderingMode().toInt()).toInt()));
+			CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FootnoteRenderingModeFlags>(settings.value(constrFootnoteRenderingModeKey, static_cast<int>(CPersistentSettings::instance()->footnoteRenderingMode())).toInt()));
 
 #if QT_VERSION >= 0x050400
 			QTimer::singleShot(1, this, [this]() { m_pBrowserWidget->setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode()); } );

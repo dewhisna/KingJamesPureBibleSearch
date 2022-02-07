@@ -2018,7 +2018,7 @@ void CConfigBrowserOptions::loadSettings()
 
 	ui.checkBoxShowPilcrowMarkers->setChecked(CPersistentSettings::instance()->showPilcrowMarkers());
 
-	nIndex = ui.comboBoxFootnoteRenderingMode->findData(CPersistentSettings::instance()->footnoteRenderingMode().toInt());
+	nIndex = ui.comboBoxFootnoteRenderingMode->findData(static_cast<int>(CPersistentSettings::instance()->footnoteRenderingMode()));
 	if (nIndex != -1) {
 		ui.comboBoxFootnoteRenderingMode->setCurrentIndex(nIndex);
 	} else {
