@@ -200,7 +200,7 @@ void TBibleDatabaseList::removeBibleDatabase(const QString &strUUID)
 			if (m_pMainBibleDatabase == pBibleDatabase) {
 				Q_ASSERT(false);				// Shouldn't allow removing of MainBibleDatabase -- call setMainBibleDatabase first
 			}
-			emit removeBibleDatabase(pBibleDatabase->compatibilityUUID());
+			emit removingBibleDatabase(pBibleDatabase);
 			emit changedBibleDatabaseList();
 		}
 	}
@@ -622,7 +622,7 @@ void TDictionaryDatabaseList::removeDictionaryDatabase(const QString &strUUID)
 			if (m_pMainDictionaryDatabase == pDictionaryDatabase) {
 				Q_ASSERT(false);				// Shouldn't allow removing of MainDictionaryDatabase -- call setMainDictionaryDatabase first
 			}
-			emit removeDictionaryDatabase(pDictionaryDatabase->compatibilityUUID());
+			emit removingDictionaryDatabase(pDictionaryDatabase);
 			emit changedDictionaryDatabaseList();
 		}
 	}
