@@ -1392,6 +1392,8 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 
 		return true;
 	}
+#else
+	Q_UNUSED(zParent);
 #endif
 
 	return false;
