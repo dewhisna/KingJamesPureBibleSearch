@@ -38,7 +38,7 @@ public slots:
   void setFont(const QFont &f);
   void setList(bool v);
   void setColor(const QColor &);
-void setOptions(Options opt);
+  void setOptions(QwwRichTextEdit::Options opt);
   void updateCurrentCharFormat(const QTextCharFormat &fmt);
   void updateCurrentBlockFormat();
 protected:

@@ -235,7 +235,7 @@ QwwLed::Shape QwwLed::shape() const {
  * Sets the shape of the diode.
  * 
  */
-void QwwLed::setShape(Shape s) {
+void QwwLed::setShape(QwwLed::Shape s) {
     Q_D(QwwLed);
     if (s==d->shape) return;
     d->shape = s;

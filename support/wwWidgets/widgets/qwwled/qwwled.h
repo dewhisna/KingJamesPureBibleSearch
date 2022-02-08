@@ -43,7 +43,7 @@ public:
 public slots:
     void setColor(const QColor &c);
     void setChecked(bool);
-    void setShape(Shape);
+    void setShape(QwwLed::Shape);
     void toggle();
     void setFrameWidth(int);
     void setAnimated(bool);
