@@ -69,7 +69,7 @@ void CWebChannelGeoLocate::locate(const CWebChannelClient *pChannel, const QStri
 	locateRequest(theClient);
 }
 
-void CWebChannelGeoLocate::locateRequest(TGeoLocateClient theClient)
+void CWebChannelGeoLocate::locateRequest(CWebChannelGeoLocate::TGeoLocateClient theClient)
 {
 	QString strURL;
 	bool bIsRetry = false;

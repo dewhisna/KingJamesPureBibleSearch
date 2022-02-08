@@ -83,7 +83,7 @@ signals:
 	void locationInfo(const CWebChannelClient *pChannel, const QString &strIPAddress, const QString &strLocationInfo);
 
 protected slots:
-	void locateRequest(TGeoLocateClient theClient);
+	void locateRequest(CWebChannelGeoLocate::TGeoLocateClient theClient);
 	void triggerInternalRequest(QObject *pInternal);
 	void en_requestComplete(QNetworkReply *pReply);
 
