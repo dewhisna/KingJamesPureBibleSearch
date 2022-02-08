@@ -30,9 +30,9 @@ public:
     QwwTextSpinBox(QWidget *parent=0);
     QwwTextSpinBox(const QStringList &strings, QWidget *parent=0);
     virtual QValidator::State validate ( QString & input, int & pos ) const override;
+    const QStringList &strings() const;
 public slots:
     void setStrings(const QStringList &s);
-    const QStringList &strings() const;
 signals:
     void stringsChanged(const QStringList &);
 protected:
