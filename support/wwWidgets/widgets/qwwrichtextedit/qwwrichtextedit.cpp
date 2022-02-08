@@ -370,13 +370,13 @@ void QwwRichTextEdit::contextMenuEvent(QContextMenuEvent * event)
     formatMenu->addAction(m_actions[BoldAction]);
     formatMenu->addAction(m_actions[ItalicAction]);
     formatMenu->addAction(m_actions[UnderlineAction]);
-    menu->insertMenu(menu->actions()[9], formatMenu);
+    menu->insertMenu(menu->actions().at(9), formatMenu);
 	QMenu *alignMenu = new QMenu(tr("Align"), menu);
     alignMenu->addAction(al);
     alignMenu->addAction(ac);
     alignMenu->addAction(ar);
     alignMenu->addAction(aj);
-    menu->insertMenu(menu->actions()[10], alignMenu);
+    menu->insertMenu(menu->actions().at(10), alignMenu);
 	menu->exec(event->globalPos());
     delete menu;
 }
