@@ -113,9 +113,9 @@ private slots:
 	void reflowHalt();
 
 protected:
-	void sizeHintChanged(const QModelIndex &index) const { emit sizeHintChanged(index,index); }
+	void sizeHintChanged(const QModelIndex &index) { emit sizeHintChanged(index,index); }
 signals:
-	void sizeHintChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) const;
+	void sizeHintChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
 private:
 	enum SIZE_HINT_CACHE_MODE_ENUM {
