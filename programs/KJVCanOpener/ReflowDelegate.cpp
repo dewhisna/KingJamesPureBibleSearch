@@ -477,7 +477,7 @@ void CReflowDelegate::reflowTick()
 			// For models with no hierarchy, it's OK to do them all at once:
 			QAbstractItemModel *pModel = pView->model();
 			Q_ASSERT(pModel != nullptr);
-			sizeHintChanged(pModel->index(0,0), pModel->index(pModel->rowCount()-1, 0));
+			emit sizeHintChanged(pModel->index(0,0), pModel->index(pModel->rowCount()-1, 0));
 		}
 
 		// If reflow is complete, stop ticking:
