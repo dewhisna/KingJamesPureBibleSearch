@@ -101,7 +101,7 @@ bool CSearchPhraseListModel::insertRows(int row, int count, const QModelIndex &p
 	beginInsertRows(QModelIndex(), row, row + count - 1);
 
 	for (int r = 0; r < count; ++r)
-		m_lstPhraseEditors.insert(row, NULL);
+		m_lstPhraseEditors.insert(row, nullptr);
 
 	endInsertRows();
 
