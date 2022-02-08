@@ -32,7 +32,7 @@ class QwwColorComboBoxPrivate : public QwwPrivate {
 public:
     QwwColorComboBoxPrivate(QwwColorComboBox *q) : QwwPrivate(q) {
         m_dlgEnabled = false;
-        m_model = 0;
+        m_model = nullptr;
     }
 
     bool m_dlgEnabled;

@@ -66,7 +66,7 @@ void qScrollEffect(QWidget*, QEffects::DirFlags dir = QEffects::DownScroll, int 
  */
 class ColorDelegate : public QAbstractItemDelegate {
 public:
-    ColorDelegate(QObject *parent = 0) : QAbstractItemDelegate(parent) {}
+    ColorDelegate(QObject *parent = nullptr) : QAbstractItemDelegate(parent) {}
     void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const {
         if (!index.isValid()) return;
         QColor c = qvariant_cast<QColor>(index.data(Qt::DecorationRole));
@@ -93,7 +93,7 @@ public:
  */
 class QwwColorPopup : public QWidget {
 public:
-    QwwColorPopup(ColorModel *model, QWidget *parent = 0) : QWidget(parent, Qt::Popup) {
+    QwwColorPopup(ColorModel *model, QWidget *parent = nullptr) : QWidget(parent, Qt::Popup) {
         QVBoxLayout *l = new QVBoxLayout(this);
         l->setSpacing(0);
         l->setContentsMargins(0, 0, 0, 0);
@@ -142,8 +142,8 @@ private:
 class QwwColorButtonPrivate : public QwwPrivate {
 public:
     QwwColorButtonPrivate(QwwColorButton *q) : QwwPrivate(q) {
-        popup = 0;
-        model = 0;
+        popup = nullptr;
+        model = nullptr;
         showName = true;
         dragEnabled = false;
     }
@@ -152,11 +152,11 @@ public:
         if (!model)
             return QSize(80,100);
 
-        int margin = 2*q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q)+1;
+        int margin = 2*q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, q)+1;
         int cols = model->rowCount();
         int fit = qMax(3, (q->width()-margin)/16) ; // this no fits in the button width
         int fitRows = cols % fit == 0 ? cols/fit : (1+cols/fit); // this no of rows is needed to show all colors
-        int scExt = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, 0, q);
+        int scExt = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, q);
         if(fitRows<=12)
             return QSize(fit*16+margin, (fitRows)*16+margin+27);
         // let's try with a scroll bar now

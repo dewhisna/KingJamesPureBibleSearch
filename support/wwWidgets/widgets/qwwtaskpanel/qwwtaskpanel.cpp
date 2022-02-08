@@ -92,7 +92,7 @@ QToolButton* TaskHeader::toggleButton() const {
 
 Task::Task(QWidget *body, QWidget *parent) : QWidget(parent) {
     m_body = body;
-    m_animBody = 0;
+    m_animBody = nullptr;
     m_animator.setDuration(1200);
     m_animator.setUpdateInterval(20);
     m_animator.setEasingCurve(QEasingCurve(QEasingCurve::InOutSine));
@@ -196,7 +196,7 @@ void Task::animFinished() {
     m_animBody->lower();
     m_animBody->hide();
     m_animBody->deleteLater();
-    m_animBody = 0;
+    m_animBody = nullptr;
     m_header->update();
     updateGeometry();
 }
@@ -286,9 +286,9 @@ void QwwTaskPanel::removeTask(int index) {
 }
 
 QWidget * QwwTaskPanel::task(int index) const {
-    if (index < 0 || index>=m_tasks.count()) return 0;
+    if (index < 0 || index>=m_tasks.count()) return nullptr;
     Task *tsk = static_cast<Task*>(m_tasks.at(index));
-    return tsk ? tsk->body() : 0;
+    return tsk ? tsk->body() : nullptr;
 }
 
 int QwwTaskPanel::indexOf(QWidget * task) const {

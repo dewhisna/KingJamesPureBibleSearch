@@ -36,7 +36,7 @@
   \internal
  */
 QwwButtonLineEditPrivate::QwwButtonLineEditPrivate(QwwButtonLineEdit *pub) : QwwPrivate(pub) {
-        button = 0;
+        button = nullptr;
         position = QwwButtonLineEdit::RightInside;
         visible = true;
 }

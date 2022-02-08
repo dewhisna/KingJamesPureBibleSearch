@@ -73,7 +73,7 @@ private:
  */
 QwwRichTextButton::QwwRichTextButton(QWidget * parent) : QAbstractButton(parent), QwwPrivatable(new QwwRichTextButtonPrivate(this)) {
     Q_D(QwwRichTextButton);
-    d->doc = 0;
+    d->doc = nullptr;
     setText("");
     d->internalDoc = false;
     QTextDocument *doc = new QTextDocument(this);
@@ -185,7 +185,7 @@ QSize QwwRichTextButton::sizeHint() const {
     QStyleOptionButton opt;
     d->initStyleOption(&opt);
     int m = style()->pixelMetric(QStyle::PM_ButtonMargin, &opt, this);
-    m+=style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
+    m+=style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this);
     m*=2;
 #if QT_VERSION < 0x060000
     return QSize(80,25).expandedTo(QApplication::globalStrut()).expandedTo(document()->size().toSize()+QSize(m, m));
@@ -279,7 +279,7 @@ int QwwRichTextButton::heightForWidth(int w) const {
     QStyleOptionButton opt;
     d->initStyleOption(&opt);
     int m = style()->pixelMetric(QStyle::PM_ButtonMargin, &opt, this);
-    m+=style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
+    m+=style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this);
     d->doc->setTextWidth(w-m);
     return d->doc->size().toSize().height()+m;
 }

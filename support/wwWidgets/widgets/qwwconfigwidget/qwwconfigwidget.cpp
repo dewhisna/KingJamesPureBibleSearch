@@ -156,7 +156,7 @@ void QwwConfigWidget::removeGroup(QWidget *group) {
  */
 QWidget * QwwConfigWidget::group(int index) const {
     Q_D(const QwwConfigWidget);
-	if (index<0 || index>=d->stack->count()) return NULL;
+	if (index<0 || index>=d->stack->count()) return nullptr;
 	return d->stack->widget(index);
 }
 

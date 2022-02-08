@@ -64,7 +64,7 @@ const QString rsrcPath = ":formeditor/win";
  *  Constructs a rich text edit with a given \a parent
  */
 QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
-    currentList = 0;
+    currentList = nullptr;
     m_options = Style | Alignment | FontFamily | FontSize | Color;
     tb = new QToolBar(this);
     tb->setIconSize(QSize(24,24));
@@ -248,7 +248,7 @@ void QwwRichTextEdit::setList(bool v){
   //    cur.movePosition(QTextCursor::NextBlock);
 //      cur.insertBlock(QTextBlockFormat());
       setTextCursor(cur);
-      currentList = 0;
+      currentList = nullptr;
     }
   }
 
@@ -278,7 +278,7 @@ void QwwRichTextEdit::updateCurrentBlockFormat(){
       default: al->setChecked(true);
     }
     if(!textCursor().hasSelection())
-      li->setChecked(textCursor().currentList()!=0);
+      li->setChecked(textCursor().currentList()!=nullptr);
 //    currentList = textCursor().currentList();
     QTextCharFormat cf = textCursor().charFormat();
     if(cf.font().family()!=fcb->currentFont().family()){

@@ -96,7 +96,7 @@ void QwwListWidget::removeCurrent() {
 
 void QwwListWidgetPrivate::_q_curCh(QListWidgetItem * i) {
     Q_Q(QwwListWidget);
-    emit q->currentAvailable(i!=0);
+    emit q->currentAvailable(i!=nullptr);
     emit q->moveUpAvailable(q->currentRow()>0);
     emit q->moveDownAvailable(q->currentRow()>=0 && q->currentRow()<q->count()-1);
 }

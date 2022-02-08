@@ -31,7 +31,7 @@
 class QwwTipWidgetPrivate : public QwwPrivate {
 public:
   QwwTipWidgetPrivate(QwwTipWidget *par) : QwwPrivate(par){
-    m_headerWidget = 0;
+    m_headerWidget = nullptr;
   }
   void initUi();
   void retranslateUi();

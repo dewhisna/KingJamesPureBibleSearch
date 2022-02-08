@@ -31,7 +31,7 @@
 class QwwFileChooserPrivate : public QwwButtonLineEditPrivate {
 public:
     QwwFileChooserPrivate(QwwFileChooser *c) : QwwButtonLineEditPrivate(c) {
-        model = 0;
+        model = nullptr;
         native = true;
         fileMode = QFileDialog::AnyFile;
         acceptMode = QFileDialog::AcceptOpen;

@@ -25,7 +25,7 @@
 
 class QwwListNavigatorPrivate : public QwwPrivate {
 public:
-    QwwListNavigatorPrivate(QwwListNavigator *pub) : QwwPrivate(pub) {listWidget = 0;}
+    QwwListNavigatorPrivate(QwwListNavigator *pub) : QwwPrivate(pub) {listWidget = nullptr;}
 
     QwwListNavigator::Buttons buttons;
     QMap<QwwListNavigator::Button, QWidget*> widgets;
@@ -61,7 +61,7 @@ void QwwListNavigatorPrivate::_q_updateLWRange() {
 }
 
 void QwwListNavigatorPrivate::_q_disconnectListWidget() {
-    listWidget = 0;
+    listWidget = nullptr;
 }
 
 void QwwListNavigatorPrivate::retranslateUi() {
@@ -216,7 +216,7 @@ void QwwListNavigator::sliderChange(SliderChange change) {
         ((QSlider*)d->widgets[Slider])->setPageStep(pageStep());
     }
     if (change==SliderOrientationChange) {
-        QBoxLayout *l = 0;
+        QBoxLayout *l = nullptr;
         QLayout *old = layout();
         old->removeWidget(d->widgets[FirstButton]);
         old->removeWidget(d->widgets[PrevButton]);

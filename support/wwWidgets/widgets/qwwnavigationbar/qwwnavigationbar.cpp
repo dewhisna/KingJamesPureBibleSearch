@@ -28,12 +28,12 @@
 class QwwNavigationBarPrivate : public QwwPrivate {
 public:
     QwwNavigationBarPrivate(QwwNavigationBar *q) : QwwPrivate(q) {
-        stack = 0;
-        buttonLayout = 0;
-        bottomFrame = 0;
-        topButton = 0;
-        splitter = 0;
-        bgroup = 0;
+        stack = nullptr;
+        buttonLayout = nullptr;
+        bottomFrame = nullptr;
+        topButton = nullptr;
+        splitter = nullptr;
+        bgroup = nullptr;
     }
     QList<QPushButton *> buttons;
     QStackedWidget *stack;
@@ -322,7 +322,7 @@ void QwwNavigationBar::setCurrentWidget(QWidget *widget){
  */
 const QPushButton * QwwNavigationBar::button(int index) const {
     Q_D(const QwwNavigationBar);
-    if (index>=d->buttons.count() || index<0) return 0;
+    if (index>=d->buttons.count() || index<0) return nullptr;
     return d->buttons.at(index);
 }
 
@@ -403,7 +403,7 @@ void QwwNavigationBar::actionEvent(QActionEvent * ev) {
     switch (ev->type()) {
     case QEvent::ActionAdded: {
         QHBoxLayout *hl = static_cast<QHBoxLayout*>(d->bottomFrame->layout());
-        if (ev->before()==0) {
+        if (ev->before()==nullptr) {
             QToolButton *tb = new QToolButton;
             tb->setDefaultAction(ev->action());
             tb->setAutoRaise(true);
