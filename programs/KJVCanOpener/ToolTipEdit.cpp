@@ -497,7 +497,7 @@ void CTipEdit::wheelEvent(QWheelEvent *e)
 		return;
 	}
 
-	QAbstractScrollArea::wheelEvent(e);
+	QTextEdit::wheelEvent(e);
 	updateMicroFocus();
 }
 
