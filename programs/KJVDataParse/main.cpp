@@ -3028,7 +3028,7 @@ int main(int argc, char *argv[])
 				Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstWords.size()));
 				Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstRichWords.size()));
 				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
-					QString strWord = pVerse->m_lstWords.at(nWrd-1);
+					//QString strWord = pVerse->m_lstWords.at(nWrd-1);
 					QString strRichWord = pVerse->m_lstRichWords.at(nWrd-1);
 					CWordEntry &wordEntry = mapWordList[strRichWord];
 					TAltWordSet &wordSet = mapAltWordList[strRichWord.toLower()];
