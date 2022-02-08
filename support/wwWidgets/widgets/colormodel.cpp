@@ -46,7 +46,7 @@ QModelIndex ColorModel::insertColor(int index, const QColor & c, const QString &
     QStandardItem *item = new QStandardItem;
     item->setText(name);
     item->setData(c, Qt::DecorationRole);
-    QIcon tic = item->icon();
+    //QIcon tic = item->icon();
     insertRow(index, item);
     return item->index();
 }

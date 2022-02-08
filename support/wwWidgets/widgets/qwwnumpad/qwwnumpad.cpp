@@ -130,7 +130,7 @@ void QwwNumPad::animateClick(const QString & button, int msec) {
 #else
     char key = button[0].toLatin1();
 #endif
-    QList<QToolButton*> items;
+    //QList<QToolButton*> items;
     QString name;
     switch (key) {
     case '#':
