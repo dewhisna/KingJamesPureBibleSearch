@@ -28,6 +28,7 @@ Modifications Copyright 2013-2020, Donna Whisnant, a.k.a. Dewtronics
 #ifndef GRANTLEE_PLAINTEXTMARKUPBUILDER_H
 #define GRANTLEE_PLAINTEXTMARKUPBUILDER_H
 
+#include <QtGlobal>
 
 #ifdef Q_OS_WIN
 #ifdef _MSC_VER			// Warning disabling is only needed on Microsoft Compiler
