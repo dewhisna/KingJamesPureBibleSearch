@@ -181,9 +181,9 @@ CPhraseList CPhraseListModel::phraseList() const
 
 void CPhraseListModel::setPhraseList(const CPhraseList &phrases)
 {
-	emit beginResetModel();
+	beginResetModel();
 	m_lstPhrases = phrases;
-	emit endResetModel();
+	endResetModel();
 }
 
 // ============================================================================

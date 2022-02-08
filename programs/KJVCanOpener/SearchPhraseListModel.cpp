@@ -176,8 +176,8 @@ CSearchPhraseEditList CSearchPhraseListModel::phraseEditorsList() const
 
 void CSearchPhraseListModel::setPhraseEditorsList(const CSearchPhraseEditList &lstPhraseEditors)
 {
-	emit beginResetModel();
+	beginResetModel();
 	m_lstPhraseEditors = lstPhraseEditors;
-	emit endResetModel();
+	endResetModel();
 }
 

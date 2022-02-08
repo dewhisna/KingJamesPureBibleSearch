@@ -226,9 +226,9 @@ const CNoteKeywordModelItemDataList &CNoteKeywordModel::itemList() const
 
 void CNoteKeywordModel::setItemList(const CNoteKeywordModelItemDataList &aList)
 {
-	emit beginResetModel();
+	beginResetModel();
 	m_lstKeywordData = aList;
-	emit endResetModel();
+	endResetModel();
 	updateContextMenu();
 }
 
@@ -247,7 +247,7 @@ QStringList CNoteKeywordModel::selectedKeywordList() const
 
 void CNoteKeywordModel::setKeywordList(const QStringList &lstSelectedKeywords, const QStringList &lstCompositeKeywords)
 {
-	emit beginResetModel();
+	beginResetModel();
 
 	m_lstKeywordData.clear();
 	m_lstKeywordData.reserve(lstCompositeKeywords.size());
@@ -255,7 +255,7 @@ void CNoteKeywordModel::setKeywordList(const QStringList &lstSelectedKeywords, c
 		m_lstKeywordData.append(CNoteKeywordModelItemData(lstCompositeKeywords.at(ndx), lstSelectedKeywords.contains(lstCompositeKeywords.at(ndx), Qt::CaseInsensitive)));
 	}
 
-	emit endResetModel();
+	endResetModel();
 	updateContextMenu();
 }
 

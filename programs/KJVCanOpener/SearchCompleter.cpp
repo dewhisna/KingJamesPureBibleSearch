@@ -358,7 +358,7 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 	if ((m_parsedPhrase.GetCursorWordPos() != m_nCursorWord) || (bForceUpdate)) {
 		m_nCursorWord = m_parsedPhrase.GetCursorWordPos();
 
-		emit beginResetModel();
+		beginResetModel();
 
 //		m_ParsedPhrase.nextWordsList();
 
@@ -368,7 +368,7 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 			m_lstBasicWords.append(&m_parsedPhrase.nextWordsList().at(ndx));
 		}
 
-		emit endResetModel();
+		endResetModel();
 
 		emit modelChanged();
 

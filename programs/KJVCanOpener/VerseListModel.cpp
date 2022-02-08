@@ -1838,7 +1838,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 {
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		emit verseListAboutToChange();
-		emit beginResetModel();
+		beginResetModel();
 	} else if ((m_private.m_bShowHighlightersInSearchResults) && ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) || (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED))) {
 		emit layoutAboutToBeChanged();
 	}
@@ -1872,7 +1872,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 	}
 
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
-		emit endResetModel();
+		endResetModel();
 		emit verseListChanged();
 	} else if ((m_private.m_bShowHighlightersInSearchResults) && ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) || (m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED))) {
 		emit layoutChanged();
@@ -1968,7 +1968,7 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 
 	if (m_private.m_nViewMode == VVME_USERNOTES) {
 		emit verseListAboutToChange();
-		emit beginResetModel();
+		beginResetModel();
 	}
 
 	bool bShowNotesWithoutKeywords = m_lstUserNoteKeywordFilter.contains(QString());
@@ -2016,7 +2016,7 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	}
 
 	if (m_private.m_nViewMode == VVME_USERNOTES) {
-		emit endResetModel();
+		endResetModel();
 		emit verseListChanged();
 	}
 }
@@ -2048,7 +2048,7 @@ void CVerseListModel::buildCrossRefsResults()
 
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
 		emit verseListAboutToChange();
-		emit beginResetModel();
+		beginResetModel();
 	}
 
 	zResults.m_mapVerses.clear();
@@ -2075,7 +2075,7 @@ void CVerseListModel::buildCrossRefsResults()
 	}
 
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {
-		emit endResetModel();
+		endResetModel();
 		emit verseListChanged();
 	}
 }
@@ -2097,14 +2097,14 @@ void CVerseListModel::setTreeMode(VERSE_TREE_MODE_ENUM nTreeMode)
 	if (m_private.m_nTreeMode == nTreeMode) return;
 
 	clearAllSizeHints();
-	emit beginResetModel();
+	beginResetModel();
 
 	// The following is especially needed for Cross-Ref's which completely revamps the model,
 	//		but we'll do it for all in case we change how they are generated:
 	clearAllExtraVerseIndexes();
 
 	m_private.m_nTreeMode = nTreeMode;
-	emit endResetModel();
+	endResetModel();
 }
 
 void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
@@ -2119,7 +2119,7 @@ void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMod
 	}
 
 	clearAllSizeHints();
-	emit beginResetModel();
+	beginResetModel();
 
 	// Need to dump the undefinedResults list so we don't have VerseIndexes of the wrong Results Type.
 	//		This should really only affect types having abstract root types, like the highlighters.
@@ -2128,7 +2128,7 @@ void CVerseListModel::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMod
 	m_undefinedResults.m_mapExtraVerseIndexes.clear();
 
 	m_private.m_nViewMode = nViewMode;
-	emit endResetModel();
+	endResetModel();
 }
 
 void CVerseListModel::setShowMissingLeafs(bool bShowMissing)
@@ -2710,7 +2710,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 			emit verseListAboutToChange();
-			emit beginResetModel();
+			beginResetModel();
 		}
 
 		CSearchResultsProcess srp(m_private.m_pBibleDatabase, searchResultsData, &m_searchResults.m_mapVerses, &m_searchResultsExcluded.m_mapVerses);
@@ -2726,7 +2726,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 
 		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-			emit endResetModel();
+			endResetModel();
 			emit verseListChanged();
 		}
 
@@ -2755,7 +2755,7 @@ void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *the
 	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 		emit verseListAboutToChange();
-		emit beginResetModel();
+		beginResetModel();
 	}
 
 	theThreadedSearchResult->searchResultsProcess()->copyBackInclusionData(m_searchResults.m_searchResultsData, m_searchResults.m_mapVerses, m_searchResults.m_lstVerseIndexes);
@@ -2769,7 +2769,7 @@ void CVerseListModel::en_searchResultsReady(const CThreadedSearchResultCtrl *the
 
 	if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 		(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
-		emit endResetModel();
+		endResetModel();
 		emit verseListChanged();
 	}
 
