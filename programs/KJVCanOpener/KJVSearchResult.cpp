@@ -1064,7 +1064,7 @@ void CSearchResultsTreeView::currentChanged(const QModelIndex &current, const QM
 	//	the size hints of the last page haven't been calculated yet.  This
 	//	one-liner is a lot easier than creating a reverseIterator and making
 	//	reflowViewport always calculate size-hints for the last page too:
-	QTimer::singleShot(1, [this]()->void { scrollTo(currentIndex(), QAbstractItemView::EnsureVisible); });
+	QTimer::singleShot(1, this, [this]()->void { scrollTo(currentIndex(), QAbstractItemView::EnsureVisible); });
 #endif
 }
 
