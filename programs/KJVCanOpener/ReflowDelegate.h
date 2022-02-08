@@ -101,7 +101,7 @@ public slots:
 	void setReflowDisabled(bool bDisable);
 	void startReflow();
 
-	bool helpEvent(QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index);
+	virtual bool helpEvent(QHelpEvent* event, QAbstractItemView* view, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 
 private slots:
 	void layoutItem(const QModelIndex &index);
@@ -127,7 +127,7 @@ private:
 	QStyleOptionViewItemV4_t viewOptions(const QModelIndex &index);
 
 	QTreeView *parentView() const;
-	bool eventFilter(QObject *o, QEvent *e);
+	virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 	// We are a proxy for Column 0.  For the others, continue to delegate
 	//		to whatever delegate would have normally handled it:

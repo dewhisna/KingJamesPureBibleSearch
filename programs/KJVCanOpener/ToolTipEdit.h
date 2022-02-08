@@ -47,7 +47,7 @@ public:
 	static CTipEdit *instance(const CKJVCanOpener *pCanOpener);
 	static bool tipEditIsPinned(const CKJVCanOpener *pCanOpener);					// Push Pin to convert to modeless dialog
 
-	bool eventFilter(QObject *o, QEvent *e);
+	virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 	QBasicTimer hideTimer, expireTimer;
 
@@ -65,13 +65,13 @@ public:
 
 	static int getTipScreen(const QPoint &pos, QWidget *w);
 protected:
-	void timerEvent(QTimerEvent *e);
-	void paintEvent(QPaintEvent *e);
-	void mouseMoveEvent(QMouseEvent *e);
-	void resizeEvent(QResizeEvent *e);
-	void contextMenuEvent(QContextMenuEvent *e);
-	bool event(QEvent *e);
-	void wheelEvent(QWheelEvent *e);
+	virtual void timerEvent(QTimerEvent *e) override;
+	virtual void paintEvent(QPaintEvent *e) override;
+	virtual void mouseMoveEvent(QMouseEvent *e) override;
+	virtual void resizeEvent(QResizeEvent *e) override;
+	virtual void contextMenuEvent(QContextMenuEvent *e) override;
+	virtual bool event(QEvent *e) override;
+	virtual void wheelEvent(QWheelEvent *e) override;
 
 	void adjustToolTipSize();
 	void savePersistentSettings();
