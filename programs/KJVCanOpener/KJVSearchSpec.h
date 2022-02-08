@@ -68,6 +68,8 @@ public:
 	QString searchPhraseSummaryText() const;
 	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
 
+	int searchPhraseCount() const { return m_lstSearchPhraseEditors.size(); }
+
 	int searchResultsUpdateDelay() const { return m_dlySearchResultsUpdate.minimumDelay()/2; }			// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
 
 signals:
@@ -90,8 +92,6 @@ public slots:
 
 	CKJVSearchPhraseEdit *setFocusSearchPhrase(int nIndex = 0);
 	void setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase);
-
-	int searchPhraseCount() const { return m_lstSearchPhraseEditors.size(); }
 
 	void setSearchResultsUpdateDelay(int nDelay) { m_dlySearchResultsUpdate.setMinimumDelay(nDelay*2); }		// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
 
