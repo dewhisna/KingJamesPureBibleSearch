@@ -47,21 +47,21 @@ public:
 
   virtual ~BBCodeBuilder();
 
-  /* reimp */ void beginStrong();
-  /* reimp */ void endStrong();
-  /* reimp */ void beginEmph();
-  /* reimp */ void endEmph();
-  /* reimp */ void beginUnderline();
-  /* reimp */ void endUnderline();
-  /* reimp */ void beginStrikeout();
-  /* reimp */ void endStrikeout();
-  /* reimp */ void beginForeground( const QBrush &brush );
-  /* reimp */ void endForeground();
+  virtual void beginStrong() override;
+  virtual void endStrong() override;
+  virtual void beginEmph() override;
+  virtual void endEmph() override;
+  virtual void beginUnderline() override;
+  virtual void endUnderline() override;
+  virtual void beginStrikeout() override;
+  virtual void endStrikeout() override;
+  virtual void beginForeground( const QBrush &brush ) override;
+  virtual void endForeground() override;
 
   // Background colour not supported by BBCode.
 
-  /* reimp */ void beginAnchor( const QString &href = QString(), const QString &name = QString() );
-  /* reimp */ void endAnchor();
+  virtual void beginAnchor( const QString &href = QString(), const QString &name = QString() ) override;
+  virtual void endAnchor() override;
 
   // Font not supported by BBCode.
 
@@ -72,52 +72,52 @@ public:
     it is suitable for use in BBCode.
     @param size The size of font to begin.
   */
-  /* reimp */ void beginFontPointSize( int size );
-  /* reimp */ void endFontPointSize();
+  virtual void beginFontPointSize( int size ) override;
+  virtual void endFontPointSize() override;
 
-  /* reimp */ void beginParagraph( Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 );
-  /* reimp */ void endParagraph();
+  virtual void beginParagraph( Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 ) override;
+  virtual void endParagraph() override;
 
-  /* reimp */ void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") );
-  /* reimp */ void endIndent();
+  virtual void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") ) override;
+  virtual void endIndent() override;
 
-  /* reimp */ void addNewline();
+  virtual void addNewline() override;
 
-  /* reimp */ void addLineBreak();
+  virtual void addLineBreak() override;
 
-  /* reimp */ void insertImage( const QString &src, qreal width, qreal height );
+  virtual void insertImage( const QString &src, qreal width, qreal height ) override;
 
-  /* reimp */ void beginList( QTextListFormat::Style type );
+  virtual void beginList( QTextListFormat::Style type ) override;
 
-  /* reimp */ void endList();
-
-
-  /* reimp */ void beginListItem();
-
-  /* reimp */ void beginSuperscript();
-
-  /* reimp */ void endSuperscript();
-
-  /* reimp */ void beginSubscript();
-
-  /* reimp */ void endSubscript();
+  virtual void endList() override;
 
 
-  /* reimp */ void beginTable( qreal, qreal, const QString & );
+  virtual void beginListItem() override;
 
-  /* reimp */ void beginTableRow();
+  virtual void beginSuperscript() override;
+
+  virtual void endSuperscript() override;
+
+  virtual void beginSubscript() override;
+
+  virtual void endSubscript() override;
 
 
-  /* reimp */ void appendLiteralText( const QString &text );
+  virtual void beginTable( qreal, qreal, const QString & ) override;
+
+  virtual void beginTableRow() override;
+
+
+  virtual void appendLiteralText( const QString &text ) override;
 
   /**
     Escapes @p text appropriately for BBCode.
   */
-  /* reimp */ const QString escape( const QString &text ) const;
+  virtual const QString escape( const QString &text ) const override;
 
-  /* reimp */ void appendRawText( const QString &text );
+  virtual void appendRawText( const QString &text ) override;
 
-  /* reimp */ QString getResult();
+  virtual QString getResult() override;
 
 private:
   QList<QTextListFormat::Style> m_currentListItemStyles;
