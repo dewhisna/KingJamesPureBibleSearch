@@ -77,6 +77,9 @@ namespace {
 	const char * const constUUID_MYBIBLE_NIV_2011 =		"7B3F4F75-821A-11EC-BF44-0800200C9A66";
 	const char * const constUUID_MYBIBLE_NKJV_1982 =	"7B3F4F76-821A-11EC-BF44-0800200C9A66";
 	const char * const constUUID_MYBIBLE_TNIV_2005 =	"7B3F4F77-821A-11EC-BF44-0800200C9A66";
+	// ----
+	const char * const constUUID_OSHB =					"565612E0-8A24-11EC-B1E5-0800200C9A66";
+	// ----
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -172,8 +175,11 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NIV_2011", "en", QString::fromUtf8("MyBible New International Version (2011)"), QString::fromUtf8("New International Version (2011)"), constUUID_MYBIBLE_NIV_2011, "bbl-mybible-niv-2011.s3db", "bbl-mybible-niv-2011.ccdb", constUUID_MYBIBLE_NIV_2011 },
 		// New King James Version, 1982:
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_NKJV_1982", "en", QString::fromUtf8("MyBible New King James Version (1982)"), QString::fromUtf8("New King James Version (1982)"), constUUID_MYBIBLE_NKJV_1982, "bbl-mybible-nkjv-1982.s3db", "bbl-mybible-nkjv-1982.ccdb", constUUID_MYBIBLE_NKJV_1982 },
-		// Today's New International Version, 2005
+		// Today's New International Version, 2005:
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "MYBIBLE_TNIV_2005", "en", QString::fromUtf8("MyBible Today's New International Version (2005)"), QString::fromUtf8("Today's New International Version (2005)"), constUUID_MYBIBLE_TNIV_2005, "bbl-mybible-tniv-2005.s3db", "bbl-mybible-tniv-2005.ccdb", constUUID_MYBIBLE_TNIV_2005 },
+		// ----
+		// Open Scriptures Hebrew Bible:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), "OSHB", "hbo" /* "he" */ /* "iw" */, QString::fromUtf8("Open Scriptures Hebrew"), QString::fromUtf8("Open Scriptures Hebrew Bible"), constUUID_OSHB, "bbl-oshb.s3db", "bbl-oshb.ccdb", constUUID_OSHB },
 		// ----
 	};
 
