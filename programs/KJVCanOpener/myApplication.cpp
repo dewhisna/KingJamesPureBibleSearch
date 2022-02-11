@@ -1478,25 +1478,32 @@ int CMyApplication::execute(bool bBuildDB)
 				if (nResult != QMessageBox::Yes) return -2;
 			}
 
+			const TBibleDescriptor bblDesc = m_bblDescSelectedForBuild.isValid() ?
+										m_bblDescSelectedForBuild :
+										TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB);
+
 #ifdef NOT_USING_SQL
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
 #else
 			QString strKJVSQLDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
-					m_bblDescSelectedForBuild.isValid() ?
-						m_bblDescSelectedForBuild.m_strS3DBFilename :
-						TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strS3DBFilename
-					).absoluteFilePath();
+														bblDesc.m_strS3DBFilename).absoluteFilePath();
 #endif
 			QString strKJVCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
-					m_bblDescSelectedForBuild.isValid() ?
-						m_bblDescSelectedForBuild.m_strCCDBFilename :
-						TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB).m_strCCDBFilename
-					).absoluteFilePath();
+														bblDesc.m_strCCDBFilename).absoluteFilePath();
 
 			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));
 				return -2;
+			}
+
+			// Explicitly load the database we just built and set it as the main database.
+			//	By doing it here instead of in the availableBibleDatabases list loading
+			//	below prevents us from accidentally loading the wrong database from things
+			//	like a preferred override:
+			setSplashMessage(tr("Reading:", "Errors") + QString(" %1 ").arg(bblDesc.m_strDBName) + tr("Bible", "Errors"));
+			if (!TBibleDatabaseList::loadBibleDatabase(bblDesc, true, m_pSplash)) {
+				return -3;
 			}
 		}
 #else
@@ -1510,6 +1517,7 @@ int CMyApplication::execute(bool bBuildDB)
 		const QList<TBibleDescriptor> &lstAvailableBBLDescs = TBibleDatabaseList::availableBibleDatabases();
 		for (int ndx = 0; ndx < lstAvailableBBLDescs.size(); ++ndx) {
 			const TBibleDescriptor &bblDesc = lstAvailableBBLDescs.at(ndx);
+			if (!TBibleDatabaseList::instance()->atUUID(bblDesc.m_strUUID).isNull()) continue;		// Skip loading the database if it's already loaded
 			if ((!(bblDesc.m_btoFlags & BTO_AutoLoad)) &&
 				(m_strSelectedMainBibleDB.compare(bblDesc.m_strUUID, Qt::CaseInsensitive) != 0) &&
 				(!CPersistentSettings::instance()->bibleDatabaseSettings(bblDesc.m_strUUID).loadOnStart())) continue;
