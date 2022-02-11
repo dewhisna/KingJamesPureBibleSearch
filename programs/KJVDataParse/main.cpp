@@ -1567,7 +1567,18 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			}
 
 			if (bFoundNewVerse) {
-				if ((m_ndxCurrent.verse() % 5) == 0) {
+				if (m_ndxCurrent.verse() == 0) {
+					// Special case to allow an edited OSIS file with verse #0 to be used for
+					//	superscriptions, such as: Ps.3.0
+					//	This facilitates editing OSIS files like the OSHB database which has
+					//	the superscriptions actually entered as verses, but with a shifting
+					//	of all of the verse indexes that follow it.  Without this, we will
+					//	crash with a SegFault because we'll end up with m_bInSuperscription
+					//	set, but not m_ndxSuperscription.
+					m_ndxSuperscription = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 0, 0);
+				}
+
+				if (((m_ndxCurrent.verse() % 5) == 0) && (m_ndxCurrent.verse() != 0)) {
 					std::cerr << QString("%1").arg(m_ndxCurrent.verse() / 5).toUtf8().data();
 				} else {
 					std::cerr << ".";
@@ -1780,7 +1791,7 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 //			std::cerr << "\n*** End-of-Chapter found before End-of-Verse\n";
 //			m_bInVerse = false;
 //		}
-	} else if ((m_bInVerse) && (!m_bOpenEndedVerse) &&
+	} else if ((((m_bInVerse) && (!m_bOpenEndedVerse)) || (m_bInSuperscription)) &&		// Check m_bInSuperscription here for verse 0 declared superscriptions, like Ps.3.0
 			   (((m_xfteFormatType == XFTE_OSIS) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) ||
 				((m_xfteFormatType == XFTE_ZEFANIA) && (localName.compare("vers", Qt::CaseInsensitive) == 0)))) {
 		endVerseEntry(m_ndxCurrent);
