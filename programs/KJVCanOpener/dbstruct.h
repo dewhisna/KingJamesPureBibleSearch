@@ -1308,6 +1308,7 @@ public:
 
 	BibleTypeOptionsFlags flags() const { return m_descriptor.m_btoFlags; }
 	QString language() const { return m_descriptor.m_strLanguage; }
+	Qt::LayoutDirection direction() const { return m_descriptor.m_nTextDir; }
 	QString name() const { return m_descriptor.m_strDBName; }
 	QString description() const { return m_descriptor.m_strDBDesc; }
 	QString compatibilityUUID() const { return m_descriptor.m_strUUID; }
