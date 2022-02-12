@@ -102,6 +102,10 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	Q_ASSERT(!pBibleDatabase.isNull());
 	Q_ASSERT(!pUserNotesDatabase.isNull());
 
+#if QT_VERSION < 0x050000
+	setSupportedDragActions(supportedDragActions());
+#endif
+
 	m_private.m_richifierTagsDisplay.setFromPersistentSettings(*CPersistentSettings::instance(), false);
 	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 

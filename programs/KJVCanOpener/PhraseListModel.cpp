@@ -188,7 +188,7 @@ void CPhraseListModel::setPhraseList(const CPhraseList &phrases)
 
 // ============================================================================
 
-Qt::DropActions CMatchingPhrasesListModel::mySupportedDragActions() const
+Qt::DropActions CMatchingPhrasesListModel::supportedDragActions() const
 {
 	return Qt::CopyAction;
 }

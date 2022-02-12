@@ -83,7 +83,7 @@ public:
 		:	QStringListModel(pParent)
 	{
 #if QT_VERSION < 0x050000
-		setSupportedDragActions(mySupportedDragActions());
+		setSupportedDragActions(supportedDragActions());
 #endif
 	}
 
@@ -91,24 +91,23 @@ public:
 		:	QStringListModel(lstPhrases, pParent)
 	{
 #if QT_VERSION < 0x050000
-		setSupportedDragActions(mySupportedDragActions());
+		setSupportedDragActions(supportedDragActions());
 #endif
 	}
 
 #if QT_VERSION >= 0x050000
-	virtual Qt::DropActions supportedDragActions() const override
-	{
-		return mySupportedDragActions();
-	}
+	virtual Qt::DropActions supportedDragActions() const override;
+#else
+	// On Qt4, this function isn't virtual and can't be overridden.
+	//	Instead, we have to call setSupportedDragActions() in the
+	//	constructor:
+	Qt::DropActions supportedDragActions() const;
 #endif
 	virtual Qt::DropActions supportedDropActions() const override;
 
 	virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 	virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 	virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
-
-private:
-	Qt::DropActions mySupportedDragActions() const;
 };
 
 // ============================================================================
