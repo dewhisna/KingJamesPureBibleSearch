@@ -341,34 +341,51 @@ bool CReadDatabase::ReadDBInfoTable()
 		queryData.setForwardOnly(true);
 		queryData.exec("SELECT ndx, uuid, Language, Name, Description, Info FROM DBInfo");
 
-		if ((!queryData.next()) || (queryData.value(0).toUInt() != 1)) {
+		if (!queryData.next()) {
 			bDBInfoGood = false;
-			strError = QObject::tr("Invalid Bible Database DBInfo Index", "ReadDB");
+			strError = QObject::tr("Invalid Bible Database DBInfo Record", "ReadDB");
 		} else {
 			if (!queryFieldsToStringList(m_pParent, lstFields, queryData, 6)) return false;
 			// Convert from: ndx, $uuid, $Language, $Name, $Description, $Info
 			// to Format:  KJPBSDB, version, $uuid, $Language, $Name, $Description, $Info
-			// Note: s3db doesn't currently support the version value and is always '1'
-			//			unless we do something in the future to add/change that:
-			lstFields[0] = QString("1");		// Convert the ndx to the version
+			// Note: s3db has been redefined so that 'ndx' is the version value:
 			lstFields.insert(0, "KJPBSDB");		// Add our special "magic" ID
 		}
 		queryData.finish();
+
+		if ((bDBInfoGood) && (lstFields.at(1).toInt() == 2)) {
+			// If it's version 2, we need to also read the Direction flag:
+			queryData.exec("SELECT Direction FROM DBInfo");
+
+			if (!queryData.next()) {
+				bDBInfoGood = false;
+				strError = QObject::tr("Invalid Bible Database DBInfo V2 Record", "ReadDB");
+			} else {
+				QStringList lstV2Fields;
+				if (!queryFieldsToStringList(m_pParent, lstV2Fields, queryData, 1)) return false;
+				// Convert to: KJPBSDB, version, $uuid, $Language, $Name, $Description, $Direction, $Info
+				lstV2Fields.insert(6, lstV2Fields.at(0));
+			}
+
+			queryData.finish();
+		}
 #else
 		bDBInfoGood = false;
 		strError = QObject::tr("No database reading DBInfo", "ReadDB");
 #endif	// !NOT_USING_SQL
 	}
 
+	int nVersion = (lstFields.size() < 2) ? 0 : lstFields.at(1).toInt();
 	if (bDBInfoGood) {
 		if ((lstFields.size() < 2) ||						// Must have a minimum of 2 fields until we figure out the version number, then compare from there based on version
 			(lstFields.at(0) != "KJPBSDB")) {
 			bDBInfoGood = false;
 			strError = QObject::tr("Invalid Database Header/DBInfo record", "ReadDB");
-		} else if (lstFields.at(1).toInt() != KJPBS_CCDB_VERSION) {
+		} else if ((nVersion < 1) || (nVersion > 2 /* KJPBS_CCDB_VERSION */)) {
 			bDBInfoGood = false;
 			strError = QObject::tr("Unsupported KJPBS Database Version %1", "ReadDB").arg(lstFields.at(1));
-		} else if (lstFields.size() != 7) {
+		} else if ( ((nVersion == 1) && (lstFields.size() != 7)) ||
+					((nVersion == 2) && (lstFields.size() != 8))) {
 			bDBInfoGood = false;
 			strError = QObject::tr("Invalid Database Header/DBInfo record for the version (%1) it specifies", "ReadDB").arg(lstFields.at(1));
 		} else if (lstFields.at(2).isEmpty()) {
@@ -380,13 +397,28 @@ bool CReadDatabase::ReadDBInfoTable()
 		} else if (lstFields.at(4).isEmpty()) {
 			bDBInfoGood = false;
 			strError = QObject::tr("Invalid Bible Database Name", "ReadDB");
+		} else if ((nVersion == 2) &&
+				   (lstFields.at(6).compare("ltr", Qt::CaseInsensitive) != 0) &&
+				   (lstFields.at(6).compare("rtl", Qt::CaseInsensitive) != 0) &&
+				   (!lstFields.at(6).isEmpty())) {		// Note: Treat empty direction as a default (i.e. old format norm)
+			bDBInfoGood = false;
+			strError = QObject::tr("Invalid Text Direction", "ReadDB");
 		} else {
 			// Note: This overrides any defaults read from internal descriptor list:
 			m_pBibleDatabase->m_descriptor.m_strUUID = lstFields.at(2);
 			m_pBibleDatabase->m_descriptor.m_strLanguage = lstFields.at(3);
 			m_pBibleDatabase->m_descriptor.m_strDBName = lstFields.at(4);
-			m_pBibleDatabase->m_descriptor.m_strDBDesc = lstFields.at(5);
-			m_pBibleDatabase->m_strInfo = lstFields.at(6);
+			m_pBibleDatabase->m_descriptor.m_strDBDesc = lstFields.at(5);		// Should we set strDBDesc=strDBName here if strDBDesc is empty??
+			if (nVersion == 2) {
+				if (lstFields.at(6).compare("ltr", Qt::CaseInsensitive) == 0) {
+					m_pBibleDatabase->m_descriptor.m_nTextDir = Qt::LeftToRight;
+				} else if (lstFields.at(6).compare("rtl", Qt::CaseInsensitive) == 0) {
+					m_pBibleDatabase->m_descriptor.m_nTextDir = Qt::RightToLeft;
+				} else {
+					m_pBibleDatabase->m_descriptor.m_nTextDir = Qt::LayoutDirectionAuto;
+				}
+			}
+			m_pBibleDatabase->m_strInfo = lstFields.at((nVersion == 1) ? 6 : 7);
 		}
 	}
 
@@ -1509,7 +1541,7 @@ TBibleDescriptor CReadDatabase::discoverCCDBBibleDatabase(const QString &strFile
 {
 	Q_ASSERT(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
 
-	TBibleDescriptor bblDesc = { BTO_None, "", "", "", "", "", "", "", "" };
+	TBibleDescriptor bblDesc;
 	bblDesc.m_strCCDBFilename = strFilePathName;
 	QFileInfo fiCCDB(bblDesc.m_strCCDBFilename);
 	if (fiCCDB.exists() && fiCCDB.isFile()) {
@@ -1588,7 +1620,7 @@ TBibleDescriptor CReadDatabase::discoverS3DBBibleDatabase(const QString &strFile
 {
 	Q_ASSERT(m_pBibleDatabase.isNull());		// Must be run on a new CReadDatabase object
 
-	TBibleDescriptor bblDesc = { BTO_None, "", "", "", "", "", "", "", "" };
+	TBibleDescriptor bblDesc;
 	bblDesc.m_strS3DBFilename = strFilePathName;
 #ifndef NOT_USING_SQL
 	QFileInfo fiS3DB(bblDesc.m_strS3DBFilename);

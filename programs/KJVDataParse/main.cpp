@@ -2802,6 +2802,13 @@ int main(int argc, char *argv[])
 	settingsDBInfo.clear();
 	settingsDBInfo.beginGroup("BibleDBInfo");
 	settingsDBInfo.setValue("Language", xmlHandler.language());
+	QString strDir;
+	if (bblDescriptor.m_nTextDir == Qt::LeftToRight) {
+		strDir = "ltr";
+	} else if (bblDescriptor.m_nTextDir == Qt::RightToLeft) {
+		strDir = "rtl";
+	}	// Note: "Auto" stays as an empty string instead of using "auto"
+	settingsDBInfo.setValue("Direction", strDir);
 	settingsDBInfo.setValue("Name", bblDescriptor.m_strDBName);
 	settingsDBInfo.setValue("Description", bblDescriptor.m_strDBDesc);
 	settingsDBInfo.setValue("UUID", bblDescriptor.m_strUUID);

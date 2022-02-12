@@ -136,7 +136,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 
 			// Create the table in the database:
 			strCmd = QString("create table DBInfo "
-							"(ndx INTEGER PRIMARY KEY, uuid TEXT, Language TEXT, Name TEXT, Description TEXT, Info BLOB)");
+							"(ndx INTEGER PRIMARY KEY, uuid TEXT, Language TEXT, Name TEXT, Description TEXT, Direction TEXT, Info BLOB)");
 
 			if (!queryCreate.exec(strCmd)) {
 				if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -154,6 +154,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 #endif
 	settingsDBInfo.beginGroup("BibleDBInfo");
 	QString strDBLang = settingsDBInfo.value("Language").toString();
+	QString strDBDirection = settingsDBInfo.value("Direction").toString();
 	QString strDBName = settingsDBInfo.value("Name").toString();
 	QString strDBDesc = settingsDBInfo.value("Description").toString();
 	QString strDBUUID = settingsDBInfo.value("UUID").toString();
@@ -181,15 +182,18 @@ bool CBuildDatabase::BuildDBInfoTable()
 		QSqlQuery queryInsert(m_myDatabase);
 		queryInsert.exec("BEGIN TRANSACTION");
 
+		// Note: We have redefined 'ndx' to be version number to keep in sync with
+		//	the CCDB, etc.
 		strCmd = QString("INSERT INTO DBInfo "
-							"(ndx, uuid, Language, Name, Description, Info) "
-							"VALUES (:ndx, :uuid, :Language, :Name, :Description, :Info)");
+							"(ndx, uuid, Language, Name, Description, Direction, Info) "
+							"VALUES (:ndx, :uuid, :Language, :Name, :Description, :Direction, :Info)");
 		queryInsert.prepare(strCmd);
-		queryInsert.bindValue(":ndx", 1);
+		queryInsert.bindValue(":ndx", KJPBS_CCDB_VERSION);
 		queryInsert.bindValue(":uuid", strDBUUID);
 		queryInsert.bindValue(":Language", strDBLang);
 		queryInsert.bindValue(":Name", strDBName);
 		queryInsert.bindValue(":Description", strDBDesc);
+		queryInsert.bindValue(":Direction", strDBDirection);
 		queryInsert.bindValue(":Info", arrDBInfo, QSql::In | QSql::Binary);
 
 		if (!queryInsert.exec()) {
@@ -204,7 +208,10 @@ bool CBuildDatabase::BuildDBInfoTable()
 #endif	// !NOT_USING_SQL
 
 	if (!m_pCCDatabase.isNull()) {
-		// Format:  KJPBSDB, version, $uuid, $Language, $Name, $Description, $Info
+		// Version 1:
+		//		Format:  KJPBSDB, version, $uuid, $Language, $Name, $Description, $Info
+		// Version 2:
+		//		Format:  KJPBSDB, version, $uuid, $Language, $Name, $Description, $Direction, $Info
 		QStringList arrCCData;
 		arrCCData.append("KJPBSDB");
 		arrCCData.append(QString("%1").arg(KJPBS_CCDB_VERSION));
@@ -212,6 +219,7 @@ bool CBuildDatabase::BuildDBInfoTable()
 		arrCCData.append(strDBLang);
 		arrCCData.append(strDBName);
 		arrCCData.append(strDBDesc);
+		arrCCData.append(strDBDirection);
 		arrCCData.append(QString(arrDBInfo));
 		(*m_pCCDatabase) << arrCCData;
 	}

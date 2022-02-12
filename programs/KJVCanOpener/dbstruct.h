@@ -71,7 +71,7 @@
 
 // ============================================================================
 
-#define KJPBS_CCDB_VERSION		1			// Current version of our CCDB file format
+#define KJPBS_CCDB_VERSION		2			// Current version of our CCDB file format
 
 // ============================================================================
 

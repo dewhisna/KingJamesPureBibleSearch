@@ -44,8 +44,9 @@ Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
 
 #define defaultBibleTypeFlags			(BTO_None)
 
-typedef struct {
-	BibleTypeOptionsFlags m_btoFlags;	// Bible database flags
+typedef struct TBibleDescriptor {
+	BibleTypeOptionsFlags m_btoFlags = defaultBibleTypeFlags;	// Bible database flags
+	Qt::LayoutDirection m_nTextDir = Qt::LayoutDirectionAuto;	// Text Direction (ltr or rtl)
 	QString m_strWorkID;				// OSIS Work Identifier
 	QString m_strLanguage;				// Two-Character international language ID (note: some language codes are more than 2-characters, like ancient greek is "grc")
 	QString m_strDBName;				// Short Database Name
@@ -125,7 +126,7 @@ Q_DECLARE_FLAGS(DictionaryTypeOptionsFlags, DictionaryTypeOptions)
 #define defaultTopicalDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Topical)
 #define defaultStrongsDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Strongs)
 
-typedef struct {
+typedef struct TDictionaryDescriptor {
 	DictionaryTypeOptionsFlags m_dtoFlags;
 	QString m_strLanguage;
 	QString m_strDBName;
