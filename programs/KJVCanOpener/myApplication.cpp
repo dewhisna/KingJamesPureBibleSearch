@@ -1482,6 +1482,8 @@ int CMyApplication::execute(bool bBuildDB)
 										m_bblDescSelectedForBuild :
 										TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strSelectedMainBibleDB);
 
+			setSplashMessage(tr("Building:", "Errors") + QString(" %1 ").arg(bblDesc.m_strDBName) + tr("Bible", "Errors"));
+
 #ifdef NOT_USING_SQL
 			// If we can't support SQL, we can't:
 			QString strKJVSQLDatabasePath;
