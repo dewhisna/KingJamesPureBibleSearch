@@ -999,6 +999,18 @@ void CKJVTextFormatConfig::navigateToDemoText()
 {
 	CRelIndex ndxPreview(41, 9, 1, 1);						// Goto Mark 9:1 for Preview (as it has some red-letter text)
 	CRelIndex ndxPreview2(41, 9, 3, 1);						// Goto Mark 9:3 for additional Search Results highlight so we can get all combinations of highlighters...
+	if ((!m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->completelyContains(TPhraseTag(ndxPreview))) ||
+		(!m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->completelyContains(TPhraseTag(ndxPreview2)))) {
+		// If Bible doesn't contain Mark, try Psalms:
+		ndxPreview = CRelIndex(19, 23, 1, 1);
+		ndxPreview2 = CRelIndex(19, 23, 3, 1);
+	}
+	if ((!m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->completelyContains(TPhraseTag(ndxPreview))) ||
+		(!m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->completelyContains(TPhraseTag(ndxPreview2)))) {
+		// If Bible doesn't contain either Mark or Psalms, try Genesis (such as a Torah only text):
+		ndxPreview = CRelIndex(1, 12, 1, 1);
+		ndxPreview2 = CRelIndex(1, 12, 3, 1);
+	}
 	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxPreview, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser);
 	m_pScriptureBrowser->navigator().selectWords(TPhraseTag(ndxPreview));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview, 5)));
@@ -1034,6 +1046,10 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	} else if (m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("grc") == 0) {
 		// Special case for the Greek Textus Receptus texts, since we currently don't have our app translated to Greek
 		strTrumpet = "σαλπι*";
+	} else if ((m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("hbo") == 0) ||
+				(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("he") == 0)) {
+		// Special case for the Hebrew Masoretic texts, since we currently don't have our app translated to Hebrew
+		strTrumpet = "חצו*";	// Should be this:  "*חצו";  TODO : Figure out wildcards with Hebrew RTL text.  It works OK in the SearchPhraseEdit, but not here in the code
 	}
 	m_previewSearchPhrase.ParsePhrase(strTrumpet);
 	m_previewSearchPhrase.FindWords();
@@ -2835,6 +2851,14 @@ void CConfigCopyOptions::setVerseCopyPreview()
 		strHtml += doc.toHtml();
 		strHtml += "<hr>\n";
 	}
+	if (!navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(19, 23, 3, 0), 3))).isEmpty()) {
+		strHtml += doc.toHtml();
+		strHtml += "<hr>\n";
+	}
+	if (!navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(23, 14, 1, 0), 4))).isEmpty()) {
+		strHtml += doc.toHtml();
+		strHtml += "<hr>\n";
+	}
 	if (!navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(40, 24, 50, 0), 4))).isEmpty()) {
 		strHtml += doc.toHtml();
 		strHtml += "<hr>\n";
@@ -2858,10 +2882,24 @@ void CConfigCopyOptions::setSearchResultsRefsPreview()
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	TPhraseTagList lstTags;
-	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 1)));
-	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 3)));
-	lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 5)));
-	CVerseListItem vliTemp(TVerseIndex(CRelIndex(40, 24, 50, 0), VLMRTE_SEARCH_RESULTS, VLMNTE_VERSE_TERMINATOR_NODE), m_pBibleDatabase, lstTags);
+	CRelIndex ndx;
+	if (m_pBibleDatabase->completelyContains(TPhraseTag(CRelIndex(40, 24, 50, 5)))) {		// Matthew for Bibles with NT
+		lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 1)));
+		lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 3)));
+		lstTags.append(TPhraseTag(CRelIndex(40, 24, 50, 5)));
+		ndx = CRelIndex(40, 24, 50, 0);
+	} else if (m_pBibleDatabase->completelyContains(TPhraseTag(CRelIndex(19, 23, 5, 5)))) {	// Psalms for Bibles with OT and/or Ps only
+		lstTags.append(TPhraseTag(CRelIndex(19, 23, 5, 1)));
+		lstTags.append(TPhraseTag(CRelIndex(19, 23, 5, 3)));
+		lstTags.append(TPhraseTag(CRelIndex(19, 23, 5, 5)));
+		ndx = CRelIndex(19, 23, 5, 0);
+	} else {																				// Genesis for Bibles with Torah only
+		lstTags.append(TPhraseTag(CRelIndex(1, 12, 5, 1)));
+		lstTags.append(TPhraseTag(CRelIndex(1, 12, 5, 3)));
+		lstTags.append(TPhraseTag(CRelIndex(1, 12, 5, 5)));
+		ndx = CRelIndex(1, 12, 5, 0);
+	}
+	CVerseListItem vliTemp(TVerseIndex(ndx, VLMRTE_SEARCH_RESULTS, VLMNTE_VERSE_TERMINATOR_NODE), m_pBibleDatabase, lstTags);
 	ui.lineEditShowSearchResultsRefsPreview->setText(vliTemp.getHeading(false));
 	ui.lineEditCopySearchResultsRefsPreview->setText(vliTemp.getHeading(true));
 }
