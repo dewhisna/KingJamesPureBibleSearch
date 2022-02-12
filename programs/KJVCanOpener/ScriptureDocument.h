@@ -75,8 +75,9 @@ public:
 	virtual void beginFontRelativeSize(const QString &strSize) { Q_UNUSED(strSize); }
 	virtual void endFontRelativeSize() { }
 
-	virtual void beginDiv(const QString &strClass = QString(), const QString &strStyle = QString())
+	virtual void beginDiv(Qt::LayoutDirection dir = Qt::LayoutDirectionAuto, const QString &strClass = QString(), const QString &strStyle = QString())
 	{
+		Q_UNUSED(dir);
 		Q_UNUSED(strClass);
 		Q_UNUSED(strStyle);
 	}
@@ -133,7 +134,7 @@ public:
 	virtual void beginFontRelativeSize(const QString &strSize) override;
 	virtual void endFontRelativeSize() override;
 
-	virtual void beginDiv(const QString &strClass = QString(), const QString &strStyle = QString()) override;
+	virtual void beginDiv(Qt::LayoutDirection dir = Qt::LayoutDirectionAuto, const QString &strClass = QString(), const QString &strStyle = QString()) override;
 	virtual void endDiv() override;
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) override;

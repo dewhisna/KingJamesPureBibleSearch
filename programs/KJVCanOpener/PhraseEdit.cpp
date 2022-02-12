@@ -1492,7 +1492,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	CRelIndex ndxBook(ndx.book(), 0, 0, 0);
 
 	// Print Heading for this Book:
-	scriptureHTML.beginDiv("book");
+	scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "book");
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
 	scriptureHTML.appendLiteralText(book.m_strBkName);
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors)) scriptureHTML.endAnchor();
@@ -1517,13 +1517,13 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 	// Print Book Descriptions:
 	if ((flagsTRO & TRO_Subtitles) && (!book.m_strDesc.isEmpty())) {
-		scriptureHTML.beginDiv("subtitle");
+		scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "subtitle");
 		scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
 		scriptureHTML.endDiv();
 	}
 	// Print Book Category:
 	if  ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty())) {
-		scriptureHTML.beginDiv("category");
+		scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "category");
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(strCategory);
 		scriptureHTML.endBold();
@@ -1542,7 +1542,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	// Add colophon for the book if it exists and we are instructed to add it:
 	if ((flagsTRO & TRO_Colophons) && (book.m_bHaveColophon)) {
 		// Try pseudo-verse (searchable) style first:
-		scriptureHTML.beginDiv("colophon");
+		scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 		if (bTotalColophonAnchor) {
@@ -1565,7 +1565,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		if ((flagsTRO & TRO_Colophons) &&
 			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBook, (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoFootnoteAnchors))))) {
 			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
-			scriptureHTML.beginDiv("colophon");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 			scriptureHTML.flushBuffer();
 			scriptureHTML.endDiv();
 		}
@@ -1759,7 +1759,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if (relPrev.chapter() == bookPrev.m_nNumChp) {
 			if ((flagsTRO & TRO_Colophons) && (bookPrev.m_bHaveColophon)) {
 				// Try pseudo-verse (searchable) style first:
-				scriptureHTML.beginDiv("colophon");
+				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 				scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 				scriptureHTML.appendRawText("<span class=\"verse\">");
 				if (bTotalColophonAnchor) {
@@ -1782,7 +1782,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				if ((flagsTRO & TRO_Colophons) &&
 					(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoFootnoteAnchors))))) {
 					scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
-					scriptureHTML.beginDiv("colophon");
+					scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 					scriptureHTML.flushBuffer();
 					scriptureHTML.endDiv();
 				}
@@ -1802,7 +1802,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	CRelIndex ndxBookChapter1(ndx.book(), 1, 0, 0);
 
 	// Print Heading for this Book:
-	scriptureHTML.beginDiv("book");
+	scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "book");
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors)) scriptureHTML.beginAnchorID(ndxBook.asAnchor());
 	scriptureHTML.appendLiteralText(book.m_strBkName);
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors)) scriptureHTML.endAnchor();
@@ -1828,13 +1828,13 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if (m_pBibleDatabase->NormalizeIndex(ndxBookChapter1) == m_pBibleDatabase->NormalizeIndex(ndxBookChap)) {
 		// Print Book Descriptions:
 		if ((flagsTRO & TRO_Subtitles) && (!book.m_strDesc.isEmpty())) {
-			scriptureHTML.beginDiv("subtitle");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "subtitle");
 			scriptureHTML.appendRawText(QString("(%1)").arg(book.m_strDesc));
 			scriptureHTML.endDiv();
 		}
 		// Print Book Category:
 		if  ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBook).isEmpty())) {
-			scriptureHTML.beginDiv("category");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "category");
 			scriptureHTML.beginBold();
 			scriptureHTML.appendLiteralText(strCategory);
 			scriptureHTML.endBold();
@@ -1852,7 +1852,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	}
 
 	// Print Heading for this Chapter:
-	scriptureHTML.beginDiv("chapter");
+	scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "chapter");
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.beginAnchorID(ndxBookChap.asAnchor());
 	scriptureHTML.appendLiteralText(QString("%1 %2").arg(strChapter).arg(ndx.chapter()));
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.endAnchor();
@@ -1860,7 +1860,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	// If we have a chapter Footnote for this chapter, print it too:
 	if ((flagsTRO & TRO_Superscriptions) && (pChapter->m_bHaveSuperscription)) {
 		// Try pseudo-verse (searchable) style first:
-		scriptureHTML.beginDiv("superscription");
+		scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "superscription");
 		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 		if (bTotalSuperscriptionAnchor) {
@@ -1884,7 +1884,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if ((flagsTRO & TRO_Superscriptions) &&
 			(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChap, (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoFootnoteAnchors))))) {
 			scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
-			scriptureHTML.beginDiv("superscription");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "superscription");
 			scriptureHTML.flushBuffer();
 			scriptureHTML.endDiv();
 		}
@@ -2029,7 +2029,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if (ndx.chapter() == book.m_nNumChp) {
 		if ((flagsTRO & TRO_Colophons) && (book.m_bHaveColophon)) {
 			// Try pseudo-verse (searchable) style first:
-			scriptureHTML.beginDiv("colophon");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 			scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 			scriptureHTML.appendRawText("<span class=\"verse\">");
 			if (bTotalColophonAnchor) {
@@ -2053,7 +2053,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			if ((flagsTRO & TRO_Colophons) &&
 				(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBook, (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoFootnoteAnchors))))) {
 				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the colophon divison ahead of footnote
-				scriptureHTML.beginDiv("colophon");
+				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 				scriptureHTML.flushBuffer();
 				scriptureHTML.endDiv();
 			}
@@ -2078,7 +2078,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// Print Heading for this Book:
 		if (relNext.book() != ndx.book()) {
 			// Print Heading for this Book:
-			scriptureHTML.beginDiv("book");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "book");
 			if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors)) scriptureHTML.beginAnchorID(ndxBookNext.asAnchor());
 			scriptureHTML.appendLiteralText(bookNext.m_strBkName);
 			if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoBookAnchors)) scriptureHTML.endAnchor();
@@ -2102,13 +2102,13 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.endDiv();
 			// Print Book Descriptions for first chapter of book:
 			if ((flagsTRO & TRO_Subtitles) && (!bookNext.m_strDesc.isEmpty()) && (relNext.chapter() == 1)) {
-				scriptureHTML.beginDiv("subtitle");
+				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "subtitle");
 				scriptureHTML.appendRawText(QString("(%1)").arg(bookNext.m_strDesc));
 				scriptureHTML.endDiv();
 			}
 			// Print Book Category for first chapter of book:
 			if ((flagsTRO & TRO_Category) && (!m_pBibleDatabase->bookCategoryName(ndxBookNext).isEmpty()) && (relNext.chapter() == 1)) {
-				scriptureHTML.beginDiv("category");
+				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "category");
 				scriptureHTML.beginBold();
 				scriptureHTML.appendLiteralText(strCategory);
 				scriptureHTML.endBold();
@@ -2125,7 +2125,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				scriptureHTML.insertHorizontalRule();
 		}
 		// Print Heading for this Chapter:
-		scriptureHTML.beginDiv("chapter");
+		scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "chapter");
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.beginAnchorID(ndxBookChapNext.asAnchor());
 		scriptureHTML.appendLiteralText(QString("%1 %2").arg(strChapter).arg(relNext.chapter()));
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoChapterAnchors)) scriptureHTML.endAnchor();
@@ -2134,7 +2134,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// If we have a chapter note for this chapter, print it too:
 		if ((flagsTRO & TRO_Superscriptions) && (pChapterNext->m_bHaveSuperscription)) {
 			// Try pseudo-verse (searchable) style first:
-			scriptureHTML.beginDiv("superscription");
+			scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "superscription");
 			scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 			scriptureHTML.appendRawText("<span class=\"verse\">");
 			if (bTotalSuperscriptionAnchor) {
@@ -2158,7 +2158,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			if ((flagsTRO & TRO_Superscriptions) &&
 				(scriptureHTML.addFootnoteFor(m_pBibleDatabase.data(), ndxBookChapNext, (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoFootnoteAnchors))))) {
 				scriptureHTML.stopBuffered();		// Stop the buffering so we can insert the superscription divison ahead of footnote
-				scriptureHTML.beginDiv("superscription");
+				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "superscription");
 				scriptureHTML.flushBuffer();
 				scriptureHTML.endDiv();
 			}
@@ -2409,9 +2409,9 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 //
 //		if (ndxVerse.verse() == 0) {
 //			if (ndxVerse.chapter() == 0) {
-//				scriptureHTML.beginDiv("colophon");
+//				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "colophon");
 //			} else {
-//				scriptureHTML.beginDiv("superscription");
+//				scriptureHTML.beginDiv(m_pBibleDatabase->direction(), "superscription");
 //			}
 //		}
 		scriptureHTML.appendRawText("<span class=\"verse\">");

@@ -182,21 +182,29 @@ void CScriptureTextHtmlBuilder::endFontRelativeSize()
 	appendRawText( QLatin1String( "</span>" ) );
 }
 
-void CScriptureTextHtmlBuilder::beginDiv(const QString &strClass, const QString &strStyle)
+void CScriptureTextHtmlBuilder::beginDiv(Qt::LayoutDirection dir, const QString &strClass, const QString &strStyle)
 {
-	if (!strClass.isEmpty()) {
-		if (!strStyle.isEmpty()) {
-			appendRawText(QString::fromLatin1("<div class=\"%1\" style=\"%2\">").arg(strClass).arg(strStyle));
-		} else {
-			appendRawText(QString::fromLatin1("<div class=\"%1\">").arg(strClass));
-		}
-	} else {
-		if (!strStyle.isEmpty()) {
-			appendRawText(QString::fromLatin1("<div style=\"%1\">").arg(strStyle));
-		} else {
-			appendRawText(QString::fromLatin1("<div>"));
-		}
+	QString strDirMarkup;
+	QString strClassMarkup;
+	QString strStyleMarkup;
+
+	if (dir == Qt::LeftToRight) {
+	  strDirMarkup = QString::fromLatin1(" dir=\"ltr\"");
+	} else if (dir == Qt::RightToLeft) {
+	  strDirMarkup = QString::fromLatin1(" dir=\"rtl\"");
 	}
+	if (!strClass.isEmpty()) {
+		strClassMarkup = QString::fromLatin1(" class=\"%1\"").arg(strClass);
+	}
+	if (!strStyle.isEmpty()) {
+		strStyleMarkup = QString::fromLatin1(" style=\"%1\"").arg(strStyle);
+	}
+
+	appendRawText(QString::fromLatin1("<div"));
+	if (!strDirMarkup.isEmpty()) appendRawText(strDirMarkup);
+	if (!strClassMarkup.isEmpty()) appendRawText(strClassMarkup);
+	if (!strStyleMarkup.isEmpty()) appendRawText(strStyleMarkup);
+	appendRawText(">");
 }
 
 void CScriptureTextHtmlBuilder::endDiv()
