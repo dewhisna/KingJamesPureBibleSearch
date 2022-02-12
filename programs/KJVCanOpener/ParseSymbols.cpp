@@ -35,7 +35,7 @@ const QString g_strHyphens =	QString(QChar(0x002D)) +		// U+002D	&#45;		hyphen-m
 //								QString(QChar(0x007E)) +		// U+007E	&#126;		tilde 	the Ascii tilde, with multiple usage; “swung dash”
 								QString(QChar(0x00AD)) +		// U+00AD	&#173;		soft hyphen 	“discretionary hyphen”
 								QString(QChar(0x058A)) +		// U+058A	&#1418; 	armenian hyphen 	as soft hyphen, but different in shape
-								QString(QChar(0x05BE)) +		// U+05BE	&#1470; 	hebrew punctuation maqaf 	word hyphen in Hebrew
+								QString(QChar(0x05BE)) +		// U+05BE	&#1470; 	hebrew punctuation maqaf (or maqqef) 	word hyphen in Hebrew
 //								QString(QChar(0x1400)) +		// U+1400	&#5120; 	canadian syllabics hyphen 	used in Canadian Aboriginal Syllabics
 //								QString(QChar(0x1806)) +		// U+1806	&#6150; 	mongolian todo soft hyphen 	as soft hyphen, but displayed at the beginning of the second line
 								QString(QChar(0x2010)) +		// U+2010	&#8208; 	hyphen 	unambiguously a hyphen character, as in “left-to-right”; narrow width
@@ -67,7 +67,8 @@ const QString g_strHyphens =	QString(QChar(0x002D)) +		// U+002D	&#45;		hyphen-m
 const QString g_strApostrophes =	QString(QChar(0x0027)) +		// U+0027	&#39;		Ascii apostrophe (single quote)
 									QString(QChar(0x2018)) +		// U+2018	&#8216;		Quote left
 									QString(QChar(0x2019)) +		// U+2019	&#8217;		Quote right
-									QString(QChar(0x201B));			// U+201B	&#8219;		Quote reversed
+									QString(QChar(0x201B)) +		// U+201B	&#8219;		Quote reversed
+									QString(QChar(0x05F3));			// U+05F3	&#1523;		HEBREW PUNCTUATION GERESH ("׳")
 
 
 // Ascii Word characters -- these will be kept in words as-is and includes
@@ -91,7 +92,17 @@ const QString g_strNonAsciiNonWordChars =	QString(QChar(0x201C)) +		// U+201C	&#
 											QString(QChar(0x00BF)) +		// U+00BF	&#191;		Upside down question mark
 											QString(QChar(0x00A1)) +		// U+00A1	&#161;		Upside down exclamation mark
 											QString(QChar(0x00B7)) +		// U+00B7	&#183;		Centered period
-											QString(QChar(0x00A0));			// U+00A0	&#160;		No-Break Space
+											QString(QChar(0x00A0)) +		// U+00A0	&#160;		No-Break Space
+											QString(QChar(0x05C3)) +		// U+05C3	&#1475;		HEBREW PUNCTUATION SOF PASUQ ("׃")
+											QString(QChar(0x05C0)) +		// U+05C0	&#1472;		HEBREW PUNCTUATION PASEQ ("׀")
+// Note: We don't include the Gershayim here
+//	because it acts as a word modifier to denote
+//	acronyms, multi-digit Hebrew numbers, and
+//	to denote literal letters vs homographs, etc.
+//	Therefore, we want to treat it as part of the
+//	word and not exclude it:
+//											QString(QChar(0x05F4)) +		// U+05F4	&#1524;		HEBREW PUNCTUATION GERSHAYIM ("״")
+											QString(QChar(0x05C6));			// U+05C6	&#1478;		HEBREW PUNCTUATION NUN HAFUKHA ("׆")
 
 const QChar g_chrPilcrow = QChar(0x00B6);		// Pilcrow paragraph marker
 
