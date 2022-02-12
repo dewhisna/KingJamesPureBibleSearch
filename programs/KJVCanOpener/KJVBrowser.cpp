@@ -321,6 +321,8 @@ void CKJVBrowser::initialize()
 
 	// --------------------------------------------------------------
 
+	Qt::LayoutDirection nTextDir = m_pBibleDatabase->direction();
+
 	//	Swapout the widgetKJVPassageNavigator from the layout with
 	//		one that we can set the database on:
 
@@ -332,6 +334,9 @@ void CKJVBrowser::initialize()
 	m_pScriptureBrowser->setTabChangesFocus(false);
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 	m_pScriptureBrowser->setOpenLinks(false);
+	if (nTextDir != Qt::LayoutDirectionAuto) {
+		m_pScriptureBrowser->setLayoutDirection(nTextDir);
+	}
 	connect(CPersistentSettings::instance(), SIGNAL(changedScrollbarsEnabled(bool)), this, SLOT(en_changedScrollbarsEnabled(bool)));
 
 	if (ui.textBrowserMainText) {
@@ -360,7 +365,11 @@ void CKJVBrowser::initialize()
 
 	int nNextCol = 0;
 
-	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) {
+	bool bIsLTR = (nTextDir == Qt::LeftToRight) || (nTextDir == Qt::LayoutDirectionAuto);
+	bool bIsRTL = (nTextDir == Qt::RightToLeft) || (nTextDir == Qt::LayoutDirectionAuto);
+
+	if (((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) && bIsLTR) ||
+		((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) && bIsRTL)) {
 		ui.scrollbarChapter = new QScrollBar(this);
 		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
 		ui.scrollbarChapter->setOrientation(Qt::Vertical);
@@ -379,6 +388,9 @@ void CKJVBrowser::initialize()
 	m_pWebEngineView = new CScriptureWebEngineView(m_pSearchResultsListModel, this);
 	m_pWebEngineView->setObjectName(QString::fromUtf8("textBrowserWebEngine"));
 	m_pWebEngineView->setMouseTracking(true);
+	if (nTextDir != Qt::LayoutDirectionAuto) {
+		m_pWebEngineView->setLayoutDirection(nTextDir);
+	}
 	ui.gridLayout->addWidget(m_pWebEngineView, 1, nNextCol, 1, 1);
 	++nNextCol;
 	m_pWebEngineView->setVisible(false);
@@ -387,7 +399,8 @@ void CKJVBrowser::initialize()
 //	m_pScriptureBrowser->installEventFilter(this);
 #endif
 
-	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
+	if (((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) && bIsLTR) ||
+		((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) && bIsRTL)) {
 		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
 		ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
 		++nNextCol;
@@ -482,9 +495,14 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 		ui.scrollbarChapter = nullptr;
 	}
 
+	Qt::LayoutDirection nTextDir = m_pBibleDatabase->direction();
+	bool bIsLTR = (nTextDir == Qt::LeftToRight) || (nTextDir == Qt::LayoutDirectionAuto);
+	bool bIsRTL = (nTextDir == Qt::RightToLeft) || (nTextDir == Qt::LayoutDirectionAuto);
+
 	int nNextCol = 0;
 
-	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) {
+	if (((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) && bIsLTR) ||
+		((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) && bIsRTL)) {
 		ui.scrollbarChapter = new QScrollBar(this);
 		ui.scrollbarChapter->setObjectName(QString::fromUtf8("scrollbarChapter"));
 		ui.scrollbarChapter->setOrientation(Qt::Vertical);
@@ -504,7 +522,8 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 	++nNextCol;
 #endif
 
-	if (CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) {
+	if (((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) && bIsLTR) ||
+		((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) && bIsRTL)) {
 		ui.spacerScrollbarChapter = new QSpacerItem(6, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
 		ui.gridLayout->addItem(ui.spacerScrollbarChapter, 1, nNextCol, 1, 1);
 		++nNextCol;
