@@ -102,8 +102,9 @@ void BBCodeBuilder::endFontPointSize()
   appendRawText( QLatin1String( "[/SIZE]" ) );
 }
 
-void BBCodeBuilder::beginParagraph( Qt::Alignment a, qreal top, qreal bottom, qreal left, qreal right )
+void BBCodeBuilder::beginParagraph(Qt::LayoutDirection d, Qt::Alignment a, qreal top, qreal bottom, qreal left, qreal right )
 {
+  Q_UNUSED( d );
   Q_UNUSED( top );
   Q_UNUSED( bottom );
   Q_UNUSED( left );

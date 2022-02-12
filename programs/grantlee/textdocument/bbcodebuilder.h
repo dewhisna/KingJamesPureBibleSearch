@@ -75,7 +75,7 @@ public:
   virtual void beginFontPointSize( int size ) override;
   virtual void endFontPointSize() override;
 
-  virtual void beginParagraph( Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 ) override;
+  virtual void beginParagraph( Qt::LayoutDirection d = Qt::LayoutDirectionAuto, Qt::Alignment a = Qt::AlignLeft, qreal top = 0.0, qreal bottom = 0.0, qreal left = 0.0, qreal right = 0.0 ) override;
   virtual void endParagraph() override;
 
   virtual void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") ) override;

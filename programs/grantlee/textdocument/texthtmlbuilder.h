@@ -142,7 +142,7 @@ public:
     @param leftMargin The new paragraph leftMargin
     @param rightMargin The new paragraph rightMargin
   */
-  virtual void beginParagraph( Qt::Alignment al = Qt::AlignLeft, qreal topMargin = 0.0, qreal bottomMargin = 0.0, qreal leftMargin = 0.0, qreal rightMargin = 0.0 ) override;
+  virtual void beginParagraph( Qt::LayoutDirection d = Qt::LayoutDirectionAuto, Qt::Alignment al = Qt::AlignLeft, qreal topMargin = 0.0, qreal bottomMargin = 0.0, qreal leftMargin = 0.0, qreal rightMargin = 0.0 ) override;
   virtual void endParagraph() override;
 
   virtual void beginIndent( int nBlockIndent = 0, qreal nTextIndent = 0.0, const QString &strClass = QLatin1String("bodyIndent") ) override;

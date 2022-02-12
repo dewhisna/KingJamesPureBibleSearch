@@ -176,7 +176,7 @@ void TextHTMLBuilder::endFontPointSize()
   appendRawText( QLatin1String( "</span>" ) );
 }
 
-void TextHTMLBuilder::beginParagraph( Qt::Alignment al, qreal topMargin, qreal bottomMargin, qreal leftMargin, qreal rightMargin )
+void TextHTMLBuilder::beginParagraph(Qt::LayoutDirection d, Qt::Alignment al, qreal topMargin, qreal bottomMargin, qreal leftMargin, qreal rightMargin )
 {
   // Don't put paragraph tags inside li tags. Qt bug reported.
 //     if (currentListItemStyles.size() != 0)
@@ -197,20 +197,28 @@ void TextHTMLBuilder::beginParagraph( Qt::Alignment al, qreal topMargin, qreal b
 
   // Using == doesn't work here.
   // Using bitwise comparison because an alignment can contain a vertical and a horizontal part.
-  if ( al & Qt::AlignRight ) {
-	appendRawText( QLatin1String( "<p align=\"right\" " ) );
+  if (((al & Qt::AlignRight) && (d == Qt::LeftToRight)) ||
+	  ((al & Qt::AlignLeft) && (d == Qt::RightToLeft))) {
+	appendRawText( QLatin1String( "<p align=\"right\"" ) );
   } else if ( al & Qt::AlignHCenter ) {
-	appendRawText( QLatin1String( "<p align=\"center\" " ) );
+	appendRawText( QLatin1String( "<p align=\"center\"" ) );
   } else if ( al & Qt::AlignJustify ) {
-	appendRawText( QLatin1String( "<p align=\"justify\" " ) );
-  } else if ( al & Qt::AlignLeft ) {
-	appendRawText( QLatin1String( "<p" ) );
+	appendRawText( QLatin1String( "<p align=\"justify\"" ) );
+  } else if (((al & Qt::AlignLeft) && (d == Qt::LeftToRight)) ||
+			 ((al & Qt::AlignRight) && (d == Qt::RightToLeft))) {
+	appendRawText( QLatin1String( "<p align=\"left\"" ) );
   } else {
 	appendRawText( QLatin1String( "<p" ) );
   }
 
+  if (d == Qt::LeftToRight) {
+	appendRawText( QLatin1String( " dir=\"ltr\"" ) );
+  } else if (d == Qt::RightToLeft) {
+	appendRawText( QLatin1String( " dir=\"rtl\"" ) );
+  }
+
   if ( !styleString.isEmpty() ) {
-	appendRawText( QLatin1String( " \"" ) + styleString + QLatin1Char( '\"' ) );
+	appendRawText( QLatin1String( " style=\"" ) + styleString + QLatin1Char( '\"' ) );
   }
   appendRawText( QLatin1String( ">" ) );
 //     }

@@ -390,8 +390,9 @@ void PlainTextMarkupBuilder::beginHeader( int level )
   Q_UNUSED( level );
 }
 
-void PlainTextMarkupBuilder::beginParagraph( Qt::Alignment a, qreal top, qreal bottom, qreal left, qreal right )
+void PlainTextMarkupBuilder::beginParagraph(Qt::LayoutDirection d, Qt::Alignment a, qreal top, qreal bottom, qreal left, qreal right )
 {
+  Q_UNUSED( d );
   Q_UNUSED( a );
   Q_UNUSED( top );
   Q_UNUSED( bottom );

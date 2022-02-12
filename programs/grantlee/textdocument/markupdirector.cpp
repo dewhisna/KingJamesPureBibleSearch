@@ -228,6 +228,7 @@ QPair<QTextFrame::iterator, QTextBlock> MarkupDirector::processList( QTextFrame:
 QTextFrame::iterator MarkupDirector::processBlockContents( QTextFrame::iterator frameIt, const QTextBlock &block )
 {
   QTextBlockFormat blockFormat = block.blockFormat();
+  Qt::LayoutDirection blockDir = block.textDirection();
   Qt::Alignment blockAlignment = blockFormat.alignment();
 
   // TODO: decide when to use <h1> etc.
@@ -253,7 +254,7 @@ QTextFrame::iterator MarkupDirector::processBlockContents( QTextFrame::iterator 
   if ( !block.textList() ) {
     // Don't instruct builders to use margins. The rich text widget doesn't have an action for them yet,
     // So users can't edit them. See bug http://bugs.kde.org/show_bug.cgi?id=160600
-    m_builder->beginParagraph( blockAlignment //,
+    m_builder->beginParagraph( blockDir, blockAlignment //,
 //                                blockFormat.topMargin(),
 //                                blockFormat.bottomMargin(),
 //                                blockFormat.leftMargin(),
@@ -339,7 +340,7 @@ QTextBlock::iterator MarkupDirector::processFragment( QTextBlock::iterator it, c
         }
         m_builder->addNewline();
       } else if ( paraClosed ) {
-        m_builder->beginParagraph( /* blockAlignment */ );
+        m_builder->beginParagraph( /* blockDir, blockAlignment */ );
         paraClosed = false;
       }
     }
