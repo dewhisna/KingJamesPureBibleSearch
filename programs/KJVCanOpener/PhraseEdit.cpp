@@ -1543,7 +1543,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	if ((flagsTRO & TRO_Colophons) && (book.m_bHaveColophon)) {
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("colophon");
-		scriptureHTML.beginParagraph();
+		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 		if (bTotalColophonAnchor) {
 			CRelIndex ndxColophon(ndxBook);
@@ -1716,7 +1716,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if ((!(flagsTRO & TRO_SuppressPrePostChapters)) && (relPrev.isSet())) {
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
-		scriptureHTML.beginParagraph();
+		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
@@ -1760,7 +1760,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			if ((flagsTRO & TRO_Colophons) && (bookPrev.m_bHaveColophon)) {
 				// Try pseudo-verse (searchable) style first:
 				scriptureHTML.beginDiv("colophon");
-				scriptureHTML.beginParagraph();
+				scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 				scriptureHTML.appendRawText("<span class=\"verse\">");
 				if (bTotalColophonAnchor) {
 					CRelIndex ndxColophon(relPrev.book(), 0, 0, 1);
@@ -1861,7 +1861,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	if ((flagsTRO & TRO_Superscriptions) && (pChapter->m_bHaveSuperscription)) {
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv("superscription");
-		scriptureHTML.beginParagraph();
+		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 		if (bTotalSuperscriptionAnchor) {
 			CRelIndex ndxSuperscription(ndxBookChap);
@@ -1928,7 +1928,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			bVPLNeedsLineBreak = false;
 		}
 		if (!bParagraph) {
-			scriptureHTML.beginParagraph();
+			scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 			bParagraph = true;
 			bNeedLeadSpace = false;
 		}
@@ -2030,7 +2030,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if ((flagsTRO & TRO_Colophons) && (book.m_bHaveColophon)) {
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("colophon");
-			scriptureHTML.beginParagraph();
+			scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 			scriptureHTML.appendRawText("<span class=\"verse\">");
 			if (bTotalColophonAnchor) {
 				CRelIndex ndxColophon(ndxBook);
@@ -2135,7 +2135,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		if ((flagsTRO & TRO_Superscriptions) && (pChapterNext->m_bHaveSuperscription)) {
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv("superscription");
-			scriptureHTML.beginParagraph();
+			scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 			scriptureHTML.appendRawText("<span class=\"verse\">");
 			if (bTotalSuperscriptionAnchor) {
 				CRelIndex ndxSuperscription(ndxBookChapNext);
@@ -2175,7 +2175,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			(scriptureHTML.addNoteFor(ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 			scriptureHTML.insertHorizontalRule();
 
-		scriptureHTML.beginParagraph();
+		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
@@ -2331,7 +2331,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 
 	if (flagsTRO & TRO_AddDividerLineBefore) scriptureHTML.insertHorizontalRule();
 
-	scriptureHTML.beginParagraph();
+	scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 
 	bool bExtended = false;			// True if result extends to multiple verses
 
@@ -2612,7 +2612,7 @@ QString CPhraseNavigator::setDocumentToFormattedVerses(const TPassageTagList &ls
 
 	bool bInIndent = false;
 
-	scriptureHTML.beginParagraph();
+	scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
 
 	if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 		scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
