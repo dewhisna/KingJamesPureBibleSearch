@@ -28,9 +28,9 @@
 #-------------------------------------------------
 
 greaterThan(QT_MAJOR_VERSION,4) {
-	CONFIG *= c++11
+	CONFIG *= c++14
 } else {
-	QMAKE_CXXFLAGS *= -std=c++11
+	QMAKE_CXXFLAGS *= -std=c++14
 }
 
 QT       *= core gui xml
