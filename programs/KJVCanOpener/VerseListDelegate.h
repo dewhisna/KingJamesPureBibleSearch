@@ -50,7 +50,13 @@ public:
 signals:
 
 public slots:
+#if QT_VERSION >= 0x050000
 	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index) override;
+#else
+	// On Qt4, this function isn't virtual and can't be overridden.
+	//	It's a slot and so should still get hooked up in connect().
+	virtual bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index);
+#endif
 
 protected:
 	void SetDocumentText(const QStyleOptionViewItemV4_t &option, QTextDocument &doc, const QModelIndex &index, bool bDoingSizeHint) const;
