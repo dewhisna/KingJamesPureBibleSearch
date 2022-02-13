@@ -487,10 +487,10 @@ if(!emscripten|wasm):!console:FORMS += \
 	ConfigCopyOptions.ui \
 	ConfigDictDatabase.ui \
 	ConfigDictionaryOptions.ui \
+	ConfigGeneralSettings.ui \
 	ConfigSearchOptions.ui \
 	DictDatabaseInfoDlg.ui \
 	DictionaryWidget.ui \
-	KJVGeneralSettingsConfig.ui \
 	KJVLocaleConfig.ui \
 	KJVTextFormatConfig.ui \
 	RenameHighlighterDlg.ui

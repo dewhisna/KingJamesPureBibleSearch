@@ -2198,24 +2198,24 @@ Do you wish to restart the app??</translation>
     </message>
 </context>
 <context>
-    <name>CKJVGeneralSettingsConfig</name>
+    <name>CConfigGeneralSettings</name>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="28"/>
+        <location filename="../ConfigGeneralSettings.ui" line="28"/>
         <source>General Settings</source>
         <translation>General Settings</translation>
     </message>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="44"/>
+        <location filename="../ConfigGeneralSettings.ui" line="44"/>
         <source>Search Options:</source>
         <translation>Search Options:</translation>
     </message>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="101"/>
+        <location filename="../ConfigGeneralSettings.ui" line="101"/>
         <source>Browser Options:</source>
         <translation>Browser Options:</translation>
     </message>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="175"/>
+        <location filename="../ConfigGeneralSettings.ui" line="175"/>
         <source>Dictionary Options:</source>
         <translation>Dictionary Options:</translation>
     </message>

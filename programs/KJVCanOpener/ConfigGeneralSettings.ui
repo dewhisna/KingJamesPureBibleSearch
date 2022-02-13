@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVGeneralSettingsConfig</class>
- <widget class="QWidget" name="CKJVGeneralSettingsConfig">
+ <class>CConfigGeneralSettings</class>
+ <widget class="QWidget" name="CConfigGeneralSettings">
   <property name="windowTitle">
    <string>General Settings</string>
   </property>

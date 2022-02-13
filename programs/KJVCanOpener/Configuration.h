@@ -534,15 +534,15 @@ private:
 
 // ============================================================================
 
-#include "ui_KJVGeneralSettingsConfig.h"
+#include "ui_ConfigGeneralSettings.h"
 
-class CKJVGeneralSettingsConfig : public QWidget
+class CConfigGeneralSettings : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
-	~CKJVGeneralSettingsConfig();
+	explicit CConfigGeneralSettings(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
+	~CConfigGeneralSettings();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -557,7 +557,7 @@ private:
 
 // UI Private:
 private:
-	Ui::CKJVGeneralSettingsConfig ui;
+	Ui::CConfigGeneralSettings ui;
 };
 
 // ============================================================================
@@ -637,7 +637,7 @@ signals:
 	void dataChanged(bool bNeedRestart);
 
 private:
-	CKJVGeneralSettingsConfig *m_pGeneralSettingsConfig;
+	CConfigGeneralSettings *m_pGeneralSettingsConfig;
 	CConfigCopyOptions *m_pCopyOptionsConfig;
 	CKJVTextFormatConfig *m_pTextFormatConfig;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)

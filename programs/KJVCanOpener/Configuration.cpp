@@ -2905,7 +2905,7 @@ void CConfigCopyOptions::setSearchResultsRefsPreview()
 
 // ============================================================================
 
-CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
+CConfigGeneralSettings::CConfigGeneralSettings(CBibleDatabasePtr pBibleDatabase, QWidget *parent)
 	:	QWidget(parent)
 {
 	Q_ASSERT(!pBibleDatabase.isNull());
@@ -2917,26 +2917,26 @@ CKJVGeneralSettingsConfig::CKJVGeneralSettingsConfig(CBibleDatabasePtr pBibleDat
 	connect(ui.widgetDictionaryOptions, SIGNAL(dataChanged(bool)), this, SIGNAL(dataChanged(bool)));
 }
 
-CKJVGeneralSettingsConfig::~CKJVGeneralSettingsConfig()
+CConfigGeneralSettings::~CConfigGeneralSettings()
 {
 
 }
 
-void CKJVGeneralSettingsConfig::loadSettings()
+void CConfigGeneralSettings::loadSettings()
 {
 	ui.widgetSearchOptions->loadSettings();
 	ui.widgetBrowserOptions->loadSettings();
 	ui.widgetDictionaryOptions->loadSettings();
 }
 
-void CKJVGeneralSettingsConfig::saveSettings()
+void CConfigGeneralSettings::saveSettings()
 {
 	ui.widgetSearchOptions->saveSettings();
 	ui.widgetBrowserOptions->saveSettings();
 	ui.widgetDictionaryOptions->saveSettings();
 }
 
-bool CKJVGeneralSettingsConfig::isDirty() const
+bool CConfigGeneralSettings::isDirty() const
 {
 	return (ui.widgetSearchOptions->isDirty() || ui.widgetBrowserOptions->isDirty() || ui.widgetDictionaryOptions->isDirty());
 }
@@ -3140,7 +3140,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 	Q_ASSERT(!pBibleDatabase.isNull());
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
-	m_pGeneralSettingsConfig = new CKJVGeneralSettingsConfig(pBibleDatabase, this);
+	m_pGeneralSettingsConfig = new CConfigGeneralSettings(pBibleDatabase, this);
 	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
 	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)

@@ -2198,24 +2198,24 @@ Voulez-vous redémarrer l&apos;application??</translation>
     </message>
 </context>
 <context>
-    <name>CKJVGeneralSettingsConfig</name>
+    <name>CConfigGeneralSettings</name>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="28"/>
+        <location filename="../ConfigGeneralSettings.ui" line="28"/>
         <source>General Settings</source>
         <translation>Paramètres Généraux</translation>
     </message>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="44"/>
+        <location filename="../ConfigGeneralSettings.ui" line="44"/>
         <source>Search Options:</source>
         <translation>Options de Recherche:</translation>
     </message>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="101"/>
+        <location filename="../ConfigGeneralSettings.ui" line="101"/>
         <source>Browser Options:</source>
         <translation>Options du Navigateur:</translation>
     </message>
     <message>
-        <location filename="../KJVGeneralSettingsConfig.ui" line="175"/>
+        <location filename="../ConfigGeneralSettings.ui" line="175"/>
         <source>Dictionary Options:</source>
         <translation>Options de Dictionnaire:</translation>
     </message>
