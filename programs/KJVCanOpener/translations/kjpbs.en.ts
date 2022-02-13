@@ -3397,82 +3397,82 @@ So instead, would you like to disable it so that text highlighted with this High
     </message>
 </context>
 <context>
-    <name>CKJVUserNotesDatabaseConfig</name>
+    <name>CConfigUserNotesDatabase</name>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="28"/>
         <source>Notes, Highlighters, and Cross-References File Settings</source>
         <translation>Notes, Highlighters, and Cross-References File Settings</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="39"/>
         <source>Primary Notes &amp;Filename:</source>
         <translation>Primary Notes &amp;Filename:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="64"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="64"/>
         <source>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</source>
         <translation>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="67"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="67"/>
         <source>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</source>
         <translation>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="77"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="80"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="77"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="80"/>
         <source>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</source>
         <translation>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="83"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="83"/>
         <source>&amp;Set Primary Notes File (Load)...</source>
         <translation>&amp;Set Primary Notes File (Load)...</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="93"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="90"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="93"/>
         <source>Close the Current Primary Notes File and Start with a New Empty Notes File</source>
         <translation>Close the Current Primary Notes File and Start with a New Empty Notes File</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="96"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="96"/>
         <source>Start New Notes File</source>
         <translation>Start New Notes File</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="107"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="110"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="107"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="110"/>
         <source>Enable to automatically create Notes Backup File</source>
         <translation>Enable to automatically create Notes Backup File</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="116"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="116"/>
         <source>Keep &amp;Backup</source>
         <translation>Keep &amp;Backup</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="139"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="139"/>
         <source>Backup File E&amp;xtension:</source>
         <translation>Backup File E&amp;xtension:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="152"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="152"/>
         <source>Extension to add to Notes File Backups</source>
         <translation>Extension to add to Notes File Backups</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="155"/>
         <source>Enter the Extension to add to Notes File Backups</source>
         <translation>Enter the Extension to add to Notes File Backups</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="179"/>
         <source>Auto Save &amp;Time in minutes (0 to disable):</source>
         <translation>Auto Save &amp;Time in minutes (0 to disable):</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="209"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="209"/>
         <source>Default Note Background &amp;Color</source>
         <translation>Default Note Background &amp;Color</translation>
     </message>

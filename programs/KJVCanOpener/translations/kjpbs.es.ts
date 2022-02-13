@@ -3397,82 +3397,82 @@ Así que en vez, ¿te gustaría que desactivarlo para que el texto resaltado con
     </message>
 </context>
 <context>
-    <name>CKJVUserNotesDatabaseConfig</name>
+    <name>CConfigUserNotesDatabase</name>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="28"/>
         <source>Notes, Highlighters, and Cross-References File Settings</source>
         <translation>Configuración para el archivo de Notas, Resaltadores y Referencias-Cruzadas</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="39"/>
         <source>Primary Notes &amp;Filename:</source>
         <translation>Principal &amp;Archivo de Notas:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="64"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="64"/>
         <source>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</source>
         <translation>Notas / Resaltadores / Referencias-Cruzadas Nombre del archivo principal (leer / escribir)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="67"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="67"/>
         <source>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</source>
         <translation>Notas / Resaltadores / Referencias-Cruzadas Nombre del archivo principal seleccionado (leer / escribir)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="77"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="80"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="77"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="80"/>
         <source>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</source>
         <translation>Haga clic en Examinar y Seleccionar Notas / Resaltadores / Referencias-Cruzadas Archivo principal</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="83"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="83"/>
         <source>&amp;Set Primary Notes File (Load)...</source>
         <translation>A&amp;signar el Archivo Principal de Notas (cargar)...</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="93"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="90"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="93"/>
         <source>Close the Current Primary Notes File and Start with a New Empty Notes File</source>
         <translation>Cerrar las actuales archivos principal de la notas y empezar un nuevo archivo vacías de notas</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="96"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="96"/>
         <source>Start New Notes File</source>
         <translation>Comenzar un Nuevo Archivo de Notas</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="107"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="110"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="107"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="110"/>
         <source>Enable to automatically create Notes Backup File</source>
         <translation>Habilitar para crear automáticamente copias de seguridad del Archivo Notas</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="116"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="116"/>
         <source>Keep &amp;Backup</source>
         <translation>Mantener una copia de &amp;Seguridad</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="139"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="139"/>
         <source>Backup File E&amp;xtension:</source>
         <translation>E&amp;xtensión de archivo de copia de seguridad:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="152"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="152"/>
         <source>Extension to add to Notes File Backups</source>
         <translation>Extensión para añadir al archivo de copias de seguridad de notas</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="155"/>
         <source>Enter the Extension to add to Notes File Backups</source>
         <translation>Entrar la extensión que añadir a las copias de seguridad de archivos de Notas</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="179"/>
         <source>Auto Save &amp;Time in minutes (0 to disable):</source>
         <translation>&amp;Tiempo de copia de seguridad automática en minutos (0 para desactivar):</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="209"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="209"/>
         <source>Default Note Background &amp;Color</source>
         <translation>&amp;Color de Fondo Predeterminado para las Notas</translation>
     </message>

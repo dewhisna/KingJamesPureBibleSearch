@@ -1499,7 +1499,7 @@ void CConfigDictDatabase::en_displayDictInformation()
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
-CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
+CConfigUserNotesDatabase::CConfigUserNotesDatabase(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QWidget(parent),
 		m_pUserNotesDatabase(pUserNotesDatabase),
 		m_bIsDirty(false),
@@ -1538,12 +1538,12 @@ CKJVUserNotesDatabaseConfig::CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr p
 	if (ui.editPrimaryUserNotesFilename->text().isEmpty()) en_changedPrimaryUserNotesFilename(QString());
 }
 
-CKJVUserNotesDatabaseConfig::~CKJVUserNotesDatabaseConfig()
+CConfigUserNotesDatabase::~CConfigUserNotesDatabase()
 {
 
 }
 
-void CKJVUserNotesDatabaseConfig::loadSettings()
+void CConfigUserNotesDatabase::loadSettings()
 {
 	m_bLoadingData = true;
 
@@ -1563,7 +1563,7 @@ void CKJVUserNotesDatabaseConfig::loadSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVUserNotesDatabaseConfig::saveSettings()
+void CConfigUserNotesDatabase::saveSettings()
 {
 #if QT_VERSION >= 0x050000
 	QString strExtension = ui.editBackupExtension->text().trimmed().remove(QRegularExpression("^\\.*")).trimmed();
@@ -1578,7 +1578,7 @@ void CKJVUserNotesDatabaseConfig::saveSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
+void CConfigUserNotesDatabase::en_clickedSetPrimaryUserNotesFilename()
 {
 	if (m_bLoadingData) return;
 
@@ -1709,13 +1709,13 @@ void CKJVUserNotesDatabaseConfig::en_clickedSetPrimaryUserNotesFilename()
 	m_pUserNotesDatabase->toggleUserNotesDatabaseData(true);		// Do a pseudo-copy.  This will trigger the equivalent of an apply since they have to change (it isn't a cancelable option)
 }
 
-bool CKJVUserNotesDatabaseConfig::loadUserNotesDatabase()
+bool CConfigUserNotesDatabase::loadUserNotesDatabase()
 {
 	CBusyCursor iAmBusy(nullptr);
 	return m_pUserNotesDatabase->load();
 }
 
-void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
+void CConfigUserNotesDatabase::en_clickedStartNewUserNotesFile()
 {
 	if ((m_pUserNotesDatabase->filePathName().isEmpty()) || (ui.editPrimaryUserNotesFilename->text().isEmpty())) return;
 
@@ -1750,28 +1750,28 @@ void CKJVUserNotesDatabaseConfig::en_clickedStartNewUserNotesFile()
 	m_pUserNotesDatabase->toggleUserNotesDatabaseData(true);		// Do a pseudo-copy.  This will trigger the equivalent of an apply since they have to change (it isn't a cancelable option)
 }
 
-void CKJVUserNotesDatabaseConfig::en_changedPrimaryUserNotesFilename(const QString &strFilename)
+void CConfigUserNotesDatabase::en_changedPrimaryUserNotesFilename(const QString &strFilename)
 {
 	bool bHadFocus = ui.btnStartNewUserNotesFile->hasFocus();
 	ui.btnStartNewUserNotesFile->setEnabled(!strFilename.isEmpty());
 	if ((bHadFocus) && (strFilename.isEmpty())) ui.btnSetPrimaryUserNotesFilename->setFocus();		// If the Start New Button had focus (i.e. user clicked it), pass focus off to the Set/Load button
 }
 
-void CKJVUserNotesDatabaseConfig::en_changedKeepBackup()
+void CConfigUserNotesDatabase::en_changedKeepBackup()
 {
 	if (m_bLoadingData) return;
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
 
-void CKJVUserNotesDatabaseConfig::en_changedBackupExtension()
+void CConfigUserNotesDatabase::en_changedBackupExtension()
 {
 	if (m_bLoadingData) return;
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }
 
-void CKJVUserNotesDatabaseConfig::en_changedAutoSaveTime(int nAutoSaveTime)
+void CConfigUserNotesDatabase::en_changedAutoSaveTime(int nAutoSaveTime)
 {
 	if (m_bLoadingData) return;
 
@@ -1780,7 +1780,7 @@ void CKJVUserNotesDatabaseConfig::en_changedAutoSaveTime(int nAutoSaveTime)
 	emit dataChanged(false);
 }
 
-void CKJVUserNotesDatabaseConfig::en_DefaultNoteBackgroundColorPicked(const QColor &color)
+void CConfigUserNotesDatabase::en_DefaultNoteBackgroundColorPicked(const QColor &color)
 {
 	if (m_bLoadingData) return;
 
@@ -3144,7 +3144,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
 	m_pTextFormatConfig = new CConfigTextFormat(pBibleDatabase, pDictionary, this);
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
+	m_pUserNotesDatabaseConfig = new CConfigUserNotesDatabase(g_pUserNotesDatabase, this);
 #endif
 	m_pBibleDatabaseConfig = new CConfigBibleDatabase(this);
 #if defined(USING_DICTIONARIES)

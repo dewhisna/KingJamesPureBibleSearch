@@ -395,10 +395,10 @@ endif()
 
 if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_FORMS
+		"ConfigUserNotesDatabase.ui"
 		"EditWWWLinkDlg.ui"
 		"KJVCrossRefEditDlg.ui"
 		"KJVNoteEditDlg.ui"
-		"KJVUserNotesDatabaseConfig.ui"
 	)
 endif()
 

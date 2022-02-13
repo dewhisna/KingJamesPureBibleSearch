@@ -3398,82 +3398,82 @@ Wollen sie stattdessen die Hervorhebung deaktivieren damit die Hervorhebung im T
     </message>
 </context>
 <context>
-    <name>CKJVUserNotesDatabaseConfig</name>
+    <name>CConfigUserNotesDatabase</name>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="28"/>
         <source>Notes, Highlighters, and Cross-References File Settings</source>
         <translation>Notiz, Hervorhebung und Querverweisdatei Einstellungen</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="39"/>
         <source>Primary Notes &amp;Filename:</source>
         <translation>Primärer &amp;Notizdateiname:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="64"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="64"/>
         <source>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</source>
         <translation>Primäre Benutzernotiz/HHervorhebung/Querverweisdatei ausgewählt (Read/Write)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="67"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="67"/>
         <source>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</source>
         <translation>Primäre Benutzernotiz/HHervorhebung/Querverweisdatei ausgewählt (Read/Write)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="77"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="80"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="77"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="80"/>
         <source>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</source>
         <translation>Klicken Sie um die primäre Benutzer Notiz/Hervorhebungs/Querverweisdatei auszuwählen</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="83"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="83"/>
         <source>&amp;Set Primary Notes File (Load)...</source>
         <translation>&amp;Wähle primäre Notizdatei (Lade)...</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="93"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="90"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="93"/>
         <source>Close the Current Primary Notes File and Start with a New Empty Notes File</source>
         <translation>Schließe die aktuelle Notizdatei und starte mit einer neuen leeren Notizdatei</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="96"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="96"/>
         <source>Start New Notes File</source>
         <translation>Erzeuge neue Notizdatei</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="107"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="110"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="107"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="110"/>
         <source>Enable to automatically create Notes Backup File</source>
         <translation>Aktiviere das automatische Notizdateibackup</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="116"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="116"/>
         <source>Keep &amp;Backup</source>
         <translation>Erzeuge &amp;Backup</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="139"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="139"/>
         <source>Backup File E&amp;xtension:</source>
         <translation>Backup File E&amp;xtension:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="152"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="152"/>
         <source>Extension to add to Notes File Backups</source>
         <translation>Erweiterung die an Notizdateibackups angefügt wird</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="155"/>
         <source>Enter the Extension to add to Notes File Backups</source>
         <translation>Wähle die Erweiterung für das Notizdateibackup</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="179"/>
         <source>Auto Save &amp;Time in minutes (0 to disable):</source>
         <translation>Automatische Speicherung der &amp;Zeit in Minuten (0 zum deaktivieren):</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="209"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="209"/>
         <source>Default Note Background &amp;Color</source>
         <translation>Standard Notizhintergrund&amp;farbe</translation>
     </message>

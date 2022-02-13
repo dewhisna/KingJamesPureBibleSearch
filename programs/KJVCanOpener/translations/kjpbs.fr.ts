@@ -3397,82 +3397,82 @@ Ainsi, au lieu, souhaitez-vous désactiver le surligneur, afin que le texte mis 
     </message>
 </context>
 <context>
-    <name>CKJVUserNotesDatabaseConfig</name>
+    <name>CConfigUserNotesDatabase</name>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="28"/>
         <source>Notes, Highlighters, and Cross-References File Settings</source>
         <translation>Paramètres pour le Fichier de Notes, Surligneurs, et Références-Croisées</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="39"/>
         <source>Primary Notes &amp;Filename:</source>
         <translation>Notes Primaires &amp;Fichier:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="64"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="64"/>
         <source>Primary User Notes/Highlighters/Cross-References Filename (Read/Write)</source>
         <translation>Notes / Surligneurs / Références-Croisées Nom du fichier primaire (lecture / écriture)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="67"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="67"/>
         <source>Primary User Notes/Highlighters/Cross-References File Selected (Read/Write)</source>
         <translation>Notes / Surligneurs / Références-Croisées Fichier Primaire Sélectionnée (lecture / écriture)</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="77"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="80"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="77"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="80"/>
         <source>Click to Browse and Select Primary User Notes/Highlighters/Cross-References File</source>
         <translation>Cliquez sur Parcourir et Sélectionner Notes / Surligneurs / Références-Croisées Fichier Primaire</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="83"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="83"/>
         <source>&amp;Set Primary Notes File (Load)...</source>
         <translation>&amp;Définir le fichier Notes Primaires (Charger)...</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="90"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="93"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="90"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="93"/>
         <source>Close the Current Primary Notes File and Start with a New Empty Notes File</source>
         <translation>Fermer le Fichier de Notes actuel primaires et de commencer une nouvelle Fichier de Notes vides</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="96"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="96"/>
         <source>Start New Notes File</source>
         <translation>Commencer nouveaux Fichier de Notes</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="107"/>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="110"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="107"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="110"/>
         <source>Enable to automatically create Notes Backup File</source>
         <translation>Permettre de créer automatiquement des fichier de Notes de sauvegarde</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="116"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="116"/>
         <source>Keep &amp;Backup</source>
         <translation>Maintenir de &amp;Sauvegarde</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="139"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="139"/>
         <source>Backup File E&amp;xtension:</source>
         <translation>E&amp;xtension du fichier de sauvegarde:</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="152"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="152"/>
         <source>Extension to add to Notes File Backups</source>
         <translation>Extension à ajouter aux sauvegardes Fichier de Notes</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="155"/>
         <source>Enter the Extension to add to Notes File Backups</source>
         <translation>Entrer l&apos;extension à ajouter aux sauvegardes de Fichiers de Notes</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="179"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="179"/>
         <source>Auto Save &amp;Time in minutes (0 to disable):</source>
         <translation>&amp;Temps de sauvegarde automatique en quelques minutes (0 pour désactiver):</translation>
     </message>
     <message>
-        <location filename="../KJVUserNotesDatabaseConfig.ui" line="209"/>
+        <location filename="../ConfigUserNotesDatabase.ui" line="209"/>
         <source>Default Note Background &amp;Color</source>
         <translation>Défaut &amp;Couleur de fond de Notes</translation>
     </message>

@@ -496,10 +496,10 @@ if(!emscripten|wasm):!console:FORMS += \
 	RenameHighlighterDlg.ui
 
 !emscripten:!vnc:!console:FORMS += \
+	ConfigUserNotesDatabase.ui \
 	EditWWWLinkDlg.ui \
 	KJVCrossRefEditDlg.ui \
-	KJVNoteEditDlg.ui \
-	KJVUserNotesDatabaseConfig.ui
+	KJVNoteEditDlg.ui
 
 !emscripten:!vnc:QtSpeech:FORMS += \
 	KJVTTSOptionsConfig.ui

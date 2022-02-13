@@ -307,15 +307,15 @@ private:
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
-#include "ui_KJVUserNotesDatabaseConfig.h"
+#include "ui_ConfigUserNotesDatabase.h"
 
-class CKJVUserNotesDatabaseConfig : public QWidget
+class CConfigUserNotesDatabase : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVUserNotesDatabaseConfig(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
-	~CKJVUserNotesDatabaseConfig();
+	explicit CConfigUserNotesDatabase(CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
+	~CConfigUserNotesDatabase();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -346,7 +346,7 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CKJVUserNotesDatabaseConfig ui;
+	Ui::CConfigUserNotesDatabase ui;
 };
 
 #endif
@@ -641,7 +641,7 @@ private:
 	CConfigCopyOptions *m_pCopyOptionsConfig;
 	CConfigTextFormat *m_pTextFormatConfig;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
+	CConfigUserNotesDatabase *m_pUserNotesDatabaseConfig;
 #endif
 	CConfigBibleDatabase *m_pBibleDatabaseConfig;
 #if defined(USING_DICTIONARIES)

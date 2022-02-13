@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVUserNotesDatabaseConfig</class>
- <widget class="QWidget" name="CKJVUserNotesDatabaseConfig">
+ <class>CConfigUserNotesDatabase</class>
+ <widget class="QWidget" name="CConfigUserNotesDatabase">
   <property name="windowTitle">
    <string>Notes, Highlighters, and Cross-References File Settings</string>
   </property>
