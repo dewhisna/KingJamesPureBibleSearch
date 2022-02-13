@@ -898,69 +898,69 @@ Written and Developed for Bethel Church, Festus, MO.</source>
     </message>
 </context>
 <context>
-    <name>CKJVBibleDatabaseConfig</name>
+    <name>CConfigBibleDatabase</name>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigBibleDatabase.ui" line="28"/>
         <source>Bible Database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigBibleDatabase.ui" line="39"/>
         <source>&amp;Bible Databases:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
+        <location filename="../ConfigBibleDatabase.ui" line="55"/>
         <source>List of available Bible Databases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
+        <location filename="../ConfigBibleDatabase.ui" line="71"/>
         <source>Display Bible &amp;Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="78"/>
+        <location filename="../ConfigBibleDatabase.ui" line="78"/>
         <source>I&amp;nitial Bible Database:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="88"/>
+        <location filename="../ConfigBibleDatabase.ui" line="88"/>
         <source>Select Main Bible Database to Load</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="102"/>
+        <location filename="../ConfigBibleDatabase.ui" line="102"/>
         <source>Options for Selected Database:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="118"/>
+        <location filename="../ConfigBibleDatabase.ui" line="118"/>
         <source>When enabled, hyphens in words won&apos;t display or copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="121"/>
+        <location filename="../ConfigBibleDatabase.ui" line="121"/>
         <source>&amp;Hide Hyphens in Words</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigBibleDatabase.ui" line="155"/>
         <source>Search Phrases are Hyphen Sensitive when Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="158"/>
+        <location filename="../ConfigBibleDatabase.ui" line="158"/>
         <source>Hyphen &amp;Sensitive Search Phrases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="168"/>
+        <location filename="../ConfigBibleDatabase.ui" line="168"/>
         <source>Word &amp;Changes:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="184"/>
+        <location filename="../ConfigBibleDatabase.ui" line="184"/>
         <source>Details of Changes to Database Word Rendering</source>
         <translation type="unfinished"></translation>
     </message>

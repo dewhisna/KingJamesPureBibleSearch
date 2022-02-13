@@ -910,69 +910,69 @@ Escrito y desarrollado por Bethel Church, Festus, MO.</translation>
     </message>
 </context>
 <context>
-    <name>CKJVBibleDatabaseConfig</name>
+    <name>CConfigBibleDatabase</name>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigBibleDatabase.ui" line="28"/>
         <source>Bible Database</source>
         <translation>Base de datos de la Biblia</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigBibleDatabase.ui" line="39"/>
         <source>&amp;Bible Databases:</source>
         <translation>&amp;Bases de datos de la Biblia:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
+        <location filename="../ConfigBibleDatabase.ui" line="55"/>
         <source>List of available Bible Databases</source>
         <translation>Lista de Bases de datos disponibles de la Biblia</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
+        <location filename="../ConfigBibleDatabase.ui" line="71"/>
         <source>Display Bible &amp;Information</source>
         <translation>Mostrar la &amp;Información de la Biblia</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="78"/>
+        <location filename="../ConfigBibleDatabase.ui" line="78"/>
         <source>I&amp;nitial Bible Database:</source>
         <translation>Base de datos de la Biblia &amp;Iniciale:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="88"/>
+        <location filename="../ConfigBibleDatabase.ui" line="88"/>
         <source>Select Main Bible Database to Load</source>
         <translation>Seleccione Base de datos de Biblia Principal para Cargar</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="102"/>
+        <location filename="../ConfigBibleDatabase.ui" line="102"/>
         <source>Options for Selected Database:</source>
         <translation>Opciones para la Base de datos Seleccionadas:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="118"/>
+        <location filename="../ConfigBibleDatabase.ui" line="118"/>
         <source>When enabled, hyphens in words won&apos;t display or copy</source>
         <translation>Cuando está habilitado, guiones en palabras no seran mostrados o copiados</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="121"/>
+        <location filename="../ConfigBibleDatabase.ui" line="121"/>
         <source>&amp;Hide Hyphens in Words</source>
         <translation>&amp;Ocultar Guinoes en Palabras</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigBibleDatabase.ui" line="155"/>
         <source>Search Phrases are Hyphen Sensitive when Enabled</source>
         <translation>Búsqueda de Frases son Guión Sensible cuando Activado</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="158"/>
+        <location filename="../ConfigBibleDatabase.ui" line="158"/>
         <source>Hyphen &amp;Sensitive Search Phrases</source>
         <translation>Guión &amp;Sensitivo Búsqueda de Frases</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="168"/>
+        <location filename="../ConfigBibleDatabase.ui" line="168"/>
         <source>Word &amp;Changes:</source>
         <translation>&amp;Cambios de Palabras:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="184"/>
+        <location filename="../ConfigBibleDatabase.ui" line="184"/>
         <source>Details of Changes to Database Word Rendering</source>
         <translation>Detalles de Cambios a la Base de datos en la representación palabra</translation>
     </message>

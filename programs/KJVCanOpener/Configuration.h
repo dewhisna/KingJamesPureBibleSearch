@@ -166,15 +166,15 @@ private:
 
 // ============================================================================
 
-#include "ui_KJVBibleDatabaseConfig.h"
+#include "ui_ConfigBibleDatabase.h"
 
-class CKJVBibleDatabaseConfig : public QWidget
+class CConfigBibleDatabase : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVBibleDatabaseConfig(QWidget *parent = nullptr);
-	~CKJVBibleDatabaseConfig();
+	explicit CConfigBibleDatabase(QWidget *parent = nullptr);
+	~CConfigBibleDatabase();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -211,7 +211,7 @@ private:
 	bool m_bLoadingData;
 	QString m_strSelectedDatabaseUUID;
 
-	Ui::CKJVBibleDatabaseConfig ui;
+	Ui::CConfigBibleDatabase ui;
 };
 
 // ============================================================================
@@ -643,7 +643,7 @@ private:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
 #endif
-	CKJVBibleDatabaseConfig *m_pBibleDatabaseConfig;
+	CConfigBibleDatabase *m_pBibleDatabaseConfig;
 #if defined(USING_DICTIONARIES)
 	CKJVDictDatabaseConfig *m_pDictDatabaseConfig;
 #endif

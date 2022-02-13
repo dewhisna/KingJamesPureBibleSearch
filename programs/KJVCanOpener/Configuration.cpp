@@ -1085,7 +1085,7 @@ void CKJVTextFormatConfig::en_userNotesChanged()
 // ============================================================================
 // ============================================================================
 
-CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
+CConfigBibleDatabase::CConfigBibleDatabase(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
 		m_bLoadingData(false)
@@ -1134,12 +1134,12 @@ CKJVBibleDatabaseConfig::CKJVBibleDatabaseConfig(QWidget *parent)
 	loadSettings();
 }
 
-CKJVBibleDatabaseConfig::~CKJVBibleDatabaseConfig()
+CConfigBibleDatabase::~CConfigBibleDatabase()
 {
 
 }
 
-void CKJVBibleDatabaseConfig::loadSettings()
+void CConfigBibleDatabase::loadSettings()
 {
 	m_bLoadingData = true;
 
@@ -1156,7 +1156,7 @@ void CKJVBibleDatabaseConfig::loadSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVBibleDatabaseConfig::saveSettings()
+void CConfigBibleDatabase::saveSettings()
 {
 	// We've already saved settings in the change notification slots.  Just reset our
 	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
@@ -1181,7 +1181,7 @@ void CKJVBibleDatabaseConfig::saveSettings()
 	loadSettings();		// Reload page with new settings
 }
 
-void CKJVBibleDatabaseConfig::en_changedHideHyphens(bool bHideHyphens)
+void CConfigBibleDatabase::en_changedHideHyphens(bool bHideHyphens)
 {
 	if (m_bLoadingData) return;
 	if (m_strSelectedDatabaseUUID.isEmpty()) return;
@@ -1202,7 +1202,7 @@ void CKJVBibleDatabaseConfig::en_changedHideHyphens(bool bHideHyphens)
 	emit dataChanged(false);
 }
 
-void CKJVBibleDatabaseConfig::en_changedHyphenHideMode(int index)
+void CConfigBibleDatabase::en_changedHyphenHideMode(int index)
 {
 	if (m_bLoadingData) return;
 	if (m_strSelectedDatabaseUUID.isEmpty()) return;
@@ -1219,7 +1219,7 @@ void CKJVBibleDatabaseConfig::en_changedHyphenHideMode(int index)
 	emit dataChanged(false);
 }
 
-void CKJVBibleDatabaseConfig::en_changedHyphenSensitive(bool bHyphenSensitive)
+void CConfigBibleDatabase::en_changedHyphenSensitive(bool bHyphenSensitive)
 {
 	if (m_bLoadingData) return;
 	if (m_strSelectedDatabaseUUID.isEmpty()) return;
@@ -1233,13 +1233,13 @@ void CKJVBibleDatabaseConfig::en_changedHyphenSensitive(bool bHyphenSensitive)
 	emit dataChanged(false);
 }
 
-void CKJVBibleDatabaseConfig::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
+void CConfigBibleDatabase::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
 {
 	Q_UNUSED(indexPrevious);
 	setSettingControls(m_pBibleDatabaseListModel->data(indexCurrent, CBibleDatabaseListModel::BDDRE_UUID_ROLE).toString());
 }
 
-void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
+void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 {
 	bool bLoadingData = m_bLoadingData;
 	m_bLoadingData = true;
@@ -1280,13 +1280,13 @@ void CKJVBibleDatabaseConfig::setSettingControls(const QString &strUUID)
 	m_bLoadingData = bLoadingData;
 }
 
-void CKJVBibleDatabaseConfig::en_loadBibleDatabase(const QString &strUUID)
+void CConfigBibleDatabase::en_loadBibleDatabase(const QString &strUUID)
 {
 	Q_ASSERT(!strUUID.isEmpty());
 	TBibleDatabaseList::loadBibleDatabase(strUUID, false, this);
 }
 
-void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
+void CConfigBibleDatabase::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
 {
 	Q_UNUSED(strUUID);
 	Q_UNUSED(bAutoLoad);
@@ -1300,7 +1300,7 @@ void CKJVBibleDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, b
 	emit dataChanged(false);
 }
 
-void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
+void CConfigBibleDatabase::en_changedMainDBCurrentChanged(int index)
 {
 	if (m_bLoadingData) return;
 
@@ -1314,7 +1314,7 @@ void CKJVBibleDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 	emit dataChanged(false);
 }
 
-void CKJVBibleDatabaseConfig::en_displayBibleInformation()
+void CConfigBibleDatabase::en_displayBibleInformation()
 {
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
 	Q_ASSERT(!pBibleDatabase.isNull());
@@ -3146,7 +3146,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif
-	m_pBibleDatabaseConfig = new CKJVBibleDatabaseConfig(this);
+	m_pBibleDatabaseConfig = new CConfigBibleDatabase(this);
 #if defined(USING_DICTIONARIES)
 	m_pDictDatabaseConfig = new CKJVDictDatabaseConfig(this);
 #endif

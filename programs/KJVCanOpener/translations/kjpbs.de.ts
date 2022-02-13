@@ -910,69 +910,69 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
     </message>
 </context>
 <context>
-    <name>CKJVBibleDatabaseConfig</name>
+    <name>CConfigBibleDatabase</name>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigBibleDatabase.ui" line="28"/>
         <source>Bible Database</source>
         <translation>Bibel-Datenbank</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigBibleDatabase.ui" line="39"/>
         <source>&amp;Bible Databases:</source>
         <translation>&amp;Bibel-Datenbanken:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
+        <location filename="../ConfigBibleDatabase.ui" line="55"/>
         <source>List of available Bible Databases</source>
         <translation>Liste der verfügbaren Bibel-Datenbanken</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
+        <location filename="../ConfigBibleDatabase.ui" line="71"/>
         <source>Display Bible &amp;Information</source>
         <translation>Bibel-&amp;Information anzeigen</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="78"/>
+        <location filename="../ConfigBibleDatabase.ui" line="78"/>
         <source>I&amp;nitial Bible Database:</source>
         <translation>I&amp;nitiale Bibel-Datenbank:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="88"/>
+        <location filename="../ConfigBibleDatabase.ui" line="88"/>
         <source>Select Main Bible Database to Load</source>
         <translation>Wähle die Haupt-Bibel-Datenbank aus</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="102"/>
+        <location filename="../ConfigBibleDatabase.ui" line="102"/>
         <source>Options for Selected Database:</source>
         <translation>Optionen für die gewählte Datenbank:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="118"/>
+        <location filename="../ConfigBibleDatabase.ui" line="118"/>
         <source>When enabled, hyphens in words won&apos;t display or copy</source>
         <translation>Wenn aktiviert, werden Trennstriche in Wörtern nicht angezeigt bzw. kopiert</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="121"/>
+        <location filename="../ConfigBibleDatabase.ui" line="121"/>
         <source>&amp;Hide Hyphens in Words</source>
         <translation>&amp;Trennstriche verbergen</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigBibleDatabase.ui" line="155"/>
         <source>Search Phrases are Hyphen Sensitive when Enabled</source>
         <translation>Suchphrasen sind Trennstrichsensitiv wenn aktiviert</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="158"/>
+        <location filename="../ConfigBibleDatabase.ui" line="158"/>
         <source>Hyphen &amp;Sensitive Search Phrases</source>
         <translation>Trennstrich&amp;sensitive Suchphrasen</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="168"/>
+        <location filename="../ConfigBibleDatabase.ui" line="168"/>
         <source>Word &amp;Changes:</source>
         <translation>&amp;Wortänderungen:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="184"/>
+        <location filename="../ConfigBibleDatabase.ui" line="184"/>
         <source>Details of Changes to Database Word Rendering</source>
         <translation>Details zur Veränderung der Wortdarstellung in der Datenbank</translation>
     </message>

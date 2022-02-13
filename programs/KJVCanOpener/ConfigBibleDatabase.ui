@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVBibleDatabaseConfig</class>
- <widget class="QWidget" name="CKJVBibleDatabaseConfig">
+ <class>CConfigBibleDatabase</class>
+ <widget class="QWidget" name="CConfigBibleDatabase">
   <property name="windowTitle">
    <string>Bible Database</string>
   </property>

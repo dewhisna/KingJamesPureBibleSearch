@@ -378,13 +378,13 @@ set(KJVCanOpener_FORMS
 if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	list(APPEND KJVCanOpener_FORMS
 		"BibleDatabaseInfoDlg.ui"
+		"ConfigBibleDatabase.ui"
 		"ConfigBrowserOptions.ui"
 		"ConfigCopyOptions.ui"
 		"ConfigDictionaryOptions.ui"
 		"ConfigSearchOptions.ui"
 		"DictDatabaseInfoDlg.ui"
 		"DictionaryWidget.ui"
-		"KJVBibleDatabaseConfig.ui"
 		"KJVDictDatabaseConfig.ui"
 		"KJVGeneralSettingsConfig.ui"
 		"KJVLocaleConfig.ui"

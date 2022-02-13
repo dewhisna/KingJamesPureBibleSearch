@@ -910,69 +910,69 @@ Written and Developed for Bethel Church, Festus, MO.</translation>
     </message>
 </context>
 <context>
-    <name>CKJVBibleDatabaseConfig</name>
+    <name>CConfigBibleDatabase</name>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigBibleDatabase.ui" line="28"/>
         <source>Bible Database</source>
         <translation>Bible Database</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigBibleDatabase.ui" line="39"/>
         <source>&amp;Bible Databases:</source>
         <translation>&amp;Bible Databases:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="55"/>
+        <location filename="../ConfigBibleDatabase.ui" line="55"/>
         <source>List of available Bible Databases</source>
         <translation>List of available Bible Databases</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="71"/>
+        <location filename="../ConfigBibleDatabase.ui" line="71"/>
         <source>Display Bible &amp;Information</source>
         <translation>Display Bible &amp;Information</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="78"/>
+        <location filename="../ConfigBibleDatabase.ui" line="78"/>
         <source>I&amp;nitial Bible Database:</source>
         <translation>I&amp;nitial Bible Database:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="88"/>
+        <location filename="../ConfigBibleDatabase.ui" line="88"/>
         <source>Select Main Bible Database to Load</source>
         <translation>Select Main Bible Database to Load</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="102"/>
+        <location filename="../ConfigBibleDatabase.ui" line="102"/>
         <source>Options for Selected Database:</source>
         <translation>Options for Selected Database:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="118"/>
+        <location filename="../ConfigBibleDatabase.ui" line="118"/>
         <source>When enabled, hyphens in words won&apos;t display or copy</source>
         <translation>When enabled, hyphens in words won&apos;t display or copy</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="121"/>
+        <location filename="../ConfigBibleDatabase.ui" line="121"/>
         <source>&amp;Hide Hyphens in Words</source>
         <translation>&amp;Hide Hyphens in Words</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="155"/>
+        <location filename="../ConfigBibleDatabase.ui" line="155"/>
         <source>Search Phrases are Hyphen Sensitive when Enabled</source>
         <translation>Search Phrases are Hyphen Sensitive when Enabled</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="158"/>
+        <location filename="../ConfigBibleDatabase.ui" line="158"/>
         <source>Hyphen &amp;Sensitive Search Phrases</source>
         <translation>Hyphen &amp;Sensitive Search Phrases</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="168"/>
+        <location filename="../ConfigBibleDatabase.ui" line="168"/>
         <source>Word &amp;Changes:</source>
         <translation>Word &amp;Changes:</translation>
     </message>
     <message>
-        <location filename="../KJVBibleDatabaseConfig.ui" line="184"/>
+        <location filename="../ConfigBibleDatabase.ui" line="184"/>
         <source>Details of Changes to Database Word Rendering</source>
         <translation>Details of Changes to Database Word Rendering</translation>
     </message>
