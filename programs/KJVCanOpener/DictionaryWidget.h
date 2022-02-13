@@ -62,7 +62,7 @@ protected slots:
 	virtual void en_cursorPositionChanged() override;
 
 private slots:
-	void en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void en_changedDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void delayed_UpdatedCompleter();
 
 protected:

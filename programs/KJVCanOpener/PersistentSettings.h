@@ -33,7 +33,6 @@
 #include <QMap>
 
 #include "dbstruct.h"
-#include "SearchCompleter.h"
 #include "PhraseEdit.h"
 
 // ============================================================================
@@ -72,6 +71,12 @@ enum VERSE_COPY_ORDER_ENUM {
 enum RANDOM_PASSAGE_WEIGHT_ENUM {
 	RPWE_VERSE_WEIGHT = 0,			// Weigh passages evenly by verses (books with more verses picked more often)
 	RPWE_EVEN_WEIGHT = 1,			// Weigh passages evenly by book/chapter/verse (pick book, then chapter, then verse)
+};
+
+enum SEARCH_COMPLETION_FILTER_MODE_ENUM {
+	SCFME_NORMAL = 0,
+	SCFME_UNFILTERED = 1,
+	SCFME_SOUNDEX = 2
 };
 
 // ============================================================================
@@ -116,7 +121,7 @@ public:
 	int notesFileAutoSaveTime() const { return m_pPersistentSettingData->m_nNotesFileAutoSaveTime; }
 	QColor colorDefaultNoteBackground() const { return m_pPersistentSettingData->m_clrDefaultNoteBackground; }
 
-	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
+	SEARCH_COMPLETION_FILTER_MODE_ENUM searchPhraseCompleterFilterMode() const { return m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode; }
 	int searchActivationDelay() const { return m_pPersistentSettingData->m_nSearchActivationDelay; }
 	int autoCompleterActivationDelay() const { return m_pPersistentSettingData->m_nAutoCompleterActivationDelay; }
 	int initialNumberOfSearchPhrases() const { return m_pPersistentSettingData->m_nInitialNumberOfSearchPhrases; }
@@ -136,7 +141,7 @@ public:
 	RANDOM_PASSAGE_WEIGHT_ENUM randomPassageWeightMode() const { return m_pPersistentSettingData->m_nRandomPassageWeightMode; };
 	CPhraseNavigator::FootnoteRenderingModeFlags footnoteRenderingMode() const { return m_pPersistentSettingData->m_nFootnoteRenderingMode; }
 
-	CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
+	SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
 
 	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
@@ -225,7 +230,7 @@ signals:
 	void changedNotesFileAutoSaveTime(int nAutoSaveTime);
 	void changedColorDefaultNoteBackground(const QColor &color);
 
-	void changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
+	void changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedSearchPhraseActivationDelay(int nDelay);
 	void changedAutoCompleterActivationDelay(int nDelay);
 	void changedInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
@@ -245,7 +250,7 @@ signals:
 	void changedRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM nRandomPassageWeightMode);
 	void changedFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags nMode);
 
-	void changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM);
+	void changedDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
 
 	void changedCopyOptions();
@@ -285,7 +290,7 @@ public slots:
 	void setNotesFileAutoSaveFile(int nAutoSaveTime);
 	void setColorDefaultNoteBackground(const QColor &color);
 
-	void setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void setSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setSearchActivationDelay(int nDelay);
 	void setAutoCompleterActivationDelay(int nDelay);
 	void setInitialNumberOfSearchPhrases(int nInitialNumberOfSearchPhrases);
@@ -305,7 +310,7 @@ public slots:
 	void setRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM nRandomPassageWeightMode);
 	void setFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags nMode);
 
-	void setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void setDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
 
 	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
@@ -372,7 +377,7 @@ private:
 		int m_nNotesFileAutoSaveTime;					// Time to auto-save user notes file after modification
 		QColor m_clrDefaultNoteBackground;				// Default Note Background Color (usually sticky-note yellow)
 		// ----
-		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
+		SEARCH_COMPLETION_FILTER_MODE_ENUM m_nSearchPhraseCompleterFilterMode;
 		int m_nSearchActivationDelay;					// Search Delay to set on all Search Phrases
 		int m_nAutoCompleterActivationDelay;			// Auto Completer Popup Activation Delay for the Search Phrases
 		int m_nInitialNumberOfSearchPhrases;			// Number of Search Phrases to create to opening a new Search Window
@@ -392,7 +397,7 @@ private:
 		RANDOM_PASSAGE_WEIGHT_ENUM m_nRandomPassageWeightMode;	// Controls how random passage selection is weighted
 		CPhraseNavigator::FootnoteRenderingModeFlags m_nFootnoteRenderingMode;	// How Bible footnotes are rendered
 		// ----
-		CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
+		SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation
 		// ----
 		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;

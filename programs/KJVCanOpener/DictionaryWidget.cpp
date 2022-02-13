@@ -25,6 +25,7 @@
 
 #include "PersistentSettings.h"
 #include "BusyCursor.h"
+#include "SearchCompleter.h"
 
 #include <QTextCursor>
 #include <QTextCharFormat>
@@ -65,7 +66,7 @@ void CDictionaryLineEdit::initialize(CDictionaryDatabasePtr pDictionary)
 	m_dlyUpdateCompleter.setMinimumDelay(10);				// Arbitrary time, but I think it must be less than our textChanged delay or we may have issues
 	connect(&m_dlyUpdateCompleter, SIGNAL(triggered()), this, SLOT(delayed_UpdatedCompleter()));
 
-	connect(CPersistentSettings::instance(), SIGNAL(changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM)));
 
 	setDictionary(pDictionary);
 }
@@ -99,7 +100,7 @@ void CDictionaryLineEdit::setDictionary(CDictionaryDatabasePtr pDictionary)
 	}
 }
 
-void CDictionaryLineEdit::en_changedDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+void CDictionaryLineEdit::en_changedDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
 {
 	m_pCompleter->setCompletionFilterMode(nMode);
 }

@@ -32,7 +32,6 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "Highlighter.h"
-#include "SearchCompleter.h"
 #include "KJVAboutDlg.h"
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 #include "KJVConfiguration.h"
@@ -1490,7 +1489,7 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 			settings.beginGroup(constrSearchPhrasesGroup);
 			CPersistentSettings::instance()->setSearchActivationDelay(settings.value(constrSearchActivationDelayKey, CPersistentSettings::instance()->searchActivationDelay()).toInt());
 			CPersistentSettings::instance()->setAutoCompleterActivationDelay(settings.value(constrAutoCompleterActivationDelayKey, CPersistentSettings::instance()->autoCompleterActivationDelay()).toInt());
-			CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
+			CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrSearchPhraseCompleterFilterModeKey, CPersistentSettings::instance()->searchPhraseCompleterFilterMode()).toUInt()));
 			CPersistentSettings::instance()->setInitialNumberOfSearchPhrases(settings.value(constrInitialNumberOfSearchPhrasesKey, CPersistentSettings::instance()->initialNumberOfSearchPhrases()).toInt());
 			CPersistentSettings::instance()->setHideMatchingPhrasesLists(settings.value(constrHideMatchingPhrasesListsKey, CPersistentSettings::instance()->hideMatchingPhrasesLists()).toBool());
 			settings.endGroup();
@@ -1646,7 +1645,7 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 			}
 
 			CPersistentSettings::instance()->setDictionaryActivationDelay(settings.value(constrDictionaryActivationDelayKey, CPersistentSettings::instance()->dictionaryActivationDelay()).toInt());
-			CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode()).toUInt()));
+			CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<SEARCH_COMPLETION_FILTER_MODE_ENUM>(settings.value(constrDictionaryCompleterFilterModeKey, CPersistentSettings::instance()->dictionaryCompleterFilterMode()).toUInt()));
 			settings.endGroup();
 		}
 

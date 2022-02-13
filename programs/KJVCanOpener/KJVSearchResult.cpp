@@ -36,7 +36,6 @@
 #include "KJVNoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif
-#include "SearchCompleter.h"
 #include "BusyCursor.h"
 #include "PhraseEdit.h"
 #include "ParseSymbols.h"

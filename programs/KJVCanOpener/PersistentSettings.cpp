@@ -101,7 +101,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nNotesFileAutoSaveTime(10),					// auto-save notes at 10 minutes after changing
 		m_clrDefaultNoteBackground("#F0F0A0"),			// Default note background (stick-note yellow)
 		// Default Search Phrase Options:
-		m_nSearchPhraseCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+		m_nSearchPhraseCompleterFilterMode(SCFME_NORMAL),
 #ifndef EMSCRIPTEN
 #ifndef IS_CONSOLE_APP
 		m_nSearchActivationDelay(QApplication::doubleClickInterval()),
@@ -145,7 +145,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nRandomPassageWeightMode(RPWE_EVEN_WEIGHT),
 		m_nFootnoteRenderingMode(CPhraseNavigator::FRME_NONE),
 		// Default Dictionary Options:
-		m_nDictionaryCompleterFilterMode(CSearchCompleter::SCFME_NORMAL),
+		m_nDictionaryCompleterFilterMode(SCFME_NORMAL),
 #ifndef EMSCRIPTEN
 #ifndef IS_CONSOLE_APP
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval()),
@@ -520,7 +520,7 @@ void CPersistentSettings::setColorDefaultNoteBackground(const QColor &color)
 	}
 }
 
-void CPersistentSettings::setSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+void CPersistentSettings::setSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode != nMode) {
 		m_pPersistentSettingData->m_nSearchPhraseCompleterFilterMode = nMode;
@@ -664,7 +664,7 @@ void CPersistentSettings::setFootnoteRenderingMode(CPhraseNavigator::FootnoteRen
 	}
 }
 
-void CPersistentSettings::setDictionaryCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+void CPersistentSettings::setDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nDictionaryCompleterFilterMode != nMode) {
 		m_pPersistentSettingData->m_nDictionaryCompleterFilterMode = nMode;

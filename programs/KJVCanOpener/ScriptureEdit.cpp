@@ -38,8 +38,6 @@
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 
-#include "SearchCompleter.h"
-
 #include <finddialog.h>
 
 #include <QApplication>

@@ -25,6 +25,7 @@
 #define SEARCH_COMPLETER_H
 
 #include "dbstruct.h"
+#include "PersistentSettings.h"
 
 #include <QString>
 
@@ -44,31 +45,13 @@ class CSoundExSearchCompleterFilter;
 
 // ============================================================================
 
-#ifndef QT_WIDGETS_LIB
-
-class CSearchCompleter
-{
-public:
-	enum SEARCH_COMPLETION_FILTER_MODE_ENUM {
-		SCFME_NORMAL = 0,
-		SCFME_UNFILTERED = 1,
-		SCFME_SOUNDEX = 2
-	};
-};
-
-#else
+#ifdef QT_WIDGETS_LIB
 
 class CSearchCompleter : public QCompleter
 {
 	Q_OBJECT
 
 public:
-	enum SEARCH_COMPLETION_FILTER_MODE_ENUM {
-		SCFME_NORMAL = 0,
-		SCFME_UNFILTERED = 1,
-		SCFME_SOUNDEX = 2
-	};
-
 	CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget);
 	CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget);
 	CSearchCompleter(QWidget *parentWidget);

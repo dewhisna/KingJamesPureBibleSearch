@@ -28,6 +28,7 @@
 #include "PhraseEdit.h"
 #include "DelayedExecutionTimer.h"
 #include "SubControls.h"
+#include "PersistentSettings.h"
 
 #include <QWidget>
 #include <QIcon>
@@ -107,7 +108,7 @@ private slots:
 	void insertCompletion(const QModelIndex &index);
 	void insertCommonPhraseCompletion(const QString &completion);
 	void en_dropCommonPhrasesClicked();
-	void en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
+	void en_changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void delayed_UpdatedCompleter();
 	void popCompleter(bool bForce = false);
 	void en_phraseChanged();

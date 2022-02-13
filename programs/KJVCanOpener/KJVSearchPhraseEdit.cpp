@@ -27,6 +27,7 @@
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "BusyCursor.h"
+#include "SearchCompleter.h"
 
 #ifdef SIGNAL_SPY_DEBUG
 #include "myApplication.h"
@@ -176,7 +177,7 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 
 //	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString &)));
 	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(en_dropCommonPhrasesClicked()));
 	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
 	connect(this, SIGNAL(phraseChanged()), this, SLOT(en_phraseChanged()));		// Handle internal flag for cross-thread changes
@@ -515,7 +516,7 @@ void CPhraseLineEdit::en_dropCommonPhrasesClicked()
 	m_pCommonPhrasesCompleter->complete();
 }
 
-void CPhraseLineEdit::en_changedSearchPhraseCompleterFilterMode(CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
+void CPhraseLineEdit::en_changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode)
 {
 	m_pCompleter->setCompletionFilterMode(nMode);
 }

@@ -30,7 +30,6 @@
 #include "DictionaryWidget.h"
 #include "PersistentSettings.h"
 #include "Highlighter.h"
-#include "SearchCompleter.h"
 #include "PhraseEdit.h"
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
@@ -1802,9 +1801,9 @@ CConfigSearchOptions::CConfigSearchOptions(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	ui.comboSearchPhraseCompleterMode->addItem(tr("Normal Filter", "SoundExModes"), CSearchCompleter::SCFME_NORMAL);
-	ui.comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), CSearchCompleter::SCFME_SOUNDEX);
-	ui.comboSearchPhraseCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), CSearchCompleter::SCFME_UNFILTERED);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("Normal Filter", "SoundExModes"), SCFME_NORMAL);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), SCFME_SOUNDEX);
+	ui.comboSearchPhraseCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), SCFME_UNFILTERED);
 
 #ifndef USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY
 	ui.lblAutoCompleterActivationDelay->setEnabled(false);
@@ -1857,7 +1856,7 @@ void CConfigSearchOptions::saveSettings()
 
 	int nIndex = ui.comboSearchPhraseCompleterMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setSearchPhraseCompleterFilterMode(static_cast<SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboSearchPhraseCompleterMode->itemData(nIndex).toUInt()));
 	} else {
 		bKeepDirty = true;
 		Q_ASSERT(false);
@@ -2193,9 +2192,9 @@ CConfigDictionaryOptions::CConfigDictionaryOptions(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	ui.comboDictionaryCompleterMode->addItem(tr("Normal Filter", "SoundExModes"), CSearchCompleter::SCFME_NORMAL);
-	ui.comboDictionaryCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), CSearchCompleter::SCFME_SOUNDEX);
-	ui.comboDictionaryCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), CSearchCompleter::SCFME_UNFILTERED);
+	ui.comboDictionaryCompleterMode->addItem(tr("Normal Filter", "SoundExModes"), SCFME_NORMAL);
+	ui.comboDictionaryCompleterMode->addItem(tr("SoundEx Filter", "SoundExModes"), SCFME_SOUNDEX);
+	ui.comboDictionaryCompleterMode->addItem(tr("Unfiltered", "SoundExModes"), SCFME_UNFILTERED);
 
 	connect(ui.comboDictionaryCompleterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedDictionaryCompleterFilterMode(int)));
 	connect(ui.spinDictionaryActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedDictionaryActivationDelay(int)));
@@ -2234,7 +2233,7 @@ void CConfigDictionaryOptions::saveSettings()
 
 	int nIndex = ui.comboDictionaryCompleterMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<CSearchCompleter::SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboDictionaryCompleterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setDictionaryCompleterFilterMode(static_cast<SEARCH_COMPLETION_FILTER_MODE_ENUM>(ui.comboDictionaryCompleterMode->itemData(nIndex).toUInt()));
 	} else {
 		bKeepDirty = true;
 		Q_ASSERT(false);
