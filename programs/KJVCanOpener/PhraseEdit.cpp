@@ -96,19 +96,7 @@ static QString makeRawPhrase(const QString &strPhrase)
 			if ((bNeedSpace) && (chrNext != ' ')) strRawPhrase += ' ';
 			bNeedSpace = false;
 
-//			if (chrNext == QChar(0x00C6)) {				// U+00C6	&#198;		AE character
-//				strRawPhrase += "Ae";
-//			} else if (chrNext == QChar(0x00E6)) {		// U+00E6	&#230;		ae character
-//				strRawPhrase += "ae";
-//			} else if (chrNext == QChar(0x0132)) {		// U+0132	&#306;		IJ character
-//				strRawPhrase += "IJ";
-//			} else if (chrNext == QChar(0x0133)) {		// U+0133	&#307;		ij character
-//				strRawPhrase += "ij";
-//			} else if (chrNext == QChar(0x0152)) {		// U+0152	&#338;		OE character
-//				strRawPhrase += "Oe";
-//			} else if (chrNext == QChar(0x0153)) {		// U+0153	&#339;		oe character
-//				strRawPhrase += "oe";
-//			}											// All other UTF-8 leave untranslated
+//			strRawPhrase += StringParse::deLigature(chrNext);
 			strRawPhrase += chrNext;
 		}
 

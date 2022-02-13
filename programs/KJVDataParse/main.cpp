@@ -2482,21 +2482,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			if (!m_strParsedUTF8Chars.contains(strTemp.at(0))) m_strParsedUTF8Chars += strTemp.at(0);
 
 			bInWord = true;
-			if (strTemp.at(0) == QChar(0x00C6)) {				// U+00C6	&#198;		AE character
-				strWord += "Ae";
-			} else if (strTemp.at(0) == QChar(0x00E6)) {		// U+00E6	&#230;		ae character
-				strWord += "ae";
-			} else if (strTemp.at(0) == QChar(0x0132)) {		// U+0132	&#306;		IJ character
-				strWord += "IJ";
-			} else if (strTemp.at(0) == QChar(0x0133)) {		// U+0133	&#307;		ij character
-				strWord += "ij";
-			} else if (strTemp.at(0) == QChar(0x0152)) {		// U+0152	&#338;		OE character
-				strWord += "Oe";
-			} else if (strTemp.at(0) == QChar(0x0153)) {		// U+0153	&#339;		oe character
-				strWord += "oe";
-			} else {
-				strWord += strTemp.at(0);			// All other UTF-8 leave untranslated
-			}
+			strWord += StringParse::deLigature(strTemp.at(0));	// Translate ligatures, but leave other UTF-8 untranslated
 			strRichWord += strTemp.at(0);
 		}
 
