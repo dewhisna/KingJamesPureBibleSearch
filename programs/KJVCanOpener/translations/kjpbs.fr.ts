@@ -2221,14 +2221,14 @@ Voulez-vous redémarrer l&apos;application??</translation>
     </message>
 </context>
 <context>
-    <name>CKJVLocaleConfig</name>
+    <name>CConfigLocale</name>
     <message>
-        <location filename="../KJVLocaleConfig.ui" line="28"/>
+        <location filename="../ConfigLocale.ui" line="28"/>
         <source>Locale Settings</source>
         <translation>Paramètres Régionaux</translation>
     </message>
     <message>
-        <location filename="../KJVLocaleConfig.ui" line="39"/>
+        <location filename="../ConfigLocale.ui" line="39"/>
         <source>Application &amp;Language:</source>
         <translation>&amp;Langue de l&apos;application:</translation>
     </message>

@@ -488,10 +488,10 @@ if(!emscripten|wasm):!console:FORMS += \
 	ConfigDictDatabase.ui \
 	ConfigDictionaryOptions.ui \
 	ConfigGeneralSettings.ui \
+	ConfigLocale.ui \
 	ConfigSearchOptions.ui \
 	DictDatabaseInfoDlg.ui \
 	DictionaryWidget.ui \
-	KJVLocaleConfig.ui \
 	KJVTextFormatConfig.ui \
 	RenameHighlighterDlg.ui
 

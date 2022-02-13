@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVLocaleConfig</class>
- <widget class="QWidget" name="CKJVLocaleConfig">
+ <class>CConfigLocale</class>
+ <widget class="QWidget" name="CConfigLocale">
   <property name="windowTitle">
    <string>Locale Settings</string>
   </property>

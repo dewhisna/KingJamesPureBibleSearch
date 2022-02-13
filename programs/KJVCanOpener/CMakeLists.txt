@@ -384,10 +384,10 @@ if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 		"ConfigDictDatabase.ui"
 		"ConfigDictionaryOptions.ui"
 		"ConfigGeneralSettings.ui"
+		"ConfigLocale.ui"
 		"ConfigSearchOptions.ui"
 		"DictDatabaseInfoDlg.ui"
 		"DictionaryWidget.ui"
-		"KJVLocaleConfig.ui"
 		"KJVTextFormatConfig.ui"
 		"RenameHighlighterDlg.ui"
 	)

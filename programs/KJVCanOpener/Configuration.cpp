@@ -2944,7 +2944,7 @@ bool CConfigGeneralSettings::isDirty() const
 // ============================================================================
 // ============================================================================
 
-CKJVLocaleConfig::CKJVLocaleConfig(QWidget *parent)
+CConfigLocale::CConfigLocale(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
 		m_bLoadingData(false)
@@ -2965,12 +2965,12 @@ CKJVLocaleConfig::CKJVLocaleConfig(QWidget *parent)
 	loadSettings();
 }
 
-CKJVLocaleConfig::~CKJVLocaleConfig()
+CConfigLocale::~CConfigLocale()
 {
 
 }
 
-void CKJVLocaleConfig::loadSettings()
+void CConfigLocale::loadSettings()
 {
 	m_bLoadingData = true;
 
@@ -2985,7 +2985,7 @@ void CKJVLocaleConfig::loadSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVLocaleConfig::saveSettings()
+void CConfigLocale::saveSettings()
 {
 	CMyApplication::saveApplicationLanguage();
 	CTranslatorList::instance()->setApplicationLanguage(CPersistentSettings::instance()->applicationLanguage());
@@ -2993,7 +2993,7 @@ void CKJVLocaleConfig::saveSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVLocaleConfig::en_changeApplicationLanguage(int nIndex)
+void CConfigLocale::en_changeApplicationLanguage(int nIndex)
 {
 	if (m_bLoadingData) return;
 
@@ -3150,7 +3150,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 #if defined(USING_DICTIONARIES)
 	m_pDictDatabaseConfig = new CConfigDictDatabase(this);
 #endif
-	m_pLocaleConfig = new CKJVLocaleConfig(this);
+	m_pLocaleConfig = new CConfigLocale(this);
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pTTSOptionsConfig = new CKJVTTSOptionsConfig(this);
 #endif

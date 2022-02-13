@@ -562,15 +562,15 @@ private:
 
 // ============================================================================
 
-#include "ui_KJVLocaleConfig.h"
+#include "ui_ConfigLocale.h"
 
-class CKJVLocaleConfig : public QWidget
+class CConfigLocale : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVLocaleConfig(QWidget *parent = nullptr);
-	~CKJVLocaleConfig();
+	explicit CConfigLocale(QWidget *parent = nullptr);
+	~CConfigLocale();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -591,7 +591,7 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CKJVLocaleConfig ui;
+	Ui::CConfigLocale ui;
 };
 
 // ============================================================================
@@ -650,7 +650,7 @@ private:
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVTTSOptionsConfig *m_pTTSOptionsConfig;
 #endif
-	CKJVLocaleConfig *m_pLocaleConfig;
+	CConfigLocale *m_pLocaleConfig;
 };
 
 // ============================================================================
