@@ -28,10 +28,7 @@
 #include "PersistentSettings.h"
 
 #include <QString>
-
-#ifdef QT_WIDGETS_LIB
 #include <QCompleter>
-#endif
 
 // ============================================================================
 
@@ -44,8 +41,6 @@ class CSearchStrongsDictionaryListModel;
 class CSoundExSearchCompleterFilter;
 
 // ============================================================================
-
-#ifdef QT_WIDGETS_LIB
 
 class CSearchCompleter : public QCompleter
 {
@@ -154,8 +149,6 @@ public slots:
 private:
 	CSearchStrongsDictionaryListModel *m_pStrongsListModel;
 };
-
-#endif
 
 // ============================================================================
 

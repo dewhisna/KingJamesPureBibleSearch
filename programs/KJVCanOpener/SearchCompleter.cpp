@@ -35,9 +35,7 @@
 #endif
 #include <QTimer>
 
-#ifdef QT_WIDGETS_LIB
 #include <QAbstractItemView>
-#endif
 
 #include <algorithm>
 
@@ -193,8 +191,6 @@ private:
 };
 
 // ============================================================================
-
-#ifdef QT_WIDGETS_LIB
 
 CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
@@ -358,8 +354,6 @@ void CSearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 	Q_ASSERT(m_pSearchStringListModel != nullptr);
 	m_pSearchStringListModel->setWordsFromPhrase(bForceUpdate);
 }
-
-#endif
 
 // ============================================================================
 
@@ -642,6 +636,9 @@ void CSoundExSearchCompleterFilter::en_dataChanged(const QModelIndex &topLeft, c
 
 // ============================================================================
 
+
+// ============================================================================
+
 #if QT_VERSION < 0x050000
 
 bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
@@ -664,8 +661,6 @@ bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
 #endif
 
 // ============================================================================
-
-#ifdef QT_WIDGETS_LIB
 
 CStrongsDictionarySearchCompleter::CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
 	:	SearchCompleter_t(parentWidget),
@@ -693,7 +688,5 @@ void CStrongsDictionarySearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 {
 	Q_UNUSED(bForceUpdate);
 }
-
-#endif
 
 // ============================================================================
