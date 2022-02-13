@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVBROWSER_H
-#define KJVBROWSER_H
+#ifndef BROWSER_WIDGET_H
+#define BROWSER_WIDGET_H
 
 #include "dbstruct.h"
 #include "Highlighter.h"
@@ -57,15 +57,15 @@ class CVerseListModel;			// Forward declaration
 
 // ============================================================================
 
-#include "ui_KJVBrowser.h"
+#include "ui_BrowserWidget.h"
 
-class CKJVBrowser : public QWidget
+class CBrowserWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
-	virtual ~CKJVBrowser();
+	explicit CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
+	virtual ~CBrowserWidget();
 
 	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
 	inline void restorePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->restorePersistentSettings(strGroup); }
@@ -240,7 +240,7 @@ private:
 	DelayedExecutionTimer m_dlyPassageReference;
 	DelayedExecutionTimer m_dlyGotoIndex;
 	CScriptureBrowser *m_pScriptureBrowser;
-	Ui::CKJVBrowser ui;
+	Ui::CBrowserWidget ui;
 };
 
-#endif // KJVBROWSER_H
+#endif // BROWSER_WIDGET_H

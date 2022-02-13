@@ -916,7 +916,7 @@ int main(int argc, const char *argv[])
 		// First, fill in missing Hebrew alphabet in Psalm 119 in both Hebrew and English for text to be rendered:
 		if ((nBk == 19) && (nChp == 119) && (((nVrs-1)%8) == 0)) {
 
-			// Add special Start tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+			// Add special Start tag so BrowserWidget can know to ignore the special Hebrew text insertion during highlighting:
 			sprintf(&buffRich[ndx], "<a id=\"\"A%d\"\"> </a>", MakeIndex(nBk, nChp, nVrs, 0));
 			ndx += strlen(&buffRich[ndx]);
 
@@ -1088,7 +1088,7 @@ int main(int argc, const char *argv[])
 			}
 			ndx += strlen(&buffRich[ndx]);
 
-			// Add special End tag so KJVBrowser can know to ignore the special Hebrew text insertion during highlighting:
+			// Add special End tag so BrowserWidget can know to ignore the special Hebrew text insertion during highlighting:
 			sprintf(&buffRich[ndx], "<a id=\"\"B%d\"\"> </a>", MakeIndex(nBk, nChp, nVrs, 0));
 			ndx += strlen(&buffRich[ndx]);
 

@@ -839,8 +839,8 @@ public:
 
 signals:
 	void cachedSizeHintsInvalidated();
-	void verseListAboutToChange();					// Emitted just before our verse phrase tags change so that users (KJVBrowser, etc) can clear highlighting with the old tags
-	void verseListChanged();						// Emitted just after our verse phrase tags change so that users (KJVBrowser, etc) can set highlighting with the new tags
+	void verseListAboutToChange();					// Emitted just before our verse phrase tags change so that users (BrowserWidget, etc) can clear highlighting with the old tags
+	void verseListChanged();						// Emitted just after our verse phrase tags change so that users (BrowserWidget, etc) can set highlighting with the new tags
 	void searchResultsReady();						// Emitted when we receive en_searchResultsReady() during multithreaded or in the buildScopedResultsFromParsedPhrases() for non-multithreaded
 
 public slots:

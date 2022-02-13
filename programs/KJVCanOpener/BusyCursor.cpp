@@ -32,7 +32,7 @@ CNotificationToolTip::CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptP
 	:	QObject()
 {
 	// Note: Remove existing tooltip before displaying the new and/or even setting it on the control.
-	//		This is to make sure we don't have the same Mac OSX bug here that we do in KJVBrowser
+	//		This is to make sure we don't have the same Mac OSX bug here that we do in BrowserWidget
 	//		for the Chapter Scrollbar.  This also resets the tooltip fade and keeps the toolTip
 	//		from disappearing prematurely:
 	QToolTip::showText(QPoint(), QString());

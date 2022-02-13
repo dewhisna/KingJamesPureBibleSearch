@@ -30,7 +30,7 @@
 #include "VerseListModel.h"
 #include "KJVSearchSpec.h"
 #include "KJVSearchResult.h"
-#include "KJVBrowser.h"
+#include "BrowserWidget.h"
 
 #include <QMainWindow>
 #include <QModelIndex>
@@ -287,7 +287,7 @@ private:
 	QSplitter *m_pSplitter;
 	QSplitter *m_pSplitterDictionary;
 	CKJVSearchResult *m_pSearchResultWidget;
-	CKJVBrowser *m_pBrowserWidget;
+	CBrowserWidget *m_pBrowserWidget;
 	CDictionaryWidget *m_pDictionaryWidget;
 	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
 	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;

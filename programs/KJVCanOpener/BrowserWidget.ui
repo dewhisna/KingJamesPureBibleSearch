@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVBrowser</class>
- <widget class="QWidget" name="CKJVBrowser">
+ <class>CBrowserWidget</class>
+ <widget class="QWidget" name="CBrowserWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -33,7 +33,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>KJVBrowserForm</string>
+   <string>BrowserWidgetForm</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <property name="leftMargin">

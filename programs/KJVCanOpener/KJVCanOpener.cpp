@@ -320,7 +320,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 
-	// Note: Must set this up before creating CKJVBrowser, or else our toolbar
+	// Note: Must set this up before creating CBrowserWidget, or else our toolbar
 	//			will be null when its constructor is building menus:
 	m_pHighlighterButtons = new CHighlighterButtons(this);
 	m_pHighlighterButtons->addHighlighterButtonsToToolBar(ui.usernotesToolBar);
@@ -434,7 +434,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
 	m_pSplitter->addWidget(m_pSearchResultWidget);
 
-	m_pBrowserWidget = new CKJVBrowser(m_pSearchResultWidget->vlmodel(), m_pBibleDatabase, m_pSplitterDictionary);
+	m_pBrowserWidget = new CBrowserWidget(m_pSearchResultWidget->vlmodel(), m_pBibleDatabase, m_pSplitterDictionary);
 	m_pBrowserWidget->setObjectName(QString::fromUtf8("BrowserWidget"));
 	QSizePolicy aSizePolicyBrowser(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	aSizePolicyBrowser.setHorizontalStretch(20);

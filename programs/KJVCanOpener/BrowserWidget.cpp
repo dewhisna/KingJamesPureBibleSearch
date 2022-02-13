@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVBrowser.h"
+#include "BrowserWidget.h"
 #include "VerseListModel.h"
 #include "UserNotesDatabase.h"
 #include "dbDescriptors.h"
@@ -53,7 +53,7 @@
 
 // ============================================================================
 
-CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
+CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
 	m_ndxCurrent(0),
@@ -167,7 +167,7 @@ CKJVBrowser::CKJVBrowser(CVerseListModel *pSearchResultsListModel, CBibleDatabas
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_allCrossRefsChanged()));
 }
 
-CKJVBrowser::~CKJVBrowser()
+CBrowserWidget::~CBrowserWidget()
 {
 #if QT_VERSION >= 0x050000
 	if (m_pChapterScrollerStyle) {
@@ -179,7 +179,7 @@ CKJVBrowser::~CKJVBrowser()
 
 // ----------------------------------------------------------------------------
 
-bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
+bool CBrowserWidget::eventFilter(QObject *obj, QEvent *ev)
 {
 	if ((ui.scrollbarChapter != nullptr) &&
 		(obj == ui.scrollbarChapter) &&
@@ -207,7 +207,7 @@ bool CKJVBrowser::eventFilter(QObject *obj, QEvent *ev)
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::setNavigationActivationDelay(int nDelay)
+void CBrowserWidget::setNavigationActivationDelay(int nDelay)
 {
 	m_dlyBkCombo.setMinimumDelay(nDelay);
 	m_dlyBkChpCombo.setMinimumDelay(nDelay);
@@ -219,14 +219,14 @@ void CKJVBrowser::setNavigationActivationDelay(int nDelay)
 	m_dlyGotoIndex.setMinimumDelay(nDelay);
 }
 
-void CKJVBrowser::setPassageReferenceActivationDelay(int nDelay)
+void CBrowserWidget::setPassageReferenceActivationDelay(int nDelay)
 {
 	m_dlyPassageReference.setMinimumDelay(nDelay);
 }
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::en_clickedHideNavigationPane()
+void CBrowserWidget::en_clickedHideNavigationPane()
 {
 	switch (CPersistentSettings::instance()->browserNavigationPaneMode()) {
 		case BNPME_HIDDEN:
@@ -241,7 +241,7 @@ void CKJVBrowser::en_clickedHideNavigationPane()
 	}
 }
 
-void CKJVBrowser::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode)
+void CBrowserWidget::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode)
 {
 	switch (nBrowserNavigationPaneMode) {
 		case BNPME_COMPLETE:
@@ -269,7 +269,7 @@ void CKJVBrowser::setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::en_clickedSetBrowserDisplayMode()
+void CBrowserWidget::en_clickedSetBrowserDisplayMode()
 {
 	switch (m_nBrowserDisplayMode) {
 		case BDME_BIBLE_TEXT:
@@ -283,7 +283,7 @@ void CKJVBrowser::en_clickedSetBrowserDisplayMode()
 	}
 }
 
-void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
+void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
 {
 	// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
@@ -313,7 +313,7 @@ void CKJVBrowser::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDispla
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::initialize()
+void CBrowserWidget::initialize()
 {
 	// --------------------------------------------------------------
 
@@ -466,7 +466,7 @@ void CKJVBrowser::initialize()
 	end_update();
 }
 
-void CKJVBrowser::en_changedScrollbarsEnabled(bool bEnabled)
+void CBrowserWidget::en_changedScrollbarsEnabled(bool bEnabled)
 {
 	Q_ASSERT(m_pScriptureBrowser != nullptr);
 	if (bEnabled) {
@@ -476,7 +476,7 @@ void CKJVBrowser::en_changedScrollbarsEnabled(bool bEnabled)
 	}
 }
 
-void CKJVBrowser::en_changedChapterScrollbarMode()
+void CBrowserWidget::en_changedChapterScrollbarMode()
 {
 	ui.gridLayout->removeWidget(m_pScriptureBrowser);
 #ifdef USING_QT_WEBENGINE
@@ -543,7 +543,7 @@ void CKJVBrowser::en_changedChapterScrollbarMode()
 	}
 }
 
-void CKJVBrowser::setupChapterScrollbar()
+void CBrowserWidget::setupChapterScrollbar()
 {
 	if (ui.scrollbarChapter != nullptr) {
 #if QT_VERSION >= 0x050000
@@ -565,13 +565,13 @@ void CKJVBrowser::setupChapterScrollbar()
 	}
 }
 
-void CKJVBrowser::gotoPassageReference(const QString &strPassageReference)
+void CBrowserWidget::gotoPassageReference(const QString &strPassageReference)
 {
 	ui.widgetPassageReference->setPassageReference(strPassageReference);
 	PassageReferenceEnterPressed();				// Simulate pressing enter to immediately jump to it and focus the browser
 }
 
-void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
+void CBrowserWidget::gotoIndex(const TPhraseTag &tag)
 {
 	unsigned int nWordCount = ((tag.relIndex().word() != 0) ? tag.count() : 0);
 
@@ -596,7 +596,7 @@ void CKJVBrowser::gotoIndex(const TPhraseTag &tag)
 	gotoIndex2(tag.relIndex().isSet() ? tagActual : tag);		// Pass special-case on to gotoIndex2
 }
 
-void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
+void CBrowserWidget::gotoIndex2(const TPhraseTag &tag)
 {
 	// Note: Special case !tag->relIndex().isSet() means reload current index
 	TPhraseTag tagActual = (tag.relIndex().isSet() ? tag : TPhraseTag(m_ndxCurrent, tag.count()));
@@ -611,7 +611,7 @@ void CKJVBrowser::gotoIndex2(const TPhraseTag &tag)
 	emit en_gotoIndex(tagActual);
 }
 
-void CKJVBrowser::en_selectionChanged()
+void CBrowserWidget::en_selectionChanged()
 {
 	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
 
@@ -620,7 +620,7 @@ void CKJVBrowser::en_selectionChanged()
 	}
 }
 
-void CKJVBrowser::en_sourceChanged(const QUrl &src)
+void CBrowserWidget::en_sourceChanged(const QUrl &src)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -634,34 +634,34 @@ void CKJVBrowser::en_sourceChanged(const QUrl &src)
 	}
 }
 
-void CKJVBrowser::setFocusBrowser()
+void CBrowserWidget::setFocusBrowser()
 {
 	m_pScriptureBrowser->setFocus();
 }
 
-bool CKJVBrowser::hasFocusBrowser() const
+bool CBrowserWidget::hasFocusBrowser() const
 {
 	return m_pScriptureBrowser->hasFocus();
 }
 
-void CKJVBrowser::setFocusPassageReferenceEditor()
+void CBrowserWidget::setFocusPassageReferenceEditor()
 {
 	ui.widgetPassageReference->setFocus();
 }
 
-bool CKJVBrowser::hasFocusPassageReferenceEditor() const
+bool CBrowserWidget::hasFocusPassageReferenceEditor() const
 {
 	return ui.widgetPassageReference->hasFocusPassageReferenceEditor();
 }
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::en_SearchResultsVerseListAboutToChange()
+void CBrowserWidget::en_SearchResultsVerseListAboutToChange()
 {
 	doHighlighting(true);				// Remove existing highlighting
 }
 
-void CKJVBrowser::en_SearchResultsVerseListChanged()
+void CBrowserWidget::en_SearchResultsVerseListChanged()
 {
 	doHighlighting();					// Highlight using new tags
 
@@ -670,7 +670,7 @@ void CKJVBrowser::en_SearchResultsVerseListChanged()
 #endif
 }
 
-void CKJVBrowser::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+void CBrowserWidget::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
 	Q_UNUSED(strUserDefinedHighlighterName);
 	if ((pBibleDatabase.isNull()) ||
@@ -679,7 +679,7 @@ void CKJVBrowser::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDataba
 	}
 }
 
-void CKJVBrowser::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+void CBrowserWidget::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
 	Q_UNUSED(strUserDefinedHighlighterName);
 	if ((pBibleDatabase.isNull()) ||
@@ -688,17 +688,17 @@ void CKJVBrowser::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, co
 	}
 }
 
-void CKJVBrowser::en_highlightersAboutToChange()
+void CBrowserWidget::en_highlightersAboutToChange()
 {
 	doHighlighting(true);				// Remove existing highlighting
 }
 
-void CKJVBrowser::en_highlightersChanged()
+void CBrowserWidget::en_highlightersChanged()
 {
 	doHighlighting();					// Highlight using new tags
 }
 
-void CKJVBrowser::doHighlighting(bool bClear)
+void CBrowserWidget::doHighlighting(bool bClear)
 {
 	m_pScriptureBrowser->navigator().doHighlighting(m_SearchResultsHighlighter, bClear, m_ndxCurrent);
 	if (m_bShowExcludedSearchResults)
@@ -724,7 +724,7 @@ void CKJVBrowser::doHighlighting(bool bClear)
 #endif
 }
 
-void CKJVBrowser::en_WordsOfJesusColorChanged(const QColor &color)
+void CBrowserWidget::en_WordsOfJesusColorChanged(const QColor &color)
 {
 	// Only way we can change the Words of Jesus color is by forcing a chapter re-render,
 	//		after we change the richifier tags (which is done by the navigator's
@@ -733,14 +733,14 @@ void CKJVBrowser::en_WordsOfJesusColorChanged(const QColor &color)
 	emit rerender();
 }
 
-void CKJVBrowser::en_SearchResultsColorChanged(const QColor &color)
+void CBrowserWidget::en_SearchResultsColorChanged(const QColor &color)
 {
 	// Simply redo the highlighting again to change the highlight color:
 	Q_UNUSED(color);
 	doHighlighting();
 }
 
-void CKJVBrowser::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults)
+void CBrowserWidget::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults)
 {
 	if (m_bShowExcludedSearchResults == bShowExcludedSearchResults) return;
 
@@ -752,7 +752,7 @@ void CKJVBrowser::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchRe
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
+void CBrowserWidget::en_userNoteEvent(const CRelIndex &ndx)
 {
 	if (!selection().isSet()) return;
 	CRelIndex ndxNote = ndx;
@@ -766,7 +766,7 @@ void CKJVBrowser::en_userNoteEvent(const CRelIndex &ndx)
 	}
 }
 
-void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+void CBrowserWidget::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
 	if (!selection().isSet()) return;
 	CRelIndex ndxCrossRefFirst = ndxFirst;
@@ -782,59 +782,59 @@ void CKJVBrowser::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &
 
 }
 
-void CKJVBrowser::en_allCrossRefsChanged()
+void CBrowserWidget::en_allCrossRefsChanged()
 {
 	emit rerender();					// Re-render text (note: The Note may be deleted as well as changed)
 }
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::showDetails()
+void CBrowserWidget::showDetails()
 {
 	m_pScriptureBrowser->showDetails();
 }
 
-void CKJVBrowser::showPassageNavigator()
+void CBrowserWidget::showPassageNavigator()
 {
 	m_pScriptureBrowser->showPassageNavigator();
 }
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::en_Bible_Beginning()
+void CBrowserWidget::en_Bible_Beginning()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	gotoIndex(TPhraseTag(m_pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start)));
 }
 
-void CKJVBrowser::en_Bible_Ending()
+void CBrowserWidget::en_Bible_Ending()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	gotoIndex(TPhraseTag(m_pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End)));
 }
 
-void CKJVBrowser::en_Book_Backward()
+void CBrowserWidget::en_Book_Backward()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_PreviousBook);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
-void CKJVBrowser::en_Book_Forward()
+void CBrowserWidget::en_Book_Forward()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_NextBook);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
-void CKJVBrowser::en_ChapterBackward()
+void CBrowserWidget::en_ChapterBackward()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_PreviousChapter);
 	if (ndx.isSet()) gotoIndex(TPhraseTag(ndx));
 }
 
-void CKJVBrowser::en_ChapterForward()
+void CBrowserWidget::en_ChapterForward()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	CRelIndex ndx = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_NextChapter);
@@ -843,7 +843,7 @@ void CKJVBrowser::en_ChapterForward()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::setBook(const CRelIndex &ndx)
+void CBrowserWidget::setBook(const CRelIndex &ndx)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -905,7 +905,7 @@ void CKJVBrowser::setBook(const CRelIndex &ndx)
 	end_update();
 }
 
-void CKJVBrowser::setChapter(const CRelIndex &ndx)
+void CBrowserWidget::setChapter(const CRelIndex &ndx)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -996,12 +996,12 @@ void CKJVBrowser::setChapter(const CRelIndex &ndx)
 #endif
 }
 
-void CKJVBrowser::setVerse(const CRelIndex &ndx)
+void CBrowserWidget::setVerse(const CRelIndex &ndx)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), ndx.verse(), 0);
 }
 
-void CKJVBrowser::setWord(const TPhraseTag &tag)
+void CBrowserWidget::setWord(const TPhraseTag &tag)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), tag.relIndex().word());
 	m_pScriptureBrowser->navigator().selectWords(tag);
@@ -1009,7 +1009,7 @@ void CKJVBrowser::setWord(const TPhraseTag &tag)
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::BkComboIndexChanged(int index)
+void CBrowserWidget::BkComboIndexChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -1023,7 +1023,7 @@ void CKJVBrowser::BkComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::BkChpComboIndexChanged(int index)
+void CBrowserWidget::BkChpComboIndexChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -1037,7 +1037,7 @@ void CKJVBrowser::BkChpComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::TstBkComboIndexChanged(int index)
+void CBrowserWidget::TstBkComboIndexChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -1054,7 +1054,7 @@ void CKJVBrowser::TstBkComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::TstChpComboIndexChanged(int index)
+void CBrowserWidget::TstChpComboIndexChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -1071,7 +1071,7 @@ void CKJVBrowser::TstChpComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::BibleBkComboIndexChanged(int index)
+void CBrowserWidget::BibleBkComboIndexChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -1085,7 +1085,7 @@ void CKJVBrowser::BibleBkComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::BibleChpComboIndexChanged(int index)
+void CBrowserWidget::BibleChpComboIndexChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -1100,7 +1100,7 @@ void CKJVBrowser::BibleChpComboIndexChanged(int index)
 	gotoIndex(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::PassageReferenceChanged(const TPhraseTag &tag)
+void CBrowserWidget::PassageReferenceChanged(const TPhraseTag &tag)
 {
 	if (m_bDoingUpdate) return;
 	m_bDoingPassageReference = true;
@@ -1108,7 +1108,7 @@ void CKJVBrowser::PassageReferenceChanged(const TPhraseTag &tag)
 	m_bDoingPassageReference = false;
 }
 
-void CKJVBrowser::PassageReferenceEnterPressed()
+void CBrowserWidget::PassageReferenceEnterPressed()
 {
 	if (m_bDoingUpdate) return;
 	m_dlyPassageReference.untrigger();
@@ -1116,19 +1116,19 @@ void CKJVBrowser::PassageReferenceEnterPressed()
 	setFocusBrowser();
 }
 
-void CKJVBrowser::en_activatedPassageReference()
+void CBrowserWidget::en_activatedPassageReference()
 {
 	emit activatedBrowser(true);
 }
 
-void CKJVBrowser::en_activatedScriptureText()
+void CBrowserWidget::en_activatedScriptureText()
 {
 	emit activatedBrowser(false);
 }
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::ChapterSliderMoved(int index)
+void CBrowserWidget::ChapterSliderMoved(int index)
 {
 	Q_ASSERT(ui.scrollbarChapter != nullptr);
 	if (ui.scrollbarChapter == nullptr) return;
@@ -1166,7 +1166,7 @@ void CKJVBrowser::ChapterSliderMoved(int index)
 	m_dlyGotoIndex.trigger(TPhraseTag(ndxTarget));
 }
 
-void CKJVBrowser::ChapterSliderValueChanged()
+void CBrowserWidget::ChapterSliderValueChanged()
 {
 	Q_ASSERT(ui.scrollbarChapter != nullptr);
 	if (ui.scrollbarChapter == nullptr) return;
@@ -1177,43 +1177,43 @@ void CKJVBrowser::ChapterSliderValueChanged()
 
 // ----------------------------------------------------------------------------
 
-void CKJVBrowser::delayBkComboIndexChanged(int index)
+void CBrowserWidget::delayBkComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyBkCombo.trigger(index);
 }
 
-void CKJVBrowser::delayBkChpComboIndexChanged(int index)
+void CBrowserWidget::delayBkChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyBkChpCombo.trigger(index);
 }
 
-void CKJVBrowser::delayTstBkComboIndexChanged(int index)
+void CBrowserWidget::delayTstBkComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyTstBkCombo.trigger(index);
 }
 
-void CKJVBrowser::delayTstChpComboIndexChanged(int index)
+void CBrowserWidget::delayTstChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyTstChpCombo.trigger(index);
 }
 
-void CKJVBrowser::delayBibleBkComboIndexChanged(int index)
+void CBrowserWidget::delayBibleBkComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyBibleBkCombo.trigger(index);
 }
 
-void CKJVBrowser::delayBibleChpComboIndexChanged(int index)
+void CBrowserWidget::delayBibleChpComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyBibleChpCombo.trigger(index);
 }
 
-void CKJVBrowser::delayPassageReference(const TPhraseTag &tag)
+void CBrowserWidget::delayPassageReference(const TPhraseTag &tag)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyPassageReference.trigger(tag);

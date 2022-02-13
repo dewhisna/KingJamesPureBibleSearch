@@ -990,47 +990,47 @@ Written and Developed for Bethel Church, Festus, MO.</source>
     </message>
 </context>
 <context>
-    <name>CKJVBrowser</name>
+    <name>CBrowserWidget</name>
     <message>
-        <location filename="../KJVBrowser.ui" line="28"/>
-        <source>KJVBrowserForm</source>
+        <location filename="../BrowserWidget.ui" line="28"/>
+        <source>BrowserWidgetForm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="52"/>
+        <location filename="../BrowserWidget.ui" line="52"/>
         <source>Bible Database Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="78"/>
-        <location filename="../KJVBrowser.ui" line="81"/>
+        <location filename="../BrowserWidget.ui" line="78"/>
+        <location filename="../BrowserWidget.ui" line="81"/>
         <source>Show/Hide Scripture Browser Navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="115"/>
+        <location filename="../BrowserWidget.ui" line="115"/>
         <source>Book/Chapter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="156"/>
+        <location filename="../BrowserWidget.ui" line="156"/>
         <source>Testament:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="168"/>
-        <location filename="../KJVBrowser.ui" line="231"/>
+        <location filename="../BrowserWidget.ui" line="168"/>
+        <location filename="../BrowserWidget.ui" line="231"/>
         <source>Book:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="186"/>
-        <location filename="../KJVBrowser.ui" line="249"/>
+        <location filename="../BrowserWidget.ui" line="186"/>
+        <location filename="../BrowserWidget.ui" line="249"/>
         <source>Chapter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVBrowser.ui" line="219"/>
+        <location filename="../BrowserWidget.ui" line="219"/>
         <source>Entire Bible:</source>
         <translation type="unfinished"></translation>
     </message>

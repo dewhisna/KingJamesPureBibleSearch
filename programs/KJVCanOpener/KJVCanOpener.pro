@@ -332,6 +332,7 @@ SOURCES += \
 	AboutDlg.cpp \
 	BibleDBListModel.cpp \
 	BibleWordDiffListModel.cpp \
+	BrowserWidget.cpp \
 	BusyCursor.cpp \
 	CSV.cpp \
 	dbDescriptors.cpp \
@@ -339,7 +340,6 @@ SOURCES += \
 	DelayedExecutionTimer.cpp \
 	DictDBListModel.cpp \
 	Highlighter.cpp \
-	KJVBrowser.cpp \
 	KJVCanOpener.cpp \
 	KJVPassageNavigator.cpp \
 	KJVPassageNavigatorDlg.cpp \
@@ -401,6 +401,7 @@ HEADERS += \
 	AboutDlg.h \
 	BibleDBListModel.h \
 	BibleWordDiffListModel.h \
+	BrowserWidget.h \
 	BusyCursor.h \
 	CSV.h \
 	dbDescriptors.h \
@@ -408,7 +409,6 @@ HEADERS += \
 	DelayedExecutionTimer.h \
 	DictDBListModel.h \
 	Highlighter.h \
-	KJVBrowser.h \
 	KJVCanOpener.h \
 	KJVPassageNavigator.h \
 	KJVPassageNavigatorDlg.h \
@@ -470,7 +470,7 @@ contains(QT, webenginewidgets):HEADERS += \
 
 FORMS += \
 	AboutDlg.ui \
-	KJVBrowser.ui \
+	BrowserWidget.ui \
 	KJVCanOpener.ui \
 	KJVPassageNavigator.ui \
 	KJVPassageNavigatorDlg.ui \
