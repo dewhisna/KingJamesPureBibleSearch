@@ -485,11 +485,11 @@ if(!emscripten|wasm):!console:FORMS += \
 	ConfigBibleDatabase.ui \
 	ConfigBrowserOptions.ui \
 	ConfigCopyOptions.ui \
+	ConfigDictDatabase.ui \
 	ConfigDictionaryOptions.ui \
 	ConfigSearchOptions.ui \
 	DictDatabaseInfoDlg.ui \
 	DictionaryWidget.ui \
-	KJVDictDatabaseConfig.ui \
 	KJVGeneralSettingsConfig.ui \
 	KJVLocaleConfig.ui \
 	KJVTextFormatConfig.ui \

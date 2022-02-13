@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVDictDatabaseConfig</class>
- <widget class="QWidget" name="CKJVDictDatabaseConfig">
+ <class>CConfigDictDatabase</class>
+ <widget class="QWidget" name="CConfigDictDatabase">
   <property name="windowTitle">
    <string>Dictionary Database</string>
   </property>

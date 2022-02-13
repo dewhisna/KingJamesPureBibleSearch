@@ -2165,34 +2165,34 @@ Do you wish to restart the app??</translation>
     </message>
 </context>
 <context>
-    <name>CKJVDictDatabaseConfig</name>
+    <name>CConfigDictDatabase</name>
     <message>
-        <location filename="../KJVDictDatabaseConfig.ui" line="28"/>
+        <location filename="../ConfigDictDatabase.ui" line="28"/>
         <source>Dictionary Database</source>
         <translation>Dictionary Database</translation>
     </message>
     <message>
-        <location filename="../KJVDictDatabaseConfig.ui" line="39"/>
+        <location filename="../ConfigDictDatabase.ui" line="39"/>
         <source>&amp;Dictionary Databases:</source>
         <translation>&amp;Dictionary Databases:</translation>
     </message>
     <message>
-        <location filename="../KJVDictDatabaseConfig.ui" line="55"/>
+        <location filename="../ConfigDictDatabase.ui" line="55"/>
         <source>List of available Dictionary Databases</source>
         <translation>List of available Dictionary Databases</translation>
     </message>
     <message>
-        <location filename="../KJVDictDatabaseConfig.ui" line="71"/>
+        <location filename="../ConfigDictDatabase.ui" line="71"/>
         <source>Display Dictionary &amp;Information</source>
         <translation>Display Dictionary &amp;Information</translation>
     </message>
     <message>
-        <location filename="../KJVDictDatabaseConfig.ui" line="78"/>
+        <location filename="../ConfigDictDatabase.ui" line="78"/>
         <source>I&amp;nitial Dictionary Database:</source>
         <translation>I&amp;nitial Dictionary Database:</translation>
     </message>
     <message>
-        <location filename="../KJVDictDatabaseConfig.ui" line="88"/>
+        <location filename="../ConfigDictDatabase.ui" line="88"/>
         <source>Select Main Dictionary Database to Load</source>
         <translation>Select Main Dictionary Database to Load</translation>
     </message>

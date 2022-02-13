@@ -1333,7 +1333,7 @@ void CConfigBibleDatabase::en_displayBibleInformation()
 
 #if defined(USING_DICTIONARIES)
 
-CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
+CConfigDictDatabase::CConfigDictDatabase(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
 		m_bLoadingData(false)
@@ -1369,12 +1369,12 @@ CKJVDictDatabaseConfig::CKJVDictDatabaseConfig(QWidget *parent)
 	loadSettings();
 }
 
-CKJVDictDatabaseConfig::~CKJVDictDatabaseConfig()
+CConfigDictDatabase::~CConfigDictDatabase()
 {
 
 }
 
-void CKJVDictDatabaseConfig::loadSettings()
+void CConfigDictDatabase::loadSettings()
 {
 	m_bLoadingData = true;
 
@@ -1391,7 +1391,7 @@ void CKJVDictDatabaseConfig::loadSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVDictDatabaseConfig::saveSettings()
+void CConfigDictDatabase::saveSettings()
 {
 	// We've already saved settings in the change notification slots.  Just reset our
 	//		our isDirty flag in case we aren't exiting yet and only doing an apply:
@@ -1416,13 +1416,13 @@ void CKJVDictDatabaseConfig::saveSettings()
 	loadSettings();		// Reload page with new settings
 }
 
-void CKJVDictDatabaseConfig::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
+void CConfigDictDatabase::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
 {
 	Q_UNUSED(indexPrevious);
 	setSettingControls(m_pDictDatabaseListModel->data(indexCurrent, CDictDatabaseListModel::DDDRE_UUID_ROLE).toString());
 }
 
-void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
+void CConfigDictDatabase::setSettingControls(const QString &strUUID)
 {
 	bool bLoadingData = m_bLoadingData;
 	m_bLoadingData = true;
@@ -1441,13 +1441,13 @@ void CKJVDictDatabaseConfig::setSettingControls(const QString &strUUID)
 	m_bLoadingData = bLoadingData;
 }
 
-void CKJVDictDatabaseConfig::en_loadDictDatabase(const QString &strUUID)
+void CConfigDictDatabase::en_loadDictDatabase(const QString &strUUID)
 {
 	Q_ASSERT(!strUUID.isEmpty());
 	TDictionaryDatabaseList::loadDictionaryDatabase(strUUID, false, this);
 }
 
-void CKJVDictDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
+void CConfigDictDatabase::en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad)
 {
 	Q_UNUSED(strUUID);
 	Q_UNUSED(bAutoLoad);
@@ -1461,7 +1461,7 @@ void CKJVDictDatabaseConfig::en_changedAutoLoadStatus(const QString &strUUID, bo
 	emit dataChanged(false);
 }
 
-void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
+void CConfigDictDatabase::en_changedMainDBCurrentChanged(int index)
 {
 	if (m_bLoadingData) return;
 
@@ -1478,7 +1478,7 @@ void CKJVDictDatabaseConfig::en_changedMainDBCurrentChanged(int index)
 	emit dataChanged(false);
 }
 
-void CKJVDictDatabaseConfig::en_displayDictInformation()
+void CConfigDictDatabase::en_displayDictInformation()
 {
 	CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
 	Q_ASSERT(!pDictDatabase.isNull());
@@ -3148,7 +3148,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 #endif
 	m_pBibleDatabaseConfig = new CConfigBibleDatabase(this);
 #if defined(USING_DICTIONARIES)
-	m_pDictDatabaseConfig = new CKJVDictDatabaseConfig(this);
+	m_pDictDatabaseConfig = new CConfigDictDatabase(this);
 #endif
 	m_pLocaleConfig = new CKJVLocaleConfig(this);
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)

@@ -218,15 +218,15 @@ private:
 
 #if defined(USING_DICTIONARIES)
 
-#include "ui_KJVDictDatabaseConfig.h"
+#include "ui_ConfigDictDatabase.h"
 
-class CKJVDictDatabaseConfig : public QWidget
+class CConfigDictDatabase : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVDictDatabaseConfig(QWidget *parent = nullptr);
-	~CKJVDictDatabaseConfig();
+	explicit CConfigDictDatabase(QWidget *parent = nullptr);
+	~CConfigDictDatabase();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -258,7 +258,7 @@ private:
 	bool m_bLoadingData;
 	QString m_strSelectedDatabaseUUID;
 
-	Ui::CKJVDictDatabaseConfig ui;
+	Ui::CConfigDictDatabase ui;
 };
 
 #endif	// USING_DICTIONARIES
@@ -645,7 +645,7 @@ private:
 #endif
 	CConfigBibleDatabase *m_pBibleDatabaseConfig;
 #if defined(USING_DICTIONARIES)
-	CKJVDictDatabaseConfig *m_pDictDatabaseConfig;
+	CConfigDictDatabase *m_pDictDatabaseConfig;
 #endif
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVTTSOptionsConfig *m_pTTSOptionsConfig;
