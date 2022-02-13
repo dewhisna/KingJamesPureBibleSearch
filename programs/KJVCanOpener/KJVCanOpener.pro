@@ -490,9 +490,9 @@ if(!emscripten|wasm):!console:FORMS += \
 	ConfigGeneralSettings.ui \
 	ConfigLocale.ui \
 	ConfigSearchOptions.ui \
+	ConfigTextFormat.ui \
 	DictDatabaseInfoDlg.ui \
 	DictionaryWidget.ui \
-	KJVTextFormatConfig.ui \
 	RenameHighlighterDlg.ui
 
 !emscripten:!vnc:!console:FORMS += \

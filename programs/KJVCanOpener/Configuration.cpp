@@ -98,7 +98,7 @@ static QwwColorButton *toQwwColorButton(QPushButton *pButton) { return reinterpr
 
 // ============================================================================
 
-CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, const QString &strUserDefinedHighlighterName)
+CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(CConfigTextFormat *pConfigurator, const QString &strUserDefinedHighlighterName)
 	:	QObject(nullptr),
 		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 {
@@ -132,7 +132,7 @@ void CHighlighterColorButtonSignalReflector::en_enableClicked(bool bEnabled)
 class CHighlighterColorButton : public CHighlighterColorButtonSignalReflector, public QListWidgetItem
 {
 public:
-	CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName);
+	CHighlighterColorButton(CConfigTextFormat *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName);
 	~CHighlighterColorButton();
 
 	virtual bool operator <(const QListWidgetItem & other) const override
@@ -164,7 +164,7 @@ private:
 	QCheckBox *m_pEnableCheckbox;
 };
 
-CHighlighterColorButton::CHighlighterColorButton(CKJVTextFormatConfig *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName)
+CHighlighterColorButton::CHighlighterColorButton(CConfigTextFormat *pConfigurator, QListWidget *pList, const QString &strUserDefinedHighlighterName)
 	:	CHighlighterColorButtonSignalReflector(pConfigurator, strUserDefinedHighlighterName),
 		QListWidgetItem(pList, 0),
 		m_pWidget(nullptr),
@@ -284,7 +284,7 @@ void CHighlighterColorButton::setBrightness(bool bAdjust, bool bInvert, int nBri
 
 // ============================================================================
 
-CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent) :
+CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent) :
 	QWidget(parent),
 	//	m_pBibleDatabase(pBibleDatabase),
 	//	m_pDictionaryDatabase(pDictionary),
@@ -496,12 +496,12 @@ CKJVTextFormatConfig::CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDi
 	loadSettings();
 }
 
-CKJVTextFormatConfig::~CKJVTextFormatConfig()
+CConfigTextFormat::~CConfigTextFormat()
 {
 
 }
 
-void CKJVTextFormatConfig::loadSettings()
+void CConfigTextFormat::loadSettings()
 {
 	m_bLoadingData = true;
 
@@ -564,7 +564,7 @@ void CKJVTextFormatConfig::loadSettings()
 	setPreview();
 }
 
-void CKJVTextFormatConfig::saveSettings()
+void CConfigTextFormat::saveSettings()
 {
 	CPersistentSettings::instance()->setFontScriptureBrowser(m_fntScriptureBrowser);
 	// Updating of the SearchResults font needs to be done down in the individual change
@@ -593,7 +593,7 @@ void CKJVTextFormatConfig::saveSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVTextFormatConfig::en_ApplicationFontChanged(const QFont &font)
+void CConfigTextFormat::en_ApplicationFontChanged(const QFont &font)
 {
 	if (m_bLoadingData) return;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -605,7 +605,7 @@ void CKJVTextFormatConfig::en_ApplicationFontChanged(const QFont &font)
 	emit dataChanged(true);
 }
 
-void CKJVTextFormatConfig::en_ScriptureBrowserFontChanged(const QFont &font)
+void CConfigTextFormat::en_ScriptureBrowserFontChanged(const QFont &font)
 {
 	if (m_bLoadingData) return;
 
@@ -615,7 +615,7 @@ void CKJVTextFormatConfig::en_ScriptureBrowserFontChanged(const QFont &font)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_SearchResultsFontChanged(const QFont &font)
+void CConfigTextFormat::en_SearchResultsFontChanged(const QFont &font)
 {
 	if (m_bLoadingData) return;
 
@@ -626,7 +626,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontChanged(const QFont &font)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
+void CConfigTextFormat::en_DictionaryFontChanged(const QFont &font)
 {
 	if (m_bLoadingData) return;
 
@@ -636,7 +636,7 @@ void CKJVTextFormatConfig::en_DictionaryFontChanged(const QFont &font)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_ApplicationFontSizeChanged(double nFontSize)
+void CConfigTextFormat::en_ApplicationFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -648,7 +648,7 @@ void CKJVTextFormatConfig::en_ApplicationFontSizeChanged(double nFontSize)
 	emit dataChanged(true);
 }
 
-void CKJVTextFormatConfig::en_ScriptureBrowserFontSizeChanged(double nFontSize)
+void CConfigTextFormat::en_ScriptureBrowserFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
 
@@ -658,7 +658,7 @@ void CKJVTextFormatConfig::en_ScriptureBrowserFontSizeChanged(double nFontSize)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
+void CConfigTextFormat::en_SearchResultsFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
 
@@ -669,7 +669,7 @@ void CKJVTextFormatConfig::en_SearchResultsFontSizeChanged(double nFontSize)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
+void CConfigTextFormat::en_DictionaryFontSizeChanged(double nFontSize)
 {
 	if (m_bLoadingData) return;
 
@@ -679,7 +679,7 @@ void CKJVTextFormatConfig::en_DictionaryFontSizeChanged(double nFontSize)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
+void CConfigTextFormat::en_InvertTextBrightnessChanged(bool bInvert)
 {
 	if (m_bLoadingData) return;
 
@@ -689,7 +689,7 @@ void CKJVTextFormatConfig::en_InvertTextBrightnessChanged(bool bInvert)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
+void CConfigTextFormat::en_TextBrightnessChanged(int nBrightness)
 {
 	if (m_bLoadingData) return;
 
@@ -699,7 +699,7 @@ void CKJVTextFormatConfig::en_TextBrightnessChanged(int nBrightness)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
+void CConfigTextFormat::en_AdjustDialogElementBrightness(bool bAdjust)
 {
 	if (m_bLoadingData) return;
 
@@ -709,7 +709,7 @@ void CKJVTextFormatConfig::en_AdjustDialogElementBrightness(bool bAdjust)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
+void CConfigTextFormat::en_WordsOfJesusColorPicked(const QColor &color)
 {
 	if (m_bLoadingData) return;
 
@@ -721,7 +721,7 @@ void CKJVTextFormatConfig::en_WordsOfJesusColorPicked(const QColor &color)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_clickedEnableWordsOfJesusColor(bool bEnable)
+void CConfigTextFormat::en_clickedEnableWordsOfJesusColor(bool bEnable)
 {
 	if (m_bLoadingData) return;
 
@@ -739,7 +739,7 @@ void CKJVTextFormatConfig::en_clickedEnableWordsOfJesusColor(bool bEnable)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
+void CConfigTextFormat::en_SearchResultsColorPicked(const QColor &color)
 {
 	if (m_bLoadingData) return;
 
@@ -749,7 +749,7 @@ void CKJVTextFormatConfig::en_SearchResultsColorPicked(const QColor &color)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
+void CConfigTextFormat::en_CursorTrackerColorPicked(const QColor &color)
 {
 	if (m_bLoadingData) return;
 
@@ -759,7 +759,7 @@ void CKJVTextFormatConfig::en_CursorTrackerColorPicked(const QColor &color)
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color)
+void CConfigTextFormat::en_HighlighterColorPicked(const QString &strUserDefinedHighlighterName, const QColor &color)
 {
 	if (m_bLoadingData) return;
 
@@ -773,14 +773,14 @@ void CKJVTextFormatConfig::en_HighlighterColorPicked(const QString &strUserDefin
 	en_HighlighterColorClicked(strUserDefinedHighlighterName);
 }
 
-void CKJVTextFormatConfig::en_HighlighterColorClicked(const QString &strUserDefinedHighlighterName)
+void CConfigTextFormat::en_HighlighterColorClicked(const QString &strUserDefinedHighlighterName)
 {
 	if (m_bLoadingData) return;
 
 	ui.comboBoxHighlighters->setEditText(strUserDefinedHighlighterName);
 }
 
-void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled)
+void CConfigTextFormat::en_HighlighterEnableChanged(const QString &strUserDefinedHighlighterName, bool bEnabled)
 {
 	if (m_bLoadingData) return;
 
@@ -793,7 +793,7 @@ void CKJVTextFormatConfig::en_HighlighterEnableChanged(const QString &strUserDef
 	en_HighlighterColorClicked(strUserDefinedHighlighterName);
 }
 
-void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
+void CConfigTextFormat::en_comboBoxHighlightersTextChanged(const QString &strUserDefinedHighlighterName)
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	ui.toolButtonAddHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && !g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()) &&
@@ -802,7 +802,7 @@ void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(const QString &str
 	ui.toolButtonRenameHighlighter->setEnabled(!strUserDefinedHighlighterName.trimmed().isEmpty() && g_pUserNotesDatabase->existsHighlighter(strUserDefinedHighlighterName.trimmed()));
 }
 
-void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(int ndxUserDefinedHighlighterName)
+void CConfigTextFormat::en_comboBoxHighlightersTextChanged(int ndxUserDefinedHighlighterName)
 {
 	// Note: In Qt 5.15+, they deprecated the currentIndexChanged(const QString &) signal
 	//	that we originally had connected to en_comboBoxHighlightersTextChanged().  Instead,
@@ -812,7 +812,7 @@ void CKJVTextFormatConfig::en_comboBoxHighlightersTextChanged(int ndxUserDefined
 	en_comboBoxHighlightersTextChanged(ui.comboBoxHighlighters->itemText(ndxUserDefinedHighlighterName));
 }
 
-void CKJVTextFormatConfig::en_addHighlighterClicked()
+void CConfigTextFormat::en_addHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
@@ -835,7 +835,7 @@ void CKJVTextFormatConfig::en_addHighlighterClicked()
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_removeHighlighterClicked()
+void CConfigTextFormat::en_removeHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
@@ -902,7 +902,7 @@ void CKJVTextFormatConfig::en_removeHighlighterClicked()
 	emit dataChanged(false);
 }
 
-void CKJVTextFormatConfig::en_renameHighlighterClicked()
+void CConfigTextFormat::en_renameHighlighterClicked()
 {
 	if (m_bLoadingData) return;
 
@@ -966,7 +966,7 @@ void CKJVTextFormatConfig::en_renameHighlighterClicked()
 	}
 }
 
-void CKJVTextFormatConfig::en_currentColorListViewItemChanged(QListWidgetItem *pCurrent, QListWidgetItem *pPrevious)
+void CConfigTextFormat::en_currentColorListViewItemChanged(QListWidgetItem *pCurrent, QListWidgetItem *pPrevious)
 {
 	if (m_bLoadingData) return;
 
@@ -977,7 +977,7 @@ void CKJVTextFormatConfig::en_currentColorListViewItemChanged(QListWidgetItem *p
 	}
 }
 
-void CKJVTextFormatConfig::recalcColorListWidth()
+void CConfigTextFormat::recalcColorListWidth()
 {
 	ui.listWidgetHighlighterColors->setMinimumWidth(0);
 	ui.listWidgetHighlighterColors->updateGeometry();
@@ -994,7 +994,7 @@ void CKJVTextFormatConfig::recalcColorListWidth()
 	adjustSize();
 }
 
-void CKJVTextFormatConfig::navigateToDemoText()
+void CConfigTextFormat::navigateToDemoText()
 {
 	CRelIndex ndxPreview(41, 9, 1, 1);						// Goto Mark 9:1 for Preview (as it has some red-letter text)
 	CRelIndex ndxPreview2(41, 9, 3, 1);						// Goto Mark 9:3 for additional Search Results highlight so we can get all combinations of highlighters...
@@ -1040,7 +1040,7 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	QString strTrumpet = tr("trumpet", "ConfigurationSearchPreviewKeyword");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language());
 	if (!pTranslator.isNull()) {
-		QString strTemp = pTranslator->translatorApp().translate("CKJVTextFormatConfig", "trumpet", "ConfigurationSearchPreviewKeyword");
+		QString strTemp = pTranslator->translatorApp().translate("CConfigTextFormat", "trumpet", "ConfigurationSearchPreviewKeyword");
 		if (!strTemp.isEmpty()) strTrumpet = strTemp;
 	} else if (m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("grc") == 0) {
 		// Special case for the Greek Textus Receptus texts, since we currently don't have our app translated to Greek
@@ -1061,14 +1061,14 @@ void CKJVTextFormatConfig::navigateToDemoText()
 	m_pSearchResultsTreeView->expandAll();
 }
 
-void CKJVTextFormatConfig::setPreview()
+void CConfigTextFormat::setPreview()
 {
 	m_pSearchResultsTreeView->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 	m_pScriptureBrowser->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 	if (m_pDictionaryWidget != nullptr) m_pDictionaryWidget->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 }
 
-void CKJVTextFormatConfig::en_selectionChangedBrowser()
+void CConfigTextFormat::en_selectionChangedBrowser()
 {
 	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
 
@@ -1077,7 +1077,7 @@ void CKJVTextFormatConfig::en_selectionChangedBrowser()
 	}
 }
 
-void CKJVTextFormatConfig::en_userNotesChanged()
+void CConfigTextFormat::en_userNotesChanged()
 {
 	loadSettings();
 }
@@ -3142,7 +3142,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 
 	m_pGeneralSettingsConfig = new CConfigGeneralSettings(pBibleDatabase, this);
 	m_pCopyOptionsConfig = new CConfigCopyOptions(pBibleDatabase, this);
-	m_pTextFormatConfig = new CKJVTextFormatConfig(pBibleDatabase, pDictionary, this);
+	m_pTextFormatConfig = new CConfigTextFormat(pBibleDatabase, pDictionary, this);
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	m_pUserNotesDatabaseConfig = new CKJVUserNotesDatabaseConfig(g_pUserNotesDatabase, this);
 #endif

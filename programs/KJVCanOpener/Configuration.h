@@ -47,7 +47,7 @@ class CScriptureBrowser;
 class CScriptureEdit;
 class CDictionaryWidget;
 class QwwColorButton;
-class CKJVTextFormatConfig;
+class CConfigTextFormat;
 class QListWidgetItem;
 class CBibleWordDiffListModel;
 
@@ -59,7 +59,7 @@ class CHighlighterColorButtonSignalReflector : public QObject
 	Q_OBJECT
 
 public:
-	CHighlighterColorButtonSignalReflector(CKJVTextFormatConfig *pConfigurator, const QString &strUserDefinedHighlighterName);
+	CHighlighterColorButtonSignalReflector(CConfigTextFormat *pConfigurator, const QString &strUserDefinedHighlighterName);
 	~CHighlighterColorButtonSignalReflector();
 
 	QString highlighterName() const { return m_strUserDefinedHighlighterName; }
@@ -84,15 +84,15 @@ private:
 
 // ============================================================================
 
-#include "ui_KJVTextFormatConfig.h"
+#include "ui_ConfigTextFormat.h"
 
-class CKJVTextFormatConfig : public QWidget
+class CConfigTextFormat : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVTextFormatConfig(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr);						// Databases for the preview
-	~CKJVTextFormatConfig();
+	explicit CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr);						// Databases for the preview
+	~CConfigTextFormat();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -161,7 +161,7 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CKJVTextFormatConfig ui;
+	Ui::CConfigTextFormat ui;
 };
 
 // ============================================================================
@@ -639,7 +639,7 @@ signals:
 private:
 	CConfigGeneralSettings *m_pGeneralSettingsConfig;
 	CConfigCopyOptions *m_pCopyOptionsConfig;
-	CKJVTextFormatConfig *m_pTextFormatConfig;
+	CConfigTextFormat *m_pTextFormatConfig;
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	CKJVUserNotesDatabaseConfig *m_pUserNotesDatabaseConfig;
 #endif

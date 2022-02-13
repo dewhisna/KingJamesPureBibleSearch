@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVTextFormatConfig</class>
- <widget class="QWidget" name="CKJVTextFormatConfig">
+ <class>CConfigTextFormat</class>
+ <widget class="QWidget" name="CConfigTextFormat">
   <property name="windowTitle">
    <string>Text Color and Font Configuration</string>
   </property>

@@ -386,9 +386,9 @@ if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 		"ConfigGeneralSettings.ui"
 		"ConfigLocale.ui"
 		"ConfigSearchOptions.ui"
+		"ConfigTextFormat.ui"
 		"DictDatabaseInfoDlg.ui"
 		"DictionaryWidget.ui"
-		"KJVTextFormatConfig.ui"
 		"RenameHighlighterDlg.ui"
 	)
 endif()

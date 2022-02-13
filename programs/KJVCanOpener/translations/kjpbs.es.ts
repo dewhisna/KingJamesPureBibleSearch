@@ -3161,159 +3161,159 @@ Expected &quot;%1&quot;.</source>
     </message>
 </context>
 <context>
-    <name>CKJVTextFormatConfig</name>
+    <name>CConfigTextFormat</name>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="28"/>
+        <location filename="../ConfigTextFormat.ui" line="28"/>
         <source>Text Color and Font Configuration</source>
         <translation>Configuración del Color y las Fuentes del Texto</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="45"/>
+        <location filename="../ConfigTextFormat.ui" line="45"/>
         <source>Invert the color scheme brightness</source>
         <translation>Invierte el brillo de colores</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="48"/>
+        <location filename="../ConfigTextFormat.ui" line="48"/>
         <source>&amp;Invert Text Brightness:</source>
         <translation>&amp;Invierte el brillo de colores:</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="61"/>
+        <location filename="../ConfigTextFormat.ui" line="61"/>
         <source>Slide to desired control text brightness</source>
         <translation>Ajuste el brillo deseado del texto de los controles</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="86"/>
+        <location filename="../ConfigTextFormat.ui" line="86"/>
         <source>Enable All Dialog Element Text Brightness vs. Search Results/Scripture Browser only</source>
         <translation>Activar el ajuste brillo del texto de todo los elementos de cuadro de diálogo vs. Resultados de la Búsqueda/Navegador Escritura sólo</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="89"/>
+        <location filename="../ConfigTextFormat.ui" line="89"/>
         <source>Adjust &amp;Dialog Element Brightness</source>
         <translation>Ajustar el brillo de los elementos de cuadro de &amp;diálogo</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="100"/>
+        <location filename="../ConfigTextFormat.ui" line="100"/>
         <source>Set to Desired Font Name for the Scripture Browser</source>
         <translation>Establecer el Nombre de la Fuente deseada para el Navegador Escritura</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="107"/>
+        <location filename="../ConfigTextFormat.ui" line="107"/>
         <source>Scripture &amp;Browser Font:</source>
         <translation>Fuente &amp;Navegador Escritura:</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="120"/>
+        <location filename="../ConfigTextFormat.ui" line="120"/>
         <source>Set to Desired Font Point Size for the Search Results List</source>
         <translation>Establecer el tamaño de la fuente punto deseado para la lista de Resultados de Búsqueda</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="127"/>
+        <location filename="../ConfigTextFormat.ui" line="127"/>
         <source>Set to Desired Font Point Size for the Dictionary Window</source>
         <translation>Establecer el tamaño de la fuente punto deseado para la ventana Diccionario</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="134"/>
+        <location filename="../ConfigTextFormat.ui" line="134"/>
         <source>Set to Desired Font Point Size for the Application Controls and Menus (Requires Restart)</source>
         <translation>Establecer el tamaño de la fuente punto deseado para los controles de aplicación y los menús (requiere reiniciar)</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="141"/>
+        <location filename="../ConfigTextFormat.ui" line="141"/>
         <source>Application Font:</source>
         <translation>Fuente de la Aplicación:</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="154"/>
+        <location filename="../ConfigTextFormat.ui" line="154"/>
         <source>Set to Desired Font Name for the Search Results List</source>
         <translation>Establecer el Nombre de la Fuente deseada para la Lista de Resultados de Búsqueda</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="161"/>
+        <location filename="../ConfigTextFormat.ui" line="161"/>
         <source>Search &amp;Results Font:</source>
         <translation>Fuente de los &amp;Resultados de Búsqueda:</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="174"/>
+        <location filename="../ConfigTextFormat.ui" line="174"/>
         <source>Set to Desired Font Point Size for the Scripture Browser</source>
         <translation>Establecer el tamaño de la fuente punto deseado para el Navegador Escritura</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="181"/>
+        <location filename="../ConfigTextFormat.ui" line="181"/>
         <source>Set to Desired Font Name for the Applcation Controls and Menus (Requires Restart)</source>
         <translation>Establecer el Nombre de fuente deseado para los controles de aplicación y menús (requiere reiniciar)</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="188"/>
+        <location filename="../ConfigTextFormat.ui" line="188"/>
         <source>Set to Desired Font Name for the Dictionary Window</source>
         <translation>Establecer el Nombre deseado de la fuente de la Ventana Diccionario</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="195"/>
+        <location filename="../ConfigTextFormat.ui" line="195"/>
         <source>Di&amp;ctionary Window Font:</source>
         <translation>Fuente de Ventana del Di&amp;ccionario:</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="236"/>
+        <location filename="../ConfigTextFormat.ui" line="236"/>
         <source>Color Settings</source>
         <translation>Configuración de Color</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="255"/>
+        <location filename="../ConfigTextFormat.ui" line="255"/>
         <source>Custom Text Highlighter Settings</source>
         <translation>Configuración de Resaltado de Texto Personalizados</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="276"/>
+        <location filename="../ConfigTextFormat.ui" line="276"/>
         <source>Enter Custom Text Highlighter Name</source>
         <translation>Entrar personalizada Nombre de Resaltador de Texto</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="289"/>
+        <location filename="../ConfigTextFormat.ui" line="289"/>
         <source>Add Custom Highlighter using the name specified</source>
         <translation>Añadir Resaltador Personalizado con el nombre especificado</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="306"/>
+        <location filename="../ConfigTextFormat.ui" line="306"/>
         <source>Remove the specified Custom Highlighter</source>
         <translation>Eliminar el Resaltador Personalizado especificado</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="323"/>
+        <location filename="../ConfigTextFormat.ui" line="323"/>
         <source>Rename the specified Custom Highlighter</source>
         <translation>Cambiar el nombre del Resaltador Personalizado especificado</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="363"/>
+        <location filename="../ConfigTextFormat.ui" line="363"/>
         <source>Set the Color for the Words of Jesus</source>
         <translation>Ajustar el color a las Palabras de Jesús</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="366"/>
+        <location filename="../ConfigTextFormat.ui" line="366"/>
         <source>Words of Jesus</source>
         <translation>Palabras de Jesús</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="373"/>
+        <location filename="../ConfigTextFormat.ui" line="373"/>
         <source>Enable</source>
         <translation>Activar</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="382"/>
+        <location filename="../ConfigTextFormat.ui" line="382"/>
         <source>Set the Color for the Search Results</source>
         <translation>Establecer el color para los Resultados de Búsqueda</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="385"/>
+        <location filename="../ConfigTextFormat.ui" line="385"/>
         <source>Search Results</source>
         <translation>Resultados de la Búsqueda</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="392"/>
+        <location filename="../ConfigTextFormat.ui" line="392"/>
         <source>Set the Color for the Underlining Cursor Tracker in the Scripture Browser</source>
         <translation>Establecer el color para el rastreador cursor subrayado en el Navegador Escritura</translation>
     </message>
     <message>
-        <location filename="../KJVTextFormatConfig.ui" line="395"/>
+        <location filename="../ConfigTextFormat.ui" line="395"/>
         <source>Cursor Tracker</source>
         <translation>Cursor Rastreador</translation>
     </message>
