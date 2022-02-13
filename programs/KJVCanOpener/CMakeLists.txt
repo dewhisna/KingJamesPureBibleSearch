@@ -223,6 +223,9 @@ if(OPTION_BUILD_BIBLE_DATABASE)
 	)
 endif()
 
+# These files are FOR the GUI and WASM, but not
+#	Emscripten-only (note that Emscripten is also
+#	set for WASM, but not vice versa):
 if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	list(APPEND KJVCanOpener_SOURCES
 		"BibleDatabaseInfoDlg.cpp"
@@ -316,6 +319,9 @@ if(OPTION_BUILD_BIBLE_DATABASE)
 	)
 endif()
 
+# These files are FOR the GUI and WASM, but not
+#	Emscripten-only (note that Emscripten is also
+#	set for WASM, but not vice versa):
 if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	list(APPEND KJVCanOpener_HEADERS
 		"BibleDatabaseInfoDlg.h"
@@ -326,6 +332,7 @@ if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	)
 endif()
 
+# These are for the desktop GUI only:
 if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_HEADERS
 		"EditWWWLinkDlg.h"
@@ -365,6 +372,9 @@ set(KJVCanOpener_FORMS
 	"PassageReferenceWidget.ui"
 )
 
+# These files are FOR the GUI and WASM, but not
+#	Emscripten-only (note that Emscripten is also
+#	set for WASM, but not vice versa):
 if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	list(APPEND KJVCanOpener_FORMS
 		"BibleDatabaseInfoDlg.ui"
@@ -945,8 +955,13 @@ endif()
 # Non-configurable typedefs, dependent on build target:
 # -----------------------------------------------------
 
-# Enable Loading of our Application Fonts (Note: old Emscripten-Qt uses auto-loading of .qpf fonts from deployed qt-fonts folder):
-# But, WebAssembly Emscripten Qt does it directly from resources:
+# Enable Loading of our Application Fonts (Note: old Emscripten-Qt
+#	uses auto-loading of .qpf fonts from deployed qt-fonts folder)
+#	But, WebAssembly Emscripten Qt does it directly from resources:
+#
+# These files are FOR the GUI and WASM, but not
+#	Emscripten-only (note that Emscripten is also
+#	set for WASM, but not vice versa):
 if((NOT EMSCRIPTEN OR WASM) AND NOT CONSOLE)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		LOAD_APPLICATION_FONTS
