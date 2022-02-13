@@ -329,6 +329,7 @@ greaterThan(QT_MAJOR_VERSION,4) {
 SOURCES += \
 	main.cpp \
 	myApplication.cpp \
+	AboutDlg.cpp \
 	BibleDBListModel.cpp \
 	BibleWordDiffListModel.cpp \
 	BusyCursor.cpp \
@@ -338,7 +339,6 @@ SOURCES += \
 	DelayedExecutionTimer.cpp \
 	DictDBListModel.cpp \
 	Highlighter.cpp \
-	KJVAboutDlg.cpp \
 	KJVBrowser.cpp \
 	KJVCanOpener.cpp \
 	KJVPassageNavigator.cpp \
@@ -398,6 +398,7 @@ contains(QT, webenginewidgets):SOURCES += \
 HEADERS += \
 	PathConsts.h \
 	myApplication.h \
+	AboutDlg.h \
 	BibleDBListModel.h \
 	BibleWordDiffListModel.h \
 	BusyCursor.h \
@@ -407,7 +408,6 @@ HEADERS += \
 	DelayedExecutionTimer.h \
 	DictDBListModel.h \
 	Highlighter.h \
-	KJVAboutDlg.h \
 	KJVBrowser.h \
 	KJVCanOpener.h \
 	KJVPassageNavigator.h \
@@ -469,7 +469,7 @@ contains(QT, webenginewidgets):HEADERS += \
 
 
 FORMS += \
-	KJVAboutDlg.ui \
+	AboutDlg.ui \
 	KJVBrowser.ui \
 	KJVCanOpener.ui \
 	KJVPassageNavigator.ui \

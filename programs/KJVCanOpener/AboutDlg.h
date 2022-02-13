@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVABOUTDLG_H
-#define KJVABOUTDLG_H
+#ifndef ABOUT_DIALOG_H
+#define ABOUT_DIALOG_H
 
 #include <QDialog>
 #include <QGraphicsPixmapItem>
@@ -31,15 +31,15 @@
 
 // ============================================================================
 
-#include "ui_KJVAboutDlg.h"
+#include "ui_AboutDlg.h"
 
-class CKJVAboutDlg : public QDialog
+class CAboutDlg : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVAboutDlg(QWidget *parent);
-	virtual ~CKJVAboutDlg();
+	explicit CAboutDlg(QWidget *parent);
+	virtual ~CAboutDlg();
 
 private slots:
 	void en_resizeMe();
@@ -60,7 +60,7 @@ private:
 	QGraphicsTextItem *m_pBroughtToYouBy;
 	QGraphicsTextItem *m_pBethelURL;
 
-	Ui::CKJVAboutDlg ui;
+	Ui::CAboutDlg ui;
 };
 
 // ============================================================================
@@ -68,16 +68,16 @@ private:
 // SmartPointer classes needed, particularly for stack instantiated dialogs, since
 //		this dialog is only WindowModal and the parent can get deleted during an
 //		app close event, causing an attempted double-free which leads to a crash:
-class CKJVAboutDlgPtr : public QPointer<CKJVAboutDlg>
+class CAboutDlgPtr : public QPointer<CAboutDlg>
 {
 public:
-	CKJVAboutDlgPtr(QWidget *parent = nullptr)
-		:	QPointer<CKJVAboutDlg>(new CKJVAboutDlg(parent))
+	CAboutDlgPtr(QWidget *parent = nullptr)
+		:	QPointer<CAboutDlg>(new CAboutDlg(parent))
 	{
 
 	}
 
-	virtual ~CKJVAboutDlgPtr()
+	virtual ~CAboutDlgPtr()
 	{
 		if (!isNull()) delete data();
 	}
@@ -85,4 +85,4 @@ public:
 
 // ============================================================================
 
-#endif // KJVABOUTDLG_H
+#endif // ABOUT_DIALOG_H

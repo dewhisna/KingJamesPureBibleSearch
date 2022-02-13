@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVAboutDlg.h"
+#include "AboutDlg.h"
 
 #include "ReportError.h"
 #include "version.h"
@@ -52,7 +52,7 @@ static inline QString htmlEscape(const QString &aString)
 
 // ============================================================================
 
-CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
+CAboutDlg::CAboutDlg(QWidget *parent) :
 	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 	m_pBethelChurch(nullptr),
 	m_pAppTitle(nullptr),
@@ -155,12 +155,12 @@ CKJVAboutDlg::CKJVAboutDlg(QWidget *parent) :
 	QTimer::singleShot(0, this, SLOT(en_resizeMe()));
 }
 
-CKJVAboutDlg::~CKJVAboutDlg()
+CAboutDlg::~CAboutDlg()
 {
 
 }
 
-void CKJVAboutDlg::en_resizeMe()
+void CAboutDlg::en_resizeMe()
 {
 	adjustSize();
 
@@ -171,7 +171,7 @@ void CKJVAboutDlg::en_resizeMe()
 	}
 }
 
-void CKJVAboutDlg::en_licenseDisplay()
+void CAboutDlg::en_licenseDisplay()
 {
 	const QString strLicenseInfo =
 			tr("This program is free software; you can redistribute it and/or modify it under the terms "

@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVAboutDlg</class>
- <widget class="QDialog" name="CKJVAboutDlg">
+ <class>CAboutDlg</class>
+ <widget class="QDialog" name="CAboutDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -63,7 +63,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CKJVAboutDlg</receiver>
+   <receiver>CAboutDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -79,7 +79,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CKJVAboutDlg</receiver>
+   <receiver>CAboutDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

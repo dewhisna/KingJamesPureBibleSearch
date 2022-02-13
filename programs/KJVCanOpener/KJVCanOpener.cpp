@@ -32,7 +32,7 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "Highlighter.h"
-#include "KJVAboutDlg.h"
+#include "AboutDlg.h"
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 #include "KJVConfiguration.h"
 #include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
@@ -2813,10 +2813,10 @@ void CKJVCanOpener::en_HelpAbout()
 {
 #ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpenerCloseGuard closeGuard(this);
-	CKJVAboutDlgPtr pDlg(this);
+	CAboutDlgPtr pDlg(this);
 	pDlg->exec();
 #else
-	CKJVAboutDlg *pDlg = new CKJVAboutDlg(this);
+	CAboutDlg *pDlg = new CAboutDlg(this);
 	pDlg->show();
 #endif
 }

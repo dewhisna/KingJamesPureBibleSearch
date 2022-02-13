@@ -173,6 +173,7 @@ endforeach()
 set(KJVCanOpener_SOURCES
 	"main.cpp"
 	"myApplication.cpp"
+	"AboutDlg.cpp"
 	"BibleDBListModel.cpp"
 	"BibleWordDiffListModel.cpp"
 	"BusyCursor.cpp"
@@ -182,7 +183,6 @@ set(KJVCanOpener_SOURCES
 	"DelayedExecutionTimer.cpp"
 	"DictDBListModel.cpp"
 	"Highlighter.cpp"
-	"KJVAboutDlg.cpp"
 	"KJVBrowser.cpp"
 	"KJVCanOpener.cpp"
 	"KJVPassageNavigator.cpp"
@@ -265,6 +265,7 @@ endif()
 set(KJVCanOpener_HEADERS
 	"PathConsts.h"
 	"myApplication.h"
+	"AboutDlg.h"
 	"BibleDBListModel.h"
 	"BibleWordDiffListModel.h"
 	"BusyCursor.h"
@@ -274,7 +275,6 @@ set(KJVCanOpener_HEADERS
 	"DelayedExecutionTimer.h"
 	"DictDBListModel.h"
 	"Highlighter.h"
-	"KJVAboutDlg.h"
 	"KJVBrowser.h"
 	"KJVCanOpener.h"
 	"KJVPassageNavigator.h"
@@ -360,7 +360,7 @@ endif()
 # ------------
 
 set(KJVCanOpener_FORMS
-	"KJVAboutDlg.ui"
+	"AboutDlg.ui"
 	"KJVBrowser.ui"
 	"KJVCanOpener.ui"
 	"KJVPassageNavigator.ui"

@@ -831,57 +831,57 @@
     </message>
 </context>
 <context>
-    <name>CKJVAboutDlg</name>
+    <name>CAboutDlg</name>
     <message>
-        <location filename="../KJVAboutDlg.ui" line="36"/>
+        <location filename="../AboutDlg.ui" line="36"/>
         <source>About King James Pure Bible Search</source>
         <translation>About King James Pure Bible Search</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="71"/>
+        <location filename="../AboutDlg.cpp" line="71"/>
         <source>&amp;License</source>
         <comment>AboutBox</comment>
         <translation>&amp;License</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="79"/>
+        <location filename="../AboutDlg.cpp" line="79"/>
         <source>King James Pure Bible Search - Version: </source>
         <comment>AboutBox</comment>
         <translation>King James Pure Bible Search - Version: </translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="82"/>
-        <location filename="../KJVAboutDlg.cpp" line="85"/>
+        <location filename="../AboutDlg.cpp" line="82"/>
+        <location filename="../AboutDlg.cpp" line="85"/>
         <source>Lite Version</source>
         <comment>AboutBox</comment>
         <translation>Lite Version</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="98"/>
+        <location filename="../AboutDlg.cpp" line="98"/>
         <source>Build</source>
         <comment>AboutBox</comment>
         <translation>Build</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="101"/>
+        <location filename="../AboutDlg.cpp" line="101"/>
         <source>Based on Qt Version %1</source>
         <comment>AboutBox</comment>
         <translation>Based on Qt Version %1</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="102"/>
+        <location filename="../AboutDlg.cpp" line="102"/>
         <source>Brought to you by the fervent prayers of Bethel Church; Festus, MO</source>
         <comment>AboutBox</comment>
         <translation>Brought to you by the fervent prayers of Bethel Church; Festus, MO</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="105"/>
+        <location filename="../AboutDlg.cpp" line="105"/>
         <source>Click Here to Visit Bethel Church</source>
         <comment>AboutBox</comment>
         <translation>Click Here to Visit Bethel Church</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="176"/>
+        <location filename="../AboutDlg.cpp" line="176"/>
         <source>This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
@@ -903,7 +903,7 @@ Contact: http://www.dewtronics.com/
 Written and Developed for Bethel Church, Festus, MO.</translation>
     </message>
     <message>
-        <location filename="../KJVAboutDlg.cpp" line="187"/>
+        <location filename="../AboutDlg.cpp" line="187"/>
         <source>About King James Pure Bible Search License</source>
         <comment>AboutBox</comment>
         <translation>About King James Pure Bible Search License</translation>
