@@ -1215,10 +1215,12 @@ Qt::DropActions CVerseListModel::supportedDropActions() const
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 		return Qt::MoveAction;
 	} else {
-#ifdef WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS
-		return QAbstractItemModel::supportedDropActions();
-#else
+#if QT_VERSION >= 0x050000
 		return Qt::IgnoreAction;
+#else
+		// Workaround in Qt 4 for the Abstract List Drop Actions issue that causes
+		//	it to not do drops into other apps without this returning Copy or Move
+		return QAbstractItemModel::supportedDropActions();
 #endif
 	}
 }

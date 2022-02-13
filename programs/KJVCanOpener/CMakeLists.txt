@@ -936,13 +936,6 @@ if(ANDROID)
 endif()
 
 
-if(QT_VERSION_MAJOR LESS 5)
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS		# Workaround in Qt 4 for the Abstract List Drop Actions issue that causes it to not do drops into other apps without this returning Copy or Move
-	)
-endif()
-
-
 # -----------------------------------------------------------------------------
 
 # Non-configurable typedefs, dependent on build target:

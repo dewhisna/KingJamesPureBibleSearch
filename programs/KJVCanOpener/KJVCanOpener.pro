@@ -182,7 +182,6 @@ ios:greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_35787		# iOS Spl
 greaterThan(QT_MAJOR_VERSION,4):DEFINES += WORKAROUND_QTBUG_BROWSER_BOUNCE	# Not a submitted Qt bug, that I know of, but a Qt 5 bug
 macx:lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_32789			# Qt 4 Font Bug on MacX Mavericks
 android:DEFINES += WORKAROUND_QTBUG_35313_35687								# Android QMessageBox dialogs have wrong theming (workaround uses Android Native Dialogs)
-lessThan(QT_MAJOR_VERSION,5):DEFINES += WORKAROUND_QTBUG_ABSLIST_DROP_ACTIONS		# Workaround in Qt 4 for the Abstract List Drop Actions issue that causes it to not do drops into other apps without this returning Copy or Move
 
 # Enable Splash Screen:
 !vnc:!console:DEFINES += SHOW_SPLASH_SCREEN
