@@ -267,15 +267,15 @@ private:
 
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
-#include "ui_KJVTTSOptionsConfig.h"
+#include "ui_ConfigTTSOptions.h"
 
-class CKJVTTSOptionsConfig : public QWidget
+class CConfigTTSOptions : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVTTSOptionsConfig(QWidget *parent = nullptr);
-	~CKJVTTSOptionsConfig();
+	explicit CConfigTTSOptions(QWidget *parent = nullptr);
+	~CConfigTTSOptions();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -298,7 +298,7 @@ private:
 	bool m_bIsDirty;
 	bool m_bLoadingData;
 
-	Ui::CKJVTTSOptionsConfig ui;
+	Ui::CConfigTTSOptions ui;
 };
 
 #endif	// QtSpeech && !EMSCRIPTEN && !VNCSERVER
@@ -648,7 +648,7 @@ private:
 	CConfigDictDatabase *m_pDictDatabaseConfig;
 #endif
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	CKJVTTSOptionsConfig *m_pTTSOptionsConfig;
+	CConfigTTSOptions *m_pTTSOptionsConfig;
 #endif
 	CConfigLocale *m_pLocaleConfig;
 };

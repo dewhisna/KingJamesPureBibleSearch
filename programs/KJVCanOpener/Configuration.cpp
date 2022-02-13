@@ -3012,7 +3012,7 @@ void CConfigLocale::en_changeApplicationLanguage(int nIndex)
 
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
-CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
+CConfigTTSOptions::CConfigTTSOptions(QWidget *parent)
 	:	QWidget(parent),
 		m_bIsDirty(false),
 		m_bLoadingData(false)
@@ -3039,12 +3039,12 @@ CKJVTTSOptionsConfig::CKJVTTSOptionsConfig(QWidget *parent)
 	loadSettings();
 }
 
-CKJVTTSOptionsConfig::~CKJVTTSOptionsConfig()
+CConfigTTSOptions::~CConfigTTSOptions()
 {
 
 }
 
-void CKJVTTSOptionsConfig::loadSettings()
+void CConfigTTSOptions::loadSettings()
 {
 	m_bLoadingData = true;
 
@@ -3059,7 +3059,7 @@ void CKJVTTSOptionsConfig::loadSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVTTSOptionsConfig::saveSettings()
+void CConfigTTSOptions::saveSettings()
 {
 	CMyApplication::saveTTSSettings();
 	if (QtSpeech::serverSupported()) {
@@ -3091,7 +3091,7 @@ void CKJVTTSOptionsConfig::saveSettings()
 	m_bIsDirty = false;
 }
 
-void CKJVTTSOptionsConfig::en_changedTTSServerURL(const QString &strTTSServerURL)
+void CConfigTTSOptions::en_changedTTSServerURL(const QString &strTTSServerURL)
 {
 	if (m_bLoadingData) return;
 
@@ -3101,7 +3101,7 @@ void CKJVTTSOptionsConfig::en_changedTTSServerURL(const QString &strTTSServerURL
 	emit dataChanged(false);
 }
 
-void CKJVTTSOptionsConfig::en_changedTTSVoiceSelection(int nIndex)
+void CConfigTTSOptions::en_changedTTSVoiceSelection(int nIndex)
 {
 	if (m_bLoadingData) return;
 
@@ -3152,7 +3152,7 @@ CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryData
 #endif
 	m_pLocaleConfig = new CConfigLocale(this);
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER)
-	m_pTTSOptionsConfig = new CKJVTTSOptionsConfig(this);
+	m_pTTSOptionsConfig = new CConfigTTSOptions(this);
 #endif
 
 	addGroup(m_pGeneralSettingsConfig, QIcon(":/res/ControlPanel-256.png"), tr("General Settings", "MainMenu"));

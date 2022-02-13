@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVTTSOptionsConfig</class>
- <widget class="QWidget" name="CKJVTTSOptionsConfig">
+ <class>CConfigTTSOptions</class>
+ <widget class="QWidget" name="CConfigTTSOptions">
   <property name="windowTitle">
    <string>Text-To-Speech Options</string>
   </property>

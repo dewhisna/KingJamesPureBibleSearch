@@ -502,7 +502,7 @@ if(!emscripten|wasm):!console:FORMS += \
 	KJVNoteEditDlg.ui
 
 !emscripten:!vnc:QtSpeech:FORMS += \
-	KJVTTSOptionsConfig.ui
+	ConfigTTSOptions.ui
 
 RESOURCES += \
 	KJVCanOpener.qrc

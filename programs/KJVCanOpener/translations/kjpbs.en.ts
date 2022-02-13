@@ -3122,19 +3122,19 @@ Do you wish to set them as valid keywords for this note?</translation>
     </message>
 </context>
 <context>
-    <name>CKJVTTSOptionsConfig</name>
+    <name>CConfigTTSOptions</name>
     <message>
-        <location filename="../KJVTTSOptionsConfig.ui" line="28"/>
+        <location filename="../ConfigTTSOptions.ui" line="28"/>
         <source>Text-To-Speech Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVTTSOptionsConfig.ui" line="41"/>
+        <location filename="../ConfigTTSOptions.ui" line="41"/>
         <source>Text-To-Speech &amp;Server URL (Host and Port):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVTTSOptionsConfig.ui" line="61"/>
+        <location filename="../ConfigTTSOptions.ui" line="61"/>
         <source>&amp;Voice to Use:</source>
         <translation type="unfinished"></translation>
     </message>

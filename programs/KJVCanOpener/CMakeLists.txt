@@ -404,7 +404,7 @@ endif()
 
 if(NOT EMSCRIPTEN AND NOT VNC AND OPTION_TEXT_TO_SPEECH)
 	list(APPEND KJVCanOpener_FORMS
-		"KJVTTSOptionsConfig.ui"
+		"ConfigTTSOptions.ui"
 	)
 endif()
 
