@@ -361,6 +361,7 @@ SOURCES += \
 	ScriptureDocument.cpp \
 	ScriptureEdit.cpp \
 	SearchCompleter.cpp \
+	SearchCompleterListModel.cpp \
 	SearchPhraseListModel.cpp \
 	SoundEx.cpp \
 	SubControls.cpp \
@@ -431,6 +432,7 @@ HEADERS += \
 	ScriptureEdit.h \
 	ScriptureTextFormatProperties.h \
 	SearchCompleter.h \
+	SearchCompleterListModel.h \
 	SearchPhraseListModel.h \
 	SoundEx.h \
 	SubControls.h \
