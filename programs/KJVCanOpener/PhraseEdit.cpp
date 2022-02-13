@@ -24,12 +24,11 @@
 #include "PhraseEdit.h"
 #include "ParseSymbols.h"
 #include "VerseRichifier.h"
-#include "SearchCompleter.h"
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
-#include "SearchCompleter.h"
 #ifdef QT_WIDGETS_LIB
+#include "SearchCompleter.h"
 #include "ToolTipEdit.h"
 #include <QToolTip>
 #endif
