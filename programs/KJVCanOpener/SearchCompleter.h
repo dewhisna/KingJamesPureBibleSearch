@@ -182,24 +182,6 @@ class CSoundExSearchCompleterFilter : public QAbstractItemModel
 	Q_OBJECT
 
 public:
-
-	enum SOUNDEX_OPTION_MODE_ENUM {
-		SEOME_CLASSIC = 0,			// Classic SoundEx
-		SEOME_ENHANCED = 1,			// Enhanced SoundEx, but Not Census Codes
-		SEOME_CENSUS_NORMAL = 2,	// Normal Census Codes (Used in all censuses including 1920)
-		SEOME_CENSUS_SPECIAL = 3	// Special Census Codes (Used intermittently in 1880, *, 1900, 1910) *1890 destroyed in a fire
-	};
-
-
-	enum SOUNDEX_LANGUAGES_ENUM {
-		SELE_UNKNOWN = 0,
-		SELE_ENGLISH = 1,
-		SELE_FRENCH = 2,
-		SELE_SPANISH = 3,
-		SELE_GERMAN = 4
-	};
-
-
 	CSoundExSearchCompleterFilter(CSearchStringListModel *pSearchStringListModel, QObject *parent = nullptr);
 	~CSoundExSearchCompleterFilter();
 
@@ -222,9 +204,6 @@ public:
 
 	bool soundExEnabled() const { return m_bSoundExEnabled; }
 	void setSoundExEnabled(bool bEnabled) { m_bSoundExEnabled = bEnabled; }
-
-	static SOUNDEX_LANGUAGES_ENUM languageValue(const QString &strLanguage);
-	static QString soundEx(const QString &strWordIn, SOUNDEX_LANGUAGES_ENUM nLanguage = SELE_ENGLISH, int nLength = 4, SOUNDEX_OPTION_MODE_ENUM nOption = SEOME_ENHANCED);
 
 public slots:
 	void en_modelChanged();

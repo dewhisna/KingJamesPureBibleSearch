@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 #include "VerseRichifier.h"
-#include "SearchCompleter.h"
+#include "SoundEx.h"
 #include "ParseSymbols.h"
 #include "PhraseEdit.h"
 #include "ScriptureDocument.h"
@@ -2505,14 +2505,14 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedConcordanceWord];
 		Q_ASSERT(!language().isEmpty());
-		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord, CSoundExSearchCompleterFilter::languageValue(language()));
+		if (strSoundEx.isEmpty()) strSoundEx = SoundEx::soundEx(strDecomposedConcordanceWord, SoundEx::languageValue(language()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedConcordanceWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
 	Q_ASSERT(!language().isEmpty());
-	return CSoundExSearchCompleterFilter::soundEx(strDecomposedConcordanceWord, CSoundExSearchCompleterFilter::languageValue(language()));
+	return SoundEx::soundEx(strDecomposedConcordanceWord, SoundEx::languageValue(language()));
 }
 
 // ============================================================================
@@ -2556,14 +2556,14 @@ QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord,
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedDictionaryWord];
 		Q_ASSERT(!language().isEmpty());
-		if (strSoundEx.isEmpty()) strSoundEx = CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord, CSoundExSearchCompleterFilter::languageValue(language()));
+		if (strSoundEx.isEmpty()) strSoundEx = SoundEx::soundEx(strDecomposedDictionaryWord, SoundEx::languageValue(language()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedDictionaryWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
 	Q_ASSERT(!language().isEmpty());
-	return CSoundExSearchCompleterFilter::soundEx(strDecomposedDictionaryWord, CSoundExSearchCompleterFilter::languageValue(language()));
+	return SoundEx::soundEx(strDecomposedDictionaryWord, SoundEx::languageValue(language()));
 }
 
 QString CDictionaryDatabase::definition(const QString &strWord) const

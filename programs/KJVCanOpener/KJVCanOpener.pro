@@ -362,6 +362,7 @@ SOURCES += \
 	ScriptureEdit.cpp \
 	SearchCompleter.cpp \
 	SearchPhraseListModel.cpp \
+	SoundEx.cpp \
 	SubControls.cpp \
 	ToolTipEdit.cpp \
 	Translator.cpp \
@@ -431,6 +432,7 @@ HEADERS += \
 	ScriptureTextFormatProperties.h \
 	SearchCompleter.h \
 	SearchPhraseListModel.h \
+	SoundEx.h \
 	SubControls.h \
 	ThreadedSearchResults.h \
 	ToolTipEdit.h \

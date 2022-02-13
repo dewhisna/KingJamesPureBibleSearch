@@ -23,7 +23,7 @@
 
 #include "PassageReferenceWidget.h"
 
-#include "SearchCompleter.h"
+#include "SoundEx.h"
 
 #if QT_VERSION >= 0x050000
 #include <QRegularExpression>
@@ -40,7 +40,7 @@
 #endif
 
 #define PASSAGE_SOUNDEX_LENGTH 4
-#define PASSAGE_SOUNDEX_MODE CSoundExSearchCompleterFilter::SEOME_ENHANCED
+#define PASSAGE_SOUNDEX_MODE SoundEx::SEOME_ENHANCED
 
 // ============================================================================
 
@@ -414,8 +414,8 @@ void CPassageReferenceResolver::buildSoundExTables()
 			Q_ASSERT(regexpPrefix.capturedTexts().size() == 2);
 			QString strPrefix = regexpPrefix.capturedTexts().at(1);
 #endif
-			lstSoundEx.append(strPrefix + CSoundExSearchCompleterFilter::soundEx(strBookName,
-																			CSoundExSearchCompleterFilter::languageValue(m_pBibleDatabase->language()),
+			lstSoundEx.append(strPrefix + SoundEx::soundEx(strBookName,
+																			SoundEx::languageValue(m_pBibleDatabase->language()),
 																			PASSAGE_SOUNDEX_LENGTH,
 																			PASSAGE_SOUNDEX_MODE));
 		}
@@ -427,8 +427,8 @@ uint32_t CPassageReferenceResolver::resolveBook(const QString &strPreBook, const
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	QString strBookName = strPreBook.toLower() + strBook.toLower();
-	QString strSoundEx = strPreBook + CSoundExSearchCompleterFilter::soundEx(strBookName,
-																			 CSoundExSearchCompleterFilter::languageValue(m_pBibleDatabase->language()),
+	QString strSoundEx = strPreBook + SoundEx::soundEx(strBookName,
+																			 SoundEx::languageValue(m_pBibleDatabase->language()),
 																			 PASSAGE_SOUNDEX_LENGTH,
 																			 PASSAGE_SOUNDEX_MODE);
 	uint32_t nResolvedBook = 0;
