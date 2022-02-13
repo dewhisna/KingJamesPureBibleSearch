@@ -28,7 +28,7 @@
 #include "dbstruct.h"
 #include "CSV.h"
 #include "PhraseEdit.h"
-#include "SearchCompleter.h"
+#include "ParseSymbols.h"
 #include "ReportError.h"
 
 #ifndef NOT_USING_SQL
@@ -758,7 +758,7 @@ bool CReadDatabase::ReadWordsTable()
 		QString strWord = lstFields.at(1);
 		bool bCasePreserve = ((lstFields.at(2).toInt() & 0x01) ? true : false);
 		bool bIsProperWord = ((lstFields.at(2).toInt() & 0x02) ? true : false);
-		QString strKey = CSearchStringListModel::decompose(strWord, true).toLower();
+		QString strKey = StringParse::decompose(strWord, true).toLower();
 		// This check is needed because duplicates can happen from decomposed index keys.
 		//		Note: It's less computationally expensive to search the map for it than
 		//				to do a .contains() call on the m_lstWordList below, even though
@@ -793,10 +793,10 @@ bool CReadDatabase::ReadWordsTable()
 			if (!strTemp.isEmpty()) {
 				strTemp = strTemp.normalized(QString::NormalizationForm_C);
 				entryWord.m_lstAltWords.push_back(strTemp);
-				entryWord.m_lstDecomposedAltWords.push_back(CSearchStringListModel::decompose(strTemp, true));
-				entryWord.m_lstDecomposedHyphenAltWords.push_back(CSearchStringListModel::decompose(strTemp, false));
-				entryWord.m_lstDeApostrAltWords.push_back(CSearchStringListModel::deApostrHyphen(strTemp, true));
-				entryWord.m_lstDeApostrHyphenAltWords.push_back(CSearchStringListModel::deApostrHyphen(strTemp, false));
+				entryWord.m_lstDecomposedAltWords.push_back(StringParse::decompose(strTemp, true));
+				entryWord.m_lstDecomposedHyphenAltWords.push_back(StringParse::decompose(strTemp, false));
+				entryWord.m_lstDeApostrAltWords.push_back(StringParse::deApostrHyphen(strTemp, true));
+				entryWord.m_lstDeApostrHyphenAltWords.push_back(StringParse::deApostrHyphen(strTemp, false));
 				entryWord.m_lstRenderedAltWords.push_back(QString());
 			}
 		}

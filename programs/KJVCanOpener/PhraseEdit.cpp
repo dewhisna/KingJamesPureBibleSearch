@@ -867,9 +867,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 	for (int ndx=subPhrase.m_nLevel; ndx<subPhrase.m_lstWords.size(); ++ndx) {
 		if (subPhrase.m_lstWords.at(ndx).isEmpty()) continue;
 
-		QString strCurWordDecomp = CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx), true);
-		QString strCurWord = (isAccentSensitive() ? CSearchStringListModel::deApostrHyphen(subPhrase.m_lstWords.at(ndx), !m_pBibleDatabase->settings().hyphenSensitive()) :
-													CSearchStringListModel::decompose(subPhrase.m_lstWords.at(ndx), !m_pBibleDatabase->settings().hyphenSensitive()));
+		QString strCurWordDecomp = StringParse::decompose(subPhrase.m_lstWords.at(ndx), true);
+		QString strCurWord = (isAccentSensitive() ? StringParse::deApostrHyphen(subPhrase.m_lstWords.at(ndx), !m_pBibleDatabase->settings().hyphenSensitive()) :
+													StringParse::decompose(subPhrase.m_lstWords.at(ndx), !m_pBibleDatabase->settings().hyphenSensitive()));
 
 		QString strCurWordKey = strCurWordDecomp.toLower();
 		QString strCurWordWildKey = strCurWordKey;			// Note: This becomes the "Word*" value later, so can't substitute strCurWordWild for all m_lstWords.at(ndx) (or strCurWord)

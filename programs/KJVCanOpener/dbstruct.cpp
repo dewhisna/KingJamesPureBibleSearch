@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "VerseRichifier.h"
 #include "SearchCompleter.h"
+#include "ParseSymbols.h"
 #include "PhraseEdit.h"
 #include "ScriptureDocument.h"
 #include "ReadDB.h"
@@ -329,7 +330,7 @@ void TBibleDatabaseList::findBibleDatabases()
 				int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
 				int nBDEComp = ((nBIndex1 < nBIndex2) ? -1 : ((nBIndex2 < nBIndex1) ? 1 : 0));
 				int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
-				int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
+				int nDescComp = StringParse::decompose(bblDesc.m_strDBDesc, true).compare(StringParse::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
 				if ((nBDEComp < 0) ||
 					((nBDEComp == 0) && (nLangComp < 0)) ||
 					((nBDEComp == 0) && (nLangComp == 0) && (nDescComp < 0)) ||
@@ -364,7 +365,7 @@ void TBibleDatabaseList::findBibleDatabases()
 				int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
 				int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
 				int nLangComp =  ((nLIndex1 < nLIndex2) ? -1 : ((nLIndex2 < nLIndex1) ? 1 : 0));
-				int nDescComp = CSearchStringListModel::decompose(bblDesc.m_strDBDesc, true).compare(CSearchStringListModel::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
+				int nDescComp = StringParse::decompose(bblDesc.m_strDBDesc, true).compare(StringParse::decompose(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strDBDesc, true), Qt::CaseInsensitive);
 				if ((nLangComp < 0) ||
 					((nLangComp == 0) && (nDescComp < 0)) ||
 					((nLangComp == 0) && (nDescComp == 0))) break;
@@ -2366,7 +2367,7 @@ void CBibleDatabase::setRenderedWords(CWordEntry &aWordEntry) const
 
 	Q_ASSERT(aWordEntry.m_lstAltWords.size() == aWordEntry.m_lstRenderedAltWords.size());
 	for (int ndx = 0; ndx < aWordEntry.m_lstAltWords.size(); ++ndx) {
-		aWordEntry.m_lstRenderedAltWords[ndx] = (bHideHyphens ? CSearchStringListModel::deHyphen(aWordEntry.m_lstAltWords.at(ndx), true) : aWordEntry.m_lstAltWords.at(ndx));
+		aWordEntry.m_lstRenderedAltWords[ndx] = (bHideHyphens ? StringParse::deHyphen(aWordEntry.m_lstAltWords.at(ndx), true) : aWordEntry.m_lstAltWords.at(ndx));
 	}
 }
 
@@ -2523,7 +2524,7 @@ CDictionaryWordEntry::CDictionaryWordEntry()
 
 CDictionaryWordEntry::CDictionaryWordEntry(const QString &strWord)
 	:	m_strWord(strWord),
-		m_strDecomposedWord(CSearchStringListModel::decompose(strWord, false).toLower())
+		m_strDecomposedWord(StringParse::decompose(strWord, false).toLower())
 {
 
 }
@@ -2567,7 +2568,7 @@ QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord,
 
 QString CDictionaryDatabase::definition(const QString &strWord) const
 {
-	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false).toLower();
+	QString strDecomposedWord = StringParse::decompose(strWord, false).toLower();
 	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
 	if (itrWord == m_mapWordDefinitions.end()) return QString();
 	return CReadDatabase::dictionaryDefinition(this, itrWord->second);
@@ -2575,7 +2576,7 @@ QString CDictionaryDatabase::definition(const QString &strWord) const
 
 bool CDictionaryDatabase::wordExists(const QString &strWord) const
 {
-	QString strDecomposedWord = CSearchStringListModel::decompose(strWord, false).toLower();
+	QString strDecomposedWord = StringParse::decompose(strWord, false).toLower();
 	TDictionaryWordListMap::const_iterator itrWord = m_mapWordDefinitions.find(strDecomposedWord);
 	return (itrWord != m_mapWordDefinitions.end());
 }
@@ -3206,7 +3207,7 @@ unsigned int TPassageTagList::verseCount() const
 
 bool HighlighterNameSortPredicate::operator() (const QString &v1, const QString &v2) const
 {
-	return (CSearchStringListModel::decompose(v1, false).compare(CSearchStringListModel::decompose(v2, false), Qt::CaseInsensitive) < 0);
+	return (StringParse::decompose(v1, false).compare(StringParse::decompose(v2, false), Qt::CaseInsensitive) < 0);
 }
 
 // ============================================================================

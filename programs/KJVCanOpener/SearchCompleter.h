@@ -75,11 +75,6 @@ public:
 	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const = 0;		// Return and/or calculate soundEx for the specified Word
 	virtual QString cursorWord() const = 0;
 
-	static QString decompose(const QString &strWord, bool bRemoveHyphens);		// Word decompose() function to breakdown and remove accents from words for searching purposes
-	static QString deApostrHyphen(const QString &strWord, bool bRemoveHyphens);	// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
-	static QString deApostrophe(const QString &strWord, bool bRemove = false);	// Decompose/remove Apostrophes only
-	static QString deHyphen(const QString &strWord, bool bRemove = false);		// Decompose/remove Hyphens only
-
 	virtual const TBasicWordList &basicWordsList() const { return m_lstBasicWords; }
 	virtual bool isDynamicModel() const = 0;									// Returns true if the model's BasicWords list changes dynamically via setWordsFromPhrase() like our regular SearchPhrases or if it loads at construction and is static like the Dictionary
 

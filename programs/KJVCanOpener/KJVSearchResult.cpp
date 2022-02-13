@@ -39,6 +39,7 @@
 #include "SearchCompleter.h"
 #include "BusyCursor.h"
 #include "PhraseEdit.h"
+#include "ParseSymbols.h"
 
 #include "myApplication.h"
 
@@ -460,7 +461,7 @@ void CSearchResultsTreeView::en_speechPlay()
 		// Remove Apostrophes and Hyphens and reconstitute normalized composition, as
 		//		some special characters (like specialized apostrophes) mess up the
 		//		speech synthesis:
-		pSpeech->tell(CSearchStringListModel::deApostrophe(CSearchStringListModel::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
+		pSpeech->tell(StringParse::deApostrophe(StringParse::decompose(lstSentences.at(ndx).trimmed(), true), true).normalized(QString::NormalizationForm_KC));
 	}
 }
 
@@ -1683,7 +1684,7 @@ void CKJVSearchResult::en_modelKeywordListChanged()
 		// Decompose our keyword matches for filtering:
 		for (int ndx = 0; ndx < lstKeywordFilter.size(); ++ndx) {
 			if (!lstKeywordFilter.at(ndx).isEmpty()) {
-				lstKeywordFilter.replace(ndx, CSearchStringListModel::decompose(lstKeywordFilter.at(ndx), false));
+				lstKeywordFilter.replace(ndx, StringParse::decompose(lstKeywordFilter.at(ndx), false));
 			}
 		}
 	}

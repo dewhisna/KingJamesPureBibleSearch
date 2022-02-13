@@ -25,7 +25,7 @@
 
 #include "ReportError.h"
 #include "ScriptureDocument.h"
-#include "SearchCompleter.h"
+#include "ParseSymbols.h"
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 #include "KJVSearchResult.h"		// Needed for the CKJVSearchResult class to keep the CSearchResultsSummary in the same translation context until we can revamp our translation contexts : TODO: Fix translations and Remove this
@@ -2005,7 +2005,7 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 			bInclude = true;
 		} else {
 			for (int n = 0; n < noteKeywordList.size(); ++n) {
-				if (m_lstUserNoteKeywordFilter.contains(CSearchStringListModel::decompose(noteKeywordList.at(n), false), Qt::CaseInsensitive)) {
+				if (m_lstUserNoteKeywordFilter.contains(StringParse::decompose(noteKeywordList.at(n), false), Qt::CaseInsensitive)) {
 					bInclude = true;
 					break;
 				}

@@ -26,7 +26,6 @@
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
 
@@ -75,7 +74,7 @@ class CWordDiffEntry
 public:
 	CWordDiffEntry(const QString &strWord)			// Created with a partially decomposed word
 		:	m_strWord(strWord),
-			m_strDecomposedWord(CSearchStringListModel::decompose(strWord, true).toLower())
+			m_strDecomposedWord(StringParse::decompose(strWord, true).toLower())
 	{
 	}
 
@@ -524,11 +523,11 @@ int main(int argc, char *argv[])
 						QString strVerseText1 = CVerseTextRichifier::parse(ndxVerse1, pBible1.data(), &veNewVerseWords1, vtfTags);
 						QString strVerseText2 = CVerseTextRichifier::parse(ndxVerse2, pBible2.data(), &veNewVerseWords2, vtfTags);
 						if (bAccentInsensitive) {
-							strVerseText1 = CSearchStringListModel::decompose(strVerseText1, bHyphenInsensitive);
-							strVerseText2 = CSearchStringListModel::decompose(strVerseText2, bHyphenInsensitive);
+							strVerseText1 = StringParse::decompose(strVerseText1, bHyphenInsensitive);
+							strVerseText2 = StringParse::decompose(strVerseText2, bHyphenInsensitive);
 						} else {
-							strVerseText1 = CSearchStringListModel::deApostrHyphen(strVerseText1, bHyphenInsensitive);
-							strVerseText2 = CSearchStringListModel::deApostrHyphen(strVerseText2, bHyphenInsensitive);
+							strVerseText1 = StringParse::deApostrHyphen(strVerseText1, bHyphenInsensitive);
+							strVerseText2 = StringParse::deApostrHyphen(strVerseText2, bHyphenInsensitive);
 						}
 						if (bCaseInsensitive) {
 							strVerseText1 = strVerseText1.toLower();
@@ -572,7 +571,7 @@ int main(int argc, char *argv[])
 					}
 					// Note: deApostrHyphen is used here so that hyphen and apostrophy differences in the rendering markup (like the weird extra hyphen
 					//			that exists in Exodus 32:32 doesn't trigger unsubstantiated diffs):
-					if (CSearchStringListModel::deApostrHyphen(strTemplate1, false) != CSearchStringListModel::deApostrHyphen(strTemplate2, false)) {
+					if (StringParse::deApostrHyphen(strTemplate1, false) != StringParse::deApostrHyphen(strTemplate2, false)) {
 						if (pVerse1 != nullptr) {
 							if (pVerse1->m_strTemplate != strTemplate1) {
 								strDiffText += QString("    Template1: \"%1\" <= \"%2\"\n").arg(strTemplate1).arg(pVerse1->m_strTemplate);
@@ -627,9 +626,9 @@ int main(int argc, char *argv[])
 			for (TConcordanceList::const_iterator itr = pBible1->concordanceWordList().constBegin(); itr != pBible1->concordanceWordList().constEnd(); ++itr) {
 				QString strWord = itr->word();
 				if (bAccentInsensitive) {
-					strWord = CSearchStringListModel::decompose(strWord, bHyphenInsensitive);
+					strWord = StringParse::decompose(strWord, bHyphenInsensitive);
 				} else {
-					strWord = CSearchStringListModel::deApostrHyphen(strWord, bHyphenInsensitive);
+					strWord = StringParse::deApostrHyphen(strWord, bHyphenInsensitive);
 				}
 				if (bCaseInsensitive) {
 					strWord = strWord.toLower();
@@ -644,9 +643,9 @@ int main(int argc, char *argv[])
 			for (TConcordanceList::const_iterator itr = pBible2->concordanceWordList().constBegin(); itr != pBible2->concordanceWordList().constEnd(); ++itr) {
 				QString strWord = itr->word();
 				if (bAccentInsensitive) {
-					strWord = CSearchStringListModel::decompose(strWord, bHyphenInsensitive);
+					strWord = StringParse::decompose(strWord, bHyphenInsensitive);
 				} else {
-					strWord = CSearchStringListModel::deApostrHyphen(strWord, bHyphenInsensitive);
+					strWord = StringParse::deApostrHyphen(strWord, bHyphenInsensitive);
 				}
 				if (bCaseInsensitive) {
 					strWord = strWord.toLower();

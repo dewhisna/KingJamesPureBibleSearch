@@ -26,7 +26,6 @@
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/KJVSearchCriteria.h"
@@ -70,7 +69,7 @@ namespace {
 
 static bool ascendingLessThan(const CPhraseEntry &s1, const CPhraseEntry &s2)
 {
-	return (CSearchStringListModel::decompose(s1.text(), true).compare(CSearchStringListModel::decompose(s2.text(), true), Qt::CaseSensitive) < 0);
+	return (StringParse::decompose(s1.text(), true).compare(StringParse::decompose(s2.text(), true), Qt::CaseSensitive) < 0);
 }
 
 int main(int argc, char *argv[])

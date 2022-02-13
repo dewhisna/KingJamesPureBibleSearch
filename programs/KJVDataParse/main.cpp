@@ -25,7 +25,6 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/SearchCompleter.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/CSV.h"
 
@@ -325,7 +324,7 @@ static bool isSpecialWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage
 
 	if (strLanguage.compare("en", Qt::CaseInsensitive) == 0) {
 		for (int ndx = 0; ndx < entryWord.m_lstAltWords.size(); ++ndx) {
-			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
+			QString strDecomposedWord = StringParse::decompose(entryWord.m_lstAltWords.at(ndx), true);
 
 			if (strDecomposedWord.compare("abominations", Qt::CaseInsensitive) == 0) return true;
 			if (strDecomposedWord.compare("am", Qt::CaseInsensitive) == 0) return true;
@@ -422,7 +421,7 @@ static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage,
 		Q_ASSERT(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
 
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
-			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
+			QString strDecomposedWord = StringParse::decompose(entryWord.m_lstAltWords.at(ndx), true);
 			if (!strDecomposedWord.at(0).isUpper()) {
 				bIsProperWord = false;
 			} else {
@@ -451,7 +450,7 @@ static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage,
 		}
 	} else {
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
-			QString strDecomposedWord = CSearchStringListModel::decompose(entryWord.m_lstAltWords.at(ndx), true);
+			QString strDecomposedWord = StringParse::decompose(entryWord.m_lstAltWords.at(ndx), true);
 			if (!strDecomposedWord.at(0).isUpper()) {
 				bIsProperWord = false;
 			}

@@ -24,7 +24,6 @@
 #include "../KJVCanOpener/dbstruct.h"
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ReadDB.h"
-#include "../KJVCanOpener/ParseSymbols.h"
 
 #include <QCoreApplication>
 

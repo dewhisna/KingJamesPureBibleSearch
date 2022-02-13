@@ -195,103 +195,6 @@ private:
 
 // ============================================================================
 
-QString CSearchStringListModel::decompose(const QString &strWord, bool bRemoveHyphens)
-{
-	QString strDecomposed = deApostrHyphen(strWord, bRemoveHyphens).normalized(QString::NormalizationForm_KD);
-
-	strDecomposed.replace(QChar(0x00C6), "Ae");				// U+00C6	&#198;		AE character
-	strDecomposed.replace(QChar(0x00E6), "ae");				// U+00E6	&#230;		ae character
-	strDecomposed.replace(QChar(0x0132), "IJ");				// U+0132	&#306;		IJ character
-	strDecomposed.replace(QChar(0x0133), "ij");				// U+0133	&#307;		ij character
-	strDecomposed.replace(QChar(0x0152), "Oe");				// U+0152	&#338;		OE character
-	strDecomposed.replace(QChar(0x0153), "oe");				// U+0153	&#339;		oe character
-
-	// There are two possible ways to remove accent marks:
-	//
-	//		1) strDecomposed.remove(QRegExp("[^a-zA-Z\\s]"));
-	//
-	//		2) Remove characters of class "Mark" (QChar::Mark_NonSpacing,
-	//				QChar::Mark_SpacingCombining, QChar::Mark_Enclosing),
-	//				which can be done by checking isMark()
-	//
-
-	for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
-		if (strDecomposed.at(nPos).isMark()) strDecomposed.remove(nPos, 1);
-	}
-
-	return strDecomposed;
-}
-
-QString CSearchStringListModel::deApostrHyphen(const QString &strWord, bool bRemoveHyphens)
-{
-	return deHyphen(deApostrophe(strWord, false), bRemoveHyphens);
-}
-
-QString CSearchStringListModel::deApostrophe(const QString &strWord, bool bRemove)
-{
-#if QT_VERSION >= 0x050000
-	static const QString strApostropheRegExp = QChar('[') + QRegularExpression::escape(g_strApostrophes) + QChar(']');
-	static const QRegularExpression expApostrophe(strApostropheRegExp);
-#else
-	static const QString strApostropheRegExp = QChar('[') + QRegExp::escape(g_strApostrophes) + QChar(']');
-	static const QRegExp expApostrophe(strApostropheRegExp);
-#endif
-
-	QString strDecomposed = strWord;
-
-	if (!bRemove) {
-		strDecomposed.replace(expApostrophe, "'");
-	} else {
-		strDecomposed.remove(expApostrophe);
-	}
-
-	return strDecomposed;
-}
-
-QString CSearchStringListModel::deHyphen(const QString &strWord, bool bRemove)
-{
-#if QT_VERSION >= 0x050000
-	static const QString strHyphenRegExp = QChar('[') + QRegularExpression::escape(g_strHyphens) + QChar(']');
-	static const QRegularExpression expHyphen(strHyphenRegExp);
-#else
-	static const QString strHyphenRegExp = QChar('[') + QRegExp::escape(g_strHyphens) + QChar(']');
-	static const QRegExp expHyphen(strHyphenRegExp);
-#endif
-
-	QString strDecomposed;
-
-	if (!bRemove) {
-		strDecomposed = strWord;
-		strDecomposed.replace(expHyphen, "-");
-	} else {
-		// Remove hyphens, but leave embedded regexp charsets intact:
-		int nPos = 0;
-		QString strDecomposed2 = strWord;
-		while (!strDecomposed2.isEmpty()) {
-			nPos = strDecomposed2.indexOf(QChar('['));
-			if (nPos != -1) {
-				strDecomposed += strDecomposed2.mid(0, nPos).remove(expHyphen);
-				strDecomposed2 = strDecomposed2.mid(nPos);
-				nPos = strDecomposed2.indexOf(QChar(']'));
-				if (nPos != -1) {
-					strDecomposed += strDecomposed2.mid(0, nPos+1);
-					strDecomposed2 = strDecomposed2.mid(nPos+1);
-				} else {
-					strDecomposed += strDecomposed2;
-					strDecomposed2.clear();
-				}
-			} else {
-				strDecomposed += strDecomposed2.remove(expHyphen);
-				strDecomposed2.clear();
-			}
-		}
-	}
-
-	return strDecomposed;
-}
-
-// ============================================================================
-
 CSearchParsedPhraseListModel::CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent)
 	:	CSearchStringListModel(parent),
 		m_parsedPhrase(parsedPhrase),
@@ -589,7 +492,7 @@ void CSearchCompleter::setFilterMatchString()
 	int nPreRegExp = strPrefix.indexOf(QRegExp("[\\[\\]\\*\\?]"));
 #endif
 	if (nPreRegExp != -1) strPrefix = strPrefix.left(nPreRegExp);
-	QString strPrefixDecomposed = CSearchStringListModel::decompose(strPrefix, true);
+	QString strPrefixDecomposed = StringParse::decompose(strPrefix, true);
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 	qDebug("SearchCompleter::setFilterMatchString : %s", strPrefix.toUtf8().data());
@@ -833,7 +736,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 	m_lstMatchedIndexes.clear();
 	m_nFirstComposedMatchStringIndex = -1;
 	m_nFirstDecomposedMatchStringIndex = -1;
-	QString strDecomposedFilterString = CSearchStringListModel::decompose(m_strFilterFixedString, true);
+	QString strDecomposedFilterString = StringParse::decompose(m_strFilterFixedString, true);
 	if (!m_strFilterFixedString.isEmpty()) {
 #if QT_VERSION >= 0x050F00
 		QRegularExpression expPrefix(QRegularExpression::wildcardToRegularExpression(strDecomposedFilterString + "*"), QRegularExpression::CaseInsensitiveOption);

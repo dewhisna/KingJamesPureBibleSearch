@@ -54,6 +54,14 @@ extern const QString g_strNonAsciiNonWordChars;
 extern const QChar g_chrPilcrow;
 
 // ============================================================================
+
+namespace StringParse {
+	QString decompose(const QString &strWord, bool bRemoveHyphens);			// Word decompose() function to breakdown and remove accents from words for searching purposes
+	QString deApostrHyphen(const QString &strWord, bool bRemoveHyphens);	// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
+	QString deApostrophe(const QString &strWord, bool bRemove = false);		// Decompose/remove Apostrophes only
+	QString deHyphen(const QString &strWord, bool bRemove = false);			// Decompose/remove Hyphens only
+};
+
 // ============================================================================
 
 #endif	// PARSESYMBOLS_H
