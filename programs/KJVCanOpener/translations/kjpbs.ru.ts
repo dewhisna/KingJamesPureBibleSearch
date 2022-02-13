@@ -105,61 +105,61 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1890"/>
+        <location filename="../Configuration.cpp" line="1890"/>
         <source>None</source>
         <comment>ScrollbarModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1891"/>
+        <location filename="../Configuration.cpp" line="1891"/>
         <source>Left-Side</source>
         <comment>ScrollbarModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1892"/>
+        <location filename="../Configuration.cpp" line="1892"/>
         <source>Right-Side</source>
         <comment>ScrollbarModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1894"/>
+        <location filename="../Configuration.cpp" line="1894"/>
         <source>Free-Flow/Paragraph</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1895"/>
+        <location filename="../Configuration.cpp" line="1895"/>
         <source>Verse-Per-Line</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1896"/>
+        <location filename="../Configuration.cpp" line="1896"/>
         <source>Verse-Per-Line Double-Spaced</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1897"/>
+        <location filename="../Configuration.cpp" line="1897"/>
         <source>Verse-Per-Line with Indent</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1898"/>
+        <location filename="../Configuration.cpp" line="1898"/>
         <source>Verse-Per-Line with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1899"/>
+        <location filename="../Configuration.cpp" line="1899"/>
         <source>Verse-Per-Line Double-Spaced with Indent</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1900"/>
+        <location filename="../Configuration.cpp" line="1900"/>
         <source>Verse-Per-Line Double-Spaced with Hanging Indent</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
@@ -322,142 +322,142 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2129"/>
-        <location filename="../KJVConfiguration.cpp" line="2151"/>
+        <location filename="../Configuration.cpp" line="2129"/>
+        <location filename="../Configuration.cpp" line="2151"/>
         <source>No Delimiters</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2130"/>
-        <location filename="../KJVConfiguration.cpp" line="2152"/>
+        <location filename="../Configuration.cpp" line="2130"/>
+        <location filename="../Configuration.cpp" line="2152"/>
         <source>Square Brackets</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2131"/>
-        <location filename="../KJVConfiguration.cpp" line="2153"/>
+        <location filename="../Configuration.cpp" line="2131"/>
+        <location filename="../Configuration.cpp" line="2153"/>
         <source>Curly Braces</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2132"/>
-        <location filename="../KJVConfiguration.cpp" line="2154"/>
+        <location filename="../Configuration.cpp" line="2132"/>
+        <location filename="../Configuration.cpp" line="2154"/>
         <source>Parentheses</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2150"/>
+        <location filename="../Configuration.cpp" line="2150"/>
         <source>No Numbers</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2155"/>
+        <location filename="../Configuration.cpp" line="2155"/>
         <source>Superscript</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2156"/>
+        <location filename="../Configuration.cpp" line="2156"/>
         <source>Complete Reference</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2174"/>
+        <location filename="../Configuration.cpp" line="2174"/>
         <source>No Marking</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2175"/>
+        <location filename="../Configuration.cpp" line="2175"/>
         <source>Italics</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2176"/>
+        <location filename="../Configuration.cpp" line="2176"/>
         <source>Brackets</source>
         <comment>Delimiters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2182"/>
+        <location filename="../Configuration.cpp" line="2182"/>
         <source>Free-Flow/Paragraph</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2183"/>
+        <location filename="../Configuration.cpp" line="2183"/>
         <source>Verse-Per-Line</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2184"/>
+        <location filename="../Configuration.cpp" line="2184"/>
         <source>Verse-Per-Line Double-Spaced</source>
         <comment>VerseRenderingModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2199"/>
+        <location filename="../Configuration.cpp" line="2199"/>
         <source>No Font Hint</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2200"/>
+        <location filename="../Configuration.cpp" line="2200"/>
         <source>Copy Font</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2201"/>
+        <location filename="../Configuration.cpp" line="2201"/>
         <source>Scripture Browser Font</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2202"/>
+        <location filename="../Configuration.cpp" line="2202"/>
         <source>Search Results Font</source>
         <comment>CopyFontModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2213"/>
+        <location filename="../Configuration.cpp" line="2213"/>
         <source>Both</source>
         <comment>CopyMimeTypes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2214"/>
+        <location filename="../Configuration.cpp" line="2214"/>
         <source>HTML-Only</source>
         <comment>CopyMimeTypes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2215"/>
+        <location filename="../Configuration.cpp" line="2215"/>
         <source>Text-Only</source>
         <comment>CopyMimeTypes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2223"/>
+        <location filename="../Configuration.cpp" line="2223"/>
         <source>Selected Order</source>
         <comment>VerseCopyOrder</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2224"/>
+        <location filename="../Configuration.cpp" line="2224"/>
         <source>Bible Order Ascending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2225"/>
+        <location filename="../Configuration.cpp" line="2225"/>
         <source>Bible Order Descending</source>
         <translation type="unfinished"></translation>
     </message>
@@ -480,19 +480,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2047"/>
+        <location filename="../Configuration.cpp" line="2047"/>
         <source>Normal Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2048"/>
+        <location filename="../Configuration.cpp" line="2048"/>
         <source>SoundEx Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2049"/>
+        <location filename="../Configuration.cpp" line="2049"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
@@ -541,19 +541,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1752"/>
+        <location filename="../Configuration.cpp" line="1752"/>
         <source>Normal Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1753"/>
+        <location filename="../Configuration.cpp" line="1753"/>
         <source>SoundEx Filter</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1754"/>
+        <location filename="../Configuration.cpp" line="1754"/>
         <source>Unfiltered</source>
         <comment>SoundExModes</comment>
         <translation type="unfinished"></translation>
@@ -814,13 +814,13 @@
 <context>
     <name>CHighlighterColorButtonSignalReflector</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="197"/>
+        <location filename="../Configuration.cpp" line="197"/>
         <source>Enable</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="198"/>
+        <location filename="../Configuration.cpp" line="198"/>
         <source>Enable/Disable this highlighter</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -965,25 +965,25 @@ Written and Developed for Bethel Church, Festus, MO.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1077"/>
+        <location filename="../Configuration.cpp" line="1077"/>
         <source>None</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1078"/>
+        <location filename="../Configuration.cpp" line="1078"/>
         <source>Places/Names</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1079"/>
+        <location filename="../Configuration.cpp" line="1079"/>
         <source>Ordinary Words</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1080"/>
+        <location filename="../Configuration.cpp" line="1080"/>
         <source>Both</source>
         <comment>HyphenModes</comment>
         <translation type="unfinished"></translation>
@@ -1945,60 +1945,60 @@ And check installation of King James Pure Bible Search User Manual at:
     </message>
 </context>
 <context>
-    <name>CKJVConfiguration</name>
+    <name>CConfiguration</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2980"/>
+        <location filename="../Configuration.cpp" line="2980"/>
         <source>General Settings</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2981"/>
+        <location filename="../Configuration.cpp" line="2981"/>
         <source>Copy Options</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2982"/>
+        <location filename="../Configuration.cpp" line="2982"/>
         <source>Text Color and Fonts</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2984"/>
+        <location filename="../Configuration.cpp" line="2984"/>
         <source>Notes File Settings</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2986"/>
+        <location filename="../Configuration.cpp" line="2986"/>
         <source>Bible Database</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2987"/>
+        <location filename="../Configuration.cpp" line="2987"/>
         <source>Dictionary Database</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2988"/>
+        <location filename="../Configuration.cpp" line="2988"/>
         <source>Locale Settings</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2990"/>
+        <location filename="../Configuration.cpp" line="2990"/>
         <source>Text-To-Speech</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>CKJVConfigurationDialog</name>
+    <name>CConfigurationDialog</name>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="3204"/>
+        <location filename="../Configuration.cpp" line="3204"/>
         <source>You still have unapplied changes.  Do you wish to discard these changes??
 
 Click &apos;OK&apos; to discard the changes and close this configuration window.
@@ -2007,7 +2007,7 @@ Click &apos;Cancel&apos; to stay here in the configuration window.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="3268"/>
+        <location filename="../Configuration.cpp" line="3268"/>
         <source>You have changed some settings on the previous page.  Do you wish to apply those settings??
 
 Click &apos;Yes&apos; to apply the setting changes and continue.
@@ -2017,13 +2017,13 @@ Click &apos;Cancel&apos; to stay on this settings page.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="3293"/>
+        <location filename="../Configuration.cpp" line="3293"/>
         <source>Failed to load system Text-To-Speech Module.
 To use Text-To-Speech, you may need to install the Text-To-Speech support package.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="3314"/>
+        <location filename="../Configuration.cpp" line="3314"/>
         <source>The changes you have made require that the program be restarted before they take affect.  Doing so will close all Search Windows just like exiting the program.  If you choose not to exit, they will be applied the next time you run the program.
 
 Do you wish to restart the app??</source>
@@ -2185,7 +2185,7 @@ Do you wish to restart the app??</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2782"/>
+        <location filename="../Configuration.cpp" line="2782"/>
         <source>&lt; System Locale &gt;</source>
         <comment>languageNames</comment>
         <translation type="unfinished"></translation>
@@ -3067,20 +3067,20 @@ Do you wish to set them as valid keywords for this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2850"/>
+        <location filename="../Configuration.cpp" line="2850"/>
         <source>Not used on this platform</source>
         <comment>SpeechSettings</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2897"/>
+        <location filename="../Configuration.cpp" line="2897"/>
         <source>Unknown Text-To-Speech Server Scheme name.
 Expected &quot;%1&quot;.</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="2900"/>
+        <location filename="../Configuration.cpp" line="2900"/>
         <source>Failed to connect to Text-To-Speech Server!
 
 &quot;%1&quot;</source>
@@ -3246,50 +3246,50 @@ Expected &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="317"/>
+        <location filename="../Configuration.cpp" line="317"/>
         <source>Search Results Preview</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="347"/>
+        <location filename="../Configuration.cpp" line="347"/>
         <source>Scripture Browser Preview</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="372"/>
+        <location filename="../Configuration.cpp" line="372"/>
         <source>Dictionary Window Preview</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="396"/>
+        <location filename="../Configuration.cpp" line="396"/>
         <source>Words of Jesus</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="403"/>
+        <location filename="../Configuration.cpp" line="403"/>
         <source>Search Results</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="410"/>
+        <location filename="../Configuration.cpp" line="410"/>
         <source>Cursor Tracker</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="461"/>
-        <location filename="../KJVConfiguration.cpp" line="463"/>
+        <location filename="../Configuration.cpp" line="461"/>
+        <location filename="../Configuration.cpp" line="463"/>
         <source>Application Font can&apos;t be changed in Stealth Mode.  Launch app with -stylesheet to change it instead.</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="863"/>
+        <location filename="../Configuration.cpp" line="863"/>
         <source>That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with this highlighter, and drag them to a different highlighter.  And then you can return here and remove this highlighter.  Or, open a new King James Notes file.
 
 So instead, would you like to disable it so that text highlighted with this Highlighter isn&apos;t visible??</source>
@@ -3297,26 +3297,26 @@ So instead, would you like to disable it so that text highlighted with this High
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="871"/>
+        <location filename="../Configuration.cpp" line="871"/>
         <source>That highlighter currently has highlighted text associated with it and cannot be removed.  To remove it, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with this highlighter, and drag them to a different highlighter.  And then you can return here and remove this highlighter.  Or, open a new King James Notes file.  The Highlighter is already disabled so no text highlighted with this Highlighter will be visible.</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="904"/>
+        <location filename="../Configuration.cpp" line="904"/>
         <source>That highlighter name already exists and can&apos;t be used as a new name for this highlighter. To try again, click the rename button again. Or, to combine highlighter tags, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with the desired highlighters, and drag them to a different highlighter.</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="945"/>
+        <location filename="../Configuration.cpp" line="945"/>
         <source>That highlighter currently has highlighted text associated with it and cannot be renamed.  To rename it, create a new highlighter with the desired name.  Then, use the &quot;View Highlighters&quot; mode to display the highlighted passages, select the passages associated with this highlighter, and drag them to the new highlighter.  And then you can return here and remove this highlighter.</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1011"/>
-        <location filename="../KJVConfiguration.cpp" line="1014"/>
+        <location filename="../Configuration.cpp" line="1011"/>
+        <location filename="../Configuration.cpp" line="1014"/>
         <source>trumpet</source>
         <comment>ConfigurationSearchPreviewKeyword</comment>
         <translation type="unfinished"></translation>
@@ -3403,19 +3403,19 @@ So instead, would you like to disable it so that text highlighted with this High
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1476"/>
+        <location filename="../Configuration.cpp" line="1476"/>
         <source>Default Note Background &amp;Color</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1477"/>
+        <location filename="../Configuration.cpp" line="1477"/>
         <source>Set the Default Background Color for New Notes</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1542"/>
+        <location filename="../Configuration.cpp" line="1542"/>
         <source>You have edited Notes, Highlighters, and/or References, but don&apos;t yet have a King James Notes File setup.
 
 Do you wish to setup a Notes File and save your changes??
@@ -3424,7 +3424,7 @@ Warning: If you select &apos;No&apos;, then your changes will be lost.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1548"/>
+        <location filename="../Configuration.cpp" line="1548"/>
         <source>The previous attempt to load your King James Notes File failed.
 Do you wish to save the changes you&apos;ve made?
 Warning, if you save this file overtop of your original file, you will lose all ability to recover the remaining data in your original file.  It&apos;s recommended that you save it to a new file.
@@ -3436,27 +3436,27 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1572"/>
+        <location filename="../Configuration.cpp" line="1572"/>
         <source>Save King James Notes File</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1572"/>
+        <location filename="../Configuration.cpp" line="1572"/>
         <source>King James Notes Files (*.kjn)</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1583"/>
-        <location filename="../KJVConfiguration.cpp" line="1630"/>
-        <location filename="../KJVConfiguration.cpp" line="1673"/>
+        <location filename="../Configuration.cpp" line="1583"/>
+        <location filename="../Configuration.cpp" line="1630"/>
+        <location filename="../Configuration.cpp" line="1673"/>
         <source>King James Notes File Error</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1584"/>
+        <location filename="../Configuration.cpp" line="1584"/>
         <source>Unable to save the King James Notes File!
 
 Click &apos;Yes&apos; to try again, or
@@ -3466,26 +3466,26 @@ Click &apos;Cancel&apos; to return to King James Pure Bible Search...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1614"/>
+        <location filename="../Configuration.cpp" line="1614"/>
         <source>Load King James Notes File</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1614"/>
+        <location filename="../Configuration.cpp" line="1614"/>
         <source>King James Notes File (*.kjn)</source>
         <comment>FileFilters</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1641"/>
-        <location filename="../KJVConfiguration.cpp" line="1646"/>
+        <location filename="../Configuration.cpp" line="1641"/>
+        <location filename="../Configuration.cpp" line="1646"/>
         <source>Loading King James Notes File</source>
         <comment>Errors</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1641"/>
+        <location filename="../Configuration.cpp" line="1641"/>
         <source>Warning: The King James Notes File being loaded was last saved on an older version of King James Pure Bible Search.  It will automatically be updated to this version of King James Pure Bible Search.  However, if you wish to keep a copy of your Notes File in the old format, you must manually save a copy of your file now BEFORE you continue!
 
 Filename: &quot;%1&quot;</source>
@@ -3493,7 +3493,7 @@ Filename: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1646"/>
+        <location filename="../Configuration.cpp" line="1646"/>
         <source>Warning: The King James Notes File being loaded was created on a newer version of King James Pure Bible Search.  It may contain data or settings for things not supported on this version of King James Pure Bible Search.  If so, those new things will be LOST the next time your Notes Files is saved.  If you wish to keep a copy of your original Notes File and not risk losing any data from it, you must manually save a copy of your file now BEFORE you continue!
 
 Filename: &quot;%1&quot;</source>
@@ -3501,7 +3501,7 @@ Filename: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVConfiguration.cpp" line="1674"/>
+        <location filename="../Configuration.cpp" line="1674"/>
         <source>Unable to save the current King James Notes File!
 
 Click &apos;Yes&apos; to try again, or

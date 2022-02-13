@@ -322,7 +322,7 @@ private:
 	// m_UserNotesDatabaseData1 and m_UserNotesDatabaseData2 are
 	//		two complete copies of our user notes database data.  Only
 	//		one will be active and used at any given time.  Classes
-	//		like KJVConfiguration can request that the settings be
+	//		like Configuration can request that the settings be
 	//		copied to the other copy and that other copy made to be
 	//		the main copy for preview purposes so that controls will
 	//		appear with the new set of settings.  When it's done with

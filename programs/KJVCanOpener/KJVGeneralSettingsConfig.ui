@@ -247,7 +247,7 @@
   <customwidget>
    <class>CConfigDictionaryOptions</class>
    <extends>QWidget</extends>
-   <header>KJVConfiguration.h</header>
+   <header>Configuration.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

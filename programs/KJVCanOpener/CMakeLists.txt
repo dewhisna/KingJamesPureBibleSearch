@@ -229,9 +229,9 @@ endif()
 if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	list(APPEND KJVCanOpener_SOURCES
 		"BibleDatabaseInfoDlg.cpp"
+		"Configuration.cpp"
 		"DictDatabaseInfoDlg.cpp"
 		"DictionaryWidget.cpp"
-		"KJVConfiguration.cpp"
 		"RenameHighlighterDlg.cpp"
 	)
 endif()
@@ -325,9 +325,9 @@ endif()
 if((NOT EMSCRIPTEN OR WASM) AND (NOT CONSOLE))
 	list(APPEND KJVCanOpener_HEADERS
 		"BibleDatabaseInfoDlg.h"
+		"Configuration.h"
 		"DictDatabaseInfoDlg.h"
 		"DictionaryWidget.h"
-		"KJVConfiguration.h"
 		"RenameHighlighterDlg.h"
 	)
 endif()

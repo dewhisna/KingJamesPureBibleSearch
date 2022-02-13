@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVCONFIGURATION_H
-#define KJVCONFIGURATION_H
+#ifndef CONFIGURATION_H
+#define CONFIGURATION_H
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
@@ -621,13 +621,13 @@ enum CONFIGURATION_PAGE_SELECTION_ENUM {
 #endif
 };
 
-class CKJVConfiguration : public QwwConfigWidget
+class CConfiguration : public QwwConfigWidget
 {
 	Q_OBJECT
 
 public:
-	CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
-	virtual ~CKJVConfiguration();
+	CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
+	virtual ~CConfiguration();
 
 	void loadSettings();					// Reloads the settings (used for restore operation when abandoning changes)
 	void saveSettings();					// Writes changes back to system
@@ -655,13 +655,13 @@ private:
 
 // ============================================================================
 
-class CKJVConfigurationDialog : public QDialog
+class CConfigurationDialog : public QDialog
 {
 	Q_OBJECT
 
 public:
-	CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
-	virtual ~CKJVConfigurationDialog();
+	CConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent = nullptr, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage = CPSE_DEFAULT);
+	virtual ~CConfigurationDialog();
 
 	bool restartApp() const { return m_bRestartApp; }
 
@@ -682,7 +682,7 @@ private:
 private:
 	int m_nLastIndex;						// Last Configuration Index active
 	bool m_bHandlingPageSwap;				// Set to true while we are handling a page swap, used as a safe-guard in case we need to switch pages back
-	CKJVConfiguration *m_pConfiguration;
+	CConfiguration *m_pConfiguration;
 	QDialogButtonBox *m_pButtonBox;
 	bool m_bNeedRestart;					// True if we need a restart to apply these settings, but haven't prompted user yet -- user will be prompted on accept/apply...
 	bool m_bRestartApp;						// True if we need to restart app and user has accepted for us to
@@ -690,5 +690,5 @@ private:
 
 // ============================================================================
 
-#endif	// KJVCONFIGURATION_H
+#endif	// CONFIGURATION_H
 

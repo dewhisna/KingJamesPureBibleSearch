@@ -34,7 +34,7 @@
 #include "Highlighter.h"
 #include "AboutDlg.h"
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-#include "KJVConfiguration.h"
+#include "Configuration.h"
 #include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
 #if !defined(VNCSERVER) && !defined(EMSCRIPTEN)
 #include "KJVNoteEditDlg.h"
@@ -2882,7 +2882,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 		if (pHighlighterButtons != nullptr) pHighlighterButtons->enterConfigurationMode();
 	}
 
-	QPointer<CKJVConfigurationDialog> pDlgConfigure = new CKJVConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != nullptr) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
+	QPointer<CConfigurationDialog> pDlgConfigure = new CConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != nullptr) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
 
 	auto &&fnCompletion = [this, lstCanOpeners, pDlgConfigure](int nResult)->void {
 		Q_UNUSED(nResult);
@@ -2912,7 +2912,7 @@ void CKJVCanOpener::en_Configure(int nInitialPage)
 
 #else
 
-	connect(pDlgConfigure, &CKJVConfigurationDialog::finished, fnCompletion);
+	connect(pDlgConfigure, &CConfigurationDialog::finished, fnCompletion);
 	pDlgConfigure->setAttribute(Qt::WA_DeleteOnClose, false);
 	pDlgConfigure->setAttribute(Qt::WA_ShowModal, true);
 	pDlgConfigure->show();

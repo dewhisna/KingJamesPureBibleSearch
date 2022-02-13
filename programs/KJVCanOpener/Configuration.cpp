@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVConfiguration.h"
+#include "Configuration.h"
 
 #include "ReportError.h"
 #include "ScriptureEdit.h"
@@ -3120,7 +3120,7 @@ void CKJVTTSOptionsConfig::en_changedTTSVoiceSelection(int nIndex)
 // ============================================================================
 // ============================================================================
 
-CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
+CConfiguration::CConfiguration(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QwwConfigWidget(parent),
 		m_pGeneralSettingsConfig(nullptr),
 		m_pCopyOptionsConfig(nullptr),
@@ -3228,12 +3228,12 @@ CKJVConfiguration::CKJVConfiguration(CBibleDatabasePtr pBibleDatabase, CDictiona
 #endif
 }
 
-CKJVConfiguration::~CKJVConfiguration()
+CConfiguration::~CConfiguration()
 {
 
 }
 
-void CKJVConfiguration::loadSettings()
+void CConfiguration::loadSettings()
 {
 	m_pGeneralSettingsConfig->loadSettings();
 	m_pCopyOptionsConfig->loadSettings();
@@ -3251,7 +3251,7 @@ void CKJVConfiguration::loadSettings()
 #endif
 }
 
-void CKJVConfiguration::saveSettings()
+void CConfiguration::saveSettings()
 {
 	m_pGeneralSettingsConfig->saveSettings();
 	m_pCopyOptionsConfig->saveSettings();
@@ -3269,7 +3269,7 @@ void CKJVConfiguration::saveSettings()
 #endif
 }
 
-bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
+bool CConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 {
 	switch (nPage) {
 		case CPSE_GENERAL_SETTINGS:
@@ -3315,7 +3315,7 @@ bool CKJVConfiguration::isDirty(CONFIGURATION_PAGE_SELECTION_ENUM nPage) const
 
 // ============================================================================
 
-CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
+CConfigurationDialog::CConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDictionaryDatabasePtr pDictionary, QWidget *parent, CONFIGURATION_PAGE_SELECTION_ENUM nInitialPage)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_nLastIndex(-1),
 		m_bHandlingPageSwap(false),
@@ -3342,7 +3342,7 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	QVBoxLayout *pLayout = new QVBoxLayout(this);
 	pLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
-	m_pConfiguration = new CKJVConfiguration(pBibleDatabase, pDictionary, this, nInitialPage);
+	m_pConfiguration = new CConfiguration(pBibleDatabase, pDictionary, this, nInitialPage);
 	m_pConfiguration->setObjectName(QString::fromUtf8("configurationWidget"));
 	pLayout->addWidget(m_pConfiguration);
 
@@ -3367,12 +3367,12 @@ CKJVConfigurationDialog::CKJVConfigurationDialog(CBibleDatabasePtr pBibleDatabas
 	connect(m_pConfiguration, SIGNAL(dataChanged(bool)), this, SLOT(en_dataChanged(bool)));
 }
 
-CKJVConfigurationDialog::~CKJVConfigurationDialog()
+CConfigurationDialog::~CConfigurationDialog()
 {
 
 }
 
-void CKJVConfigurationDialog::en_dataChanged(bool bNeedRestart)
+void CConfigurationDialog::en_dataChanged(bool bNeedRestart)
 {
 	updateGeometry();
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(m_pConfiguration->isDirty());
@@ -3382,7 +3382,7 @@ void CKJVConfigurationDialog::en_dataChanged(bool bNeedRestart)
 	m_bNeedRestart = m_bNeedRestart || (bNeedRestart && m_pConfiguration->isDirty());
 }
 
-void CKJVConfigurationDialog::accept()
+void CConfigurationDialog::accept()
 {
 	// Note: Must do this AHEAD of the final completion function for
 	//		asynchronous dialogs to work correctly, as this configure
@@ -3409,7 +3409,7 @@ void CKJVConfigurationDialog::accept()
 	}
 }
 
-void CKJVConfigurationDialog::reject()
+void CConfigurationDialog::reject()
 {
 	if (m_pConfiguration->isDirty()) {
 		displayInformation(this, windowTitle(), tr("You still have unapplied changes.  Do you wish to discard these changes??\n\n"
@@ -3429,7 +3429,7 @@ void CKJVConfigurationDialog::reject()
 	QDialog::reject();
 }
 
-void CKJVConfigurationDialog::apply()
+void CConfigurationDialog::apply()
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
@@ -3469,7 +3469,7 @@ void CKJVConfigurationDialog::apply()
 	}
 }
 
-void CKJVConfigurationDialog::restore(bool bRecopy)
+void CConfigurationDialog::restore(bool bRecopy)
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
@@ -3489,7 +3489,7 @@ void CKJVConfigurationDialog::restore(bool bRecopy)
 
 // ----------------------------------------------------------------------------
 
-void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
+void CConfigurationDialog::en_configurationIndexChanged(int index)
 {
 	if (m_bHandlingPageSwap) return;
 
@@ -3543,7 +3543,7 @@ void CKJVConfigurationDialog::en_configurationIndexChanged(int index)
 	}
 }
 
-void CKJVConfigurationDialog::en_setToLastIndex()
+void CConfigurationDialog::en_setToLastIndex()
 {
 	Q_ASSERT(m_bHandlingPageSwap);
 	Q_ASSERT(m_nLastIndex != -1);
@@ -3551,7 +3551,7 @@ void CKJVConfigurationDialog::en_setToLastIndex()
 	m_bHandlingPageSwap = false;
 }
 
-void CKJVConfigurationDialog::promptRestart(std::function<void (bool bRestart)> fnCompletion)
+void CConfigurationDialog::promptRestart(std::function<void (bool bRestart)> fnCompletion)
 {
 	displayInformation(this, windowTitle(), tr("The changes you have made require that the program be restarted before they take affect.  "
 																   "Doing so will close all Search Windows just like exiting the program.  "

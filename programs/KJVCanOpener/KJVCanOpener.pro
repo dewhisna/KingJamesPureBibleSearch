@@ -377,9 +377,9 @@ buildKJVDatabase:SOURCES += \
 
 if(!emscripten|wasm):!console:SOURCES += \
 	BibleDatabaseInfoDlg.cpp \
+	Configuration.cpp \
 	DictDatabaseInfoDlg.cpp \
 	DictionaryWidget.cpp \
-	KJVConfiguration.cpp \
 	RenameHighlighterDlg.cpp
 
 !emscripten:!vnc:!console:SOURCES += \
@@ -450,9 +450,9 @@ buildKJVDatabase:HEADERS += \
 
 if(!emscripten|wasm):!console:HEADERS += \
 	BibleDatabaseInfoDlg.h \
+	Configuration.h \
 	DictDatabaseInfoDlg.h \
 	DictionaryWidget.h \
-	KJVConfiguration.h \
 	RenameHighlighterDlg.h
 
 !emscripten:!vnc:!console:HEADERS += \
