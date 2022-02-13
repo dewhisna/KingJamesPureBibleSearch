@@ -56,6 +56,10 @@
 
 #include <algorithm>
 
+#ifdef DUMP_SOUNDEX_LIST
+#include "SoundEx.h"
+#endif
+
 // ============================================================================
 
 namespace {
@@ -906,7 +910,7 @@ bool CReadDatabase::ReadWordsTable()
 	for (TWordListMap::const_iterator itrWordEntry = m_pBibleDatabase->m_mapWordList.begin(); itrWordEntry != m_pBibleDatabase->m_mapWordList.end(); ++itrWordEntry) {
 		const CWordEntry &entryWord(itrWordEntry->second);
 
-		ts << entryWord.m_strWord << "," << CSoundExSearchCompleterFilter::soundEx(entryWord.m_strWord) << "\n";
+		ts << entryWord.m_strWord << "," << SoundEx::soundEx(entryWord.m_strWord) << "\n";
 	}
 
 	fileSoundEx.close();
