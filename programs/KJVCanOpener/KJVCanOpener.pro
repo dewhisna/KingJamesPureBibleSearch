@@ -385,7 +385,7 @@ if(!emscripten|wasm):!console:SOURCES += \
 !emscripten:!vnc:!console:SOURCES += \
 	EditWWWLinkDlg.cpp \
 	KJVCrossRefEditDlg.cpp \
-	KJVNoteEditDlg.cpp \
+	NoteEditDlg.cpp \
 	SaveLoadFileDialog.cpp
 
 signalspy:SOURCES += \
@@ -458,7 +458,7 @@ if(!emscripten|wasm):!console:HEADERS += \
 !emscripten:!vnc:!console:HEADERS += \
 	EditWWWLinkDlg.h \
 	KJVCrossRefEditDlg.h \
-	KJVNoteEditDlg.h \
+	NoteEditDlg.h \
 	SaveLoadFileDialog.h
 
 signalspy:HEADERS += \
@@ -499,7 +499,7 @@ if(!emscripten|wasm):!console:FORMS += \
 	ConfigUserNotesDatabase.ui \
 	EditWWWLinkDlg.ui \
 	KJVCrossRefEditDlg.ui \
-	KJVNoteEditDlg.ui
+	NoteEditDlg.ui
 
 !emscripten:!vnc:QtSpeech:FORMS += \
 	ConfigTTSOptions.ui

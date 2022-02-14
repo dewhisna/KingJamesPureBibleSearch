@@ -47,7 +47,7 @@
 // ============================================================================
 
 // Forward Declares:
-class CKJVNoteEditDlg;
+class CNoteEditDlg;
 class CKJVCrossRefEditDlg;
 class CHighlighterButtons;
 class CTipEdit;
@@ -289,7 +289,7 @@ private:
 	CKJVSearchResult *m_pSearchResultWidget;
 	CBrowserWidget *m_pBrowserWidget;
 	CDictionaryWidget *m_pDictionaryWidget;
-	CKJVNoteEditDlg *m_pUserNoteEditorDlg;
+	CNoteEditDlg *m_pUserNoteEditorDlg;
 	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
 	CHighlighterButtons *m_pHighlighterButtons;
 	QAction *m_pActionUserNoteEditor;

@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVNoteEditDlg.h"
+#include "NoteEditDlg.h"
 
 #include "ReportError.h"
 #include "myApplication.h"
@@ -62,7 +62,7 @@ namespace {
 
 // ============================================================================
 
-CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
+CNoteEditDlg::CNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBackgroundColorButton(nullptr),
 		m_pRichTextEdit(nullptr),
@@ -170,14 +170,14 @@ CKJVNoteEditDlg::CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 #endif
 }
 
-CKJVNoteEditDlg::~CKJVNoteEditDlg()
+CNoteEditDlg::~CNoteEditDlg()
 {
 
 }
 
 // ============================================================================
 
-void CKJVNoteEditDlg::writeSettings(QSettings &settings, const QString &prefix)
+void CNoteEditDlg::writeSettings(QSettings &settings, const QString &prefix)
 {
 #ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
@@ -187,7 +187,7 @@ void CKJVNoteEditDlg::writeSettings(QSettings &settings, const QString &prefix)
 #endif
 }
 
-void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
+void CNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 {
 #ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
@@ -202,7 +202,7 @@ void CKJVNoteEditDlg::readSettings(QSettings &settings, const QString &prefix)
 
 // ============================================================================
 
-void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
+void CNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 {
 	Q_ASSERT(m_pRichTextEdit != nullptr);
 	Q_ASSERT(!m_pUserNotesDatabase.isNull());
@@ -229,7 +229,7 @@ void CKJVNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 
 // ============================================================================
 
-void CKJVNoteEditDlg::accept()
+void CNoteEditDlg::accept()
 {
 	Q_ASSERT(m_pRichTextEdit != nullptr);
 	Q_ASSERT(!m_pUserNotesDatabase.isNull());
@@ -250,7 +250,7 @@ void CKJVNoteEditDlg::accept()
 	QDialog::accept();
 }
 
-void CKJVNoteEditDlg::reject()
+void CNoteEditDlg::reject()
 {
 	if (m_bIsDirty) {
 		int nResult = displayWarning(this, windowTitle(), tr("You have made changes to this note.  Do you wish to discard them??", "Errors"),
@@ -264,7 +264,7 @@ void CKJVNoteEditDlg::reject()
 
 // ============================================================================
 
-void CKJVNoteEditDlg::en_textChanged()
+void CNoteEditDlg::en_textChanged()
 {
 	if (m_bDoingUpdate) return;
 
@@ -273,12 +273,12 @@ void CKJVNoteEditDlg::en_textChanged()
 
 // ============================================================================
 
-void CKJVNoteEditDlg::setBackgroundColorPreview()
+void CNoteEditDlg::setBackgroundColorPreview()
 {
 	setStyleSheet(QString("QwwRichTextEdit { background-color:%1; }\n").arg(m_UserNote.backgroundColor().name()));
 }
 
-void CKJVNoteEditDlg::en_BackgroundColorPicked(const QColor &color)
+void CNoteEditDlg::en_BackgroundColorPicked(const QColor &color)
 {
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
@@ -290,7 +290,7 @@ void CKJVNoteEditDlg::en_BackgroundColorPicked(const QColor &color)
 	m_bDoingUpdate = false;
 }
 
-void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
+void CNoteEditDlg::en_setDefaultNoteBackgroundColor()
 {
 	CPersistentSettings::instance()->setColorDefaultNoteBackground(m_UserNote.backgroundColor());
 	QPoint ptPos = pos();
@@ -301,7 +301,7 @@ void CKJVNoteEditDlg::en_setDefaultNoteBackgroundColor()
 
 // ============================================================================
 
-void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
+void CNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 {
 	Q_ASSERT(button != nullptr);
 	Q_ASSERT(!m_pUserNotesDatabase.isNull());
@@ -318,7 +318,7 @@ void CKJVNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 
 // ============================================================================
 
-void CKJVNoteEditDlg::en_keywordListChanged()
+void CNoteEditDlg::en_keywordListChanged()
 {
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;
@@ -331,7 +331,7 @@ void CKJVNoteEditDlg::en_keywordListChanged()
 
 // ============================================================================
 
-void CKJVNoteEditDlg::en_clickedInsertReferenceLink()
+void CNoteEditDlg::en_clickedInsertReferenceLink()
 {
 	CRelIndex ndxStart = m_ndxLastRefLink;
 
@@ -352,7 +352,7 @@ void CKJVNoteEditDlg::en_clickedInsertReferenceLink()
 	}
 }
 
-CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
+CRelIndex CNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 {
 	CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nType = CPassageNavigator::NRTE_VERSE;
 	if (ndxStart.verse() == 0) nType = CPassageNavigator::NRTE_CHAPTER;
@@ -374,7 +374,7 @@ CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 
 // ============================================================================
 
-void CKJVNoteEditDlg::en_clickedInsertWWWLink()
+void CNoteEditDlg::en_clickedInsertWWWLink()
 {
 	QString strURL = getWWWLink(m_pRichTextEdit->textCursor().selectedText());
 	if (!strURL.isEmpty()) {
@@ -388,7 +388,7 @@ void CKJVNoteEditDlg::en_clickedInsertWWWLink()
 	}
 }
 
-QString CKJVNoteEditDlg::getWWWLink(const QString &strURL)
+QString CNoteEditDlg::getWWWLink(const QString &strURL)
 {
 	CEditWWWLinkDlgPtr pDlg(strURL, this);
 	if (pDlg->exec() != QDialog::Accepted) return QString();

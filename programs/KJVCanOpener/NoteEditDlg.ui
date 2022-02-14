@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVNoteEditDlg</class>
- <widget class="QDialog" name="CKJVNoteEditDlg">
+ <class>CNoteEditDlg</class>
+ <widget class="QDialog" name="CNoteEditDlg">
   <property name="windowTitle">
    <string>King James Pure Bible Search User Note Editor</string>
   </property>
@@ -334,7 +334,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CKJVNoteEditDlg</receiver>
+   <receiver>CNoteEditDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -350,7 +350,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CKJVNoteEditDlg</receiver>
+   <receiver>CNoteEditDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

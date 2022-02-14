@@ -37,7 +37,7 @@
 #include "Configuration.h"
 #include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
 #if !defined(VNCSERVER) && !defined(EMSCRIPTEN)
-#include "KJVNoteEditDlg.h"
+#include "NoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #include "SaveLoadFileDialog.h"
 #endif
@@ -963,7 +963,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- UserNoteEditor Dialog:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	m_pUserNoteEditorDlg = new CKJVNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
+	m_pUserNoteEditorDlg = new CNoteEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pUserNoteEditorDlg->setModal(true);
 	connect(m_pActionUserNoteEditor, SIGNAL(triggered()), this, SLOT(en_userNoteEditorTriggered()));
 #endif

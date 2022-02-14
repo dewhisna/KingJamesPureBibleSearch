@@ -2240,67 +2240,67 @@ Do you wish to restart the app??</source>
     </message>
 </context>
 <context>
-    <name>CKJVNoteEditDlg</name>
+    <name>CNoteEditDlg</name>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="28"/>
+        <location filename="../NoteEditDlg.ui" line="28"/>
         <source>King James Pure Bible Search User Note Editor</source>
         <translation>King James Pure Bible Search - Editor de Notas de usuario</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="151"/>
+        <location filename="../NoteEditDlg.ui" line="151"/>
         <source>Note &amp;Location:</source>
         <translation>&amp;Ubicación de la Nota:</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="63"/>
+        <location filename="../NoteEditDlg.ui" line="63"/>
         <source>Note Back&amp;ground Color</source>
         <translation>Nota Color de &amp;Fondo</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="70"/>
+        <location filename="../NoteEditDlg.ui" line="70"/>
         <source>Set this as the Default Background Color for New Notes</source>
         <translation>Establecer este como el Color de Fondo Predeterminado para las Nuevas Notas</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="73"/>
+        <location filename="../NoteEditDlg.ui" line="73"/>
         <source>Set this background color as the Default Background Color for New Notes</source>
         <translation>Establecer este color de fondo como el Color de Fondo Predeterminado para Nuevas Notas</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="76"/>
+        <location filename="../NoteEditDlg.ui" line="76"/>
         <source>Set as &amp;Default Background</source>
         <translation>Establecer como Fondo Pre&amp;determinado</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="106"/>
+        <location filename="../NoteEditDlg.ui" line="106"/>
         <source>Insert Reference Link</source>
         <translation>Insertar una Referencia Hipervínculo</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="109"/>
+        <location filename="../NoteEditDlg.ui" line="109"/>
         <source>Insert Scripture Reference Link</source>
         <translation>Insertar Hipervínculo Referencia Escrituras</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.ui" line="249"/>
-        <location filename="../KJVNoteEditDlg.ui" line="252"/>
+        <location filename="../NoteEditDlg.ui" line="249"/>
+        <location filename="../NoteEditDlg.ui" line="252"/>
         <source>Insert WWW Link</source>
         <translation>Insertar Hipervínculo WWW</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="121"/>
+        <location filename="../NoteEditDlg.cpp" line="121"/>
         <source>Note Background Color</source>
         <comment>MainMenu</comment>
         <translation>Nota Color de Fondo</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="146"/>
+        <location filename="../NoteEditDlg.cpp" line="146"/>
         <source>Delete Note</source>
         <comment>MainMenu</comment>
         <translation>Eliminar la Nota</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="237"/>
+        <location filename="../NoteEditDlg.cpp" line="237"/>
         <source>It appears you have typed some keyword text, but haven&apos;t yet entered them to where they will take effect.
 
 Do you wish to set them as valid keywords for this note?</source>
@@ -2310,25 +2310,25 @@ Do you wish to set them as valid keywords for this note?</source>
 ¿Desea establecer como palabras-clave válidos para esta nota?</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="255"/>
+        <location filename="../NoteEditDlg.cpp" line="255"/>
         <source>You have made changes to this note.  Do you wish to discard them??</source>
         <comment>Errors</comment>
         <translation>Usted ha realizado cambios en esta nota. ¿Es usted desea deshacerse de ellos?</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="298"/>
+        <location filename="../NoteEditDlg.cpp" line="298"/>
         <source>Default Note Background Color Has Been Set</source>
         <comment>MainMenu</comment>
         <translation>Nota color de fondo por defecto se ha establecido</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="309"/>
+        <location filename="../NoteEditDlg.cpp" line="309"/>
         <source>Are you sure you want to completely delete this note??</source>
         <comment>Errors</comment>
         <translation>¿Seguro que quieres eliminar por completo esta nota?</translation>
     </message>
     <message>
-        <location filename="../KJVNoteEditDlg.cpp" line="361"/>
+        <location filename="../NoteEditDlg.cpp" line="361"/>
         <source>&amp;OK</source>
         <comment>MainMenu</comment>
         <translation>&amp;Aceptar</translation>

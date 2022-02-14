@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJV_NOTE_EDIT_DLG_H
-#define KJV_NOTE_EDIT_DLG_H
+#ifndef NOTE_EDIT_DLG_H
+#define NOTE_EDIT_DLG_H
 
 #include "dbstruct.h"
 #include "UserNotesDatabase.h"
@@ -38,15 +38,15 @@
 
 // ============================================================================
 
-#include "ui_KJVNoteEditDlg.h"
+#include "ui_NoteEditDlg.h"
 
-class CKJVNoteEditDlg : public QDialog
+class CNoteEditDlg : public QDialog
 {
 	Q_OBJECT
 	
 public:
-	explicit CKJVNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
-	virtual ~CKJVNoteEditDlg();
+	explicit CNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
+	virtual ~CNoteEditDlg();
 
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "UserNoteEditor");
 	virtual void readSettings(QSettings &settings, const QString &prefix = "UserNoteEditor");
@@ -87,7 +87,7 @@ private:
 	CUserNoteEntry m_UserNote;
 	bool m_bHaveGeometry;
 	// ----
-	Ui::CKJVNoteEditDlg ui;
+	Ui::CNoteEditDlg ui;
 };
 
 // ============================================================================
@@ -95,16 +95,16 @@ private:
 // SmartPointer classes needed, particularly for stack instantiated dialogs, since
 //		this dialog is only WindowModal and the parent can get deleted during an
 //		app close event, causing an attempted double-free which leads to a crash:
-class CKJVNoteEditDlgPtr : public QPointer<CKJVNoteEditDlg>
+class CNoteEditDlgPtr : public QPointer<CNoteEditDlg>
 {
 public:
-	CKJVNoteEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr)
-		:	QPointer<CKJVNoteEditDlg>(new CKJVNoteEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
+	CNoteEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr)
+		:	QPointer<CNoteEditDlg>(new CNoteEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
 	{
 
 	}
 
-	virtual ~CKJVNoteEditDlgPtr()
+	virtual ~CNoteEditDlgPtr()
 	{
 		if (!isNull()) delete data();
 	}
@@ -112,4 +112,4 @@ public:
 
 // ============================================================================
 
-#endif // KJV_NOTE_EDIT_DLG_H
+#endif // NOTE_EDIT_DLG_H

@@ -30,7 +30,7 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-#include "KJVNoteEditDlg.h"
+#include "NoteEditDlg.h"
 #include "KJVCrossRefEditDlg.h"
 #endif
 #include "ToolTipEdit.h"

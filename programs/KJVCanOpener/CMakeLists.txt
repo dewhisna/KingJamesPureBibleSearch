@@ -240,7 +240,7 @@ if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_SOURCES
 		"EditWWWLinkDlg.cpp"
 		"KJVCrossRefEditDlg.cpp"
-		"KJVNoteEditDlg.cpp"
+		"NoteEditDlg.cpp"
 		"SaveLoadFileDialog.cpp"
 	)
 endif()
@@ -337,7 +337,7 @@ if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_HEADERS
 		"EditWWWLinkDlg.h"
 		"KJVCrossRefEditDlg.h"
-		"KJVNoteEditDlg.h"
+		"NoteEditDlg.h"
 		"SaveLoadFileDialog.h"
 	)
 endif()
@@ -398,7 +398,7 @@ if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 		"ConfigUserNotesDatabase.ui"
 		"EditWWWLinkDlg.ui"
 		"KJVCrossRefEditDlg.ui"
-		"KJVNoteEditDlg.ui"
+		"NoteEditDlg.ui"
 	)
 endif()
 
