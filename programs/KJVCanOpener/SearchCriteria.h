@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVSEARCHCRITERIA_H
-#define KJVSEARCHCRITERIA_H
+#ifndef SEARCH_CRITERIA_H
+#define SEARCH_CRITERIA_H
 
 #include "dbstruct.h"
 
@@ -313,4 +313,4 @@ private:
 
 // ============================================================================
 
-#endif // KJVSEARCHCRITERIA_H
+#endif // SEARCH_CRITERIA_H

@@ -944,7 +944,7 @@ void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 #ifndef IS_CONSOLE_APP
 
 	// The following is needed on Mac to make sure the menu of the
-	//      new KJVCanOpen gets set:
+	//      new KJVCanOpener gets set:
 	if (activeWindow() != static_cast<QWidget *>(pCanOpener))
 			setActiveWindow(pCanOpener);
 
@@ -1486,15 +1486,15 @@ int CMyApplication::execute(bool bBuildDB)
 
 #ifdef NOT_USING_SQL
 			// If we can't support SQL, we can't:
-			QString strKJVSQLDatabasePath;
+			QString strSQLDatabasePath;
 #else
-			QString strKJVSQLDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
+			QString strSQLDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
 														bblDesc.m_strS3DBFilename).absoluteFilePath();
 #endif
-			QString strKJVCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
+			QString strCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
 														bblDesc.m_strCCDBFilename).absoluteFilePath();
 
-			if (!bdb.BuildDatabase(strKJVSQLDatabasePath, strKJVCCDatabasePath)) {
+			if (!bdb.BuildDatabase(strSQLDatabasePath, strCCDatabasePath)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));
 				return -2;
 			}
