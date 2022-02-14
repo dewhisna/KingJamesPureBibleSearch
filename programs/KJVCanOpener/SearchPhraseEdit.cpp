@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVSearchPhraseEdit.h"
+#include "SearchPhraseEdit.h"
 
 #include "PhraseListModel.h"
 #include "MimeHelper.h"
@@ -200,7 +200,7 @@ void CPhraseLineEdit::setupPhrase(const TPhraseSettings &aPhrase)
 	{
 		// Keep doUpdate in separate namespace and release it before we call overall UpdateCompleter() and phraseChanged()
 		CDoUpdate doUpdate(this);		// Save up changes until the end
-		// These will emit a signal that will update the outer CKJVSearchPhraseEdit, which will
+		// These will emit a signal that will update the outer CSearchPhraseEdit, which will
 		//		turn around and call us to set it, but will keep us from calling UpdateCompleter()
 		//		and phraseChanged() on each item:
 		emit changeCaseSensitive(aPhrase.m_bCaseSensitive);
@@ -523,7 +523,7 @@ void CPhraseLineEdit::en_changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETIO
 
 // ============================================================================
 
-CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase, QWidget *parent) :
+CSearchPhraseEdit::CSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
 	m_bHaveUserDatabase(bHaveUserDatabase),
@@ -619,12 +619,12 @@ CKJVSearchPhraseEdit::CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, boo
 	connect(ui.editPhrase, SIGNAL(enterTriggered()), this, SIGNAL(enterTriggered()));
 }
 
-CKJVSearchPhraseEdit::~CKJVSearchPhraseEdit()
+CSearchPhraseEdit::~CSearchPhraseEdit()
 {
 
 }
 
-bool CKJVSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
+bool CSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
 {
 	Q_ASSERT(pEvent != nullptr);
 
@@ -660,7 +660,7 @@ bool CKJVSearchPhraseEdit::eventFilter(QObject *pObject, QEvent *pEvent)
 	return QWidget::eventFilter(pObject, pEvent);
 }
 
-void CKJVSearchPhraseEdit::processPendingTextChanges()
+void CSearchPhraseEdit::processPendingTextChanges()
 {
 	if (m_dlyTextChanged.isTriggered()) {
 		m_dlyTextChanged.untrigger();
@@ -668,58 +668,58 @@ void CKJVSearchPhraseEdit::processPendingTextChanges()
 	}
 }
 
-void CKJVSearchPhraseEdit::en_matchingPhraseActivated(const QModelIndex &index)
+void CSearchPhraseEdit::en_matchingPhraseActivated(const QModelIndex &index)
 {
 	if (index.isValid()) {
 		ui.editPhrase->setText(index.data().toString());
 	}
 }
 
-void CKJVSearchPhraseEdit::setupPhrase(const TPhraseSettings &aPhrase)
+void CSearchPhraseEdit::setupPhrase(const TPhraseSettings &aPhrase)
 {
 	phraseEditor()->setupPhrase(aPhrase);
 	setDisabled(aPhrase.m_bDisabled);			// Set this one on us directly to update things (as the parsed phrase doesn't signal)
 }
 
-void CKJVSearchPhraseEdit::closeSearchPhrase()
+void CSearchPhraseEdit::closeSearchPhrase()
 {
 	emit closingSearchPhrase(this);
 	delete this;
 }
 
-void CKJVSearchPhraseEdit::clearSearchPhrase()
+void CSearchPhraseEdit::clearSearchPhrase()
 {
 	en_phraseClear();
 }
 
-void CKJVSearchPhraseEdit::showSeperatorLine(bool bShow)
+void CSearchPhraseEdit::showSeperatorLine(bool bShow)
 {
 	ui.lineSeparator->setVisible(bShow);
 	ui.lineSeparator2->setVisible(bShow);
 	adjustSize();
 }
 
-void CKJVSearchPhraseEdit::enableCloseButton(bool bEnable)
+void CSearchPhraseEdit::enableCloseButton(bool bEnable)
 {
 	ui.buttonRemove->setEnabled(bEnable);
 }
 
-void CKJVSearchPhraseEdit::focusEditor() const
+void CSearchPhraseEdit::focusEditor() const
 {
 	ui.editPhrase->setFocus();
 }
 
-const CParsedPhrase *CKJVSearchPhraseEdit::parsedPhrase() const
+const CParsedPhrase *CSearchPhraseEdit::parsedPhrase() const
 {
 	return ui.editPhrase;
 }
 
-CPhraseLineEdit *CKJVSearchPhraseEdit::phraseEditor() const
+CPhraseLineEdit *CSearchPhraseEdit::phraseEditor() const
 {
 	return ui.editPhrase;
 }
 
-void CKJVSearchPhraseEdit::en_phraseChanged()
+void CSearchPhraseEdit::en_phraseChanged()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -763,7 +763,7 @@ void CKJVSearchPhraseEdit::en_phraseChanged()
 	//		need to be updated, but all editors
 }
 
-void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
+void CSearchPhraseEdit::phraseStatisticsChanged() const
 {
 	QString strTemp = tr("Number of Occurrences:", "Statistics") + QString(" ");
 	if (parsedPhrase()->isDuplicate()) {
@@ -774,7 +774,7 @@ void CKJVSearchPhraseEdit::phraseStatisticsChanged() const
 	ui.lblOccurrenceCount->setText(strTemp);
 }
 
-void CKJVSearchPhraseEdit::en_CaseSensitiveChanged(bool bCaseSensitive)
+void CSearchPhraseEdit::en_CaseSensitiveChanged(bool bCaseSensitive)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
@@ -783,7 +783,7 @@ void CKJVSearchPhraseEdit::en_CaseSensitiveChanged(bool bCaseSensitive)
 	m_bUpdateInProgress = false;
 }
 
-void CKJVSearchPhraseEdit::en_AccentSensitiveChanged(bool bAccentSensitive)
+void CSearchPhraseEdit::en_AccentSensitiveChanged(bool bAccentSensitive)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
@@ -792,7 +792,7 @@ void CKJVSearchPhraseEdit::en_AccentSensitiveChanged(bool bAccentSensitive)
 	m_bUpdateInProgress = false;
 }
 
-void CKJVSearchPhraseEdit::en_ExcludeChanged(bool bExclude)
+void CSearchPhraseEdit::en_ExcludeChanged(bool bExclude)
 {
 	if (m_bUpdateInProgress) return;
 	m_bUpdateInProgress = true;
@@ -801,7 +801,7 @@ void CKJVSearchPhraseEdit::en_ExcludeChanged(bool bExclude)
 	m_bUpdateInProgress = false;
 }
 
-void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
+void CSearchPhraseEdit::setDisabled(bool bDisabled)
 {
 	bool bCurrentDisable = parsedPhrase()->isDisabled();
 	if (m_bUpdateInProgress) return;
@@ -820,21 +820,21 @@ void CKJVSearchPhraseEdit::setDisabled(bool bDisabled)
 	}
 }
 
-void CKJVSearchPhraseEdit::en_phraseAdd()
+void CSearchPhraseEdit::en_phraseAdd()
 {
 	CPersistentSettings::instance()->addUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
 	ui.editPhrase->setFocus();
 }
 
-void CKJVSearchPhraseEdit::en_phraseDel()
+void CSearchPhraseEdit::en_phraseDel()
 {
 	CPersistentSettings::instance()->removeUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
 	ui.editPhrase->setFocus();
 }
 
-void CKJVSearchPhraseEdit::en_phraseClear()
+void CSearchPhraseEdit::en_phraseClear()
 {
 	ui.editPhrase->clear();
 	m_phraseEntry.clear();
@@ -846,7 +846,7 @@ void CKJVSearchPhraseEdit::en_phraseClear()
 	ui.editPhrase->setFocus();
 }
 
-void CKJVSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
+void CSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
 {
 	if ((strUUID.isEmpty()) || (strUUID.compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0)) {
 		bool bCommonFound = m_pBibleDatabase->phraseList().contains(m_phraseEntry);
@@ -858,19 +858,19 @@ void CKJVSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
 	}
 }
 
-void CKJVSearchPhraseEdit::resizeEvent(QResizeEvent *event)
+void CSearchPhraseEdit::resizeEvent(QResizeEvent *event)
 {
 	QWidget::resizeEvent(event);
 	emit resizing(this);
 }
 
-void CKJVSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
+void CSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
 {
 	setShowMatchingPhrases(bShow, false);
 	ui.editPhrase->setFocus();
 }
 
-void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)
+void CSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)
 {
 	CBusyCursor iAmBusy(nullptr);
 
@@ -900,7 +900,7 @@ void CKJVSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchin
 	emit changingShowMatchingPhrases(this);
 }
 
-void CKJVSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
+void CSearchPhraseEdit::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
 {
 	ui.toolButtonShowMatchingPhrases->setVisible(!bHideMatchingPhrasesLists);
 	ui.toolButtonShowMatchingPhrases->setChecked(false);

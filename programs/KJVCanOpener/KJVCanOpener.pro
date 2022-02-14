@@ -342,7 +342,6 @@ SOURCES += \
 	Highlighter.cpp \
 	KJVCanOpener.cpp \
 	KJVSearchCriteria.cpp \
-	KJVSearchPhraseEdit.cpp \
 	MimeHelper.cpp \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
@@ -360,6 +359,7 @@ SOURCES += \
 	ScriptureEdit.cpp \
 	SearchCompleter.cpp \
 	SearchCompleterListModel.cpp \
+	SearchPhraseEdit.cpp \
 	SearchPhraseListModel.cpp \
 	SearchResults.cpp \
 	SearchSpecWidget.cpp \
@@ -411,7 +411,6 @@ HEADERS += \
 	Highlighter.h \
 	KJVCanOpener.h \
 	KJVSearchCriteria.h \
-	KJVSearchPhraseEdit.h \
 	MimeHelper.h \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
@@ -431,6 +430,7 @@ HEADERS += \
 	ScriptureTextFormatProperties.h \
 	SearchCompleter.h \
 	SearchCompleterListModel.h \
+	SearchPhraseEdit.h \
 	SearchPhraseListModel.h \
 	SearchResults.h \
 	SearchSpecWidget.h \
@@ -473,11 +473,11 @@ FORMS += \
 	BrowserWidget.ui \
 	KJVCanOpener.ui \
 	KJVSearchCriteria.ui \
-	KJVSearchPhraseEdit.ui \
 	NoteKeywordWidget.ui \
 	PassageNavigator.ui \
 	PassageNavigatorDlg.ui \
 	PassageReferenceWidget.ui \
+	SearchPhraseEdit.ui \
 	SearchSpecWidget.ui
 
 if(!emscripten|wasm):!console:FORMS += \

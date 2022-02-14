@@ -2555,156 +2555,156 @@ Do you wish to set them as valid keywords for this note?</source>
     </message>
 </context>
 <context>
-    <name>CKJVSearchPhraseEdit</name>
+    <name>CSearchPhraseEdit</name>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="34"/>
+        <location filename="../SearchPhraseEdit.ui" line="34"/>
         <source>PhraseEditForm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="85"/>
+        <location filename="../SearchPhraseEdit.ui" line="85"/>
         <source>Occurrence Count for this Phrase: Contributing/Selected Text/Whole Bible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="88"/>
+        <location filename="../SearchPhraseEdit.ui" line="88"/>
         <source>Number of Occurrences: 000000/000000/000000</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="125"/>
+        <location filename="../SearchPhraseEdit.ui" line="125"/>
         <source>Add Phrase to User Database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="128"/>
+        <location filename="../SearchPhraseEdit.ui" line="128"/>
         <source>Add this Phrase to the User Database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="157"/>
+        <location filename="../SearchPhraseEdit.ui" line="157"/>
         <source>Delete Phrase from User Database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="160"/>
+        <location filename="../SearchPhraseEdit.ui" line="160"/>
         <source>Delete this Phrase from the User Database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="189"/>
+        <location filename="../SearchPhraseEdit.ui" line="189"/>
         <source>Clear Phrase Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="192"/>
+        <location filename="../SearchPhraseEdit.ui" line="192"/>
         <source>Clear this Phrase Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="211"/>
+        <location filename="../SearchPhraseEdit.ui" line="211"/>
         <source>Word or Phrase to find:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="239"/>
+        <location filename="../SearchPhraseEdit.ui" line="239"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; width=&quot;240&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Enter Search Phrase to find. &lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;Use: &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;| for OR operator &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td width=&quot;50&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td width=&quot;240&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: James | John&lt;br/&gt;(matches either &amp;quot;James&amp;quot; or &amp;quot;John&amp;quot;)&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;[] to specify character set &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: ba[dk]e&lt;br/&gt;(matches &amp;quot;bade&amp;quot; or &amp;quot;bake&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;* to find any of zero or more characters &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: baptiz*&lt;br/&gt;(matches words starting with &amp;quot;baptiz&amp;quot;) &lt;/p&gt;&lt;p&gt;example: *ology&lt;br/&gt;(matches words ending with &amp;quot;ology&amp;quot;) &lt;/p&gt;&lt;p&gt;example: an*er&lt;br/&gt;(matches words starting with &amp;quot;an&amp;quot;,&lt;br/&gt;and ending with &amp;quot;er&amp;quot;) &lt;/p&gt;&lt;p&gt;example: fruit of * doings&lt;br/&gt;(matches any word in that position,&lt;br/&gt;such as: &amp;quot;fruit of their doings&amp;quot;) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot; style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;? to find any of exactly one character &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/td&gt;&lt;td style=&quot; vertical-align:top; padding-left:0; padding-right:0; padding-top:0; padding-bottom:0;&quot;&gt;&lt;p&gt;example: ba?e&lt;br/&gt;(matches any character for the 3rd&lt;br/&gt;character, such as babe. bade, bake,&lt;br/&gt;bare, etc, but will &lt;span style=&quot; text-decoration: underline;&quot;&gt;not&lt;/span&gt; match: bathe) &lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="242"/>
+        <location filename="../SearchPhraseEdit.ui" line="242"/>
         <source>Enter Word or Phrase to Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="290"/>
+        <location filename="../SearchPhraseEdit.ui" line="290"/>
         <source>Remove this Search Phrase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="293"/>
+        <location filename="../SearchPhraseEdit.ui" line="293"/>
         <source>Remove this Search Phrase from the Search Criteria</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="325"/>
+        <location filename="../SearchPhraseEdit.ui" line="325"/>
         <source>Enable Case Sensitivity on Matching</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="328"/>
+        <location filename="../SearchPhraseEdit.ui" line="328"/>
         <source>Enable Case Sensitivity when Matching this Search Phrase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="331"/>
+        <location filename="../SearchPhraseEdit.ui" line="331"/>
         <source>Case Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="344"/>
+        <location filename="../SearchPhraseEdit.ui" line="344"/>
         <source>Enable Accent Matching on Foreign Language Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="347"/>
+        <location filename="../SearchPhraseEdit.ui" line="347"/>
         <source>Enable Accent Matching Sensitivity when using Foreign Language Bible Databases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="350"/>
+        <location filename="../SearchPhraseEdit.ui" line="350"/>
         <source>Accent Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="363"/>
+        <location filename="../SearchPhraseEdit.ui" line="363"/>
         <source>Exclude Occurrences of this Phrase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="366"/>
+        <location filename="../SearchPhraseEdit.ui" line="366"/>
         <source>Exclude the results of this Phrase when they match other Phrases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="369"/>
+        <location filename="../SearchPhraseEdit.ui" line="369"/>
         <source>Exclude</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="395"/>
+        <location filename="../SearchPhraseEdit.ui" line="395"/>
         <source>Disable this Search Phrase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="398"/>
+        <location filename="../SearchPhraseEdit.ui" line="398"/>
         <source>Disable the Results of this Search Phrase</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="401"/>
+        <location filename="../SearchPhraseEdit.ui" line="401"/>
         <source>Disable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.ui" line="420"/>
+        <location filename="../SearchPhraseEdit.ui" line="420"/>
         <source>Show Matching Words/Phrases</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="769"/>
+        <location filename="../SearchPhraseEdit.cpp" line="769"/>
         <source>Number of Occurrences:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="771"/>
+        <location filename="../SearchPhraseEdit.cpp" line="771"/>
         <source>(Duplicate)</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchPhraseEdit.cpp" line="898"/>
+        <location filename="../SearchPhraseEdit.cpp" line="898"/>
         <source>%n Matching Words/Phrases</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -3835,85 +3835,85 @@ Check Installation!</source>
 <context>
     <name>CPhraseLineEdit</name>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="101"/>
+        <location filename="../SearchPhraseEdit.cpp" line="101"/>
         <source>&amp;Edit</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="102"/>
+        <location filename="../SearchPhraseEdit.cpp" line="102"/>
         <source>Search Phrase Editor Operations</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="118"/>
+        <location filename="../SearchPhraseEdit.cpp" line="118"/>
         <source>Cu&amp;t</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="119"/>
+        <location filename="../SearchPhraseEdit.cpp" line="119"/>
         <source>Cut selected text from the Search Phrase Editor to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="123"/>
+        <location filename="../SearchPhraseEdit.cpp" line="123"/>
         <source>&amp;Copy</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="124"/>
+        <location filename="../SearchPhraseEdit.cpp" line="124"/>
         <source>Copy selected text from the Search Phrase Editor to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="128"/>
+        <location filename="../SearchPhraseEdit.cpp" line="128"/>
         <source>&amp;Paste</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="129"/>
+        <location filename="../SearchPhraseEdit.cpp" line="129"/>
         <source>Paste text on clipboard into the Search Phrase Editor</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="132"/>
+        <location filename="../SearchPhraseEdit.cpp" line="132"/>
         <source>&amp;Delete</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="133"/>
+        <location filename="../SearchPhraseEdit.cpp" line="133"/>
         <source>Delete selected text from the Search Phrase Editor</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="138"/>
+        <location filename="../SearchPhraseEdit.cpp" line="138"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="139"/>
+        <location filename="../SearchPhraseEdit.cpp" line="139"/>
         <source>Select All Text in the Search Phrase Editor</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="163"/>
+        <location filename="../SearchPhraseEdit.cpp" line="163"/>
         <source>Show Phrase List</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchPhraseEdit.cpp" line="164"/>
+        <location filename="../SearchPhraseEdit.cpp" line="164"/>
         <source>Show List of Common Phrases and User Phrases from Database</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>

@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 #include "KJVSearchCriteria.h"
-#include "KJVSearchPhraseEdit.h"
+#include "SearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
 #include "DelayedExecutionTimer.h"
 #include "VerseListModel.h"
@@ -77,8 +77,8 @@ signals:
 	void copySearchPhraseSummary();
 
 signals:				// Outgoing Pass-Through:
-	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
-	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+	void closingSearchPhrase(CSearchPhraseEdit *pSearchPhrase);
+	void phraseChanged(CSearchPhraseEdit *pSearchPhrase);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 	void triggeredSearchWithinGotoIndex(const CRelIndex &relIndex);
 
@@ -88,10 +88,10 @@ public slots:
 	void readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString());
 	void writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup = QString()) const;
 
-	CKJVSearchPhraseEdit *addSearchPhrase();
+	CSearchPhraseEdit *addSearchPhrase();
 
-	CKJVSearchPhraseEdit *setFocusSearchPhrase(int nIndex = 0);
-	void setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase);
+	CSearchPhraseEdit *setFocusSearchPhrase(int nIndex = 0);
+	void setFocusSearchPhrase(const CSearchPhraseEdit *pSearchPhrase);
 
 	void setSearchResultsUpdateDelay(int nDelay) { m_dlySearchResultsUpdate.setMinimumDelay(nDelay*2); }		// 2-multiplier is to avoid a race condition between search phrase change delay and search results update delay
 
@@ -104,13 +104,13 @@ protected slots:
 	void closeAllSearchPhrases();
 
 	void ensureSearchPhraseVisible(int nIndex);
-	void ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase);
-	void en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase);
-	void en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase);
+	void ensureSearchPhraseVisible(const CSearchPhraseEdit *pSearchPhrase);
+	void en_phraseResizing(CSearchPhraseEdit *pSearchPhrase);
+	void en_changingShowMatchingPhrases(CSearchPhraseEdit *pSearchPhrase);
 	void resizeScrollAreaLayout();
-	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_closingSearchPhrase(CSearchPhraseEdit *pSearchPhrase);
 	void en_changedSearchCriteria();
-	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase = nullptr);
+	void en_phraseChanged(CSearchPhraseEdit *pSearchPhrase = nullptr);
 public slots:
 	void en_searchResultsReady();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);

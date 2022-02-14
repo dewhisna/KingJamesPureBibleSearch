@@ -25,7 +25,7 @@
 #define SEARCHPHRASELISTMODEL_H
 
 #include "dbstruct.h"
-#include "KJVSearchPhraseEdit.h"
+#include "SearchPhraseEdit.h"
 
 #include <QAbstractListModel>
 #include <QModelIndex>
@@ -35,9 +35,9 @@
 
 // ============================================================================
 
-Q_DECLARE_METATYPE(CKJVSearchPhraseEdit*)
+Q_DECLARE_METATYPE(CSearchPhraseEdit*)
 
-typedef QList<CKJVSearchPhraseEdit *> CSearchPhraseEditList;
+typedef QList<CSearchPhraseEdit *> CSearchPhraseEditList;
 
 // ============================================================================
 

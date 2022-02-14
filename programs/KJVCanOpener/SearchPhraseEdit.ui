@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVSearchPhraseEdit</class>
- <widget class="QWidget" name="CKJVSearchPhraseEdit">
+ <class>CSearchPhraseEdit</class>
+ <widget class="QWidget" name="CSearchPhraseEdit">
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
@@ -499,7 +499,7 @@
   <customwidget>
    <class>CPhraseLineEdit</class>
    <extends>QTextEdit</extends>
-   <header>KJVSearchPhraseEdit.h</header>
+   <header>SearchPhraseEdit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 
-#include "KJVSearchPhraseEdit.h"
+#include "SearchPhraseEdit.h"
 #include "VerseListModel.h"
 #include "SearchSpecWidget.h"
 #include "SearchResults.h"
@@ -164,8 +164,8 @@ protected slots:
 	void en_SaveSearch();
 	void en_ClearSearchPhrases();
 
-	void en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
-	void en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
+	void en_closingSearchPhrase(CSearchPhraseEdit *pSearchPhrase);
+	void en_phraseChanged(CSearchPhraseEdit *pSearchPhrase);
 	void en_copySearchPhraseSummary();
 	void en_triggeredSearchWithinGotoIndex(const CRelIndex &relIndex);
 	void en_changedSearchSpec(const CSearchResultsData &searchResultsData);

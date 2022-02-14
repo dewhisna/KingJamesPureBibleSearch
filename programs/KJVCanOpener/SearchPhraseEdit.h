@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVSEARCHPHRASEEDIT_H
-#define KJVSEARCHPHRASEEDIT_H
+#ifndef SEARCH_PHRASE_EDIT_H
+#define SEARCH_PHRASE_EDIT_H
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
@@ -90,8 +90,8 @@ public:
 	virtual bool isExcluded() const override { return CParsedPhrase::isExcluded(); }
 	virtual void setExclude(bool bExclude) override;
 
-	inline bool isDisabled() const { Q_ASSERT(false); return false; }									// Call on either CKJVSearchPhraseEdit or CParsedPhrase
-	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); Q_ASSERT(false); }		// Call on either CKJVSearchPhraseEdit or CParsedPhrase
+	inline bool isDisabled() const { Q_ASSERT(false); return false; }									// Call on either CSearchPhraseEdit or CParsedPhrase
+	inline void setIsDisabled(bool bIsDisabled) const { Q_UNUSED(bIsDisabled); Q_ASSERT(false); }		// Call on either CSearchPhraseEdit or CParsedPhrase
 
 	virtual void setFromPhraseEntry(const CPhraseEntry &aPhraseEntry, bool bFindWords) override;
 
@@ -155,15 +155,15 @@ private:
 
 // ============================================================================
 
-#include "ui_KJVSearchPhraseEdit.h"
+#include "ui_SearchPhraseEdit.h"
 
-class CKJVSearchPhraseEdit : public QWidget
+class CSearchPhraseEdit : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
-	virtual ~CKJVSearchPhraseEdit();
+	explicit CSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
+	virtual ~CSearchPhraseEdit();
 
 	virtual bool eventFilter(QObject *pObject, QEvent *pEvent) override;
 
@@ -176,10 +176,10 @@ public:
 	int searchActivationDelay() const { return m_dlyTextChanged.minimumDelay(); }
 
 signals:
-	void closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase);
-	void phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase);
-	void resizing(CKJVSearchPhraseEdit *pSearchPhrase);
-	void changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase);
+	void closingSearchPhrase(CSearchPhraseEdit *pSearchPhrase);
+	void phraseChanged(CSearchPhraseEdit *pSearchPhrase);
+	void resizing(CSearchPhraseEdit *pSearchPhrase);
+	void changingShowMatchingPhrases(CSearchPhraseEdit *pSearchPhrase);
 	void activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 	void enterTriggered();						// Signaled when the user presses enter/return
 
@@ -224,9 +224,9 @@ private:
 	CMatchingPhrasesListModel *m_pMatchingPhrasesModel;
 	bool m_bMatchingPhrasesModelCurrent;			// True when we have filled in the matching phrases model, set back to false when the en_phraseChanged happens, so if user minimizes list it doesn't have to get recomputed on expanding
 	DelayedExecutionTimer m_dlyTextChanged;
-	Ui::CKJVSearchPhraseEdit ui;
+	Ui::CSearchPhraseEdit ui;
 };
 
 // ============================================================================
 
-#endif // KJVSEARCHPHRASEEDIT_H
+#endif // SEARCH_PHRASE_EDIT_H

@@ -933,8 +933,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- Search Phrase Widgets:
 
-	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
-	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
+	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CSearchPhraseEdit*)));
+	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CSearchPhraseEdit *)));
 	connect(m_pSearchSpecWidget, SIGNAL(copySearchPhraseSummary()), this, SLOT(en_copySearchPhraseSummary()));
 	connect(m_pSearchSpecWidget, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)), this, SLOT(en_triggeredSearchWithinGotoIndex(const CRelIndex &)));
 
@@ -2064,7 +2064,7 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 
 // ------------------------------------------------------------------
 
-void CKJVCanOpener::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVCanOpener::en_closingSearchPhrase(CSearchPhraseEdit *pSearchPhrase)
 {
 	Q_ASSERT(pSearchPhrase != nullptr);
 
@@ -2076,7 +2076,7 @@ void CKJVCanOpener::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	}
 }
 
-void CKJVCanOpener::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
+void CKJVCanOpener::en_phraseChanged(CSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 

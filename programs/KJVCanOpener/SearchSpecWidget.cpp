@@ -94,7 +94,7 @@ CSearchSpecWidget::CSearchSpecWidget(CBibleDatabasePtr pBibleDatabase, bool bHav
 	m_pLayoutPhrases->addWidget(&m_buttonCopySummary);
 	m_buttonCopySummary.setEnabled(false);
 
-	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
+	CSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 
 	ui.scrollAreaSearchPhrases->setMinimumSize(m_pLayoutPhrases->sizeHint().width() +
@@ -204,10 +204,10 @@ void CSearchSpecWidget::readKJVSearchFile(QSettings &kjsFile, const QString &str
 	ui.widgetSearchCriteria->setSearchScopeMode(nSearchScope);
 	ui.widgetSearchCriteria->setSearchWithin(strSearchWithin);
 
-	CKJVSearchPhraseEdit *pFirstSearchPhraseEditor = nullptr;
+	CSearchPhraseEdit *pFirstSearchPhraseEditor = nullptr;
 	int nPhrases = kjsFile.beginReadArray(groupCombine(strSubgroup, "SearchPhrases"));
 	for (int ndx = 0; ndx < nPhrases; ++ndx) {
-		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
+		CSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
 		Q_ASSERT(pPhraseEditor != nullptr);
 		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 		kjsFile.setArrayIndex(ndx);
@@ -221,7 +221,7 @@ void CSearchSpecWidget::readKJVSearchFile(QSettings &kjsFile, const QString &str
 	}
 	// But, always open at least the minimum number of empty search phrases specified:
 	for (int ndx = nPhrases; ndx < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++ndx) {
-		CKJVSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
+		CSearchPhraseEdit *pPhraseEditor = addSearchPhrase();
 		Q_ASSERT(pPhraseEditor != nullptr);
 		if (ndx == 0) pFirstSearchPhraseEditor = pPhraseEditor;
 	}
@@ -262,7 +262,7 @@ void CSearchSpecWidget::writeKJVSearchFile(QSettings &kjsFile, const QString &st
 
 // ------------------------------------------------------------------
 
-CKJVSearchPhraseEdit *CSearchSpecWidget::setFocusSearchPhrase(int nIndex)
+CSearchPhraseEdit *CSearchSpecWidget::setFocusSearchPhrase(int nIndex)
 {
 	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size())) {
 		setFocusSearchPhrase(m_lstSearchPhraseEditors.at(nIndex));
@@ -271,7 +271,7 @@ CKJVSearchPhraseEdit *CSearchSpecWidget::setFocusSearchPhrase(int nIndex)
 	return nullptr;
 }
 
-void CSearchSpecWidget::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::setFocusSearchPhrase(const CSearchPhraseEdit *pSearchPhrase)
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->processPendingTextChanges();
@@ -303,18 +303,18 @@ void CSearchSpecWidget::closeAllSearchPhrases()
 	en_phraseChanged(nullptr);							// Still need to emit one change
 }
 
-CKJVSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
+CSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	CKJVSearchPhraseEdit *pPhraseWidget = new CKJVSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
-	connect(pPhraseWidget, SIGNAL(resizing(CKJVSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CKJVSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CKJVSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(changingShowMatchingPhrases(CKJVSearchPhraseEdit*)), this, SLOT(en_changingShowMatchingPhrases(CKJVSearchPhraseEdit*)));
-//	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CKJVSearchPhraseEdit *)));
+	CSearchPhraseEdit *pPhraseWidget = new CSearchPhraseEdit(m_pBibleDatabase, haveUserDatabase(), this);
+	connect(pPhraseWidget, SIGNAL(resizing(CSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CSearchPhraseEdit*)));
+	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CSearchPhraseEdit*)));
+	connect(pPhraseWidget, SIGNAL(changingShowMatchingPhrases(CSearchPhraseEdit*)), this, SLOT(en_changingShowMatchingPhrases(CSearchPhraseEdit*)));
+//	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CSearchPhraseEdit *)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
 
-	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit*)), &m_dlySearchResultsUpdate, SLOT(trigger()));
+	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), &m_dlySearchResultsUpdate, SLOT(trigger()));
 #ifdef USE_SEARCH_RESULTS_UPDATE_DELAY
 	setSearchResultsUpdateDelay(CPersistentSettings::instance()->searchActivationDelay());
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchResultsUpdateDelay(int)));
@@ -325,8 +325,8 @@ CKJVSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
 	connect(pPhraseWidget, SIGNAL(enterTriggered()), this, SLOT(en_phraseChanged()), Qt::QueuedConnection);
 
 	// Set pass-throughs:
-	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CKJVSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(phraseChanged(CKJVSearchPhraseEdit*)), this, SIGNAL(phraseChanged(CKJVSearchPhraseEdit*)));
+	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)));
+	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), this, SIGNAL(phraseChanged(CSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
 
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
@@ -350,7 +350,7 @@ void CSearchSpecWidget::ensureSearchPhraseVisible(int nIndex)
 	}
 }
 
-void CSearchSpecWidget::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::ensureSearchPhraseVisible(const CSearchPhraseEdit *pSearchPhrase)
 {
 	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
 	int nHeight = 0;
@@ -366,7 +366,7 @@ void CSearchSpecWidget::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pS
 															nHeight - (pSearchPhrase->sizeHint().height()/2));
 }
 
-void CSearchSpecWidget::en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_phraseResizing(CSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
@@ -374,7 +374,7 @@ void CSearchSpecWidget::en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase)
 	resizeScrollAreaLayout();
 }
 
-void CSearchSpecWidget::en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_changingShowMatchingPhrases(CSearchPhraseEdit *pSearchPhrase)
 {
 	resizeScrollAreaLayout();
 	ensureSearchPhraseVisible(pSearchPhrase);
@@ -404,7 +404,7 @@ void CSearchSpecWidget::resizeScrollAreaLayout()
 	m_bDoingResizing = false;
 }
 
-void CSearchSpecWidget::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_closingSearchPhrase(CSearchPhraseEdit *pSearchPhrase)
 {
 	if (m_bCloseAllSearchPhrasesInProgress) return;
 
@@ -556,7 +556,7 @@ void CSearchSpecWidget::processAllPendingUpdateCompleter()
 	}
 }
 
-void CSearchSpecWidget::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_phraseChanged(CSearchPhraseEdit *pSearchPhrase)
 {
 	m_dlySearchResultsUpdate.untrigger();
 

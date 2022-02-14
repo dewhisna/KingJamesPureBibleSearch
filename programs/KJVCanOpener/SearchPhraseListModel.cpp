@@ -45,13 +45,13 @@ QVariant CSearchPhraseListModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-		const CKJVSearchPhraseEdit *editor = m_lstPhraseEditors[index.row()];
+		const CSearchPhraseEdit *editor = m_lstPhraseEditors[index.row()];
 		if (editor) return editor->parsedPhrase()->phrase();
 		return QString();
 	}
 
 	if (role == Qt::ToolTipRole) {
-		const CKJVSearchPhraseEdit *editor = m_lstPhraseEditors[index.row()];
+		const CSearchPhraseEdit *editor = m_lstPhraseEditors[index.row()];
 		if (editor) return editor->toolTip();
 		return QString();
 	}
@@ -76,7 +76,7 @@ bool CSearchPhraseListModel::setData(const QModelIndex &index, const QVariant &v
 	}
 
 	if (role == SEARCH_PHRASE_EDIT_WIDGET_ROLE) {
-		m_lstPhraseEditors.replace(index.row(), value.value<CKJVSearchPhraseEdit*>());
+		m_lstPhraseEditors.replace(index.row(), value.value<CSearchPhraseEdit*>());
 		emit dataChanged(index, index);
 		return true;
 	}
@@ -123,13 +123,13 @@ bool CSearchPhraseListModel::removeRows(int row, int count, const QModelIndex &p
 	return true;
 }
 
-static bool ascendingLessThan(const QPair<CKJVSearchPhraseEdit*, int> &s1, const QPair<CKJVSearchPhraseEdit*, int> &s2)
+static bool ascendingLessThan(const QPair<CSearchPhraseEdit*, int> &s1, const QPair<CSearchPhraseEdit*, int> &s2)
 {
 //	return false;				// Decide how to compare phrase editors if at all
 	return (s1.second < s2.second);
 }
 
-static bool decendingLessThan(const QPair<CKJVSearchPhraseEdit*, int> &s1, const QPair<CKJVSearchPhraseEdit*, int> &s2)
+static bool decendingLessThan(const QPair<CSearchPhraseEdit*, int> &s1, const QPair<CSearchPhraseEdit*, int> &s2)
 {
 //	return false;				// Decide how to compare phrase editors if at all
 	return (s2.second < s1.second);
@@ -139,9 +139,9 @@ void CSearchPhraseListModel::sort(int /* column */, Qt::SortOrder order)
 {
 	emit layoutAboutToBeChanged();
 
-	QList<QPair<CKJVSearchPhraseEdit*, int> > list;
+	QList<QPair<CSearchPhraseEdit*, int> > list;
 	for (int i = 0; i < m_lstPhraseEditors.count(); ++i)
-		list.append(QPair<CKJVSearchPhraseEdit*, int>(m_lstPhraseEditors.at(i), i));
+		list.append(QPair<CSearchPhraseEdit*, int>(m_lstPhraseEditors.at(i), i));
 
 	if (order == Qt::AscendingOrder)
 		std::sort(list.begin(), list.end(), ascendingLessThan);
