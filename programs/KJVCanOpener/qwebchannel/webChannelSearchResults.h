@@ -27,7 +27,7 @@
 #include "dbstruct.h"
 #include "UserNotesDatabase.h"
 #include "VerseListModel.h"
-#include "PassageReferenceWidget.h"
+#include "PassageReferenceResolver.h"
 #include "DelayedExecutionTimer.h"
 
 #include <QPointer>

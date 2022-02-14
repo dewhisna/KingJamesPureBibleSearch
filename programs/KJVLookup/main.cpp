@@ -27,7 +27,7 @@
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
-#include "../KJVCanOpener/PassageReferenceWidget.h"
+#include "../KJVCanOpener/PassageReferenceResolver.h"
 
 #include <QCoreApplication>
 #include <QLibraryInfo>

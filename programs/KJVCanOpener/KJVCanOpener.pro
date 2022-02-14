@@ -347,6 +347,7 @@ SOURCES += \
 	ParseSymbols.cpp \
 	PassageNavigator.cpp \
 	PassageNavigatorDlg.cpp \
+	PassageReferenceResolver.cpp \
 	PassageReferenceWidget.cpp \
 	PersistentSettings.cpp \
 	PhraseEdit.cpp \
@@ -417,6 +418,7 @@ HEADERS += \
 	ParseSymbols.h \
 	PassageNavigator.h \
 	PassageNavigatorDlg.h \
+	PassageReferenceResolver.h \
 	PassageReferenceWidget.h \
 	PersistentSettings.h \
 	PhraseEdit.h \

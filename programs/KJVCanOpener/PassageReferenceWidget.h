@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef PASSAGEREFERENCEWIDGET_H
-#define PASSAGEREFERENCEWIDGET_H
+#ifndef PASSAGE_REFERENCE_WIDGET_H
+#define PASSAGE_REFERENCE_WIDGET_H
 
 #include "dbstruct.h"
 
@@ -30,39 +30,15 @@
 #include <QString>
 #include <QObject>
 
-#ifdef QT_WIDGETS_LIB
 #include <QWidget>
 #include <QPointer>
-#endif
 
 // ============================================================================
-
-class CPassageReferenceResolver : public QObject
-{
-	Q_OBJECT
-
-public:
-	CPassageReferenceResolver(CBibleDatabasePtr pBibleDatabase, QObject *pParent = nullptr);
-
-	TPhraseTag resolve(const QString &strPassageReference) const;
-
-private:
-	void buildSoundExTables();
-	uint32_t resolveBook(const QString &strPreBook, const QString &strBook) const;
-
-// Data Private:
-private:
-	CBibleDatabasePtr m_pBibleDatabase;
-	QList<QStringList> m_lstBookSoundEx;			// Index of [nBk-1], List of Book SoundEx Value lists.  Each sublist has the SoundEx for the book name as well as all abbreviations
-};
-
-// ============================================================================
-
-#ifdef QT_WIDGETS_LIB
 
 // Forward declarations:
 class QMenu;
 class QAction;
+class CPassageReferenceResolver;
 
 #include "ui_PassageReferenceWidget.h"
 
@@ -121,8 +97,6 @@ private:
 	Ui::CPassageReferenceWidget ui;
 };
 
-#endif	// QT_WIDGETS_LIB
-
 // ============================================================================
 
-#endif // PASSAGEREFERENCEWIDGET_H
+#endif // PASSAGE_REFERENCE_WIDGET_H
