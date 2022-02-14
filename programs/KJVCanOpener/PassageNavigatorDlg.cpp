@@ -21,13 +21,13 @@
 **
 ****************************************************************************/
 
-#include "KJVPassageNavigatorDlg.h"
+#include "PassageNavigatorDlg.h"
 
 #include <QGridLayout>
 
 #include <QTimer>
 
-CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
+CPassageNavigatorDlg::CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 												 QWidget *parent,
 												 CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes,
 												 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
@@ -72,18 +72,18 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 
 	Q_ASSERT(m_pNavigator != nullptr);
 
-	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ApplyRole);
+	m_pApplyButton = ui.buttonBox->addButton(tr("&Apply Resolved to From Location", "CPassageNavigatorDlg"), QDialogButtonBox::ApplyRole);
 	connect(m_pApplyButton, SIGNAL(clicked()), this, SLOT(en_ApplyResolvedClicked()));
 
-	m_pModeButton = ui.buttonBox->addButton(tr("&Switch Mode", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ActionRole);
+	m_pModeButton = ui.buttonBox->addButton(tr("&Switch Mode", "CPassageNavigatorDlg"), QDialogButtonBox::ActionRole);
 	connect(m_pModeButton, SIGNAL(clicked()), this, SLOT(en_ModeClicked()));
 
-	m_pResetButton = ui.buttonBox->addButton(tr("&Reset", "CKJVPassageNavigatorDlg"), QDialogButtonBox::ResetRole);
+	m_pResetButton = ui.buttonBox->addButton(tr("&Reset", "CPassageNavigatorDlg"), QDialogButtonBox::ResetRole);
 	connect(m_pResetButton, SIGNAL(clicked()), m_pNavigator, SLOT(reset()));
 
-	m_pOKButton = ui.buttonBox->addButton(tr("&Goto", "CKJVPassageNavigatorDlg"), QDialogButtonBox::AcceptRole);
+	m_pOKButton = ui.buttonBox->addButton(tr("&Goto", "CPassageNavigatorDlg"), QDialogButtonBox::AcceptRole);
 
-	m_pCancelButton = ui.buttonBox->addButton(tr("&Cancel", "CKJVPassageNavigatorDlg"), QDialogButtonBox::RejectRole);
+	m_pCancelButton = ui.buttonBox->addButton(tr("&Cancel", "CPassageNavigatorDlg"), QDialogButtonBox::RejectRole);
 
 	// Setup initial mode to match widget:
 	en_modeChanged(m_pNavigator->isRelative());
@@ -98,51 +98,51 @@ CKJVPassageNavigatorDlg::CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabas
 #endif
 }
 
-CKJVPassageNavigatorDlg::~CKJVPassageNavigatorDlg()
+CPassageNavigatorDlg::~CPassageNavigatorDlg()
 {
 
 }
 
-void CKJVPassageNavigatorDlg::setGotoButtonText(const QString &strText)
+void CPassageNavigatorDlg::setGotoButtonText(const QString &strText)
 {
 	m_pOKButton->setText(strText);
 }
 
-TPhraseTag CKJVPassageNavigatorDlg::passage() const
+TPhraseTag CPassageNavigatorDlg::passage() const
 {
 	return m_pNavigator->passage();
 }
 
-void CKJVPassageNavigatorDlg::setPassage(const TPhraseTag &tag)
+void CPassageNavigatorDlg::setPassage(const TPhraseTag &tag)
 {
 	m_pNavigator->setPassage(tag);
 }
 
-CKJVPassageNavigator &CKJVPassageNavigatorDlg::navigator()
+CKJVPassageNavigator &CPassageNavigatorDlg::navigator()
 {
 	return *(m_pNavigator);
 }
 
-CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM CKJVPassageNavigatorDlg::refType() const
+CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM CPassageNavigatorDlg::refType() const
 {
 	return m_pNavigator->refType();
 }
 
-void CKJVPassageNavigatorDlg::setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
+void CPassageNavigatorDlg::setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
 {
 	m_pNavigator->setRefType(nRefType);
 }
 
-void CKJVPassageNavigatorDlg::en_modeChanged(bool bRelative)
+void CPassageNavigatorDlg::en_modeChanged(bool bRelative)
 {
 	if (bRelative) {
-		setWindowTitle(tr("Passage Navigator - Relative Mode", "CKJVPassageNavigatorDlg"));
+		setWindowTitle(tr("Passage Navigator - Relative Mode", "CPassageNavigatorDlg"));
 		m_pApplyButton->show();
-		m_pModeButton->setText(tr("&Switch to Absolute Mode", "CKJVPassageNavigatorDlg"));
+		m_pModeButton->setText(tr("&Switch to Absolute Mode", "CPassageNavigatorDlg"));
 	} else {
-		setWindowTitle(tr("Passage Navigator - Absolute Mode", "CKJVPassageNavigatorDlg"));
+		setWindowTitle(tr("Passage Navigator - Absolute Mode", "CPassageNavigatorDlg"));
 		m_pApplyButton->hide();
-		m_pModeButton->setText(tr("&Switch to Relative Mode", "CKJVPassageNavigatorDlg"));
+		m_pModeButton->setText(tr("&Switch to Relative Mode", "CPassageNavigatorDlg"));
 	}
 	// It's sometimes confusing knowing which mode you are
 	//	in, so we'll resize back to our minimum size each
@@ -156,13 +156,13 @@ void CKJVPassageNavigatorDlg::en_modeChanged(bool bRelative)
 	QTimer::singleShot(0, this, SLOT(en_resizeMe()));
 }
 
-void CKJVPassageNavigatorDlg::en_ApplyResolvedClicked()
+void CPassageNavigatorDlg::en_ApplyResolvedClicked()
 {
 	// Reversing and swapping passage and startRef are symmetric:
 	m_pNavigator->startRelativeMode(m_pNavigator->passage(), m_pNavigator->isReversed());
 }
 
-void CKJVPassageNavigatorDlg::en_ModeClicked()
+void CPassageNavigatorDlg::en_ModeClicked()
 {
 	if (m_pNavigator->isAbsolute()) {
 		m_pNavigator->startRelativeMode(m_pNavigator->passage());
@@ -172,7 +172,7 @@ void CKJVPassageNavigatorDlg::en_ModeClicked()
 	}
 }
 
-void CKJVPassageNavigatorDlg::en_gotoIndex(const TPhraseTag &tag)
+void CPassageNavigatorDlg::en_gotoIndex(const TPhraseTag &tag)
 {
 	// Easiest way to simulate this is to apply the click-navigated passage as an
 	//		absolute reference and accept it.  Otherwise, if we just setPassage,
@@ -182,13 +182,13 @@ void CKJVPassageNavigatorDlg::en_gotoIndex(const TPhraseTag &tag)
 	accept();
 }
 
-void CKJVPassageNavigatorDlg::accept()
+void CPassageNavigatorDlg::accept()
 {
 	emit gotoIndex(passage());
 	QDialog::accept();
 }
 
-void CKJVPassageNavigatorDlg::en_resizeMe()
+void CPassageNavigatorDlg::en_resizeMe()
 {
 	adjustSize();
 }

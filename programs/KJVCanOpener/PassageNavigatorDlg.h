@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVPASSAGENAVIGATORDLG_H
-#define KJVPASSAGENAVIGATORDLG_H
+#ifndef PASSAGE_NAVIGATOR_DLG_H
+#define PASSAGE_NAVIGATOR_DLG_H
 
 #include "dbstruct.h"
 #include "KJVPassageNavigator.h"
@@ -34,18 +34,18 @@
 
 // ============================================================================
 
-#include "ui_KJVPassageNavigatorDlg.h"
+#include "ui_PassageNavigatorDlg.h"
 
-class CKJVPassageNavigatorDlg : public QDialog
+class CPassageNavigatorDlg : public QDialog
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
+	explicit CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 									 QWidget *parent,
 									 CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
 									 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD);
-	virtual ~CKJVPassageNavigatorDlg();
+	virtual ~CPassageNavigatorDlg();
 
 	void setGotoButtonText(const QString &strText);
 
@@ -77,7 +77,7 @@ private:
 	QPushButton *m_pOKButton;			// Goto passage button
 	QPushButton *m_pCancelButton;		// Abort
 	CKJVPassageNavigator *m_pNavigator;
-	Ui::CKJVPassageNavigatorDlg ui;
+	Ui::CPassageNavigatorDlg ui;
 };
 
 // ============================================================================
@@ -85,19 +85,19 @@ private:
 // SmartPointer classes needed, particularly for stack instantiated dialogs, since
 //		this dialog is only WindowModal and the parent can get deleted during an
 //		app close event, causing an attempted double-free which leads to a crash:
-class CKJVPassageNavigatorDlgPtr : public QPointer<CKJVPassageNavigatorDlg>
+class CPassageNavigatorDlgPtr : public QPointer<CPassageNavigatorDlg>
 {
 public:
-	CKJVPassageNavigatorDlgPtr(CBibleDatabasePtr pBibleDatabase,
+	CPassageNavigatorDlgPtr(CBibleDatabasePtr pBibleDatabase,
 								QWidget *parent = nullptr,
 								CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
 								CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD)
-		:	QPointer<CKJVPassageNavigatorDlg>(new CKJVPassageNavigatorDlg(pBibleDatabase, parent, flagsRefTypes, nRefType))
+		:	QPointer<CPassageNavigatorDlg>(new CPassageNavigatorDlg(pBibleDatabase, parent, flagsRefTypes, nRefType))
 	{
 
 	}
 
-	virtual ~CKJVPassageNavigatorDlgPtr()
+	virtual ~CPassageNavigatorDlgPtr()
 	{
 		if (!isNull()) delete data();
 	}
@@ -105,4 +105,4 @@ public:
 
 // ============================================================================
 
-#endif // KJVPASSAGENAVIGATORDLG_H
+#endif // PASSAGE_NAVIGATOR_DLG_H

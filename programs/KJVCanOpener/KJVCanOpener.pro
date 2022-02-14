@@ -342,7 +342,6 @@ SOURCES += \
 	Highlighter.cpp \
 	KJVCanOpener.cpp \
 	KJVPassageNavigator.cpp \
-	KJVPassageNavigatorDlg.cpp \
 	KJVSearchCriteria.cpp \
 	KJVSearchPhraseEdit.cpp \
 	KJVSearchResult.cpp \
@@ -351,6 +350,7 @@ SOURCES += \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
 	ParseSymbols.cpp \
+	PassageNavigatorDlg.cpp \
 	PassageReferenceWidget.cpp \
 	PersistentSettings.cpp \
 	PhraseEdit.cpp \
@@ -411,7 +411,6 @@ HEADERS += \
 	Highlighter.h \
 	KJVCanOpener.h \
 	KJVPassageNavigator.h \
-	KJVPassageNavigatorDlg.h \
 	KJVSearchCriteria.h \
 	KJVSearchPhraseEdit.h \
 	KJVSearchResult.h \
@@ -420,6 +419,7 @@ HEADERS += \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
 	ParseSymbols.h \
+	PassageNavigatorDlg.h \
 	PassageReferenceWidget.h \
 	PersistentSettings.h \
 	PhraseEdit.h \
@@ -473,11 +473,11 @@ FORMS += \
 	BrowserWidget.ui \
 	KJVCanOpener.ui \
 	KJVPassageNavigator.ui \
-	KJVPassageNavigatorDlg.ui \
 	KJVSearchCriteria.ui \
 	KJVSearchPhraseEdit.ui \
 	KJVSearchSpec.ui \
 	NoteKeywordWidget.ui \
+	PassageNavigatorDlg.ui \
 	PassageReferenceWidget.ui
 
 if(!emscripten|wasm):!console:FORMS += \

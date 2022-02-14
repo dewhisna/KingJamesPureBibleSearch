@@ -27,7 +27,7 @@
 #include "myApplication.h"
 #include "PersistentSettings.h"
 
-#include "KJVPassageNavigatorDlg.h"
+#include "PassageNavigatorDlg.h"
 #include "ScriptureDocument.h"
 
 #include "EditWWWLinkDlg.h"
@@ -358,7 +358,7 @@ CRelIndex CKJVNoteEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 	if (ndxStart.verse() == 0) nType = CKJVPassageNavigator::NRTE_CHAPTER;
 	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
 
-	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
+	CPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
 	pDlg->setGotoButtonText(tr("&OK", "MainMenu"));
 	TPhraseTag tagNav(ndxStart);
 	pDlg->navigator().startAbsoluteMode(tagNav);

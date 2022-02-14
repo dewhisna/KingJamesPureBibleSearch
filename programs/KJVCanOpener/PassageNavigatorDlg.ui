@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVPassageNavigatorDlg</class>
- <widget class="QDialog" name="CKJVPassageNavigatorDlg">
+ <class>CPassageNavigatorDlg</class>
+ <widget class="QDialog" name="CPassageNavigatorDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -56,7 +56,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CKJVPassageNavigatorDlg</receiver>
+   <receiver>CPassageNavigatorDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -72,7 +72,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CKJVPassageNavigatorDlg</receiver>
+   <receiver>CPassageNavigatorDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

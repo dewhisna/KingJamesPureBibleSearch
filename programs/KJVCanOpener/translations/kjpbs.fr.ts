@@ -2471,64 +2471,64 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     </message>
 </context>
 <context>
-    <name>CKJVPassageNavigatorDlg</name>
+    <name>CPassageNavigatorDlg</name>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.ui" line="36"/>
+        <location filename="../PassageNavigatorDlg.ui" line="36"/>
         <source>Passage Navigator</source>
         <translation>Navigateur Passage</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="76"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="76"/>
         <source>&amp;Apply Resolved to From Location</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>&amp;Appliquer Résolus à &quot;Partir de l&apos;emplacement&quot;</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="79"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="79"/>
         <source>&amp;Switch Mode</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>&amp;Changer de Mode</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="82"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="82"/>
         <source>&amp;Reset</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>&amp;Remettre</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="85"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="85"/>
         <source>&amp;Goto</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>&amp;Aller à</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="87"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="87"/>
         <source>&amp;Cancel</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>A&amp;nnuler</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="140"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="140"/>
         <source>Passage Navigator - Relative Mode</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>Navigateur Passage - Mode Relatif</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="142"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="142"/>
         <source>&amp;Switch to Absolute Mode</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>Pa&amp;sser en Mode Absolu</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="144"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="144"/>
         <source>Passage Navigator - Absolute Mode</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>Navigateur Passage - Mode Absolu</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigatorDlg.cpp" line="146"/>
+        <location filename="../PassageNavigatorDlg.cpp" line="146"/>
         <source>&amp;Switch to Relative Mode</source>
-        <comment>CKJVPassageNavigatorDlg</comment>
+        <comment>CPassageNavigatorDlg</comment>
         <translation>Pa&amp;sser en Mode Relatif</translation>
     </message>
 </context>

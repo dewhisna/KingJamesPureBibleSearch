@@ -26,7 +26,7 @@
 #include "ReportError.h"
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
-#include "KJVPassageNavigatorDlg.h"
+#include "PassageNavigatorDlg.h"
 #include "Highlighter.h"
 #include "KJVCanOpener.h"
 #include "ReflowDelegate.h"
@@ -757,7 +757,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 #ifndef USE_ASYNC_DIALOGS
 //	const CVerseListItem &item(lstSelectedItems.at(0).data(CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
-	CKJVPassageNavigatorDlgPtr pDlg(vlmodel()->bibleDatabase(), this);
+	CPassageNavigatorDlgPtr pDlg(vlmodel()->bibleDatabase(), this);
 
 //	pDlg->navigator().startAbsoluteMode(TPhraseTag(item.getIndex(), 0));
 
@@ -766,7 +766,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 		if (pDlg != nullptr) emit gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
 #else
-	CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(vlmodel()->bibleDatabase(), this);
+	CPassageNavigatorDlg *pDlg = new CPassageNavigatorDlg(vlmodel()->bibleDatabase(), this);
 	connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 	pDlg->navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
 	pDlg->show();

@@ -25,7 +25,7 @@
 
 #include "ReportError.h"
 #include "dbstruct.h"
-#include "KJVPassageNavigatorDlg.h"
+#include "PassageNavigatorDlg.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
@@ -739,14 +739,14 @@ void CScriptureText<T,U>::showPassageNavigator()
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(tagHighlight));
 #ifndef USE_ASYNC_DIALOGS
 	CKJVCanOpener::CKJVCanOpenerCloseGuard closeGuard(parentCanOpener());
-	CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
+	CPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, T::parentWidget());
 //	pDlg->navigator().startRelativeMode(tagSel, false, TPhraseTag(m_pBibleDatabase, CRelIndex(), 1));
 	pDlg->navigator().startAbsoluteMode(tagSel);
 	if (pDlg->exec() == QDialog::Accepted) {
 		if (pDlg != nullptr) emit T::gotoIndex(pDlg->passage());		// Could get deleted during execution
 	}
 #else
-	CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(m_pBibleDatabase, T::parentWidget());
+	CPassageNavigatorDlg *pDlg = new CPassageNavigatorDlg(m_pBibleDatabase, T::parentWidget());
 	T::connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 	pDlg->navigator().startAbsoluteMode(tagSel);
 	pDlg->show();

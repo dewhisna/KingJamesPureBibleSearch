@@ -27,7 +27,7 @@
 #include "myApplication.h"
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
-#include "KJVPassageNavigatorDlg.h"
+#include "PassageNavigatorDlg.h"
 #include "version.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
@@ -2608,7 +2608,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 	} else {
 #ifndef USE_ASYNC_DIALOGS
 		CKJVCanOpenerCloseGuard closeGuard(this);
-		CKJVPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
+		CPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this);
 
 		if (pDlg->exec() == QDialog::Accepted) {
 			if (pDlg != nullptr) {			// Could get deleted during execution
@@ -2617,7 +2617,7 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 			}
 		}
 #else
-		CKJVPassageNavigatorDlg *pDlg = new CKJVPassageNavigatorDlg(m_pBibleDatabase, this);
+		CPassageNavigatorDlg *pDlg = new CPassageNavigatorDlg(m_pBibleDatabase, this);
 		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
 		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(setFocusBrowser()));
 		pDlg->show();
