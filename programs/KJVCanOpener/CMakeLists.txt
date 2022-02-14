@@ -612,7 +612,7 @@ endif()
 
 if(OPTION_BUILD_BIBLE_DATABASE)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		BUILD_KJV_DATABASE
+		BUILD_BIBLE_DATABASE
 	)
 endif()
 

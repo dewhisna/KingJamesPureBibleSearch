@@ -88,7 +88,7 @@
 #include "ScriptureWebEngine.h"
 #endif
 
-#ifdef BUILD_KJV_DATABASE
+#ifdef BUILD_BIBLE_DATABASE
 #include "BuildDB.h"
 #endif
 #include "ReadDB.h"
@@ -1462,7 +1462,7 @@ int CMyApplication::execute(bool bBuildDB)
 
 	// Read (and/or Build) our Databases:
 	{
-#ifdef BUILD_KJV_DATABASE
+#ifdef BUILD_BIBLE_DATABASE
 		CBuildDatabase bdb(m_pSplash);
 		if (bBuildDB) {
 			// Database Paths for building:

@@ -85,7 +85,7 @@ exceptions_off:DEFINES += NOT_USING_EXCEPTIONS
 
 !console:!android:!ios:!emscripten:!vnc {
 	CONFIG += buildKJVDatabase
-	DEFINES += BUILD_KJV_DATABASE
+	DEFINES += BUILD_BIBLE_DATABASE
 }
 
 if(android | ios):DEFINES += IS_MOBILE_APP
