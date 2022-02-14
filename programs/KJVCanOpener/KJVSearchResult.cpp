@@ -32,10 +32,6 @@
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-#include "NoteEditDlg.h"
-#include "CrossRefEditDlg.h"
-#endif
 #include "BusyCursor.h"
 #include "PhraseEdit.h"
 #include "ParseSymbols.h"

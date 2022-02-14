@@ -29,10 +29,6 @@
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
-#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-#include "NoteEditDlg.h"
-#include "CrossRefEditDlg.h"
-#endif
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"
 #include "myApplication.h"
