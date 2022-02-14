@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVSEARCHRESULT_H
-#define KJVSEARCHRESULT_H
+#ifndef SEARCH_RESULTS_H
+#define SEARCH_RESULTS_H
 
 #include "dbstruct.h"
 #include "UserNotesDatabase.h"
@@ -239,13 +239,13 @@ private:
 
 // ============================================================================
 
-class CKJVSearchResult : public QWidget
+class CSearchResults : public QWidget
 {
 	Q_OBJECT
 
 public:
-	CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
-	~CKJVSearchResult();
+	CSearchResults(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
+	~CSearchResults();
 
 	inline CVerseListModel::VERSE_VIEW_MODE_ENUM viewMode() const { return m_pSearchResultsTreeView->viewMode(); }
 	inline CVerseListModel::VERSE_DISPLAY_MODE_ENUM displayMode() const { return m_pSearchResultsTreeView->displayMode(); }
@@ -331,4 +331,4 @@ private:
 	CSearchResultsTreeView *m_pSearchResultsTreeView;
 };
 
-#endif // KJVSEARCHRESULT_H
+#endif // SEARCH_RESULTS_H

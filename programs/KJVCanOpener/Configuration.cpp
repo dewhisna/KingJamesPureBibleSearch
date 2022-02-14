@@ -25,7 +25,7 @@
 
 #include "ReportError.h"
 #include "ScriptureEdit.h"
-#include "KJVSearchResult.h"
+#include "SearchResults.h"
 #include "KJVSearchCriteria.h"
 #include "DictionaryWidget.h"
 #include "PersistentSettings.h"

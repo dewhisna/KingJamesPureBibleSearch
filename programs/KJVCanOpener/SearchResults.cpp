@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVSearchResult.h"
+#include "SearchResults.h"
 
 #include "ReportError.h"
 #include "VerseListModel.h"
@@ -1381,7 +1381,7 @@ QPixmap CSearchResultsTreeView::renderToPixmap(const QModelIndexList &lstIndexes
 
 // ============================================================================
 
-CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
+CSearchResults::CSearchResults(CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
 	QWidget(parent),
 	m_pBibleDatabase(pBibleDatabase),
 	// ----
@@ -1506,52 +1506,52 @@ CKJVSearchResult::CKJVSearchResult(CBibleDatabasePtr pBibleDatabase, QWidget *pa
 	setSearchResultsType();
 }
 
-CKJVSearchResult::~CKJVSearchResult()
+CSearchResults::~CSearchResults()
 {
 
 }
 
-QModelIndex CKJVSearchResult::currentIndex() const
+QModelIndex CSearchResults::currentIndex() const
 {
 	return m_pSearchResultsTreeView->currentIndex();
 }
 
-TVerseIndex CKJVSearchResult::currentVerseIndex() const
+TVerseIndex CSearchResults::currentVerseIndex() const
 {
 	return m_pSearchResultsTreeView->currentVerseIndex();
 }
 
-bool CKJVSearchResult::setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView)
+bool CSearchResults::setCurrentIndex(const TVerseIndex &ndx, bool bFocusTreeView)
 {
 	return m_pSearchResultsTreeView->setCurrentIndex(ndx, bFocusTreeView);
 }
 
-void CKJVSearchResult::setFocusSearchResult()
+void CSearchResults::setFocusSearchResult()
 {
 	m_pSearchResultsTreeView->setFocus();
 }
 
-bool CKJVSearchResult::hasFocusSearchResult() const
+bool CSearchResults::hasFocusSearchResult() const
 {
 	return m_pSearchResultsTreeView->hasFocus();
 }
 
-void CKJVSearchResult::showPassageNavigator()
+void CSearchResults::showPassageNavigator()
 {
 	m_pSearchResultsTreeView->showPassageNavigator();
 }
 
-void CKJVSearchResult::showDetails()
+void CSearchResults::showDetails()
 {
 	m_pSearchResultsTreeView->showDetails();
 }
 
-bool CKJVSearchResult::editableNodeSelected() const
+bool CSearchResults::editableNodeSelected() const
 {
 	return m_pSearchResultsTreeView->editableNodeSelected();
 }
 
-void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
+void CSearchResults::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMode)
 {
 	m_pSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS);
 	m_pExcludedSearchResultsCount->setVisible(nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED);
@@ -1564,7 +1564,7 @@ void CKJVSearchResult::setViewMode(CVerseListModel::VERSE_VIEW_MODE_ENUM nViewMo
 	setSearchResultsType();
 }
 
-void CKJVSearchResult::setSearchResultsType()
+void CSearchResults::setSearchResultsType()
 {
 	QString strResultsType;
 
@@ -1592,22 +1592,22 @@ void CKJVSearchResult::setSearchResultsType()
 	m_pSearchResultsType->setText(QString("<h2><b>%1</b></h2>").arg(strResultsType));
 }
 
-void CKJVSearchResult::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
+void CSearchResults::setDisplayMode(CVerseListModel::VERSE_DISPLAY_MODE_ENUM nDisplayMode)
 {
 	m_pSearchResultsTreeView->setDisplayMode(nDisplayMode);
 }
 
-void CKJVSearchResult::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
+void CSearchResults::setTreeMode(CVerseListModel::VERSE_TREE_MODE_ENUM nTreeMode)
 {
 	m_pSearchResultsTreeView->setTreeMode(nTreeMode);
 }
 
-void CKJVSearchResult::setShowMissingLeafs(bool bShowMissing)
+void CSearchResults::setShowMissingLeafs(bool bShowMissing)
 {
 	m_pSearchResultsTreeView->setShowMissingLeafs(bShowMissing);
 }
 
-void CKJVSearchResult::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
+void CSearchResults::setShowHighlightersInSearchResults(bool bShowHighlightersInSearchResults)
 {
 	m_pSearchResultsTreeView->setShowHighlightersInSearchResults(bShowHighlightersInSearchResults);
 	if (m_pShowHighlightersInSearchResults != nullptr) {
@@ -1615,36 +1615,36 @@ void CKJVSearchResult::setShowHighlightersInSearchResults(bool bShowHighlighters
 	}
 }
 
-void CKJVSearchResult::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
+void CSearchResults::setSingleCrossRefSourceIndex(const CRelIndex &ndx)
 {
 	m_pSearchResultsTreeView->setSingleCrossRefSourceIndex(ndx);
 }
 
-void CKJVSearchResult::setParsedPhrases(const CSearchResultsData &searchResultsData)
+void CSearchResults::setParsedPhrases(const CSearchResultsData &searchResultsData)
 {
 	m_pSearchResultsTreeView->setParsedPhrases(searchResultsData);
 }
 
-void CKJVSearchResult::en_searchResultsReady()
+void CSearchResults::en_searchResultsReady()
 {
 	m_SearchResultsSummary.setFromVerseListModel(*vlmodel());
 	setSearchResultsSummaryText();
 }
 
-void CKJVSearchResult::setSearchResultsSummaryText()
+void CSearchResults::setSearchResultsSummaryText()
 {
 	m_pSearchResultsCount->setText(m_SearchResultsSummary.summaryDisplayText(m_pBibleDatabase, false));
 	m_pExcludedSearchResultsCount->setText(m_SearchResultsSummary.summaryDisplayText(m_pBibleDatabase, true));
 }
 
-QString CKJVSearchResult::searchResultsSummaryText() const
+QString CSearchResults::searchResultsSummaryText() const
 {
 	return m_SearchResultsSummary.summaryCopyText(m_pBibleDatabase);
 }
 
 // ----------------------------------------------------------------------------
 
-void CKJVSearchResult::keywordListChanged(bool bInitialLoad)
+void CSearchResults::keywordListChanged(bool bInitialLoad)
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
@@ -1666,7 +1666,7 @@ void CKJVSearchResult::keywordListChanged(bool bInitialLoad)
 	en_modelKeywordListChanged();
 }
 
-void CKJVSearchResult::en_modelKeywordListChanged()
+void CSearchResults::en_modelKeywordListChanged()
 {
 	if (m_bDoingUpdate) return;
 	m_bDoingUpdate = true;

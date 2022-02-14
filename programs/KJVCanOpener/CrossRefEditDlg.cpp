@@ -27,7 +27,7 @@
 #include "myApplication.h"
 #include "PersistentSettings.h"
 
-#include "KJVSearchResult.h"
+#include "SearchResults.h"
 #include "ScriptureEdit.h"
 #include "PhraseEdit.h"
 #include "PassageNavigatorDlg.h"

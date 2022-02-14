@@ -430,7 +430,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSearchSpecWidget->setObjectName(QString::fromUtf8("SearchSpecWidget"));
 	m_pSplitter->addWidget(m_pSearchSpecWidget);
 
-	m_pSearchResultWidget = new CKJVSearchResult(m_pBibleDatabase, m_pSplitter);
+	m_pSearchResultWidget = new CSearchResults(m_pBibleDatabase, m_pSplitter);
 	m_pSearchResultWidget->setObjectName(QString::fromUtf8("SearchResultsWidget"));
 	m_pSplitter->addWidget(m_pSearchResultWidget);
 

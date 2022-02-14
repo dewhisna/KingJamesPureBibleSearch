@@ -343,7 +343,6 @@ SOURCES += \
 	KJVCanOpener.cpp \
 	KJVSearchCriteria.cpp \
 	KJVSearchPhraseEdit.cpp \
-	KJVSearchResult.cpp \
 	MimeHelper.cpp \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
@@ -362,6 +361,7 @@ SOURCES += \
 	SearchCompleter.cpp \
 	SearchCompleterListModel.cpp \
 	SearchPhraseListModel.cpp \
+	SearchResults.cpp \
 	SearchSpecWidget.cpp \
 	SoundEx.cpp \
 	SubControls.cpp \
@@ -412,7 +412,6 @@ HEADERS += \
 	KJVCanOpener.h \
 	KJVSearchCriteria.h \
 	KJVSearchPhraseEdit.h \
-	KJVSearchResult.h \
 	MimeHelper.h \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
@@ -433,6 +432,7 @@ HEADERS += \
 	SearchCompleter.h \
 	SearchCompleterListModel.h \
 	SearchPhraseListModel.h \
+	SearchResults.h \
 	SearchSpecWidget.h \
 	SoundEx.h \
 	SubControls.h \

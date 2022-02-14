@@ -29,7 +29,7 @@
 #include "KJVSearchPhraseEdit.h"
 #include "VerseListModel.h"
 #include "SearchSpecWidget.h"
-#include "KJVSearchResult.h"
+#include "SearchResults.h"
 #include "BrowserWidget.h"
 
 #include <QMainWindow>
@@ -286,7 +286,7 @@ private:
 	CSearchSpecWidget *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
 	QSplitter *m_pSplitterDictionary;
-	CKJVSearchResult *m_pSearchResultWidget;
+	CSearchResults *m_pSearchResultWidget;
 	CBrowserWidget *m_pBrowserWidget;
 	CDictionaryWidget *m_pDictionaryWidget;
 	CNoteEditDlg *m_pUserNoteEditorDlg;

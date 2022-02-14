@@ -2713,58 +2713,58 @@ Do you wish to set them as valid keywords for this note?</source>
     </message>
 </context>
 <context>
-    <name>CKJVSearchResult</name>
+    <name>CSearchResults</name>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1372"/>
+        <location filename="../SearchResults.cpp" line="1372"/>
         <source>Found 0 Occurrences</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1373"/>
-        <location filename="../KJVSearchResult.cpp" line="1380"/>
+        <location filename="../SearchResults.cpp" line="1373"/>
+        <location filename="../SearchResults.cpp" line="1380"/>
         <source>in 0 Verses in 0 Chapters in 0 Books</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1379"/>
+        <location filename="../SearchResults.cpp" line="1379"/>
         <source>Excluded 0 Occurrences</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1388"/>
+        <location filename="../SearchResults.cpp" line="1388"/>
         <source>Show &amp;Highlighting in Search Results</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1529"/>
+        <location filename="../SearchResults.cpp" line="1529"/>
         <source>Search Results</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1532"/>
+        <location filename="../SearchResults.cpp" line="1532"/>
         <source>Excluded Search Results</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1535"/>
+        <location filename="../SearchResults.cpp" line="1535"/>
         <source>Highlighters</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1538"/>
+        <location filename="../SearchResults.cpp" line="1538"/>
         <source>Notes</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="1541"/>
+        <location filename="../SearchResults.cpp" line="1541"/>
         <source>Cross References</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
@@ -4042,140 +4042,140 @@ Check Installation!</source>
 <context>
     <name>CSearchResultsTreeView</name>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="265"/>
-        <location filename="../KJVSearchResult.cpp" line="266"/>
+        <location filename="../SearchResults.cpp" line="265"/>
+        <location filename="../SearchResults.cpp" line="266"/>
         <source>&amp;Edit</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="267"/>
+        <location filename="../SearchResults.cpp" line="267"/>
         <source>Search Results Edit Operations</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="269"/>
+        <location filename="../SearchResults.cpp" line="269"/>
         <source>Copy &amp;Entries</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="270"/>
+        <location filename="../SearchResults.cpp" line="270"/>
         <source>Copy Entries for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="273"/>
+        <location filename="../SearchResults.cpp" line="273"/>
         <source>Copy &amp;Verse Text</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="274"/>
+        <location filename="../SearchResults.cpp" line="274"/>
         <source>Copy Verse Text for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="277"/>
+        <location filename="../SearchResults.cpp" line="277"/>
         <source>Copy Raw Verse &amp;Text (No headings)</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="278"/>
+        <location filename="../SearchResults.cpp" line="278"/>
         <source>Copy selected Search Results as raw phrase words to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="281"/>
+        <location filename="../SearchResults.cpp" line="281"/>
         <source>Copy Very Ra&amp;w Verse Text (No punctuation)</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="282"/>
+        <location filename="../SearchResults.cpp" line="282"/>
         <source>Copy selected Search Results as very raw (no punctuation) phrase words to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="288"/>
+        <location filename="../SearchResults.cpp" line="288"/>
         <source>Copy &amp;References</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="289"/>
+        <location filename="../SearchResults.cpp" line="289"/>
         <source>Copy Verse References for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="292"/>
+        <location filename="../SearchResults.cpp" line="292"/>
         <source>Copy Reference Detai&amp;ls (Word/Phrase Counts)</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="293"/>
+        <location filename="../SearchResults.cpp" line="293"/>
         <source>Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="296"/>
+        <location filename="../SearchResults.cpp" line="296"/>
         <source>Copy &amp;Complete Verse Text and Reference Details</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="297"/>
+        <location filename="../SearchResults.cpp" line="297"/>
         <source>Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="303"/>
+        <location filename="../SearchResults.cpp" line="303"/>
         <source>Select &amp;All</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="304"/>
+        <location filename="../SearchResults.cpp" line="304"/>
         <source>Select all Search Results</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="307"/>
+        <location filename="../SearchResults.cpp" line="307"/>
         <source>C&amp;lear Selection</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="308"/>
+        <location filename="../SearchResults.cpp" line="308"/>
         <source>Clear Search Results Selection</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="319"/>
+        <location filename="../SearchResults.cpp" line="319"/>
         <source>Passage &amp;Navigator...</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="584"/>
+        <location filename="../SearchResults.cpp" line="584"/>
         <source>Text Copied to Clipboard</source>
         <comment>MainMenu</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchResult.cpp" line="621"/>
+        <location filename="../SearchResults.cpp" line="621"/>
         <source>All of the verses you have selected are already highlighted with that highlighter!
 
 Do you wish to unhighlight all of them instead??</source>
@@ -4183,7 +4183,7 @@ Do you wish to unhighlight all of them instead??</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1100"/>
+        <location filename="../SearchResults.cpp" line="1100"/>
         <source>%n Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -4191,7 +4191,7 @@ Do you wish to unhighlight all of them instead??</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1103"/>
+        <location filename="../SearchResults.cpp" line="1103"/>
         <source>%n Excluded Search Result(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -4199,7 +4199,7 @@ Do you wish to unhighlight all of them instead??</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1106"/>
+        <location filename="../SearchResults.cpp" line="1106"/>
         <source>%n Highlighted Verse(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -4207,7 +4207,7 @@ Do you wish to unhighlight all of them instead??</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1109"/>
+        <location filename="../SearchResults.cpp" line="1109"/>
         <source>%n Note(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -4215,7 +4215,7 @@ Do you wish to unhighlight all of them instead??</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchResult.cpp" line="1112"/>
+        <location filename="../SearchResults.cpp" line="1112"/>
         <source>%n Cross-Reference(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
