@@ -22,10 +22,10 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVSearchSpec</class>
- <widget class="QWidget" name="CKJVSearchSpec">
+ <class>CSearchSpecWidget</class>
+ <widget class="QWidget" name="CSearchSpecWidget">
   <property name="windowTitle">
-   <string>KJVSearchSpecForm</string>
+   <string>SearchSpecWidget</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">

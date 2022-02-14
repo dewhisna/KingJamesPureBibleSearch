@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVSEARCHSPEC_H
-#define KJVSEARCHSPEC_H
+#ifndef SEARCH_SPEC_WIDGET_H
+#define SEARCH_SPEC_WIDGET_H
 
 #include "dbstruct.h"
 #include "KJVSearchCriteria.h"
@@ -55,15 +55,15 @@ public:
 
 // ============================================================================
 
-#include "ui_KJVSearchSpec.h"
+#include "ui_SearchSpecWidget.h"
 
-class CKJVSearchSpec : public QWidget
+class CSearchSpecWidget : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
-	virtual ~CKJVSearchSpec();
+	explicit CSearchSpecWidget(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase = true, QWidget *parent = nullptr);
+	virtual ~CSearchSpecWidget();
 
 	QString searchPhraseSummaryText() const;
 	QString searchWindowDescription() const;		// Return descriptive description for this window for the application search window list
@@ -143,7 +143,7 @@ private:
 	bool m_bReadingSearchFile;						// Set to True while we are reading a search file to keep updates to a minimum
 	DelayedExecutionTimer m_dlySearchResultsUpdate;	// Staged delay for Search Results Update after Phrase Change notification
 
-	Ui::CKJVSearchSpec ui;
+	Ui::CSearchSpecWidget ui;
 };
 
-#endif // KJVSEARCHSPEC_H
+#endif // SEARCH_SPEC_WIDGET_H

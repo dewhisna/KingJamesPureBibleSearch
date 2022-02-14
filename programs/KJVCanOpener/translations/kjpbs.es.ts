@@ -2997,38 +2997,38 @@ Do you wish to set them as valid keywords for this note?</source>
     </message>
 </context>
 <context>
-    <name>CKJVSearchSpec</name>
+    <name>CSearchSpecWidget</name>
     <message>
-        <location filename="../KJVSearchSpec.ui" line="28"/>
-        <source>KJVSearchSpecForm</source>
-        <translation>KJVSearchSpecForm</translation>
+        <location filename="../SearchSpecWidget.ui" line="28"/>
+        <source>SearchSpecWidget</source>
+        <translation>SearchSpecWidget</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="74"/>
+        <location filename="../SearchSpecWidget.cpp" line="74"/>
         <source>Add Phrase to Search Criteria</source>
         <comment>MainMenu</comment>
         <translation>Añadir una Frase para la Búsqueda</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="78"/>
+        <location filename="../SearchSpecWidget.cpp" line="78"/>
         <source>Add another Phrase to the current Search Criteria</source>
         <comment>MainMenu</comment>
         <translation>Añadir una Frase para los Criterios de Búsqueda</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="91"/>
+        <location filename="../SearchSpecWidget.cpp" line="91"/>
         <source>&amp;Copy Search Phrase Summary to Clipboard</source>
         <comment>MainMenu</comment>
         <translation>&amp;Copiar Resumen de las Frases en el portapapeles</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="149"/>
+        <location filename="../SearchSpecWidget.cpp" line="149"/>
         <source>&lt;Empty Search Window&gt;</source>
         <comment>MainMenu</comment>
         <translation>&lt;Ventana de Búsqueda Vacío&gt;</translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="487"/>
+        <location filename="../SearchSpecWidget.cpp" line="487"/>
         <source>Search of %n Phrase(s) %1 within %2</source>
         <comment>Statistics</comment>
         <translation>
@@ -3037,13 +3037,13 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="489"/>
+        <location filename="../SearchSpecWidget.cpp" line="489"/>
         <source>Search within %1 of:</source>
         <comment>Statistics</comment>
         <translation>Búsqueda dentro de %1 de:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="493"/>
+        <location filename="../SearchSpecWidget.cpp" line="493"/>
         <source>Search of %n Phrase(s) %1</source>
         <comment>Statistics</comment>
         <translation>
@@ -3052,13 +3052,13 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="495"/>
+        <location filename="../SearchSpecWidget.cpp" line="495"/>
         <source>Search of:</source>
         <comment>Statistics</comment>
         <translation>Búsqueda de:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="506"/>
+        <location filename="../SearchSpecWidget.cpp" line="506"/>
         <source>(Found %n Time(s), %1 in Scope)</source>
         <comment>Statistics</comment>
         <translation>
@@ -3067,7 +3067,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="510"/>
+        <location filename="../SearchSpecWidget.cpp" line="510"/>
         <source>(Found %n Time(s))</source>
         <comment>Statistics</comment>
         <translation>
@@ -3076,7 +3076,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="515"/>
+        <location filename="../SearchSpecWidget.cpp" line="515"/>
         <source>(Found %n Time(s), %1 in Scope and not removed by exclusions)</source>
         <comment>Statistics</comment>
         <translation>
@@ -3085,7 +3085,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="521"/>
+        <location filename="../SearchSpecWidget.cpp" line="521"/>
         <source>Found %n Time(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -3094,7 +3094,7 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../KJVSearchSpec.cpp" line="523"/>
+        <location filename="../SearchSpecWidget.cpp" line="523"/>
         <source>Removed %n matching exclusion(s) from Scope</source>
         <comment>Statistics</comment>
         <translation>
@@ -3103,19 +3103,19 @@ Do you wish to set them as valid keywords for this note?</source>
         </translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="533"/>
+        <location filename="../SearchSpecWidget.cpp" line="533"/>
         <source>(%1 = Case Sensitive)</source>
         <comment>Statistics</comment>
         <translation>(%1 = Sensibilidad a la Caso)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="536"/>
+        <location filename="../SearchSpecWidget.cpp" line="536"/>
         <source>(%1 = Accent Sensitive)</source>
         <comment>Statistics</comment>
         <translation>(%1 = Sensibilidad Acento)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchSpec.cpp" line="539"/>
+        <location filename="../SearchSpecWidget.cpp" line="539"/>
         <source>(%1 = Excluding Results From)</source>
         <comment>Statistics</comment>
         <translation>(%1 = Excluyendo los Resultados de)</translation>

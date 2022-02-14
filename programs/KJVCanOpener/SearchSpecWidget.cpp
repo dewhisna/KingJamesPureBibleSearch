@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVSearchSpec.h"
+#include "SearchSpecWidget.h"
 
 #include "PhraseEdit.h"
 #include "PhraseListModel.h"
@@ -48,7 +48,7 @@ QSize CSearchPhraseScrollArea::sizeHint() const
 
 // ============================================================================
 
-CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase, QWidget *parent)
+CSearchSpecWidget::CSearchSpecWidget(CBibleDatabasePtr pBibleDatabase, bool bHaveUserDatabase, QWidget *parent)
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_bHaveUserDatabase(bHaveUserDatabase),
@@ -124,7 +124,7 @@ CKJVSearchSpec::CKJVSearchSpec(CBibleDatabasePtr pBibleDatabase, bool bHaveUserD
 	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)), Qt::QueuedConnection);
 }
 
-CKJVSearchSpec::~CKJVSearchSpec()
+CSearchSpecWidget::~CSearchSpecWidget()
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		delete m_lstSearchPhraseEditors[ndx];
@@ -136,7 +136,7 @@ CKJVSearchSpec::~CKJVSearchSpec()
 
 // ------------------------------------------------------------------
 
-QString CKJVSearchSpec::searchWindowDescription() const
+QString CSearchSpecWidget::searchWindowDescription() const
 {
 	QString strDescription;
 
@@ -156,19 +156,19 @@ QString CKJVSearchSpec::searchWindowDescription() const
 
 // ------------------------------------------------------------------
 
-void CKJVSearchSpec::enableCopySearchPhraseSummary(bool bEnable)
+void CSearchSpecWidget::enableCopySearchPhraseSummary(bool bEnable)
 {
 	m_buttonCopySummary.setEnabled(bEnable);
 }
 
-void CKJVSearchSpec::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)
+void CSearchSpecWidget::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)
 {
 	ui.widgetSearchCriteria->setSearchScopeMode(mode);
 }
 
 // ------------------------------------------------------------------
 
-void CKJVSearchSpec::reset()
+void CSearchSpecWidget::reset()
 {
 	closeAllSearchPhrases();
 	for (int nCount = 0; nCount < CPersistentSettings::instance()->initialNumberOfSearchPhrases(); ++nCount)
@@ -177,14 +177,14 @@ void CKJVSearchSpec::reset()
 	ui.widgetSearchCriteria->setSearchWithin(QString());
 }
 
-void CKJVSearchSpec::clearAllSearchPhrases()
+void CSearchSpecWidget::clearAllSearchPhrases()
 {
 	for (int ndx = m_lstSearchPhraseEditors.size()-1; ndx >= 0; --ndx) {		// Clear in reverse order to minimize flicker due to sizeHint changes during the textChange notifications
 		m_lstSearchPhraseEditors.at(ndx)->clearSearchPhrase();
 	}
 }
 
-void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
+void CSearchSpecWidget::readKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup)
 {
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM nSearchScope = CSearchCriteria::SSME_UNSCOPED;
 	QString strSearchWithin;
@@ -237,7 +237,7 @@ void CKJVSearchSpec::readKJVSearchFile(QSettings &kjsFile, const QString &strSub
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 }
 
-void CKJVSearchSpec::writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup) const
+void CSearchSpecWidget::writeKJVSearchFile(QSettings &kjsFile, const QString &strSubgroup) const
 {
 	kjsFile.beginGroup(groupCombine(strSubgroup, "SearchCriteria"));
 	kjsFile.setValue("SearchScope", ui.widgetSearchCriteria->searchCriteria().searchScopeMode());
@@ -262,7 +262,7 @@ void CKJVSearchSpec::writeKJVSearchFile(QSettings &kjsFile, const QString &strSu
 
 // ------------------------------------------------------------------
 
-CKJVSearchPhraseEdit *CKJVSearchSpec::setFocusSearchPhrase(int nIndex)
+CKJVSearchPhraseEdit *CSearchSpecWidget::setFocusSearchPhrase(int nIndex)
 {
 	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size())) {
 		setFocusSearchPhrase(m_lstSearchPhraseEditors.at(nIndex));
@@ -271,7 +271,7 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::setFocusSearchPhrase(int nIndex)
 	return nullptr;
 }
 
-void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->processPendingTextChanges();
@@ -284,7 +284,7 @@ void CKJVSearchSpec::setFocusSearchPhrase(const CKJVSearchPhraseEdit *pSearchPhr
 
 // ------------------------------------------------------------------
 
-void CKJVSearchSpec::closeAllSearchPhrases()
+void CSearchSpecWidget::closeAllSearchPhrases()
 {
 	// Set flag so we don't emit extra en_phraseChanged() signals:
 	m_bCloseAllSearchPhrasesInProgress = true;
@@ -303,7 +303,7 @@ void CKJVSearchSpec::closeAllSearchPhrases()
 	en_phraseChanged(nullptr);							// Still need to emit one change
 }
 
-CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
+CKJVSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -343,14 +343,14 @@ CKJVSearchPhraseEdit *CKJVSearchSpec::addSearchPhrase()
 	return pPhraseWidget;
 }
 
-void CKJVSearchSpec::ensureSearchPhraseVisible(int nIndex)
+void CSearchSpecWidget::ensureSearchPhraseVisible(int nIndex)
 {
 	if ((nIndex >= 0) && (nIndex < m_lstSearchPhraseEditors.size())) {
 		ensureSearchPhraseVisible(m_lstSearchPhraseEditors.at(nIndex));
 	}
 }
 
-void CKJVSearchSpec::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	// Calculate height, since it varies depending on whether or not the widget is showing a separator:
 	int nHeight = 0;
@@ -366,7 +366,7 @@ void CKJVSearchSpec::ensureSearchPhraseVisible(const CKJVSearchPhraseEdit *pSear
 															nHeight - (pSearchPhrase->sizeHint().height()/2));
 }
 
-void CKJVSearchSpec::en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	Q_UNUSED(pSearchPhrase);
 
@@ -374,7 +374,7 @@ void CKJVSearchSpec::en_phraseResizing(CKJVSearchPhraseEdit *pSearchPhrase)
 	resizeScrollAreaLayout();
 }
 
-void CKJVSearchSpec::en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	resizeScrollAreaLayout();
 	ensureSearchPhraseVisible(pSearchPhrase);
@@ -384,7 +384,7 @@ void CKJVSearchSpec::en_changingShowMatchingPhrases(CKJVSearchPhraseEdit *pSearc
 //	setFocusSearchPhrase(pSearchPhrase);
 }
 
-void CKJVSearchSpec::resizeScrollAreaLayout()
+void CSearchSpecWidget::resizeScrollAreaLayout()
 {
 	m_bDoingResizing = true;
 
@@ -404,7 +404,7 @@ void CKJVSearchSpec::resizeScrollAreaLayout()
 	m_bDoingResizing = false;
 }
 
-void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	if (m_bCloseAllSearchPhrasesInProgress) return;
 
@@ -431,7 +431,7 @@ void CKJVSearchSpec::en_closingSearchPhrase(CKJVSearchPhraseEdit *pSearchPhrase)
 	setFocusSearchPhrase(ndxActivate);
 }
 
-void CKJVSearchSpec::en_changedSearchCriteria()
+void CSearchSpecWidget::en_changedSearchCriteria()
 {
 	en_phraseChanged(nullptr);
 }
@@ -444,7 +444,7 @@ typedef struct {
 } TPhraseOccurrenceInfo;
 Q_DECLARE_METATYPE(TPhraseOccurrenceInfo)
 
-QString CKJVSearchSpec::searchPhraseSummaryText() const
+QString CSearchSpecWidget::searchPhraseSummaryText() const
 {
 	int nNumPhrases = 0;
 	bool bCaseSensitive = false;
@@ -544,7 +544,7 @@ QString CKJVSearchSpec::searchPhraseSummaryText() const
 	return strSummary;
 }
 
-void CKJVSearchSpec::processAllPendingUpdateCompleter()
+void CSearchSpecWidget::processAllPendingUpdateCompleter()
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		CPhraseLineEdit *pPhraseEditor = m_lstSearchPhraseEditors.at(ndx)->phraseEditor();
@@ -556,7 +556,7 @@ void CKJVSearchSpec::processAllPendingUpdateCompleter()
 	}
 }
 
-void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
+void CSearchSpecWidget::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 {
 	m_dlySearchResultsUpdate.untrigger();
 
@@ -611,14 +611,14 @@ void CKJVSearchSpec::en_phraseChanged(CKJVSearchPhraseEdit *pSearchPhrase)
 	emit changedSearchSpec(aSearchResultsData);
 }
 
-void CKJVSearchSpec::en_searchResultsReady()
+void CSearchSpecWidget::en_searchResultsReady()
 {
 	for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
 		m_lstSearchPhraseEditors.at(ndx)->phraseStatisticsChanged();
 	}
 }
 
-void CKJVSearchSpec::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
+void CSearchSpecWidget::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 {
 	if (pEditor) {
 		m_pLastEditorActive = pEditor;
@@ -628,7 +628,7 @@ void CKJVSearchSpec::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	}
 }
 
-void CKJVSearchSpec::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+void CSearchSpecWidget::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
 {
 	Q_UNUSED(aSettings);
 	if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
@@ -638,13 +638,13 @@ void CKJVSearchSpec::en_changedBibleDatabaseSettings(const QString &strUUID, con
 	}
 }
 
-void CKJVSearchSpec::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
+void CSearchSpecWidget::en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists)
 {
 	Q_UNUSED(bHideMatchingPhrasesLists);
 	setFocusSearchPhrase(0);
 }
 
-bool CKJVSearchSpec::eventFilter(QObject *obj, QEvent *ev)
+bool CSearchSpecWidget::eventFilter(QObject *obj, QEvent *ev)
 {
 	if ((!m_bDoingResizing) && (obj == ui.scrollAreaSearchPhrases) && (ev->type() == QEvent::FocusIn)) {
 		if (m_pLastEditorActive) {

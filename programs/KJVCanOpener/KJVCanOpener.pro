@@ -344,7 +344,6 @@ SOURCES += \
 	KJVSearchCriteria.cpp \
 	KJVSearchPhraseEdit.cpp \
 	KJVSearchResult.cpp \
-	KJVSearchSpec.cpp \
 	MimeHelper.cpp \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
@@ -363,6 +362,7 @@ SOURCES += \
 	SearchCompleter.cpp \
 	SearchCompleterListModel.cpp \
 	SearchPhraseListModel.cpp \
+	SearchSpecWidget.cpp \
 	SoundEx.cpp \
 	SubControls.cpp \
 	ToolTipEdit.cpp \
@@ -413,7 +413,6 @@ HEADERS += \
 	KJVSearchCriteria.h \
 	KJVSearchPhraseEdit.h \
 	KJVSearchResult.h \
-	KJVSearchSpec.h \
 	MimeHelper.h \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
@@ -434,6 +433,7 @@ HEADERS += \
 	SearchCompleter.h \
 	SearchCompleterListModel.h \
 	SearchPhraseListModel.h \
+	SearchSpecWidget.h \
 	SoundEx.h \
 	SubControls.h \
 	ThreadedSearchResults.h \
@@ -474,11 +474,11 @@ FORMS += \
 	KJVCanOpener.ui \
 	KJVSearchCriteria.ui \
 	KJVSearchPhraseEdit.ui \
-	KJVSearchSpec.ui \
 	NoteKeywordWidget.ui \
 	PassageNavigator.ui \
 	PassageNavigatorDlg.ui \
-	PassageReferenceWidget.ui
+	PassageReferenceWidget.ui \
+	SearchSpecWidget.ui
 
 if(!emscripten|wasm):!console:FORMS += \
 	BibleDatabaseInfoDlg.ui \

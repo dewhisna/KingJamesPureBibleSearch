@@ -28,7 +28,7 @@
 
 #include "KJVSearchPhraseEdit.h"
 #include "VerseListModel.h"
-#include "KJVSearchSpec.h"
+#include "SearchSpecWidget.h"
 #include "KJVSearchResult.h"
 #include "BrowserWidget.h"
 
@@ -283,7 +283,7 @@ private:
 	bool m_bCanClose;				// Set to false when displaying a window-modal dialog to keep application from trying to close us
 	bool m_bIsClosing;				// True when window has issued an isClosing signal and set a deleteLater(), used as a guard for our event handler
 
-	CKJVSearchSpec *m_pSearchSpecWidget;
+	CSearchSpecWidget *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;
 	QSplitter *m_pSplitterDictionary;
 	CKJVSearchResult *m_pSearchResultWidget;
