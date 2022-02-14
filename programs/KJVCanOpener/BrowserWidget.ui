@@ -33,7 +33,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BrowserWidgetForm</string>
+   <string>BrowserWidget</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <property name="leftMargin">

@@ -993,7 +993,7 @@ Written and Developed for Bethel Church, Festus, MO.</source>
     <name>CBrowserWidget</name>
     <message>
         <location filename="../BrowserWidget.ui" line="28"/>
-        <source>BrowserWidgetForm</source>
+        <source>BrowserWidget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

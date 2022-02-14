@@ -1005,8 +1005,8 @@ Geschrieben und entwicklet für die Bethel Church, Festus, MO.</translation>
     <name>CBrowserWidget</name>
     <message>
         <location filename="../BrowserWidget.ui" line="28"/>
-        <source>BrowserWidgetForm</source>
-        <translation>BrowserWidgetForm</translation>
+        <source>BrowserWidget</source>
+        <translation>BrowserWidget</translation>
     </message>
     <message>
         <location filename="../BrowserWidget.ui" line="52"/>
