@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVSearchCriteriaWidget</class>
- <widget class="QWidget" name="CKJVSearchCriteriaWidget">
+ <class>CSearchCriteriaWidget</class>
+ <widget class="QWidget" name="CSearchCriteriaWidget">
   <property name="windowTitle">
    <string>SearchCriteriaForm</string>
   </property>

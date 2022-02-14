@@ -2533,72 +2533,72 @@ Do you wish to set them as valid keywords for this note?</source>
     </message>
 </context>
 <context>
-    <name>CKJVSearchCriteriaWidget</name>
+    <name>CSearchCriteriaWidget</name>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="28"/>
+        <location filename="../SearchCriteriaWidget.ui" line="28"/>
         <source>SearchCriteriaForm</source>
         <translation>SearchCriteriaForm</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="82"/>
+        <location filename="../SearchCriteriaWidget.ui" line="82"/>
         <source>Search W&amp;ithin:</source>
         <translation>Buscar-&amp;Dentro:</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.ui" line="54"/>
+        <location filename="../SearchCriteriaWidget.ui" line="54"/>
         <source>Search &amp;Scope:</source>
         <translation>Búsqueda-Ám&amp;bito:</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="612"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="612"/>
         <source>Anywhere in Selected Search Text (Unscoped)</source>
         <comment>ScopeMenu</comment>
         <translation>En cualquier parte del Texto Seleccionado (sin ámbito)</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="613"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="613"/>
         <source>Together in Selected Search Text</source>
         <comment>ScopeMenu</comment>
         <translation>Juntos en el Texto Seleccionado</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="614"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="614"/>
         <source>Same Testament</source>
         <comment>ScopeMenu</comment>
         <translation>Mismo Testamento</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="615"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="615"/>
         <source>Same Category</source>
         <comment>ScopeMenu</comment>
         <translation>Misma Categoría</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="616"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="616"/>
         <source>Same Book</source>
         <comment>ScopeMenu</comment>
         <translation>Mismo Libro</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="617"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="617"/>
         <source>Same Chapter</source>
         <comment>ScopeMenu</comment>
         <translation>Mismo Capítulo</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="618"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="618"/>
         <source>Same Verse</source>
         <comment>ScopeMenu</comment>
         <translation>Mismo Versículo</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="619"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="619"/>
         <source>Select Search Scope</source>
         <comment>MainMenu</comment>
         <translation>Seleccionar Búsqueda Ámbito</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="620"/>
+        <location filename="../SearchCriteriaWidget.cpp" line="620"/>
         <source>Set Search Scope Mode for phrase searches</source>
         <comment>MainMenu</comment>
         <translation>Establecer modo de Búsqueda Ámbito para las Frases Búsqueda</translation>
@@ -4330,28 +4330,28 @@ Do you wish to unhighlight all of them instead??</source>
 <context>
     <name>CSearchWithinModel</name>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="308"/>
-        <location filename="../KJVSearchCriteria.cpp" line="313"/>
+        <location filename="../SearchCriteria.cpp" line="308"/>
+        <location filename="../SearchCriteria.cpp" line="313"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>La Biblia Completa</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="323"/>
-        <location filename="../KJVSearchCriteria.cpp" line="328"/>
+        <location filename="../SearchCriteria.cpp" line="323"/>
+        <location filename="../SearchCriteria.cpp" line="328"/>
         <source>Colophons</source>
         <comment>Scope</comment>
         <translation>Colofones</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="338"/>
-        <location filename="../KJVSearchCriteria.cpp" line="343"/>
+        <location filename="../SearchCriteria.cpp" line="338"/>
+        <location filename="../SearchCriteria.cpp" line="343"/>
         <source>Superscriptions</source>
         <comment>Scope</comment>
         <translation>Sobrescritos</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="388"/>
+        <location filename="../SearchCriteria.cpp" line="388"/>
         <source>A Colophon is an inscription at the end of a book
 or manuscript usually with facts about its production.
 In the Bible, they are usually found at the end of
@@ -4363,7 +4363,7 @@ En la Biblia, que se encuentran generalmente al final de
 las epístolas del Nuevo Testamento.</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="393"/>
+        <location filename="../SearchCriteria.cpp" line="393"/>
         <source>A Superscription is text written above a chapter
 describing the content of the chapter.  In the Bible,
 they are usually found in the Book of Psalms.</source>
@@ -5250,43 +5250,43 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="95"/>
+        <location filename="../SearchCriteria.cpp" line="95"/>
         <source>anywhere</source>
         <comment>Scope</comment>
         <translation>en cualquier lugar</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="98"/>
+        <location filename="../SearchCriteria.cpp" line="98"/>
         <source>together</source>
         <comment>Scope</comment>
         <translation>juntos</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="101"/>
+        <location filename="../SearchCriteria.cpp" line="101"/>
         <source>in the same Testament</source>
         <comment>Scope</comment>
         <translation>en el mismo Testamento</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="104"/>
+        <location filename="../SearchCriteria.cpp" line="104"/>
         <source>in the same Category</source>
         <comment>Scope</comment>
         <translation>en la misma Categoría</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="107"/>
+        <location filename="../SearchCriteria.cpp" line="107"/>
         <source>in the same Book</source>
         <comment>Scope</comment>
         <translation>en el mismo Libro</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="110"/>
+        <location filename="../SearchCriteria.cpp" line="110"/>
         <source>in the same Chapter</source>
         <comment>Scope</comment>
         <translation>en el mismo Capítulo</translation>
     </message>
     <message>
-        <location filename="../KJVSearchCriteria.cpp" line="113"/>
+        <location filename="../SearchCriteria.cpp" line="113"/>
         <source>in the same Verse</source>
         <comment>Scope</comment>
         <translation>en el mismo Versículo</translation>

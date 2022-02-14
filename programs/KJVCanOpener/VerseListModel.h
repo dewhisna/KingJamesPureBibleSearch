@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
-#include "KJVSearchCriteria.h"
+#include "SearchCriteria.h"
 #include "VerseRichifier.h"
 #include "UserNotesDatabase.h"
 #include "PersistentSettings.h"

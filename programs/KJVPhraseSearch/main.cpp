@@ -28,7 +28,7 @@
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
-#include "../KJVCanOpener/KJVSearchCriteria.h"
+#include "../KJVCanOpener/SearchCriteria.h"
 
 #include <QCoreApplication>
 #include <QLibraryInfo>

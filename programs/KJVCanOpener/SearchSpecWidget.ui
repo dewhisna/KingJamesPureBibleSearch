@@ -35,7 +35,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="CKJVSearchCriteriaWidget" name="widgetSearchCriteria" native="true"/>
+    <widget class="CSearchCriteriaWidget" name="widgetSearchCriteria" native="true"/>
    </item>
    <item>
     <widget class="QScrollArea" name="scrollAreaSearchPhrases">
@@ -82,9 +82,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CKJVSearchCriteriaWidget</class>
+   <class>CSearchCriteriaWidget</class>
    <extends>QWidget</extends>
-   <header>KJVSearchCriteria.h</header>
+   <header>SearchCriteriaWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

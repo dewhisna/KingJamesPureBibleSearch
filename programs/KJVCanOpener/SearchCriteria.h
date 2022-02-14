@@ -35,15 +35,6 @@
 #include <QList>
 #include <QMap>
 
-#ifdef QT_WIDGETS_LIB
-#include <QWidget>
-#endif
-
-// ============================================================================
-
-// Forward Declarations:
-class CSearchWithinModel;
-
 // ============================================================================
 
 // Set these to the minimum and maximum Search Scope Modes (used for limits bounds checking)
@@ -174,64 +165,6 @@ private:
 	SEARCH_SCOPE_MODE_ENUM m_nSearchScopeMode;
 	TRelativeIndexSet m_setSearchWithin;
 };
-
-// ============================================================================
-
-#ifdef QT_WIDGETS_LIB
-
-#include "ui_KJVSearchCriteria.h"
-
-class CKJVSearchCriteriaWidget : public QWidget
-{
-	Q_OBJECT
-
-public:
-	explicit CKJVSearchCriteriaWidget(QWidget *parent = nullptr);
-	~CKJVSearchCriteriaWidget();
-
-	void initialize(CBibleDatabasePtr pBibleDatabase);
-
-	const CSearchCriteria &searchCriteria() const { return m_SearchCriteria; }
-
-signals:
-	void changedSearchCriteria();
-	void gotoIndex(const CRelIndex &relIndex);
-
-public slots:
-	void setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode);
-
-	void setSearchWithin(const TRelativeIndexSet &aSetSearchWithin);
-	void setSearchWithin(const QString &strSearchWithin);
-
-	void setTextBrightness(bool bInvert, int nBrightness);
-	void setAdjustDialogElementBrightness(bool bAdjust);
-
-private slots:
-	void en_changedSearchScopeMode(int ndx);
-	void en_changedSearchWithin();
-	void en_SearchWithinItemActivated(const QModelIndex &index);		// Triggered on Activate or DoubleClick to handle enter or double-click of search-within item (emits gotoIndex() signal)
-
-// Data Private:
-private:
-	CBibleDatabasePtr m_pBibleDatabase;
-	CSearchCriteria m_SearchCriteria;
-	CSearchWithinModel *m_pSearchWithinModel;
-
-// UI Private:
-private:
-	bool m_bDoingUpdate;		// True if combo boxes, etc, are being updated and change notifications should be ignored
-
-#define begin_update()							\
-			CBusyCursor iAmBusy(nullptr);		\
-			bool bUpdateSave = m_bDoingUpdate;	\
-			m_bDoingUpdate = true;
-#define end_update()							\
-			m_bDoingUpdate = bUpdateSave;
-
-	Ui::CKJVSearchCriteriaWidget ui;
-};
-
-#endif
 
 // ============================================================================
 

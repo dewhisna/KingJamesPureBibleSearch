@@ -28,7 +28,7 @@
 #include "../KJVCanOpener/PassageReferenceWidget.h"
 #include "../KJVCanOpener/PhraseEdit.h"
 #include "../KJVCanOpener/Translator.h"
-#include "../KJVCanOpener/KJVSearchCriteria.h"
+#include "../KJVCanOpener/SearchCriteria.h"
 
 #include <QCoreApplication>
 #include <QDir>

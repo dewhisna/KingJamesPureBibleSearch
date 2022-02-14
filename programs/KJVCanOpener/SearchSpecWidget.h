@@ -25,7 +25,7 @@
 #define SEARCH_SPEC_WIDGET_H
 
 #include "dbstruct.h"
-#include "KJVSearchCriteria.h"
+#include "SearchCriteria.h"
 #include "SearchPhraseEdit.h"
 #include "SearchPhraseListModel.h"
 #include "DelayedExecutionTimer.h"

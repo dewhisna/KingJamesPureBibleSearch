@@ -341,7 +341,6 @@ SOURCES += \
 	DictDBListModel.cpp \
 	Highlighter.cpp \
 	KJVCanOpener.cpp \
-	KJVSearchCriteria.cpp \
 	MimeHelper.cpp \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
@@ -359,6 +358,8 @@ SOURCES += \
 	ScriptureEdit.cpp \
 	SearchCompleter.cpp \
 	SearchCompleterListModel.cpp \
+	SearchCriteria.cpp \
+	SearchCriteriaWidget.cpp \
 	SearchPhraseEdit.cpp \
 	SearchPhraseListModel.cpp \
 	SearchResults.cpp \
@@ -410,7 +411,6 @@ HEADERS += \
 	DictDBListModel.h \
 	Highlighter.h \
 	KJVCanOpener.h \
-	KJVSearchCriteria.h \
 	MimeHelper.h \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
@@ -430,6 +430,8 @@ HEADERS += \
 	ScriptureTextFormatProperties.h \
 	SearchCompleter.h \
 	SearchCompleterListModel.h \
+	SearchCriteria.h \
+	SearchCriteriaWidget.h \
 	SearchPhraseEdit.h \
 	SearchPhraseListModel.h \
 	SearchResults.h \
@@ -472,11 +474,11 @@ FORMS += \
 	AboutDlg.ui \
 	BrowserWidget.ui \
 	KJVCanOpener.ui \
-	KJVSearchCriteria.ui \
 	NoteKeywordWidget.ui \
 	PassageNavigator.ui \
 	PassageNavigatorDlg.ui \
 	PassageReferenceWidget.ui \
+	SearchCriteriaWidget.ui \
 	SearchPhraseEdit.ui \
 	SearchSpecWidget.ui
 
