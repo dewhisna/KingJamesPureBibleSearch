@@ -341,7 +341,6 @@ SOURCES += \
 	DictDBListModel.cpp \
 	Highlighter.cpp \
 	KJVCanOpener.cpp \
-	KJVPassageNavigator.cpp \
 	KJVSearchCriteria.cpp \
 	KJVSearchPhraseEdit.cpp \
 	KJVSearchResult.cpp \
@@ -350,6 +349,7 @@ SOURCES += \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
 	ParseSymbols.cpp \
+	PassageNavigator.cpp \
 	PassageNavigatorDlg.cpp \
 	PassageReferenceWidget.cpp \
 	PersistentSettings.cpp \
@@ -410,7 +410,6 @@ HEADERS += \
 	DictDBListModel.h \
 	Highlighter.h \
 	KJVCanOpener.h \
-	KJVPassageNavigator.h \
 	KJVSearchCriteria.h \
 	KJVSearchPhraseEdit.h \
 	KJVSearchResult.h \
@@ -419,6 +418,7 @@ HEADERS += \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
 	ParseSymbols.h \
+	PassageNavigator.h \
 	PassageNavigatorDlg.h \
 	PassageReferenceWidget.h \
 	PersistentSettings.h \
@@ -472,11 +472,11 @@ FORMS += \
 	AboutDlg.ui \
 	BrowserWidget.ui \
 	KJVCanOpener.ui \
-	KJVPassageNavigator.ui \
 	KJVSearchCriteria.ui \
 	KJVSearchPhraseEdit.ui \
 	KJVSearchSpec.ui \
 	NoteKeywordWidget.ui \
+	PassageNavigator.ui \
 	PassageNavigatorDlg.ui \
 	PassageReferenceWidget.ui
 

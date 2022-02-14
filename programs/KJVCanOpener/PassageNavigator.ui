@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVPassageNavigator</class>
- <widget class="QWidget" name="CKJVPassageNavigator">
+ <class>CPassageNavigator</class>
+ <widget class="QWidget" name="CPassageNavigator">
   <property name="windowTitle">
    <string>PassageNavigatorForm</string>
   </property>

@@ -25,7 +25,7 @@
 #define PASSAGE_NAVIGATOR_DLG_H
 
 #include "dbstruct.h"
-#include "KJVPassageNavigator.h"
+#include "PassageNavigator.h"
 
 #include <QDialog>
 #include <QAbstractButton>
@@ -43,18 +43,18 @@ class CPassageNavigatorDlg : public QDialog
 public:
 	explicit CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 									 QWidget *parent,
-									 CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
-									 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD);
+									 CPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CPassageNavigator::NRTO_Default,
+									 CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CPassageNavigator::NRTE_WORD);
 	virtual ~CPassageNavigatorDlg();
 
 	void setGotoButtonText(const QString &strText);
 
 	TPhraseTag passage() const;
 	void setPassage(const TPhraseTag &tag);
-	CKJVPassageNavigator &navigator();
+	CPassageNavigator &navigator();
 
-	CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM refType() const;
-	void setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType);
+	CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM refType() const;
+	void setRefType(CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType);
 
 signals:
 	void gotoIndex(const TPhraseTag &tag);
@@ -76,7 +76,7 @@ private:
 	QPushButton *m_pResetButton;		// Clear passage offset
 	QPushButton *m_pOKButton;			// Goto passage button
 	QPushButton *m_pCancelButton;		// Abort
-	CKJVPassageNavigator *m_pNavigator;
+	CPassageNavigator *m_pNavigator;
 	Ui::CPassageNavigatorDlg ui;
 };
 
@@ -90,8 +90,8 @@ class CPassageNavigatorDlgPtr : public QPointer<CPassageNavigatorDlg>
 public:
 	CPassageNavigatorDlgPtr(CBibleDatabasePtr pBibleDatabase,
 								QWidget *parent = nullptr,
-								CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CKJVPassageNavigator::NRTO_Default,
-								CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CKJVPassageNavigator::NRTE_WORD)
+								CPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes = CPassageNavigator::NRTO_Default,
+								CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType = CPassageNavigator::NRTE_WORD)
 		:	QPointer<CPassageNavigatorDlg>(new CPassageNavigatorDlg(pBibleDatabase, parent, flagsRefTypes, nRefType))
 	{
 

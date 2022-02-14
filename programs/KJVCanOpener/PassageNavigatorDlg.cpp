@@ -29,8 +29,8 @@
 
 CPassageNavigatorDlg::CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 												 QWidget *parent,
-												 CKJVPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes,
-												 CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
+												 CPassageNavigator::NavigatorRefTypeOptionFlags flagsRefTypes,
+												 CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pApplyButton(nullptr),
@@ -50,10 +50,10 @@ CPassageNavigatorDlg::CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------------------------------------
 
-	//	Swapout the widgetKJVPassageNavigator from the layout with
+	//	Swapout the widgetPassageNavigator from the layout with
 	//		one that we can set the database on:
 
-	int ndx = ui.gridLayout->indexOf(ui.widgetKJVPassageNavigator);
+	int ndx = ui.gridLayout->indexOf(ui.widgetPassageNavigator);
 	Q_ASSERT(ndx != -1);
 	if (ndx == -1) return;
 	int nRow;
@@ -62,10 +62,10 @@ CPassageNavigatorDlg::CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 	int nColSpan;
 	ui.gridLayout->getItemPosition(ndx, &nRow, &nCol, &nRowSpan, &nColSpan);
 
-	m_pNavigator = new CKJVPassageNavigator(pBibleDatabase, this, flagsRefTypes, nRefType);
-	m_pNavigator->setObjectName(QString::fromUtf8("widgetKJVPassageNavigator"));
-	delete ui.widgetKJVPassageNavigator;
-	ui.widgetKJVPassageNavigator = nullptr;
+	m_pNavigator = new CPassageNavigator(pBibleDatabase, this, flagsRefTypes, nRefType);
+	m_pNavigator->setObjectName(QString::fromUtf8("widgetPassageNavigator"));
+	delete ui.widgetPassageNavigator;
+	ui.widgetPassageNavigator = nullptr;
 	ui.gridLayout->addWidget(m_pNavigator, nRow, nCol, nRowSpan, nColSpan);
 
 	// --------------------------------------------------------------
@@ -118,17 +118,17 @@ void CPassageNavigatorDlg::setPassage(const TPhraseTag &tag)
 	m_pNavigator->setPassage(tag);
 }
 
-CKJVPassageNavigator &CPassageNavigatorDlg::navigator()
+CPassageNavigator &CPassageNavigatorDlg::navigator()
 {
 	return *(m_pNavigator);
 }
 
-CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM CPassageNavigatorDlg::refType() const
+CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM CPassageNavigatorDlg::refType() const
 {
 	return m_pNavigator->refType();
 }
 
-void CPassageNavigatorDlg::setRefType(CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
+void CPassageNavigatorDlg::setRefType(CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nRefType)
 {
 	m_pNavigator->setRefType(nRefType);
 }

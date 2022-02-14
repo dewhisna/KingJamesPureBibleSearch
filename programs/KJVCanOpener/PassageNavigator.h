@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVPASSAGENAVIGATOR_H
-#define KJVPASSAGENAVIGATOR_H
+#ifndef PASSAGE_NAVIGATOR_H
+#define PASSAGE_NAVIGATOR_H
 
 #include "dbstruct.h"
 #include "ScriptureEdit.h"
@@ -32,9 +32,9 @@
 
 // ============================================================================
 
-#include "ui_KJVPassageNavigator.h"
+#include "ui_PassageNavigator.h"
 
-class CKJVPassageNavigator : public QWidget
+class CPassageNavigator : public QWidget
 {
 	Q_OBJECT
 
@@ -58,8 +58,8 @@ public:
 	Q_DECLARE_FLAGS(NavigatorRefTypeOptionFlags, NavigatorRefTypeOptions)
 
 
-	CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr, NavigatorRefTypeOptionFlags flagsRefTypes = NRTO_Default, NAVIGATOR_REF_TYPE_ENUM nRefType = NRTE_WORD);
-	virtual ~CKJVPassageNavigator();
+	CPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr, NavigatorRefTypeOptionFlags flagsRefTypes = NRTO_Default, NAVIGATOR_REF_TYPE_ENUM nRefType = NRTE_WORD);
+	virtual ~CPassageNavigator();
 
 	TPhraseTag passage() const;
 	void setPassage(const TPhraseTag &tag);
@@ -126,11 +126,11 @@ private:
 			m_bDoingUpdate = bUpdateSave;
 
 	CScriptureEdit *m_pEditVersePreview;
-	Ui::CKJVPassageNavigator ui;
+	Ui::CPassageNavigator ui;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(CKJVPassageNavigator::NavigatorRefTypeOptionFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(CPassageNavigator::NavigatorRefTypeOptionFlags)
 
 // ============================================================================
 
-#endif // KJVPASSAGENAVIGATOR_H
+#endif // PASSAGE_NAVIGATOR_H

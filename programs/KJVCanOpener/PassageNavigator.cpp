@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVPassageNavigator.h"
+#include "PassageNavigator.h"
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
@@ -35,7 +35,7 @@
 
 // Placeholder Constructor:
 
-CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent, NavigatorRefTypeOptionFlags flagsRefTypes, NAVIGATOR_REF_TYPE_ENUM nRefType)
+CPassageNavigator::CPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *parent, NavigatorRefTypeOptionFlags flagsRefTypes, NAVIGATOR_REF_TYPE_ENUM nRefType)
 	:	QWidget(parent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_nTestament(0),
@@ -75,12 +75,12 @@ CKJVPassageNavigator::CKJVPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWi
 	connect(m_pEditVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 }
 
-CKJVPassageNavigator::~CKJVPassageNavigator()
+CPassageNavigator::~CPassageNavigator()
 {
 
 }
 
-void CKJVPassageNavigator::initialize()
+void CPassageNavigator::initialize()
 {
 	// --------------------------------------------------------------
 
@@ -144,7 +144,7 @@ void CKJVPassageNavigator::initialize()
 			QString strEntireBible = tr("Entire Bible", "Scope");
 			TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
 			if (!pTranslator.isNull()) {
-				QString strTemp = pTranslator->translatorApp().translate("CKJVPassageNavigator", "Entire Bible", "Scope");
+				QString strTemp = pTranslator->translatorApp().translate("CPassageNavigator", "Entire Bible", "Scope");
 				if (!strTemp.isEmpty()) strEntireBible = strTemp;
 			}
 			ui.comboTestament->addItem(strEntireBible, ndx);
@@ -186,7 +186,7 @@ void CKJVPassageNavigator::initialize()
 	reset();
 }
 
-void CKJVPassageNavigator::reset()
+void CPassageNavigator::reset()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -201,7 +201,7 @@ void CKJVPassageNavigator::reset()
 
 // ============================================================================
 
-void CKJVPassageNavigator::en_TestamentComboIndexChanged(int index)
+void CPassageNavigator::en_TestamentComboIndexChanged(int index)
 {
 	if (m_bDoingUpdate) return;
 
@@ -211,7 +211,7 @@ void CKJVPassageNavigator::en_TestamentComboIndexChanged(int index)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::en_BookChanged(int nBook)
+void CPassageNavigator::en_BookChanged(int nBook)
 {
 	if (m_bDoingUpdate) return;
 
@@ -221,7 +221,7 @@ void CKJVPassageNavigator::en_BookChanged(int nBook)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::en_ChapterChanged(int nChapter)
+void CPassageNavigator::en_ChapterChanged(int nChapter)
 {
 	if (m_bDoingUpdate) return;
 
@@ -231,7 +231,7 @@ void CKJVPassageNavigator::en_ChapterChanged(int nChapter)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::en_VerseChanged(int nVerse)
+void CPassageNavigator::en_VerseChanged(int nVerse)
 {
 	if (m_bDoingUpdate) return;
 
@@ -241,7 +241,7 @@ void CKJVPassageNavigator::en_VerseChanged(int nVerse)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::en_WordChanged(int nWord)
+void CPassageNavigator::en_WordChanged(int nWord)
 {
 	if (m_bDoingUpdate) return;
 
@@ -251,7 +251,7 @@ void CKJVPassageNavigator::en_WordChanged(int nWord)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::en_ReverseChanged(bool bReverse)
+void CPassageNavigator::en_ReverseChanged(bool bReverse)
 {
 	ui.spinBook->setPrefix(bReverse ? "-" : "");
 	ui.spinChapter->setPrefix(bReverse ? "-" : "");
@@ -263,7 +263,7 @@ void CKJVPassageNavigator::en_ReverseChanged(bool bReverse)
 	CalcPassage();
 }
 
-void CKJVPassageNavigator::en_RefTypeChanged(int nType)
+void CPassageNavigator::en_RefTypeChanged(int nType)
 {
 	if (m_bDoingUpdate) return;
 
@@ -273,7 +273,7 @@ void CKJVPassageNavigator::en_RefTypeChanged(int nType)
 
 // ============================================================================
 
-void CKJVPassageNavigator::en_BookDirectChanged(int index)
+void CPassageNavigator::en_BookDirectChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -291,7 +291,7 @@ void CKJVPassageNavigator::en_BookDirectChanged(int index)
 	}
 }
 
-void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
+void CPassageNavigator::en_ChapterDirectChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -310,7 +310,7 @@ void CKJVPassageNavigator::en_ChapterDirectChanged(int index)
 	}
 }
 
-void CKJVPassageNavigator::en_VerseDirectChanged(int index)
+void CPassageNavigator::en_VerseDirectChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -330,7 +330,7 @@ void CKJVPassageNavigator::en_VerseDirectChanged(int index)
 	}
 }
 
-void CKJVPassageNavigator::en_WordDirectChanged(int index)
+void CPassageNavigator::en_WordDirectChanged(int index)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -351,7 +351,7 @@ void CKJVPassageNavigator::en_WordDirectChanged(int index)
 	}
 }
 
-void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
+void CPassageNavigator::setDirectReference(const CRelIndex &ndx)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -428,14 +428,14 @@ void CKJVPassageNavigator::setDirectReference(const CRelIndex &ndx)
 
 // ============================================================================
 
-void CKJVPassageNavigator::en_PassageReferenceChanged(const TPhraseTag &tagPhrase)
+void CPassageNavigator::en_PassageReferenceChanged(const TPhraseTag &tagPhrase)
 {
 	if (tagPhrase.isSet()) setPassage(tagPhrase);
 }
 
 // ============================================================================
 
-TPhraseTag CKJVPassageNavigator::passage() const
+TPhraseTag CPassageNavigator::passage() const
 {
 	TPhraseTag tagPassage;
 
@@ -460,7 +460,7 @@ TPhraseTag CKJVPassageNavigator::passage() const
 	return tagPassage;
 }
 
-void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
+void CPassageNavigator::setPassage(const TPhraseTag &tag)
 {
 	begin_update();
 
@@ -488,7 +488,7 @@ void CKJVPassageNavigator::setPassage(const TPhraseTag &tag)
 	end_update();
 }
 
-void CKJVPassageNavigator::CalcPassage()
+void CPassageNavigator::CalcPassage()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -529,7 +529,7 @@ void CKJVPassageNavigator::CalcPassage()
 
 }
 
-void CKJVPassageNavigator::setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType)
+void CPassageNavigator::setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType)
 {
 	begin_update();
 
@@ -544,12 +544,12 @@ void CKJVPassageNavigator::setRefType(NAVIGATOR_REF_TYPE_ENUM nRefType)
 	end_update();
 }
 
-void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage)
+void CPassageNavigator::startRelativeMode(TPhraseTag tagStart, TPhraseTag tagPassage)
 {
 	startRelativeMode(tagStart, isReversed(), tagPassage);
 }
 
-void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage)
+void CPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse, TPhraseTag tagPassage)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -571,10 +571,10 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	ui.editStartRef->setText(m_pBibleDatabase->PassageReferenceText(m_tagStartRef.relIndex()));
 	ui.chkboxReverse->setChecked(bReverse);
 
-	ui.lblBook->setText(tr("&Books:", "CKJVPassageNavigator"));
-	ui.lblChapter->setText(tr("C&hapters:", "CKJVPassageNavigator"));
-	ui.lblVerse->setText(tr("&Verses:", "CKJVPassageNavigator"));
-	ui.lblWord->setText(tr("&Words:", "CKJVPassageNavigator"));
+	ui.lblBook->setText(tr("&Books:", "CPassageNavigator"));
+	ui.lblChapter->setText(tr("C&hapters:", "CPassageNavigator"));
+	ui.lblVerse->setText(tr("&Verses:", "CPassageNavigator"));
+	ui.lblWord->setText(tr("&Words:", "CPassageNavigator"));
 
 	ui.lblBookDirect->setVisible(false);
 	ui.comboBookDirect->setVisible(false);
@@ -601,7 +601,7 @@ void CKJVPassageNavigator::startRelativeMode(TPhraseTag tagStart, bool bReverse,
 	end_update();
 }
 
-void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
+void CPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -617,10 +617,10 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	ui.lblTestament->show();
 	ui.comboTestament->show();
 
-	ui.lblBook->setText(tr("&Book:", "CKJVPassageNavigator"));
-	ui.lblChapter->setText(tr("C&hapter:", "CKJVPassageNavigator"));
-	ui.lblVerse->setText(tr("&Verse:", "CKJVPassageNavigator"));
-	ui.lblWord->setText(tr("&Word:", "CKJVPassageNavigator"));
+	ui.lblBook->setText(tr("&Book:", "CPassageNavigator"));
+	ui.lblChapter->setText(tr("C&hapter:", "CPassageNavigator"));
+	ui.lblVerse->setText(tr("&Verse:", "CPassageNavigator"));
+	ui.lblWord->setText(tr("&Word:", "CPassageNavigator"));
 
 	ui.spinBook->setPrefix("");
 	ui.spinChapter->setPrefix("");
@@ -659,7 +659,7 @@ void CKJVPassageNavigator::startAbsoluteMode(TPhraseTag tagPassage)
 	end_update();
 }
 
-bool CKJVPassageNavigator::isReversed() const
+bool CPassageNavigator::isReversed() const
 {
 	return ui.chkboxReverse->isChecked();
 }

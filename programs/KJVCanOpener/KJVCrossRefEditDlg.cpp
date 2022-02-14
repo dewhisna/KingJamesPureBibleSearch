@@ -281,11 +281,11 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &i
 
 CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 {
-	CKJVPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nType = CKJVPassageNavigator::NRTE_VERSE;
-	if (ndxStart.verse() == 0) nType = CKJVPassageNavigator::NRTE_CHAPTER;
-	if (ndxStart.chapter() == 0) nType = CKJVPassageNavigator::NRTE_BOOK;
+	CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nType = CPassageNavigator::NRTE_VERSE;
+	if (ndxStart.verse() == 0) nType = CPassageNavigator::NRTE_CHAPTER;
+	if (ndxStart.chapter() == 0) nType = CPassageNavigator::NRTE_BOOK;
 
-	CPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CKJVPassageNavigator::NRTO_Verse | CKJVPassageNavigator::NRTO_Chapter | CKJVPassageNavigator::NRTO_Book, nType);
+	CPassageNavigatorDlgPtr pDlg(m_pBibleDatabase, this, CPassageNavigator::NRTO_Verse | CPassageNavigator::NRTO_Chapter | CPassageNavigator::NRTO_Book, nType);
 	pDlg->setGotoButtonText(tr("&OK", "MainMenu"));
 	TPhraseTag tagNav(ndxStart);
 	pDlg->navigator().startAbsoluteMode(tagNav);

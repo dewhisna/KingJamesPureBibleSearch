@@ -37,7 +37,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QWidget" name="widgetKJVPassageNavigator" native="true"/>
+    <widget class="QWidget" name="widgetPassageNavigator" native="true"/>
    </item>
    <item row="1" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">

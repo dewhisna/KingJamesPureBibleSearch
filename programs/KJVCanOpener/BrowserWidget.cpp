@@ -323,7 +323,7 @@ void CBrowserWidget::initialize()
 
 	Qt::LayoutDirection nTextDir = m_pBibleDatabase->direction();
 
-	//	Swapout the widgetKJVPassageNavigator from the layout with
+	//	Swapout the textBrowserMainText from the layout with
 	//		one that we can set the database on:
 
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);

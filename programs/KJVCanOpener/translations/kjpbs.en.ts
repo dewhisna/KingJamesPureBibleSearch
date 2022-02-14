@@ -2335,138 +2335,138 @@ Do you wish to set them as valid keywords for this note?</translation>
     </message>
 </context>
 <context>
-    <name>CKJVPassageNavigator</name>
+    <name>CPassageNavigator</name>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="28"/>
+        <location filename="../PassageNavigator.ui" line="28"/>
         <source>PassageNavigatorForm</source>
         <translation>PassageNavigatorForm</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="41"/>
-        <location filename="../KJVPassageNavigator.ui" line="230"/>
+        <location filename="../PassageNavigator.ui" line="41"/>
+        <location filename="../PassageNavigator.ui" line="230"/>
         <source>&amp;Book:</source>
         <translation>&amp;Book:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="58"/>
-        <location filename="../KJVPassageNavigator.ui" line="210"/>
+        <location filename="../PassageNavigator.ui" line="58"/>
+        <location filename="../PassageNavigator.ui" line="210"/>
         <source>C&amp;hapter:</source>
         <translation>C&amp;hapter:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="75"/>
-        <location filename="../KJVPassageNavigator.ui" line="190"/>
+        <location filename="../PassageNavigator.ui" line="75"/>
+        <location filename="../PassageNavigator.ui" line="190"/>
         <source>&amp;Verse:</source>
         <translation>&amp;Verse:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="92"/>
-        <location filename="../KJVPassageNavigator.ui" line="256"/>
+        <location filename="../PassageNavigator.ui" line="92"/>
+        <location filename="../PassageNavigator.ui" line="256"/>
         <source>&amp;Word:</source>
         <translation>&amp;Word:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="123"/>
+        <location filename="../PassageNavigator.ui" line="123"/>
         <source>&amp;From Location:</source>
         <translation>&amp;From Location:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="273"/>
+        <location filename="../PassageNavigator.ui" line="273"/>
         <source>Resolves &amp;To:</source>
         <translation>Resolves &amp;To:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="340"/>
+        <location filename="../PassageNavigator.ui" line="340"/>
         <source>Bible/T&amp;estament:</source>
         <translation>Bible/T&amp;estament:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="373"/>
+        <location filename="../PassageNavigator.ui" line="373"/>
         <source>Reverse &amp;Direction</source>
         <translation>Reverse &amp;Direction</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.ui" line="380"/>
+        <location filename="../PassageNavigator.ui" line="380"/>
         <source>T&amp;ype:</source>
         <translation>T&amp;ype:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="146"/>
-        <location filename="../KJVPassageNavigator.cpp" line="149"/>
+        <location filename="../PassageNavigator.cpp" line="146"/>
+        <location filename="../PassageNavigator.cpp" line="149"/>
         <source>Entire Bible</source>
         <comment>Scope</comment>
         <translation>Entire Bible</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="169"/>
+        <location filename="../PassageNavigator.cpp" line="169"/>
         <source>Word</source>
         <comment>Scope</comment>
         <translation>Word</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="170"/>
+        <location filename="../PassageNavigator.cpp" line="170"/>
         <source>Verse</source>
         <comment>Scope</comment>
         <translation>Verse</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="171"/>
+        <location filename="../PassageNavigator.cpp" line="171"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation>Chapter</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="172"/>
+        <location filename="../PassageNavigator.cpp" line="172"/>
         <source>Book</source>
         <comment>Scope</comment>
         <translation>Book</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="576"/>
+        <location filename="../PassageNavigator.cpp" line="576"/>
         <source>&amp;Books:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>&amp;Books:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="577"/>
+        <location filename="../PassageNavigator.cpp" line="577"/>
         <source>C&amp;hapters:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>C&amp;hapters:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="578"/>
+        <location filename="../PassageNavigator.cpp" line="578"/>
         <source>&amp;Verses:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>&amp;Verses:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="579"/>
+        <location filename="../PassageNavigator.cpp" line="579"/>
         <source>&amp;Words:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>&amp;Words:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="622"/>
+        <location filename="../PassageNavigator.cpp" line="622"/>
         <source>&amp;Book:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>&amp;Book:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="623"/>
+        <location filename="../PassageNavigator.cpp" line="623"/>
         <source>C&amp;hapter:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>C&amp;hapter:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="624"/>
+        <location filename="../PassageNavigator.cpp" line="624"/>
         <source>&amp;Verse:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>&amp;Verse:</translation>
     </message>
     <message>
-        <location filename="../KJVPassageNavigator.cpp" line="625"/>
+        <location filename="../PassageNavigator.cpp" line="625"/>
         <source>&amp;Word:</source>
-        <comment>CKJVPassageNavigator</comment>
+        <comment>CPassageNavigator</comment>
         <translation>&amp;Word:</translation>
     </message>
 </context>
