@@ -383,8 +383,8 @@ if(!emscripten|wasm):!console:SOURCES += \
 	RenameHighlighterDlg.cpp
 
 !emscripten:!vnc:!console:SOURCES += \
+	CrossRefEditDlg.cpp \
 	EditWWWLinkDlg.cpp \
-	KJVCrossRefEditDlg.cpp \
 	NoteEditDlg.cpp \
 	SaveLoadFileDialog.cpp
 
@@ -456,8 +456,8 @@ if(!emscripten|wasm):!console:HEADERS += \
 	RenameHighlighterDlg.h
 
 !emscripten:!vnc:!console:HEADERS += \
+	CrossRefEditDlg.h \
 	EditWWWLinkDlg.h \
-	KJVCrossRefEditDlg.h \
 	NoteEditDlg.h \
 	SaveLoadFileDialog.h
 
@@ -497,8 +497,8 @@ if(!emscripten|wasm):!console:FORMS += \
 
 !emscripten:!vnc:!console:FORMS += \
 	ConfigUserNotesDatabase.ui \
+	CrossRefEditDlg.ui \
 	EditWWWLinkDlg.ui \
-	KJVCrossRefEditDlg.ui \
 	NoteEditDlg.ui
 
 !emscripten:!vnc:QtSpeech:FORMS += \

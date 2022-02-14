@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVCROSSREFEDITDLG_H
-#define KJVCROSSREFEDITDLG_H
+#ifndef CROSS_REF_EDIT_DLG_H
+#define CROSS_REF_EDIT_DLG_H
 
 #include "dbstruct.h"
 #include "UserNotesDatabase.h"
@@ -40,15 +40,15 @@ class CSearchResultsTreeView;
 
 // ============================================================================
 
-#include "ui_KJVCrossRefEditDlg.h"
+#include "ui_CrossRefEditDlg.h"
 
-class CKJVCrossRefEditDlg : public QDialog
+class CCrossRefEditDlg : public QDialog
 {
 	Q_OBJECT
 	
 public:
-	explicit CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
-	virtual ~CKJVCrossRefEditDlg();
+	explicit CCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr);
+	virtual ~CCrossRefEditDlg();
 
 	virtual void writeSettings(QSettings &settings, const QString &prefix = "CrossRefsEditor");
 	virtual void readSettings(QSettings &settings, const QString &prefix = "CrossRefsEditor");
@@ -89,7 +89,7 @@ private:
 	bool m_bIsDirty;
 	bool m_bHaveGeometry;
 	// ----
-	Ui::CKJVCrossRefEditDlg ui;
+	Ui::CCrossRefEditDlg ui;
 };
 
 // ============================================================================
@@ -97,16 +97,16 @@ private:
 // SmartPointer classes needed, particularly for stack instantiated dialogs, since
 //		this dialog is only WindowModal and the parent can get deleted during an
 //		app close event, causing an attempted double-free which leads to a crash:
-class CKJVCrossRefEditDlgPtr : public QPointer<CKJVCrossRefEditDlg>
+class CCrossRefEditDlgPtr : public QPointer<CCrossRefEditDlg>
 {
 public:
-	CKJVCrossRefEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr)
-		:	QPointer<CKJVCrossRefEditDlg>(new CKJVCrossRefEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
+	CCrossRefEditDlgPtr(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent = nullptr)
+		:	QPointer<CCrossRefEditDlg>(new CCrossRefEditDlg(pBibleDatabase, pUserNotesDatabase, parent))
 	{
 
 	}
 
-	virtual ~CKJVCrossRefEditDlgPtr()
+	virtual ~CCrossRefEditDlgPtr()
 	{
 		if (!isNull()) delete data();
 	}
@@ -114,4 +114,4 @@ public:
 
 // ============================================================================
 
-#endif // KJVCROSSREFEDITDLG_H
+#endif // CROSS_REF_EDIT_DLG_H

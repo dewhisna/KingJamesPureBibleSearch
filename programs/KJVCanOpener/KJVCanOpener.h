@@ -48,7 +48,7 @@
 
 // Forward Declares:
 class CNoteEditDlg;
-class CKJVCrossRefEditDlg;
+class CCrossRefEditDlg;
 class CHighlighterButtons;
 class CTipEdit;
 class CDictionaryWidget;
@@ -290,7 +290,7 @@ private:
 	CBrowserWidget *m_pBrowserWidget;
 	CDictionaryWidget *m_pDictionaryWidget;
 	CNoteEditDlg *m_pUserNoteEditorDlg;
-	CKJVCrossRefEditDlg *m_pCrossRefsEditorDlg;
+	CCrossRefEditDlg *m_pCrossRefsEditorDlg;
 	CHighlighterButtons *m_pHighlighterButtons;
 	QAction *m_pActionUserNoteEditor;
 	QAction *m_pActionCrossRefsEditor;

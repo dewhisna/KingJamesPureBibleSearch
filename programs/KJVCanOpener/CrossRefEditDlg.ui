@@ -22,8 +22,8 @@
 ** Dewtronics.
 **
 ****************************************************************************</comment>
- <class>CKJVCrossRefEditDlg</class>
- <widget class="QDialog" name="CKJVCrossRefEditDlg">
+ <class>CCrossRefEditDlg</class>
+ <widget class="QDialog" name="CCrossRefEditDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -190,7 +190,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CKJVCrossRefEditDlg</receiver>
+   <receiver>CCrossRefEditDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -206,7 +206,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CKJVCrossRefEditDlg</receiver>
+   <receiver>CCrossRefEditDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

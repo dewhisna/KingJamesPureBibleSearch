@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "KJVCrossRefEditDlg.h"
+#include "CrossRefEditDlg.h"
 
 #include "ReportError.h"
 #include "myApplication.h"
@@ -54,7 +54,7 @@ namespace {
 
 // ============================================================================
 
-CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
+CCrossRefEditDlg::CCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabasePtr pUserNotesDatabase, QWidget *parent)
 	:	QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint),
 		m_pBibleDatabase(pBibleDatabase),
 		m_pUserNotesDatabase(pUserNotesDatabase),
@@ -150,14 +150,14 @@ CKJVCrossRefEditDlg::CKJVCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUser
 #endif
 }
 
-CKJVCrossRefEditDlg::~CKJVCrossRefEditDlg()
+CCrossRefEditDlg::~CCrossRefEditDlg()
 {
 
 }
 
 // ============================================================================
 
-void CKJVCrossRefEditDlg::writeSettings(QSettings &settings, const QString &prefix)
+void CCrossRefEditDlg::writeSettings(QSettings &settings, const QString &prefix)
 {
 #ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
@@ -167,7 +167,7 @@ void CKJVCrossRefEditDlg::writeSettings(QSettings &settings, const QString &pref
 #endif
 }
 
-void CKJVCrossRefEditDlg::readSettings(QSettings &settings, const QString &prefix)
+void CCrossRefEditDlg::readSettings(QSettings &settings, const QString &prefix)
 {
 #ifdef PRESERVE_DIALOG_GEOMETRY
 	// RestoreState:
@@ -182,7 +182,7 @@ void CKJVCrossRefEditDlg::readSettings(QSettings &settings, const QString &prefi
 
 // ============================================================================
 
-void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
+void CCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 {
 	CRelIndex ndxRel = tag.relIndex();
 	ndxRel.setWord(0);			// Make sure we have only a book, chapter, or verse
@@ -212,7 +212,7 @@ void CKJVCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 
 // ============================================================================
 
-void CKJVCrossRefEditDlg::saveCrossRefs()
+void CCrossRefEditDlg::saveCrossRefs()
 {
 	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
@@ -220,14 +220,14 @@ void CKJVCrossRefEditDlg::saveCrossRefs()
 	m_bIsDirty = false;
 }
 
-void CKJVCrossRefEditDlg::accept()
+void CCrossRefEditDlg::accept()
 {
 	saveCrossRefs();
 	m_bHaveGeometry = true;
 	QDialog::accept();
 }
 
-void CKJVCrossRefEditDlg::reject()
+void CCrossRefEditDlg::reject()
 {
 	if (m_bIsDirty) {
 		int nResult = displayWarning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Do you wish to discard them??", "Errors"),
@@ -241,25 +241,25 @@ void CKJVCrossRefEditDlg::reject()
 
 // ============================================================================
 
-void CKJVCrossRefEditDlg::en_crossRefTreeViewContextMenuRequested(const QPoint &pos)
+void CCrossRefEditDlg::en_crossRefTreeViewContextMenuRequested(const QPoint &pos)
 {
 	Q_UNUSED(pos);
 
 	// TODO : Finish
 }
 
-void CKJVCrossRefEditDlg::en_crossRefTreeViewCurrentItemChanged()
+void CCrossRefEditDlg::en_crossRefTreeViewCurrentItemChanged()
 {
 
 }
 
-void CKJVCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
+void CCrossRefEditDlg::en_crossRefTreeViewSelectionListChanged()
 {
 	QModelIndexList lstSelectedItems = m_pCrossRefTreeView->selectionModel()->selectedRows();
 	ui.buttonDeleteRef->setEnabled(lstSelectedItems.size() != 0);
 }
 
-void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &index)
+void CCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &index)
 {
 	CRelIndex ndxInitial = m_pCrossRefTreeView->vlmodel()->logicalIndexForModelIndex(index);
 	Q_ASSERT(ndxInitial.isSet());
@@ -279,7 +279,7 @@ void CKJVCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &i
 
 // ============================================================================
 
-CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
+CRelIndex CCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 {
 	CPassageNavigator::NAVIGATOR_REF_TYPE_ENUM nType = CPassageNavigator::NRTE_VERSE;
 	if (ndxStart.verse() == 0) nType = CPassageNavigator::NRTE_CHAPTER;
@@ -301,7 +301,7 @@ CRelIndex CKJVCrossRefEditDlg::navigateCrossRef(const CRelIndex &ndxStart)
 
 // ============================================================================
 
-void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
+void CCrossRefEditDlg::en_SelectSourceReferenceClicked()
 {
 	if (m_bIsDirty) {
 		int nResult = displayWarning(this, windowTitle(), tr("You have made changes to this Cross Reference.  Save them??", "Errors"),
@@ -316,7 +316,7 @@ void CKJVCrossRefEditDlg::en_SelectSourceReferenceClicked()
 	// If user cancels out of navigator, we leave the original reference dirtiness as-is
 }
 
-void CKJVCrossRefEditDlg::en_AddReferenceClicked()
+void CCrossRefEditDlg::en_AddReferenceClicked()
 {
 	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
 	ndxSource.setWord(0);
@@ -337,7 +337,7 @@ void CKJVCrossRefEditDlg::en_AddReferenceClicked()
 	} while ((ndxTarget.isSet()) && (!bRefSet));
 }
 
-void CKJVCrossRefEditDlg::en_DelReferenceClicked()
+void CCrossRefEditDlg::en_DelReferenceClicked()
 {
 	TRelativeIndexList lstRefsToRemove;
 

@@ -2081,85 +2081,85 @@ Wollen Sie die Applikation neu starten?</translation>
     </message>
 </context>
 <context>
-    <name>CKJVCrossRefEditDlg</name>
+    <name>CCrossRefEditDlg</name>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="36"/>
+        <location filename="../CrossRefEditDlg.ui" line="36"/>
         <source>King James Pure Bible Search Cross Reference Editor</source>
         <translation>King James Pure Bible Search Querverweis-Editor</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="52"/>
+        <location filename="../CrossRefEditDlg.ui" line="52"/>
         <source>Source &amp;Passage:</source>
         <translation>Quell&amp;passage:</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="109"/>
+        <location filename="../CrossRefEditDlg.ui" line="109"/>
         <source>Select &amp;Source Reference...</source>
         <translation>Wähle Quell&amp;referenz...</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="124"/>
+        <location filename="../CrossRefEditDlg.ui" line="124"/>
         <source>&amp;Cross References:</source>
         <translation>&amp;Querverweise:</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="137"/>
+        <location filename="../CrossRefEditDlg.ui" line="137"/>
         <source>&amp;Add Reference...</source>
         <translation>&amp;Erzeuge Querverweis...</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="144"/>
+        <location filename="../CrossRefEditDlg.ui" line="144"/>
         <source>Ins</source>
         <translation>Ins</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="151"/>
+        <location filename="../CrossRefEditDlg.ui" line="151"/>
         <source>&amp;Delete Reference(s)</source>
         <translation>&amp;Lösche Querverweis(e)</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.ui" line="158"/>
+        <location filename="../CrossRefEditDlg.ui" line="158"/>
         <source>Del</source>
         <translation>Del</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="104"/>
+        <location filename="../CrossRefEditDlg.cpp" line="104"/>
         <source>Source Passage for Reference</source>
         <comment>MainMenu</comment>
         <translation>Quellpassage für Referenz</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="128"/>
+        <location filename="../CrossRefEditDlg.cpp" line="128"/>
         <source>Cross Reference Passages Linked to the Source Reference</source>
         <comment>MainMenu</comment>
         <translation>Mit der Quellreferenz verbundene Querverweispassagen</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="233"/>
+        <location filename="../CrossRefEditDlg.cpp" line="233"/>
         <source>You have made changes to this Cross Reference.  Do you wish to discard them??</source>
         <comment>Errors</comment>
         <translation>Sie haben Änderungen an diesem Querverweis vorgenommen. Wollen Sie diese verwerfen?</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="287"/>
+        <location filename="../CrossRefEditDlg.cpp" line="287"/>
         <source>&amp;OK</source>
         <comment>MainMenu</comment>
         <translation>&amp;OK</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="305"/>
+        <location filename="../CrossRefEditDlg.cpp" line="305"/>
         <source>You have made changes to this Cross Reference.  Save them??</source>
         <comment>Errors</comment>
         <translation>Sie haben diesen Querverweis verändert. Wollen Sie diese Änderung speichern?</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="327"/>
+        <location filename="../CrossRefEditDlg.cpp" line="327"/>
         <source>You can&apos;t set a cross-reference to reference itself.</source>
         <comment>Errors</comment>
         <translation>Sie können einen Querverweis nicht auf die Quellreferenz selbst setzen.</translation>
     </message>
     <message>
-        <location filename="../KJVCrossRefEditDlg.cpp" line="329"/>
+        <location filename="../CrossRefEditDlg.cpp" line="329"/>
         <source>That cross-reference already exists.</source>
         <comment>Errors</comment>
         <translation>Dieser Querverweis existiert bereits.</translation>

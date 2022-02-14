@@ -238,8 +238,8 @@ endif()
 
 if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_SOURCES
+		"CrossRefEditDlg.cpp"
 		"EditWWWLinkDlg.cpp"
-		"KJVCrossRefEditDlg.cpp"
 		"NoteEditDlg.cpp"
 		"SaveLoadFileDialog.cpp"
 	)
@@ -335,8 +335,8 @@ endif()
 # These are for the desktop GUI only:
 if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_HEADERS
+		"CrossRefEditDlg.h"
 		"EditWWWLinkDlg.h"
-		"KJVCrossRefEditDlg.h"
 		"NoteEditDlg.h"
 		"SaveLoadFileDialog.h"
 	)
@@ -396,8 +396,8 @@ endif()
 if(NOT EMSCRIPTEN AND NOT VNC AND NOT CONSOLE)
 	list(APPEND KJVCanOpener_FORMS
 		"ConfigUserNotesDatabase.ui"
+		"CrossRefEditDlg.ui"
 		"EditWWWLinkDlg.ui"
-		"KJVCrossRefEditDlg.ui"
 		"NoteEditDlg.ui"
 	)
 endif()

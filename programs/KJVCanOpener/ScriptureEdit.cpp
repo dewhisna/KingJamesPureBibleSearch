@@ -31,7 +31,7 @@
 #include "UserNotesDatabase.h"
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 #include "NoteEditDlg.h"
-#include "KJVCrossRefEditDlg.h"
+#include "CrossRefEditDlg.h"
 #endif
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"

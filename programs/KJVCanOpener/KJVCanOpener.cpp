@@ -38,7 +38,7 @@
 #include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
 #if !defined(VNCSERVER) && !defined(EMSCRIPTEN)
 #include "NoteEditDlg.h"
-#include "KJVCrossRefEditDlg.h"
+#include "CrossRefEditDlg.h"
 #include "SaveLoadFileDialog.h"
 #endif
 #endif
@@ -971,7 +971,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// -------------------- CrossRefsEditor Dialog:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	m_pCrossRefsEditorDlg = new CKJVCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
+	m_pCrossRefsEditorDlg = new CCrossRefEditDlg(m_pBibleDatabase, g_pUserNotesDatabase, this);
 	m_pCrossRefsEditorDlg->setModal(true);
 	connect(m_pActionCrossRefsEditor, SIGNAL(triggered()), this, SLOT(en_crossRefsEditorTriggered()));
 #endif
