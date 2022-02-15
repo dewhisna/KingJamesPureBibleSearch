@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-#ifndef WEBSOCKETTRANSPORT_H
-#define WEBSOCKETTRANSPORT_H
+#ifndef WEBSOCKET_TRANSPORT_H
+#define WEBSOCKET_TRANSPORT_H
 
 #include <QWebChannelAbstractTransport>
 
@@ -79,4 +79,4 @@ private:
 	QWebSocket *m_socket;
 };
 
-#endif // WEBSOCKETTRANSPORT_H
+#endif // WEBSOCKET_TRANSPORT_H

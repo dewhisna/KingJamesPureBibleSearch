@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef VERSELISTDELEGATE_H
-#define VERSELISTDELEGATE_H
+#ifndef VERSE_LIST_DELEGATE_H
+#define VERSE_LIST_DELEGATE_H
 
 #include "VerseListModel.h"
 
@@ -68,4 +68,4 @@ private:
 	CVerseListModel &m_model;
 };
 
-#endif // VERSELISTDELEGATE_H
+#endif // VERSE_LIST_DELEGATE_H

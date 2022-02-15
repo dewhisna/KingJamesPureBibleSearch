@@ -33,8 +33,8 @@ Modifications Copyright 2013-2020, Donna Whisnant, a.k.a. Dewtronics
 
 */
 
-#ifndef DELAYEDEXECUTIONTIMER_H
-#define DELAYEDEXECUTIONTIMER_H
+#ifndef DELAYED_EXECUTION_TIMER_H
+#define DELAYED_EXECUTION_TIMER_H
 
 #include "dbstruct.h"
 
@@ -122,4 +122,4 @@ private:
 	QString m_postfix;
 };
 
-#endif // DELAYEDEXECUTIONTIMER_H
+#endif // DELAYED_EXECUTION_TIMER_H

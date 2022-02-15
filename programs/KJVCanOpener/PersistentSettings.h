@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef PERSISTENTSETTINGS_H
-#define PERSISTENTSETTINGS_H
+#ifndef PERSISTENT_SETTINGS_H
+#define PERSISTENT_SETTINGS_H
 
 #include <QObject>
 #include <QString>
@@ -448,4 +448,4 @@ private:
 
 // ============================================================================
 
-#endif // PERSISTENTSETTINGS_H
+#endif // PERSISTENT_SETTINGS_H

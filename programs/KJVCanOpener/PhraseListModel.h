@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef PHRASELISTMODEL_H
-#define PHRASELISTMODEL_H
+#ifndef PHRASE_LIST_MODEL_H
+#define PHRASE_LIST_MODEL_H
 
 #include "dbstruct.h"
 
@@ -112,4 +112,4 @@ public:
 
 // ============================================================================
 
-#endif // PHRASELISTMODEL_H
+#endif // PHRASE_LIST_MODEL_H

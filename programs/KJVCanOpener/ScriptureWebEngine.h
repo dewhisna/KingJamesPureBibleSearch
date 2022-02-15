@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SCRIPTUREWEBENGINE_H
-#define SCRIPTUREWEBENGINE_H
+#ifndef SCRIPTURE_WEB_ENGINE_H
+#define SCRIPTURE_WEB_ENGINE_H
 
 // ============================================================================
 
@@ -116,5 +116,5 @@ private:
 
 // ============================================================================
 
-#endif	// SCRIPTUREWEBENGINE_H
+#endif	// SCRIPTURE_WEB_ENGINE_H
 

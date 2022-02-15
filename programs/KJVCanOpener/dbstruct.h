@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DBSTRUCT_H
-#define DBSTRUCT_H
+#ifndef DATABASE_STRUCT_H
+#define DATABASE_STRUCT_H
 
 #include "dbDescriptors.h"
 
@@ -1839,4 +1839,4 @@ private:
 
 // ============================================================================
 
-#endif // DBSTRUCT_H
+#endif // DATABASE_STRUCT_H

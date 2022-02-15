@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SEARCHPHRASELISTMODEL_H
-#define SEARCHPHRASELISTMODEL_H
+#ifndef SEARCH_PHRASE_LIST_MODEL_H
+#define SEARCH_PHRASE_LIST_MODEL_H
 
 #include "dbstruct.h"
 #include "SearchPhraseEdit.h"
@@ -80,4 +80,4 @@ private:
 
 // ============================================================================
 
-#endif // SEARCHPHRASELISTMODEL_H
+#endif // SEARCH_PHRASE_LIST_MODEL_H

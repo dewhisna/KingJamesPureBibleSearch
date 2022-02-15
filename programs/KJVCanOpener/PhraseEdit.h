@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef PHRASEEDIT_H
-#define PHRASEEDIT_H
+#ifndef PHRASE_EDIT_H
+#define PHRASE_EDIT_H
 
 #include "dbstruct.h"
 #include "Highlighter.h"
@@ -713,4 +713,4 @@ private:
 
 // ============================================================================
 
-#endif // PHRASEEDIT_H
+#endif // PHRASE_EDIT_H

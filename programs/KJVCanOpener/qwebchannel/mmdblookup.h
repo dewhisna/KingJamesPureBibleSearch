@@ -24,8 +24,8 @@
 // MaxMindDB GeoIP locate resolution
 //
 
-#ifndef MMDBLOOKUP_H
-#define MMDBLOOKUP_H
+#ifndef MMDB_LOOKUP_H
+#define MMDB_LOOKUP_H
 
 // ============================================================================
 
@@ -64,4 +64,4 @@ private:
 
 // ============================================================================
 
-#endif	// MMDBLOOKUP_H
+#endif	// MMDB_LOOKUP_H

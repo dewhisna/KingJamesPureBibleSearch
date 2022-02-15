@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef MIMEHELPER_H
-#define MIMEHELPER_H
+#ifndef MIME_HELPER_H
+#define MIME_HELPER_H
 
 #include "dbstruct.h"
 
@@ -38,4 +38,4 @@ public:
 	static TPhraseTag getPhraseTagFromMimeData(const QMimeData *pMime);
 };
 
-#endif // MIMEHELPER_H
+#endif // MIME_HELPER_H

@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-#ifndef WEBSOCKETCLIENTWRAPPER_H
-#define WEBSOCKETCLIENTWRAPPER_H
+#ifndef WEBSOCKET_CLIENT_WRAPPER_H
+#define WEBSOCKET_CLIENT_WRAPPER_H
 
 #include <QObject>
 
@@ -76,4 +76,4 @@ private:
     QWebSocketServer *m_server;
 };
 
-#endif // WEBSOCKETCLIENTWRAPPER_H
+#endif // WEBSOCKET_CLIENT_WRAPPER_H

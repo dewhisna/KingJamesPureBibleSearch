@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef DB_DESCRIPTORS_H
-#define DB_DESCRIPTORS_H
+#ifndef DATABASE_DESCRIPTORS_H
+#define DATABASE_DESCRIPTORS_H
 
 #include <QMetaType>
 #include <QString>
@@ -175,4 +175,4 @@ public:
 
 // ============================================================================
 
-#endif	// DB_DESCRIPTORS_H
+#endif	// DATABASE_DESCRIPTORS_H

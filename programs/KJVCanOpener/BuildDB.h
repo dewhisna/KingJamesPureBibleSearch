@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef BUILDDB_H
-#define BUILDDB_H
+#ifndef BUILD_DATABASE_H
+#define BUILD_DATABASE_H
 
 #ifndef NOT_USING_SQL
 #include <QSqlDatabase>
@@ -73,4 +73,4 @@ private:
 
 // ============================================================================
 
-#endif // BUILDDB_H
+#endif // BUILD_DATABASE_H

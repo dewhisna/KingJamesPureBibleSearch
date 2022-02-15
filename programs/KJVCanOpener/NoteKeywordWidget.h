@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef NOTEKEYWORDWIDGET_H
-#define NOTEKEYWORDWIDGET_H
+#ifndef NOTE_KEYWORD_WIDGET_H
+#define NOTE_KEYWORD_WIDGET_H
 
 #include "SubControls.h"
 
@@ -218,4 +218,4 @@ private:
 
 // ============================================================================
 
-#endif // NOTEKEYWORDWIDGET_H
+#endif // NOTE_KEYWORD_WIDGET_H

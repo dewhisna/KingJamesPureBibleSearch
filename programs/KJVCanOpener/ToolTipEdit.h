@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef TOOLTIPEDIT_H
-#define TOOLTIPEDIT_H
+#ifndef TOOL_TIP_EDIT_H
+#define TOOL_TIP_EDIT_H
 
 #include <QPoint>
 #include <QString>
@@ -133,4 +133,4 @@ public:
 };
 
 
-#endif // TOOLTIPEDIT_H
+#endif // TOOL_TIP_EDIT_H

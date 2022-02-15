@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef RENAMEHIGHLIGHTERDLG_H
-#define RENAMEHIGHLIGHTERDLG_H
+#ifndef RENAME_HIGHLIGHTER_DLG_H
+#define RENAME_HIGHLIGHTER_DLG_H
 
 #include <QDialog>
 #include <QString>
@@ -48,4 +48,4 @@ private:
 
 // ============================================================================
 
-#endif // RENAMEHIGHLIGHTERDLG_H
+#endif // RENAME_HIGHLIGHTER_DLG_H

@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef READDB_H
-#define READDB_H
+#ifndef READ_DATABASE_H
+#define READ_DATABASE_H
 
 #ifndef NOT_USING_SQL
 #include <QSqlDatabase>
@@ -111,4 +111,4 @@ private:
 
 // ============================================================================
 
-#endif // READDB_H
+#endif // READ_DATABASE_H

@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef PARSESYMBOLS_H
-#define PARSESYMBOLS_H
+#ifndef PARSE_SYMBOLS_H
+#define PARSE_SYMBOLS_H
 
 #include <QChar>
 #include <QString>
@@ -65,4 +65,4 @@ namespace StringParse {
 
 // ============================================================================
 
-#endif	// PARSESYMBOLS_H
+#endif	// PARSE_SYMBOLS_H

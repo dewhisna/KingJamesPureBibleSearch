@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef SCRIPTUREEDIT_H
-#define SCRIPTUREEDIT_H
+#ifndef SCRIPTURE_EDIT_H
+#define SCRIPTURE_EDIT_H
 
 #include "dbstruct.h"
 #include "Highlighter.h"
@@ -365,4 +365,4 @@ public:
 
 // ============================================================================
 
-#endif // SCRIPTUREEDIT_H
+#endif // SCRIPTURE_EDIT_H

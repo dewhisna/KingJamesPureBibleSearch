@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef KJVCANOPENER_H
-#define KJVCANOPENER_H
+#ifndef KJV_CAN_OPENER_H
+#define KJV_CAN_OPENER_H
 
 #include "dbstruct.h"
 
@@ -299,4 +299,4 @@ private:
 	Ui::CKJVCanOpener ui;
 };
 
-#endif // KJVCANOPENER_H
+#endif // KJV_CAN_OPENER_H

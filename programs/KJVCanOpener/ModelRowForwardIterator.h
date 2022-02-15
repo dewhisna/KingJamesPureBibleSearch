@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef ModelRowForwardIterator_h
-#define ModelRowForwardIterator_h
+#ifndef MODEL_ROW_FORWARD_ITERATOR_H
+#define MODEL_ROW_FORWARD_ITERATOR_H
 
 #include <QObject>
 #include <QAbstractItemModel>
@@ -148,4 +148,4 @@ private:
 	QPersistentModelIndex m_indexPersist;
 };
 
-#endif		// ModelRowForwardIterator_h
+#endif		// MODEL_ROW_FORWARD_ITERATOR_H

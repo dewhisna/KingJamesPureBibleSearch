@@ -21,8 +21,8 @@
 **
 ****************************************************************************/
 
-#ifndef VERSELISTMODEL_H
-#define VERSELISTMODEL_H
+#ifndef VERSE_LIST_MODEL_H
+#define VERSE_LIST_MODEL_H
 
 #include "dbstruct.h"
 #include "PhraseEdit.h"
@@ -1015,4 +1015,4 @@ private:
 
 // ============================================================================
 
-#endif // VERSELISTMODEL_H
+#endif // VERSE_LIST_MODEL_H
