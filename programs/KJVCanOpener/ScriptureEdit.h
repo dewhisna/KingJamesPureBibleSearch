@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 #include "Highlighter.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "DelayedExecutionTimer.h"
 
 #include <QWidget>

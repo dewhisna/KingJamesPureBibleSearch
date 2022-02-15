@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "ParseSymbols.h"
 #include "VerseRichifier.h"
 #include "UserNotesDatabase.h"

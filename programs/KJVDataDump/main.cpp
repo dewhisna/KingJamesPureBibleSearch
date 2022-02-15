@@ -25,7 +25,7 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/PhraseEdit.h"
+#include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
 // ----
 #include "../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"

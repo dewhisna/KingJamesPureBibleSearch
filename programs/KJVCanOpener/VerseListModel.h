@@ -25,7 +25,7 @@
 #define VERSE_LIST_MODEL_H
 
 #include "dbstruct.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "SearchCriteria.h"
 #include "VerseRichifier.h"
 #include "UserNotesDatabase.h"

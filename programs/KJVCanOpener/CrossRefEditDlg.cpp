@@ -29,7 +29,7 @@
 
 #include "SearchResults.h"
 #include "ScriptureEdit.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "PassageNavigatorDlg.h"
 
 #include <QMessageBox>

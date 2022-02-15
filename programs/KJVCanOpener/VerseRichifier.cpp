@@ -26,7 +26,7 @@
 #include "ParseSymbols.h"
 
 #include "PersistentSettings.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "Highlighter.h"
 
 #if QT_VERSION >= 0x050000

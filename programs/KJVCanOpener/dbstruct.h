@@ -800,8 +800,8 @@ public:
 		return (!(operator==(src)));
 	}
 
-	bool operator==(const CParsedPhrase &src) const;		// Implemented in PhraseEdit.cpp, where CParsedPhrase is defined
-	bool operator!=(const CParsedPhrase &src) const;		// Implemented in PhraseEdit.cpp, where CParsedPhrase is defined
+	bool operator==(const CParsedPhrase &src) const;		// Implemented in PhraseNavigator.cpp, where CParsedPhrase is defined
+	bool operator!=(const CParsedPhrase &src) const;		// Implemented in PhraseNavigator.cpp, where CParsedPhrase is defined
 
 	static const QChar encCharCaseSensitive() { return QChar(0xA7); } 			// Section Sign = Case-Sensitive
 	static const QChar encCharAccentSensitive() { return QChar(0xA4); }			// Current Sign = Accent-Sensitive

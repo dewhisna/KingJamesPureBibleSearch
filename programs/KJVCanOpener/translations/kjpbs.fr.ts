@@ -2608,8 +2608,8 @@ Voulez-vous les définir des mots-clés comme valides pour cette note?</translat
     <name>CSearchPhraseEdit</name>
     <message>
         <location filename="../SearchPhraseEdit.ui" line="34"/>
-        <source>PhraseEditForm</source>
-        <translation>PhraseEditForm</translation>
+        <source>SearchPhraseEditWidget</source>
+        <translation>SearchPhraseEditWidget</translation>
     </message>
     <message>
         <location filename="../SearchPhraseEdit.ui" line="85"/>
@@ -4023,63 +4023,63 @@ Vérification de l&apos;installation!</translation>
 <context>
     <name>CPhraseNavigator</name>
     <message>
-        <location filename="../PhraseEdit.cpp" line="1318"/>
-        <location filename="../PhraseEdit.cpp" line="1321"/>
-        <location filename="../PhraseEdit.cpp" line="1511"/>
-        <location filename="../PhraseEdit.cpp" line="1514"/>
+        <location filename="../PhraseNavigator.cpp" line="1318"/>
+        <location filename="../PhraseNavigator.cpp" line="1321"/>
+        <location filename="../PhraseNavigator.cpp" line="1511"/>
+        <location filename="../PhraseNavigator.cpp" line="1514"/>
         <source>Category:</source>
         <comment>Scope</comment>
         <translation>Catégorie:</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="1520"/>
-        <location filename="../PhraseEdit.cpp" line="1523"/>
+        <location filename="../PhraseNavigator.cpp" line="1520"/>
+        <location filename="../PhraseNavigator.cpp" line="1523"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation>Chapitre</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2202"/>
+        <location filename="../PhraseNavigator.cpp" line="2202"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
         <translation>Colophon</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2204"/>
+        <location filename="../PhraseNavigator.cpp" line="2204"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
         <translation>Suscription</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="2382"/>
-        <location filename="../PhraseEdit.cpp" line="2383"/>
-        <location filename="../PhraseEdit.cpp" line="2497"/>
+        <location filename="../PhraseNavigator.cpp" line="2382"/>
+        <location filename="../PhraseNavigator.cpp" line="2383"/>
+        <location filename="../PhraseNavigator.cpp" line="2497"/>
         <source>Superscription</source>
         <comment>Scope</comment>
         <translation>Suscription</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="3089"/>
+        <location filename="../PhraseNavigator.cpp" line="3089"/>
         <source>Word:</source>
         <comment>Statistics</comment>
         <translation>Mot:</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="3094"/>
+        <location filename="../PhraseNavigator.cpp" line="3094"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
         <translation>Phrase:</translation>
     </message>
     <message>
-        <location filename="../PhraseEdit.cpp" line="3123"/>
-        <location filename="../PhraseEdit.cpp" line="3130"/>
-        <location filename="../PhraseEdit.cpp" line="3136"/>
+        <location filename="../PhraseNavigator.cpp" line="3123"/>
+        <location filename="../PhraseNavigator.cpp" line="3130"/>
+        <location filename="../PhraseNavigator.cpp" line="3136"/>
         <source>contains:</source>
         <comment>Statistics</comment>
         <translation>contient:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="3124"/>
+        <location filename="../PhraseNavigator.cpp" line="3124"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -4088,8 +4088,8 @@ Vérification de l&apos;installation!</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="3125"/>
-        <location filename="../PhraseEdit.cpp" line="3131"/>
+        <location filename="../PhraseNavigator.cpp" line="3125"/>
+        <location filename="../PhraseNavigator.cpp" line="3131"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -4098,9 +4098,9 @@ Vérification de l&apos;installation!</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="3126"/>
-        <location filename="../PhraseEdit.cpp" line="3132"/>
-        <location filename="../PhraseEdit.cpp" line="3137"/>
+        <location filename="../PhraseNavigator.cpp" line="3126"/>
+        <location filename="../PhraseNavigator.cpp" line="3132"/>
+        <location filename="../PhraseNavigator.cpp" line="3137"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -4109,7 +4109,7 @@ Vérification de l&apos;installation!</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseEdit.cpp" line="3145"/>
+        <location filename="../PhraseNavigator.cpp" line="3145"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation>

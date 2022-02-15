@@ -351,8 +351,8 @@ SOURCES += \
 	PassageReferenceResolver.cpp \
 	PassageReferenceWidget.cpp \
 	PersistentSettings.cpp \
-	PhraseEdit.cpp \
 	PhraseListModel.cpp \
+	PhraseNavigator.cpp \
 	ReadDB.cpp \
 	ReflowDelegate.cpp \
 	ReportError.cpp \
@@ -424,8 +424,8 @@ HEADERS += \
 	PassageReferenceResolver.h \
 	PassageReferenceWidget.h \
 	PersistentSettings.h \
-	PhraseEdit.h \
 	PhraseListModel.h \
+	PhraseNavigator.h \
 	Qt_QStyleOption_stub.h \
 	ReadDB.h \
 	ReflowDelegate.h \

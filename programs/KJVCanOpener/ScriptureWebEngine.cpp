@@ -24,7 +24,7 @@
 #include "ScriptureWebEngine.h"
 
 #include "dbstruct.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "PersistentSettings.h"
 #include "Highlighter.h"
 #include "myApplication.h"

@@ -31,7 +31,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>PhraseEditForm</string>
+   <string>SearchPhraseEditWidget</string>
   </property>
   <property name="toolTip">
    <string extracomment=",8.25,-1,5,50,0,0,0,0,0"/>

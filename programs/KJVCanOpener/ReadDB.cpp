@@ -27,7 +27,7 @@
 #include "ReadDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "ParseSymbols.h"
 #include "ReportError.h"
 

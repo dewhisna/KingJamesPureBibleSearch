@@ -33,7 +33,7 @@
 #include <QMap>
 
 #include "dbstruct.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 
 // ============================================================================
 

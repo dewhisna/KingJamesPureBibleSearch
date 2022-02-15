@@ -42,7 +42,7 @@
 #include "SaveLoadFileDialog.h"
 #endif
 #endif
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "PhraseListModel.h"
 
 #if __cplusplus > 199711L

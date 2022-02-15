@@ -30,7 +30,7 @@
 #include "DictionaryWidget.h"
 #include "PersistentSettings.h"
 #include "Highlighter.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
 #include "myApplication.h"

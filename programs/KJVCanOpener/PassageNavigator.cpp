@@ -24,7 +24,7 @@
 #include "PassageNavigator.h"
 
 #include "dbstruct.h"
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "Highlighter.h"
 #include "BusyCursor.h"
 #include "Translator.h"

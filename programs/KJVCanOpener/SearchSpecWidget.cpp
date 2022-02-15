@@ -23,7 +23,7 @@
 
 #include "SearchSpecWidget.h"
 
-#include "PhraseEdit.h"
+#include "PhraseNavigator.h"
 #include "PhraseListModel.h"
 #include "Highlighter.h"
 #include "PersistentSettings.h"
