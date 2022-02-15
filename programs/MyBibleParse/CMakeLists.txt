@@ -192,7 +192,6 @@ endif()
 
 target_compile_definitions(${MyBibleParse_TARGET} PRIVATE
 	NO_PERSISTENT_SETTINGS
-#	KJV_SEARCH_BUILD
 )
 
 # -----------------------------------------------------------------------------

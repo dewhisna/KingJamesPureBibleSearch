@@ -32,6 +32,9 @@
 #include <QTextEdit>
 #include <QHelpEvent>
 
+// Forward declarations:
+class CKJVCanOpener;
+
 // ============================================================================
 
 class CPhraseNavigatorEdit : public CPhraseNavigator

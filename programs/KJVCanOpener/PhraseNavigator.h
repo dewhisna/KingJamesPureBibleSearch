@@ -41,9 +41,6 @@
 
 // Forward declarations:
 class CSearchCompleter;
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
-class CKJVCanOpener;
-#endif
 class CParsedPhrase;
 
 // ============================================================================

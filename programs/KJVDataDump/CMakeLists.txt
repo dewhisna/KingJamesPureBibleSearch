@@ -234,7 +234,6 @@ endif()
 target_compile_definitions(${KJVDataDump_TARGET} PRIVATE
 	NOT_USING_SQL
 	NO_PERSISTENT_SETTINGS
-	KJV_SEARCH_BUILD
 )
 
 # -----------------------------------------------------------------------------

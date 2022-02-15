@@ -226,7 +226,6 @@ endif()
 target_compile_definitions(${KJVPhraseSearch_TARGET} PRIVATE
 	NOT_USING_SQL
 	NO_PERSISTENT_SETTINGS
-	KJV_SEARCH_BUILD
 )
 
 # -----------------------------------------------------------------------------

@@ -222,7 +222,6 @@ endif()
 target_compile_definitions(${KJVDiff_TARGET} PRIVATE
 	NOT_USING_SQL
 	NO_PERSISTENT_SETTINGS
-	KJV_DIFF_BUILD
 )
 
 # -----------------------------------------------------------------------------

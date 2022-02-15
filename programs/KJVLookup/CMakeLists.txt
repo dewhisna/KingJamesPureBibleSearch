@@ -228,7 +228,6 @@ endif()
 target_compile_definitions(${KJVLookup_TARGET} PRIVATE
 	NOT_USING_SQL
 	NO_PERSISTENT_SETTINGS
-	KJV_SEARCH_BUILD
 )
 
 # -----------------------------------------------------------------------------

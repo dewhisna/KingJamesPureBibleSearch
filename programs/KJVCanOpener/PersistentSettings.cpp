@@ -23,7 +23,7 @@
 
 #include "PersistentSettings.h"
 
-#if !defined(NO_PERSISTENT_SETTINGS) && !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
+#if !defined(NO_PERSISTENT_SETTINGS)
 #include "version.h"
 #endif
 
