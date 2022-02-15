@@ -24,7 +24,6 @@
 #include "../KJVCanOpener/dbstruct.h"
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ParseSymbols.h"
-#include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/CSV.h"
 
@@ -2980,11 +2979,6 @@ int main(int argc, char *argv[])
 					}
 				}
 
-//				QStringList lstTempRich = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextRichifierTags(), false).split('\"');
-//				QString strBuffRich = lstTempRich.join("\"\"");
-//				QStringList lstTempPlain = CVerseTextRichifier::parse(CRelIndex(nBk,nChp, nVrs, 0), pBibleDatabase, pVerse, CVerseTextPlainRichifierTags(), false).split('\"');
-//				QString strBuffPlain = lstTempPlain.join("\"\"");
-
 				QStringList lstTempTemplate = pVerse->m_strTemplate.trimmed().split('\"');
 				QString strBuffTemplate = lstTempTemplate.join("\"\"");
 
@@ -2998,34 +2992,6 @@ int main(int argc, char *argv[])
 								 .arg(strBuffTemplate)						// 6	(TemplateText)
 								 .toUtf8());
 
-
-				// Needs to be after we calculate nWordAccum above so we can output anchor tags:
-//				QString strTemp = CVerseTextRichifier::parse(pVerse, CVerseTextRichifierTags(), false);
-//				std::cout << QString("%1 : %2\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).arg(strTemp).toUtf8().data();
-
-
-/*
-				std::cout << g_arrBooks[nBk-1].m_strOsisAbbr.toUtf8().data() << QString(" %1:%2 : ").arg(nChp).arg(nVrs).toUtf8().data();
-				if (pVerse->m_nPilcrow == CVerseEntry::PTE_NONE) {
-					std::cout << "false \n";
-				} else {
-					std::cout << "true ";
-					switch (pVerse->m_nPilcrow) {
-						case CVerseEntry::PTE_MARKER:
-							std::cout << "(Marker)";
-							break;
-						case CVerseEntry::PTE_MARKER_ADDED:
-							std::cout << "(Added)";
-							break;
-						case CVerseEntry::PTE_EXTRA:
-							std::cout << "(Extra)";
-							break;
-						default:
-							break;
-					}
-					std::cout << "\n";
-				}
-*/
 
 				// Now use the words we've gathered from this verse to build the Word Lists and Concordance:
 				Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(pVerse->m_lstWords.size()));

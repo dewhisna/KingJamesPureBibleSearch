@@ -357,11 +357,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 		}
 		if (i > 0) {
 			if (m_pVerse != nullptr) {
-#ifdef OSIS_PARSER_BUILD
-				QString strWord = m_pVerse->m_lstRichWords.at(i-1);
-#else
 				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
-#endif
 				m_parseBaton.m_ndxCurrent.setWord(i);
 				bool bWasInLemma = (m_parseBaton.m_pCurrentLemma != nullptr);
 				if (m_parseBaton.m_bOutput) {
