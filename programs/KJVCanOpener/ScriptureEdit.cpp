@@ -34,6 +34,7 @@
 #include "NotificationToolTip.h"
 #include "myApplication.h"
 #include "KJVCanOpener.h"
+#include "HighlighterButtons.h"
 
 #include <finddialog.h>
 

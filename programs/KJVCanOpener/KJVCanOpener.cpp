@@ -31,7 +31,7 @@
 #include "version.h"
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
-#include "Highlighter.h"
+#include "HighlighterButtons.h"
 #include "AboutDlg.h"
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 #include "Configuration.h"

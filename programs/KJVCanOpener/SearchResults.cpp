@@ -29,6 +29,7 @@
 #include "PassageNavigatorDlg.h"
 #include "Highlighter.h"
 #include "KJVCanOpener.h"
+#include "HighlighterButtons.h"
 #include "ReflowDelegate.h"
 #include "PersistentSettings.h"
 #include "NoteKeywordWidget.h"
