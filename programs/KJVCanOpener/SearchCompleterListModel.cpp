@@ -24,10 +24,6 @@
 #include "SearchCompleterListModel.h"
 #include "PhraseEdit.h"
 
-#ifdef QT_WIDGETS_LIB
-#include <QTextEdit>
-#endif
-
 // ============================================================================
 
 CSearchParsedPhraseListModel::CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent)
@@ -118,12 +114,10 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 
 // ============================================================================
 
-#ifdef QT_WIDGETS_LIB
-
-CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent)
+CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, TEditorWordCallback pFuncEditorWord, QObject *parent)
 	:	CSearchStringListModel(parent),
 		m_pDictionaryDatabase(pDictionary),
-		m_editorWord(editorWord)
+		m_pFuncEditorWord(pFuncEditorWord)
 {
 	Q_ASSERT(!pDictionary.isNull());
 
@@ -180,7 +174,7 @@ QString CSearchDictionaryListModel::soundEx(const QString &strDecomposedWord, bo
 
 QString CSearchDictionaryListModel::cursorWord() const
 {
-	return m_editorWord.toPlainText();
+	return m_pFuncEditorWord();
 }
 
 void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
@@ -192,16 +186,12 @@ void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 //	emit modelChanged();
 }
 
-#endif
-
 // ============================================================================
 
-#ifdef QT_WIDGETS_LIB
-
-CSearchStrongsDictionaryListModel::CSearchStrongsDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent)
+CSearchStrongsDictionaryListModel::CSearchStrongsDictionaryListModel(CDictionaryDatabasePtr pDictionary, TEditorWordCallback pFuncEditorWord, QObject *parent)
 	:	QAbstractListModel(parent),
 		m_pDictionaryDatabase(pDictionary),
-		m_editorWord(editorWord)
+		m_pFuncEditorWord(pFuncEditorWord)
 {
 	Q_ASSERT(!pDictionary.isNull());
 }
@@ -231,10 +221,8 @@ QVariant CSearchStrongsDictionaryListModel::data(const QModelIndex &index, int r
 
 QString CSearchStrongsDictionaryListModel::cursorWord() const
 {
-	return m_editorWord.toPlainText();
+	return m_pFuncEditorWord();
 }
-
-#endif
 
 // ============================================================================
 

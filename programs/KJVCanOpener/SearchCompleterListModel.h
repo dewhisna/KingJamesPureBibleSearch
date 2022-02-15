@@ -35,6 +35,7 @@
 #include <QList>
 #include <QMap>
 #include <QStringList>
+#include <functional>
 
 // Forward Declarations:
 class QTextEdit;
@@ -117,14 +118,15 @@ private:
 
 // ============================================================================
 
-#ifdef QT_WIDGETS_LIB
+typedef std::function<QString ()> TEditorWordCallback;
+
 
 class CSearchDictionaryListModel : public CSearchStringListModel
 {
 	Q_OBJECT
 
 public:
-	CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = nullptr);
+	CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, TEditorWordCallback pFuncEditorWord, QObject *parent = nullptr);
 	virtual ~CSearchDictionaryListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -143,7 +145,7 @@ public slots:
 private:
 	Q_DISABLE_COPY(CSearchDictionaryListModel)
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
-	const QTextEdit &m_editorWord;
+	TEditorWordCallback m_pFuncEditorWord;
 };
 
 // ----------------------------------------------------------------------------
@@ -153,7 +155,7 @@ class CSearchStrongsDictionaryListModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	CSearchStrongsDictionaryListModel(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QObject *parent = nullptr);
+	CSearchStrongsDictionaryListModel(CDictionaryDatabasePtr pDictionary, TEditorWordCallback pFuncEditorWord, QObject *parent = nullptr);
 	virtual ~CSearchStrongsDictionaryListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -165,10 +167,8 @@ public:
 private:
 	Q_DISABLE_COPY(CSearchStrongsDictionaryListModel)
 	CDictionaryDatabasePtr m_pDictionaryDatabase;
-	const QTextEdit &m_editorWord;
+	TEditorWordCallback m_pFuncEditorWord;
 };
-
-#endif
 
 // ============================================================================
 

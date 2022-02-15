@@ -36,6 +36,7 @@
 #include <QTimer>
 
 #include <QAbstractItemView>
+#include <QTextEdit>
 
 #include <algorithm>
 
@@ -214,7 +215,7 @@ CSearchCompleter::CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTe
 		m_pSearchStringListModel(nullptr),
 		m_pSoundExFilterModel(nullptr)
 {
-	m_pSearchStringListModel = new CSearchDictionaryListModel(pDictionary, editorWord, this);
+	m_pSearchStringListModel = new CSearchDictionaryListModel(pDictionary, [&editorWord]()->QString { return editorWord.toPlainText(); }, this);
 	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
 
 	setWidget(parentWidget);
@@ -666,7 +667,7 @@ CStrongsDictionarySearchCompleter::CStrongsDictionarySearchCompleter(CDictionary
 	:	SearchCompleter_t(parentWidget),
 		m_pStrongsListModel(nullptr)
 {
-	m_pStrongsListModel = new CSearchStrongsDictionaryListModel(pDictionary, editorWord, this);
+	m_pStrongsListModel = new CSearchStrongsDictionaryListModel(pDictionary, [&editorWord]()->QString { return editorWord.toPlainText(); }, this);
 	setModel(m_pStrongsListModel);
 #if QT_VERSION >= 0x050200		// Filter Mode was introduced in Qt 5.2
 	setFilterMode(Qt::MatchStartsWith);
