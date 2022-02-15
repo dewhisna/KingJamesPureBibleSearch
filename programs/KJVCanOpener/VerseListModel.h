@@ -46,6 +46,7 @@
 #include <QSet>
 #include <QSharedPointer>
 #include <QMimeData>
+#include <QPointer>
 
 #include <algorithm>
 

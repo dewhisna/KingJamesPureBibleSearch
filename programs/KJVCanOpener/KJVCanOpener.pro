@@ -333,17 +333,18 @@ SOURCES += \
 	BibleDBListModel.cpp \
 	BibleWordDiffListModel.cpp \
 	BrowserWidget.cpp \
-	BusyCursor.cpp \
 	CSV.cpp \
 	dbDescriptors.cpp \
 	dbstruct.cpp \
 	DelayedExecutionTimer.cpp \
 	DictDBListModel.cpp \
 	Highlighter.cpp \
+	HighlighterButtons.cpp \
 	KJVCanOpener.cpp \
 	MimeHelper.cpp \
 	ModelRowForwardIterator.cpp \
 	NoteKeywordWidget.cpp \
+	NotificationToolTip.cpp \
 	ParseSymbols.cpp \
 	PassageNavigator.cpp \
 	PassageNavigatorDlg.cpp \
@@ -411,10 +412,12 @@ HEADERS += \
 	DelayedExecutionTimer.h \
 	DictDBListModel.h \
 	Highlighter.h \
+	HighlighterButtons.h \
 	KJVCanOpener.h \
 	MimeHelper.h \
 	ModelRowForwardIterator.h \
 	NoteKeywordWidget.h \
+	NotificationToolTip.h \
 	ParseSymbols.h \
 	PassageNavigator.h \
 	PassageNavigatorDlg.h \
