@@ -168,8 +168,6 @@ private:
 
 // ============================================================================
 
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_DIFF_BUILD)
-
 class CSearchWithinModelIndex : public QObject
 {
 	Q_OBJECT
@@ -308,8 +306,6 @@ private:
 	bool m_bBibleHasColophons;
 	bool m_bBibleHasSuperscriptions;
 };
-
-#endif
 
 // ============================================================================
 
