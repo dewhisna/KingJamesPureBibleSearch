@@ -353,6 +353,7 @@ SOURCES += \
 	PersistentSettings.cpp \
 	PhraseListModel.cpp \
 	PhraseNavigator.cpp \
+	PhraseNavigatorEdit.cpp \
 	ReadDB.cpp \
 	ReflowDelegate.cpp \
 	ReportError.cpp \
@@ -426,6 +427,7 @@ HEADERS += \
 	PersistentSettings.h \
 	PhraseListModel.h \
 	PhraseNavigator.h \
+	PhraseNavigatorEdit.h \
 	Qt_QStyleOption_stub.h \
 	ReadDB.h \
 	ReflowDelegate.h \

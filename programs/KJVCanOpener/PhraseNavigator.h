@@ -34,13 +34,8 @@
 #include <QString>
 #include <QStringList>
 #include <QColor>
-#include <QHelpEvent>
 #include <QList>
 #include <QSharedPointer>
-
-#ifdef QT_WIDGETS_LIB
-#include <QTextEdit>
-#endif
 
 // ============================================================================
 
@@ -675,41 +670,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(CPhraseNavigator::TextRenderOptionFlags)
-
-// ============================================================================
-
-#ifdef QT_WIDGETS_LIB
-
-class CPhraseEditNavigator : public CPhraseNavigator
-{
-	Q_OBJECT
-public:
-	CPhraseEditNavigator(CBibleDatabasePtr pBibleDatabase, QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = nullptr)
-		:	CPhraseNavigator(pBibleDatabase, *textEditor.document(), parent),
-			m_TextEditor(textEditor),
-			m_bUseToolTipEdit(bUseToolTipEdit)
-	{
-		Q_ASSERT(!m_pBibleDatabase.isNull());
-	}
-
-	// Text Selection/ToolTip Functions:
-	void selectWords(const TPhraseTag &tag);
-	using CPhraseNavigator::getSelection;
-	using CPhraseNavigator::getSelectedPhrases;
-	CSelectionPhraseTagList getSelection() const;		// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
-	CSelectedPhraseList getSelectedPhrases() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
-#if !defined(OSIS_PARSER_BUILD) && !defined(KJV_SEARCH_BUILD) && !defined(KJV_DIFF_BUILD)
-	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const;
-	bool handleToolTipEvent(CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const;
-#endif
-	void highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList = TPhraseTagList()) const;
-
-private:
-	QTextEdit &m_TextEditor;
-	bool m_bUseToolTipEdit;			// True = Use CToolTipEdit instead of QToolTip
-};
-
-#endif
 
 // ============================================================================
 

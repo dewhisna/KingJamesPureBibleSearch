@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 #include "Highlighter.h"
-#include "PhraseNavigator.h"
+#include "PhraseNavigatorEdit.h"
 #include "DelayedExecutionTimer.h"
 
 #include <QWidget>
@@ -77,7 +77,7 @@ public:
 	void savePersistentSettings(const QString &strGroup);
 	void restorePersistentSettings(const QString &strGroup);
 
-	CPhraseEditNavigator &navigator()
+	CPhraseNavigatorEdit &navigator()
 	{
 		return m_navigator;
 	}
@@ -172,7 +172,7 @@ private:
 	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	bool m_bDoingSelectionChange;	// True if processing selection change to guard against reentracy
-	CPhraseEditNavigator m_navigator;
+	CPhraseNavigatorEdit m_navigator;
 	CCursorFollowHighlighter m_CursorFollowHighlighter;
 	QTimer m_HighlightTimer;
 	CRelIndex m_ndxCurrent;			// Current Displayed index as captured on received en_gotoIndex()
