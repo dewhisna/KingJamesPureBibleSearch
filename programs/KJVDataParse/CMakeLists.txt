@@ -116,6 +116,7 @@ set(KJVDataParse_SOURCES
 set(KJVDataParse_HEADERS
 	"xc_KJVDataParse.h"
 	"../KJVCanOpener/PathConsts.h"
+	"../KJVCanOpener/BusyCursor.h"
 	"../KJVCanOpener/CSV.h"
 	"../KJVCanOpener/dbDescriptors.h"
 	"../KJVCanOpener/dbstruct.h"

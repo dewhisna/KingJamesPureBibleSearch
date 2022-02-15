@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013-2020 Donna Whisnant, a.k.a. Dewtronics.
+** Copyright (C) 2013-2022 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
 **
 ** This file is part of the KJVCanOpener Application as originally written
@@ -21,34 +21,32 @@
 **
 ****************************************************************************/
 
-#include "BusyCursor.h"
+#ifndef NOTIFICATION_TOOL_TIP_H
+#define NOTIFICATION_TOOL_TIP_H
 
-#include <QTimer>
-#include <QToolTip>
+#include <QObject>
+
+// Forward Declarations:
+class QPoint;
+class QString;
+class QWidget;
+
+// ============================================================================
+
+class CNotificationToolTip : public QObject
+{
+	Q_OBJECT
+
+public:
+	CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget = nullptr);
+	virtual ~CNotificationToolTip();
+
+private slots:
+	void en_hideMessage();
+
+};
 
 // ============================================================================
 
-CNotificationToolTip::CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget)
-	:	QObject()
-{
-	// Note: Remove existing tooltip before displaying the new and/or even setting it on the control.
-	//		This is to make sure we don't have the same Mac OSX bug here that we do in BrowserWidget
-	//		for the Chapter Scrollbar.  This also resets the tooltip fade and keeps the toolTip
-	//		from disappearing prematurely:
-	QToolTip::showText(QPoint(), QString());
-	QToolTip::showText(ptPos, strMessage, pWidget);
-	QTimer::singleShot(nDisplayTimeMS, this, SLOT(en_hideMessage()));
-}
+#endif	// NOTIFICATION_TOOL_TIP_H
 
-CNotificationToolTip::~CNotificationToolTip()
-{
-
-}
-
-void CNotificationToolTip::en_hideMessage()
-{
-	QToolTip::hideText();
-	deleteLater();
-}
-
-// ============================================================================

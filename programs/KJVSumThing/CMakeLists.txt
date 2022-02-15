@@ -118,6 +118,7 @@ set(KJVSumThing_SOURCES
 
 set(KJVSumThing_HEADERS
 	"../KJVCanOpener/PathConsts.h"
+	"../KJVCanOpener/BusyCursor.h"
 	"../KJVCanOpener/CSV.h"
 	"../KJVCanOpener/dbDescriptors.h"
 	"../KJVCanOpener/dbstruct.h"

@@ -31,28 +31,26 @@ class QWidget;		// Forward declaration for non-gui apps
 #include <QCursor>
 #endif
 
-#include <QObject>
-#include <QPoint>
-#include <QString>
-
 // ============================================================================
 
 class CBusyCursor
 {
 public:
+#ifndef IS_CONSOLE_APP
 	CBusyCursor(QWidget *pWidget)
 		:	m_pWidget(pWidget),
 			m_bBusyActive(true)
 	{
-#ifndef IS_CONSOLE_APP
 		if (m_pWidget) {
 			m_originalCursor = m_pWidget->cursor();
 			m_pWidget->setCursor(Qt::WaitCursor);
 		} else {
 			QApplication::setOverrideCursor(Qt::WaitCursor);
 		}
-#endif
 	}
+#else
+	CBusyCursor(QWidget *) {}
+#endif
 
 	~CBusyCursor()
 	{
@@ -77,24 +75,9 @@ public:
 private:
 #ifndef IS_CONSOLE_APP
 	QCursor m_originalCursor;
-#endif
 	QWidget *m_pWidget;
 	bool m_bBusyActive;
-};
-
-// ============================================================================
-
-class CNotificationToolTip : public QObject
-{
-	Q_OBJECT
-
-public:
-	CNotificationToolTip(int nDisplayTimeMS, const QPoint &ptPos, const QString &strMessage, QWidget *pWidget = nullptr);
-	virtual ~CNotificationToolTip();
-
-private slots:
-	void en_hideMessage();
-
+#endif
 };
 
 // ============================================================================

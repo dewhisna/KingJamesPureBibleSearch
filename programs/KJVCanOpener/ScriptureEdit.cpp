@@ -31,6 +31,7 @@
 #include "UserNotesDatabase.h"
 #include "ToolTipEdit.h"
 #include "BusyCursor.h"
+#include "NotificationToolTip.h"
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 
