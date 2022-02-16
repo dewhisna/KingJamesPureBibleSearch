@@ -569,14 +569,9 @@ if(CONSOLE)
 endif()
 
 
-# This was for a Qt5->Qt4 backward compatibility shim:
-#!console:lessThan(QT_MAJOR_VERSION,5):DEFINES *= QT_WIDGETS_LIB
-
-
 if(WEBCHANNEL)
 	setup_qwebchannel_subtargets(${KJVCanOpener_TARGET})
 endif()
-
 
 
 if(USING_wwWidgets)
@@ -612,7 +607,6 @@ if(OPTION_EXCEPTIONS_OFF)
 		NOT_USING_EXCEPTIONS
 	)
 endif()
-
 
 
 if(OPTION_BUILD_BIBLE_DATABASE)

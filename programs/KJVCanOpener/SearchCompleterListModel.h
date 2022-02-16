@@ -38,7 +38,7 @@
 #include <functional>
 
 // Forward Declarations:
-class QTextEdit;
+class QTextCursor;
 class CParsedPhrase;
 
 // ============================================================================
@@ -74,6 +74,8 @@ public:
 	virtual const TBasicWordList &basicWordsList() const { return m_lstBasicWords; }
 	virtual bool isDynamicModel() const = 0;									// Returns true if the model's BasicWords list changes dynamically via setWordsFromPhrase() like our regular SearchPhrases or if it loads at construction and is static like the Dictionary
 
+	virtual void UpdateCompleter(const QTextCursor &curInsert) = 0;
+
 signals:
 	void modelChanged();
 
@@ -94,7 +96,7 @@ class CSearchParsedPhraseListModel : public CSearchStringListModel
 	Q_OBJECT
 
 public:
-	CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent = nullptr);
+	CSearchParsedPhraseListModel(CParsedPhrase &parsedPhrase, QObject *parent = nullptr);
 	virtual ~CSearchParsedPhraseListModel();
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -107,12 +109,14 @@ public:
 
 	virtual bool isDynamicModel() const override { return true; }
 
+	virtual void UpdateCompleter(const QTextCursor &curInsert) override;
+
 public slots:
 	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;
 
 private:
 	Q_DISABLE_COPY(CSearchParsedPhraseListModel)
-	const CParsedPhrase &m_parsedPhrase;
+	CParsedPhrase &m_parsedPhrase;
 	int m_nCursorWord;						// Last word index of phrase cursor was on
 };
 
@@ -138,6 +142,8 @@ public:
 	virtual QString cursorWord() const override;
 
 	virtual bool isDynamicModel() const override { return false; }
+
+	virtual void UpdateCompleter(const QTextCursor &curInsert) override;
 
 public slots:
 	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;

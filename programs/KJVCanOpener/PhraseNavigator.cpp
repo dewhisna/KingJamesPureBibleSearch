@@ -27,9 +27,6 @@
 #include "UserNotesDatabase.h"
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
-#ifdef QT_WIDGETS_LIB
-#include "SearchCompleter.h"
-#endif
 #include "Translator.h"
 
 #include <QStringListModel>
@@ -609,16 +606,10 @@ void CParsedPhrase::clearCache() const
 	m_cache_lstPhraseTagResults = TPhraseTagList();
 }
 
-void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter)
+void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert)
 {
 	ParsePhrase(curInsert);
 	FindWords();
-#ifdef QT_WIDGETS_LIB
-	aCompleter.setFilterMatchString();
-	aCompleter.setWordsFromPhrase();
-#else
-	Q_UNUSED(aCompleter);
-#endif
 }
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)

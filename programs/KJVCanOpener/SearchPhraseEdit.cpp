@@ -336,7 +336,7 @@ void CPhraseLineEdit::UpdateCompleter()
 void CPhraseLineEdit::delayed_UpdatedCompleter()
 {
 	m_dlyUpdateCompleter.untrigger();
-	CParsedPhrase::UpdateCompleter(textCursor(), *m_pCompleter);
+	m_pCompleter->UpdateCompleter(*this);
 
 	if (updateInProgress()) return;
 	CDoUpdate doUpdate(this);

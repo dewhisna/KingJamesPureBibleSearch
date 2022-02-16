@@ -64,8 +64,6 @@ testlib:QT.testlib.CONFIG -= console
 
 console:DEFINES += IS_CONSOLE_APP
 
-!console:lessThan(QT_MAJOR_VERSION,5):DEFINES *= QT_WIDGETS_LIB
-
 if(!emscripten|wasm) {
 	CONFIG += wwwidgets
 }

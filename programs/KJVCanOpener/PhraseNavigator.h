@@ -40,7 +40,6 @@
 // ============================================================================
 
 // Forward declarations:
-class CSearchCompleter;
 class CParsedPhrase;
 
 // ============================================================================
@@ -211,7 +210,7 @@ public:
 		}
 	}
 
-	void UpdateCompleter(const QTextCursor &curInsert, CSearchCompleter &aCompleter);
+	void UpdateCompleter(const QTextCursor &curInsert);
 	QTextCursor insertCompletion(const QTextCursor &curInsert, const QString& completion);
 	void clearCache() const;
 

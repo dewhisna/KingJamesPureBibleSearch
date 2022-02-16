@@ -26,7 +26,7 @@
 
 // ============================================================================
 
-CSearchParsedPhraseListModel::CSearchParsedPhraseListModel(const CParsedPhrase &parsedPhrase, QObject *parent)
+CSearchParsedPhraseListModel::CSearchParsedPhraseListModel(CParsedPhrase &parsedPhrase, QObject *parent)
 	:	CSearchStringListModel(parent),
 		m_parsedPhrase(parsedPhrase),
 		m_nCursorWord(-1)			// Force initial update
@@ -112,6 +112,13 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 	}
 }
 
+void CSearchParsedPhraseListModel::UpdateCompleter(const QTextCursor &curInsert)
+{
+	// This function would be used to update the list model
+	//	for the text at the current cursor position:
+	m_parsedPhrase.UpdateCompleter(curInsert);
+}
+
 // ============================================================================
 
 CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, TEditorWordCallback pFuncEditorWord, QObject *parent)
@@ -179,11 +186,22 @@ QString CSearchDictionaryListModel::cursorWord() const
 
 void CSearchDictionaryListModel::setWordsFromPhrase(bool bForceUpdate)
 {
-	Q_UNUSED(bForceUpdate)
+	Q_UNUSED(bForceUpdate);
 
 //	emit beginResetModel();
 //	emit endResetModel();
 //	emit modelChanged();
+}
+
+void CSearchDictionaryListModel::UpdateCompleter(const QTextCursor &curInsert)
+{
+	// This function would be used to update the list model
+	//	for the text at the current cursor position.  This
+	//	is currently a no-op for the dictionary model, since
+	//	the dictionary model uses the entire text content
+	//	and doesn't have to use something like CParsedPhrase
+	//	that the CSearchParsedPhraseListModel does:
+	Q_UNUSED(curInsert);
 }
 
 // ============================================================================

@@ -193,7 +193,7 @@ private:
 
 // ============================================================================
 
-CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
+CSearchCompleter::CSearchCompleter(CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_nCompletionFilterMode(SCFME_NORMAL),
 		m_pSearchStringListModel(nullptr),
@@ -209,13 +209,13 @@ CSearchCompleter::CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *p
 	setModel(m_pSoundExFilterModel);
 }
 
-CSearchCompleter::CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
+CSearchCompleter::CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editor, QWidget *parentWidget)
 	:	QCompleter(parentWidget),
 		m_nCompletionFilterMode(SCFME_NORMAL),
 		m_pSearchStringListModel(nullptr),
 		m_pSoundExFilterModel(nullptr)
 {
-	m_pSearchStringListModel = new CSearchDictionaryListModel(pDictionary, [&editorWord]()->QString { return editorWord.toPlainText(); }, this);
+	m_pSearchStringListModel = new CSearchDictionaryListModel(pDictionary, [&editor]()->QString { return editor.toPlainText(); }, this);
 	m_pSoundExFilterModel = new CSoundExSearchCompleterFilter(m_pSearchStringListModel, this);
 
 	setWidget(parentWidget);
@@ -354,6 +354,14 @@ void CSearchCompleter::setWordsFromPhrase(bool bForceUpdate)
 {
 	Q_ASSERT(m_pSearchStringListModel != nullptr);
 	m_pSearchStringListModel->setWordsFromPhrase(bForceUpdate);
+}
+
+void CSearchCompleter::UpdateCompleter(const QTextEdit &editor)
+{
+	Q_ASSERT(m_pSearchStringListModel != nullptr);
+	m_pSearchStringListModel->UpdateCompleter(editor.textCursor());
+	setFilterMatchString();
+	setWordsFromPhrase();
 }
 
 // ============================================================================
@@ -663,11 +671,11 @@ bool CComposingCompleter::eventFilter(QObject *obj, QEvent *ev)
 
 // ============================================================================
 
-CStrongsDictionarySearchCompleter::CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
+CStrongsDictionarySearchCompleter::CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editor, QWidget *parentWidget)
 	:	SearchCompleter_t(parentWidget),
 		m_pStrongsListModel(nullptr)
 {
-	m_pStrongsListModel = new CSearchStrongsDictionaryListModel(pDictionary, [&editorWord]()->QString { return editorWord.toPlainText(); }, this);
+	m_pStrongsListModel = new CSearchStrongsDictionaryListModel(pDictionary, [&editor]()->QString { return editor.toPlainText(); }, this);
 	setModel(m_pStrongsListModel);
 #if QT_VERSION >= 0x050200		// Filter Mode was introduced in Qt 5.2
 	setFilterMode(Qt::MatchStartsWith);

@@ -47,8 +47,8 @@ class CSearchCompleter : public QCompleter
 	Q_OBJECT
 
 public:
-	CSearchCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget);
-	CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget);
+	CSearchCompleter(CParsedPhrase &parsedPhrase, QWidget *parentWidget);
+	CSearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editor, QWidget *parentWidget);
 	CSearchCompleter(QWidget *parentWidget);
 	virtual ~CSearchCompleter();
 
@@ -61,6 +61,8 @@ public:
 	virtual QString filterMatchString() const { return m_strFilterMatchString; }
 
 	virtual void selectFirstMatchString();
+
+	virtual void UpdateCompleter(const QTextEdit &editor);
 
 public slots:
 	virtual void setFilterMatchString();
@@ -91,14 +93,14 @@ class CComposingCompleter : public CSearchCompleter
 	Q_OBJECT
 
 public:
-	CComposingCompleter(const CParsedPhrase &parsedPhrase, QWidget *parentWidget)
+	CComposingCompleter(CParsedPhrase &parsedPhrase, QWidget *parentWidget)
 		:	CSearchCompleter(parsedPhrase, parentWidget)
 	{
 
 	}
 
-	CComposingCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget)
-		:	CSearchCompleter(pDictionary, editorWord, parentWidget)
+	CComposingCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editor, QWidget *parentWidget)
+		:	CSearchCompleter(pDictionary, editor, parentWidget)
 	{
 
 	}
@@ -132,7 +134,7 @@ class CStrongsDictionarySearchCompleter : public SearchCompleter_t
 	Q_OBJECT
 
 public:
-	CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editorWord, QWidget *parentWidget);
+	CStrongsDictionarySearchCompleter(CDictionaryDatabasePtr pDictionary, const QTextEdit &editor, QWidget *parentWidget);
 	virtual ~CStrongsDictionarySearchCompleter() { }
 
 	using CSearchCompleter::completionFilterMode;
