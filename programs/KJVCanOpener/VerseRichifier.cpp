@@ -38,6 +38,8 @@
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
 
+#define QTBUG_100879_WORKAROUND 1
+
 // ============================================================================
 // ============================================================================
 
@@ -333,22 +335,44 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 	//		NSC HSM LSM NSM HSC LSC ... count = 4, break at ndx==5 with decrement
 	//
 	int nFirstLetterSize = 0;
+#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
+	bool bHasMarks = false;
+#endif
 	if (!strWord.isEmpty()) {
 		QChar chrPrevious = strWord.at(0);
 		++nFirstLetterSize;
 		for (int ndx = 1; ndx < strWord.size(); ++ndx) {
 			// Note: High surrogates always come first when there's a surrogate pair
 			if (!strWord.at(ndx).isMark() && !strWord.at(ndx).isSurrogate()) break;
+#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
+			if (strWord.at(ndx).isMark()) bHasMarks = true;
+#endif
 			if (strWord.at(ndx).isLowSurrogate() &&
 				(nFirstLetterSize > 2) &&
 				!QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
 				--nFirstLetterSize;		// If the pair isn't a mark, "unget" the upper-byte from the count as this is the next base-character
 				break;
 			}
+#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
+			if (strWord.at(ndx).isLowSurrogate() &&
+				QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
+				bHasMarks = true;
+			}
+#endif
 			chrPrevious = strWord.at(ndx);
 			++nFirstLetterSize;
 		}
 	}
+
+#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
+	// In QTBUG-100879, the first mark composed character inside anchors
+	//	doesn't render correctly.  But it does if there's a non-breaking
+	//	space.  Therefore, if the next character is composed with marks
+	//	and we are rendering anchors, output a "&nbsp;":
+	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_AddAnchors) && bHasMarks) {
+		m_parseBaton.m_strVerseText.append("&nbsp;");
+	}
+#endif
 
 	if (!m_parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 		if (m_parseBaton.m_bOutput) {
