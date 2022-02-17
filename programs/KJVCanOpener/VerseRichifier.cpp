@@ -306,11 +306,55 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 	if (m_parseBaton.m_bInWordsOfJesus) nWordTypes |= CVerseTextRichifierTags::VWT_WordsOfJesus;
 	if (m_parseBaton.m_bInSearchResult) nWordTypes |= CVerseTextRichifierTags::VWT_SearchResult;
 
+	// Get the number of QChars from the string that represents the first
+	//	real character of the word.  This includes the first base-character
+	//	(non-mark) and any "mark" that comes after it to mark it up.  Any of
+	//	these can, of course, be dual-QChar surrogate pairs.  So, if the
+	//	first QChar read is a surrogate, it and its lowSurrogate pair count
+	//	in the final results.  We then want to read and count any marks after
+	//	that first base character.  If what follows is a mark, then it's
+	//	counted as-is.  But, if what follows is a surrogate, we have to look
+	//	at the next character combined to see if it's a surrogate mark.  If
+	//	so, we count it too, but if not, we have to uncount the first half of
+	//	the pair because it means we are looking at the next complete character
+	//	of the word instead...
+	//
+	//	NSC = Non-Surrogate base-character
+	//	HSC = High Surrogate for base-character
+	//	LSC = Low Surrogate for base-character
+	//	NSM = Non-Surrogate mark
+	//	HSM = High Surrogate for mark
+	//	LSM = Low Surrogate for mark
+	//
+	//		NSC NSM NSM NSC ... count = 3, break at ndx==3
+	//		HSC LSC NSM NSC ... count = 3, break at ndx==3
+	//		HSC LSC HSM LSM NSC ... count = 4, break at ndx==4 with no decrement
+	//		HSC LSC HSC LSC ... count = 2, break at ndx==3 with decrement
+	//		NSC HSM LSM NSM HSC LSC ... count = 4, break at ndx==5 with decrement
+	//
+	int nFirstLetterSize = 0;
+	if (!strWord.isEmpty()) {
+		QChar chrPrevious = strWord.at(0);
+		++nFirstLetterSize;
+		for (int ndx = 1; ndx < strWord.size(); ++ndx) {
+			// Note: High surrogates always come first when there's a surrogate pair
+			if (!strWord.at(ndx).isMark() && !strWord.at(ndx).isSurrogate()) break;
+			if (strWord.at(ndx).isLowSurrogate() &&
+				(nFirstLetterSize > 2) &&
+				!QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
+				--nFirstLetterSize;		// If the pair isn't a mark, "unget" the upper-byte from the count as this is the next base-character
+				break;
+			}
+			chrPrevious = strWord.at(ndx);
+			++nFirstLetterSize;
+		}
+	}
+
 	if (!m_parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 		if (m_parseBaton.m_bOutput) {
-			m_parseBaton.m_strVerseText.append(strWord.left(1)
+			m_parseBaton.m_strVerseText.append(strWord.left(nFirstLetterSize)
 											+ m_parseBaton.m_strDivineNameFirstLetterParseText
-											+ strWord.mid(1));
+											+ strWord.mid(nFirstLetterSize));
 		}
 		m_parseBaton.m_strDivineNameFirstLetterParseText.clear();
 		nWordTypes |= CVerseTextRichifierTags::VWT_DivineName;
