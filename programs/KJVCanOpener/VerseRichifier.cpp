@@ -343,20 +343,34 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 		++nFirstLetterSize;
 		for (int ndx = 1; ndx < strWord.size(); ++ndx) {
 			// Note: High surrogates always come first when there's a surrogate pair
-			if (!strWord.at(ndx).isMark() && !strWord.at(ndx).isSurrogate()) break;
+#if QT_VERSION >= 0x050000
+			if (!strWord.at(ndx).isMark() && (!strWord.at(ndx).isSurrogate())) break;
+#else
+			if (!strWord.at(ndx).isMark() && (strWord.at(ndx).category() != QChar::Other_Surrogate)) break;
+#endif
 #if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
 			if (strWord.at(ndx).isMark()) bHasMarks = true;
 #endif
+#if QT_VERSION >= 0x050000
 			if (strWord.at(ndx).isLowSurrogate() &&
 				(nFirstLetterSize > 2) &&
 				!QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
 				--nFirstLetterSize;		// If the pair isn't a mark, "unget" the upper-byte from the count as this is the next base-character
 				break;
 			}
-#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
+	#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
 			if (strWord.at(ndx).isLowSurrogate() &&
 				QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
 				bHasMarks = true;
+			}
+	#endif
+#else
+			if (strWord.at(ndx).isHighSurrogate()) {
+				// Note: On Qt4, just don't support surrogate marks, only base characters.
+				//	If this is a new surrogate starting, bail out.  Note that we use
+				//	isHighSurrogate() here for a new surrogate because we could still have
+				//	the lowSurrogate for the base-character to process.  It's only marks we drop:
+				break;
 			}
 #endif
 			chrPrevious = strWord.at(ndx);
