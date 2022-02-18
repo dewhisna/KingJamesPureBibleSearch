@@ -141,6 +141,10 @@ QString StringParse::deLigature(const QString &strWord)
 {
 	QString strDecomposed = strWord;
 
+	static const QString constrDoubleVav = QString(QChar(0x05D5)) + QString(QChar(0x05D5));
+	static const QString constrVavYod = QString(QChar(0x05D5)) + QString(QChar(0x05D9));
+	static const QString constrDoubleYod = QString(QChar(0x05D9)) + QString(QChar(0x05D9));
+
 	strDecomposed.replace(QChar(0x00C6), "Ae");				// U+00C6	&#198;		AE character
 	strDecomposed.replace(QChar(0x00E6), "ae");				// U+00E6	&#230;		ae character
 	strDecomposed.replace(QChar(0x0132), "IJ");				// U+0132	&#306;		IJ character
@@ -148,9 +152,9 @@ QString StringParse::deLigature(const QString &strWord)
 	strDecomposed.replace(QChar(0x0152), "Oe");				// U+0152	&#338;		OE character
 	strDecomposed.replace(QChar(0x0153), "oe");				// U+0153	&#339;		oe character
 
-	strDecomposed.replace(QChar(0x05F0), "וו");				// U+05F0	&#1520;		Hebrew Yiddish Double Vav ("װ")
-	strDecomposed.replace(QChar(0x05F1), "וי");				// U+05F1	&#1521;		Hebrew Yiddish Vav Yod ("ױ")
-	strDecomposed.replace(QChar(0x05F2), "יי");				// U+05F2	&#1522;		Hebrew Yiddish Double Yod ("ײ")
+	strDecomposed.replace(QChar(0x05F0), constrDoubleVav);	// U+05F0	&#1520;		Hebrew Yiddish Double Vav ("װ")
+	strDecomposed.replace(QChar(0x05F1), constrVavYod);		// U+05F1	&#1521;		Hebrew Yiddish Vav Yod ("ױ")
+	strDecomposed.replace(QChar(0x05F2), constrDoubleYod);	// U+05F2	&#1522;		Hebrew Yiddish Double Yod ("ײ")
 
 	return strDecomposed;
 }
