@@ -471,9 +471,9 @@ public:
 class CPhraseCursor : public QTextCursor
 {
 public:
-	CPhraseCursor(const QTextCursor &aCursor, CBibleDatabase *pBibleDatabase);
+	CPhraseCursor(const QTextCursor &aCursor, CBibleDatabase *pBibleDatabase, bool bUseBibleBasedHyphenSeparator);
 	CPhraseCursor(const CPhraseCursor &aCursor);
-	CPhraseCursor(QTextDocument *pDocument, CBibleDatabase *pBibleDatabase);
+	CPhraseCursor(QTextDocument *pDocument, CBibleDatabase *pBibleDatabase, bool bUseBibleBasedHyphenSeparator);
 	virtual ~CPhraseCursor();
 
 	bool moveCursorCharLeft(MoveMode mode = MoveAnchor);
@@ -493,6 +493,7 @@ public:
 
 private:
 	CBibleDatabase *m_pBibleDatabase;
+	bool m_bUseBibleBasedHyphenSeparator;
 };
 
 // ============================================================================

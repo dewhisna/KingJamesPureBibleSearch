@@ -51,7 +51,7 @@ void CPhraseNavigatorEdit::selectWords(const TPhraseTag &tag)
 		int nEndPos = anchorPosition(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(ndxRel) + tag.count() - 1).asAnchor());
 
 		if (nStartPos != -1) {
-			CPhraseCursor myCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data());
+			CPhraseCursor myCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data(), true);
 			myCursor.beginEditBlock();
 			myCursor.setPosition(nStartPos);
 			if ((nEndPos != -1) && (tag.count() > 0)) {
@@ -71,12 +71,12 @@ void CPhraseNavigatorEdit::selectWords(const TPhraseTag &tag)
 
 CSelectionPhraseTagList CPhraseNavigatorEdit::getSelection() const
 {
-	return getSelection(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data()));
+	return getSelection(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data(), true));
 }
 
 CSelectedPhraseList CPhraseNavigatorEdit::getSelectedPhrases() const
 {
-	return getSelectedPhrases(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data()));
+	return getSelectedPhrases(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data(), true));
 }
 
 bool CPhraseNavigatorEdit::handleToolTipEvent(CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const
@@ -84,7 +84,7 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(CKJVCanOpener *pCanOpener, const Q
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	Q_ASSERT(pHelpEvent != nullptr);
-	CSelectionPhraseTagList lstRefSelection = getSelection(CPhraseCursor(m_TextEditor.cursorForPosition(pHelpEvent->pos()), m_pBibleDatabase.data()));
+	CSelectionPhraseTagList lstRefSelection = getSelection(CPhraseCursor(m_TextEditor.cursorForPosition(pHelpEvent->pos()), m_pBibleDatabase.data(), true));
 	TPhraseTag tagReference = TPhraseTag(lstRefSelection.primarySelection().relIndex(), 1);
 	QString strToolTip = getToolTip(tagReference, selection);
 

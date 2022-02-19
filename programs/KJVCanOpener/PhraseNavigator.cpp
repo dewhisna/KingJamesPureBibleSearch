@@ -614,7 +614,7 @@ void CParsedPhrase::UpdateCompleter(const QTextCursor &curInsert)
 
 QTextCursor CParsedPhrase::insertCompletion(const QTextCursor &curInsert, const QString& completion)
 {
-	CPhraseCursor myCursor(curInsert, nullptr);		// Don't pass BibleDatabase so that hyphens aren't considered as word separators
+	CPhraseCursor myCursor(curInsert, m_pBibleDatabase.data(), false);		// Hyphens aren't considered as word separators for phrases
 	myCursor.beginEditBlock();
 	myCursor.clearSelection();
 	if (!atEndOfSubPhrase()) {
@@ -636,7 +636,7 @@ void CParsedPhrase::ParsePhrase(const QTextCursor &curInsert, bool bFindWords)
 	// Note: clearCache() called in secondary ParsePhrase() call below
 	//		once we've parsed the cursor into a string
 
-	CPhraseCursor myCursor(curInsert, nullptr);		// Don't pass BibleDatabase so that hyphens aren't considered as word separators
+	CPhraseCursor myCursor(curInsert, m_pBibleDatabase.data(), false);		// Hyphens aren't considered as word separators for phrases
 	int nCursorPos = myCursor.position();
 
 	myCursor.setPosition(0);
@@ -1003,21 +1003,24 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 
 // ============================================================================
 
-CPhraseCursor::CPhraseCursor(const QTextCursor &aCursor, CBibleDatabase *pBibleDatabase)
+CPhraseCursor::CPhraseCursor(const QTextCursor &aCursor, CBibleDatabase *pBibleDatabase, bool bUseBibleBasedHyphenSeparator)
 	:	QTextCursor(aCursor),
-		m_pBibleDatabase(pBibleDatabase)
+		m_pBibleDatabase(pBibleDatabase),
+		m_bUseBibleBasedHyphenSeparator(bUseBibleBasedHyphenSeparator)
 {
 }
 
 CPhraseCursor::CPhraseCursor(const CPhraseCursor &aCursor)
 	:	QTextCursor(aCursor),
-		m_pBibleDatabase(aCursor.m_pBibleDatabase)
+		m_pBibleDatabase(aCursor.m_pBibleDatabase),
+		m_bUseBibleBasedHyphenSeparator(aCursor.m_bUseBibleBasedHyphenSeparator)
 {
 }
 
-CPhraseCursor::CPhraseCursor(QTextDocument *pDocument, CBibleDatabase *pBibleDatabase)
+CPhraseCursor::CPhraseCursor(QTextDocument *pDocument, CBibleDatabase *pBibleDatabase, bool bUseBibleBasedHyphenSeparator)
 	:	QTextCursor(pDocument),
-		m_pBibleDatabase(pBibleDatabase)
+		m_pBibleDatabase(pBibleDatabase),
+		m_bUseBibleBasedHyphenSeparator(bUseBibleBasedHyphenSeparator)
 {
 }
 
@@ -1049,7 +1052,7 @@ inline bool CPhraseCursor::charUnderCursorIsSeparator()
 	//	they should be considered separators to work with databases
 	//	like OSHB that have hyphenated words where the separate
 	//	halves are tagged as different lemma words:
-	if (m_pBibleDatabase) {
+	if (m_bUseBibleBasedHyphenSeparator && m_pBibleDatabase) {
 		bHyphenSeparators = true;		// Flip the logic
 		QString strAnchorName = charFormat().anchorNames().value(0);
 		CRelIndex ndxAnchor(strAnchorName);
@@ -1261,7 +1264,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	CPhraseCursor myCursor(&m_TextDocument, m_pBibleDatabase.data());
+	CPhraseCursor myCursor(&m_TextDocument, m_pBibleDatabase.data(), true);
 
 	myCursor.beginEditBlock();
 
@@ -3110,7 +3113,7 @@ void CPhraseNavigator::removeAnchors()
 	//		cobbled this up, pattered after our anchorPosition function, which
 	//		was patterned after the Qt code for doing this:
 
-	CPhraseCursor myCursor(&m_TextDocument, m_pBibleDatabase.data());
+	CPhraseCursor myCursor(&m_TextDocument, m_pBibleDatabase.data(), true);
 	myCursor.beginEditBlock();
 
 	for (QTextBlock block = m_TextDocument.begin(); block.isValid(); block = block.next()) {
