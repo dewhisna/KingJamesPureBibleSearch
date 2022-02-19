@@ -61,6 +61,7 @@ namespace StringParse {
 	QString deApostrHyphen(const QString &strWord, bool bRemoveHyphens);	// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
 	QString deApostrophe(const QString &strWord, bool bRemove = false);		// Decompose/remove Apostrophes only
 	QString deHyphen(const QString &strWord, bool bRemove = false);			// Decompose/remove Hyphens only
+	QString deCantillate(const QString &strWord);							// Decompose/remove Cantillation markings (Hebrew)
 };
 
 // ============================================================================

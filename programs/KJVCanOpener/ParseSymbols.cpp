@@ -124,6 +124,8 @@ QString StringParse::decompose(const QString &strWord, bool bRemoveHyphens)
 	// There are two possible ways to remove accent marks:
 	//
 	//		1) strDecomposed.remove(QRegExp("[^a-zA-Z\\s]"));
+	//				Note: This one only works for English and similar
+	//				languages (not Greek or Hebrew or Cyrillic, etc).
 	//
 	//		2) Remove characters of class "Mark" (QChar::Mark_NonSpacing,
 	//				QChar::Mark_SpacingCombining, QChar::Mark_Enclosing),
@@ -225,6 +227,20 @@ QString StringParse::deHyphen(const QString &strWord, bool bRemove)
 	}
 
 	return strDecomposed;
+}
+
+QString StringParse::deCantillate(const QString &strWord)
+{
+	QString strDecomposed = strWord.normalized(QString::NormalizationForm_KD);
+
+	for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
+		if ((strDecomposed.at(nPos).unicode() >= 0x0591) &&
+			(strDecomposed.at(nPos).unicode() <= 0x05AF)) {
+			strDecomposed.remove(nPos, 1);
+		}
+	}
+
+	return strDecomposed.normalized(QString::NormalizationForm_C);
 }
 
 // ============================================================================
