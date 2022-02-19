@@ -439,7 +439,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 		}
 		if (i > 0) {
 			if (m_pVerse != nullptr) {
-				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i);
+				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i, WTE_RENDERED);
 				m_parseBaton.m_ndxCurrent.setWord(i);
 				bool bWasInLemma = (m_parseBaton.m_pCurrentLemma != nullptr);
 				if (m_parseBaton.m_bOutput) {

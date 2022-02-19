@@ -2200,7 +2200,8 @@ TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBi
 
 
 CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
-	:	m_descriptor(bblDesc),
+	:	m_bSearchSpaceIsCompleteConcordance(true),
+		m_descriptor(bblDesc),
 		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
 	// Note: For ReadSpecialBibleDatabase() to work correctly (command-line tools), this function must be
@@ -2398,31 +2399,29 @@ const CConcordanceEntry *CBibleDatabase::concordanceEntryForWordAtIndex(const CR
 	return pConcordanceEntry;
 }
 
-QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, bool bAsRendered) const
+QString CBibleDatabase::wordAtIndex(uint32_t ndxNormal, WORD_TYPE_ENUM nWordType) const
 {
 	if ((ndxNormal < 1) || (ndxNormal >= m_lstConcordanceMapping.size()))
 		return QString();
 
-	if (bAsRendered) {
-		return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).renderedWord();
-	} else {
-		return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
+	switch (nWordType) {
+		case WTE_COMPLETE:
+			return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).word();
+		case WTE_SEARCH:
+			return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).searchWord();
+		case WTE_RENDERED:
+			return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).renderedWord();
+		case WTE_DECOMPOSED:
+			return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).decomposedWord();
 	}
+
+	return QString();
 }
 
-QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, bool bAsRendered) const
+QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nWordType) const
 {
 	if (!relIndex.isSet()) return QString();
-	return wordAtIndex(NormalizeIndex(relIndex), bAsRendered);
-}
-
-QString CBibleDatabase::decomposedWordAtIndex(uint32_t ndxNormal) const
-{
-	Q_ASSERT((ndxNormal >= 1) && (ndxNormal < m_lstConcordanceMapping.size()));
-	if ((ndxNormal < 1) || (ndxNormal >= m_lstConcordanceMapping.size()))
-		return QString();
-
-	return m_lstConcordanceWords.at(m_lstConcordanceMapping.at(ndxNormal)).decomposedWord();
+	return wordAtIndex(NormalizeIndex(relIndex), nWordType);
 }
 
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const

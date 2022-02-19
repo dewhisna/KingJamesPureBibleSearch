@@ -216,7 +216,7 @@ bool CScriptureTextHtmlBuilder::addKJPBSWord(const CBibleDatabase *pBibleDatabas
 {
 	if (!relIndex.isSet()) return false;
 	Q_ASSERT(pBibleDatabase != nullptr);
-	QString strWordAt = pBibleDatabase->wordAtIndex(relIndex);
+	QString strWordAt = pBibleDatabase->wordAtIndex(relIndex, WTE_RENDERED);
 	appendRawText(QString("<KJPBSWord RelIndex=\"%1\" />").arg(relIndex.asAnchor()));			// TODO: Embed Text in Object???
 	return (!strWordAt.isEmpty());
 }
@@ -357,7 +357,7 @@ bool CScripturePlainTextBuilder::addKJPBSWord(const CBibleDatabase *pBibleDataba
 {
 	if (!relIndex.isSet()) return false;
 	Q_ASSERT(pBibleDatabase != nullptr);
-	QString strWordAt = pBibleDatabase->wordAtIndex(relIndex);
+	QString strWordAt = pBibleDatabase->wordAtIndex(relIndex, WTE_RENDERED);
 	appendRawText(strWordAt);
 	return (!strWordAt.isEmpty());
 }

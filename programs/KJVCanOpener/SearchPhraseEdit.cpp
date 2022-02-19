@@ -400,7 +400,7 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 		if ((ndxNormal != 0) && (tag.count() > 0)) {
 			for (unsigned int ndx = 0; ((ndx < tag.count()) && ((ndxNormal + ndx) <= m_pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
 				if (ndx) strPhrase += " ";
-				strPhrase += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx);
+				strPhrase += m_pBibleDatabase->wordAtIndex(ndxNormal + ndx, WTE_SEARCH);
 			}
 			clear();
 			setPlainText(strPhrase);

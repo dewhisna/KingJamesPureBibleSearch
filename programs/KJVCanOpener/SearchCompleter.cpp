@@ -49,33 +49,33 @@
 class TBasicWordHelper
 {
 public:
-	TBasicWordHelper(const TBasicWordList &aWordList)
-		:	m_lstBasicWords(aWordList)
+	TBasicWordHelper(const CSearchStringListModel *pModel)
+		:	m_pModel(pModel)
 	{
-
+		Q_ASSERT(pModel != nullptr);
 	}
 
-	int indexOf_renderedWord(const QString &strWord, int nFrom = 0) const
+	int indexOf_searchWord(const QString &strWord, int nFrom = 0) const
 	{
 		if (nFrom < 0)
-			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
-		if (nFrom < m_lstBasicWords.size()) {
-			for (int ndx = nFrom; ndx < m_lstBasicWords.size(); ++ndx) {
-				if (m_lstBasicWords.at(ndx)->renderedWord() == strWord) return ndx;
+			nFrom = qMax(nFrom + m_pModel->basicWordsListSize(), 0);
+		if (nFrom < m_pModel->basicWordsListSize()) {
+			for (int ndx = nFrom; ndx < m_pModel->basicWordsListSize(); ++ndx) {
+				if (m_pModel->basicWordsListEntry(ndx).searchWord() == strWord) return ndx;
 			}
 		}
 		return -1;
 	}
 
-	int lastIndexOf_renderedWord(const QString &strWord, int nFrom = -1) const
+	int lastIndexOf_searchWord(const QString &strWord, int nFrom = -1) const
 	{
 		if (nFrom < 0)
-			nFrom += m_lstBasicWords.size();
-		else if (nFrom >= m_lstBasicWords.size())
-			nFrom = m_lstBasicWords.size()-1;
+			nFrom += m_pModel->basicWordsListSize();
+		else if (nFrom >= m_pModel->basicWordsListSize())
+			nFrom = m_pModel->basicWordsListSize()-1;
 		if (nFrom >= 0) {
 			for (int ndx = nFrom; ndx >= 0; --ndx) {
-				if (m_lstBasicWords.at(ndx)->renderedWord() == strWord) return ndx;
+				if (m_pModel->basicWordsListEntry(ndx).searchWord() == strWord) return ndx;
 			}
 		}
 		return -1;
@@ -84,10 +84,10 @@ public:
 	int indexOf_decomposedWord(const QString &strWord, int nFrom = 0) const
 	{
 		if (nFrom < 0)
-			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
-		if (nFrom < m_lstBasicWords.size()) {
-			for (int ndx = nFrom; ndx < m_lstBasicWords.size(); ++ndx) {
-				if (m_lstBasicWords.at(ndx)->decomposedWord() == strWord) return ndx;
+			nFrom = qMax(nFrom + m_pModel->basicWordsListSize(), 0);
+		if (nFrom < m_pModel->basicWordsListSize()) {
+			for (int ndx = nFrom; ndx < m_pModel->basicWordsListSize(); ++ndx) {
+				if (m_pModel->basicWordsListEntry(ndx).decomposedWord() == strWord) return ndx;
 			}
 		}
 		return -1;
@@ -96,30 +96,30 @@ public:
 	int lastIndexOf_decomposedWord(const QString &strWord, int nFrom = -1) const
 	{
 		if (nFrom < 0)
-			nFrom += m_lstBasicWords.size();
-		else if (nFrom >= m_lstBasicWords.size())
-			nFrom = m_lstBasicWords.size()-1;
+			nFrom += m_pModel->basicWordsListSize();
+		else if (nFrom >= m_pModel->basicWordsListSize())
+			nFrom = m_pModel->basicWordsListSize()-1;
 		if (nFrom >= 0) {
 			for (int ndx = nFrom; ndx >= 0; --ndx) {
-				if (m_lstBasicWords.at(ndx)->decomposedWord() == strWord) return ndx;
+				if (m_pModel->basicWordsListEntry(ndx).decomposedWord() == strWord) return ndx;
 			}
 		}
 		return -1;
 	}
 
 #if QT_VERSION >= 0x050F00
-	int indexOf_renderedWord(const QRegularExpression &rx, int nFrom = 0) const
+	int indexOf_searchWord(const QRegularExpression &rx, int nFrom = 0) const
 #else
-	int indexOf_renderedWord(const QRegExp &rx, int nFrom = 0) const
+	int indexOf_searchWord(const QRegExp &rx, int nFrom = 0) const
 #endif
 	{
 		if (nFrom < 0)
-			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
-		for (int i = nFrom; i < m_lstBasicWords.size(); ++i) {
+			nFrom = qMax(nFrom + m_pModel->basicWordsListSize(), 0);
+		for (int i = nFrom; i < m_pModel->basicWordsListSize(); ++i) {
 #if QT_VERSION >= 0x050F00
-			if (rx.match(m_lstBasicWords.at(i)->renderedWord()).hasMatch())
+			if (rx.match(m_pModel->basicWordsListEntry(i).searchWord()).hasMatch())
 #else
-			if (rx.exactMatch(m_lstBasicWords.at(i)->renderedWord()))
+			if (rx.exactMatch(m_pModel->basicWordsListEntry(i).searchWord()))
 #endif
 				return i;
 		}
@@ -127,20 +127,20 @@ public:
 	}
 
 #if QT_VERSION >= 0x050F00
-	int lastIndexOf_renderedWord(const QRegularExpression &rx, int nFrom = -1) const
+	int lastIndexOf_searchWord(const QRegularExpression &rx, int nFrom = -1) const
 #else
-	int lastIndexOf_renderedWord(const QRegExp &rx, int nFrom = -1) const
+	int lastIndexOf_searchWord(const QRegExp &rx, int nFrom = -1) const
 #endif
 	{
 		if (nFrom < 0)
-			nFrom += m_lstBasicWords.size();
-		else if (nFrom >= m_lstBasicWords.size())
-			nFrom = m_lstBasicWords.size() - 1;
+			nFrom += m_pModel->basicWordsListSize();
+		else if (nFrom >= m_pModel->basicWordsListSize())
+			nFrom = m_pModel->basicWordsListSize() - 1;
 		for (int i = nFrom; i >= 0; --i) {
 #if QT_VERSION >= 0x050F00
-			if (rx.match(m_lstBasicWords.at(i)->renderedWord()).hasMatch())
+			if (rx.match(m_pModel->basicWordsListEntry(i).searchWord()).hasMatch())
 #else
-			if (rx.exactMatch(m_lstBasicWords.at(i)->renderedWord()))
+			if (rx.exactMatch(m_pModel->basicWordsListEntry(i).searchWord()))
 #endif
 				return i;
 			}
@@ -154,12 +154,12 @@ public:
 #endif
 	{
 		if (nFrom < 0)
-			nFrom = qMax(nFrom + m_lstBasicWords.size(), 0);
-		for (int i = nFrom; i < m_lstBasicWords.size(); ++i) {
+			nFrom = qMax(nFrom + m_pModel->basicWordsListSize(), 0);
+		for (int i = nFrom; i < m_pModel->basicWordsListSize(); ++i) {
 #if QT_VERSION >= 0x050F00
-			if (rx.match(m_lstBasicWords.at(i)->decomposedWord()).hasMatch())
+			if (rx.match(m_pModel->basicWordsListEntry(i).decomposedWord()).hasMatch())
 #else
-			if (rx.exactMatch(m_lstBasicWords.at(i)->decomposedWord()))
+			if (rx.exactMatch(m_pModel->basicWordsListEntry(i).decomposedWord()))
 #endif
 				return i;
 		}
@@ -173,14 +173,14 @@ public:
 #endif
 	{
 		if (nFrom < 0)
-			nFrom += m_lstBasicWords.size();
-		else if (nFrom >= m_lstBasicWords.size())
-			nFrom = m_lstBasicWords.size() - 1;
+			nFrom += m_pModel->basicWordsListSize();
+		else if (nFrom >= m_pModel->basicWordsListSize())
+			nFrom = m_pModel->basicWordsListSize() - 1;
 		for (int i = nFrom; i >= 0; --i) {
 #if QT_VERSION >= 0x050F00
-			if (rx.match(m_lstBasicWords.at(i)->decomposedWord()).hasMatch())
+			if (rx.match(m_pModel->basicWordsListEntry(i).decomposedWord()).hasMatch())
 #else
-			if (rx.exactMatch(m_lstBasicWords.at(i)->decomposedWord()))
+			if (rx.exactMatch(m_pModel->basicWordsListEntry(i).decomposedWord()))
 #endif
 				return i;
 			}
@@ -188,7 +188,7 @@ public:
 	}
 
 private:
-	const TBasicWordList &m_lstBasicWords;
+	const CSearchStringListModel *m_pModel;
 };
 
 // ============================================================================
@@ -525,7 +525,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 	//		transient data in order to prevent extraneous copying of strings.  On
 	//		static models, like the Dictionary, it's safe to call it as needed:
 
-	TBasicWordHelper lstBasicWords(m_pSearchStringListModel->basicWordsList());
+	TBasicWordHelper lstBasicWords(m_pSearchStringListModel);
 
 	m_lstMatchedIndexes.clear();
 	m_nFirstComposedMatchStringIndex = -1;
@@ -556,7 +556,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 			const QList<int> &mapSoundEx = m_mapSoundEx[strSoundEx];
 
 			m_nFirstDecomposedMatchStringIndex = nFirstWord;		// Temporarily set first word index to our decomposed list index.  After sorting, we'll find it's new location and change it
-			m_nFirstComposedMatchStringIndex = lstBasicWords.indexOf_renderedWord(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
+			m_nFirstComposedMatchStringIndex = lstBasicWords.indexOf_searchWord(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
 
 			QList<int> lstMatches;
 			lstMatches.reserve(mapSoundEx.size() + nNumWords);
@@ -598,7 +598,7 @@ void CSoundExSearchCompleterFilter::updateModel(bool bResetModel)
 			}
 		} else {
 			m_nFirstDecomposedMatchStringIndex = lstBasicWords.indexOf_decomposedWord(expPrefix);
-			m_nFirstComposedMatchStringIndex = lstBasicWords.indexOf_renderedWord(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
+			m_nFirstComposedMatchStringIndex = lstBasicWords.indexOf_searchWord(m_strFilterFixedString, ((m_nFirstDecomposedMatchStringIndex != -1) ? m_nFirstDecomposedMatchStringIndex : 0));
 
 #ifdef SEARCH_COMPLETER_DEBUG_OUTPUT
 			qDebug("Prefix: \"%s\"  expPrefix: \"%s\"  nFirstMatch: %d", strDecomposedFilterString.toUtf8().data(), expPrefix.pattern().toUtf8().data(), m_nFirstDecomposedMatchStringIndex);

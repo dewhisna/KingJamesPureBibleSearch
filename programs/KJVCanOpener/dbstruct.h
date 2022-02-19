@@ -580,10 +580,11 @@ public:
 	{ }
 	~CWordEntry() { }
 
-	QString m_strWord;			// Word Text
-	bool m_bCasePreserve;		// Special Word Case Preserve
-	bool m_bIsProperWord;		// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
-	QStringList m_lstAltWords;	// List of alternate synonymous words for searching (such as hyphenated and non-hyphenated or capital vs lowercase), these are the exact words of the text
+	QString m_strWord;					// Word Text as in the Bible Database WORDS.csv file (base root for each unique word)
+	bool m_bCasePreserve;				// Special Word Case Preserve
+	bool m_bIsProperWord;				// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
+	QStringList m_lstAltWords;			// Complete exact word of the Bible Database, are related variations of the base root (such as hyphenated and non-hyphenated or capital vs lowercase), these are the exact words of the text
+	QStringList m_lstSearchWords;		// Search word reduced from the complete list, for example without cantillation marks
 	QStringList m_lstDecomposedAltWords;		// Decomposed Words (used for matching), without hyphens
 	QStringList m_lstDecomposedHyphenAltWords;	// Decomposed Words (used for matching), with hyphens
 	QStringList m_lstDeApostrAltWords;			// Decomposed Words (used for matching), with apostrophies decomposed without hyphens
@@ -600,6 +601,7 @@ public:
 	};
 };
 
+typedef std::set<QString, CWordEntry::SortPredicate> TWordListSet;
 typedef std::map<QString, CWordEntry, CWordEntry::SortPredicate> TWordListMap;		// Indexed by lowercase words from word-list
 
 // ============================================================================
@@ -611,6 +613,7 @@ class CBasicWordEntry
 {
 public:
 	virtual const QString &word() const = 0;
+	virtual const QString &searchWord() const = 0;
 	virtual const QString &decomposedWord() const = 0;
 	virtual const QString &decomposedHyphenWord() const = 0;
 	virtual const QString &deApostrWord() const = 0;
@@ -618,12 +621,17 @@ public:
 	virtual const QString &renderedWord() const = 0;
 };
 
-typedef QList<const CBasicWordEntry *> TBasicWordList;
-
 // ============================================================================
 
 // Concordance -- Mapping of words and their Normalized positions:
 //
+
+enum WORD_TYPE_ENUM {
+	WTE_COMPLETE = 0,		// Complete word from the Bible database
+	WTE_SEARCH = 1,			// Word as used for search (i.e. without cantillation, etc.)
+	WTE_RENDERED = 2,		// Word as rendered (i.e. without hyphen, when disabled, etc. -- applies dehyphen to remove hyphens based on settings)
+	WTE_DECOMPOSED = 3,		// Decomposed word (no marks, no ligatures, etc.)
+};
 
 class CConcordanceEntry : public CBasicWordEntry
 {
@@ -635,6 +643,7 @@ public:
 	CConcordanceEntry & operator=(const CConcordanceEntry &src) = default;
 
 	virtual const QString &word() const override { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
+	virtual const QString &searchWord() const override { return m_itrEntryWord->second.m_lstSearchWords.at(m_nAltWordIndex); }
 	virtual const QString &decomposedWord() const override { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
 	virtual const QString &decomposedHyphenWord() const override { return m_itrEntryWord->second.m_lstDecomposedHyphenAltWords.at(m_nAltWordIndex); }
 	virtual const QString &deApostrWord() const override { return m_itrEntryWord->second.m_lstDeApostrAltWords.at(m_nAltWordIndex); }
@@ -686,7 +695,7 @@ public:
 private:
 	TWordListMap::const_iterator m_itrEntryWord;	// Bible Word Entry from which this was derived (used to lookup details)
 	int m_nAltWordIndex;					// Index of Composed Word in the reference CWordEntry (as in the actual text)
-	int m_nIndex;							// Index used when sorting and keeping external reference intact
+	int m_nIndex;							// Index used when sorting and keeping external reference intact (used only by ReadDB)
 };
 
 typedef QList<CConcordanceEntry> TConcordanceList;
@@ -1434,15 +1443,15 @@ public:
 	{
 		return m_lstConcordanceWords;
 	}
+	inline bool searchSpaceIsCompleteConcordance() const { return m_bSearchSpaceIsCompleteConcordance; }
 	void setRenderedWords();
 	void setRenderedWords(CWordEntry &aWordEntry) const;
 	int concordanceIndexForWordAtIndex(uint32_t ndxNormal) const;			// Returns the concordanceWordList() index for the Word at the specified Bible Normalized Index (or -1 if not found)
 	int concordanceIndexForWordAtIndex(const CRelIndex &relIndex) const;	// Returns the concordanceWordList() index for the Word at the specified Bible Normalized Index (or -1 if not found)
 	const CConcordanceEntry *concordanceEntryForWordAtIndex(uint32_t ndxNormal) const;			// Returns the CConcordanceEntry object for the word at the specified index -- like concordanceIndexForWordAtIndex, but returns underlying CConcordanceEntry
 	const CConcordanceEntry *concordanceEntryForWordAtIndex(const CRelIndex &relIndex) const;	// Returns the CConcordanceEntry object for the word at the specified index -- like concordanceIndexForWordAtIndex, but returns underlying CConcordanceEntry
-	QString wordAtIndex(uint32_t ndxNormal, bool bAsRendered = true) const;				// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
-	QString wordAtIndex(const CRelIndex &relIndex, bool bAsRendered = true) const;		// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above) -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
-	QString decomposedWordAtIndex(uint32_t ndxNormal) const;			// Returns word of the Bible (decomposed) based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups
+	QString wordAtIndex(uint32_t ndxNormal, WORD_TYPE_ENUM nWordType) const;			// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
+	QString wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nWordType) const;		// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above) -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
 	inline const TFootnoteEntryMap &footnotesMap() const				// Entire Footnote Map, needed for database generation
 	{
@@ -1494,6 +1503,7 @@ private:
 	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[nBk | nChp | nVrs | 0])
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList
+	bool m_bSearchSpaceIsCompleteConcordance;	// True if all of the words in the concordance list are searchable (i.e. there are no words with renderings that aren't searchable -- like cantillation marks).  This is used to speed things up and reduce memory usage when the space is the same.
 	TConcordanceList m_lstConcordanceWords;	// List (QStringList) of all Unique Words as Composed UTF8 in the order for the concordance with names of the TWordListMap key (starts at index 0)
 	TNormalizedIndexList m_lstConcordanceMapping;	// List of WordNdx# (in ConcordanceWords) for all 789629 words of the text (starts at index 1)
 	TFootnoteEntryMap m_mapFootnotes;		// Footnotes (typed by index - See notes above with TFootnoteEntryMap)
@@ -1612,6 +1622,7 @@ public:
 	}
 
 	virtual const QString &word() const override { return m_strWord; }
+	virtual const QString &searchWord() const override { return m_strWord; }
 	virtual const QString &decomposedWord() const override { return m_strDecomposedWord; }
 	virtual const QString &decomposedHyphenWord() const override { return m_strDecomposedWord; }
 	virtual const QString &deApostrWord() const override { return m_strDecomposedWord; }

@@ -462,25 +462,25 @@ static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage,
 // ============================================================================
 // ============================================================================
 
-// TAltWordSet will be a set containing all of the case-forms of a given word.  It's easier
-//		to map them here as a set than in the list that the database itself uses.  The
-//		TAltWordListMap will be indexed by the Lower-Case word key and will map to
-//		the set of word forms for that key:
-typedef std::set<QString, CWordEntry::SortPredicate> TAltWordSet;
-typedef std::map<QString, TAltWordSet, CWordEntry::SortPredicate> TAltWordListMap;
+// TWordListSet will be used here for a set containing all of the case-forms of a given
+//		word.  It's easier to map them here as a set than in the list that the database
+//		itself uses.  The TAltWordListMap will be indexed by the Lower-Case word key
+//		and will map to the set of word forms for that key:
+typedef std::map<QString, TWordListSet, CWordEntry::SortPredicate> TAltWordListMap;
 
 // WordFromWordSet - Drives word toward lower-case and returns the resulting word.  The
 //		theory is that proper names will always be capitalized and non-proper names will
 //		have mixed case, being capital only when they start a new sentence.  Thus, if we
 //		drive toward lower-case, we should have an all-lower-case word for non-proper
 //		name words and mixed-case for proper names:
-static QString WordFromWordSet(const TAltWordSet &setAltWords)
+static QString WordFromWordSet(const TWordListSet &setAltWords)
 {
 	QString strWord;
 
-	for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+	for (TWordListSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+		QString strDeCantillatedWord = StringParse::deCantillate(*itrAltWrd);
 		if ((strWord.isEmpty()) ||
-			(((*itrAltWrd).compare(strWord)) > 0)) strWord = *itrAltWrd;
+			(((strDeCantillatedWord).compare(strWord)) > 0)) strWord = strDeCantillatedWord;
 	}
 
 	return strWord;
@@ -2840,8 +2840,8 @@ int main(int argc, char *argv[])
 	//	word forms, we'll consolidate them and ultimately build the database entries which will
 	//	contain the wordlists by lowercase word and have the main word value and all
 	//	alternates:
-	TWordListMap mapWordList;				// mapWordList is indexed by the Word form as-is (no changes in case)
-	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase form of the Word
+	TWordListMap mapWordList;				// mapWordList is indexed by the Word form as-is (no changes in case or cantillation)
+	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase decantillated form of the Word
 
 	unsigned int nWordAccum = 0;
 	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
@@ -2999,8 +2999,9 @@ int main(int argc, char *argv[])
 				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
 					//QString strWord = pVerse->m_lstWords.at(nWrd-1);
 					QString strRichWord = pVerse->m_lstRichWords.at(nWrd-1);
+					QString strDeCantillatedWord = StringParse::deCantillate(strRichWord);
 					CWordEntry &wordEntry = mapWordList[strRichWord];
-					TAltWordSet &wordSet = mapAltWordList[strRichWord.toLower()];
+					TWordListSet &wordSet = mapAltWordList[strDeCantillatedWord.toLower()];
 					wordSet.insert(strRichWord);
 					wordEntry.m_ndxNormalizedMapping.push_back(pVerse->m_nWrdAccum+nWrd);
 				}
@@ -3100,9 +3101,9 @@ int main(int argc, char *argv[])
 	//	need to take this list and convert it to the form of the database:
 	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
 	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
-		const TAltWordSet &setAltWords = itrUniqWrd->second;
+		const TWordListSet &setAltWords = itrUniqWrd->second;
 		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
-		for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+		for (TWordListSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
 			TWordListMap::const_iterator itrWrd = mapWordList.find(*itrAltWrd);
 			if (itrWrd == mapWordList.end()) {
 				std::cerr << QString("\n*** Error: %1 -> %2 -- Couldn't Find it (something bad happened!)\n").arg(itrUniqWrd->first).arg(*itrAltWrd).toUtf8().data();
@@ -3182,10 +3183,10 @@ int main(int argc, char *argv[])
 // Use previously defined mapDbWordList:
 //	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
 	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
-		const TAltWordSet &setAltWords = itrUniqWrd->second;
+		const TWordListSet &setAltWords = itrUniqWrd->second;
 		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
 		QString strAltWords;
-		for (TAltWordSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
+		for (TWordListSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
 			if (!strAltWords.isEmpty()) strAltWords += ",";
 			strAltWords += *itrAltWrd;
 		}

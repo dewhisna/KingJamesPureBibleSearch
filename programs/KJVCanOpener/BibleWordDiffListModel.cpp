@@ -49,9 +49,21 @@ void CBibleWordDiffListModel::setBibleDatabase(CBibleDatabasePtr pBibleDatabase)
 	m_pBibleDatabase = pBibleDatabase;
 	if (!pBibleDatabase.isNull()) {
 		const TConcordanceList &lstConcordance = pBibleDatabase->concordanceWordList();
-		for (TConcordanceList::const_iterator itr = lstConcordance.constBegin(); itr != lstConcordance.constEnd(); ++itr) {
-			if (itr->renderedWord().compare(itr->word()) != 0)
-				m_lstWords.append(*itr);
+		if (m_pBibleDatabase->searchSpaceIsCompleteConcordance()) {
+			for (TConcordanceList::const_iterator itr = lstConcordance.constBegin(); itr != lstConcordance.constEnd(); ++itr) {
+				if (itr->renderedWord().compare(itr->word()) != 0)
+					m_lstWords.append(*itr);
+			}
+		} else {
+			TWordListSet setSearchWords;
+			for (TConcordanceList::const_iterator itr = lstConcordance.constBegin(); itr != lstConcordance.constEnd(); ++itr) {
+				if (itr->renderedWord().compare(itr->word()) != 0) {
+					if (setSearchWords.find(itr->searchWord()) == setSearchWords.cend()) {
+						setSearchWords.insert(itr->searchWord());
+						m_lstWords.append(*itr);
+					}
+				}
+			}
 		}
 	}
 

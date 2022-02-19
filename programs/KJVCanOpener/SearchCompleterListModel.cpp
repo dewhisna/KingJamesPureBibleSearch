@@ -44,22 +44,22 @@ int CSearchParsedPhraseListModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid())
 		return 0;
 
-	return m_parsedPhrase.nextWordsList().size();
+	return basicWordsListSize();
 }
 
 QVariant CSearchParsedPhraseListModel::data(const QModelIndex &index, int role) const
 {
-	if ((index.row() < 0) || (index.row() >= m_parsedPhrase.nextWordsList().size()))
+	if ((index.row() < 0) || (index.row() >= basicWordsListSize()))
 		return QVariant();
 
 	if (role == Qt::DisplayRole)
-		return (m_parsedPhrase.nextWordsList().at(index.row()).renderedWord());
+		return (basicWordsListEntry(index.row()).searchWord());
 
 	if (role == Qt::EditRole)
-		return m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord();
+		return basicWordsListEntry(index.row()).decomposedWord();
 
 	if (role == SOUNDEX_ENTRY_ROLE)
-		return m_parsedPhrase.bibleDatabase()->soundEx(m_parsedPhrase.nextWordsList().at(index.row()).decomposedWord());
+		return m_parsedPhrase.bibleDatabase()->soundEx(basicWordsListEntry(index.row()).decomposedWord());
 
 	return QVariant();
 }
@@ -96,18 +96,22 @@ void CSearchParsedPhraseListModel::setWordsFromPhrase(bool bForceUpdate)
 
 //		m_ParsedPhrase.nextWordsList();
 
+		TWordListSet setPhraseWords;
+
 		m_lstBasicWords.clear();
-		m_lstBasicWords.reserve(m_parsedPhrase.nextWordsList().size());
-		for (int ndx = 0; ndx < m_parsedPhrase.nextWordsList().size(); ++ndx) {
-			m_lstBasicWords.append(&m_parsedPhrase.nextWordsList().at(ndx));
+		if (!m_parsedPhrase.bibleDatabase()->searchSpaceIsCompleteConcordance()) {
+			m_lstBasicWords.reserve(m_parsedPhrase.nextWordsList().size());
+			for (int ndx = 0; ndx < m_parsedPhrase.nextWordsList().size(); ++ndx) {
+				if (setPhraseWords.find(m_parsedPhrase.nextWordsList().at(ndx).searchWord()) == setPhraseWords.cend()) {
+					setPhraseWords.insert(m_parsedPhrase.nextWordsList().at(ndx).searchWord());
+					m_lstBasicWords.append(m_parsedPhrase.nextWordsList().at(ndx));
+				}
+			}
 		}
 
 		endResetModel();
 
 		emit modelChanged();
-
-		// Free our list since it's only valid immediately after this function runs anyway:
-		m_lstBasicWords.clear();
 
 	}
 }
@@ -119,6 +123,18 @@ void CSearchParsedPhraseListModel::UpdateCompleter(const QTextCursor &curInsert)
 	m_parsedPhrase.UpdateCompleter(curInsert);
 }
 
+int CSearchParsedPhraseListModel::basicWordsListSize() const
+{
+	if (m_lstBasicWords.size()) return m_lstBasicWords.size();
+	return m_parsedPhrase.nextWordsList().size();
+}
+
+const CBasicWordEntry &CSearchParsedPhraseListModel::basicWordsListEntry(int ndx) const
+{
+	if (m_lstBasicWords.size()) return m_lstBasicWords.at(ndx);
+	return m_parsedPhrase.nextWordsList().at(ndx);
+}
+
 // ============================================================================
 
 CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pDictionary, TEditorWordCallback pFuncEditorWord, QObject *parent)
@@ -127,12 +143,6 @@ CSearchDictionaryListModel::CSearchDictionaryListModel(CDictionaryDatabasePtr pD
 		m_pFuncEditorWord(pFuncEditorWord)
 {
 	Q_ASSERT(!pDictionary.isNull());
-
-	m_lstBasicWords.clear();
-	m_lstBasicWords.reserve(m_pDictionaryDatabase->wordCount());
-	for (int ndx = 0; ndx < m_pDictionaryDatabase->wordCount(); ++ndx) {
-		m_lstBasicWords.append(&m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(ndx)));
-	}
 }
 
 CSearchDictionaryListModel::~CSearchDictionaryListModel()
@@ -154,7 +164,7 @@ QVariant CSearchDictionaryListModel::data(const QModelIndex &index, int role) co
 		return QVariant();
 
 	if (role == Qt::DisplayRole)
-		return m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(index.row())).renderedWord();
+		return m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(index.row())).searchWord();
 
 	if (role == Qt::EditRole)
 		return m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(index.row())).decomposedWord();

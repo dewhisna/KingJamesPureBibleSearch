@@ -347,7 +347,7 @@ public:
 		unsigned int nNumWords = m_lstTags.at(nTag).count();
 		uint32_t ndxNormal = m_pBibleDatabase->NormalizeIndex(m_lstTags.at(nTag).relIndex());
 		while (nNumWords) {
-			strWords.push_back(m_pBibleDatabase->wordAtIndex(ndxNormal));
+			strWords.push_back(m_pBibleDatabase->wordAtIndex(ndxNormal, WTE_RENDERED));
 			ndxNormal++;
 			nNumWords--;
 		}
@@ -372,7 +372,7 @@ public:
 		unsigned int nNumWords = (pVerseEntry ? pVerseEntry->m_nNumWrd : 0);
 		uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndx);
 		while (nNumWords) {
-			strWords.push_back(pBibleDatabase->wordAtIndex(ndxNormal));
+			strWords.push_back(pBibleDatabase->wordAtIndex(ndxNormal, WTE_RENDERED));
 			ndxNormal++;
 			nNumWords--;
 		}

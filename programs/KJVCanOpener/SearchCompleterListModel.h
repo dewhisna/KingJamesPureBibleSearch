@@ -71,7 +71,8 @@ public:
 	virtual QString soundEx(const QString &strDecomposedWord, bool bCache = true) const = 0;		// Return and/or calculate soundEx for the specified Word
 	virtual QString cursorWord() const = 0;
 
-	virtual const TBasicWordList &basicWordsList() const { return m_lstBasicWords; }
+	virtual int basicWordsListSize() const = 0;
+	virtual const CBasicWordEntry &basicWordsListEntry(int ndx) const = 0;
 	virtual bool isDynamicModel() const = 0;									// Returns true if the model's BasicWords list changes dynamically via setWordsFromPhrase() like our regular SearchPhrases or if it loads at construction and is static like the Dictionary
 
 	virtual void UpdateCompleter(const QTextCursor &curInsert) = 0;
@@ -81,9 +82,6 @@ signals:
 
 public slots:
 	virtual void setWordsFromPhrase(bool bForceUpdate = false) = 0;
-
-protected:
-	TBasicWordList m_lstBasicWords;
 
 private:
 	Q_DISABLE_COPY(CSearchStringListModel)
@@ -111,6 +109,9 @@ public:
 
 	virtual void UpdateCompleter(const QTextCursor &curInsert) override;
 
+	virtual int basicWordsListSize() const override;
+	virtual const CBasicWordEntry &basicWordsListEntry(int ndx) const override;
+
 public slots:
 	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;
 
@@ -118,6 +119,8 @@ private:
 	Q_DISABLE_COPY(CSearchParsedPhraseListModel)
 	CParsedPhrase &m_parsedPhrase;
 	int m_nCursorWord;						// Last word index of phrase cursor was on
+
+	TConcordanceList m_lstBasicWords;		// Subset List of concordance words to use for parsedPhrase.nextWordsList() when the search space is not the entire concordance (like with cantillation mark removal)
 };
 
 // ============================================================================
@@ -144,6 +147,9 @@ public:
 	virtual bool isDynamicModel() const override { return false; }
 
 	virtual void UpdateCompleter(const QTextCursor &curInsert) override;
+
+	virtual int basicWordsListSize() const override { return m_pDictionaryDatabase->wordCount(); }
+	virtual const CBasicWordEntry &basicWordsListEntry(int ndx) const override { return m_pDictionaryDatabase->wordDefinitionsEntry(m_pDictionaryDatabase->wordEntry(ndx)); }
 
 public slots:
 	virtual void setWordsFromPhrase(bool bForceUpdate = false) override;

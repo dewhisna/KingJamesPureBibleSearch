@@ -1073,7 +1073,7 @@ void CConfigTextFormat::en_selectionChangedBrowser()
 	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
 
 	if ((tagSelection.isSet()) && (tagSelection.count() < 2) && (m_pDictionaryWidget != nullptr)) {
-		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->wordAtIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(tagSelection.relIndex())), false);
+		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->wordAtIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(tagSelection.relIndex()), WTE_RENDERED), false);
 	}
 }
 

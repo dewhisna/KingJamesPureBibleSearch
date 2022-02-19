@@ -796,12 +796,14 @@ bool CReadDatabase::ReadWordsTable()
 			csvWord >> strTemp;
 			if (!strTemp.isEmpty()) {
 				strTemp = strTemp.normalized(QString::NormalizationForm_C);
+				QString strSearchWord = StringParse::deCantillate(strTemp);
 				entryWord.m_lstAltWords.push_back(strTemp);
+				entryWord.m_lstSearchWords.push_back(strSearchWord);
 				entryWord.m_lstDecomposedAltWords.push_back(StringParse::decompose(strTemp, true));
 				entryWord.m_lstDecomposedHyphenAltWords.push_back(StringParse::decompose(strTemp, false));
-				entryWord.m_lstDeApostrAltWords.push_back(StringParse::deApostrHyphen(strTemp, true));
-				entryWord.m_lstDeApostrHyphenAltWords.push_back(StringParse::deApostrHyphen(strTemp, false));
-				entryWord.m_lstRenderedAltWords.push_back(QString());
+				entryWord.m_lstDeApostrAltWords.push_back(StringParse::deApostrHyphen(strSearchWord, true));
+				entryWord.m_lstDeApostrHyphenAltWords.push_back(StringParse::deApostrHyphen(strSearchWord, false));
+				entryWord.m_lstRenderedAltWords.push_back(QString());		// Placeholder to be filled in below with the call to setRenderedWords()
 			}
 		}
 		m_pBibleDatabase->setRenderedWords(entryWord);
@@ -853,7 +855,15 @@ bool CReadDatabase::ReadWordsTable()
 		// Add this word and alternates to our concordance, and we'll set the normalized indices that refer to it to point
 		//		to the specific word below after we've sorted the concordance list.  This sorting allows us to optimize
 		//		the completer list and the FindWords sorting:
+		TWordListSet setConcordanceAltSearchWords;
 		for (int ndxAltWord=0; ndxAltWord<entryWord.m_lstAltWords.size(); ++ndxAltWord) {
+			if (setConcordanceAltSearchWords.find(entryWord.m_lstSearchWords.at(ndxAltWord)) == setConcordanceAltSearchWords.cend()) {
+				setConcordanceAltSearchWords.insert(entryWord.m_lstSearchWords.at(ndxAltWord));
+			} else {
+				// If we encounter a search word entry that's a duplicate here, then
+				//	the search space and the complete concordance aren't the same space:
+				m_pBibleDatabase->m_bSearchSpaceIsCompleteConcordance = false;
+			}
 			CConcordanceEntry entryConcordance(itrWordEntry, ndxAltWord, ndxWord);
 			m_pBibleDatabase->soundEx(entryConcordance.decomposedWord());		// Pre-compute cached soundEx values for all words so we don't have to do it over and over again later
 			m_pBibleDatabase->m_lstConcordanceWords.append(entryConcordance);

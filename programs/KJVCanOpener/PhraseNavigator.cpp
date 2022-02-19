@@ -490,7 +490,7 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 		QStringList lstPhraseWordsDecomposed;
 		lstPhraseWordsDecomposed.reserve(lstTags.at(ndx).count());
 		for (unsigned int nWrd = 0; nWrd < lstTags.at(ndx).count(); ++nWrd) {
-			lstPhraseWordsDecomposed.append(m_pBibleDatabase->decomposedWordAtIndex(ndxNormal));
+			lstPhraseWordsDecomposed.append(m_pBibleDatabase->wordAtIndex(ndxNormal, WTE_DECOMPOSED));
 			++ndxNormal;
 		}
 		lstMatchingPhrasesSort.append(QPair<QString, int>(lstPhraseWordsDecomposed.join(QChar(' ')), ndx));
@@ -505,7 +505,7 @@ QStringList CParsedPhrase::GetMatchingPhrases() const
 		QStringList lstPhraseWords;
 		lstPhraseWords.reserve(lstTags.at(ndx).count());
 		for (unsigned int nWrd = 0; nWrd < lstTags.at(ndx).count(); ++nWrd) {
-			lstPhraseWords.append(m_pBibleDatabase->wordAtIndex(ndxNormal, true));
+			lstPhraseWords.append(m_pBibleDatabase->wordAtIndex(ndxNormal, WTE_SEARCH));
 			++ndxNormal;
 		}
 
@@ -1272,7 +1272,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 
 		while ((nStartPos != -1) && (ndxNormalStart <= ndxNormalEnd)) {
 			myCursor.setPosition(nStartPos);
-			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart).size();
+			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart, WTE_RENDERED).size();
 
 			// If this is a continuous highlighter, instead of stopping at the end of the word,
 			//		we'll find the end of the last word of this verse that we'll be highlighting
@@ -1290,7 +1290,7 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					CRelIndex ndxLastVerseWord(m_pBibleDatabase->DenormalizeIndex(ndxNormalLastVerseWord));
 					int nNextLastVerseWordPos = anchorPosition(ndxLastVerseWord.asAnchor());
 					if (nNextLastVerseWordPos != -1) {
-						nNextLastVerseWordPos += m_pBibleDatabase->wordAtIndex(ndxNormalLastVerseWord).size();
+						nNextLastVerseWordPos += m_pBibleDatabase->wordAtIndex(ndxNormalLastVerseWord, WTE_RENDERED).size();
 					} else {
 						Q_ASSERT(false);
 					}
@@ -3136,7 +3136,7 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 					if (ndxReference.word() != 0) {
 						uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxReference);
 						if ((ndxNormal != 0) && (ndxNormal <= pBibleDatabase->bibleEntry().m_nNumWrd)) {
-							strToolTip += tr("Word:", "Statistics") + " \"" + pBibleDatabase->wordAtIndex(ndxNormal) + "\"\n";
+							strToolTip += tr("Word:", "Statistics") + " \"" + pBibleDatabase->wordAtIndex(ndxNormal, WTE_RENDERED) + "\"\n";
 						}
 					}
 					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference);
@@ -3147,7 +3147,7 @@ QString CPhraseNavigator::getToolTip(const CBibleDatabasePtr &pBibleDatabase, co
 						unsigned int ndx;
 						for (ndx = 0; ((ndx < qMin(7u, nCount)) && ((ndxNormal + ndx) <= pBibleDatabase->bibleEntry().m_nNumWrd)); ++ndx) {
 							if (ndx) strToolTip += " ";
-							strToolTip += pBibleDatabase->wordAtIndex(ndxNormal + ndx);
+							strToolTip += pBibleDatabase->wordAtIndex(ndxNormal + ndx, WTE_RENDERED);
 						}
 						if ((ndx == 7u) && (nCount > 7u)) strToolTip += " ...";
 					} else {
