@@ -38,6 +38,7 @@
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
 
+// https://bugreports.qt.io/browse/QTBUG-100879
 #define QTBUG_100879_WORKAROUND 1
 
 // ============================================================================
@@ -380,11 +381,11 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 
 #if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
 	// In QTBUG-100879, the first mark composed character inside anchors
-	//	doesn't render correctly.  But it does if there's a non-breaking
-	//	space.  Therefore, if the next character is composed with marks
-	//	and we are rendering anchors, output a "&nbsp;":
+	//	doesn't render correctly.  But it does if there's a ZWSP (zero
+	//	width space).  Therefore, if the next character is composed with
+	//	marks and we are rendering anchors, output a "&#x200B;":
 	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_AddAnchors) && bHasMarks) {
-		m_parseBaton.m_strVerseText.append("&nbsp;");
+		m_parseBaton.m_strVerseText.append(QChar(0x200B));
 	}
 #endif
 
