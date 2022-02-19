@@ -44,6 +44,8 @@
 #include <QInputContext>
 #endif
 
+//#define DEBUG_COMPLETER_NEW_WORDS_LIST
+
 // ============================================================================
 
 class TBasicWordHelper
@@ -362,6 +364,15 @@ void CSearchCompleter::UpdateCompleter(const QTextEdit &editor)
 	m_pSearchStringListModel->UpdateCompleter(editor.textCursor());
 	setFilterMatchString();
 	setWordsFromPhrase();
+
+#ifdef DEBUG_COMPLETER_NEW_WORDS_LIST
+	qDebug("New words list:");
+	QAbstractItemModel *pModel = popup()->model();
+	for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+		qDebug("%s", pModel->data(pModel->index(ndx, 0)).toString().toUtf8().data());
+	}
+	qDebug("\n");
+#endif
 }
 
 // ============================================================================
