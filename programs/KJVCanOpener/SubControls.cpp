@@ -249,6 +249,28 @@ void CSingleLineTextEdit::keyPressEvent(QKeyEvent *event)
 			event->ignore();
 			return;
 
+		case Qt::Key_Backspace:
+			if (textInteractionFlags() & Qt::TextEditable) {
+				// Normally, the backspace key only deletes the next QChar,
+				//	which for marks is just the mark on the character, unlike
+				//	the delete key which deletes the next character along with
+				//	its marks.  So, if there are any marks delete them and
+				//	then fallthrough to call the original control behavior to
+				//	delete the character itself:
+				QTextDocument *pDocument = document();
+				QTextCursor cursor = textCursor();
+				if (cursor.anchor() == cursor.position()) {		// If we have no selection, delete marks for characters too:
+					if (pDocument) {
+						cursor.beginEditBlock();
+						while ((cursor.position() > 1) && pDocument->characterAt(cursor.position()-1).isMark()) {
+							cursor.deletePreviousChar();
+						}
+						cursor.endEditBlock();
+					}
+				}
+			}
+			break;
+
 		case Qt::Key_Down:
 			bForceCompleter = true;
 			break;
