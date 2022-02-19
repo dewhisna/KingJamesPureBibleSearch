@@ -226,6 +226,34 @@ namespace {
 
 // ============================================================================
 
+LANGUAGE_ID_ENUM toLanguageID(const QString &strLang)
+{
+	if ((strLang.compare("en", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("eng", Qt::CaseInsensitive) == 0)) return LIDE_ENGLISH;
+	if ((strLang.compare("fr", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("fre", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("fra", Qt::CaseInsensitive) == 0)) return LIDE_FRENCH;
+	if ((strLang.compare("es", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("spa", Qt::CaseInsensitive) == 0)) return LIDE_SPANISH;
+	if ((strLang.compare("de", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("deu", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("ger", Qt::CaseInsensitive) == 0)) return LIDE_GERMAN;
+	if ((strLang.compare("ru", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("rus", Qt::CaseInsensitive) == 0)) return LIDE_RUSSIAN;
+	if ((strLang.compare("he", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("heb", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("hbo", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("iw", Qt::CaseInsensitive) == 0)) return LIDE_HEBREW;
+	if ((strLang.compare("el", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("ell", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("grc", Qt::CaseInsensitive) == 0) ||
+		(strLang.compare("gre", Qt::CaseInsensitive) == 0)) return LIDE_GREEK;
+
+	return LIDE_UNKNOWN;
+}
+
+// ============================================================================
+
 unsigned int bibleDescriptorCount()
 {
 	return _countof(constBibleDescriptors);

@@ -32,6 +32,21 @@
 
 // ============================================================================
 
+enum LANGUAGE_ID_ENUM {
+	LIDE_UNKNOWN = 0,					// Unknown Language
+	LIDE_ENGLISH = 1,					// English, "en", or "eng"
+	LIDE_FRENCH = 2,					// French, "fr", "fre", or "fra"
+	LIDE_SPANISH = 3,					// Spanish, "es", or "spa"
+	LIDE_GERMAN = 4,					// German, "de", "deu", or "ger"
+	LIDE_RUSSIAN = 5,					// Russian, "ru", or "rus"
+	LIDE_HEBREW = 6,					// Hebrew, "he", "heb", "hbo" or "iw"
+	LIDE_GREEK = 7,						// Greek, "el", "ell", "grc", or "gre"
+};
+
+LANGUAGE_ID_ENUM toLanguageID(const QString &strLang);
+
+// ============================================================================
+
 enum BibleTypeOptions {
 	BTO_None = 0x0,						// Default for no options
 	BTO_SpecialTest = 0x1,				// Is Special Test Database entry
@@ -48,7 +63,7 @@ typedef struct TBibleDescriptor {
 	BibleTypeOptionsFlags m_btoFlags = defaultBibleTypeFlags;	// Bible database flags
 	Qt::LayoutDirection m_nTextDir = Qt::LayoutDirectionAuto;	// Text Direction (ltr or rtl)
 	QString m_strWorkID;				// OSIS Work Identifier
-	QString m_strLanguage;				// Two-Character international language ID (note: some language codes are more than 2-characters, like ancient greek is "grc")
+	QString m_strLanguage;				// Two-Character international language ID (note: some language codes are more than 2-characters, like ancient Greek is "grc" and Hebrew is "hbo")
 	QString m_strDBName;				// Short Database Name
 	QString m_strDBDesc;				// Long Database Name/Description
 	QString m_strUUID;					// Bible Database UUID

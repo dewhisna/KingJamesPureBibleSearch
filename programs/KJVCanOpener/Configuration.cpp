@@ -1042,11 +1042,10 @@ void CConfigTextFormat::navigateToDemoText()
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CConfigTextFormat", "trumpet", "ConfigurationSearchPreviewKeyword");
 		if (!strTemp.isEmpty()) strTrumpet = strTemp;
-	} else if (m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("grc") == 0) {
+	} else if (toLanguageID(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language()) == LIDE_GREEK) {
 		// Special case for the Greek Textus Receptus texts, since we currently don't have our app translated to Greek
 		strTrumpet = "σαλπι*";
-	} else if ((m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("hbo") == 0) ||
-				(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language().compare("he") == 0)) {
+	} else if (toLanguageID(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->language()) == LIDE_HEBREW) {
 		// Special case for the Hebrew Masoretic texts, since we currently don't have our app translated to Hebrew
 		strTrumpet = "חצו*";	// Should be this:  "*חצו";  TODO : Figure out wildcards with Hebrew RTL text.  It works OK in the SearchPhraseEdit, but not here in the code
 	}
