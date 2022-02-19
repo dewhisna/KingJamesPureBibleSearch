@@ -269,7 +269,7 @@ void CPhraseLineEdit::insertCompletion(const QModelIndex &index)
 
 void CPhraseLineEdit::insertCommonPhraseCompletion(const QString &completion)
 {
-	CPhraseCursor cursor(textCursor());
+	CPhraseCursor cursor(textCursor(), nullptr);		// Don't pass BibleDatabase so that hyphens aren't considered as word separators
 	cursor.clearSelection();
 	cursor.select(QTextCursor::LineUnderCursor);
 	bool bOldCaseSensitive = isCaseSensitive();
@@ -341,7 +341,7 @@ void CPhraseLineEdit::delayed_UpdatedCompleter()
 	if (updateInProgress()) return;
 	CDoUpdate doUpdate(this);
 
-	CPhraseCursor cursor(textCursor());
+	CPhraseCursor cursor(textCursor(), m_pBibleDatabase.data());		// Note: passing BibleDatabase here is questionable, should we just pass nullptr?
 	cursor.beginEditBlock();
 
 	QTextCharFormat fmt = cursor.charFormat();

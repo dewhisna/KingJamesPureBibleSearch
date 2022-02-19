@@ -261,7 +261,7 @@ void CWebChannelSearchResults::autoCorrect(const QString &strElementID, const QS
 	CParsedPhrase thePhrase(m_pBibleDatabase);
 
 	QTextDocument doc(strPhrase);
-	CPhraseCursor cursor(&doc);
+	CPhraseCursor cursor(&doc, nullptr);		// Don't pass BibleDatabase so that hyphens aren't considered as word separators
 	if (nCursorPos < 0) nCursorPos = 0;
 	// Sometimes html doc sends cursor position outside the bounds of the doc, this is a safe-guard:
 	cursor.movePosition(QTextCursor::End);
@@ -311,7 +311,7 @@ void CWebChannelSearchResults::autoCorrect(const QString &strElementID, const QS
 
 	if (!bNeedUpdate) {
 		CParsedPhrase thePhraseLast(m_pBibleDatabase);
-		CPhraseCursor cursorLast(&doc);
+		CPhraseCursor cursorLast(&doc, nullptr);		// Don't pass BibleDatabase so that hyphens aren't considered as word separators
 		cursorLast.movePosition(QTextCursor::End);
 		if (nLastCursorPos <= cursorLast.position()) {
 			cursorLast.setPosition(nLastCursorPos);
@@ -361,7 +361,7 @@ void CWebChannelSearchResults::calcUpdatedPhrase(const QString &strElementID, co
 	CParsedPhrase thePhrase(m_pBibleDatabase);
 
 	QTextDocument doc(strPhrase);
-	CPhraseCursor cursor(&doc);
+	CPhraseCursor cursor(&doc, nullptr);		// Don't pass BibleDatabase so that hyphens aren't considered as word separators
 	cursor.setPosition(nCursorPos);
 	thePhrase.ParsePhrase(cursor, false);
 	int nCurrentSubPhrase = thePhrase.currentSubPhrase();

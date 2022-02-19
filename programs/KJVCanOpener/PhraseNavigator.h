@@ -471,9 +471,9 @@ public:
 class CPhraseCursor : public QTextCursor
 {
 public:
-	CPhraseCursor(const QTextCursor &aCursor);
+	CPhraseCursor(const QTextCursor &aCursor, CBibleDatabase *pBibleDatabase);
 	CPhraseCursor(const CPhraseCursor &aCursor);
-	CPhraseCursor(QTextDocument *pDocument);
+	CPhraseCursor(QTextDocument *pDocument, CBibleDatabase *pBibleDatabase);
 	virtual ~CPhraseCursor();
 
 	bool moveCursorCharLeft(MoveMode mode = MoveAnchor);
@@ -490,6 +490,9 @@ public:
 	void selectWordUnderCursor();
 	void selectCursorToLineStart();
 	void selectCursorToLineEnd();
+
+private:
+	CBibleDatabase *m_pBibleDatabase;
 };
 
 // ============================================================================

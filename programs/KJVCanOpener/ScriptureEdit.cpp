@@ -683,7 +683,7 @@ void CScriptureText<i_CScriptureEdit, QTextEdit>::mouseDoubleClickEvent(QMouseEv
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.getSelection(cursorForPosition(ev->pos())).primarySelection().relIndex();
+	CRelIndex ndxLast = m_navigator.getSelection(CPhraseCursor(cursorForPosition(ev->pos()), m_pBibleDatabase.data())).primarySelection().relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(m_tagLast));
@@ -760,7 +760,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.getSelection(T::cursorForPosition(pos)).primarySelection().relIndex();
+	CRelIndex ndxLast = m_navigator.getSelection(CPhraseCursor(T::cursorForPosition(pos), m_pBibleDatabase.data())).primarySelection().relIndex();
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(m_tagLast));
@@ -853,7 +853,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 template<class T, class U>
 void CScriptureText<T,U>::en_cursorPositionChanged()
 {
-	CPhraseCursor cursor(T::textCursor());
+	CPhraseCursor cursor(T::textCursor(), m_pBibleDatabase.data());
 	m_tagLast.relIndex() = m_navigator.getSelection(cursor).primarySelection().relIndex();
 	if (!m_tagLast.relIndex().isSet()) m_tagLast.count() = 0;
 	setLastActiveTag();
