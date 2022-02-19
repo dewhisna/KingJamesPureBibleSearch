@@ -423,8 +423,16 @@ void CPhraseLineEdit::insertFromMimeData(const QMimeData * source)
 			strPhrase = lstSubPhrases.join(" | ");
 
 			if (!strPhrase.isEmpty()) {
-				clear();
-				setPlainText(strPhrase);
+				QTextCursor cursor = textCursor();
+				if (cursor.anchor() == cursor.position()) {
+					// If there's no selection, insert it like
+					//	a completion so we don't blow away the whole phrase:
+					insertCompletion(strPhrase);
+				} else {
+					cursor.beginEditBlock();
+					cursor.insertText(strPhrase);
+					cursor.endEditBlock();
+				}
 			}
 		}
 	}
