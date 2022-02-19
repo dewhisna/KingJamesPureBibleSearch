@@ -2292,18 +2292,86 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 
 	QStringList lstRichWords;
 	bool bHaveDoneTemplateWord = false;				// Used to tag words crossing parse-stack boundary (i.e. half the word is inside the parse operator and half is outside, like the word "inasmuch")
+
+	// ----------------------------------------------------
+
+	// fncDoTemplateWord -- Makes sure that the template has
+	//	been populated with the 'w' word marker and that the
+	//	current word has been counted.  It also sets the
+	//	active footnote index to the next word.  This does
+	//	NOT push the word onto the list of words.  It only
+	//	makes sure the template position for the current word
+	//	is set so that other markers will be in the correct
+	//	position -- such as ending the word prior to Words of
+	//	Jesus markup or finishing the last word after that
+	//	markup is finished:
+	auto &&fncDoTemplateWord = [&]() {
+		if (bInWord) {
+			if (!bHaveDoneTemplateWord) {
+				++nWordCount;
+				ndxFootnoteActive.setWord(nWordCount+1);
+				verse.m_strTemplate += QString("w");
+			}
+			bHaveDoneTemplateWord = true;
+		}
+	};
+
+	// ----------------------------------------------------
+
+	// fncCompleteWord -- If we are currently in a word, this
+	//	function will push the word on the list of words for
+	//	the verse and clears the word variables and flags
+	//	ready for the next word:
+	auto &&fncCompleteWord = [&]() {
+		if (bInWord) {
+			Q_ASSERT(!strRichWord.isEmpty());
+			Q_ASSERT(!strWord.isEmpty());
+
+			if ((strRichWord.size() == 1) &&
+				((g_strHyphens.contains(strRichWord.at(0))) ||
+				 (g_strApostrophes.contains(strRichWord.at(0))))) {
+				// Don't count words that are only a hyphen or apostrophe:
+				verse.m_strTemplate += strRichWord;
+	#if QT_VERSION >= 0x050F00
+			} else if (m_bNoArabicNumeralWords && (QRegularExpression("\\d*").match(strWord).hasMatch())) {
+	#else
+			} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
+	#endif
+				// If we aren't counting Arabic Numerals as words, move them out to the verse template for rendering but not counting:
+				verse.m_strTemplate += strWord;		// It shouldn't matter here if we use Word or RichWord (unlike apostrophes above)
+			} else {
+				QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
+				// Remove trailing hyphens from words and put them in the template.
+				//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
+				while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
+					Q_ASSERT(!strWord.isEmpty());
+					strPostTemplate += strRichWord.at(strRichWord.size()-1);
+					strRichWord = strRichWord.left(strRichWord.size()-1);
+					strWord = strWord.left(strWord.size()-1);
+				}
+				if (!strRichWord.isEmpty()) {
+					fncDoTemplateWord();		// Make sure we've written our template word
+					relIndex.setWord(verse.m_nNumWrd + nWordCount);
+					lstWords.append(strWord);
+					lstRichWords.append(strRichWord);
+				}
+				verse.m_strTemplate += strPostTemplate;
+			}
+			strWord.clear();
+			strRichWord.clear();
+			bInWord = false;
+		}
+		bHaveDoneTemplateWord = false;
+	};
+
+	// ----------------------------------------------------
+
 	while (!strTemp.isEmpty()) {
 		bool bIsHyphen = g_strHyphens.contains(strTemp.at(0));
 		bool bIsApostrophe = g_strApostrophes.contains(strTemp.at(0));
 		if (strTemp.at(0) == g_chrParseTag) {
-			if (bInWord) {
-				if (!bHaveDoneTemplateWord) {
-					++nWordCount;
-					ndxFootnoteActive.setWord(nWordCount+1);
-					verse.m_strTemplate += QString("w");
-				}
-				bHaveDoneTemplateWord = true;
-			}
+			fncDoTemplateWord();		// Write our current template word tag before processing this tag so things like Words of Jesus are correct
+
 			Q_ASSERT(!verse.m_lstParseStack.isEmpty());
 			if (!verse.m_lstParseStack.isEmpty()) {
 				QString strParse = verse.m_lstParseStack.at(0);
@@ -2423,50 +2491,12 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				} else strWord += strTemp.at(0);
 				strRichWord += strTemp.at(0);
 			} else {
-				if (bInWord) {
-					Q_ASSERT(!strRichWord.isEmpty());
-					Q_ASSERT(!strWord.isEmpty());
+				// We've hit a non-word character, so write our
+				//	word to the stack:
+				fncCompleteWord();
 
-					if ((strRichWord.size() == 1) &&
-						((g_strHyphens.contains(strRichWord.at(0))) ||
-						 (g_strApostrophes.contains(strRichWord.at(0))))) {
-						// Don't count words that are only a hyphen or apostrophe:
-						verse.m_strTemplate += strRichWord;
-#if QT_VERSION >= 0x050F00
-					} else if (m_bNoArabicNumeralWords && (QRegularExpression("\\d*").match(strWord).hasMatch())) {
-#else
-					} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
-#endif
-						// If we aren't counting Arabic Numerals as words, move them out to the verse template for rendering but not counting:
-						verse.m_strTemplate += strWord;		// It shouldn't matter here if we use Word or RichWord (unlike apostrophes above)
-					} else {
-						QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
-						// Remove trailing hyphens from words and put them in the template.
-						//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
-						while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
-							Q_ASSERT(!strWord.isEmpty());
-							strPostTemplate += strRichWord.at(strRichWord.size()-1);
-							strRichWord = strRichWord.left(strRichWord.size()-1);
-							strWord = strWord.left(strWord.size()-1);
-						}
-						if (!strRichWord.isEmpty()) {
-							if (!bHaveDoneTemplateWord) {
-								nWordCount++;
-								ndxFootnoteActive.setWord(nWordCount+1);
-								verse.m_strTemplate += QString("w");
-							}
-							relIndex.setWord(verse.m_nNumWrd + nWordCount);
-							lstWords.append(strWord);
-							lstRichWords.append(strRichWord);
-						}
-						verse.m_strTemplate += strPostTemplate;
-					}
-					strWord.clear();
-					strRichWord.clear();
-					bInWord = false;
-				}
 				if (strTemp.at(0) != g_chrPilcrow) {
-					if (strTemp.at(0) == g_chrParseTag) {
+					if (strTemp.at(0) == g_chrParseTag) {		// TODO : Can this case even happen here??
 						std::cerr << "\n*** WARNING: Text contains our special parse tag character and may cause parsing issues\nTry recompiling using a different g_chrParseTag character!\n";
 					}
 					verse.m_strTemplate += strTemp.at(0);
@@ -2475,11 +2505,11 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 					//	as a marker, but flag it of type "added":
 					if (verse.m_nPilcrow == CVerseEntry::PTE_NONE) verse.m_nPilcrow = CVerseEntry::PTE_MARKER_ADDED;
 				}
-				bHaveDoneTemplateWord = false;
 			}
 		} else {
-			if (!m_strParsedUTF8Chars.contains(strTemp.at(0))) m_strParsedUTF8Chars += strTemp.at(0);
+			// Add characters to our current word:
 
+			if (!m_strParsedUTF8Chars.contains(strTemp.at(0))) m_strParsedUTF8Chars += strTemp.at(0);
 			bInWord = true;
 			strWord += StringParse::deLigature(strTemp.at(0));	// Translate ligatures, but leave other UTF-8 untranslated
 			strRichWord += strTemp.at(0);
@@ -2490,47 +2520,11 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 
 	Q_ASSERT(verse.m_lstParseStack.isEmpty());		// We should have exhausted the stack above!
 
-	if (bInWord) {
-		if ((strRichWord.size() == 1) &&
-			((g_strHyphens.contains(strRichWord.at(0))) ||
-			 (g_strApostrophes.contains(strRichWord.at(0))))) {
-			// Don't count words that are only a hyphen or apostrophe:
-			verse.m_strTemplate += strRichWord;
-#if QT_VERSION >= 0x050F00
-		} else if (m_bNoArabicNumeralWords && (QRegularExpression("\\d*").match(strWord).hasMatch())) {
-#else
-		} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
-#endif
-			// If we aren't counting Arabic Numerals as words, move them out to the verse template for rendering but not counting:
-			verse.m_strTemplate += strWord;		// It shouldn't matter here if we use Word or RichWord (unlike apostrophes above)
-		} else {
-			QString strPostTemplate;		// Needed so we get the "w" marker in the correct place
-			// Remove trailing hyphens from words and put them in the template.
-			//		We'll keep trailing apostophes for posessive words, like: "Jesus'":
-			while ((!strRichWord.isEmpty()) && (g_strHyphens.contains(strRichWord.at(strRichWord.size()-1)))) {
-				Q_ASSERT(!strWord.isEmpty());
-				strPostTemplate += strRichWord.at(strRichWord.size()-1);
-				strRichWord = strRichWord.left(strRichWord.size()-1);
-				strWord = strWord.left(strWord.size()-1);
-			}
-			if (!strRichWord.isEmpty()) {
-				if (!bHaveDoneTemplateWord) {
-					nWordCount++;
-					ndxFootnoteActive.setWord(nWordCount+1);
-					verse.m_strTemplate += QString("w");
-				}
-				relIndex.setWord(verse.m_nNumWrd + nWordCount);
-				lstWords.append(strWord);
-				lstRichWords.append(strRichWord);
-			}
-			verse.m_strTemplate += strPostTemplate;
-		}
-		strWord.clear();
-		strRichWord.clear();
-		bInWord = false;
-	}
-	bHaveDoneTemplateWord = false;
+	// If we are in a word, finish writing it before
+	//	doing database counts:
+	fncCompleteWord();
 
+	// Calculate counts for this verse for the database:
 	m_pBibleDatabase->m_EntireBible.m_nNumWrd += nWordCount;
 	m_pBibleDatabase->m_lstTestaments[m_pBibleDatabase->m_lstBooks.at(relIndex.book()-1).m_nTstNdx-1].m_nNumWrd += nWordCount;
 	m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_nNumWrd += nWordCount;
@@ -2546,6 +2540,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 //std::cout << m_pBibleDatabase->PassageReferenceText(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)).toUtf8().data() << "\n";
 //std::cout << verse..m_strText.toUtf8().data() << "\n" << verse.m_strTemplate.toUtf8().data << "\n" << verse.m_lstWords.join(",").toUtf8().data() << "\n" << QString("Words: %1\n").arg(verse.m_nNumWrd).toUtf8().data();
 
+	// The number of words in our template must match the word count:
 	Q_ASSERT(static_cast<unsigned int>(verse.m_strTemplate.count('w')) == verse.m_nNumWrd);
 	if (static_cast<unsigned int>(verse.m_strTemplate.count('w')) != verse.m_nNumWrd) {
 		std::cerr << "\n" << m_pBibleDatabase->PassageReferenceText(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)).toUtf8().data();
