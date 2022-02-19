@@ -2386,6 +2386,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				} else if (strOp.compare("l") == 0) {
 					tagLemmaEntry.setCount((nWordCount+1)-tagLemmaEntry.relIndex().word());
 					m_pBibleDatabase->m_mapLemmaEntries[tagLemmaEntry.relIndex()] = CLemmaEntry(tagLemmaEntry, strLemmaAttr);
+					fncCompleteWord();		// Complete the word for this lemma sequence, as they must be distinct words
 				} else if (strOp.compare("T") == 0) {
 					if (!bInlineNote) {
 						verse.m_strTemplate += "T";
