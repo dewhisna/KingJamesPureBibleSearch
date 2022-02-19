@@ -117,131 +117,204 @@ const QChar g_chrPilcrow = QChar(0x00B6);		// Pilcrow paragraph marker
 // ============================================================================
 // ============================================================================
 
-QString StringParse::decompose(const QString &strWord, bool bRemoveHyphens)
-{
-	QString strDecomposed = deLigature(deApostrHyphen(strWord, bRemoveHyphens).normalized(QString::NormalizationForm_KD));
+namespace StringParse {
 
-	// There are two possible ways to remove accent marks:
-	//
-	//		1) strDecomposed.remove(QRegExp("[^a-zA-Z\\s]"));
-	//				Note: This one only works for English and similar
-	//				languages (not Greek or Hebrew or Cyrillic, etc).
-	//
-	//		2) Remove characters of class "Mark" (QChar::Mark_NonSpacing,
-	//				QChar::Mark_SpacingCombining, QChar::Mark_Enclosing),
-	//				which can be done by checking isMark()
-	//
+	QString decompose(const QString &strWord, bool bRemoveHyphens)
+	{
+		QString strDecomposed = deLigature(deApostrHyphen(strWord, bRemoveHyphens).normalized(QString::NormalizationForm_KD));
 
-	for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
-		if (strDecomposed.at(nPos).isMark()) strDecomposed.remove(nPos, 1);
+		// There are two possible ways to remove accent marks:
+		//
+		//		1) strDecomposed.remove(QRegExp("[^a-zA-Z\\s]"));
+		//				Note: This one only works for English and similar
+		//				languages (not Greek or Hebrew or Cyrillic, etc).
+		//
+		//		2) Remove characters of class "Mark" (QChar::Mark_NonSpacing,
+		//				QChar::Mark_SpacingCombining, QChar::Mark_Enclosing),
+		//				which can be done by checking isMark()
+		//
+
+		for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
+			if (strDecomposed.at(nPos).isMark()) strDecomposed.remove(nPos, 1);
+		}
+
+		return strDecomposed;
 	}
 
-	return strDecomposed;
-}
+	QString deLigature(const QString &strWord)
+	{
+		QString strDecomposed = strWord;
 
-QString StringParse::deLigature(const QString &strWord)
-{
-	QString strDecomposed = strWord;
+		static const QString constrDoubleVav = QString(QChar(0x05D5)) + QString(QChar(0x05D5));
+		static const QString constrVavYod = QString(QChar(0x05D5)) + QString(QChar(0x05D9));
+		static const QString constrDoubleYod = QString(QChar(0x05D9)) + QString(QChar(0x05D9));
 
-	static const QString constrDoubleVav = QString(QChar(0x05D5)) + QString(QChar(0x05D5));
-	static const QString constrVavYod = QString(QChar(0x05D5)) + QString(QChar(0x05D9));
-	static const QString constrDoubleYod = QString(QChar(0x05D9)) + QString(QChar(0x05D9));
+		strDecomposed.replace(QChar(0x00C6), "Ae");				// U+00C6	&#198;		AE character
+		strDecomposed.replace(QChar(0x00E6), "ae");				// U+00E6	&#230;		ae character
+		strDecomposed.replace(QChar(0x0132), "IJ");				// U+0132	&#306;		IJ character
+		strDecomposed.replace(QChar(0x0133), "ij");				// U+0133	&#307;		ij character
+		strDecomposed.replace(QChar(0x0152), "Oe");				// U+0152	&#338;		OE character
+		strDecomposed.replace(QChar(0x0153), "oe");				// U+0153	&#339;		oe character
 
-	strDecomposed.replace(QChar(0x00C6), "Ae");				// U+00C6	&#198;		AE character
-	strDecomposed.replace(QChar(0x00E6), "ae");				// U+00E6	&#230;		ae character
-	strDecomposed.replace(QChar(0x0132), "IJ");				// U+0132	&#306;		IJ character
-	strDecomposed.replace(QChar(0x0133), "ij");				// U+0133	&#307;		ij character
-	strDecomposed.replace(QChar(0x0152), "Oe");				// U+0152	&#338;		OE character
-	strDecomposed.replace(QChar(0x0153), "oe");				// U+0153	&#339;		oe character
+		strDecomposed.replace(QChar(0x05F0), constrDoubleVav);	// U+05F0	&#1520;		Hebrew Yiddish Double Vav ("װ")
+		strDecomposed.replace(QChar(0x05F1), constrVavYod);		// U+05F1	&#1521;		Hebrew Yiddish Vav Yod ("ױ")
+		strDecomposed.replace(QChar(0x05F2), constrDoubleYod);	// U+05F2	&#1522;		Hebrew Yiddish Double Yod ("ײ")
 
-	strDecomposed.replace(QChar(0x05F0), constrDoubleVav);	// U+05F0	&#1520;		Hebrew Yiddish Double Vav ("װ")
-	strDecomposed.replace(QChar(0x05F1), constrVavYod);		// U+05F1	&#1521;		Hebrew Yiddish Vav Yod ("ױ")
-	strDecomposed.replace(QChar(0x05F2), constrDoubleYod);	// U+05F2	&#1522;		Hebrew Yiddish Double Yod ("ײ")
-
-	return strDecomposed;
-}
-
-QString StringParse::deApostrHyphen(const QString &strWord, bool bRemoveHyphens)
-{
-	return deHyphen(deApostrophe(strWord, false), bRemoveHyphens);
-}
-
-QString StringParse::deApostrophe(const QString &strWord, bool bRemove)
-{
-#if QT_VERSION >= 0x050000
-	static const QString strApostropheRegExp = QChar('[') + QRegularExpression::escape(g_strApostrophes) + QChar(']');
-	static const QRegularExpression expApostrophe(strApostropheRegExp);
-#else
-	static const QString strApostropheRegExp = QChar('[') + QRegExp::escape(g_strApostrophes) + QChar(']');
-	static const QRegExp expApostrophe(strApostropheRegExp);
-#endif
-
-	QString strDecomposed = strWord;
-
-	if (!bRemove) {
-		strDecomposed.replace(expApostrophe, "'");
-	} else {
-		strDecomposed.remove(expApostrophe);
+		return strDecomposed;
 	}
 
-	return strDecomposed;
-}
+	QString deApostrHyphen(const QString &strWord, bool bRemoveHyphens)
+	{
+		return deHyphen(deApostrophe(strWord, false), bRemoveHyphens);
+	}
 
-QString StringParse::deHyphen(const QString &strWord, bool bRemove)
-{
-#if QT_VERSION >= 0x050000
-	static const QString strHyphenRegExp = QChar('[') + QRegularExpression::escape(g_strHyphens) + QChar(']');
-	static const QRegularExpression expHyphen(strHyphenRegExp);
-#else
-	static const QString strHyphenRegExp = QChar('[') + QRegExp::escape(g_strHyphens) + QChar(']');
-	static const QRegExp expHyphen(strHyphenRegExp);
-#endif
+	QString deApostrophe(const QString &strWord, bool bRemove)
+	{
+	#if QT_VERSION >= 0x050000
+		static const QString strApostropheRegExp = QChar('[') + QRegularExpression::escape(g_strApostrophes) + QChar(']');
+		static const QRegularExpression expApostrophe(strApostropheRegExp);
+	#else
+		static const QString strApostropheRegExp = QChar('[') + QRegExp::escape(g_strApostrophes) + QChar(']');
+		static const QRegExp expApostrophe(strApostropheRegExp);
+	#endif
 
-	QString strDecomposed;
+		QString strDecomposed = strWord;
 
-	if (!bRemove) {
-		strDecomposed = strWord;
-		strDecomposed.replace(expHyphen, "-");
-	} else {
-		// Remove hyphens, but leave embedded regexp charsets intact:
-		int nPos = 0;
-		QString strDecomposed2 = strWord;
-		while (!strDecomposed2.isEmpty()) {
-			nPos = strDecomposed2.indexOf(QChar('['));
-			if (nPos != -1) {
-				strDecomposed += strDecomposed2.mid(0, nPos).remove(expHyphen);
-				strDecomposed2 = strDecomposed2.mid(nPos);
-				nPos = strDecomposed2.indexOf(QChar(']'));
+		if (!bRemove) {
+			strDecomposed.replace(expApostrophe, "'");
+		} else {
+			strDecomposed.remove(expApostrophe);
+		}
+
+		return strDecomposed;
+	}
+
+	QString deHyphen(const QString &strWord, bool bRemove)
+	{
+	#if QT_VERSION >= 0x050000
+		static const QString strHyphenRegExp = QChar('[') + QRegularExpression::escape(g_strHyphens) + QChar(']');
+		static const QRegularExpression expHyphen(strHyphenRegExp);
+	#else
+		static const QString strHyphenRegExp = QChar('[') + QRegExp::escape(g_strHyphens) + QChar(']');
+		static const QRegExp expHyphen(strHyphenRegExp);
+	#endif
+
+		QString strDecomposed;
+
+		if (!bRemove) {
+			strDecomposed = strWord;
+			strDecomposed.replace(expHyphen, "-");
+		} else {
+			// Remove hyphens, but leave embedded regexp charsets intact:
+			int nPos = 0;
+			QString strDecomposed2 = strWord;
+			while (!strDecomposed2.isEmpty()) {
+				nPos = strDecomposed2.indexOf(QChar('['));
 				if (nPos != -1) {
-					strDecomposed += strDecomposed2.mid(0, nPos+1);
-					strDecomposed2 = strDecomposed2.mid(nPos+1);
+					strDecomposed += strDecomposed2.mid(0, nPos).remove(expHyphen);
+					strDecomposed2 = strDecomposed2.mid(nPos);
+					nPos = strDecomposed2.indexOf(QChar(']'));
+					if (nPos != -1) {
+						strDecomposed += strDecomposed2.mid(0, nPos+1);
+						strDecomposed2 = strDecomposed2.mid(nPos+1);
+					} else {
+						strDecomposed += strDecomposed2;
+						strDecomposed2.clear();
+					}
 				} else {
-					strDecomposed += strDecomposed2;
+					strDecomposed += strDecomposed2.remove(expHyphen);
 					strDecomposed2.clear();
 				}
-			} else {
-				strDecomposed += strDecomposed2.remove(expHyphen);
-				strDecomposed2.clear();
 			}
 		}
+
+		return strDecomposed;
 	}
 
-	return strDecomposed;
-}
+	QString deCantillate(const QString &strWord)
+	{
+		QString strDecomposed = strWord.normalized(QString::NormalizationForm_KD);
 
-QString StringParse::deCantillate(const QString &strWord)
-{
-	QString strDecomposed = strWord.normalized(QString::NormalizationForm_KD);
-
-	for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
-		if ((strDecomposed.at(nPos).unicode() >= 0x0591) &&
-			(strDecomposed.at(nPos).unicode() <= 0x05AF)) {
-			strDecomposed.remove(nPos, 1);
+		for (int nPos = strDecomposed.size()-1; nPos >= 0; --nPos) {
+			if ((strDecomposed.at(nPos).unicode() >= 0x0591) &&
+				(strDecomposed.at(nPos).unicode() <= 0x05AF)) {
+				strDecomposed.remove(nPos, 1);
+			}
 		}
+
+		return strDecomposed.normalized(QString::NormalizationForm_C);
 	}
 
-	return strDecomposed.normalized(QString::NormalizationForm_C);
-}
+	TFirstCharSize firstCharSize(const QString &strWord)
+	{
+		// Get the number of QChars from the string that represents the first
+		//	real character of the word.  This includes the first base-character
+		//	(non-mark) and any "mark" that comes after it to mark it up.  Any of
+		//	these can, of course, be dual-QChar surrogate pairs.  So, if the
+		//	first QChar read is a surrogate, it and its lowSurrogate pair count
+		//	in the final results.  We then want to read and count any marks after
+		//	that first base character.  If what follows is a mark, then it's
+		//	counted as-is.  But, if what follows is a surrogate, we have to look
+		//	at the next character combined to see if it's a surrogate mark.  If
+		//	so, we count it too, but if not, we have to uncount the first half of
+		//	the pair because it means we are looking at the next complete character
+		//	of the word instead...
+		//
+		//	NSC = Non-Surrogate base-character
+		//	HSC = High Surrogate for base-character
+		//	LSC = Low Surrogate for base-character
+		//	NSM = Non-Surrogate mark
+		//	HSM = High Surrogate for mark
+		//	LSM = Low Surrogate for mark
+		//
+		//		NSC NSM NSM NSC ... count = 3, break at ndx==3
+		//		HSC LSC NSM NSC ... count = 3, break at ndx==3
+		//		HSC LSC HSM LSM NSC ... count = 4, break at ndx==4 with no decrement
+		//		HSC LSC HSC LSC ... count = 2, break at ndx==3 with decrement
+		//		NSC HSM LSM NSM HSC LSC ... count = 4, break at ndx==5 with decrement
+		//
+		TFirstCharSize fcs;
+
+		if (!strWord.isEmpty()) {
+			QChar chrPrevious = strWord.at(0);
+			++fcs.m_nSize;
+			for (int ndx = 1; ndx < strWord.size(); ++ndx) {
+				// Note: High surrogates always come first when there's a surrogate pair
+#if QT_VERSION >= 0x050000
+				if (!strWord.at(ndx).isMark() && (!strWord.at(ndx).isSurrogate())) break;
+#else
+				if (!strWord.at(ndx).isMark() && (strWord.at(ndx).category() != QChar::Other_Surrogate)) break;
+#endif
+				if (strWord.at(ndx).isMark()) fcs.m_bHasMarks = true;
+#if QT_VERSION >= 0x050000
+				if (strWord.at(ndx).isLowSurrogate() &&
+					(fcs.m_nSize > 2) &&
+					!QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
+					--fcs.m_nSize;		// If the pair isn't a mark, "unget" the upper-byte from the count as this is the next base-character
+					break;
+				}
+				if (strWord.at(ndx).isLowSurrogate() &&
+					QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
+					fcs.m_bHasMarks = true;
+				}
+#else
+				if (strWord.at(ndx).isHighSurrogate()) {
+					// Note: On Qt4, just don't support surrogate marks, only base characters.
+					//	If this is a new surrogate starting, bail out.  Note that we use
+					//	isHighSurrogate() here for a new surrogate because we could still have
+					//	the lowSurrogate for the base-character to process.  It's only marks we drop:
+					break;
+				}
+#endif
+				chrPrevious = strWord.at(ndx);
+				++fcs.m_nSize;
+			}
+		}
+
+		return fcs;
+	}
+
+};	// Namespace StringParse
 
 // ============================================================================
 

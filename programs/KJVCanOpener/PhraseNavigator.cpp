@@ -1273,6 +1273,12 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 		while ((nStartPos != -1) && (ndxNormalStart <= ndxNormalEnd)) {
 			myCursor.setPosition(nStartPos);
 			int nWordEndPos = nStartPos + m_pBibleDatabase->wordAtIndex(ndxNormalStart, WTE_RENDERED).size();
+#ifdef WORKAROUND_QTBUG_100879
+			// Count the extra ZWSP added for the workaround:
+			if (StringParse::firstCharSize(m_pBibleDatabase->wordAtIndex(ndxNormalStart, WTE_RENDERED)).m_bHasMarks) {
+				++nWordEndPos;
+			}
+#endif
 
 			// If this is a continuous highlighter, instead of stopping at the end of the word,
 			//		we'll find the end of the last word of this verse that we'll be highlighting
@@ -1291,6 +1297,12 @@ void CPhraseNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, boo
 					int nNextLastVerseWordPos = anchorPosition(ndxLastVerseWord.asAnchor());
 					if (nNextLastVerseWordPos != -1) {
 						nNextLastVerseWordPos += m_pBibleDatabase->wordAtIndex(ndxNormalLastVerseWord, WTE_RENDERED).size();
+#ifdef WORKAROUND_QTBUG_100879
+						// Count the extra ZWSP added for the workaround:
+						if (StringParse::firstCharSize(m_pBibleDatabase->wordAtIndex(ndxNormalLastVerseWord, WTE_RENDERED)).m_bHasMarks) {
+							++nNextLastVerseWordPos;
+						}
+#endif
 					} else {
 						Q_ASSERT(false);
 					}

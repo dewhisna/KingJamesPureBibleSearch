@@ -62,6 +62,12 @@ namespace StringParse {
 	QString deApostrophe(const QString &strWord, bool bRemove = false);		// Decompose/remove Apostrophes only
 	QString deHyphen(const QString &strWord, bool bRemove = false);			// Decompose/remove Hyphens only
 	QString deCantillate(const QString &strWord);							// Decompose/remove Cantillation markings (Hebrew)
+
+	struct TFirstCharSize {
+		int m_nSize = 0;				// Number of QChar entries for first character of a string
+		bool m_bHasMarks = false;		// True if the QChar of the first character has marks (used for QTBUG-100879 workaround)
+	};
+	TFirstCharSize firstCharSize(const QString &strWord);
 };
 
 // ============================================================================

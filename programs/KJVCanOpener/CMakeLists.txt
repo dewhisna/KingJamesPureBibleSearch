@@ -908,6 +908,11 @@ target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 )
 
 
+target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+	WORKAROUND_QTBUG_100879				# Composed characters inside anchors are broken : https://bugreports.qt.io/browse/QTBUG-100879
+)
+
+
 #if((QT_VERSION >= 5.0.0) AND (QT_VERSION <= 5.2.0))
 #	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 #		WORKAROUND_QTBUG_33906			# singleStep QTreeView Scroll Bug

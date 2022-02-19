@@ -38,9 +38,6 @@
 #define OUTPUT_HEBREW_PS119 1
 #define PSALMS_BOOK_NUM 19
 
-// https://bugreports.qt.io/browse/QTBUG-100879
-#define QTBUG_100879_WORKAROUND 1
-
 // ============================================================================
 // ============================================================================
 
@@ -309,91 +306,23 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 	if (m_parseBaton.m_bInWordsOfJesus) nWordTypes |= CVerseTextRichifierTags::VWT_WordsOfJesus;
 	if (m_parseBaton.m_bInSearchResult) nWordTypes |= CVerseTextRichifierTags::VWT_SearchResult;
 
-	// Get the number of QChars from the string that represents the first
-	//	real character of the word.  This includes the first base-character
-	//	(non-mark) and any "mark" that comes after it to mark it up.  Any of
-	//	these can, of course, be dual-QChar surrogate pairs.  So, if the
-	//	first QChar read is a surrogate, it and its lowSurrogate pair count
-	//	in the final results.  We then want to read and count any marks after
-	//	that first base character.  If what follows is a mark, then it's
-	//	counted as-is.  But, if what follows is a surrogate, we have to look
-	//	at the next character combined to see if it's a surrogate mark.  If
-	//	so, we count it too, but if not, we have to uncount the first half of
-	//	the pair because it means we are looking at the next complete character
-	//	of the word instead...
-	//
-	//	NSC = Non-Surrogate base-character
-	//	HSC = High Surrogate for base-character
-	//	LSC = Low Surrogate for base-character
-	//	NSM = Non-Surrogate mark
-	//	HSM = High Surrogate for mark
-	//	LSM = Low Surrogate for mark
-	//
-	//		NSC NSM NSM NSC ... count = 3, break at ndx==3
-	//		HSC LSC NSM NSC ... count = 3, break at ndx==3
-	//		HSC LSC HSM LSM NSC ... count = 4, break at ndx==4 with no decrement
-	//		HSC LSC HSC LSC ... count = 2, break at ndx==3 with decrement
-	//		NSC HSM LSM NSM HSC LSC ... count = 4, break at ndx==5 with decrement
-	//
-	int nFirstLetterSize = 0;
-#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
-	bool bHasMarks = false;
-#endif
-	if (!strWord.isEmpty()) {
-		QChar chrPrevious = strWord.at(0);
-		++nFirstLetterSize;
-		for (int ndx = 1; ndx < strWord.size(); ++ndx) {
-			// Note: High surrogates always come first when there's a surrogate pair
-#if QT_VERSION >= 0x050000
-			if (!strWord.at(ndx).isMark() && (!strWord.at(ndx).isSurrogate())) break;
-#else
-			if (!strWord.at(ndx).isMark() && (strWord.at(ndx).category() != QChar::Other_Surrogate)) break;
-#endif
-#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
-			if (strWord.at(ndx).isMark()) bHasMarks = true;
-#endif
-#if QT_VERSION >= 0x050000
-			if (strWord.at(ndx).isLowSurrogate() &&
-				(nFirstLetterSize > 2) &&
-				!QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
-				--nFirstLetterSize;		// If the pair isn't a mark, "unget" the upper-byte from the count as this is the next base-character
-				break;
-			}
-	#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
-			if (strWord.at(ndx).isLowSurrogate() &&
-				QChar::isMark(QChar::surrogateToUcs4(chrPrevious, strWord.at(ndx)))) {
-				bHasMarks = true;
-			}
-	#endif
-#else
-			if (strWord.at(ndx).isHighSurrogate()) {
-				// Note: On Qt4, just don't support surrogate marks, only base characters.
-				//	If this is a new surrogate starting, bail out.  Note that we use
-				//	isHighSurrogate() here for a new surrogate because we could still have
-				//	the lowSurrogate for the base-character to process.  It's only marks we drop:
-				break;
-			}
-#endif
-			chrPrevious = strWord.at(ndx);
-			++nFirstLetterSize;
-		}
-	}
+	StringParse::TFirstCharSize fcs = StringParse::firstCharSize(strWord);
 
-#if defined(QTBUG_100879_WORKAROUND) && (QTBUG_100879_WORKAROUND)
+#ifdef WORKAROUND_QTBUG_100879
 	// In QTBUG-100879, the first mark composed character inside anchors
 	//	doesn't render correctly.  But it does if there's a ZWSP (zero
 	//	width space).  Therefore, if the next character is composed with
 	//	marks and we are rendering anchors, output a "&#x200B;":
-	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_AddAnchors) && bHasMarks) {
+	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_AddAnchors) && fcs.m_bHasMarks) {
 		m_parseBaton.m_strVerseText.append(QChar(0x200B));
 	}
 #endif
 
 	if (!m_parseBaton.m_strDivineNameFirstLetterParseText.isEmpty()) {
 		if (m_parseBaton.m_bOutput) {
-			m_parseBaton.m_strVerseText.append(strWord.left(nFirstLetterSize)
+			m_parseBaton.m_strVerseText.append(strWord.left(fcs.m_nSize)
 											+ m_parseBaton.m_strDivineNameFirstLetterParseText
-											+ strWord.mid(nFirstLetterSize));
+											+ strWord.mid(fcs.m_nSize));
 		}
 		m_parseBaton.m_strDivineNameFirstLetterParseText.clear();
 		nWordTypes |= CVerseTextRichifierTags::VWT_DivineName;
