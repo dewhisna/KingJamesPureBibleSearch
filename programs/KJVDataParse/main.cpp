@@ -1090,6 +1090,7 @@ private:
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
+	QString m_strTitle;					// Used only for capture of title from XML -- after that it will be stored in the Bible Database Descriptor
 	QString m_strLanguage;				// Used only for capture of language from XML -- after that it will be stored in the Bible Database Descriptor
 	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
@@ -1295,7 +1296,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		m_strLanguage.clear();
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		if (!m_ndxCurrent.isSet()) {
-			if (m_bInHeader) m_bCaptureTitle = true;
+			if (m_bInHeader) {
+				m_bCaptureTitle = true;
+				m_strTitle.clear();
+			}
 		} else if (m_xfteFormatType == XFTE_OSIS) {
 			// Older format (embedded in closed-form verse tag): canonical="true" subType="x-preverse" type="section":
 			//		<chapter osisID="Ps.3">
@@ -1805,7 +1809,12 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_bCaptureLang = false;
 	} else if (localName.compare("title", Qt::CaseInsensitive) == 0) {
 		if (m_bInHeader) {
-			std::cerr << "Title: " << m_pBibleDatabase->m_descriptor.m_strDBDesc.toUtf8().data() << "\n";
+			std::cerr << "Title: " << m_strTitle.toUtf8().data() << "\n";
+			if (m_strTitle.compare(m_pBibleDatabase->description(), Qt::CaseInsensitive) != 0) {
+				std::cerr << "    *** Warning: Original Bible Description doesn't match database:\n        \""
+							<< m_pBibleDatabase->description().toUtf8().data() << "\"\n";
+			}
+			m_pBibleDatabase->m_descriptor.m_strDBDesc = m_strTitle;
 		}
 		m_bCaptureTitle = false;
 		if ((m_bInSuperscription) && (!m_bOpenEndedSuperscription)) {
@@ -1883,7 +1892,7 @@ bool COSISXmlHandler::characters(const QString &ch)
 //	strTemp.replace('\n', ' ');
 
 	if (m_bCaptureTitle) {
-		m_pBibleDatabase->m_descriptor.m_strDBDesc += strTemp;
+		m_strTitle += strTemp;
 	} else if (m_bCaptureLang) {
 		m_strLanguage += strTemp;
 	} else if ((!m_strCurrentSegVariant.isEmpty()) && (!m_strSegVariant.isEmpty()) && (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) != 0)) {
