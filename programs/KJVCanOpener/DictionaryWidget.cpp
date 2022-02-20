@@ -514,7 +514,7 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 #ifdef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 	for (int ndx = 0; ndx < TDictionaryDatabaseList::instance()->size(); ++ndx) {
 		if (TDictionaryDatabaseList::instance()->at(ndx).isNull()) continue;
-		if ((!m_strLanguage.isEmpty()) && (TDictionaryDatabaseList::instance()->at(ndx)->language().compare(m_strLanguage, Qt::CaseInsensitive) != 0) &&
+		if ((!m_strLanguage.isEmpty()) && (TDictionaryDatabaseList::instance()->at(ndx)->langID() != toLanguageID(m_strLanguage)) &&
 			(!(TDictionaryDatabaseList::instance()->at(ndx)->flags() & DTO_IgnoreLang))) continue;
 		QAction *pAction = new QAction(TDictionaryDatabaseList::instance()->at(ndx)->description(), m_pActionGroupDictDatabasesList);
 		pAction->setData(TDictionaryDatabaseList::instance()->at(ndx)->compatibilityUUID());
@@ -530,7 +530,7 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 		CDictionaryDatabasePtr pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 
 		if (!pDictDatabase.isNull()) {
-			if ((m_strLanguage.isEmpty()) || (pDictDatabase->language().compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
+			if ((m_strLanguage.isEmpty()) || (pDictDatabase->langID() == toLanguageID(m_strLanguage)) ||
 				(pDictDatabase->flags() & DTO_IgnoreLang)) {
 				QAction *pAction = new QAction(pDictDatabase->description(), m_pActionGroupDictDatabasesList);
 				pAction->setData(pDictDatabase->compatibilityUUID());
@@ -543,7 +543,7 @@ void CDictionaryWidget::en_updateDictionaryDatabasesList()
 		} else {
 			TDictionaryDescriptor dctDesc = lstAvailableDictDescs.at(ndx);
 			Q_ASSERT(dctDesc.isValid());
-			if ((m_strLanguage.isEmpty()) || (dctDesc.m_strLanguage.compare(m_strLanguage, Qt::CaseInsensitive) == 0) ||
+			if ((m_strLanguage.isEmpty()) || (toLanguageID(dctDesc.m_strLanguage) == toLanguageID(m_strLanguage)) ||
 				(dctDesc.m_dtoFlags & DTO_IgnoreLang)) {
 				QAction *pAction = new QAction(dctDesc.m_strDBDesc, m_pActionGroupDictDatabasesList);
 				pAction->setData(dctDesc.m_strUUID);

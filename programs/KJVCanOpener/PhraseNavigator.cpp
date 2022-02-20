@@ -1445,7 +1445,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	// Search for "Category:".  First try and see if we can translate it in the language of the selected Bible,
 	//		but if not, try in the current language setting
 	QString strCategory = tr("Category:", "Scope");
-	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Category:", "Scope");
 		if (!strTemp.isEmpty()) strCategory = strTemp;
@@ -1648,7 +1648,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	// Search for "Category:".  First try and see if we can translate it in the language of the selected Bible,
 	//		but if not, try in the current language setting
 	QString strCategory = tr("Category:", "Scope");
-	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Category:", "Scope");
 		if (!strTemp.isEmpty()) strCategory = strTemp;
@@ -1657,7 +1657,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	// Search for "Chapter".  First try and see if we can translate it in the language of the selected Bible,
 	//		but if not, try in the current language setting
 	QString strChapter = tr("Chapter", "Scope");
-	//TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+	//TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Chapter", "Scope");
 		if (!strTemp.isEmpty()) strChapter = strTemp;

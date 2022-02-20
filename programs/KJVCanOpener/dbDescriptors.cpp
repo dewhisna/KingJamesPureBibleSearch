@@ -252,6 +252,29 @@ LANGUAGE_ID_ENUM toLanguageID(const QString &strLang)
 	return LIDE_UNKNOWN;
 }
 
+QString toQtLanguageName(LANGUAGE_ID_ENUM nID)
+{
+	switch (nID) {
+		case LIDE_ENGLISH:
+			return "en";
+		case LIDE_FRENCH:
+			return "fr";
+		case LIDE_SPANISH:
+			return "es";
+		case LIDE_GERMAN:
+			return "de";
+		case LIDE_RUSSIAN:
+			return "ru";
+		case LIDE_HEBREW:
+			return "he";		// Modern Hebrew
+		case LIDE_GREEK:
+			return "el";		// Modern Greek
+		case LIDE_UNKNOWN:
+		default:
+			return "  ";		// Any/C-Locale
+	}
+}
+
 // ============================================================================
 
 unsigned int bibleDescriptorCount()

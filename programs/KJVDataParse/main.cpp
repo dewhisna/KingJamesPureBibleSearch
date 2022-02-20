@@ -317,11 +317,10 @@ const char *g_constrTranslationFilenamePrefix = "kjvdataparse";
 // ============================================================================
 // ============================================================================
 
-static bool isSpecialWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage, const CWordEntry &entryWord)
+static bool isSpecialWord(const CBibleDatabase *pBibleDatabase, const CWordEntry &entryWord)
 {
-	Q_UNUSED(nBDE);
-
-	if (strLanguage.compare("en", Qt::CaseInsensitive) == 0) {
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase->langID() == LIDE_ENGLISH) {
 		for (int ndx = 0; ndx < entryWord.m_lstAltWords.size(); ++ndx) {
 			QString strDecomposedWord = StringParse::decompose(entryWord.m_lstAltWords.at(ndx), true);
 
@@ -412,12 +411,14 @@ static bool isSpecialWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage
 	return false;
 }
 
-static bool isProperWord(BIBLE_DESCRIPTOR_ENUM nBDE, const QString &strLanguage, const CWordEntry &entryWord)
+static bool isProperWord(const CBibleDatabase *pBibleDatabase, const CWordEntry &entryWord)
 {
+	Q_ASSERT(pBibleDatabase != nullptr);
 	bool bIsProperWord = true;
 
+	BIBLE_DESCRIPTOR_ENUM nBDE = bibleDescriptorFromUUID(pBibleDatabase->compatibilityUUID());
 	if ((nBDE == BDE_KJV) || (nBDE == BDE_KJV_FULL) || (nBDE == BDE_KJVPCE) || (nBDE == BDE_KJVA)) {
-		Q_ASSERT(strLanguage.compare("en" ,Qt::CaseInsensitive) == 0);
+		Q_ASSERT(pBibleDatabase->langID() == LIDE_ENGLISH);
 
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
 			QString strDecomposedWord = StringParse::decompose(entryWord.m_lstAltWords.at(ndx), true);
@@ -995,8 +996,6 @@ public:
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
-	QString language() const { return m_strLanguage; }
-
 	QString parsedUTF8Chars() const { return m_strParsedUTF8Chars; }
 
 	const CBookEntry *addBookToBibleDatabase(unsigned int nBk);
@@ -1053,7 +1052,7 @@ private:
 	QString m_strParsedUTF8Chars;		// UTF-8 (non-Ascii) characters encountered -- used for report
 
 	CBibleDatabasePtr m_pBibleDatabase;
-	QString m_strLanguage;
+	QString m_strLanguage;				// Used only for capture of language from XML -- after that it will be stored in the Bible Database Descriptor
 	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
 	bool m_bUseBracketColophons;		// Treat "[" and "]" as a colophon marker
@@ -1236,9 +1235,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		std::cerr << "Work: " << atts.value(ndx).toUtf8().data() << "\n";
 		ndx = findAttribute(atts, "lang");
 		if  (ndx != -1) {
-			m_strLanguage = atts.value(ndx);
-			std::cerr << "Language: " << m_strLanguage.toUtf8().data();
-			if (CTranslatorList::instance()->setApplicationLanguage(m_strLanguage)) {
+			LANGUAGE_ID_ENUM nOrigLangID = m_pBibleDatabase->langID();
+			m_pBibleDatabase->m_descriptor.m_strLanguage = atts.value(ndx);
+			std::cerr << "Language: " << m_pBibleDatabase->language().toUtf8().data();
+			if (nOrigLangID != m_pBibleDatabase->langID()) {
+				std::cerr << "    *** Warning: Original Bible Descriptor Language doesn't match database language\n";
+			}
+			if (CTranslatorList::instance()->setApplicationLanguage(toQtLanguageName(m_pBibleDatabase->langID()))) {
 				g_setBooks();
 				g_setTstNames();
 				std::cerr << " (Loaded Translations)\n";
@@ -1748,9 +1751,13 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		m_bInHeader = false;
 	} else if ((m_xfteFormatType == XFTE_ZEFANIA) && (localName.compare("language", Qt::CaseInsensitive) == 0) && (m_bInHeader)) {
 		// Convert Language:
-		if (m_strLanguage.compare("GER", Qt::CaseInsensitive) == 0) m_strLanguage = "de";
-		std::cerr << "Language: " << m_strLanguage.toUtf8().data();
-		if (CTranslatorList::instance()->setApplicationLanguage(m_strLanguage)) {
+		LANGUAGE_ID_ENUM nOrigLangID = m_pBibleDatabase->langID();
+		m_pBibleDatabase->m_descriptor.m_strLanguage = m_strLanguage;
+		std::cerr << "Language: " << m_pBibleDatabase->language().toUtf8().data();
+		if (nOrigLangID != m_pBibleDatabase->langID()) {
+			std::cerr << "    *** Warning: Original Bible Descriptor Language doesn't match database language\n";
+		}
+		if (CTranslatorList::instance()->setApplicationLanguage(toQtLanguageName(m_pBibleDatabase->langID()))) {
 			g_setBooks();
 			g_setTstNames();
 			std::cerr << " (Loaded Translations)\n";
@@ -2747,6 +2754,7 @@ int main(int argc, char *argv[])
 	}
 
 	const CBibleDatabase *pBibleDatabase = xmlHandler.bibleDatabase();
+	bblDescriptor = pBibleDatabase->descriptor();		// Update descriptor from parsing
 
 	// ------------------------------------------------------------------------
 
@@ -2781,7 +2789,7 @@ int main(int argc, char *argv[])
 #endif
 	settingsDBInfo.clear();
 	settingsDBInfo.beginGroup("BibleDBInfo");
-	settingsDBInfo.setValue("Language", xmlHandler.language());
+	settingsDBInfo.setValue("Language", bblDescriptor.m_strLanguage);
 	QString strDir;
 	if (bblDescriptor.m_nTextDir == Qt::LeftToRight) {
 		strDir = "ltr";
@@ -3110,8 +3118,8 @@ int main(int argc, char *argv[])
 			wordEntryDb.m_ndxNormalizedMapping.insert(wordEntryDb.m_ndxNormalizedMapping.end(), itrWrd->second.m_ndxNormalizedMapping.begin(), itrWrd->second.m_ndxNormalizedMapping.end());
 			wordEntryDb.m_strWord = WordFromWordSet(setAltWords);
 		}
-		wordEntryDb.m_bCasePreserve = isSpecialWord(nBDE, xmlHandler.language(), wordEntryDb);
-		wordEntryDb.m_bIsProperWord = isProperWord(nBDE, xmlHandler.language(), wordEntryDb);
+		wordEntryDb.m_bCasePreserve = isSpecialWord(pBibleDatabase, wordEntryDb);
+		wordEntryDb.m_bIsProperWord = isProperWord(pBibleDatabase, wordEntryDb);
 
 		Q_ASSERT(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
 		Q_ASSERT(wordEntryDb.m_lstAltWords.size() > 0);

@@ -25,6 +25,7 @@
 #define SOUND_EX_H
 
 #include <QString>
+#include "dbDescriptors.h"
 
 namespace SoundEx {
 
@@ -44,7 +45,8 @@ namespace SoundEx {
 		SELE_GERMAN = 4
 	};
 
-	SOUNDEX_LANGUAGES_ENUM languageValue(const QString &strLanguage);
+	SOUNDEX_LANGUAGES_ENUM languageValue(const QString &strQtLanguage);	// Qt language Name
+	SOUNDEX_LANGUAGES_ENUM languageValue(LANGUAGE_ID_ENUM nLangID);		// Bible/Dictionary Database Language ID
 	// soundEx : Note: strWordIn should already be decomposed:
 	QString soundEx(const QString &strWordIn, SOUNDEX_LANGUAGES_ENUM nLanguage = SELE_ENGLISH, int nLength = 4, SOUNDEX_OPTION_MODE_ENUM nOption = SEOME_ENHANCED);
 

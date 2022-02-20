@@ -278,7 +278,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				QString strEntireBible = tr("Entire Bible", "Scope");
 				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					(role == SWMDRE_WEBCHANNEL_ROLE)) {
-					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Entire Bible", "Scope");
 						if (!strTemp.isEmpty()) strEntireBible = strTemp;
@@ -293,7 +293,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				QString strColophons = tr("Colophons", "Scope");
 				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					(role == SWMDRE_WEBCHANNEL_ROLE)) {
-					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Colophons", "Scope");
 						if (!strTemp.isEmpty()) strColophons = strTemp;
@@ -308,7 +308,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				QString strSuperscriptions = tr("Superscriptions", "Scope");
 				if ((role == Qt::DisplayRole) ||		// The Edit-Role will return the current language version and the Display-Role will be for the Bible Database
 					(role == SWMDRE_WEBCHANNEL_ROLE)) {
-					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+					TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 					if (!pTranslator.isNull()) {
 						QString strTemp = pTranslator->translatorApp().translate("CSearchWithinModel", "Superscriptions", "Scope");
 						if (!strTemp.isEmpty()) strSuperscriptions = strTemp;

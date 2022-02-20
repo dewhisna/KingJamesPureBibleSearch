@@ -2020,7 +2020,7 @@ bool CKJVCanOpener::openKJVSearchFile(const QString &strFilePathName)
 									"ignored.", "Errors"));
 	}
 
-	if (strBblLang.compare(m_pBibleDatabase->language(), Qt::CaseInsensitive) != 0) {
+	if (toLanguageID(strBblLang) != m_pBibleDatabase->langID()) {
 		show();		// Make sure we are visible if this was during construction
 		displayWarning(this, tr("Opening King James Search File", "Errors"), tr("Warning: The file you are opening is for a "
 									"different language Bible Database and will most likely not display the Search Results "

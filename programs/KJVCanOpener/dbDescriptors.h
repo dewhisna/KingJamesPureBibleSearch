@@ -43,7 +43,8 @@ enum LANGUAGE_ID_ENUM {
 	LIDE_GREEK = 7,						// Greek, "el", "ell", "grc", or "gre"
 };
 
-LANGUAGE_ID_ENUM toLanguageID(const QString &strLang);
+LANGUAGE_ID_ENUM toLanguageID(const QString &strLang);		// Return Bible Language ID from database language string
+QString toQtLanguageName(LANGUAGE_ID_ENUM nID);				// Returns Qt Language name for Bible Language ID
 
 // ============================================================================
 

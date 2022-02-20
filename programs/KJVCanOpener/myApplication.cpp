@@ -1565,7 +1565,7 @@ int CMyApplication::execute(bool bBuildDB)
 		for (int nDctNdx = 0; ((nDctNdx < TDictionaryDatabaseList::instance()->size()) &&
 							   (TDictionaryDatabaseList::instance()->mainDictionaryDatabase().isNull())); ++nDctNdx) {
 			if ((!TDictionaryDatabaseList::instance()->at(nDctNdx).isNull()) &&			// Note: Main Bible Database is guaranteed to be set above in Bible DB Loading
-				(TDictionaryDatabaseList::instance()->at(nDctNdx)->language().compare(TBibleDatabaseList::instance()->mainBibleDatabase()->language(), Qt::CaseInsensitive) == 0)) {
+				(TDictionaryDatabaseList::instance()->at(nDctNdx)->langID() == TBibleDatabaseList::instance()->mainBibleDatabase()->langID())) {
 				TDictionaryDatabaseList::instance()->setMainDictionaryDatabase(TDictionaryDatabaseList::instance()->at(nDctNdx)->compatibilityUUID());
 			}
 		}

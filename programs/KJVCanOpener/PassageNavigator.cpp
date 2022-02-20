@@ -142,7 +142,7 @@ void CPassageNavigator::initialize()
 			// Search for "Entire Bible".  First try and see if we can translate it in the language of the selected Bible,
 			//		but if not, try in the current language setting
 			QString strEntireBible = tr("Entire Bible", "Scope");
-			TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(m_pBibleDatabase->language());
+			TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(m_pBibleDatabase->langID()));
 			if (!pTranslator.isNull()) {
 				QString strTemp = pTranslator->translatorApp().translate("CPassageNavigator", "Entire Bible", "Scope");
 				if (!strTemp.isEmpty()) strEntireBible = strTemp;

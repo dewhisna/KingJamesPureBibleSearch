@@ -1317,6 +1317,7 @@ public:
 
 	BibleTypeOptionsFlags flags() const { return m_descriptor.m_btoFlags; }
 	QString language() const { return m_descriptor.m_strLanguage; }
+	LANGUAGE_ID_ENUM langID() const { return toLanguageID(m_descriptor.m_strLanguage); }
 	Qt::LayoutDirection direction() const { return m_descriptor.m_nTextDir; }
 	QString name() const { return m_descriptor.m_strDBName; }
 	QString description() const { return m_descriptor.m_strDBDesc; }
@@ -1695,6 +1696,7 @@ public:
 
 	DictionaryTypeOptionsFlags flags() const { return m_descriptor.m_dtoFlags; }
 	QString language() const { return m_descriptor.m_strLanguage; }
+	LANGUAGE_ID_ENUM langID() const { return toLanguageID(m_descriptor.m_strLanguage); }
 	QString name() const { return m_descriptor.m_strDBName; }
 	QString description() const { return m_descriptor.m_strDBDesc; }
 	QString compatibilityUUID() const { return m_descriptor.m_strUUID; }

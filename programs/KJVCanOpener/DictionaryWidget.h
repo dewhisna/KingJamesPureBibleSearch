@@ -125,7 +125,7 @@ private:
 
 // UI Private:
 private:
-	QString m_strLanguage;			// Language to use for dictionary lists.  If empty, all languages are used
+	QString m_strLanguage;			// Language requested to use for dictionary lists.  If empty, all languages are used
 	bool m_bDoingPopup;				// True if popping up a menu or dialog (useful for things like not disabling highlight, etc)
 	QMenu *m_pEditMenuDictionary;	// Edit menu for main screen when the dictionary is active
 	QMenu *m_pEditMenuDictWord;		// Edit menu for main screen when the dictionary word editor is active

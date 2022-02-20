@@ -252,7 +252,7 @@ void CPassageReferenceResolver::buildSoundExTables()
 			QString strPrefix = regexpPrefix.capturedTexts().at(1);
 #endif
 			lstSoundEx.append(strPrefix + SoundEx::soundEx(strBookName,
-																			SoundEx::languageValue(m_pBibleDatabase->language()),
+																			SoundEx::languageValue(m_pBibleDatabase->langID()),
 																			PASSAGE_SOUNDEX_LENGTH,
 																			PASSAGE_SOUNDEX_MODE));
 		}
@@ -265,7 +265,7 @@ uint32_t CPassageReferenceResolver::resolveBook(const QString &strPreBook, const
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	QString strBookName = strPreBook.toLower() + strBook.toLower();
 	QString strSoundEx = strPreBook + SoundEx::soundEx(strBookName,
-																			 SoundEx::languageValue(m_pBibleDatabase->language()),
+																			 SoundEx::languageValue(m_pBibleDatabase->langID()),
 																			 PASSAGE_SOUNDEX_LENGTH,
 																			 PASSAGE_SOUNDEX_MODE);
 	uint32_t nResolvedBook = 0;

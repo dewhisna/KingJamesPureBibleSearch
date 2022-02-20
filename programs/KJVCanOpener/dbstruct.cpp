@@ -251,7 +251,7 @@ static int languageIndex(const QString &strLanguage)
 {
 	static QStringList lstLanguages = languageList();
 
-	int nIndex = lstLanguages.indexOf(strLanguage, Qt::CaseInsensitive);
+	int nIndex = lstLanguages.indexOf(toQtLanguageName(toLanguageID(strLanguage)), Qt::CaseInsensitive);
 	return ((nIndex != -1) ? nIndex : lstLanguages.size());
 }
 
@@ -478,7 +478,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	// Try Loaded Main Dictionary first:
 	CDictionaryDatabasePtr pMainDictDatabase = TDictionaryDatabaseList::instance()->mainDictionaryDatabase();
 	if (!pMainDictDatabase.isNull()) {
-		if ((strLanguage.isEmpty()) || (pMainDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+		if ((strLanguage.isEmpty()) || (pMainDictDatabase->langID() == toLanguageID(strLanguage)) ||
 			(pMainDictDatabase->flags() & DTO_IgnoreLang)) return pMainDictDatabase;
 	}
 
@@ -489,7 +489,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 		if ((pMainDictDatabase.isNull()) ||
 			((!pMainDictDatabase.isNull()) && (pMainDictDatabase->compatibilityUUID().compare(strUUIDSelMain, Qt::CaseInsensitive) != 0))) {
 			if ((strLanguage.isEmpty()) ||
-				(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+				(toLanguageID(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_strLanguage) == toLanguageID(strLanguage)) ||
 				(availableDictionaryDatabaseDescriptor(strUUIDSelMain).m_dtoFlags & DTO_IgnoreLang)) {
 				pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(strUUIDSelMain);
 				if (!pDictDatabase.isNull()) return pDictDatabase;
@@ -507,7 +507,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
 		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 		if (!pDictDatabase.isNull()) {
-			if ((strLanguage.isEmpty()) || (pDictDatabase->language().compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+			if ((strLanguage.isEmpty()) || (pDictDatabase->langID() == toLanguageID(strLanguage)) ||
 				(pDictDatabase->flags() & DTO_IgnoreLang)) return pDictDatabase;
 		}
 	}
@@ -517,7 +517,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
 		if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID).isNull()) continue;
 		if ((strLanguage.isEmpty()) ||
-			(lstAvailableDictDescs.at(ndx).m_strLanguage.compare(strLanguage, Qt::CaseInsensitive) == 0) ||
+			(toLanguageID(lstAvailableDictDescs.at(ndx).m_strLanguage) == toLanguageID(strLanguage)) ||
 			(lstAvailableDictDescs.at(ndx).m_dtoFlags & DTO_IgnoreLang)) {
 			pDictDatabase = TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableDictDescs.at(ndx).m_strUUID, false, pParentWidget);
 			if (!pDictDatabase.isNull()) return pDictDatabase;
@@ -548,7 +548,7 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadStrongsDictionary(c
 			if (!(dctDesc.m_dtoFlags & DTO_Strongs)) continue;
 
 			if ((!dctDesc.m_strLanguage.isEmpty()) &&
-				(strLanguage.compare(dctDesc.m_strLanguage, Qt::CaseInsensitive) == 0)) {
+				(toLanguageID(strLanguage) == toLanguageID(dctDesc.m_strLanguage))) {
 				if ((!preferredDesc.isValid()) ||
 					(!(preferredDesc.m_dtoFlags & DTO_Preferred) && (dctDesc.m_dtoFlags & DTO_Preferred))) {
 					preferredDesc = dctDesc;
@@ -1505,7 +1505,7 @@ QString CBibleDatabase::translatedColophonString() const
 	// Search for "Colophon".  First try and see if we can translate it in the language of the selected Bible,
 	//		but if not, try in the current language setting
 	QString strColophon = QObject::tr("Colophon", "Statistics");
-	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(language());
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(langID()));
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("QObject", "Colophon", "Statistics");
 		if (!strTemp.isEmpty()) strColophon = strTemp;
@@ -1518,7 +1518,7 @@ QString CBibleDatabase::translatedSuperscriptionString() const
 	// Search for "Superscriptions".  First try and see if we can translate it in the language of the selected Bible,
 	//		but if not, try in the current language setting
 	QString strSuperscription = QObject::tr("Superscription", "Statistics");
-	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(language());
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(langID()));
 	if (!pTranslator.isNull()) {
 		QString strTemp = pTranslator->translatorApp().translate("QObject", "Superscription", "Statistics");
 		if (!strTemp.isEmpty()) strSuperscription = strTemp;
@@ -2503,15 +2503,13 @@ QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, boo
 {
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedConcordanceWord];
-		Q_ASSERT(!language().isEmpty());
-		if (strSoundEx.isEmpty()) strSoundEx = SoundEx::soundEx(strDecomposedConcordanceWord, SoundEx::languageValue(language()));
+		if (strSoundEx.isEmpty()) strSoundEx = SoundEx::soundEx(strDecomposedConcordanceWord, SoundEx::languageValue(langID()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedConcordanceWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
-	Q_ASSERT(!language().isEmpty());
-	return SoundEx::soundEx(strDecomposedConcordanceWord, SoundEx::languageValue(language()));
+	return SoundEx::soundEx(strDecomposedConcordanceWord, SoundEx::languageValue(langID()));
 }
 
 // ============================================================================
@@ -2554,15 +2552,13 @@ QString CDictionaryDatabase::soundEx(const QString &strDecomposedDictionaryWord,
 {
 	if (bCache) {
 		QString &strSoundEx = m_mapSoundEx[strDecomposedDictionaryWord];
-		Q_ASSERT(!language().isEmpty());
-		if (strSoundEx.isEmpty()) strSoundEx = SoundEx::soundEx(strDecomposedDictionaryWord, SoundEx::languageValue(language()));
+		if (strSoundEx.isEmpty()) strSoundEx = SoundEx::soundEx(strDecomposedDictionaryWord, SoundEx::languageValue(langID()));
 		return strSoundEx;
 	}
 
 	TSoundExMap::const_iterator itrSoundEx = m_mapSoundEx.find(strDecomposedDictionaryWord);
 	if (itrSoundEx != m_mapSoundEx.end()) return (itrSoundEx->second);
-	Q_ASSERT(!language().isEmpty());
-	return SoundEx::soundEx(strDecomposedDictionaryWord, SoundEx::languageValue(language()));
+	return SoundEx::soundEx(strDecomposedDictionaryWord, SoundEx::languageValue(langID()));
 }
 
 QString CDictionaryDatabase::definition(const QString &strWord) const
