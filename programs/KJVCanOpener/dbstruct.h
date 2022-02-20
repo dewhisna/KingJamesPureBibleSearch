@@ -1149,6 +1149,15 @@ struct TPassageTagListSortPredicate {
 
 // ============================================================================
 
+enum MORPH_SOURCE_ENUM {		// Enum of source data tags
+	MSE_OSHM = 0,				// Open Scriptures Hebrew Morphology
+	MSE_THAYERS = 1,			// Thayer's (Hebrew)
+	MSE_ROBINSON = 2,			// Robinson (Greek)
+	MSE_PACKARD = 3,			// Packard (Greek)
+};
+
+typedef std::map<MORPH_SOURCE_ENUM, QStringList> TMorphMap;		// Morphology mapping of source to code list where each list corresponds to one LemmaEntry (below)
+
 class CLemmaEntry
 {
 public:
@@ -1165,27 +1174,25 @@ public:
 	inline bool isValid() const
 	{
 		return ((m_lstStrongs.size() == m_lstText.size()) &&
-				(m_lstStrongs.size() == m_lstMorph.size()));
+				(!m_lstStrongs.isEmpty() || !m_mapMorphology.empty()));
 	}
 
 	QString strongs(int nIndex) const;
 	const QStringList &strongs() const { return m_lstStrongs; }
 	QString text(int nIndex) const;
 	const QStringList &text() const { return m_lstText; }
-	QString morph(int nIndex) const;
-	const QStringList &morph() const { return  m_lstMorph; }
-	QString morphSource() const { return  m_strMorphSource; }
+	// ----
+	QStringList morph(MORPH_SOURCE_ENUM nSource) const;
 
 private:
-	TPhraseTag m_tagEntry;
+	TPhraseTag m_tagEntry;			// Phrase of words corresponding to this entry
 #ifdef OSIS_PARSER_BUILD
 	QString m_strLemmaAttrs;		// Lemma Attributes from OSIS.  These will be parsed into the data below, but this member is only needed during OSIS parsing.
 #endif
 	// ----
 	QStringList m_lstStrongs;		// Array of Strongs Indexes -- count of this is the Lemma count
-	QStringList m_lstText;			// Masoretic or Textus-Receptus Words (paired with Strongs Indexes)
-	QStringList m_lstMorph;			// Morphological Coding for Words (paired with Strongs Indexes) -- for future expansion for other dictionary sources, we can allow for a comma-separated list
-	QString m_strMorphSource;		// Morphological Source: "robinson" or oshm", etc.
+	QStringList m_lstText;			// Masoretic or Textus-Receptus Words (paired with Strongs Indexes) -- count of this is the Lemma count
+	TMorphMap m_mapMorphology;		// Mapping of source to morph codes for this phrase -- count of this is independent of Strongs
 };
 
 typedef std::map<CRelIndex, CLemmaEntry, RelativeIndexSortPredicate> TLemmaEntryMap;	// Index by [nBk|nChp|nVrs|nWrd]

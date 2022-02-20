@@ -946,6 +946,24 @@ CLemmaEntry::CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs)
 		, m_strLemmaAttrs(strLemmaAttrs)
 #endif
 {
+	//
+	// Example:
+	//	from 18358529,4 : Genesis 24:33 [1-4]
+	//	"lemma=strong:H03455 strong:H07760,morph=strongMorph:TH8799 strongMorph:TH8675 strongMorph:TH8714"
+	//	<verse osisID="Gen.24.33">
+	//	<w lemma="strong:H03455 strong:H07760" morph="strongMorph:TH8799 strongMorph:TH8675 strongMorph:TH8714">And there was set</w>
+	//	<transChange type="added">meat</transChange>
+	//	<w lemma="strong:H06440">before him</w>
+	//	<w lemma="strong:H0398" morph="strongMorph:TH8800">to eat</w>:
+	//	<w lemma="strong:H0559" morph="strongMorph:TH8799">but he said</w>,
+	//	<w lemma="strong:H0398" morph="strongMorph:TH8799">I will not eat</w>,
+	//	<w lemma="strong:H01696" morph="strongMorph:TH8765">until I have told</w>
+	//	<w lemma="strong:H01697">mine errand</w>.
+	//	<w lemma="strong:H0559" morph="strongMorph:TH8799">And he said</w>,
+	//	<w lemma="strong:H01696" morph="strongMorph:TH8761">Speak on</w>.
+	//	</verse>
+	//
+
 	QStringList lstElements = strLemmaAttrs.split(',');							// List of Elements
 	for (int ndxElement = 0; ndxElement < lstElements.size(); ++ndxElement) {
 		QStringList lstMembers = lstElements.at(ndxElement).split('=');			// Element=Members
@@ -962,21 +980,22 @@ CLemmaEntry::CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs)
 				}
 			} else if (lstMembers.at(0).compare("morph", Qt::CaseInsensitive) == 0) {
 				if (lstValues.at(0).compare("robinson", Qt::CaseInsensitive) == 0) {
-					m_lstMorph.append(lstValues.at(1));
-					m_strMorphSource = "robinson";
+					m_mapMorphology[MSE_ROBINSON].append(lstValues.at(1));
 				} else if (lstValues.at(0).compare("oshm", Qt::CaseInsensitive) == 0) {
-					m_lstMorph.append(lstValues.at(1));
-					m_strMorphSource = "oshm";
+					m_mapMorphology[MSE_OSHM].append(lstValues.at(1));
+				} else if (lstValues.at(0).compare("strongMorph", Qt::CaseInsensitive) == 0) {
+					// According to: https://www.mail-archive.com/sword-devel@crosswire.org/msg35282.html
+					// These "THxxxx" numbers are Thayer's Numbers, which have no
+					//	corresponding module to pull from
+					m_mapMorphology[MSE_THAYERS].append(lstValues.at(1));
 				}
 			}
 		}
 	}
-	int nCorrectedCount = std::max(m_lstStrongs.size(), std::max(m_lstText.size(), m_lstMorph.size()));
+	int nCorrectedCount = std::max(m_lstStrongs.size(), m_lstText.size());
 	// ? for (int ndx = m_lstStrongs.size(); ndx < nCorrectedCount; ++ndx) m_lstStrongs.append(QString());
 	for (int ndx = m_lstText.size(); ndx < nCorrectedCount; ++ndx) m_lstText.append(QString());
-	m_lstText.mid(0, m_lstStrongs.size());
-	for (int ndx = m_lstMorph.size(); ndx < nCorrectedCount; ++ndx) m_lstMorph.append(QString());
-	m_lstMorph.mid(0, m_lstStrongs.size());
+	m_lstText = m_lstText.mid(0, m_lstStrongs.size());
 }
 
 QString CLemmaEntry::strongs(int nIndex) const
@@ -999,14 +1018,11 @@ QString CLemmaEntry::text(int nIndex) const
 	return m_lstText.at(nIndex);
 }
 
-QString CLemmaEntry::morph(int nIndex) const
+QStringList CLemmaEntry::morph(MORPH_SOURCE_ENUM nSource) const
 {
-	if ((nIndex < 0) || (nIndex >= count())) {
-		Q_ASSERT(false);
-		return QString();
-	}
-
-	return m_lstMorph.at(nIndex);
+	TMorphMap::const_iterator itrMorph = m_mapMorphology.find(nSource);
+	if (itrMorph != m_mapMorphology.cend()) return itrMorph->second;
+	return QStringList();
 }
 
 // ============================================================================

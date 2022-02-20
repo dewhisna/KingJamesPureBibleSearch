@@ -292,7 +292,10 @@ void CVerseTextRichifier::writeLemma() const
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">%1&nbsp;</span><span class=\"stack\">%2&nbsp;</span><span class=\"stack\">%3&nbsp;</span>")
 												.arg(m_parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
 												.arg(m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
-												.arg(m_parseBaton.m_pCurrentLemma->morph().join(QChar(' '))));
+// TODO : Fix the morphology output once we decide how we want to render things:
+//												.arg(m_parseBaton.m_pCurrentLemma->morph().join(QChar(' ')))
+												.arg("")
+												);
 		} else {
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span>"));
 		}
