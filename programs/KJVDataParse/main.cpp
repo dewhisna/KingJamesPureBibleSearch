@@ -425,7 +425,7 @@ static bool isProperWord(const CBibleDatabase *pBibleDatabase, const CWordEntry 
 			if (!strDecomposedWord.at(0).isUpper()) {
 				bIsProperWord = false;
 			} else {
-				//	Lists of "Oridinary" words as extracted:
+				//	Lists of "Ordinary" words as extracted:
 				//
 				//	Sword 1769:				Sword PCE:
 				//	-----------				----------
@@ -447,6 +447,44 @@ static bool isProperWord(const CBibleDatabase *pBibleDatabase, const CWordEntry 
 					bIsProperWord = false;
 				}
 			}
+		}
+	} else if (nBDE == BDE_OSHB) {
+		Q_ASSERT(pBibleDatabase->langID() == LIDE_HEBREW);
+
+		// The OSHB uses OSHM code morphology.  Here, we just go through each word in the
+		//	given entry and if any of them have a OSHM similar to "HNp" (proper Hebrew noun),
+		//	we exit early with 'True'.
+		bIsProperWord = false;			// Switch default state to 'false'
+		for (auto const & ndxNormal : entryWord.m_ndxNormalizedMapping) {
+			CRelIndex ndxRel = pBibleDatabase->DenormalizeIndex(ndxNormal);
+			const CLemmaEntry *pLemma = pBibleDatabase->lemmaEntry(ndxRel);
+			if (pLemma) {
+				QStringList slMorph = pLemma->morph(MSE_OSHM);
+				for (auto const & morph : slMorph) {
+					// According to the OSHM dictionary, the following is supposed
+					//	to be an exhaustive list of proper noun types:
+					//	AC/Np		AC/R/Np		AC/To/Np		ANp
+					//	ANp/Td		AR/Np		ATo/Np			HC/Np
+					//	HC/Np/Sd	HC/Np/Sh	HC/Np/Sp3mp		HC/R/Np
+					//	HC/R/Np/Sd	HC/Rd/Np	HNp				HNp/Sd
+					//	HNp/Sp1cs	HNp/Sp2ms	HNp/Sp3mp		HNp/Sp3ms
+					//	HR/Np		HR/Np/Sd	HR/R/Np			HR/Td/Np
+					//	HRd/Np		HTd/Np		HTd/Np/Sd		HTi/Np
+					//	HTr/Np		HTr/R/Np
+
+					// The first letter is always the language (Hebrew or Aramaic)
+					//	and the rest is a list separated by "/":
+					QStringList slEntry = morph.mid(1).split('/');
+					for (auto const & pos : slEntry) {
+						if (pos.compare("Np", Qt::CaseInsensitive) == 0) {
+							bIsProperWord = true;
+							break;
+						}
+					}
+					if (bIsProperWord) break;
+				}
+			}
+			if (bIsProperWord) break;
 		}
 	} else {
 		for (int ndx = 0; ((bIsProperWord) && (ndx < entryWord.m_lstAltWords.size())); ++ndx) {
