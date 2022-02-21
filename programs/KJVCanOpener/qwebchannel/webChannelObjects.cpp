@@ -37,6 +37,7 @@
 
 #ifdef IS_CONSOLE_APP
 #include <iostream>
+#include <QCoreApplication>
 #endif
 
 // External keys from webChannelKeys.cpp as generated via webChannelKeyGen.sh
