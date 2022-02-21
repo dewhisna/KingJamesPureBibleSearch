@@ -63,7 +63,7 @@ namespace {
 
 // ============================================================================
 
-unsigned int g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_None;
+TBibleDatabaseSettings::HideHyphensOptionFlags g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_None;
 bool g_bIncludeRef = false;
 bool g_bUseAbbrRef = false;
 bool g_bUseHTML = false;
@@ -191,7 +191,9 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-h2") == 0) {
 			g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_OrdinaryWords;
 		} else if (strArg.compare("-h3") == 0) {
-			g_nHideHyphenOptions = TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords;
+			g_nHideHyphenOptions = TBibleDatabaseSettings::HideHyphensOptionFlags(
+									TBibleDatabaseSettings::HHO_ProperWords |
+									TBibleDatabaseSettings::HHO_OrdinaryWords);
 		} else if (strArg.compare("-r") == 0) {
 			g_bIncludeRef = true;
 		} else if (strArg.compare("-a") == 0) {

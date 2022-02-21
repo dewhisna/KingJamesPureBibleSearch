@@ -142,6 +142,7 @@ namespace {
 	const QString constrLoadOnStartKey("LoadOnStart");
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
+	const QString constrHideCantillationMarksKey("HideCantillationMarks");
 
 	// Dictionary Database Settings:
 	const QString constrDictDatabaseSettingsGroup("DictionaryDatabaseSettings");
@@ -1409,8 +1410,9 @@ int CMyApplication::execute(bool bBuildDB)
 				if (!strUUID.isEmpty()) {
 					TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(strUUID);
 					bdbSettings.setLoadOnStart(settings.value(constrLoadOnStartKey, bdbSettings.loadOnStart()).toBool());
-					bdbSettings.setHideHyphens(settings.value(constrHideHyphensKey, bdbSettings.hideHyphens()).toUInt());
+					bdbSettings.setHideHyphens(static_cast<TBibleDatabaseSettings::HideHyphensOptionFlags>(settings.value(constrHideHyphensKey, static_cast<int>(bdbSettings.hideHyphens())).toInt()));
 					bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
+					bdbSettings.setHideCantillationMarks(settings.value(constrHideCantillationMarksKey, bdbSettings.hideCantillationMarks()).toBool());
 					CPersistentSettings::instance()->setBibleDatabaseSettings(strUUID, bdbSettings);
 				}
 			}

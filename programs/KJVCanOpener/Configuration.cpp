@@ -1126,6 +1126,8 @@ CConfigBibleDatabase::CConfigBibleDatabase(QWidget *parent)
 	connect(ui.comboBoxHyphenHideMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedHyphenHideMode(int)));
 	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
 
+	connect(ui.checkBoxHideCantillationMarks, SIGNAL(clicked(bool)), this, SLOT(en_changedHideCantillationMarks(bool)));
+
 	connect(ui.buttonDisplayBibleInfo, SIGNAL(clicked()), this, SLOT(en_displayBibleInformation()));
 
 	setSettingControls();
@@ -1207,7 +1209,7 @@ void CConfigBibleDatabase::en_changedHyphenHideMode(int index)
 	if (m_strSelectedDatabaseUUID.isEmpty()) return;
 
 	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
-	bdbSettings.setHideHyphens(ui.comboBoxHyphenHideMode->itemData(index).toUInt());
+	bdbSettings.setHideHyphens(static_cast<TBibleDatabaseSettings::HideHyphensOptionFlags>(ui.comboBoxHyphenHideMode->itemData(index).toInt()));
 	bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
 							  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
 	if (!bCanBeSensitive) bdbSettings.setHyphenSensitive(false);
@@ -1232,6 +1234,20 @@ void CConfigBibleDatabase::en_changedHyphenSensitive(bool bHyphenSensitive)
 	emit dataChanged(false);
 }
 
+void CConfigBibleDatabase::en_changedHideCantillationMarks(bool bHideCantillationMarks)
+{
+	if (m_bLoadingData) return;
+	if (m_strSelectedDatabaseUUID.isEmpty()) return;
+
+	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
+	bdbSettings.setHideCantillationMarks(bHideCantillationMarks);
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
+	setSettingControls(m_strSelectedDatabaseUUID);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
 void CConfigBibleDatabase::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
 {
 	Q_UNUSED(indexPrevious);
@@ -1246,21 +1262,25 @@ void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 	if (!strUUID.isEmpty()) {
 		m_strSelectedDatabaseUUID = strUUID;
 	}
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
 
-	if (m_strSelectedDatabaseUUID.isEmpty()) {
+	if (m_strSelectedDatabaseUUID.isEmpty() || pBibleDatabase.isNull()) {
 		ui.checkBoxHideHyphens->setEnabled(false);
 		ui.checkBoxHideHyphens->setChecked(false);
 		ui.comboBoxHyphenHideMode->setEnabled(false);
 		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(TBibleDatabaseSettings::HHO_None));
 		ui.checkBoxHyphenSensitive->setEnabled(false);
 		ui.checkBoxHyphenSensitive->setChecked(false);
+		ui.checkBoxHideCantillationMarks->setEnabled(false);
+		ui.checkBoxHideCantillationMarks->setChecked(false);
 		ui.buttonDisplayBibleInfo->setEnabled(false);
 		m_pBibleWordDiffListModel->setBibleDatabase(CBibleDatabasePtr());
 	} else {
 		const TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
 		ui.checkBoxHideHyphens->setChecked(bdbSettings.hideHyphens() != TBibleDatabaseSettings::HHO_None);
-		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(bdbSettings.hideHyphens()));
+		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(static_cast<int>(bdbSettings.hideHyphens())));
 		ui.checkBoxHyphenSensitive->setChecked(bdbSettings.hyphenSensitive());
+		ui.checkBoxHideCantillationMarks->setChecked(bdbSettings.hideCantillationMarks());
 		bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
 								  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
 		if (!bCanBeSensitive) {
@@ -1269,8 +1289,12 @@ void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 		ui.checkBoxHideHyphens->setEnabled(true);
 		ui.comboBoxHyphenHideMode->setEnabled(true);
 		ui.checkBoxHyphenSensitive->setEnabled(bCanBeSensitive);
-		CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(m_strSelectedDatabaseUUID);
-		ui.buttonDisplayBibleInfo->setEnabled((!pBibleDatabase.isNull()) && (!pBibleDatabase->info().isEmpty()));
+		// TODO : Presently Cantillation Marks is considered to be anything where the "search space"
+		//	isn't the same as the complete "render space", rather than just checking assuming it's
+		//	when langID != LIDE_HEBREW.  However, if other rendering constructs are ever introduced
+		//	that isn't cantillation, this will need to be updated accordingly:
+		ui.checkBoxHideCantillationMarks->setEnabled(!pBibleDatabase->searchSpaceIsCompleteConcordance());
+		ui.buttonDisplayBibleInfo->setEnabled(!pBibleDatabase->info().isEmpty());
 		m_pBibleWordDiffListModel->setBibleDatabase(pBibleDatabase);
 	}
 	ui.treeDatabaseWordChanges->resizeColumnToContents(0);

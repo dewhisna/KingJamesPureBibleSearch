@@ -189,6 +189,8 @@ private slots:
 	void en_changedHyphenHideMode(int index);
 	void en_changedHyphenSensitive(bool bHyphenSensitive);
 
+	void en_changedHideCantillationMarks(bool bHideCantillationMarks);
+
 	void en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious);
 	void en_loadBibleDatabase(const QString &strUUID);
 	void en_changedAutoLoadStatus(const QString &strUUID, bool bAutoLoad);

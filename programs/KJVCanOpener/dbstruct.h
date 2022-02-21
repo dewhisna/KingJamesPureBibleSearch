@@ -1260,42 +1260,84 @@ typedef QMultiMap<QString, QString> TStrongsOrthographyMap;		// Mapping of Ortho
 class TBibleDatabaseSettings
 {
 public:
+	// NOTE: This enum is needed in order to keep
+	//	backward compatibility with existing
+	//	Persistent Bible Database Settings:
 	enum HideHyphensOptions {					// <<Bitfields>>
 		HHO_None = 0x0,							// Default for no options (i.e. don't hide anything)
 		HHO_ProperWords = 0x1,					// Hide Hyphens in "Proper Words"
 		HHO_OrdinaryWords = 0x2					// Hide Hyphens in non-"Proper Words"
 	};
+	Q_DECLARE_FLAGS(HideHyphensOptionFlags, HideHyphensOptions)
+
+	enum BibleDatabaseOptions {					// <<Bitfields>>
+		BDO_None = 0x00,						// Default for no options (i.e. don't hide anything)
+		// ----
+		BDO_LoadOnStart = 0x01,					// Load Database on application start
+		// ----
+		BDO_HideHyphens_ProperWords = 0x02,		// Hide Hyphens in "Proper Words"	-- WARNING: Changing these will require changing the hideHyphens and setHideHyphens functions!
+		BDO_HideHyphens_OrdinaryWords = 0x04,	// Hide Hyphens in non-"Proper Words"
+		BDO_HideHyphens_Flags = 0x06,			// All Flags related to Hiding Hyphens
+		// ----
+		BDO_HyphenSensitiveSearch = 0x08,		// True to make word searches hyphen sensitive
+		// ----
+		BDO_HideCantillationMarks = 0x10,		// Hide Cantillations markings (Hebrew OSHB and similar texts)
+		// ----
+	};
+	Q_DECLARE_FLAGS(BibleDatabaseOptionFlags, BibleDatabaseOptions)
 
 	explicit TBibleDatabaseSettings()
-		:	m_bLoadOnStart(false),
-			m_hhoHideHyphens(HHO_None),
-			m_bHyphenSensitive(false)
+		:	m_flagsOptions(BDO_None)
 	{ }
 
 	bool isValid() const { return true; }
 
 	inline bool operator==(const TBibleDatabaseSettings &other) const {
-		return ((m_bLoadOnStart == other.m_bLoadOnStart) &&
-				(m_hhoHideHyphens == other.m_hhoHideHyphens) &&
-				(m_bHyphenSensitive == other.m_bHyphenSensitive));
+		return (m_flagsOptions == other.m_flagsOptions);
 	}
 	inline bool operator!=(const TBibleDatabaseSettings &other) const {
 		return (!operator==(other));
 	}
 
-	bool loadOnStart() const { return m_bLoadOnStart; }
-	void setLoadOnStart(bool bLoadOnStart) { m_bLoadOnStart = bLoadOnStart; }
+	bool loadOnStart() const { return (m_flagsOptions & BDO_LoadOnStart); }
+	void setLoadOnStart(bool bLoadOnStart)
+	{
+		m_flagsOptions &= ~BDO_LoadOnStart;
+		if (bLoadOnStart) m_flagsOptions |= BDO_LoadOnStart;
+	}
 
-	unsigned int hideHyphens() const { return m_hhoHideHyphens; }
-	void setHideHyphens(unsigned int nHHO) { m_hhoHideHyphens = nHHO; }
+	HideHyphensOptionFlags hideHyphens() const
+	{
+		// Note: Use static_cast in these functions instead of fromInt()
+		//	for compatibility with Qt4/Qt5.
+		return static_cast<HideHyphensOptionFlags>((m_flagsOptions & BDO_HideHyphens_Flags) >> 1);
+	}
+	void setHideHyphens(HideHyphensOptionFlags nHHO)
+	{
+		// Note: Use static_cast in these functions instead of fromInt()
+		//	for compatibility with Qt4/Qt5.
+		BibleDatabaseOptionFlags nBDO = static_cast<BibleDatabaseOptionFlags>(nHHO << 1);
+		Q_ASSERT((nBDO & ~BDO_HideHyphens_Flags) == 0);		// Make sure nothing is passing non-hyphen flags
+		m_flagsOptions &= ~BDO_HideHyphens_Flags;
+		m_flagsOptions |= (nBDO & BDO_HideHyphens_Flags);
+	}
 
-	bool hyphenSensitive() const { return m_bHyphenSensitive; }
-	void setHyphenSensitive(bool bHyphenSensitive) { m_bHyphenSensitive = bHyphenSensitive; }
+	bool hyphenSensitive() const { return (m_flagsOptions & BDO_HyphenSensitiveSearch); }
+	void setHyphenSensitive(bool bHyphenSensitive)
+	{
+		m_flagsOptions &= ~BDO_HyphenSensitiveSearch;
+		if (bHyphenSensitive) m_flagsOptions |= BDO_HyphenSensitiveSearch;
+	}
+
+	bool hideCantillationMarks() const { return (m_flagsOptions & BDO_HideCantillationMarks); }
+	void setHideCantillationMarks(bool bHideCantillationMarks)
+	{
+		m_flagsOptions &= ~BDO_HideCantillationMarks;
+		if (bHideCantillationMarks) m_flagsOptions |= BDO_HideCantillationMarks;
+	}
 
 private:
-	bool m_bLoadOnStart;
-	unsigned int m_hhoHideHyphens;
-	bool m_bHyphenSensitive;
+	BibleDatabaseOptionFlags m_flagsOptions;
 };
 
 typedef QMap<QString, TBibleDatabaseSettings> TBibleDatabaseSettingsMap;		// Map of Bible UUIDs to settings for saving/preserving

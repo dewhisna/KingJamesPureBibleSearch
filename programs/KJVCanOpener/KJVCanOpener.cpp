@@ -234,6 +234,7 @@ namespace {
 	const QString constrLoadOnStartKey("LoadOnStart");
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
+	const QString constrHideCantillationMarksKey("HideCantillationMarks");
 
 	// Dictionary Database Settings:
 	const QString constrDictDatabaseSettingsGroup("DictionaryDatabaseSettings");
@@ -1292,8 +1293,9 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 			settings.setArrayIndex(ndxDB);
 			settings.setValue(constrDatabaseUUIDKey, lstBibleDatabaseUUIDs.at(ndxDB));
 			settings.setValue(constrLoadOnStartKey, bdbSettings.loadOnStart());
-			settings.setValue(constrHideHyphensKey, bdbSettings.hideHyphens());
+			settings.setValue(constrHideHyphensKey, static_cast<int>(bdbSettings.hideHyphens()));
 			settings.setValue(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive());
+			settings.setValue(constrHideCantillationMarksKey, bdbSettings.hideCantillationMarks());
 		}
 		settings.endArray();
 

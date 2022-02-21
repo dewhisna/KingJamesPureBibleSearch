@@ -2385,6 +2385,9 @@ void CBibleDatabase::setRenderedWords(CWordEntry &aWordEntry) const
 	Q_ASSERT(aWordEntry.m_lstAltWords.size() == aWordEntry.m_lstRenderedAltWords.size());
 	for (int ndx = 0; ndx < aWordEntry.m_lstAltWords.size(); ++ndx) {
 		aWordEntry.m_lstRenderedAltWords[ndx] = (bHideHyphens ? StringParse::deHyphen(aWordEntry.m_lstAltWords.at(ndx), true) : aWordEntry.m_lstAltWords.at(ndx));
+		if (settings().hideCantillationMarks()) {
+			aWordEntry.m_lstRenderedAltWords[ndx] = StringParse::deCantillate(aWordEntry.m_lstRenderedAltWords[ndx]);
+		}
 	}
 }
 
