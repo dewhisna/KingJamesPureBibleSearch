@@ -238,7 +238,11 @@ CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseText
 		FXlateText m_fncXlateText;
 	} lstMatchHandler[CVerseTextRichifierTags::VTTE_COUNT] = {
 		{ 'w', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_w - Word
-		{ 'M', [](const CRichifierBaton &baton)->QString { return (baton.m_tags.addRichPs119HebrewPrefix() ? psalm119HebrewPrefix(baton.m_ndxCurrent, baton.renderOption(RRO_AddAnchors) && baton.usesHTML()) : ""); } },	// VTTE_M - Ps119 Hebrew Prefix
+		{ 'M', [](const CRichifierBaton &baton)->QString {														// VTTE_M - Ps119 Hebrew Prefix
+			return ((baton.m_tags.addRichPs119HebrewPrefix() && (baton.m_pBibleDatabase->langID() != LIDE_HEBREW))
+						? psalm119HebrewPrefix(baton.m_ndxCurrent, baton.renderOption(RRO_AddAnchors) && baton.usesHTML())
+						: "");
+		} },
 		{ 'J', [](const CRichifierBaton &baton)->QString { return baton.m_tags.wordsOfJesusBegin(); } },		// VTTE_J - Words of Jesus Begin
 		{ 'j', [](const CRichifierBaton &baton)->QString { return baton.m_tags.wordsOfJesusEnd(); } },			// VTTE_j - Words of Jesus End
 		{ 'T', [](const CRichifierBaton &baton)->QString { return baton.m_tags.transChangeAddedBegin(); } },	// VTTE_T - TransChangeAdded Begin
