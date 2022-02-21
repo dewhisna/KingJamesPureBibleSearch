@@ -140,7 +140,7 @@ Q_DECLARE_FLAGS(DictionaryTypeOptionsFlags, DictionaryTypeOptions)
 
 #define defaultDictionaryTypeFlags		(DTO_None)
 #define defaultTopicalDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Topical)
-#define defaultStrongsDctTypeFlags		(DTO_IgnoreLang | DTO_DisableTracking | DTO_Strongs)
+#define defaultStrongsDctTypeFlags		(DTO_IgnoreLang | DTO_Strongs)
 
 typedef struct TDictionaryDescriptor {
 	DictionaryTypeOptionsFlags m_dtoFlags;

@@ -128,7 +128,7 @@ signals:
 	void en_gotoIndex(const TPhraseTag &tag);
 	void activatedBrowser(bool bPassageReferenceEditor);		// bPassageReferenceEditor = true if the passage reference activated vs. the scriptureText (for menu selection)
 
-	void wordUnderCursorChanged(const QString &strWord);
+	void wordUnderCursorChanged(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag);
 
 signals:			// Outgoing Pass-Through:
 	void backwardAvailable(bool available);

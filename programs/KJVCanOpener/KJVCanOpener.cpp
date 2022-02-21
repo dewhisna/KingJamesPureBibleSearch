@@ -957,7 +957,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (m_pDictionaryWidget != nullptr) {
-		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(const QString &)), m_pDictionaryWidget, SLOT(setWord(const QString &)));
+		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(CBibleDatabasePtr,const TPhraseTag &)), m_pDictionaryWidget, SLOT(setWord(CBibleDatabasePtr,const TPhraseTag &)));
 		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(const QString &)), m_pBrowserWidget, SLOT(gotoPassageReference(const QString &)));
 	}
 #endif

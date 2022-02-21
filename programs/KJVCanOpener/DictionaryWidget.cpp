@@ -26,6 +26,7 @@
 #include "PersistentSettings.h"
 #include "BusyCursor.h"
 #include "SearchCompleter.h"
+#include "ParseSymbols.h"
 
 #include <QTextCursor>
 #include <QTextCharFormat>
@@ -184,6 +185,10 @@ void CDictionaryLineEdit::insertCompletion(const QModelIndex &index)
 
 void CDictionaryLineEdit::insertCompletion(const QString &strWord)
 {
+	// TODO : Modify this to work with multiple words separated by a '|'
+	//	similar to searchPhrases and display all of the definitions using
+	//	<hr> tags to separate them...
+
 	QTextCursor cursor(textCursor());
 	cursor.beginEditBlock();
 	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
@@ -351,8 +356,37 @@ void CDictionaryWidget::setWord(const QString &strWord, bool bIsTracking)
 	ui.editDictionaryWord->insertCompletion(strWord);
 }
 
+void CDictionaryWidget::setWord(CBibleDatabasePtr pBibleDatabase, const TPhraseTag &tag, bool bIsTracking)
+{
+	Q_ASSERT(!pBibleDatabase.isNull());
+	if (pBibleDatabase.isNull()) return;
+	if (!tag.isSet() || (tag.count() >= 2)) return;		// TODO : Figure out a rendering scheme for multiple words
+
+	if (m_pDictionaryDatabase->descriptor().m_dtoFlags & DTO_Strongs) {
+		// If this is a Strong's Dictionary, see if this tag has a lemma entry.
+		//	TODO : Figure out how make lemmas that span multiple words and/or
+		//		selections of multiple words resolve!
+		const CLemmaEntry *pLemma = pBibleDatabase->lemmaEntry(tag.relIndex());
+		if ((pLemma != nullptr) && (pLemma->count())) {
+			setWord(pLemma->strongs(0), bIsTracking);		// TODO : Fix this for multiple Strong's Entries
+		} else {
+			ui.editDictionaryWord->clear();
+		}
+		en_wordChanged();		// Trigger immediately so we don't have the m_dlyTextChanged time delay
+	} else {
+		// TODO : Should we use WTE_SEARCH here instead of deCantillated rendered??
+		setWord(StringParse::deCantillate(pBibleDatabase->wordAtIndex(tag.relIndex(), WTE_RENDERED)), bIsTracking);
+	}
+}
+
 void CDictionaryWidget::en_wordChanged()
 {
+	// TODO : Modify this to work with multiple words separated by a '|'
+	//	similar to searchPhrases and display all of the definitions using
+	//	<hr> tags to separate them...
+
+	m_dlyTextChanged.untrigger();		// Clear any pending trigger in case we were manually run
+
 	QString strWord = ui.editDictionaryWord->toPlainText().trimmed();
 
 	// Note: if we read the ui.definitionBrowser->source() here in

@@ -615,8 +615,8 @@ void CBrowserWidget::en_selectionChanged()
 {
 	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
 
-	if ((tagSelection.isSet()) && (tagSelection.count() < 2)) {
-		emit wordUnderCursorChanged(m_pBibleDatabase->wordAtIndex(m_pBibleDatabase->NormalizeIndex(tagSelection.relIndex()), WTE_RENDERED));
+	if (tagSelection.isSet()) {
+		emit wordUnderCursorChanged(m_pBibleDatabase, tagSelection);
 	}
 }
 
