@@ -532,7 +532,7 @@ QString CSearchSpecWidget::searchPhraseSummaryText() const
 			strSummary += "    " + tr("(%1 = Case Sensitive)", "Statistics").arg(CPhraseEntry::encCharCaseSensitive()) + "\n";
 		}
 		if (bAccentSensitive) {
-			strSummary += "    " + tr("(%1 = Accent Sensitive)", "Statistics").arg(CPhraseEntry::encCharAccentSensitive()) + "\n";
+			strSummary += "    " + tr("(%1 = Accent/Ligature Sensitive)", "Statistics").arg(CPhraseEntry::encCharAccentSensitive()) + "\n";
 		}
 		if (bExclude) {
 			strSummary += "    " + tr("(%1 = Excluding Results From)", "Statistics").arg(CPhraseEntry::encCharExclude()) + "\n";

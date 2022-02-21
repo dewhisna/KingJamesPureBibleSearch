@@ -347,7 +347,7 @@
             <string>Enable Accent Matching Sensitivity when using Foreign Language Bible Databases</string>
            </property>
            <property name="text">
-            <string>Accent Sensitive</string>
+            <string>Accent/Ligature Sensitive</string>
            </property>
           </widget>
          </item>
