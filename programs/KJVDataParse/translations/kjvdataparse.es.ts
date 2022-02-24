@@ -1283,7 +1283,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="192"/>
         <location filename="../main.cpp" line="193"/>
         <location filename="../main.cpp" line="194"/>
-        <source>OT Narative</source>
+        <source>OT Narrative</source>
         <comment>bookcategory</comment>
         <translation>Las narrativas del Antiguo Testamento</translation>
     </message>
@@ -1810,7 +1810,7 @@ Check Installation!</source>
         <location filename="../main.cpp" line="220"/>
         <location filename="../main.cpp" line="221"/>
         <location filename="../main.cpp" line="222"/>
-        <source>NT Narative</source>
+        <source>NT Narrative</source>
         <comment>bookcategory</comment>
         <translation>Las Narrativas del Nuevo Testamento</translation>
     </message>
