@@ -1283,9 +1283,10 @@ Check Installation!</source>
         <location filename="../main.cpp" line="192"/>
         <location filename="../main.cpp" line="193"/>
         <location filename="../main.cpp" line="194"/>
-        <source>OT Narrative</source>
+        <source>Historical</source>
         <comment>bookcategory</comment>
         <translation>Ветхий Завет Повествование</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.cpp" line="184"/>
@@ -1473,9 +1474,10 @@ Check Installation!</source>
         <location filename="../main.cpp" line="197"/>
         <location filename="../main.cpp" line="198"/>
         <location filename="../main.cpp" line="199"/>
-        <source>Wisdom</source>
+        <source>Wisdom/Poetic</source>
         <comment>bookcategory</comment>
         <translation>Мудрость</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.cpp" line="196"/>
@@ -1810,9 +1812,10 @@ Check Installation!</source>
         <location filename="../main.cpp" line="220"/>
         <location filename="../main.cpp" line="221"/>
         <location filename="../main.cpp" line="222"/>
-        <source>NT Narrative</source>
+        <source>Gospels</source>
         <comment>bookcategory</comment>
         <translation>Новый Завет Повествование</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main.cpp" line="218"/>
