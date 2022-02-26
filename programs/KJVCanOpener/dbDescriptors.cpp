@@ -22,6 +22,7 @@
 ****************************************************************************/
 
 #include "dbDescriptors.h"
+#include "BibleLayout.h"
 
 #include <QObject>
 
@@ -317,25 +318,6 @@ DICTIONARY_DESCRIPTOR_ENUM dictionaryDescriptorFromUUID(const QString &strUUID)
 		if (constDictionaryDescriptors[ndx].m_strUUID.compare(strUUID, Qt::CaseInsensitive) == 0) return static_cast<DICTIONARY_DESCRIPTOR_ENUM>(ndx);
 	}
 	return DDE_UNKNOWN;
-}
-
-// ============================================================================
-
-
-QString xc_dbDescriptors::translatedBibleTestamentName(const QString &strUUID, unsigned int nTst)
-
-{
-	Q_UNUSED(strUUID);		// Currently UUID isn't used, but if we have different Bibles with different Testament mapping, it will be used for that mapping
-
-#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
-	const QString arrstrTstNames[NUM_TST] =
-		{	tr("Old Testament", "testament_names"),
-			tr("New Testament", "testament_names"),
-			tr("Apocrypha/Deuterocanon", "testament_names")
-		};
-
-	if ((nTst < 1) || (nTst > NUM_TST)) return QString();
-	return arrstrTstNames[nTst-1];
 }
 
 // ============================================================================

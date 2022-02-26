@@ -91,6 +91,7 @@ endforeach()
 
 set(KJVLookup_SOURCES
 	"main.cpp"
+	"../KJVCanOpener/BibleLayout.cpp"
 	"../KJVCanOpener/CSV.cpp"
 	"../KJVCanOpener/dbDescriptors.cpp"
 	"../KJVCanOpener/dbstruct.cpp"
@@ -118,6 +119,7 @@ set(KJVLookup_SOURCES
 
 set(KJVLookup_HEADERS
 	"../KJVCanOpener/PathConsts.h"
+	"../KJVCanOpener/BibleLayout.h"
 	"../KJVCanOpener/BusyCursor.h"
 	"../KJVCanOpener/CSV.h"
 	"../KJVCanOpener/dbDescriptors.h"

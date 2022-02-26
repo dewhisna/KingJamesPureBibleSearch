@@ -26,7 +26,7 @@
 #include "ModelRowForwardIterator.h"
 #include "ScriptureDocument.h"
 #include "Translator.h"
-#include "dbDescriptors.h"
+#include "BibleLayout.h"
 
 #include <QTextDocument>
 
@@ -323,7 +323,7 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 					Q_ASSERT(m_pBibleDatabase->testamentEntry(nItem) != nullptr);
 					return m_pBibleDatabase->testamentEntry(nItem)->m_strTstName;
 				} else {
-					return xc_dbDescriptors::translatedBibleTestamentName(m_pBibleDatabase->compatibilityUUID(), nItem);
+					return translatedBibleTestamentName(nItem);
 				}
 			}
 			case CSearchCriteria::SSME_CATEGORY:

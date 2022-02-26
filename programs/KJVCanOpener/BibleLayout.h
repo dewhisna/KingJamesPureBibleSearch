@@ -105,6 +105,8 @@ class CBibleBookDescription : public QObject
 typedef QStringList TBibleTestamentNameList;
 extern const TBibleTestamentNameList g_arrBibleTestamentNames;
 
+extern QString translatedBibleTestamentName(unsigned int nTst);
+
 // ============================================================================
 
 // Categories:

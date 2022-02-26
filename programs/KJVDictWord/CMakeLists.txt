@@ -91,6 +91,7 @@ endforeach()
 
 set(KJVDictWord_SOURCES
 	"main.cpp"
+	"../KJVCanOpener/BibleLayout.cpp"
 	"../KJVCanOpener/CSV.cpp"
 	"../KJVCanOpener/dbDescriptors.cpp"
 	"../KJVCanOpener/dbstruct.cpp"
@@ -117,6 +118,7 @@ set(KJVDictWord_SOURCES
 
 set(KJVDictWord_HEADERS
 	"../KJVCanOpener/PathConsts.h"
+	"../KJVCanOpener/BibleLayout.h"
 	"../KJVCanOpener/BusyCursor.h"
 	"../KJVCanOpener/CSV.h"
 	"../KJVCanOpener/dbDescriptors.h"

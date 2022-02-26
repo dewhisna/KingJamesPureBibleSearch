@@ -181,14 +181,4 @@ extern DICTIONARY_DESCRIPTOR_ENUM dictionaryDescriptorFromUUID(const QString &st
 
 // ============================================================================
 
-// Translation Context for dbDescriptors:
-class xc_dbDescriptors : public QObject
-{
-	Q_OBJECT
-public:
-	static QString translatedBibleTestamentName(const QString &strUUID, unsigned int nTst);
-};
-
-// ============================================================================
-
 #endif	// DATABASE_DESCRIPTORS_H

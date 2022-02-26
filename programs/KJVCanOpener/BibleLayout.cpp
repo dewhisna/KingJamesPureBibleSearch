@@ -32,6 +32,12 @@ const TBibleTestamentNameList g_arrBibleTestamentNames =
 	CBibleTestaments::tr("Apocrypha/Deuterocanon"),
 };
 
+QString translatedBibleTestamentName(unsigned int nTst)
+{
+	if ((nTst < 1) || (nTst > g_arrBibleTestamentNames.size())) return QString();
+	return g_arrBibleTestamentNames.at(nTst-1);
+}
+
 // ============================================================================
 
 const TBibleBookCategoryList g_arrBibleBookCategories =

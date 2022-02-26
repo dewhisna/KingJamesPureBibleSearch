@@ -24,7 +24,7 @@
 #include "BrowserWidget.h"
 #include "VerseListModel.h"
 #include "UserNotesDatabase.h"
-#include "dbDescriptors.h"
+#include "BibleLayout.h"
 
 #include "BusyCursor.h"
 
@@ -871,7 +871,7 @@ void CBrowserWidget::setBook(const CRelIndex &ndx)
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
 
 	unsigned int nTst = book.m_nTstNdx;
-	QString strTemp = xc_dbDescriptors::translatedBibleTestamentName(m_pBibleDatabase->compatibilityUUID(), nTst);
+	QString strTemp = translatedBibleTestamentName(nTst);
 	if (strTemp.isEmpty()) strTemp = m_pBibleDatabase->testamentEntry(nTst)->m_strTstName;
 	ui.lblTestament->setText(strTemp + ":");
 

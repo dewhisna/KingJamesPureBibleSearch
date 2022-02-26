@@ -91,6 +91,7 @@ endforeach()
 
 set(KJVPhraseSearch_SOURCES
 	"main.cpp"
+	"../KJVCanOpener/BibleLayout.cpp"
 	"../KJVCanOpener/CSV.cpp"
 	"../KJVCanOpener/dbDescriptors.cpp"
 	"../KJVCanOpener/dbstruct.cpp"
@@ -117,6 +118,7 @@ set(KJVPhraseSearch_SOURCES
 
 set(KJVPhraseSearch_HEADERS
 	"../KJVCanOpener/PathConsts.h"
+	"../KJVCanOpener/BibleLayout.h"
 	"../KJVCanOpener/BusyCursor.h"
 	"../KJVCanOpener/CSV.h"
 	"../KJVCanOpener/dbDescriptors.h"
