@@ -92,6 +92,7 @@ endforeach()
 set(MyBibleParse_SOURCES
 	"main.cpp"
 	"../KJVCanOpener/dbDescriptors.cpp"
+	"../KJVCanOpener/BibleLayout.cpp"
 )
 
 # -------------------------------------
@@ -101,6 +102,7 @@ set(MyBibleParse_SOURCES
 
 set(MyBibleParse_HEADERS
 	"../KJVCanOpener/dbDescriptors.h"
+	"../KJVCanOpener/BibleLayout.h"
 )
 
 # -------------------------------------
