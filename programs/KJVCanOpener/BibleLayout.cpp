@@ -34,7 +34,7 @@ const TBibleTestamentNameList g_arrBibleTestamentNames =
 
 QString translatedBibleTestamentName(unsigned int nTst)
 {
-	if ((nTst < 1) || (nTst > g_arrBibleTestamentNames.size())) return QString();
+	if ((nTst < 1) || (nTst > static_cast<unsigned int>(g_arrBibleTestamentNames.size()))) return QString();
 	return g_arrBibleTestamentNames.at(nTst-1);
 }
 
