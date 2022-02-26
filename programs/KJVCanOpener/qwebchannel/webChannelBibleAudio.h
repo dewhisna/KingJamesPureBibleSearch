@@ -94,6 +94,37 @@
 		Deuteronomy, Books of Kings, Books of Chronicles, Songs of Songs)
 		and the Russian Bible Society (all other books).
 
+  Hebrew Masoretic Text : Letteris Hebrew Bible
+	Title: Letteris Hebrew Bible
+    Author: Abraham Shmuelof
+    Publisher: Talking Bibles International
+    Print Publication Date: 1992
+    Logos Release Date: 2020
+    Language: Hebrew
+    Resources: 1
+    Format: Digital › Logos Research Edition
+    Subject: Bible. O.T. › Hebrew
+    Resource ID: LLS:HEBREWBIBLEAUDIO
+    Resource Type: Media
+    Metadata Last Updated: 2020-10-22T19:35:19Z
+	The Letteris Hebrew Bible provides a full audio reading of the
+	Hebrew Bible, from Genesis to Malachi. This audio Bible is based
+	on the Letteris edition of the Masoretic text, produced in 1866
+	for the British and Foreign Bible Society by Max Letteris, a poety
+	and printer from Amsterdam. His edition of the Hebrew Bible became
+	very popular and widely reprinted in both Jewish circles and
+	Christian circles. This audio Hebrew Bible is read aloud by Abraham
+	Shmuelof for Talking Bibles International.
+	This edition is provided by Mechon Mamre.
+	https://mechon-mamre.org/p/pt/ptmp3prq.htm
+	https://mechon-mamre.org/
+	https://listen.talkingbibles.org/language/heb/
+	Used with permission from Talking Bibles International ℗ 1992
+	(to request permission to use recordings write info@talkingbibles.org);
+	they are not chanted with a melody, but are
+	clearly pronounced in Sephardic-style Hebrew.
+	Mechon Mamre, 12 Hayyim Vital St., Jerusalem, ISRAEL 95470
+
 ****************************************************************************/
 
 #ifndef WEBCHANNEL_BIBLE_AUDIO_H
@@ -112,17 +143,18 @@ public:
 	// Bit-Flag list of sources to include
 	enum BibleAudioSources {
 		BAS_NONE = 0,
-		BAS_FCBH_NONDRAMA = 0x1,			// Faith Comes By Hearing Non-Drama Version
-		BAS_FCBH_DRAMA = 0x2,				// Faith Comes By Hearing Drama Version
-		BAS_SCOURBY_NONDRAMA = 0x4,			// Alexandander Scourby Non-Drama Version
-		BAS_SCOURBY_DRAMA = 0x8,			// Alexandander Scourby Drama Version
-		BAS_DAN_WAGNER = 0x10,				// Dan Wagner (Retired California Minister)
-		BAS_STEPHEN_JOHNSTON = 0x20,		// Stephen Johnston Version
-		BAS_CHRISTOPHER_GLYN = 0x40,		// Christopher Glyn Version
-		BAS_WILLARD_WAGGONER = 0x80,		// Willard Waggoner Version
-		BAS_SHERBERG_JONES = 0x100,			// Jon Sherberg and James Earl Jones Version
-		BAS_REINA_VALERA_1865 = 0x200,		// Spanish Reina-Valera 1865 Narration
-		BAS_1876_RUSSIAN_SYNODAL = 0x400,	// 1876 Russian Synodal Narration
+		BAS_FCBH_NONDRAMA = 0x1,				// Faith Comes By Hearing Non-Drama Version
+		BAS_FCBH_DRAMA = 0x2,					// Faith Comes By Hearing Drama Version
+		BAS_SCOURBY_NONDRAMA = 0x4,				// Alexandander Scourby Non-Drama Version
+		BAS_SCOURBY_DRAMA = 0x8,				// Alexandander Scourby Drama Version
+		BAS_DAN_WAGNER = 0x10,					// Dan Wagner (Retired California Minister)
+		BAS_STEPHEN_JOHNSTON = 0x20,			// Stephen Johnston Version
+		BAS_CHRISTOPHER_GLYN = 0x40,			// Christopher Glyn Version
+		BAS_WILLARD_WAGGONER = 0x80,			// Willard Waggoner Version
+		BAS_SHERBERG_JONES = 0x100,				// Jon Sherberg and James Earl Jones Version
+		BAS_REINA_VALERA_1865 = 0x200,			// Spanish Reina-Valera 1865 Narration
+		BAS_1876_RUSSIAN_SYNODAL = 0x400,		// 1876 Russian Synodal Narration
+		BAS_HEBREW_MASORETIC_LETTERIS = 0x800,	// Hebrew Masoretic, Letteris Bible, Abraham Shmuelof Narration
 		BAS_ALL = 0xFFFFFFFF
 	};
 	Q_DECLARE_FLAGS(BibleAudioSourcesFlags, BibleAudioSources)

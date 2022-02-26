@@ -869,6 +869,70 @@ namespace {
 
 	// ------------------------------------------------------------------------
 
+	// Book names as they appear on the Masoretic, Letteris Bible,
+	//	Abraham Shmuelof Narration recording files:
+	struct TMasoreticLetteris {
+		const QString m_strIndex;
+		const QString m_strName;
+	} g_arrconstrMasoreticLetterisHebrewBooks[NUM_BK_OT] = {
+		{ "01", "Genesis" },
+		{ "02", "Exodus" },
+		{ "03", "Leviticus" },
+		{ "04", "Numbers" },
+		{ "05", "Deuteronomy" },
+		{ "06", "Joshua" },
+		{ "07", "Judges" },
+		{ "29", "Ruth" },
+		{ "08a", "1_Samuel" },
+		{ "08b", "2_Samuel" },
+		{ "09a", "1_Kings" },
+		{ "09b", "2_Kings" },
+		{ "25a", "1_Chronicles" },
+		{ "25b", "2_Chronicles" },
+		{ "35a", "Ezra" },
+		{ "35b", "Nehemiah" },
+		{ "33", "Esther" },
+		{ "27", "Job" },
+		{ "26", "Psalms" },
+		{ "28", "Proverbs" },
+		{ "31", "Ecclesiastes" },
+		{ "30", "Song_of_Songs" },
+		{ "10", "Isaiah" },
+		{ "11", "Jeremiah" },
+		{ "32", "Lamentations" },
+		{ "12", "Ezekiel" },
+		{ "34", "Daniel" },
+		{ "13", "Hosea" },
+		{ "14", "Joel" },
+		{ "15", "Amos" },
+		{ "16", "Obadiah" },
+		{ "17", "Jonah" },
+		{ "18", "Micah" },
+		{ "19", "Nahum" },
+		{ "20", "Habakkuk" },
+		{ "21", "Zephaniah" },
+		{ "22", "Haggai" },
+		{ "23", "Zechariah" },
+		{ "24", "Malachi" },
+	};
+
+	//
+	// TODO : We have to figure out a KJV->Masoretic remapping because the
+	//	audio here uses Masoretic versification and our database has been
+	//	rearchitected for KJV versification.  For example, the Masoretic
+	//	has 4 chapters in Joel and the KJV has 3.  And the Masoretic has
+	//	3 chapters in Malachi and the KJV has 4.  Not to mention the verse
+	//	shift through other chapters from place to place.
+	//	As this is currently written, it will not work for Joel and Malachi
+	//	and will be confusing at the other locations.  Don't publish this
+	//	on the live WebChannel until the versification mapping issue is
+	//	resolved.
+	//
+
+	const QString g_constrMasoreticLetterisHebrewURL = "https://audios.dewtronics.com/HebrewMasoretic/Letteris/%1";
+
+	// ------------------------------------------------------------------------
+
 }	// Namespace
 
 // ============================================================================
@@ -928,6 +992,10 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 		if ((pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RUSSYNODAL_20101106).m_strUUID, Qt::CaseInsensitive) != 0) &&
 			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RUSSYNODAL_20201221).m_strUUID, Qt::CaseInsensitive) != 0))
 			bRussianSynodalValid = false;
+
+		bool bHebrewMasoreticValid = ((nTst == 1) && ((nBkTst > 0) && (nBkTst <= NUM_BK_OT)));
+		if (pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_OSHB).m_strUUID, Qt::CaseInsensitive) != 0)
+			bHebrewMasoreticValid = false;
 
 		if (bKJVValid) {
 			// Faith Comes By Hearing:
@@ -1113,6 +1181,21 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 				QJsonObject objBibleAudio;
 				objBibleAudio["name"] = "1876 Russian Synodal";
 				objBibleAudio["url"] = QString(QUrl(QString(g_constrRussianSynodalURL).arg(strRSBkChp)).toEncoded());
+				arrBibleAudioList.append(objBibleAudio);
+			}
+		}
+
+		if (bHebrewMasoreticValid) {
+			// Hebrew Masoretic, Letteris Bible, Abraham Shmuelof Narration:
+			QString strHEBkChp = QString("%1_%2/t%1%3%4.mp3")
+										.arg(g_arrconstrMasoreticLetterisHebrewBooks[nBk-1].m_strIndex)
+										.arg(g_arrconstrMasoreticLetterisHebrewBooks[nBk-1].m_strName)
+										.arg(nChp/10, 1, 16)
+										.arg(nChp%10, 1, 10);
+			if (flagsBAS & BAS_HEBREW_MASORETIC_LETTERIS) {
+				QJsonObject objBibleAudio;
+				objBibleAudio["name"] = "Hebrew Masoretic, Letteris, Abraham Shmuelof Narration";
+				objBibleAudio["url"] = QString(QUrl(QString(g_constrMasoreticLetterisHebrewURL).arg(strHEBkChp)).toEncoded());
 				arrBibleAudioList.append(objBibleAudio);
 			}
 		}
