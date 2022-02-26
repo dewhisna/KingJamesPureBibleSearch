@@ -23,6 +23,7 @@
 
 #include "webChannelBibleAudio.h"
 #include "dbDescriptors.h"
+#include "BibleLayout.h"
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -35,22 +36,8 @@
 
 namespace {
 
-#define NUM_BK 66
-#define NUM_BK_OT 39
-#define NUM_BK_NT 27
-
-#define NUMBERS_BOOK_NUM 04
-#define PSALMS_BOOK_NUM 19
-#define OBADIAH_BOOK_NUM 31
-#define ZEPHANIAH_BOOK_NUM 36
-#define PHILEMON_BOOK_NUM 57
-#define _2PETER_BOOK_NUM 61
-#define _2JOHN_BOOK_NUM 63
-#define _3JOHN_BOOK_NUM 64
-#define JUDE_BOOK_NUM 65
-
 	// Book names as they appear on the FCBH recording files:
-	const QString g_arrconstrFCBHBooks[NUM_BK] = {
+	const QString g_arrconstrFCBHBooks[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -125,7 +112,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the Scourby NonDrama recording files:
-	const QString g_arrconstrScourbyNDBooks[NUM_BK] = {
+	const QString g_arrconstrScourbyNDBooks[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -197,7 +184,7 @@ namespace {
 	const QString g_constrScourbyNDURL = "https://audios.dewtronics.com/KingJamesBible/Scourby/NonDrama/%1";
 
 	// Book names as they appear on the Scourby NonDrama recording #2 files:
-	const QString g_arrconstrScourbyND2Books[NUM_BK] = {
+	const QString g_arrconstrScourbyND2Books[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -271,7 +258,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the Scourby Drama recording files:
-	const QString g_arrconstrScourbyWDBooks[NUM_BK] = {
+	const QString g_arrconstrScourbyWDBooks[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -341,7 +328,7 @@ namespace {
 	};
 
 	// Book name prefixes as they appear on the Scourby Drama recording files:
-	const QString g_arrconstrScourbyWDBooksPre[NUM_BK] = {
+	const QString g_arrconstrScourbyWDBooksPre[NUM_BK_OT_NT] = {
 		"Gen",
 		"Ex",
 		"Lev",
@@ -415,7 +402,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the DanWagner recording files:
-	const QString g_arrconstrDWBooks[NUM_BK] = {
+	const QString g_arrconstrDWBooks[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -489,7 +476,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the StephenJohnston recording files:
-	const QString g_arrconstrSJBooks[NUM_BK] = {
+	const QString g_arrconstrSJBooks[NUM_BK_OT_NT] = {
 		"Gen",
 		"Exo",
 		"Lev",
@@ -563,7 +550,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the ChristopherGlyn recording files:
-	const QString g_arrconstrCGBooks[NUM_BK] = {
+	const QString g_arrconstrCGBooks[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -637,7 +624,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the Willard Waggoner recording files:
-	const QString g_arrconstrWWBooks[NUM_BK] = {
+	const QString g_arrconstrWWBooks[NUM_BK_OT_NT] = {
 		"GEN",
 		"EXO",
 		"LEV",
@@ -711,7 +698,7 @@ namespace {
 	// ------------------------------------------------------------------------
 
 	// Book names as they appear on the Sherberg/Jones recording files:
-	const QString g_arrconstrSherbergJonesBooks[NUM_BK] = {
+	const QString g_arrconstrSherbergJonesBooks[NUM_BK_OT_NT] = {
 		"Genesis",
 		"Exodus",
 		"Leviticus",
@@ -833,7 +820,7 @@ namespace {
 	//				chapter number will go to 3-digits, but it's not
 	//				zero-filled above the lower 2-digits.
 
-	const uint32_t g_arrconRussianSynodalBooks[NUM_BK] = {
+	const uint32_t g_arrconRussianSynodalBooks[NUM_BK_OT_NT] = {
 		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,			// Sounds_OT_1.zip
 		21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,		// Sounds_OT_2.zip
 		40, // Matthew (40)																// Sounds_NT.zip
@@ -969,14 +956,14 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 	QJsonArray arrBibleAudioList;
 
 	if (ndxDecolophonated.isSet()) {
-		int nTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_TESTAMENT, ndxDecolophonated).ofBible().first;
-		int nBkTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_BOOK, ndxDecolophonated).ofTestament().first;
-		int nBk = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_BOOK, ndxDecolophonated).ofBible().first;
-		int nChp = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBook().first;
-		int nChpTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofTestament().first;
-		int nChpBible = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first;
+		uint32_t nTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_TESTAMENT, ndxDecolophonated).ofBible().first;
+		uint32_t nBkTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_BOOK, ndxDecolophonated).ofTestament().first;
+		uint32_t nBk = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_BOOK, ndxDecolophonated).ofBible().first;
+		uint32_t nChp = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBook().first;
+		uint32_t nChpTst = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofTestament().first;
+		uint32_t nChpBible = CRefCountCalc(pBibleDatabase.data(), CRefCountCalc::RTE_CHAPTER, ndxDecolophonated).ofBible().first;
 
-		bool bKJVValid = (((nTst > 0) && (nTst <= 2)) && (nBkTst != 0) && ((nBk > 0) && (nBk <= NUM_BK)));
+		bool bKJVValid = (((nTst > 0) && (nTst <= 2)) && (nBkTst != 0) && ((nBk > 0) && (nBk <= NUM_BK_OT_NT)));
 		if ((pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJV).m_strUUID, Qt::CaseInsensitive) != 0) &&
 			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJVPCE).m_strUUID, Qt::CaseInsensitive) != 0) &&
 			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_KJVA).m_strUUID, Qt::CaseInsensitive) != 0) &&
@@ -988,7 +975,7 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 		if (pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RV1865mv20180504).m_strUUID, Qt::CaseInsensitive) != 0)
 			bRV1865Valid = false;
 
-		bool bRussianSynodalValid = (((nTst > 0) && (nTst <= 2)) && (nBkTst != 0) && ((nBk > 0) && (nBk <= NUM_BK)));
+		bool bRussianSynodalValid = (((nTst > 0) && (nTst <= 2)) && (nBkTst != 0) && ((nBk > 0) && (nBk <= NUM_BK_OT_NT)));
 		if ((pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RUSSYNODAL_20101106).m_strUUID, Qt::CaseInsensitive) != 0) &&
 			(pBibleDatabase->compatibilityUUID().compare(bibleDescriptor(BDE_RUSSYNODAL_20201221).m_strUUID, Qt::CaseInsensitive) != 0))
 			bRussianSynodalValid = false;
@@ -1001,7 +988,7 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 			// Faith Comes By Hearing:
 			QString strFCBHBookName = QString("%1").arg(g_arrconstrFCBHBooks[nBk-1], -12, QChar('_'));
 			QString strFCBHBkTst = QString("%1%2").arg((nTst == 1) ? "A" : "B").arg(nBkTst, 2, 10, QChar('0'));
-			QString strFCBHChp = ((nBk == PSALMS_BOOK_NUM) ?
+			QString strFCBHChp = ((nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PSALMS).book()) ?
 								QString("%1").arg(nChp, 3, 10, QChar('0')) :
 								QString("_%1").arg(nChp, 2, 10, QChar('0')));
 			QString strFCBHNonDrama = QString("%1__%2_%3ENGKJVC1DA.mp3").arg(strFCBHBkTst).arg(strFCBHChp).arg(strFCBHBookName);
@@ -1021,23 +1008,18 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 
 			// Scourby NonDrama #1:
 //			QString strScourbyNDBkChp = g_arrconstrScourbyNDBooks[nBk-1];
-//			switch (nBk) {
-//				case OBADIAH_BOOK_NUM:				// No digits
-//				case PHILEMON_BOOK_NUM:
-//				case _2JOHN_BOOK_NUM:
-//				case _3JOHN_BOOK_NUM:
-//				case JUDE_BOOK_NUM:
-//					break;
-//				case ZEPHANIAH_BOOK_NUM:			// 1 Digit
-//				case _2PETER_BOOK_NUM:
-//					strScourbyNDBkChp += QString(" %1").arg(nChp, 1, 10, QChar('0'));
-//					break;
-//				case PSALMS_BOOK_NUM:				// 3 Digits
-//					strScourbyNDBkChp += QString(" %1").arg(nChp, 3, 10, QChar('0'));
-//					break;
-//				default:							// 2 Digits
-//					strScourbyNDBkChp += QString(" %1").arg(nChp, 2, 10, QChar('0'));
-//					break;
+//			if ((nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_OBADIAH).book()) ||
+//				(nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PHILEMON).book()) ||
+//				(nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_2JOHN).book()) ||
+//				(nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_3JOHN).book()) ||
+//				(nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_JUDE).book())) {			// No digits
+//			} else if ((nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_ZEPHANIAH).book()) ||
+//				(nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_2PETER).book())) {		// 1 Digit
+//				strScourbyNDBkChp += QString(" %1").arg(nChp, 1, 10, QChar('0'));
+//			} else if (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PSALMS).book()) {	// 3 Digits
+//				strScourbyNDBkChp += QString(" %1").arg(nChp, 3, 10, QChar('0'));
+//			} else {																			// 2 Digits
+//				strScourbyNDBkChp += QString(" %1").arg(nChp, 2, 10, QChar('0'));
 //			}
 //			strScourbyNDBkChp += ".mp3";
 //			if (flagsBAS & BAS_SCOURBY_NONDRAMA) {
@@ -1072,12 +1054,12 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 			// Dan Wagner:
 			QString strDWBookFolder = QString("%1_%2").arg(nBk, 2, 10, QChar('0')).arg(g_arrconstrDWBooks[nBk-1]);
 			QString strDWBkChp;
-			if (nBk == NUMBERS_BOOK_NUM) {
+			if (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_NUMBERS).book()) {
 				strDWBkChp = QString("%1%2").arg(g_arrconstrDWBooks[nBk-1]).arg(nChp, 2, 10, QChar('0'));
-			} else if ((nBk == PHILEMON_BOOK_NUM) ||
-					   (nBk == _2JOHN_BOOK_NUM) ||
-					   (nBk == _3JOHN_BOOK_NUM) ||
-					   (nBk == JUDE_BOOK_NUM)) {
+			} else if ((nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PHILEMON).book()) ||
+					   (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_2JOHN).book()) ||
+					   (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_3JOHN).book()) ||
+					   (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_JUDE).book())) {
 				strDWBkChp = g_arrconstrDWBooks[nBk-1];
 			} else {
 				strDWBkChp = QString("%1%2").arg(g_arrconstrDWBooks[nBk-1]).arg(nChp, 3, 10, QChar('0'));
@@ -1103,7 +1085,7 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 			QString strCGTstFolder = QString("%1").arg((nTst == 1) ? "ot" : "nt");
 			QString strCGBkChp = QString("%1_%2_%3").arg(nBkTst, 2, 10, QChar('0'))
 													.arg(g_arrconstrCGBooks[nBk-1])
-													.arg(nChp, (nBk == PSALMS_BOOK_NUM) ? 3 : 2, 10, QChar('0'));
+													.arg(nChp, (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PSALMS).book()) ? 3 : 2, 10, QChar('0'));
 			QString strChristopherGlyn = QString("%1/%2.mp3").arg(strCGTstFolder).arg(strCGBkChp);
 			if (flagsBAS & BAS_CHRISTOPHER_GLYN) {
 				QJsonObject objBibleAudio;
@@ -1117,7 +1099,7 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 			QString strWWBkFolder = QString("%1_%2").arg(nBk, 2, 10, QChar('0')).arg(g_arrconstrWWBooks[nBk-1]);
 			QString strWWBkChp = QString("%1_%2_%3").arg(nBk, 2, 10, QChar('0'))
 													.arg(g_arrconstrWWBooks[nBk-1])
-													.arg(nChp, (nBk == PSALMS_BOOK_NUM) ? 3 : 2, 10, QChar('0'));
+													.arg(nChp, (nBk == pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PSALMS).book()) ? 3 : 2, 10, QChar('0'));
 			QString strWillardWaggoner = QString("%1/%2/%3.mp3").arg(strWWTstFolder).arg(strWWBkFolder).arg(strWWBkChp);
 			if (flagsBAS & BAS_WILLARD_WAGGONER) {
 				QJsonObject objBibleAudio;

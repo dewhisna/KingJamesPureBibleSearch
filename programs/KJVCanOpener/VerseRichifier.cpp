@@ -29,6 +29,8 @@
 #include "PhraseNavigator.h"
 #include "Highlighter.h"
 
+#include "BibleLayout.h"
+
 #if QT_VERSION >= 0x050000
 #include <QRegularExpression>
 #else
@@ -36,7 +38,6 @@
 #endif
 
 #define OUTPUT_HEBREW_PS119 1
-#define PSALMS_BOOK_NUM 19
 
 // ============================================================================
 // ============================================================================

@@ -329,6 +329,7 @@ SOURCES += \
 	myApplication.cpp \
 	AboutDlg.cpp \
 	BibleDBListModel.cpp \
+	BibleLayout.cpp \
 	BibleWordDiffListModel.cpp \
 	BrowserWidget.cpp \
 	CSV.cpp \
@@ -402,6 +403,7 @@ HEADERS += \
 	myApplication.h \
 	AboutDlg.h \
 	BibleDBListModel.h \
+	BibleLayout.h \
 	BibleWordDiffListModel.h \
 	BrowserWidget.h \
 	BusyCursor.h \

@@ -1404,6 +1404,18 @@ QString CBibleDatabase::bookOSISAbbr(const CRelIndex &nRelIndex) const
 	return QString();
 }
 
+CRelIndex CBibleDatabase::bookIndexFromOSISAbbr(const QString &strOSISAbbr) const
+{
+	CRelIndex ndxBook;
+	for (TBookList::size_type ndx = 0; ndx < m_lstBooks.size(); ++ndx) {
+		if (strOSISAbbr.compare(m_lstBooks.at(ndx).m_lstBkAbbr.at(0), Qt::CaseInsensitive) == 0) {
+			ndxBook.setBook(ndx+1);
+			break;
+		}
+	}
+	return ndxBook;
+}
+
 QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned int nRIMask, unsigned int nSelectionSize) const
 {
 	CRefCountCalc Bk(this, CRefCountCalc::RTE_BOOK, nRelIndex);

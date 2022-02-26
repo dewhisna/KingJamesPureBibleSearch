@@ -1414,6 +1414,8 @@ public:
 	QString bookNameAbbr(const CRelIndex &nRelIndex) const;
 	QString bookOSISAbbr(const CRelIndex &nRelIndex) const;
 
+	CRelIndex bookIndexFromOSISAbbr(const QString &strOSISAbbr) const;
+
 	// CRelIndex Transformation Functions:
 #ifdef OSIS_PARSER_BUILD
 	uint32_t NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const;
