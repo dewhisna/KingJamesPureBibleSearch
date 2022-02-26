@@ -26,6 +26,7 @@
 #include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/CSV.h"
+#include "../KJVCanOpener/BibleLayout.h"
 
 #include "xc_KJVDataParse.h"
 
@@ -68,238 +69,13 @@ namespace {
 
 }	// namespace
 
-#define NUM_BK_OT 39u			// Total Books in Old Testament
-#define NUM_BK_NT 27u			// Total Books in New Testament
-#define NUM_BK_APOC 19u			// Total Books in Apocrypha (First 14 are in KJVA, Others are not)
-#define NUM_BK (NUM_BK_OT + NUM_BK_NT + NUM_BK_APOC)				// Total Books Defined
-#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
-
-typedef QList<QStringList> TChapterVerseCounts;
-
-const QString g_arrChapterVerseCounts[NUM_BK] =
-{
-	// ---- Begin Old Testament:
-	/* Gen  */ "31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26",
-	/* Exod */ "22,25,22,31,23,30,25,32,35,29,10,51,22,31,27,36,16,27,25,26,36,31,33,18,40,37,21,43,46,38,18,35,23,35,35,38,29,31,43,38",
-	/* Lev  */ "17,16,17,35,19,30,38,36,24,20,47,8,59,57,33,34,16,30,37,27,24,33,44,23,55,46,34",
-	/* Num  */ "54,34,51,49,31,27,89,26,23,36,35,16,33,45,41,50,13,32,22,29,35,41,30,25,18,65,23,31,40,16,54,42,56,29,34,13",
-	/* Deut */ "46,37,29,49,33,25,26,20,29,22,32,32,18,29,23,22,20,22,21,20,23,30,25,22,19,19,26,68,29,20,30,52,29,12",
-	/* Josh */ "18,24,17,24,15,27,26,35,27,43,23,24,33,15,63,10,18,28,51,9,45,34,16,33",
-	/* Judg */ "36,23,31,24,31,40,25,35,57,18,40,15,25,20,20,31,13,31,30,48,25",
-	/* Ruth */ "22,23,18,22",
-	/* 1Sam */ "28,36,21,22,12,21,17,22,27,27,15,25,23,52,35,23,58,30,24,42,15,23,29,22,44,25,12,25,11,31,13",
-	/* 2Sam */ "27,32,39,12,25,23,29,18,13,19,27,31,39,33,37,23,29,33,43,26,22,51,39,25",
-	/* 1Kgs */ "53,46,28,34,18,38,51,66,28,29,43,33,34,31,34,34,24,46,21,43,29,53",
-	/* 2Kgs */ "18,25,27,44,27,33,20,29,37,36,21,21,25,29,38,20,41,37,37,21,26,20,37,20,30",
-	/* 1Chr */ "54,55,24,43,26,81,40,40,44,14,47,40,14,17,29,43,27,17,19,8,30,19,32,31,31,32,34,21,30",
-	/* 2Chr */ "17,18,17,22,14,42,22,18,31,19,23,16,22,15,19,14,19,34,11,37,20,12,21,27,28,23,9,27,36,27,21,33,25,33,27,23",
-	/* Ezra */ "11,70,13,24,17,22,28,36,15,44",
-	/* Neh  */ "11,20,32,23,19,19,73,18,38,39,36,47,31",
-	/* Esth */ "22,23,15,17,14,14,10,17,32,3",
-	/* Job  */ "22,13,26,21,27,30,21,22,35,22,20,25,28,22,35,22,16,21,29,29,34,30,17,25,6,14,23,28,25,31,40,22,33,37,16,33,24,41,30,24,34,17",
-	/* Ps   */ "6,12,8,8,12,10,17,9,20,18,7,8,6,7,5,11,15,50,14,9,13,31,6,10,22,12,14,9,11,12,24,11,22,22,28,12,40,22,13,17,13,11,5,26,17,11,9,14,20,23,19,9,6,7,23,13,11,11,17,12,8,12,11,10,13,20,7,35,36,5,24,20,28,23,10,12,20,72,13,19,16,8,18,12,13,17,7,18,52,17,16,15,5,23,11,13,12,9,9,5,8,28,22,35,45,48,43,13,31,7,10,10,9,8,18,19,2,29,176,7,8,9,4,8,5,6,5,6,8,8,3,18,3,3,21,26,9,8,24,13,10,7,12,15,21,10,20,14,9,6",
-	/* Prov */ "33,22,35,27,23,35,27,36,18,32,31,28,25,35,33,33,28,24,29,30,31,29,35,34,28,28,27,28,27,33,31",
-	/* Eccl */ "18,26,22,16,20,12,29,17,18,20,10,14",
-	/* Song */ "17,17,11,16,16,13,13,14",
-	/* Isa  */ "31,22,26,6,30,13,25,22,21,34,16,6,22,32,9,14,14,7,25,6,17,25,18,23,12,21,13,29,24,33,9,20,24,17,10,22,38,22,8,31,29,25,28,28,25,13,15,22,26,11,23,15,12,17,13,12,21,14,21,22,11,12,19,12,25,24",
-	/* Jer  */ "19,37,25,31,31,30,34,22,26,25,23,17,27,22,21,21,27,23,15,18,14,30,40,10,38,24,22,17,32,24,40,44,26,22,19,32,21,28,18,16,18,22,13,30,5,28,7,47,39,46,64,34",
-	/* Lam  */ "22,22,66,22,22",
-	/* Ezek */ "28,10,27,17,17,14,27,18,11,22,25,28,23,23,8,63,24,32,14,49,32,31,49,27,17,21,36,26,21,26,18,32,33,31,15,38,28,23,29,49,26,20,27,31,25,24,23,35",
-	/* Dan  */ "21,49,30,37,31,28,28,27,27,21,45,13",
-	/* Hos  */ "11,23,5,19,15,11,16,14,17,15,12,14,16,9",
-	/* Joel */ "20,32,21",
-	/* Amos */ "15,16,15,13,27,14,17,14,15",
-	/* Obad */ "21",
-	/* Jonah */ "17,10,10,11",
-	/* Mic  */ "16,13,12,13,15,16,20",
-	/* Nah  */ "15,13,19",
-	/* Hab  */ "17,20,19",
-	/* Zeph */ "18,15,20",
-	/* Hag  */ "15,23",
-	/* Zech */ "21,13,10,14,11,15,14,23,17,12,17,14,9,21",
-	/* Mal  */ "14,17,18,6",
-	// ---- Begin New Testament:
-	/* Matt */ "25,23,17,25,48,34,29,34,38,42,30,50,58,36,39,28,27,35,30,34,46,46,39,51,46,75,66,20",
-	/* Mark */ "45,28,35,41,43,56,37,38,50,52,33,44,37,72,47,20",
-	/* Luke */ "80,52,38,44,39,49,50,56,62,42,54,59,35,35,32,31,37,43,48,47,38,71,56,53",
-	/* John */ "51,25,36,54,47,71,53,59,41,42,57,50,38,31,27,33,26,40,42,31,25",
-	/* Acts */ "26,47,26,37,42,15,60,40,43,48,30,25,52,28,41,40,34,28,41,38,40,30,35,27,27,32,44,31",
-	/* Rom  */ "32,29,31,25,21,23,25,39,33,21,36,21,14,23,33,27",
-	/* 1Cor */ "31,16,23,21,13,20,40,13,27,33,34,31,13,40,58,24",
-	/* 2Cor */ "24,17,18,18,21,18,16,24,15,18,33,21,14",
-	/* Gal  */ "24,21,29,31,26,18",
-	/* Eph  */ "23,22,21,32,33,24",
-	/* Phil */ "30,30,21,23",
-	/* Col  */ "29,23,25,18",
-	/* 1Thess */ "10,20,13,18,28",
-	/* 2Thess */ "12,17,18",
-	/* 1Tim */ "20,15,16,16,25,21",
-	/* 2Tim */ "18,26,17,22",
-	/* Titus */ "16,15,15",
-	/* Phlm */ "25",
-	/* Heb  */ "14,18,19,16,14,20,28,13,28,39,40,29,25",
-	/* Jas  */ "27,26,18,17,20",
-	/* 1Pet */ "25,25,22,19,14",
-	/* 2Pet */ "21,22,18",
-	/* 1John */ "10,29,24,21,21",
-	/* 2John */ "13",
-	/* 3John */ "14",
-	/* Jude */ "25",
-	/* Rev  */ "20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,27,21",
-	// ---- Begin Apocrypha/Deuterocanon:
-	/* 1Esd */ "58,30,24,63,73,34,15,96,55",
-	/* 2Esd */ "40,48,36,52,56,59,70,63,47,59,46,51,58,48,63,78",
-	/* Tob  */ "22,14,17,21,22,17,18,21,6,12,19,22,18,15",
-	/* Jdt  */ "16,28,10,15,24,21,32,36,14,23,23,20,20,19,13,25",
-	/* EsthGr */ "0,0,0,0,0,0,0,0,0,13,12,6,18,19,16,24",			// 	(AddEsth) (starts at 10:4)
-	/* Wis  */ "16,24,19,20,23,25,30,21,18,21,26,27,19,31,19,29,21,25,22",
-	/* Sir  */ "30,18,31,31,15,37,36,19,18,31,34,18,26,27,20,30,32,33,30,32,28,27,28,34,26,29,30,26,28,25,31,24,31,26,20,26,31,34,35,30,24,25,33,22,26,20,25,25,16,29,30",
-	/* Bar  */ "22,35,37,37,9,73",
-	/* PrAzar */ "68",
-	/* Sus  */ "64",
-	/* Bel  */ "42",
-	/* PrMan */ "14",
-	/* 1Macc */ "64,70,60,61,68,63,50,32,73,89,74,53,53,49,41,24",
-	/* 2Macc */ "36,32,40,50,27,31,42,36,29,38,38,45,26,46,39",
-	// ---- Above is in the KJVA, Below is not
-	/* 3Macc */ "29,33,30,21,51,41,23",		// 7 Chapters
-	/* 4Macc */ "35,24,21,26,38,35,25,29,32,21,27,20,27,20,32,25,24,24",	// 18 Chapters
-	/* Ps151 */ "16",	// Is divided into 7 verses for 151a (Hebrew), 2 for 151b (Hebrew and Syriac), and 7 (Greek)
-	/* Odes  */ "5,0,11,15,15,18,26,22,12,6,24,13,4,10,10,20,17,16,11,10,9,12,22,14,12,13,3,20,11,7,13,3,13,6,7,8,4,22,13,6,16,20",		// 42 Odes
-	/* PsSal */ "8,37,12,25,19,6,10,34,11,8,9,6,12,10,13,15,46,12",	// 18 Psalms
-};
-
-typedef struct {
-	CRelIndex m_ndxStartingChapterVerse;		// Chapter and Verse this book is supposed to start at (used to handle special case Apocrypha entries, like AddEsther)
-	QString m_strName;
-	QString m_strCommonAbbr;
-	QString m_strOsisAbbr;
-	QString m_strTableName;
-	QString m_strCategory;
-	QString m_strDescription;
-} TBook;
-
-// Note: When writing the book TOC, the abbreviation field will now be a semicolon separated list.  The FIRST entry will
-//			always be the untranslated OSIS Abbreviation!  The rest will be translated "Common Abbreviation" values.  There
-//			may be duplicates, particularly between the OSIS Abbreviation and the Common Abbreviations.  In the Common
-//			Abbreviations, the FIRST of that list (i.e. the SECOND entry overall) will be the "preferred" abbreviation that
-//			will be rendered when using abbreviated book name mode.
-
-#define PSALMS_BOOK_NUM 19
-
-TBook g_arrBooks[NUM_BK];
-static void g_setBooks()
-{
-	const TBook arrBooks[NUM_BK] =
-	{
-		// ---- Begin Old Testament:
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Genesis", "bookname"), xc_KJVDataParse::tr("Gen;Gn", "bookabbr"), "Gen", "GEN", xc_KJVDataParse::tr("Law", "bookcategory"), xc_KJVDataParse::tr("The First Book of Moses", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Exodus", "bookname"), xc_KJVDataParse::tr("Exod;Exo;Ex", "bookabbr"), "Exod", "EXOD", xc_KJVDataParse::tr("Law", "bookcategory"), xc_KJVDataParse::tr("The Second Book of Moses", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Leviticus", "bookname"), xc_KJVDataParse::tr("Lev;Lv", "bookabbr"), "Lev", "LEV", xc_KJVDataParse::tr("Law", "bookcategory"), xc_KJVDataParse::tr("The Third Book of Moses", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Numbers", "bookname"), xc_KJVDataParse::tr("Num;Nm", "bookabbr"), "Num", "NUM", xc_KJVDataParse::tr("Law", "bookcategory"), xc_KJVDataParse::tr("The Fourth Book of Moses", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Deuteronomy", "bookname"), xc_KJVDataParse::tr("Deut;Deu;Dt", "bookabbr"), "Deut", "DEUT", xc_KJVDataParse::tr("Law", "bookcategory"), xc_KJVDataParse::tr("The Fifth Book of Moses", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Joshua", "bookname"), xc_KJVDataParse::tr("Josh;Jos;Jo", "bookabbr"), "Josh", "JOSH", xc_KJVDataParse::tr("Historical", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Judges", "bookname"), xc_KJVDataParse::tr("Judg;Jdg;Jgs", "bookabbr"), "Judg", "JUDG", xc_KJVDataParse::tr("Historical", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Ruth", "bookname"), xc_KJVDataParse::tr("Ruth;Rut;Ru", "bookabbr"), "Ruth", "RUTH", xc_KJVDataParse::tr("Historical", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Samuel", "bookname"), xc_KJVDataParse::tr("1Sam;1Sm", "bookabbr"), "1Sam", "SAM1", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The First Book of Samuel Otherwise Called, The First Book of the Kings", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Samuel", "bookname"), xc_KJVDataParse::tr("2Sam;2Sm", "bookabbr"), "2Sam", "SAM2", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Second Book of Samuel Otherwise Called, The Second Book of the Kings", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Kings", "bookname"), xc_KJVDataParse::tr("1Kgs", "bookabbr"), "1Kgs", "KGS1", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The First Book of the Kings Commonly Called, The Third Book of the Kings", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Kings", "bookname"), xc_KJVDataParse::tr("2Kgs", "bookabbr"), "2Kgs", "KGS2", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Second Book of the Kings Commonly Called, The Fourth Book of the Kings", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Chronicles", "bookname"), xc_KJVDataParse::tr("1Chr;1Chron;1Ch", "bookabbr"), "1Chr", "CHR1", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The First Book of the Chronicles", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Chronicles", "bookname"), xc_KJVDataParse::tr("2Chr;2Chron;2Ch", "bookabbr"), "2Chr", "CHR2", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Second Book of the Chronicles", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Ezra", "bookname"), xc_KJVDataParse::tr("Ezra;Ezr", "bookabbr"), "Ezra", "EZRA", xc_KJVDataParse::tr("Historical", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Nehemiah", "bookname"), xc_KJVDataParse::tr("Neh", "bookabbr"), "Neh", "NEH", xc_KJVDataParse::tr("Historical", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Esther", "bookname"), xc_KJVDataParse::tr("Est;Esth", "bookabbr"), "Esth", "ESTH", xc_KJVDataParse::tr("Historical", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Job", "bookname"), xc_KJVDataParse::tr("Job;Jb", "bookabbr"), "Job", "JOB", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Psalms", "bookname"), xc_KJVDataParse::tr("Ps;Pss", "bookabbr"), "Ps", "PS", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Proverbs", "bookname"), xc_KJVDataParse::tr("Prov;Prv;Pv", "bookabbr"), "Prov", "PROV", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Ecclesiastes", "bookname"), xc_KJVDataParse::tr("Eccl;Eccles", "bookabbr"), "Eccl", "ECCL", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("Ecclesiastes; Or, The Preacher", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Song Of Solomon", "bookname"), xc_KJVDataParse::tr("Song;Sg", "bookabbr"), "Song", "SONG", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Isaiah", "bookname"), xc_KJVDataParse::tr("Isa;Is", "bookabbr"), "Isa", "ISA", xc_KJVDataParse::tr("Major Prophets", "bookcategory"), xc_KJVDataParse::tr("The Book of the Prophet Isaiah", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Jeremiah", "bookname"), xc_KJVDataParse::tr("Jer", "bookabbr"), "Jer", "JER", xc_KJVDataParse::tr("Major Prophets", "bookcategory"), xc_KJVDataParse::tr("The Book of the Prophet Jeremiah", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Lamentations", "bookname"), xc_KJVDataParse::tr("Lam", "bookabbr"), "Lam", "LAM", xc_KJVDataParse::tr("Major Prophets", "bookcategory"), xc_KJVDataParse::tr("The Lamentations of Jeremiah", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Ezekiel", "bookname"), xc_KJVDataParse::tr("Ezek;Eze;Ez", "bookabbr"), "Ezek", "EZEK", xc_KJVDataParse::tr("Major Prophets", "bookcategory"), xc_KJVDataParse::tr("The Book of the Prophet Ezekiel", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Daniel", "bookname"), xc_KJVDataParse::tr("Dan;Dn", "bookabbr"), "Dan", "DAN", xc_KJVDataParse::tr("Major Prophets", "bookcategory"), xc_KJVDataParse::tr("The Book of <i>the Prophet</i> Daniel", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Hosea", "bookname"), xc_KJVDataParse::tr("Hos", "bookabbr"), "Hos", "HOS", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Joel", "bookname"), xc_KJVDataParse::tr("Joel;Joe;Jl", "bookabbr"), "Joel", "JOEL", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Amos", "bookname"), xc_KJVDataParse::tr("Amos;Amo;Am", "bookabbr"), "Amos", "AMOS", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Obadiah", "bookname"), xc_KJVDataParse::tr("Obad;Oba;Ob", "bookabbr"), "Obad", "OBAD", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Jonah", "bookname"), xc_KJVDataParse::tr("Jonah;Jona;Jon", "bookabbr"), "Jonah", "JONAH", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Micah", "bookname"), xc_KJVDataParse::tr("Mic;Mi", "bookabbr"), "Mic", "MIC", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Nahum", "bookname"), xc_KJVDataParse::tr("Nah;Na", "bookabbr"), "Nah", "NAH", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Habakkuk", "bookname"), xc_KJVDataParse::tr("Hab;Hb", "bookabbr"), "Hab", "HAB", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Zephaniah", "bookname"), xc_KJVDataParse::tr("Zeph;Zep", "bookabbr"), "Zeph", "ZEPH", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Haggai", "bookname"), xc_KJVDataParse::tr("Hag;Hg", "bookabbr"), "Hag", "HAG", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Zechariah", "bookname"), xc_KJVDataParse::tr("Zech;Zec", "bookabbr"), "Zech", "ZECH", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Malachi", "bookname"), xc_KJVDataParse::tr("Mal", "bookabbr"), "Mal", "MAL", xc_KJVDataParse::tr("Minor Prophets", "bookcategory"), "" },
-		// ---- Begin New Testament:
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Matthew", "bookname"), xc_KJVDataParse::tr("Matt;Mt", "bookabbr"), "Matt", "MATT", xc_KJVDataParse::tr("Gospels", "bookcategory"), xc_KJVDataParse::tr("The Gospel According to Saint Matthew", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Mark", "bookname"), xc_KJVDataParse::tr("Mark;Mk", "bookabbr"), "Mark", "MARK", xc_KJVDataParse::tr("Gospels", "bookcategory"), xc_KJVDataParse::tr("The Gospel According to Saint Mark", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Luke", "bookname"), xc_KJVDataParse::tr("Luke;Lk", "bookabbr"), "Luke", "LUKE", xc_KJVDataParse::tr("Gospels", "bookcategory"), xc_KJVDataParse::tr("The Gospel According to Saint Luke", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("John", "bookname"), xc_KJVDataParse::tr("John;Jhn;Jn", "bookabbr"), "John", "JOHN", xc_KJVDataParse::tr("Gospels", "bookcategory"), xc_KJVDataParse::tr("The Gospel According to Saint John", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Acts", "bookname"), xc_KJVDataParse::tr("Acts", "bookabbr"), "Acts", "ACTS", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Acts of the Apostles", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Romans", "bookname"), xc_KJVDataParse::tr("Rom", "bookabbr"), "Rom", "ROM", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul the Apostle to the Romans", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Corinthians", "bookname"), xc_KJVDataParse::tr("1Cor", "bookabbr"), "1Cor", "COR1", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The First Epistle of Paul the Apostle to the Corinthians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Corinthians", "bookname"), xc_KJVDataParse::tr("2Cor", "bookabbr"), "2Cor", "COR2", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Second Epistle of Paul the Apostle to the Corinthians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Galatians", "bookname"), xc_KJVDataParse::tr("Gal", "bookabbr"), "Gal", "GAL", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul the Apostle to the Galatians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Ephesians", "bookname"), xc_KJVDataParse::tr("Eph", "bookabbr"), "Eph", "EPH", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul the Apostle to the Ephesians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Philippians", "bookname"), xc_KJVDataParse::tr("Phil", "bookabbr"), "Phil", "PHIL", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul the Apostle to the Philippians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Colossians", "bookname"), xc_KJVDataParse::tr("Col", "bookabbr"), "Col", "COL", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul the Apostle to the Colossians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Thessalonians", "bookname"), xc_KJVDataParse::tr("1Thess;1Thes;1Th", "bookabbr"), "1Thess", "THESS1", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The First Epistle of Paul the Apostle to the Thessalonians", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Thessalonians", "bookname"), xc_KJVDataParse::tr("2Thess;2Thes;2Th", "bookabbr"), "2Thess", "THESS2", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Second Epistle of Paul the Apostle to the Thessalonains", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Timothy", "bookname"), xc_KJVDataParse::tr("1Tim;1Tm", "bookabbr"), "1Tim", "TIM1", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The First Epistle of Paul the Apostle to Timothy", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Timothy", "bookname"), xc_KJVDataParse::tr("2Tim;2Tm", "bookabbr"), "2Tim", "TIM2", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Second Epistle of Paul the Apostle to Timothy", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Titus", "bookname"), xc_KJVDataParse::tr("Titus;Ti", "bookabbr"), "Titus", "TITUS", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul to Titus", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Philemon", "bookname"), xc_KJVDataParse::tr("Phlm;Philem", "bookabbr"), "Phlm", "PHLM", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul to Philemon", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Hebrews", "bookname"), xc_KJVDataParse::tr("Heb", "bookabbr"), "Heb", "HEB", xc_KJVDataParse::tr("Pauline Epistles", "bookcategory"), xc_KJVDataParse::tr("The Epistle of Paul the Apostle to the Hebrews", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("James", "bookname"), xc_KJVDataParse::tr("Jas", "bookabbr"), "Jas", "JAS", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The General Epistle of James", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Peter", "bookname"), xc_KJVDataParse::tr("1Pet;1Pt", "bookabbr"), "1Pet", "PET1", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The First General Epistle of Peter", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Peter", "bookname"), xc_KJVDataParse::tr("2Pet;2Pt", "bookabbr"), "2Pet", "PET2", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The Second General Epistle of Peter", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 John", "bookname"), xc_KJVDataParse::tr("1John;1Jn", "bookabbr"), "1John", "JOHN1", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The First General Epistle of John", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 John", "bookname"), xc_KJVDataParse::tr("2John;2Jn", "bookabbr"), "2John", "JOHN2", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The Second General Epistle of John", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("3 John", "bookname"), xc_KJVDataParse::tr("3John;3Jn", "bookabbr"), "3John", "JOHN3", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The Third General Epistle of John", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Jude", "bookname"), xc_KJVDataParse::tr("Jude", "bookabbr"), "Jude", "JUDE", xc_KJVDataParse::tr("General Epistles", "bookcategory"), xc_KJVDataParse::tr("The General Epistle of Jude", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Revelation", "bookname"), xc_KJVDataParse::tr("Rev;Rv;Apoc", "bookabbr"), "Rev", "REV", xc_KJVDataParse::tr("Apocalyptic Epistle", "bookcategory"), xc_KJVDataParse::tr("The Revelation of Jesus Christ", "bookdesc") },
-		// ---- Begin Apocrypha/Deuterocanon:
-		{ CRelIndex(0, 1, 1, 0),  xc_KJVDataParse::tr("1 Esdras", "bookname"), xc_KJVDataParse::tr("1Esd;1Es", "bookabbr"), "1Esd", "ESD1", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The First Book of Esdras", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Esdras", "bookname"), xc_KJVDataParse::tr("2Esd;2Es", "bookabbr"), "2Esd", "ESD2", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Second Book of Esdras", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Tobit", "bookname"), xc_KJVDataParse::tr("Tob;Tb", "bookabbr"), "Tob", "TOB", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Book of Tobit", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Judith", "bookname"), xc_KJVDataParse::tr("Jdt;Jth", "bookabbr"), "Jdt", "JDT", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Book of Judith", "bookdesc") },
-		{ CRelIndex(0, 10, 4, 0), xc_KJVDataParse::tr("Esther (Greek)", "bookname"), xc_KJVDataParse::tr("EsthGr;AddEst;AddEsth", "bookabbr"), "EsthGr;AddEsth", "ESTHGR", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Rest of the Chapters of the Book of Esther, which are found neither in the Hebrew, nor in the Chaldee", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Wisdom", "bookname"), xc_KJVDataParse::tr("Wis;Ws", "bookabbr"), "Wis", "WIS", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("The Book of Wisdom or The Wisdom of Solomon", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Sirach", "bookname"), xc_KJVDataParse::tr("Sir;Ecclus", "bookabbr"), "Sir", "SIR", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("The Wisdom of Jesus the Son of Sirach, or Ecclesiasticus", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Baruch", "bookname"), xc_KJVDataParse::tr("Bar;Ba", "bookabbr"), "Bar", "BAR", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("The Book of Baruch (with The Epistle of Jeremy)", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Prayer of Azariah", "bookname"), xc_KJVDataParse::tr("PrAzar;S3Y;SG3;AddDan", "bookabbr"), "PrAzar", "PRAZAR", xc_KJVDataParse::tr("Prophets", "bookcategory"), xc_KJVDataParse::tr("The Prayer of Azariah (Song of the Three Young Men)", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Susanna", "bookname"), xc_KJVDataParse::tr("Sus", "bookabbr"), "Sus", "SUS", xc_KJVDataParse::tr("Prophets", "bookcategory"), xc_KJVDataParse::tr("The History of Susanna [in Daniel]", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Bel and the Dragon", "bookname"), xc_KJVDataParse::tr("Bel", "bookabbr"), "Bel", "BEL", xc_KJVDataParse::tr("Prophets", "bookcategory"), xc_KJVDataParse::tr("The Book of Bel and the Dragon [in Daniel]", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Prayer of Manasses", "bookname"), xc_KJVDataParse::tr("PrMan", "bookabbr"), "PrMan", "PRMAN", xc_KJVDataParse::tr("Prophets", "bookcategory"), xc_KJVDataParse::tr("The Prayer of Manasseh, or, The Prayer of Manasses King of Judah, When He was Held Captive in Babylon", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("1 Maccabees", "bookname"), xc_KJVDataParse::tr("1Macc;1Mc;1Ma", "bookabbr"), "1Macc", "MACC1", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The First Book of the Maccabees", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("2 Maccabees", "bookname"), xc_KJVDataParse::tr("2Macc;2Mc;2Ma", "bookabbr"), "2Macc", "MACC2", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Second Book of the Maccabees", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("3 Maccabees", "bookname"), xc_KJVDataParse::tr("3Macc;3Mc;3Ma", "bookabbr"), "3Macc", "MACC3", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Third Book of the Maccabees", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("4 Maccabees", "bookname"), xc_KJVDataParse::tr("4Macc;4Mc;4Ma", "bookabbr"), "4Macc", "MACC4", xc_KJVDataParse::tr("Historical", "bookcategory"), xc_KJVDataParse::tr("The Fourth Book of the Maccabees", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Psalm 151", "bookname"), xc_KJVDataParse::tr("Ps151", "bookabbr"), "AddPs;Ps151", "PS151", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("Psalm 151", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Odes", "bookname"), xc_KJVDataParse::tr("Odes;Oda", "bookabbr"), "Odes", "ODES", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("Book of Odes", "bookdesc") },
-		{ CRelIndex(0, 1, 1, 0), xc_KJVDataParse::tr("Psalms of Salomon", "bookname"), xc_KJVDataParse::tr("PssSol;PsSal;PsSol", "bookabbr"), "PssSol;PsSal;PsSol", "PSS", xc_KJVDataParse::tr("Wisdom/Poetic", "bookcategory"), xc_KJVDataParse::tr("Psalms of Salomon", "bookdesc") },
-	};
-
-	for (unsigned int i=0; i<NUM_BK; ++i) {
-		g_arrBooks[i] = arrBooks[i];
-	}
-}
-
-QString g_arrstrTstNames[NUM_TST];
-static void g_setTstNames()
-{
-	const QString arrstrTstNames[NUM_TST] =
-		{	xc_KJVDataParse::tr("Old Testament", "testname"),
-			xc_KJVDataParse::tr("New Testament", "testname"),
-			xc_KJVDataParse::tr("Apocrypha/Deuterocanon", "testname")
-		};
-
-	for (unsigned int i=0; i<NUM_TST; ++i) {
-		g_arrstrTstNames[i] = arrstrTstNames[i];
-	}
-}
+// Note: When writing the book TOC, the abbreviation field will now be a semicolon
+//			separated list.  The FIRST entry will always be the untranslated OSIS Abbreviation!
+//			The rest will be translated "Common Abbreviation" values.  There may be duplicates,
+//			particularly between the OSIS Abbreviation and the Common Abbreviations.  In the
+//			Common Abbreviations, the FIRST of that list (i.e. the SECOND entry overall) will
+//			be the "preferred" abbreviation that will be rendered when using abbreviated book
+//			name mode.
 
 // ============================================================================
 // ============================================================================
@@ -974,11 +750,9 @@ public:
 			m_bExcludeDeuterocanonical(false),
 			m_bFoundSegVariant(false)
 	{
-		g_setBooks();
-		g_setTstNames();
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));		// Note: We'll set the name and description later in the reading of the data
 		for (unsigned int i=0; i<NUM_BK; ++i) {
-			m_lstOsisBookList.append(g_arrBooks[i].m_strOsisAbbr);
+			m_lstOsisBookList.append(g_arrBibleBooks.at(i).m_strOsisAbbr);
 		}
 	}
 
@@ -1164,24 +938,24 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
 	m_pBibleDatabase->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBooks.size())));
 	m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = bookIndexToTestamentBookIndex(nBk+1);
 	m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
-	m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBooks[nBk].m_strName;
-	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strOsisAbbr);
-	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBooks[nBk].m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
-	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBooks[nBk].m_strTableName;
+	m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBibleBooks.at(nBk).m_strName;
+	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strOsisAbbr);
+	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
+	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBibleBooks.at(nBk).m_strTableName;
 
 	TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
 	while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
-		if (itrCat->m_strCategoryName.compare(g_arrBooks[nBk].m_strCategory) == 0) break;
+		if (itrCat->m_strCategoryName.compare(g_arrBibleBookCategories.at(g_arrBibleBooks.at(nBk).m_nCategory)) == 0) break;
 		++itrCat;
 	}
 	if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
-		m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBooks[nBk].m_strCategory));
+		m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBibleBookCategories.at(g_arrBibleBooks.at(nBk).m_nCategory)));
 		itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
 	}
 	itrCat->m_setBooksNum.insert(nBk+1);
 	m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
 
-	m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBooks[nBk].m_strDescription;
+	m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBibleBooks.at(nBk).m_strDescription;
 	m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
 
 	return &m_pBibleDatabase->m_lstBooks[nBk];
@@ -1281,8 +1055,6 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				std::cerr << "    *** Warning: Original Bible Descriptor Language doesn't match database language\n";
 			}
 			if (CTranslatorList::instance()->setApplicationLanguage(toQtLanguageName(m_pBibleDatabase->langID()))) {
-				g_setBooks();
-				g_setTstNames();
 				std::cerr << " (Loaded Translations)\n";
 			} else {
 				std::cerr << " (NO Translations Found!)\n";
@@ -1443,7 +1215,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				// note: nBk is index into array, not book number:
 				nTst = bookIndexToTestamentIndex(nBk+1);
 				while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
-					CTestamentEntry aTestament(g_arrstrTstNames[m_pBibleDatabase->m_lstTestaments.size()]);
+					CTestamentEntry aTestament(g_arrBibleTestamentNames.at(m_pBibleDatabase->m_lstTestaments.size()));
 					m_pBibleDatabase->m_EntireBible.m_nNumTst++;
 					m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
 					std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
@@ -1524,17 +1296,17 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data() << " Chapter: " << QString("%1").arg(m_ndxCurrent.chapter()).toUtf8().data();
 				nTst = bookIndexToTestamentIndex(nBk+1);
 				m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
-				if (m_ndxCurrent.chapter() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
+				if (m_ndxCurrent.chapter() == g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse.chapter()) {
 					addBookToBibleDatabase(nBk+1);
 				}
 				Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
-				if (m_ndxCurrent.chapter() == g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter()) {
+				if (m_ndxCurrent.chapter() == g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse.chapter()) {
 					for (CRelIndex ndxAddChp = CRelIndex(nBk+1, 1, 0, 0); ndxAddChp != m_ndxCurrent; ndxAddChp.setChapter(ndxAddChp.chapter()+1)) {
 						m_pBibleDatabase->m_mapChapters[ndxAddChp];			// Make sure the chapter entry is created for the empty chapters
 					}
-					m_pBibleDatabase->m_EntireBible.m_nNumChp += g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter();
-					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp += g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter();
-					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp += g_arrBooks[nBk].m_ndxStartingChapterVerse.chapter();
+					m_pBibleDatabase->m_EntireBible.m_nNumChp += g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse.chapter();
+					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp += g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse.chapter();
+					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp += g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse.chapter();
 				} else {
 					m_pBibleDatabase->m_EntireBible.m_nNumChp++;
 					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp++;
@@ -1630,7 +1402,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				bool bPreExisted = ((m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1]).find(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0))
 										!= (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1]).end());
 
-				if (CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0) == g_arrBooks[m_ndxCurrent.book()-1].m_ndxStartingChapterVerse) {
+				if (CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0) == g_arrBibleBooks.at(m_ndxCurrent.book()-1).m_ndxStartingChapterVerse) {
 					for (CRelIndex ndxAddVrs = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 0); ndxAddVrs != m_ndxCurrent; ndxAddVrs.setVerse(ndxAddVrs.verse()+1)) {
 						// Create all intentionally missing verses:
 						(m_pBibleDatabase->m_lstBookVerses[ndxAddVrs.book()-1])[CRelIndex(ndxAddVrs.book(), ndxAddVrs.chapter(), ndxAddVrs.verse(), 0)];
@@ -1800,8 +1572,6 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 			std::cerr << "    *** Warning: Original Bible Descriptor Language doesn't match database language\n";
 		}
 		if (CTranslatorList::instance()->setApplicationLanguage(toQtLanguageName(m_pBibleDatabase->langID()))) {
-			g_setBooks();
-			g_setTstNames();
 			std::cerr << " (Loaded Translations)\n";
 		} else {
 			std::cerr << " (NO Translations Found!)\n";
@@ -2140,7 +1910,7 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 		if (!bPreExisted) {			// Only increment verse counts if this isn't a duplicate (pre-existing) verse.  Otherwise, we'll crash in the word output and summary phase
 			unsigned int nVerseOffset = 1;
 			unsigned int nTst = bookIndexToTestamentIndex(relIndex.book());
-			if (CRelIndex(0, relIndex.chapter(), relIndex.verse(), 0) == g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse) nVerseOffset = g_arrBooks[relIndex.book()-1].m_ndxStartingChapterVerse.verse();
+			if (CRelIndex(0, relIndex.chapter(), relIndex.verse(), 0) == g_arrBibleBooks.at(relIndex.book()-1).m_ndxStartingChapterVerse) nVerseOffset = g_arrBibleBooks.at(relIndex.book()-1).m_ndxStartingChapterVerse.verse();
 			m_pBibleDatabase->m_EntireBible.m_nNumVrs += nVerseOffset;
 			Q_ASSERT(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
 			m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
@@ -2883,7 +2653,7 @@ int main(int argc, char *argv[])
 	fileChapters.write(QString("BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n").toUtf8());
 
 
-	TChapterVerseCounts lstChapterVerseCounts;
+	TBibleChapterVerseCounts lstChapterVerseCounts;
 	// mapWordList will be for ALL forms of all words so that we can get mapping/counts
 	//	for all unique forms of words.  Words in this map will NOT be indexed by the
 	//	lowercase nor the base-form of the word, but by the actual word itself.
@@ -2901,7 +2671,7 @@ int main(int argc, char *argv[])
 			lstChapterVerseCounts.push_back(QStringList());
 		} else {
 			// Predefined books from our list:
-			lstChapterVerseCounts.push_back(g_arrChapterVerseCounts[nBk-1].split(","));
+			lstChapterVerseCounts.push_back(CKJVBibleChapterVerseCounts::instance()->at(nBk-1));
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
 		bool bHadBook = true;
@@ -2934,7 +2704,7 @@ int main(int argc, char *argv[])
 			Q_UNUSED(bChapterMissing);
 			if ((nChp != 0) && (pChapter == nullptr)) {
 				bChapterMissing = true;
-				if ((nChp >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse.chapter()) && (bHadBook)) {
+				if ((nChp >= g_arrBibleBooks.at(nBk-1).m_ndxStartingChapterVerse.chapter()) && (bHadBook)) {
 					std::cerr << QString("\n*** WARNING: Module is missing Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 				}
 				pChapter = pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0), true);
@@ -2985,7 +2755,7 @@ int main(int argc, char *argv[])
 				if (pVerse == nullptr) {
 					if ((nChp == 0) || (nVrs == 0)) Q_ASSERT(false);
 					bVerseMissing = true;
-					if ((CRelIndex(0, nChp, nVrs, 0) >= g_arrBooks[nBk-1].m_ndxStartingChapterVerse) && (bHadBook)) {
+					if ((CRelIndex(0, nChp, nVrs, 0) >= g_arrBibleBooks.at(nBk-1).m_ndxStartingChapterVerse) && (bHadBook)) {
 						std::cerr << QString("\n*** WARNING: Module is missing Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 					}
 					pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0), true);
@@ -3220,12 +2990,12 @@ int main(int argc, char *argv[])
 	fileWordSummary.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
 	fileWordSummary.write(QString("\"Word\",\"AltWords\",\"Entire\nBible\"").toUtf8());
 	for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
-		QString strTemp = g_arrstrTstNames[nTst];
+		QString strTemp = g_arrBibleTestamentNames.at(nTst);
 		strTemp.replace(' ', '\n');
 		fileWordSummary.write(QString(",\"%1\"").arg(strTemp).toUtf8());
 	}
 	for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
-		fileWordSummary.write(QString(",\"%1\"").arg(g_arrBooks[nBk].m_strName).toUtf8());
+		fileWordSummary.write(QString(",\"%1\"").arg(g_arrBibleBooks.at(nBk).m_strName).toUtf8());
 	}
 	fileWordSummary.write(QString("\r\n").toUtf8());
 
