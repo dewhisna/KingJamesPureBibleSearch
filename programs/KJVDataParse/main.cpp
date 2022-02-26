@@ -751,9 +751,6 @@ public:
 			m_bFoundSegVariant(false)
 	{
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));		// Note: We'll set the name and description later in the reading of the data
-		for (unsigned int i=0; i<NUM_BK; ++i) {
-			m_lstOsisBookList.append(g_arrBibleBooks.at(i).m_strOsisAbbr);
-		}
 	}
 
 	virtual ~COSISXmlHandler()
@@ -831,7 +828,6 @@ protected:
 		return (m_pBibleDatabase->m_lstBookVerses[ndxActive.book()-1])[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)];
 	}
 
-
 private:
 	XML_FORMAT_TYPE_ENUM m_xfteFormatType;
 	QString m_strErrorString;
@@ -866,7 +862,6 @@ private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	QString m_strTitle;					// Used only for capture of title from XML -- after that it will be stored in the Bible Database Descriptor
 	QString m_strLanguage;				// Used only for capture of language from XML -- after that it will be stored in the Bible Database Descriptor
-	QStringList m_lstOsisBookList;
 	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
 	bool m_bUseBracketColophons;		// Treat "[" and "]" as a colophon marker
 	bool m_bDisableColophons;			// Disable all colophon output (both pseudo-verses and footnote version)
@@ -883,6 +878,14 @@ private:
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
 	QString m_strStrongsImpFilepath;	// Strongs Imp Database to parse (if empty, no Strongs Database will be used)
 };
+
+static int bookIndexFromOSISAbbr(const QString &strOSISAbbr)
+{
+	for (int i=0; i<g_arrBibleBooks.size(); ++i) {
+		if (g_arrBibleBooks.at(i).m_lstOsisAbbr.contains(strOSISAbbr)) return i;
+	}
+	return -1;
+}
 
 static unsigned int bookIndexToTestamentIndex(unsigned int nBk)
 {
@@ -939,7 +942,7 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
 	m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = bookIndexToTestamentBookIndex(nBk+1);
 	m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
 	m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBibleBooks.at(nBk).m_strName;
-	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strOsisAbbr);
+	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0));	// Our main OSIS abbreviation must always be the first entry!
 	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
 	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBibleBooks.at(nBk).m_strTableName;
 
@@ -1120,7 +1123,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		ndx = findAttribute(atts, "osisID");
 		if (ndx != -1) {
 			QStringList lstOsisID = atts.value(ndx).split('.');
-			if ((lstOsisID.size() < 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+			if ((lstOsisID.size() < 1) || ((nBk = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
 				std::cerr << "\n*** Unknown Colophon osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 				m_ndxColophon = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 			} else {
@@ -1182,7 +1185,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				ndx = findAttribute(atts, "osisID");
 				if (ndx != -1) {
 					QStringList lstOsisID = atts.value(ndx).split('.');
-					if ((lstOsisID.size() != 1) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+					if ((lstOsisID.size() != 1) || ((nBk = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
 						std::cerr << "\n*** Invalid Book osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 					} // else fall-through and create book with nBk != -1 ...
 				}
@@ -1191,7 +1194,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			ndx = findAttribute(atts, "bnumber");
 			if (ndx != -1) {
 				nBk = atts.value(ndx).toInt() - 1;			// Note: nBk is index into array, not book number
-				if ((nBk < 0) || (nBk >= m_lstOsisBookList.size())) {
+				if ((nBk < 0) || (nBk >= g_arrBibleBooks.size())) {
 					std::cerr << "\n**** Invalid Book Index: " << atts.value(ndx).toUtf8().data() << "\n";
 					nBk = -1;
 				} // else fall-through and create book with nBk != -1 ...
@@ -1206,12 +1209,12 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					 (findAttribute(atts, "eID") == -1))) {
 					// Don't log this if this is a <div> tag with "eID" set, as
 					//	we will have already written it for "sID":
-					std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data();
+					std::cerr << "Book: " << g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0).toUtf8().data();
 					std::cerr << "  >>> Skipping Deuterocanonical Book\n";
 				}
 				nBk = -1;
 			} else {
-				std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data() << "\n";
+				std::cerr << "Book: " << g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0).toUtf8().data() << "\n";
 				// note: nBk is index into array, not book number:
 				nTst = bookIndexToTestamentIndex(nBk+1);
 				while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
@@ -1249,7 +1252,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				ndx = findAttribute(atts, "osisID");
 				if (ndx != -1) {
 					QStringList lstOsisID = atts.value(ndx).split('.');
-					if ((lstOsisID.size() != 2) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+					if ((lstOsisID.size() != 2) || ((nBk = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
 						m_ndxCurrent = CRelIndex();
 						std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 					} else {
@@ -1293,7 +1296,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 
 			if (m_ndxCurrent.chapter() != 0) {
 				nBk = m_ndxCurrent.book() - 1;		// Let nBk be our array index for our current book
-				std::cerr << "Book: " << m_lstOsisBookList.at(nBk).toUtf8().data() << " Chapter: " << QString("%1").arg(m_ndxCurrent.chapter()).toUtf8().data();
+				std::cerr << "Book: " << g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0).toUtf8().data() << " Chapter: " << QString("%1").arg(m_ndxCurrent.chapter()).toUtf8().data();
 				nTst = bookIndexToTestamentIndex(nBk+1);
 				m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
 				if (m_ndxCurrent.chapter() == g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse.chapter()) {
@@ -1340,7 +1343,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				ndx = findAttribute(atts, "osisID");
 				if (ndx != -1) {
 					QStringList lstOsisID = atts.value(ndx).split('.');
-					if ((lstOsisID.size() != 3) || ((nBk = m_lstOsisBookList.indexOf(lstOsisID.at(0))) == -1)) {
+					if ((lstOsisID.size() != 3) || ((nBk = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
 						std::cerr << "\n*** Unknown Verse osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 					} else if ((m_ndxCurrent.book() != static_cast<unsigned int>(nBk+1)) || (m_ndxCurrent.chapter() != lstOsisID.at(1).toUInt())) {
 						m_ndxCurrent.setVerse(0);

@@ -134,7 +134,7 @@ extern const TBibleBookCategoryList g_arrBibleBookCategories;
 // TBibleBook Structure -- Used for Parsing Bible Database Files (KJVDataParse, etc)
 typedef struct TBibleBook {
 	CRelIndex m_ndxStartingChapterVerse;	// Chapter and Verse this book is supposed to start at (used to handle special case Apocrypha entries, like AddEsther)
-	QString m_strOsisAbbr;					// Semicolon separated list of OSIS IDs to apply for this book (to allow for things like EsthGr and AddEsth to be synonyms).  Only the FIRST will be used in our databases!
+	QStringList m_lstOsisAbbr;				// List of OSIS IDs to apply for this book (to allow for things like EsthGr and AddEsth to be synonyms).  Only the FIRST will be used in our databases!
 	QString m_strTableName;					// Database Table Name for this book
 	BIBLE_BOOK_CATEGORIES_ENUM m_nCategory;	// Category Name (Translated)
 	QString m_strName;						// BookName (Translated)
