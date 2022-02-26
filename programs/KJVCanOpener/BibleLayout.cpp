@@ -25,6 +25,14 @@
 
 // ============================================================================
 
+const TBibleVersificationList g_arrBibleVersifications =
+{
+	CBibleVersifications::tr("King James"),
+	CBibleVersifications::tr("Hebrew Masoretic"),
+};
+
+// ============================================================================
+
 const TBibleTestamentNameList g_arrBibleTestamentNames =
 {
 	CBibleTestaments::tr("Old Testament"),
@@ -40,11 +48,20 @@ QString translatedBibleTestamentName(unsigned int nTst)
 
 // ============================================================================
 
+const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups =
+{
+	CBibleBookCategoryGroups::tr("King James"),
+	CBibleBookCategoryGroups::tr("Hebrew Masoretic"),
+};
+
+// ============================================================================
+
 const TBibleBookCategoryList g_arrBibleBookCategories =
 {
 	CBibleBookCategories::tr("Law"),
 	CBibleBookCategories::tr("Historical"),
 	CBibleBookCategories::tr("Wisdom/Poetic"),
+	CBibleBookCategories::tr("Writings"),
 	CBibleBookCategories::tr("Major Prophets"),
 	CBibleBookCategories::tr("Minor Prophets"),
 	CBibleBookCategories::tr("Prophets"),

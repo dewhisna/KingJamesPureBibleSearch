@@ -61,8 +61,24 @@ constexpr char OSISNAME_JUDE[] = "Jude";
 
 // ============================================================================
 
+// QObject namespace for Bible Versifications Translation Context:
+class CBibleVersifications : public QObject
+{
+	Q_OBJECT
+};
+
+// ============================================================================
+
 // QObject namespace for Bible Testament Translation Context:
 class CBibleTestaments : public QObject
+{
+	Q_OBJECT
+};
+
+// ============================================================================
+
+// QObject namespace for Bible Book Category Groups Translation Context:
+class CBibleBookCategoryGroups : public QObject
 {
 	Q_OBJECT
 };
@@ -101,6 +117,17 @@ class CBibleBookDescription : public QObject
 
 // ============================================================================
 
+// Versifications:
+enum BIBLE_VERSIFICATION_TYPE_ENUM {		// Note: This list cannot change without breaking settings
+	BVTE_KJV = 0,							// KJV Standard Versification
+	BVTE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Standard
+};
+
+typedef QStringList TBibleVersificationList;	// List of BIBLE_VERSIFICATION_TYPE_ENUM Versifications
+extern const TBibleVersificationList g_arrBibleVersifications;
+
+// ============================================================================
+
 // Testaments:
 typedef QStringList TBibleTestamentNameList;
 extern const TBibleTestamentNameList g_arrBibleTestamentNames;
@@ -109,18 +136,30 @@ extern QString translatedBibleTestamentName(unsigned int nTst);
 
 // ============================================================================
 
+// Category Groups:
+enum BIBLE_BOOK_CATEGORY_GROUPS_ENUM {		// Note: This list cannot change without breaking settings
+	BBCGE_KJV = 0,							// KJV Standard Book Groups
+	BBCGE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Book Groups
+};
+
+typedef QStringList TBibleBookCategoryGroupList;	// List of BIBLE_BOOK_CATEGORY_GROUPS_ENUM Groups
+extern const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups;
+
+// ============================================================================
+
 // Categories:
 enum BIBLE_BOOK_CATEGORIES_ENUM {
 	BBCE_LAW = 0,
 	BBCE_HISTORICAL = 1,
 	BBCE_WISDOM_POETIC = 2,
-	BBCE_MAJOR_PROPHETS = 3,
-	BBCE_MINOR_PROPHETS = 4,
-	BBCE_PROPHETS = 5,
-	BBCE_GOSPELS = 6,
-	BBCE_PAULINE_EPISTLES = 7,
-	BBCE_GENERAL_EPISTLES = 8,
-	BBCE_APOCALYPTIC_EPISTLE = 9,
+	BBCE_WRITINGS = 3,
+	BBCE_MAJOR_PROPHETS = 4,
+	BBCE_MINOR_PROPHETS = 5,
+	BBCE_PROPHETS = 6,
+	BBCE_GOSPELS = 7,
+	BBCE_PAULINE_EPISTLES = 8,
+	BBCE_GENERAL_EPISTLES = 9,
+	BBCE_APOCALYPTIC_EPISTLE = 10,
 	// ----
 	BBCE_COUNT
 };
