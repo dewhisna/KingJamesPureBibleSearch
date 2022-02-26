@@ -29,6 +29,7 @@
 #include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/SearchCriteria.h"
+#include "../KJVCanOpener/BibleLayout.h"
 
 #include <QCoreApplication>
 #include <QLibraryInfo>
@@ -46,12 +47,6 @@
 #include <iostream>
 #include <set>
 #include <algorithm>
-
-#define NUM_BK 80u				// Total Books Defined
-#define NUM_BK_OT 39u			// Total Books in Old Testament
-#define NUM_BK_NT 27u			// Total Books in New Testament
-#define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
-#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
 #include "../KJVCanOpener/PathConsts.h"
 
@@ -161,6 +156,10 @@ int main(int argc, char *argv[])
 				setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
 			}
 			bSearchWithinIsEntireBible = false;
+		} else if (strArg.compare("-sa") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_APOC; ++nBk) {
+				setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+			}
 		} else if (strArg.startsWith("-s")) {
 			unsigned int nBk = strArg.mid(2).toUInt();
 			setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
@@ -186,6 +185,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -so =  Skip Old Testament\n").toUtf8().data();
 		std::cerr << QString("  -sn =  Skip New Testament\n").toUtf8().data();
+		std::cerr << QString("  -sa =  Skip Apocrypha\n").toUtf8().data();
 		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
 		std::cerr << QString("           (Default is to search the Entire Bible)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();

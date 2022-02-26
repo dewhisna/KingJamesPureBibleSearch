@@ -29,6 +29,7 @@
 #include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/SearchCriteria.h"
+#include "../KJVCanOpener/BibleLayout.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -55,12 +56,6 @@
 #include <algorithm>
 #include <utility>
 #include <vector>
-
-#define NUM_BK 80u				// Total Books Defined
-#define NUM_BK_OT 39u			// Total Books in Old Testament
-#define NUM_BK_NT 27u			// Total Books in New Testament
-#define NUM_BK_APOC 14u			// Total Books in Apocrypha (KJVA)
-#define NUM_TST 3u				// Total Number of Testaments (or pseudo-testaments, in the case of Apocrypha)
 
 constexpr int MIN_SEARCH_WITHIN_CACHE_LIMIT = 10;		// Minimum number of results needed before caching a search phrase
 
@@ -520,6 +515,14 @@ int main(int argc, char *argv[])
 					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
 				}
 			}
+		} else if (strArg.compare("-sa") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_APOC; ++nBk) {
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				}
+			}
 		} else if (strArg.startsWith("-s")) {
 			unsigned int nBk = strArg.mid(2).toUInt();
 			if (bInvertCriteria) {
@@ -618,6 +621,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -ss =  Skip Superscriptions (or Search Superscriptions if -i is used)\n").toUtf8().data();
 		std::cerr << QString("  -so =  Skip Old Testament (or Search Old Testament if -i is used)\n").toUtf8().data();
 		std::cerr << QString("  -sn =  Skip New Testament (or Search New Testament if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sa =  Skip Apocrypha (or Search Apocrypha if -i is used)\n").toUtf8().data();
 		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
 		std::cerr << QString("           (or Search Book 'N' if -i is used)\n").toUtf8().data();
 		std::cerr << QString("   -i =  Invert search criteria so that the default is to search\n").toUtf8().data();
