@@ -256,24 +256,19 @@ static int languageIndex(const QString &strLanguage)
 	return ((nIndex != -1) ? nIndex : lstLanguages.size());
 }
 
-// Sort order for Bible Databases, used to put KJV text ahead
-//	of other databases:
-static QList<BIBLE_DESCRIPTOR_ENUM> BDElist()
+static int BDESortIndex(BIBLE_DESCRIPTOR_ENUM nBDE)
 {
-	QList<BIBLE_DESCRIPTOR_ENUM> lstBDE;
-	lstBDE.append(BDE_KJV_FULL);
-	lstBDE.append(BDE_KJV);
-	lstBDE.append(BDE_KJVA);
-	lstBDE.append(BDE_KJVPCE);
-	lstBDE.append(BDE_KJV1611);
-	lstBDE.append(BDE_KJV1611A);
-	lstBDE.append(BDE_UKJV);
-	return lstBDE;
-}
-
-static int BDEIndex(BIBLE_DESCRIPTOR_ENUM nBDE)
-{
-	static QList<BIBLE_DESCRIPTOR_ENUM> lstBDE = BDElist();
+	// Sort order for Bible Databases, used to put KJV text ahead
+	//	of other databases:
+	static const QList<BIBLE_DESCRIPTOR_ENUM> lstBDE = {
+		BDE_KJV_FULL,
+		BDE_KJV,
+		BDE_KJVA,
+		BDE_KJVPCE,
+		BDE_KJV1611,
+		BDE_KJV1611A,
+		BDE_UKJV,
+	};
 
 	int nIndex = lstBDE.indexOf(nBDE);
 	return ((nIndex != -1) ? nIndex : lstBDE.size());
@@ -325,8 +320,8 @@ void TBibleDatabaseList::findBibleDatabases()
 			while (nInsertPoint < m_lstAvailableDatabaseDescriptors.size()) {
 				BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(dbNdx);
 				// Sort by Specific descriptor ID, language, then by description, then by general descriptor ID:
-				int nBIndex1 = BDEIndex(nBDE);
-				int nBIndex2 = BDEIndex(bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID));
+				int nBIndex1 = BDESortIndex(nBDE);
+				int nBIndex2 = BDESortIndex(bibleDescriptorFromUUID(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strUUID));
 				int nLIndex1 = languageIndex(bblDesc.m_strLanguage);
 				int nLIndex2 = languageIndex(m_lstAvailableDatabaseDescriptors.at(nInsertPoint).m_strLanguage);
 				int nBDEComp = ((nBIndex1 < nBIndex2) ? -1 : ((nBIndex2 < nBIndex1) ? 1 : 0));
