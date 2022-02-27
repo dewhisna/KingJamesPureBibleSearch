@@ -180,7 +180,7 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "MYBIBLE_TNIV_2005", "en", QString::fromUtf8("MyBible Today's New International Version (2005)"), QString::fromUtf8("Today's New International Version (2005)"), constUUID_MYBIBLE_TNIV_2005, "bbl-mybible-tniv-2005.s3db", "bbl-mybible-tniv-2005.ccdb", constUUID_MYBIBLE_TNIV_2005 },
 		// ----
 		// Open Scriptures Hebrew Bible:
-		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::RightToLeft, "OSHB", "hbo" /* "he" */ /* "iw" */, QString::fromUtf8("Open Scriptures Hebrew"), QString::fromUtf8("Open Scriptures Hebrew Bible"), constUUID_OSHB, "bbl-oshb.s3db", "bbl-oshb.ccdb", constUUID_OSHB },
+		{ BibleTypeOptionsFlags(BTO_AllowVersification), Qt::RightToLeft, "OSHB", "hbo" /* "he" */ /* "iw" */, QString::fromUtf8("Open Scriptures Hebrew"), QString::fromUtf8("Open Scriptures Hebrew Bible"), constUUID_OSHB, "bbl-oshb.s3db", "bbl-oshb.ccdb", constUUID_OSHB },
 		// ----
 	};
 

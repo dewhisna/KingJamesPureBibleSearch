@@ -143,6 +143,8 @@ namespace {
 	const QString constrHideHyphensKey("HideHyphens");
 	const QString constrHyphenSensitiveKey("HyphenSensitive");
 	const QString constrHideCantillationMarksKey("HideCantillationMarks");
+	const QString constrVersificationKey("Versification");
+	const QString constrCategoryGroupKey("CategoryGroup");
 
 	// Dictionary Database Settings:
 	const QString constrDictDatabaseSettingsGroup("DictionaryDatabaseSettings");
@@ -1413,6 +1415,8 @@ int CMyApplication::execute(bool bBuildDB)
 					bdbSettings.setHideHyphens(static_cast<TBibleDatabaseSettings::HideHyphensOptionFlags>(settings.value(constrHideHyphensKey, static_cast<int>(bdbSettings.hideHyphens())).toInt()));
 					bdbSettings.setHyphenSensitive(settings.value(constrHyphenSensitiveKey, bdbSettings.hyphenSensitive()).toBool());
 					bdbSettings.setHideCantillationMarks(settings.value(constrHideCantillationMarksKey, bdbSettings.hideCantillationMarks()).toBool());
+					bdbSettings.setVersification(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(settings.value(constrVersificationKey, static_cast<int>(bdbSettings.versification())).toInt()));
+					bdbSettings.setCategoryGroup(static_cast<BIBLE_BOOK_CATEGORY_GROUP_ENUM>(settings.value(constrCategoryGroupKey, static_cast<int>(bdbSettings.categoryGroup())).toInt()));
 					CPersistentSettings::instance()->setBibleDatabaseSettings(strUUID, bdbSettings);
 				}
 			}

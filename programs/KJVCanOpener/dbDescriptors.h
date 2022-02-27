@@ -55,6 +55,7 @@ enum BibleTypeOptions {
 	BTO_Discovered = 0x4,				// Discovered via disk search instead of internal descriptor list
 	BTO_Preferred = 0x8,				// Bible is a preferred choice, for example Full KJV Database vs Standard KJV Database
 	BTO_HasStrongs = 0x10,				// True if this Bible Database has a Strongs Dictionary (Used when resolving ambiguous Bible Databases, like full vs standard KJV)
+	BTO_AllowVersification = 0x20,		// True if user can set/change the versification used (such as remapping Hebrew from KJV Versification to Masoretic Versification)
 };
 Q_DECLARE_FLAGS(BibleTypeOptionsFlags, BibleTypeOptions)
 

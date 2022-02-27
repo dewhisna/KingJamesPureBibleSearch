@@ -1116,6 +1116,16 @@ CConfigBibleDatabase::CConfigBibleDatabase(QWidget *parent)
 	ui.comboBoxHyphenHideMode->addItem(tr("Ordinary Words", "HyphenModes"), TBibleDatabaseSettings::HHO_OrdinaryWords);
 	ui.comboBoxHyphenHideMode->addItem(tr("Both", "HyphenModes"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
 
+	ui.comboBoxVersification->clear();
+	for (int ndx = 0; ndx < g_arrBibleVersifications.size(); ++ndx) {
+		ui.comboBoxVersification->addItem(g_arrBibleVersifications.at(ndx), ndx);
+	}
+
+	ui.comboBoxCategoryGroup->clear();
+	for (int ndx = 0; ndx < g_arrBibleBookCategoryGroups.size(); ++ndx) {
+		ui.comboBoxCategoryGroup->addItem(g_arrBibleBookCategoryGroups.at(ndx), ndx);
+	}
+
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(const QString &)), this, SLOT(en_loadBibleDatabase(const QString &)));
 	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
@@ -1127,6 +1137,9 @@ CConfigBibleDatabase::CConfigBibleDatabase(QWidget *parent)
 	connect(ui.checkBoxHyphenSensitive, SIGNAL(clicked(bool)), this, SLOT(en_changedHyphenSensitive(bool)));
 
 	connect(ui.checkBoxHideCantillationMarks, SIGNAL(clicked(bool)), this, SLOT(en_changedHideCantillationMarks(bool)));
+
+	connect(ui.comboBoxVersification, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVersification(int)));
+	connect(ui.comboBoxCategoryGroup, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCategoryGroup(int)));
 
 	connect(ui.buttonDisplayBibleInfo, SIGNAL(clicked()), this, SLOT(en_displayBibleInformation()));
 
@@ -1248,6 +1261,34 @@ void CConfigBibleDatabase::en_changedHideCantillationMarks(bool bHideCantillatio
 	emit dataChanged(false);
 }
 
+void CConfigBibleDatabase::en_changedVersification(int index)
+{
+	if (m_bLoadingData) return;
+	if (m_strSelectedDatabaseUUID.isEmpty()) return;
+
+	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
+	bdbSettings.setVersification(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(ui.comboBoxVersification->itemData(index).toInt()));
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
+	setSettingControls(m_strSelectedDatabaseUUID);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigBibleDatabase::en_changedCategoryGroup(int index)
+{
+	if (m_bLoadingData) return;
+	if (m_strSelectedDatabaseUUID.isEmpty()) return;
+
+	TBibleDatabaseSettings bdbSettings = CPersistentSettings::instance()->bibleDatabaseSettings(m_strSelectedDatabaseUUID);
+	bdbSettings.setCategoryGroup(static_cast<BIBLE_BOOK_CATEGORY_GROUP_ENUM>(ui.comboBoxCategoryGroup->itemData(index).toInt()));
+	CPersistentSettings::instance()->setBibleDatabaseSettings(m_strSelectedDatabaseUUID, bdbSettings);
+	setSettingControls(m_strSelectedDatabaseUUID);
+
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
 void CConfigBibleDatabase::en_currentChanged(const QModelIndex &indexCurrent, const QModelIndex &indexPrevious)
 {
 	Q_UNUSED(indexPrevious);
@@ -1273,6 +1314,8 @@ void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 		ui.checkBoxHyphenSensitive->setChecked(false);
 		ui.checkBoxHideCantillationMarks->setEnabled(false);
 		ui.checkBoxHideCantillationMarks->setChecked(false);
+		ui.comboBoxVersification->setEnabled(false);
+		ui.comboBoxCategoryGroup->setEnabled(false);
 		ui.buttonDisplayBibleInfo->setEnabled(false);
 		m_pBibleWordDiffListModel->setBibleDatabase(CBibleDatabasePtr());
 	} else {
@@ -1281,6 +1324,8 @@ void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 		ui.comboBoxHyphenHideMode->setCurrentIndex(ui.comboBoxHyphenHideMode->findData(static_cast<int>(bdbSettings.hideHyphens())));
 		ui.checkBoxHyphenSensitive->setChecked(bdbSettings.hyphenSensitive());
 		ui.checkBoxHideCantillationMarks->setChecked(bdbSettings.hideCantillationMarks());
+		ui.comboBoxVersification->setCurrentIndex(ui.comboBoxVersification->findData(static_cast<int>(bdbSettings.versification())));
+		ui.comboBoxCategoryGroup->setCurrentIndex(ui.comboBoxCategoryGroup->findData(static_cast<int>(bdbSettings.categoryGroup())));
 		bool bCanBeSensitive = (!((bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_ProperWords) ||
 								  (bdbSettings.hideHyphens() & TBibleDatabaseSettings::HHO_OrdinaryWords)));
 		if (!bCanBeSensitive) {
@@ -1294,6 +1339,8 @@ void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 		//	when langID != LIDE_HEBREW.  However, if other rendering constructs are ever introduced
 		//	that isn't cantillation, this will need to be updated accordingly:
 		ui.checkBoxHideCantillationMarks->setEnabled(!pBibleDatabase->searchSpaceIsCompleteConcordance());
+		ui.comboBoxVersification->setEnabled(pBibleDatabase->descriptor().m_btoFlags & BTO_AllowVersification);
+		ui.comboBoxCategoryGroup->setEnabled(true);
 		ui.buttonDisplayBibleInfo->setEnabled(!pBibleDatabase->info().isEmpty());
 		m_pBibleWordDiffListModel->setBibleDatabase(pBibleDatabase);
 	}

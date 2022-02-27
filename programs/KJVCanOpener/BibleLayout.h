@@ -135,12 +135,12 @@ extern QString translatedBibleTestamentName(unsigned int nTst);
 // ============================================================================
 
 // Category Groups:
-enum BIBLE_BOOK_CATEGORY_GROUPS_ENUM {		// Note: This list cannot change without breaking settings
+enum BIBLE_BOOK_CATEGORY_GROUP_ENUM {		// Note: This list cannot change without breaking settings
 	BBCGE_KJV = 0,							// KJV Standard Book Groups
 	BBCGE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Book Groups
 };
 
-typedef QStringList TBibleBookCategoryGroupList;	// List of BIBLE_BOOK_CATEGORY_GROUPS_ENUM Groups
+typedef QStringList TBibleBookCategoryGroupList;	// List of BIBLE_BOOK_CATEGORY_GROUP_ENUM Groups
 extern const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups;
 
 // ============================================================================

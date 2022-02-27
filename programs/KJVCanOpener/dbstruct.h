@@ -25,6 +25,7 @@
 #define DATABASE_STRUCT_H
 
 #include "dbDescriptors.h"
+#include "BibleLayout.h"
 
 #include <string.h>
 #include <string>
@@ -1287,13 +1288,17 @@ public:
 	Q_DECLARE_FLAGS(BibleDatabaseOptionFlags, BibleDatabaseOptions)
 
 	explicit TBibleDatabaseSettings()
-		:	m_flagsOptions(BDO_None)
+		:	m_flagsOptions(BDO_None),
+			m_nVersification(BVTE_KJV),
+			m_nCategoryGroup(BBCGE_KJV)
 	{ }
 
 	bool isValid() const { return true; }
 
 	inline bool operator==(const TBibleDatabaseSettings &other) const {
-		return (m_flagsOptions == other.m_flagsOptions);
+		return ((m_flagsOptions == other.m_flagsOptions) &&
+				(m_nCategoryGroup == other.m_nCategoryGroup) &&
+				(m_nVersification == other.m_nVersification));
 	}
 	inline bool operator!=(const TBibleDatabaseSettings &other) const {
 		return (!operator==(other));
@@ -1336,8 +1341,16 @@ public:
 		if (bHideCantillationMarks) m_flagsOptions |= BDO_HideCantillationMarks;
 	}
 
+	BIBLE_VERSIFICATION_TYPE_ENUM versification() const { return m_nVersification; }
+	void setVersification(BIBLE_VERSIFICATION_TYPE_ENUM nVersification) { m_nVersification = nVersification; }
+
+	BIBLE_BOOK_CATEGORY_GROUP_ENUM categoryGroup() const { return m_nCategoryGroup; }
+	void setCategoryGroup(BIBLE_BOOK_CATEGORY_GROUP_ENUM nCategoryGroup) { m_nCategoryGroup = nCategoryGroup; }
+
 private:
 	BibleDatabaseOptionFlags m_flagsOptions;
+	BIBLE_VERSIFICATION_TYPE_ENUM m_nVersification;
+	BIBLE_BOOK_CATEGORY_GROUP_ENUM m_nCategoryGroup;
 };
 
 typedef QMap<QString, TBibleDatabaseSettings> TBibleDatabaseSettingsMap;		// Map of Bible UUIDs to settings for saving/preserving
