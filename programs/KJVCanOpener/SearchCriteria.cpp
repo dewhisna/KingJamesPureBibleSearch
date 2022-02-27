@@ -93,15 +93,50 @@ QString CSearchCriteria::searchScopeDescription() const
 
 CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const CSearchCriteria &aSearchCriteria, QObject *pParent)
 	:	QAbstractItemModel(pParent),
-		m_pBibleDatabase(pBibleDatabase)
+		m_pBibleDatabase(pBibleDatabase),
+		m_bBibleHasColophons(false),			// These will be setup in setupModel(), but need defaults...
+		m_bBibleHasSuperscriptions(false),
+		m_nLastCategoryGroup(BBCGE_KJV)			// Especially for m_nLastCategoryGroup
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	const TRelativeIndexSet &aSetSearchWithin = aSearchCriteria.searchWithin();
-	m_bBibleHasColophons = pBibleDatabase->hasColophons();
-	m_bBibleHasSuperscriptions = pBibleDatabase->hasSuperscriptions();
+	setupModel(aSearchCriteria.searchWithin(), true);
 
-	// Build our model data (which should be static with the given Bible Database):
+	// This one should be a Direct connection so that we update the database words immediately before users get updated:
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::DirectConnection);
+}
+
+CSearchWithinModel::~CSearchWithinModel()
+{
+
+}
+
+// ============================================================================
+
+void CSearchWithinModel::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+{
+	if ((strUUID.compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) &&
+		(aSettings.categoryGroup() != m_nLastCategoryGroup)) {
+		setupModel(searchWithin(), false);
+	}
+}
+
+void CSearchWithinModel::setupModel(const TRelativeIndexSet &aSetSearchWithin, bool bInitial)
+{
+	if (!bInitial && (m_nLastCategoryGroup == m_pBibleDatabase->settings().categoryGroup())) {
+		return;
+	}
+
+	m_nLastCategoryGroup = m_pBibleDatabase->settings().categoryGroup();
+
+	beginResetModel();
+
+	m_rootSearchWithinModelIndex.clear();
+
+	m_bBibleHasColophons = m_pBibleDatabase->hasColophons();
+	m_bBibleHasSuperscriptions = m_pBibleDatabase->hasSuperscriptions();
+
+	// Build our model data:
 	// The root node is the "Whole Bible"
 	if (m_bBibleHasColophons) {
 		m_rootSearchWithinModelIndex.insertIndex(CSearchCriteria::SSME_COLOPHON, 0)->setCheck(aSetSearchWithin.find(CSearchCriteria::SSI_COLOPHON) != aSetSearchWithin.end());
@@ -122,25 +157,25 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 			if (pBookEntry == nullptr) continue;
 			if (pBookEntry->m_nTstNdx != nTst) continue;
 			if (pBookEntry->m_nNumWrd == 0) continue;		// Skip books if it has no words (like a Pentateuch only database)
-			CSearchWithinModelIndexMap::const_iterator itrCategoryIndexes = mapCategoryIndexes.find(pBookEntry->m_nCatNdx);
+			BIBLE_BOOK_CATEGORIES_ENUM nCat = m_pBibleDatabase->bookCategory(CRelIndex(nBk, 0, 0, 0));
+			CSearchWithinModelIndexMap::const_iterator itrCategoryIndexes = mapCategoryIndexes.find(nCat);
 			CSearchWithinModelIndex *pIndexCategory = nullptr;
 			if (itrCategoryIndexes != mapCategoryIndexes.constEnd()) {
 				pIndexCategory = itrCategoryIndexes.value();
 			} else {
-				pIndexCategory = pIndexTestament->insertIndex(CSearchCriteria::SSME_CATEGORY, pBookEntry->m_nCatNdx);
-				mapCategoryIndexes.insert(pBookEntry->m_nCatNdx, pIndexCategory);
+				pIndexCategory = pIndexTestament->insertIndex(CSearchCriteria::SSME_CATEGORY, nCat);
+				mapCategoryIndexes.insert(nCat, pIndexCategory);
 			}
 			Q_ASSERT(pIndexCategory != nullptr);
 			CSearchWithinModelIndex *pIndexBook = pIndexCategory->insertIndex(CSearchCriteria::SSME_BOOK, nBk);
 			pIndexBook->setCheck(aSetSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) != aSetSearchWithin.end());
 		}
 	}
+
+	endResetModel();
 }
 
-CSearchWithinModel::~CSearchWithinModel()
-{
-
-}
+// ============================================================================
 
 QString CSearchWithinModel::searchWithinDescription() const
 {
@@ -327,8 +362,8 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 				}
 			}
 			case CSearchCriteria::SSME_CATEGORY:
-				Q_ASSERT(m_pBibleDatabase->bookCategoryEntry(nItem) != nullptr);
-				return m_pBibleDatabase->bookCategoryEntry(nItem)->m_strCategoryName;
+				Q_ASSERT(nItem < BBCE_COUNT);
+				return g_arrBibleBookCategories.at(nItem);
 			case CSearchCriteria::SSME_BOOK:
 			{
 				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);

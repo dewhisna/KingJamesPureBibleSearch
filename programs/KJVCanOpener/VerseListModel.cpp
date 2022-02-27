@@ -3203,13 +3203,14 @@ CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
 		case (CSearchCriteria::SSME_CATEGORY):
 			// For Category, set the Book to the 1st Book of the corresponding Category:
 			if (index.book()) {
-				uint32_t nCat = m_pBibleDatabase->bookCategory(index);
-				if (nCat) {
-					Q_ASSERT(m_pBibleDatabase->bookCategoryEntry(nCat) != nullptr);
-					const CBookCategoryEntry &category = *m_pBibleDatabase->bookCategoryEntry(nCat);
-					if (category.m_setBooksNum.find(index.book()) != category.m_setBooksNum.end()) {
-						// Get first book of the category for the scope:
-						indexScoped = CRelIndex(*(category.m_setBooksNum.begin()), 0, 0, 0);
+				BIBLE_BOOK_CATEGORIES_ENUM nCat = m_pBibleDatabase->bookCategory(index);
+				if (nCat != BBCE_UNKNOWN) {
+					// Get first book of the category for the scope:
+					for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
+						if (m_pBibleDatabase->bookCategory(CRelIndex(ndxBk, 0, 0, 0)) == nCat) {
+							indexScoped = CRelIndex(ndxBk, 0, 0, 0);
+							break;
+						}
 					}
 				}
 			}

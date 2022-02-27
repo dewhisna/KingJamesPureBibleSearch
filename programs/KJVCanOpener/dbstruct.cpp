@@ -1359,16 +1359,31 @@ uint32_t CBibleDatabase::testament(const CRelIndex &nRelIndex) const
 
 QString CBibleDatabase::bookCategoryName(const CRelIndex &nRelIndex) const
 {
-	uint32_t nCat = bookCategory(nRelIndex);
-	if ((nCat < 1) || (nCat > m_lstBookCategories.size())) return QString();
-	return m_lstBookCategories.at(nCat-1).m_strCategoryName;
+	return g_arrBibleBookCategories.at(bookCategory(nRelIndex));
 }
 
-uint32_t CBibleDatabase::bookCategory(const CRelIndex &nRelIndex) const
+BIBLE_BOOK_CATEGORIES_ENUM CBibleDatabase::bookCategory(const CRelIndex &nRelIndex) const
 {
-	uint32_t nBk = nRelIndex.book();
-	if ((nBk < 1) || (nBk > m_lstBooks.size())) return 0;
-	return m_lstBooks.at(nBk-1).m_nCatNdx;
+	QString strOSIS = bookOSISAbbr(nRelIndex);
+
+	switch (settings().categoryGroup()) {
+		case BBCGE_KJV:
+		{
+			TBibleBookCategoryMap::const_iterator itrCategory = g_mapKJVBookCategories.find(strOSIS);
+			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory.value();
+			break;
+		}
+		case BBCGE_HEBREW_MASORETIC:
+		{
+			TBibleBookCategoryMap::const_iterator itrCategory = g_mapHebrewMasoreticBookCategories.find(strOSIS);
+			if (itrCategory != g_mapHebrewMasoreticBookCategories.cend()) return itrCategory.value();
+			itrCategory = g_mapKJVBookCategories.find(strOSIS);			// Fallback to KJV
+			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory.value();
+			break;
+		}
+	};
+
+	return BBCE_UNKNOWN;
 }
 
 QString CBibleDatabase::bookName(const CRelIndex &nRelIndex) const
@@ -2310,13 +2325,6 @@ const CTestamentEntry *CBibleDatabase::testamentEntry(uint32_t nTst) const
 	Q_ASSERT((nTst >= 1) && (nTst <= m_lstTestaments.size()));
 	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return nullptr;
 	return &m_lstTestaments.at(nTst-1);
-}
-
-const CBookCategoryEntry *CBibleDatabase::bookCategoryEntry(uint32_t nCat) const
-{
-	Q_ASSERT((nCat >= 1) && (nCat <= m_lstBookCategories.size()));
-	if ((nCat < 1) || (nCat > m_lstBookCategories.size())) return nullptr;
-	return &m_lstBookCategories.at(nCat-1);
 }
 
 const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const

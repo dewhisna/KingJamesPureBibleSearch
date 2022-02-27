@@ -147,23 +147,31 @@ extern const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups;
 
 // Categories:
 enum BIBLE_BOOK_CATEGORIES_ENUM {
-	BBCE_LAW = 0,
-	BBCE_HISTORICAL = 1,
-	BBCE_WISDOM_POETIC = 2,
-	BBCE_WRITINGS = 3,
+	BBCE_UNKNOWN = 0,
+	BBCE_LAW = 1,
+	BBCE_HISTORICAL = 2,
+	BBCE_WISDOM_POETIC = 3,
 	BBCE_MAJOR_PROPHETS = 4,
 	BBCE_MINOR_PROPHETS = 5,
 	BBCE_PROPHETS = 6,
-	BBCE_GOSPELS = 7,
-	BBCE_PAULINE_EPISTLES = 8,
-	BBCE_GENERAL_EPISTLES = 9,
-	BBCE_APOCALYPTIC_EPISTLE = 10,
+	BBCE_FORMER_PROPHETS = 7,
+	BBCE_LATTER_PROPHETS = 8,
+	BBCE_BOOK_OF_THE_TWELVE = 9,		// i.e. Minor Prophets (Hebrew)
+	BBCE_WRITINGS = 10,					// After prophets for sort order control
+	BBCE_GOSPELS = 11,
+	BBCE_PAULINE_EPISTLES = 12,
+	BBCE_GENERAL_EPISTLES = 13,
+	BBCE_APOCALYPTIC_EPISTLE = 14,
 	// ----
 	BBCE_COUNT
 };
 
 typedef QStringList TBibleBookCategoryList;		// List of BIBLE_BOOK_CATEGORIES_ENUM Categories
 extern const TBibleBookCategoryList g_arrBibleBookCategories;
+
+typedef QMap<QString, BIBLE_BOOK_CATEGORIES_ENUM> TBibleBookCategoryMap;	// Mapping of OSIS ID to Category
+extern const TBibleBookCategoryMap g_mapKJVBookCategories;					// BBCGE_KJV
+extern const TBibleBookCategoryMap g_mapHebrewMasoreticBookCategories;		// BBCGE_HEBREW_MASORETIC
 
 // ============================================================================
 
@@ -173,7 +181,6 @@ typedef struct TBibleBook {
 	uint32_t m_ndxStartingChapterVerse;		// CRelIndex of Chapter and Verse this book is supposed to start at (used to handle special case Apocrypha entries, like AddEsther), Stored as uint32_t instead of CRelIndex to avoid circular include
 	QStringList m_lstOsisAbbr;				// List of OSIS IDs to apply for this book (to allow for things like EsthGr and AddEsth to be synonyms).  Only the FIRST will be used in our databases!
 	QString m_strTableName;					// Database Table Name for this book
-	BIBLE_BOOK_CATEGORIES_ENUM m_nCategory;	// Category Name (Translated)
 	QString m_strName;						// BookName (Translated)
 	QString m_strCommonAbbr;				// Semicolon separated list of Abbreviation Strings (Translated)
 	QString m_strDescription;				// Book Description (Translated)

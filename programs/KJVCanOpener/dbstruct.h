@@ -425,24 +425,6 @@ public:
 
 // ============================================================================
 
-// Book Categories (i.e. Law, Prophets, Gospels, etc)
-//
-class CBookCategoryEntry
-{
-public:
-	CBookCategoryEntry(const QString &strCategoryName = QString())
-		:	m_strCategoryName(strCategoryName)
-	{ }
-	~CBookCategoryEntry() { }
-
-	QString m_strCategoryName;				// Category Name
-	std::set<uint32_t> m_setBooksNum;		// Set of Book Numbers in this Set
-};
-
-typedef std::vector<CBookCategoryEntry> TBookCategoryList;		// Index by nCat-1
-
-// ============================================================================
-
 // Books -- (Table of Contents):
 //
 class CBookEntry
@@ -465,7 +447,6 @@ public:
 
 	uint32_t m_nTstBkNdx;		// Testament Book Index (Index within the books of the testament) 1-39 or 1-27
 	uint32_t m_nTstNdx;			// Testament Index (1=Old, 2=New, etc)
-	uint32_t m_nCatNdx;			// Category Index
 	QString m_strBkName;		// Name of book (display name)
 	QStringList m_lstBkAbbr;	// Book Abbreviations (Always at LEAST two entries.  First entry is OSIS Abbreviation.  Second entry is Common Abbreviation used in all Abbreviated Book mode rendering.  Others are common abbreviations used for matching purposes)
 	QString m_strTblName;		// Name of Table for this book
@@ -1417,11 +1398,7 @@ public:
 	uint32_t testament(const CRelIndex &nRelIndex) const;
 
 	QString bookCategoryName(const CRelIndex &nRelIndex) const;
-	uint32_t bookCategory(const CRelIndex &nRelIndex) const;
-	int bookCategoryCount() const
-	{
-		return m_lstBookCategories.size();
-	}
+	BIBLE_BOOK_CATEGORIES_ENUM bookCategory(const CRelIndex &nRelIndex) const;
 
 	QString bookName(const CRelIndex &nRelIndex) const;
 	QString bookNameAbbr(const CRelIndex &nRelIndex) const;
@@ -1485,7 +1462,6 @@ public:
 		return m_EntireBible;
 	}
 	const CTestamentEntry *testamentEntry(uint32_t nTst) const;			// Testament stats/data entry
-	const CBookCategoryEntry *bookCategoryEntry(uint32_t nCat) const;	// Category stats/data entry
 	const CBookEntry *bookEntry(uint32_t nBk) const;					// Book Data or Table of Contents [Book]
 	const CBookEntry *bookEntry(const CRelIndex &ndx) const;			// Book Data or Table of Contents Use CRelIndex:[Book | 0 | 0 | 0]
 #ifdef OSIS_PARSER_BUILD
@@ -1562,7 +1538,6 @@ private:
 // Main Database Data:
 	CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
 	TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
-	TBookCategoryList m_lstBookCategories;	// Category List: List(nCat-1)
 	TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
 	TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
 	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[nBk | nChp | nVrs | 0])

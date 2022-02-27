@@ -189,6 +189,15 @@ public:
 	}
 	~CSearchWithinModelIndex() { }
 
+	void clear()
+	{
+		for (int ndxChild = 0; ndxChild < m_lstChildren.size(); ++ndxChild) {
+			m_lstChildren[ndxChild]->clear();
+		}
+		m_lstChildren.clear();
+		if (m_pParentIndex) deleteLater();
+	}
+
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM ssme() const { return m_ssme; }
 	uint32_t itemIndex() const { return m_nItemIndex; }
 	const CSearchWithinModelIndex *parentIndex() const { return m_pParentIndex; }
@@ -235,8 +244,8 @@ public:
 
 private:
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM m_ssme;		// Type of Object
-	uint32_t m_nItemIndex;								// Book, Testament, Category, etc, index
-	QList<const CSearchWithinModelIndex *> m_lstChildren;		// Collection of objects that are children to this object
+	uint32_t m_nItemIndex;								// Book, Testament, Category, etc, index (For Category, this will be the BIBLE_BOOK_CATEGORIES_ENUM value for g_arrBibleBookCategories)
+	QList<CSearchWithinModelIndex *> m_lstChildren;		// Collection of objects that are children to this object
 	const CSearchWithinModelIndex *m_pParentIndex;
 	int m_nLevel;										// Hierarchy level -- determined by ascending the parent nodes at creation
 	mutable bool m_bChecked;							// Checkstate for this item
@@ -295,8 +304,12 @@ public:
 signals:
 	void changedSearchWithin();
 
+protected slots:
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+
 private:
 	void fireChildrenChange(const QModelIndex &index);
+	void setupModel(const TRelativeIndexSet &aSetSearchWithin, bool bInitial = false);
 
 // Data Private:
 private:
@@ -305,6 +318,7 @@ private:
 	CSearchWithinModelIndex m_rootSearchWithinModelIndex;
 	bool m_bBibleHasColophons;
 	bool m_bBibleHasSuperscriptions;
+	BIBLE_BOOK_CATEGORY_GROUP_ENUM m_nLastCategoryGroup;	// Used to detect when the category has changed during Bible Database Option change
 };
 
 // ============================================================================

@@ -58,6 +58,9 @@ public:
 
 	const CSearchCriteria &searchCriteria() const { return m_SearchCriteria; }
 
+protected:
+	void expandTreeView();			// Called by initialize() and en_modelReset() to do initial tree expansion
+
 signals:
 	void changedSearchCriteria();
 	void gotoIndex(const CRelIndex &relIndex);
@@ -75,6 +78,7 @@ private slots:
 	void en_changedSearchScopeMode(int ndx);
 	void en_changedSearchWithin();
 	void en_SearchWithinItemActivated(const QModelIndex &index);		// Triggered on Activate or DoubleClick to handle enter or double-click of search-within item (emits gotoIndex() signal)
+	void en_modelReset();						// Triggered when the CSearchWithinModel triggers, such as when the category group changes
 
 // Data Private:
 private:

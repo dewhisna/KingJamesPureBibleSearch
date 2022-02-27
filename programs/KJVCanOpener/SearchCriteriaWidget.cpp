@@ -78,6 +78,17 @@ void CSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 	m_pSearchWithinModel = new CSearchWithinModel(m_pBibleDatabase, m_SearchCriteria, this);
 	ui.treeViewSearchWithin->setModel(m_pSearchWithinModel);
 	if (pOldModel) delete pOldModel;
+
+	expandTreeView();
+
+	connect(m_pSearchWithinModel, SIGNAL(changedSearchWithin()), this, SLOT(en_changedSearchWithin()));
+	connect(m_pSearchWithinModel, SIGNAL(modelReset()), this, SLOT(en_modelReset()));
+
+	end_update();
+}
+
+void CSearchCriteriaWidget::expandTreeView()
+{
 	ui.treeViewSearchWithin->expandAll();
 	ui.treeViewSearchWithin->resizeColumnToContents(0);
 	ui.treeViewSearchWithin->collapseAll();
@@ -89,10 +100,6 @@ void CSearchCriteriaWidget::initialize(CBibleDatabasePtr pBibleDatabase)
 			ui.treeViewSearchWithin->expand(m_pSearchWithinModel->index(nRow2, 0, index));
 		}
 	}
-
-	connect(m_pSearchWithinModel, SIGNAL(changedSearchWithin()), this, SLOT(en_changedSearchWithin()));
-
-	end_update();
 }
 
 void CSearchCriteriaWidget::en_changedSearchScopeMode(int ndx)
@@ -132,6 +139,12 @@ void CSearchCriteriaWidget::en_SearchWithinItemActivated(const QModelIndex &inde
 			emit gotoIndex(CRelIndex::navigationIndexFromLogicalIndex(ndxReference));
 		}
 	}
+}
+
+void CSearchCriteriaWidget::en_modelReset()
+{
+	expandTreeView();
+	emit changedSearchCriteria();
 }
 
 void CSearchCriteriaWidget::setSearchScopeMode(CSearchCriteria::SEARCH_SCOPE_MODE_ENUM mode)

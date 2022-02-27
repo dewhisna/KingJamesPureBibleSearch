@@ -960,19 +960,6 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
 	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0));	// Our main OSIS abbreviation must always be the first entry!
 	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
 	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBibleBooks.at(nBk).m_strTableName;
-
-	TBookCategoryList::iterator itrCat = m_pBibleDatabase->m_lstBookCategories.begin();
-	while (itrCat != m_pBibleDatabase->m_lstBookCategories.end()) {
-		if (itrCat->m_strCategoryName.compare(g_arrBibleBookCategories.at(g_arrBibleBooks.at(nBk).m_nCategory)) == 0) break;
-		++itrCat;
-	}
-	if (itrCat == m_pBibleDatabase->m_lstBookCategories.end()) {
-		m_pBibleDatabase->m_lstBookCategories.push_back(CBookCategoryEntry(g_arrBibleBookCategories.at(g_arrBibleBooks.at(nBk).m_nCategory)));
-		itrCat = m_pBibleDatabase->m_lstBookCategories.end() - 1;
-	}
-	itrCat->m_setBooksNum.insert(nBk+1);
-	m_pBibleDatabase->m_lstBooks[nBk].m_nCatNdx = std::distance(m_pBibleDatabase->m_lstBookCategories.begin(), itrCat) + 1;
-
 	m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBibleBooks.at(nBk).m_strDescription;
 	m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
 
@@ -2905,7 +2892,7 @@ int main(int argc, char *argv[])
 						.arg(pBook->m_nNumChp)				// 7
 						.arg(pBook->m_nNumVrs)				// 8
 						.arg(pBook->m_nNumWrd)				// 9
-						.arg(pBibleDatabase->bookCategoryEntry(pBook->m_nCatNdx)->m_strCategoryName)				// 10
+						.arg(pBibleDatabase->bookCategoryName(CRelIndex(nBk, 0, 0, 0)))		// 10 - Note: Category is deprecated, but write it for compatibility with creating databases for old KJPBS versions
 						.arg(pBook->m_strDesc)				// 11
 						.toUtf8());
 
