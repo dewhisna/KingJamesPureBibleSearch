@@ -59,78 +59,60 @@ constexpr char OSISNAME_JUDE[] = "Jude";
 
 // ============================================================================
 
-// QObject namespace for Bible Versifications Translation Context:
-class CBibleVersifications : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
-// QObject namespace for Bible Testament Translation Context:
-class CBibleTestaments : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
-// QObject namespace for Bible Book Category Groups Translation Context:
-class CBibleBookCategoryGroups : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
-// QObject namespace for Bible Book Category Translation Context:
-class CBibleBookCategories : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
-// QObject namespace for Bible Book Names Translation Context:
-class CBibleBookNames : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
-// QObject namespace for Bible Book Abbreviations Translation Context:
-class CBibleBookAbbr : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
-// QObject namespace for Bible Book Description Translation Context:
-class CBibleBookDescription : public QObject
-{
-	Q_OBJECT
-};
-
-// ============================================================================
-
 // Versifications:
 enum BIBLE_VERSIFICATION_TYPE_ENUM {		// Note: This list cannot change without breaking settings
 	BVTE_KJV = 0,							// KJV Standard Versification
 	BVTE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Standard
+	// ----
+	BVTE_COUNT
 };
 
-typedef QStringList TBibleVersificationList;	// List of BIBLE_VERSIFICATION_TYPE_ENUM Versifications
-extern const TBibleVersificationList g_arrBibleVersifications;
+// QObject namespace for Bible Versifications Translation Context:
+class CBibleVersifications : public QObject
+{
+	Q_OBJECT
+	typedef QStringList TBibleVersificationList;	// List of BIBLE_VERSIFICATION_TYPE_ENUM Versifications
+
+public:
+	static TBibleVersificationList::size_type count()
+	{
+		Q_ASSERT(g_arrBibleVersifications.size() == BVTE_COUNT);
+		return g_arrBibleVersifications.size();
+	}
+	static QString name(BIBLE_VERSIFICATION_TYPE_ENUM nVersificationType)
+	{
+		Q_ASSERT((nVersificationType >= 0) && (nVersificationType < count()));
+		return g_arrBibleVersifications.at(nVersificationType);
+	}
+
+private:
+	static const TBibleVersificationList g_arrBibleVersifications;
+};
 
 // ============================================================================
 
 // Testaments:
-typedef QStringList TBibleTestamentNameList;
-extern const TBibleTestamentNameList g_arrBibleTestamentNames;
+// QObject namespace for Bible Testament Translation Context:
+class CBibleTestaments : public QObject
+{
+	Q_OBJECT
+	typedef QStringList TBibleTestamentNameList;
 
-extern QString translatedBibleTestamentName(unsigned int nTst);
+public:
+	static TBibleTestamentNameList::size_type count()
+	{
+		Q_ASSERT(g_arrBibleTestamentNames.size() == NUM_TST);
+		return g_arrBibleTestamentNames.size();
+	}
+	static QString name(TBibleTestamentNameList::size_type nTst)
+	{
+		if ((nTst < 1) || (nTst > static_cast<unsigned int>(g_arrBibleTestamentNames.size()))) return QString();
+		return g_arrBibleTestamentNames.at(nTst-1);			// NOTE: Unlike Enum variants, nTst is the 1-based Testament Index!
+	}
+
+private:
+	static const TBibleTestamentNameList g_arrBibleTestamentNames;
+};
 
 // ============================================================================
 
@@ -138,10 +120,31 @@ extern QString translatedBibleTestamentName(unsigned int nTst);
 enum BIBLE_BOOK_CATEGORY_GROUP_ENUM {		// Note: This list cannot change without breaking settings
 	BBCGE_KJV = 0,							// KJV Standard Book Groups
 	BBCGE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Book Groups
+	// ----
+	BBCGE_COUNT
 };
 
-typedef QStringList TBibleBookCategoryGroupList;	// List of BIBLE_BOOK_CATEGORY_GROUP_ENUM Groups
-extern const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups;
+// QObject namespace for Bible Book Category Groups Translation Context:
+class CBibleBookCategoryGroups : public QObject
+{
+	Q_OBJECT
+	typedef QStringList TBibleBookCategoryGroupList;	// List of BIBLE_BOOK_CATEGORY_GROUP_ENUM Groups
+
+public:
+	static TBibleBookCategoryGroupList::size_type count()
+	{
+		Q_ASSERT(g_arrBibleBookCategoryGroups.size() == BBCGE_COUNT);
+		return g_arrBibleBookCategoryGroups.size();
+	}
+	static QString name(BIBLE_BOOK_CATEGORY_GROUP_ENUM nCatGroup)
+	{
+		Q_ASSERT((nCatGroup >= 0) && (nCatGroup < count()));
+		return g_arrBibleBookCategoryGroups.at(nCatGroup);
+	}
+
+private:
+	static const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups;
+};
 
 // ============================================================================
 
@@ -166,12 +169,60 @@ enum BIBLE_BOOK_CATEGORIES_ENUM {
 	BBCE_COUNT
 };
 
-typedef QStringList TBibleBookCategoryList;		// List of BIBLE_BOOK_CATEGORIES_ENUM Categories
-extern const TBibleBookCategoryList g_arrBibleBookCategories;
+// QObject namespace for Bible Book Category Translation Context:
+class CBibleBookCategories : public QObject
+{
+	Q_OBJECT
+	typedef QStringList TBibleBookCategoryList;		// List of BIBLE_BOOK_CATEGORIES_ENUM Categories
+public:
+	static TBibleBookCategoryList::size_type count()
+	{
+		Q_ASSERT(g_arrBibleBookCategories.size() == BBCE_COUNT);
+		return g_arrBibleBookCategories.size();
+	}
+	static QString name(BIBLE_BOOK_CATEGORIES_ENUM nCat)
+	{
+		Q_ASSERT((nCat >= 0) && (nCat < count()));
+		return g_arrBibleBookCategories.at(nCat);
+	}
+
+private:
+	static const TBibleBookCategoryList g_arrBibleBookCategories;
+};
 
 typedef QMap<QString, BIBLE_BOOK_CATEGORIES_ENUM> TBibleBookCategoryMap;	// Mapping of OSIS ID to Category
 extern const TBibleBookCategoryMap g_mapKJVBookCategories;					// BBCGE_KJV
 extern const TBibleBookCategoryMap g_mapHebrewMasoreticBookCategories;		// BBCGE_HEBREW_MASORETIC
+
+// ============================================================================
+// ============================================================================
+
+//
+// Everything below this point is only for external CLI tools, like
+//	KJVDataParse for creating databases and parsing external files!
+//
+
+// QObject namespace for Bible Book Names Translation Context:
+class CBibleBookNames : public QObject
+{
+	Q_OBJECT
+};
+
+// ============================================================================
+
+// QObject namespace for Bible Book Abbreviations Translation Context:
+class CBibleBookAbbr : public QObject
+{
+	Q_OBJECT
+};
+
+// ============================================================================
+
+// QObject namespace for Bible Book Description Translation Context:
+class CBibleBookDescription : public QObject
+{
+	Q_OBJECT
+};
 
 // ============================================================================
 

@@ -871,7 +871,7 @@ void CBrowserWidget::setBook(const CRelIndex &ndx)
 	const CBookEntry &book = *m_pBibleDatabase->bookEntry(m_ndxCurrent.book());
 
 	unsigned int nTst = book.m_nTstNdx;
-	QString strTemp = translatedBibleTestamentName(nTst);
+	QString strTemp = CBibleTestaments::name(nTst);
 	if (strTemp.isEmpty()) strTemp = m_pBibleDatabase->testamentEntry(nTst)->m_strTstName;
 	ui.lblTestament->setText(strTemp + ":");
 

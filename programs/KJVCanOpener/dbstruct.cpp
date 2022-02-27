@@ -1359,7 +1359,7 @@ uint32_t CBibleDatabase::testament(const CRelIndex &nRelIndex) const
 
 QString CBibleDatabase::bookCategoryName(const CRelIndex &nRelIndex) const
 {
-	return g_arrBibleBookCategories.at(bookCategory(nRelIndex));
+	return CBibleBookCategories::name(bookCategory(nRelIndex));
 }
 
 BIBLE_BOOK_CATEGORIES_ENUM CBibleDatabase::bookCategory(const CRelIndex &nRelIndex) const
@@ -1381,6 +1381,8 @@ BIBLE_BOOK_CATEGORIES_ENUM CBibleDatabase::bookCategory(const CRelIndex &nRelInd
 			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory.value();
 			break;
 		}
+		default:
+			break;
 	};
 
 	return BBCE_UNKNOWN;
@@ -1459,7 +1461,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		if (Bk.ofTestament().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Bk.ofTestament().first).arg(Bk.ofTestament().second).arg(
 							/* testamentName(nRelIndex) */
-							translatedBibleTestamentName(testament(nRelIndex))
+							CBibleTestaments::name(testament(nRelIndex))
 						) + "\n";
 		}
 	}
@@ -1476,7 +1478,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		if (Chp.ofTestament().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Chp.ofTestament().first).arg(Chp.ofTestament().second).arg(
 							/* testamentName(nRelIndex) */
-							translatedBibleTestamentName(testament(nRelIndex))
+							CBibleTestaments::name(testament(nRelIndex))
 						) + "\n";
 		}
 		if (Chp.ofBook().first != 0) {
@@ -1497,7 +1499,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		if (Vrs.ofTestament().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Vrs.ofTestament().first).arg(Vrs.ofTestament().second).arg(
 							/* testamentName(nRelIndex) */
-							translatedBibleTestamentName(testament(nRelIndex))
+							CBibleTestaments::name(testament(nRelIndex))
 						) + "\n";
 		}
 		if (Vrs.ofBook().first != 0) {
@@ -1522,7 +1524,7 @@ QString CBibleDatabase::SearchResultToolTip(const CRelIndex &nRelIndex, unsigned
 		if (Wrd.ofTestament().first != 0) {
 			strTemp += "    " + QObject::tr("%1 of %2 of %3", "Statistics").arg(Wrd.ofTestament().first).arg(Wrd.ofTestament().second).arg(
 							/* testamentName(nRelIndex) */
-							translatedBibleTestamentName(testament(nRelIndex))
+							CBibleTestaments::name(testament(nRelIndex))
 						) + "\n";
 		}
 		if (Wrd.ofBook().first != 0) {

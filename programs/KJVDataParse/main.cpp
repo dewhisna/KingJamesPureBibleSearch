@@ -1220,7 +1220,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				// note: nBk is index into array, not book number:
 				nTst = bookIndexToTestamentIndex(nBk+1);
 				while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
-					CTestamentEntry aTestament(g_arrBibleTestamentNames.at(m_pBibleDatabase->m_lstTestaments.size()));
+					CTestamentEntry aTestament(CBibleTestaments::name(m_pBibleDatabase->m_lstTestaments.size()+1));
 					m_pBibleDatabase->m_EntireBible.m_nNumTst++;
 					m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
 					std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
@@ -2988,14 +2988,14 @@ int main(int argc, char *argv[])
 	unsigned int arrTotalBookWordCounts[NUM_BK];
 	memset(arrTotalBookWordCounts, 0, sizeof(arrTotalBookWordCounts));
 
-	bool bHaveApoc = (pBibleDatabase->bibleEntry().m_nNumBk > (NUM_BK_OT + NUM_BK_NT));
+	bool bHaveApoc = (pBibleDatabase->bibleEntry().m_nNumBk > (NUM_BK_OT_NT));
 	unsigned int nRepTst = (bHaveApoc ? NUM_TST : (NUM_TST-1));
-	unsigned int nRepBk = (bHaveApoc ? NUM_BK : (NUM_BK_OT + NUM_BK_NT));
+	unsigned int nRepBk = (bHaveApoc ? NUM_BK : (NUM_BK_OT_NT));
 
 	fileWordSummary.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
 	fileWordSummary.write(QString("\"Word\",\"AltWords\",\"Entire\nBible\"").toUtf8());
 	for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
-		QString strTemp = g_arrBibleTestamentNames.at(nTst);
+		QString strTemp = CBibleTestaments::name(nTst+1);
 		strTemp.replace(' ', '\n');
 		fileWordSummary.write(QString(",\"%1\"").arg(strTemp).toUtf8());
 	}

@@ -358,12 +358,12 @@ QVariant CSearchWithinModel::data(const CSearchWithinModelIndex *pSearchWithinMo
 					Q_ASSERT(m_pBibleDatabase->testamentEntry(nItem) != nullptr);
 					return m_pBibleDatabase->testamentEntry(nItem)->m_strTstName;
 				} else {
-					return translatedBibleTestamentName(nItem);
+					return CBibleTestaments::name(nItem);
 				}
 			}
 			case CSearchCriteria::SSME_CATEGORY:
 				Q_ASSERT(nItem < BBCE_COUNT);
-				return g_arrBibleBookCategories.at(nItem);
+				return CBibleBookCategories::name(static_cast<BIBLE_BOOK_CATEGORIES_ENUM>(nItem));
 			case CSearchCriteria::SSME_BOOK:
 			{
 				const CBookEntry *pBookEntry = m_pBibleDatabase->bookEntry(nItem);

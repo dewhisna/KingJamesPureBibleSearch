@@ -27,7 +27,7 @@
 
 // ============================================================================
 
-const TBibleVersificationList g_arrBibleVersifications =
+const CBibleVersifications::TBibleVersificationList CBibleVersifications::g_arrBibleVersifications =
 {
 	CBibleVersifications::tr("King James"),
 	CBibleVersifications::tr("Hebrew Masoretic"),
@@ -35,22 +35,16 @@ const TBibleVersificationList g_arrBibleVersifications =
 
 // ============================================================================
 
-const TBibleTestamentNameList g_arrBibleTestamentNames =
+const CBibleTestaments::TBibleTestamentNameList CBibleTestaments::g_arrBibleTestamentNames =
 {
 	CBibleTestaments::tr("Old Testament"),
 	CBibleTestaments::tr("New Testament"),
 	CBibleTestaments::tr("Apocrypha/Deuterocanon"),
 };
 
-QString translatedBibleTestamentName(unsigned int nTst)
-{
-	if ((nTst < 1) || (nTst > static_cast<unsigned int>(g_arrBibleTestamentNames.size()))) return QString();
-	return g_arrBibleTestamentNames.at(nTst-1);
-}
-
 // ============================================================================
 
-const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups =
+const CBibleBookCategoryGroups::TBibleBookCategoryGroupList CBibleBookCategoryGroups::g_arrBibleBookCategoryGroups =
 {
 	CBibleBookCategoryGroups::tr("King James"),
 	CBibleBookCategoryGroups::tr("Hebrew Masoretic"),
@@ -58,7 +52,7 @@ const TBibleBookCategoryGroupList g_arrBibleBookCategoryGroups =
 
 // ============================================================================
 
-const TBibleBookCategoryList g_arrBibleBookCategories =
+const CBibleBookCategories::TBibleBookCategoryList CBibleBookCategories::g_arrBibleBookCategories =
 {
 	CBibleBookCategories::tr("Unknown/Undefined"),
 	CBibleBookCategories::tr("Law"),					// Torah
@@ -222,6 +216,12 @@ const TBibleBookCategoryMap g_mapHebrewMasoreticBookCategories =
 };
 
 // ============================================================================
+// ============================================================================
+
+//
+// Everything below this point is only for external CLI tools, like
+//	KJVDataParse for creating databases and parsing external files!
+//
 
 const TBibleBookList g_arrBibleBooks =
 {

@@ -1117,13 +1117,13 @@ CConfigBibleDatabase::CConfigBibleDatabase(QWidget *parent)
 	ui.comboBoxHyphenHideMode->addItem(tr("Both", "HyphenModes"), (TBibleDatabaseSettings::HHO_ProperWords | TBibleDatabaseSettings::HHO_OrdinaryWords));
 
 	ui.comboBoxVersification->clear();
-	for (int ndx = 0; ndx < g_arrBibleVersifications.size(); ++ndx) {
-		ui.comboBoxVersification->addItem(g_arrBibleVersifications.at(ndx), ndx);
+	for (int ndx = 0; ndx < CBibleVersifications::count(); ++ndx) {
+		ui.comboBoxVersification->addItem(CBibleVersifications::name(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(ndx)), ndx);
 	}
 
 	ui.comboBoxCategoryGroup->clear();
-	for (int ndx = 0; ndx < g_arrBibleBookCategoryGroups.size(); ++ndx) {
-		ui.comboBoxCategoryGroup->addItem(g_arrBibleBookCategoryGroups.at(ndx), ndx);
+	for (int ndx = 0; ndx < CBibleBookCategoryGroups::count(); ++ndx) {
+		ui.comboBoxCategoryGroup->addItem(CBibleBookCategoryGroups::name(static_cast<BIBLE_BOOK_CATEGORY_GROUP_ENUM>(ndx)), ndx);
 	}
 
 	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
