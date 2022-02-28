@@ -889,7 +889,7 @@ static int bookIndexFromOSISAbbr(const QString &strOSISAbbr)
 
 static CRelIndex bookStartingChapterVerse(unsigned int nBk)
 {
-	Q_ASSERT(nBk < g_arrBibleBooks.size());
+	Q_ASSERT(nBk < static_cast<unsigned int>(g_arrBibleBooks.size()));
 	CRelIndex ndxStartingChapterVerse = CRelIndex(g_arrBibleBooks.at(nBk).m_ndxStartingChapterVerse);
 	if (ndxStartingChapterVerse.isSet()) {
 		// Book and Word must be zero for the KJVDataParse logic

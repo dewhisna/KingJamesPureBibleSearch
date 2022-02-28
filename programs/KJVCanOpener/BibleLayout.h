@@ -106,7 +106,7 @@ public:
 	}
 	static QString name(TBibleTestamentNameList::size_type nTst)
 	{
-		if ((nTst < 1) || (nTst > static_cast<unsigned int>(g_arrBibleTestamentNames.size()))) return QString();
+		if ((nTst < 1) || (nTst > static_cast<TBibleTestamentNameList::size_type>(g_arrBibleTestamentNames.size()))) return QString();
 		return g_arrBibleTestamentNames.at(nTst-1);			// NOTE: Unlike Enum variants, nTst is the 1-based Testament Index!
 	}
 
