@@ -3188,6 +3188,7 @@ CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
 			if (index.isSet()) indexScoped = CRelIndex(1, 0, 0, 0);
 			break;
 		case (CSearchCriteria::SSME_TESTAMENT):
+		case (CSearchCriteria::SSME_CATEGORY):		// SSME_CATEGORY is deprecated -- devolve it to SSME_TESTAMENT
 			// For Testament, set the Book to the 1st Book of the corresponding Testament:
 			if (index.book()) {
 				if (index.book() <= m_pBibleDatabase->bibleEntry().m_nNumBk) {
@@ -3197,21 +3198,6 @@ CRelIndex CSearchResultsProcess::ScopeIndex(const CRelIndex &index)
 					for (unsigned int i=1; i<nTestament; ++i)
 						nBook += m_pBibleDatabase->testamentEntry(i)->m_nNumBk;
 					indexScoped = CRelIndex(nBook, 0, 0 ,0);
-				}
-			}
-			break;
-		case (CSearchCriteria::SSME_CATEGORY):
-			// For Category, set the Book to the 1st Book of the corresponding Category:
-			if (index.book()) {
-				BIBLE_BOOK_CATEGORIES_ENUM nCat = m_pBibleDatabase->bookCategory(index);
-				if (nCat != BBCE_UNKNOWN) {
-					// Get first book of the category for the scope:
-					for (unsigned int ndxBk=1; ndxBk<=m_pBibleDatabase->bibleEntry().m_nNumBk; ++ndxBk) {
-						if (m_pBibleDatabase->bookCategory(CRelIndex(ndxBk, 0, 0, 0)) == nCat) {
-							indexScoped = CRelIndex(ndxBk, 0, 0, 0);
-							break;
-						}
-					}
 				}
 			}
 			break;

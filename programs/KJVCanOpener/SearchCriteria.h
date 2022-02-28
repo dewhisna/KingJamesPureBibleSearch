@@ -39,7 +39,7 @@
 
 // Set these to the minimum and maximum Search Scope Modes (used for limits bounds checking)
 #define SSME_MINIMUM CSearchCriteria::SSME_UNSCOPED
-#define SSME_MAXIMUM CSearchCriteria::SSME_CATEGORY
+#define SSME_MAXIMUM CSearchCriteria::SSME_VERSE
 
 class CSearchCriteria
 {
@@ -53,7 +53,7 @@ public:
 		SSME_BOOK = 2,
 		SSME_CHAPTER = 3,
 		SSME_VERSE = 4,
-		SSME_CATEGORY = 5,
+		SSME_CATEGORY = 5,					// Scoping to Category is now deprecated and will devolve to SSME_TESTAMENT
 		SSME_COLOPHON = 6,
 		SSME_SUPERSCRIPTION = 7
 	};

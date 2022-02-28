@@ -197,8 +197,14 @@ void CSearchSpecWidget::readKJVSearchFile(QSettings &kjsFile, const QString &str
 	nSearchScope = static_cast<CSearchCriteria::SEARCH_SCOPE_MODE_ENUM>(kjsFile.value("SearchScope", CSearchCriteria::SSME_UNSCOPED).toInt());
 	strSearchWithin = kjsFile.value("SearchWithin", QString()).toString();
 	if ((nSearchScope < SSME_MINIMUM) ||
-		(nSearchScope > SSME_MAXIMUM))
-		nSearchScope = CSearchCriteria::SSME_UNSCOPED;
+		(nSearchScope > SSME_MAXIMUM)) {
+		if (nSearchScope == CSearchCriteria::SSME_CATEGORY) {
+			// SSME_CATEGORY is deprecated, devolve it to SSME_TESTAMENT:
+			nSearchScope = CSearchCriteria::SSME_TESTAMENT;
+		} else {
+			nSearchScope = CSearchCriteria::SSME_UNSCOPED;
+		}
+	}
 	kjsFile.endGroup();
 
 	ui.widgetSearchCriteria->setSearchScopeMode(nSearchScope);

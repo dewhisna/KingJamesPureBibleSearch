@@ -41,7 +41,6 @@ CSearchCriteriaWidget::CSearchCriteriaWidget(QWidget *parent) :
 	ui.comboSearchScope->addItem(tr("Anywhere in Selected Search Text (Unscoped)", "ScopeMenu"), CSearchCriteria::SSME_UNSCOPED);
 	ui.comboSearchScope->addItem(tr("Together in Selected Search Text", "ScopeMenu"), CSearchCriteria::SSME_WHOLE_BIBLE);
 	ui.comboSearchScope->addItem(tr("Same Testament", "ScopeMenu"), CSearchCriteria::SSME_TESTAMENT);
-	ui.comboSearchScope->addItem(tr("Same Category", "ScopeMenu"), CSearchCriteria::SSME_CATEGORY);
 	ui.comboSearchScope->addItem(tr("Same Book", "ScopeMenu"), CSearchCriteria::SSME_BOOK);
 	ui.comboSearchScope->addItem(tr("Same Chapter", "ScopeMenu"), CSearchCriteria::SSME_CHAPTER);
 	ui.comboSearchScope->addItem(tr("Same Verse", "ScopeMenu"), CSearchCriteria::SSME_VERSE);
