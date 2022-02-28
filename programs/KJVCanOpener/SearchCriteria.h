@@ -210,7 +210,7 @@ public:
 	}
 	int childIndexCount() const { return m_lstChildren.size(); }
 	const CSearchWithinModelIndex *childIndex(int ndx) const { return m_lstChildren.at(ndx); }
-	int indexOfChild(const CSearchWithinModelIndex *pChild) const { return m_lstChildren.indexOf(pChild); }
+	int indexOfChild(const CSearchWithinModelIndex *pChild) const { return m_lstChildren.indexOf(const_cast<CSearchWithinModelIndex *>(pChild)); }		// const_cast required here for Qt4 Compat!
 	Qt::CheckState checkState() const
 	{
 		if (m_lstChildren.size() == 0) return (m_bChecked ? Qt::Checked : Qt::Unchecked);

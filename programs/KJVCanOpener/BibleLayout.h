@@ -26,9 +26,9 @@
 
 #include <QObject>
 #include <QList>
-#include <QMap>
 #include <QString>
 #include <QStringList>
+#include <map>
 
 // ============================================================================
 
@@ -190,9 +190,11 @@ private:
 	static const TBibleBookCategoryList g_arrBibleBookCategories;
 };
 
-typedef QMap<QString, BIBLE_BOOK_CATEGORIES_ENUM> TBibleBookCategoryMap;	// Mapping of OSIS ID to Category
-extern const TBibleBookCategoryMap g_mapKJVBookCategories;					// BBCGE_KJV
-extern const TBibleBookCategoryMap g_mapHebrewMasoreticBookCategories;		// BBCGE_HEBREW_MASORETIC
+// Use std::map here instead of QMap so we can use bracket-initializers
+//	in .cpp and support Qt4:
+typedef std::map<QString, BIBLE_BOOK_CATEGORIES_ENUM> TBibleBookCategoryMap;	// Mapping of OSIS ID to Category
+extern const TBibleBookCategoryMap g_mapKJVBookCategories;						// BBCGE_KJV
+extern const TBibleBookCategoryMap g_mapHebrewMasoreticBookCategories;			// BBCGE_HEBREW_MASORETIC
 
 // ============================================================================
 // ============================================================================

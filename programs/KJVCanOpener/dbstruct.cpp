@@ -1370,15 +1370,15 @@ BIBLE_BOOK_CATEGORIES_ENUM CBibleDatabase::bookCategory(const CRelIndex &nRelInd
 		case BBCGE_KJV:
 		{
 			TBibleBookCategoryMap::const_iterator itrCategory = g_mapKJVBookCategories.find(strOSIS);
-			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory.value();
+			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory->second;
 			break;
 		}
 		case BBCGE_HEBREW_MASORETIC:
 		{
 			TBibleBookCategoryMap::const_iterator itrCategory = g_mapHebrewMasoreticBookCategories.find(strOSIS);
-			if (itrCategory != g_mapHebrewMasoreticBookCategories.cend()) return itrCategory.value();
+			if (itrCategory != g_mapHebrewMasoreticBookCategories.cend()) return itrCategory->second;
 			itrCategory = g_mapKJVBookCategories.find(strOSIS);			// Fallback to KJV
-			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory.value();
+			if (itrCategory != g_mapKJVBookCategories.cend()) return itrCategory->second;
 			break;
 		}
 		default:
