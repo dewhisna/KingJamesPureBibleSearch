@@ -210,6 +210,13 @@ void CWebChannelSearchResults::setSearchPhrases(const QString &strPhrases, const
 
 void CWebChannelSearchResults::internal_setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope)
 {
+	// Safeguard to make sure scoping is correct or we
+	//	will assert in CVerseListModel:
+	if ((nSearchScope < SSME_MINIMUM) ||
+		(nSearchScope > SSME_MAXIMUM)) {
+		nSearchScope = CSearchCriteria::SSME_UNSCOPED;
+	}
+
 	bool bSameSearch = ((m_strLastPhrases == strPhrases) && (m_strLastSearchWithin == strSearchWithin) && (m_nLastSearchScope == nSearchScope));
 	m_strLastPhrases = strPhrases;
 	m_strLastSearchWithin = strSearchWithin;
