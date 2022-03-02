@@ -1459,7 +1459,7 @@ public:
 
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
 	{
-		return m_EntireBible;
+		return m_itrCurrentLayout->m_EntireBible;
 	}
 	const CTestamentEntry *testamentEntry(uint32_t nTst) const;			// Testament stats/data entry
 	const CBookEntry *bookEntry(uint32_t nBk) const;					// Book Data or Table of Contents [Book]
@@ -1536,11 +1536,17 @@ private:
 	friend class COSISXmlHandler;			// COSISXmlHandler - Used by KJVDataParse for OSIS XML File processing to build KJPBS databases
 
 // Main Database Data:
-	CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
-	TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
-	TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
-	TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
-	TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[nBk | nChp | nVrs | 0])
+	struct TVersificationLayout {
+		CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
+		TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
+		TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
+		TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
+		TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[nBk | nChp | nVrs | 0])
+	};
+	typedef QMap<BIBLE_VERSIFICATION_TYPE_ENUM, TVersificationLayout> TVersificationLayoutMap;
+	TVersificationLayoutMap m_mapVersificationLayouts;		// We will always have a main KJV versification.  Others are optional and dependent on specific Bible database
+	TVersificationLayoutMap::iterator m_itrCurrentLayout;	// Currently active versification layout for this database. This will always be a valid enumerator. It's not const so that ReadDB and KJVDataParse don't have to be special-cased (and it's private anyway)
+
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList
 	bool m_bSearchSpaceIsCompleteConcordance;	// True if all of the words in the concordance list are searchable (i.e. there are no words with renderings that aren't searchable -- like cantillation marks).  This is used to speed things up and reduce memory usage when the space is the same.

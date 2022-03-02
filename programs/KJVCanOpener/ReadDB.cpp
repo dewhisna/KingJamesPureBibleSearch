@@ -447,7 +447,7 @@ bool CReadDatabase::ReadTestamentTable()
 
 	if (!dbParser.findTable("TESTAMENT")) return false;
 
-	m_pBibleDatabase->m_lstTestaments.clear();
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.clear();
 
 	dbParser.startQueryLoop("TstNdx, TstName");
 
@@ -456,8 +456,8 @@ bool CReadDatabase::ReadTestamentTable()
 		if (!dbParser.readNextRecord(lstFields, 2)) return false;
 
 		unsigned int nTstNdx = lstFields.at(0).toUInt();
-		if (nTstNdx > m_pBibleDatabase->m_lstTestaments.size()) m_pBibleDatabase->m_lstTestaments.resize(nTstNdx);
-		CTestamentEntry &entryTestament = m_pBibleDatabase->m_lstTestaments[nTstNdx-1];
+		if (nTstNdx > m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size()) m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.resize(nTstNdx);
+		CTestamentEntry &entryTestament = m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[nTstNdx-1];
 		entryTestament.m_strTstName = lstFields.at(1);
 	}
 
@@ -480,9 +480,9 @@ bool CReadDatabase::ReadBooksTable()
 
 	if (!dbParser.findTable("TOC")) return false;
 
-	m_pBibleDatabase->m_EntireBible = CBibleEntry();		// Clear out the main Bible entry, just in case we're being called a second time
-	m_pBibleDatabase->m_EntireBible.m_nNumTst = m_pBibleDatabase->m_lstTestaments.size();
-	m_pBibleDatabase->m_lstBooks.clear();
+	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible = CBibleEntry();		// Clear out the main Bible entry, just in case we're being called a second time
+	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumTst = m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size();
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.clear();
 
 	dbParser.startQueryLoop("BkNdx, TstBkNdx, TstNdx, BkName, BkAbbr, TblName, NumChp, NumVrs, NumWrd, Cat, Desc");
 
@@ -492,8 +492,8 @@ bool CReadDatabase::ReadBooksTable()
 
 		unsigned int nBkNdx = lstFields.at(0).toUInt();
 		if (nBkNdx == 0) continue;
-		if (nBkNdx > m_pBibleDatabase->m_lstBooks.size()) m_pBibleDatabase->m_lstBooks.resize(nBkNdx);
-		CBookEntry &entryBook = m_pBibleDatabase->m_lstBooks[nBkNdx-1];
+		if (nBkNdx > m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size()) m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.resize(nBkNdx);
+		CBookEntry &entryBook = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkNdx-1];
 		entryBook.m_nTstBkNdx = lstFields.at(1).toUInt();
 		entryBook.m_nTstNdx = lstFields.at(2).toUInt();
 		entryBook.m_strBkName = lstFields.at(3);
@@ -505,15 +505,15 @@ bool CReadDatabase::ReadBooksTable()
 		//QString strCategory = lstFields.at(9);		// Category is now deprecated and ignored
 		entryBook.m_strDesc = lstFields.at(10);
 
-		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumBk++;
-		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumChp += entryBook.m_nNumChp;
-		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumVrs += entryBook.m_nNumVrs;
-		m_pBibleDatabase->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumWrd += entryBook.m_nNumWrd;
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumBk++;
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumChp += entryBook.m_nNumChp;
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumVrs += entryBook.m_nNumVrs;
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[entryBook.m_nTstNdx-1].m_nNumWrd += entryBook.m_nNumWrd;
 
-		m_pBibleDatabase->m_EntireBible.m_nNumBk++;
-		m_pBibleDatabase->m_EntireBible.m_nNumChp += entryBook.m_nNumChp;
-		m_pBibleDatabase->m_EntireBible.m_nNumVrs += entryBook.m_nNumVrs;
-		m_pBibleDatabase->m_EntireBible.m_nNumWrd += entryBook.m_nNumWrd;
+		m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumBk++;
+		m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumChp += entryBook.m_nNumChp;
+		m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumVrs += entryBook.m_nNumVrs;
+		m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumWrd += entryBook.m_nNumWrd;
 	}
 
 	dbParser.endQueryLoop();
@@ -521,9 +521,9 @@ bool CReadDatabase::ReadBooksTable()
 	// Calculate accumulated quick indexes.  Do this here in a separate loop in case database
 	//		came to us out of order:
 	unsigned int nWrdAccum = 0;
-	for (unsigned int nBk = 0; nBk < m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
-		m_pBibleDatabase->m_lstBooks[nBk].m_nWrdAccum = nWrdAccum;
-		nWrdAccum += m_pBibleDatabase->m_lstBooks[nBk].m_nNumWrd;
+	for (unsigned int nBk = 0; nBk < m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size(); ++nBk) {
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_nWrdAccum = nWrdAccum;
+		nWrdAccum += m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_nNumWrd;
 	}
 
 	Q_ASSERT(nWrdAccum == m_pBibleDatabase->bibleEntry().m_nNumWrd);		// Our quick indexes should match the count of the Bible as a whole
@@ -533,9 +533,9 @@ bool CReadDatabase::ReadBooksTable()
 	QFile fileTest("testit.txt");
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
-		for (TBookList::const_iterator itr = m_pBibleDatabase->m_lstBooks.begin(); itr != m_pBibleDatabase->m_lstBooks.end(); ++itr) {
-			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(itr->m_strBkName).arg(itr->m_lstBkAbbr.join(";"))
-									.arg(itr->m_strTblName).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(itr->m_strCat).arg(itr->m_strDesc);
+		for (TBookList::const_iterator itr = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.begin(); itr != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.end(); ++itr) {
+			QString strTemp = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9\r\n").arg(itr->m_nTstBkNdx).arg(itr->m_nTstNdx).arg(itr->m_strBkName).arg(itr->m_lstBkAbbr.join(";"))
+									.arg(itr->m_strTblName).arg(itr->m_nNumChp).arg(itr->m_nNumVrs).arg(itr->m_nNumWrd).arg(itr->m_strDesc);
 			ts << strTemp;
 		}
 		fileTest.close();
@@ -559,7 +559,7 @@ bool CReadDatabase::ReadChaptersTable()
 
 	if (!dbParser.findTable("LAYOUT")) return false;
 
-	m_pBibleDatabase->m_mapChapters.clear();
+	m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.clear();
 
 	dbParser.startQueryLoop("BkChpNdx, NumVrs, NumWrd, BkAbbr, ChNdx");
 
@@ -568,7 +568,7 @@ bool CReadDatabase::ReadChaptersTable()
 		if (!dbParser.readNextRecord(lstFields, 5)) return false;
 
 		uint32_t nBkChpNdx = lstFields.at(0).toUInt();
-		CChapterEntry &entryChapter = m_pBibleDatabase->m_mapChapters[CRelIndex(nBkChpNdx << 16)];
+		CChapterEntry &entryChapter = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[CRelIndex(nBkChpNdx << 16)];
 		entryChapter.m_nNumVrs = lstFields.at(1).toUInt();
 		entryChapter.m_nNumWrd = lstFields.at(2).toUInt();
 	}
@@ -580,7 +580,7 @@ bool CReadDatabase::ReadChaptersTable()
 	QFile fileTest("testit.txt");
 	if (fileTest.open(QIODevice::WriteOnly)) {
 		QTextStream ts(&fileTest);
-		for (TChapterMap::const_iterator itr = m_pBibleDatabase->m_mapChapters.begin(); itr != m_pBibleDatabase->m_mapChapters.end(); ++itr) {
+		for (TChapterMap::const_iterator itr = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.begin(); itr != m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end(); ++itr) {
 			QString strTemp = QString("%1,%2,%3\r\n").arg(itr->first.index()>>16).arg(itr->second.m_nNumVrs).arg(itr->second.m_nNumWrd);
 			ts << strTemp;
 		}
@@ -597,16 +597,16 @@ bool CReadDatabase::ReadVerseTables()
 
 	// Read the Book Verses tables:
 
-	Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() != 0);		// Must read BookEntries before BookVerses
+	Q_ASSERT(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size() != 0);		// Must read BookEntries before BookVerses
 
 	unsigned int nWrdAccum = 0;			// Accum by Verse
 	unsigned int nWrdAccum2 = 0;		// Accum by Chapter
 
-	m_pBibleDatabase->m_lstBookVerses.clear();
-	m_pBibleDatabase->m_lstBookVerses.resize(m_pBibleDatabase->m_lstBooks.size());
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.clear();
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.resize(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size());
 
-	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
-		CBookEntry &theBook = m_pBibleDatabase->m_lstBooks[nBk-1];
+	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size(); ++nBk) {
+		CBookEntry &theBook = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1];
 		if (theBook.m_strTblName.isEmpty()) continue;
 
 #ifndef NOT_USING_SQL
@@ -617,7 +617,7 @@ bool CReadDatabase::ReadVerseTables()
 
 		if (!dbParser.findTable(theBook.m_strTblName)) return false;
 
-		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
+		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 		mapVerses.clear();
 
 		dbParser.startQueryLoop("ChpVrsNdx, NumWrd, nPilcrow, PText, RText, TText");
@@ -639,7 +639,7 @@ bool CReadDatabase::ReadVerseTables()
 				if (ndxVerse.chapter() == 0) {
 					theBook.m_bHaveColophon = true;
 				} else {
-					CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxVerse];
+					CChapterEntry &theChapter = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[ndxVerse];
 					theChapter.m_bHaveSuperscription = true;
 				}
 			}
@@ -661,7 +661,7 @@ bool CReadDatabase::ReadVerseTables()
 		for (unsigned int nChp = 1; nChp <= theBook.m_nNumChp; ++nChp) {
 			unsigned int nWrdAccum3 = 0;		// Accum by Verse for each chapter
 			CRelIndex ndxChapter(nBk, nChp, 0, 0);
-			CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxChapter];
+			CChapterEntry &theChapter = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[ndxChapter];
 			theChapter.m_nWrdAccum = nWrdAccum;
 			nWrdAccum2 += theChapter.m_nNumWrd;		// Note: nWrdAccum gets updated below by verses, nWrdAccum2 gets updated here by chapter, except for colophons, which are handled above by book!
 			if (theChapter.m_bHaveSuperscription) {
@@ -725,8 +725,8 @@ bool CReadDatabase::ReadWordsTable()
 	if (!dbParser.findTable("WORDS")) return false;
 
 	unsigned int nNumWordsInText = 0;
-	for (unsigned int ndxBook=0; ndxBook<m_pBibleDatabase->m_lstBooks.size(); ++ndxBook) {
-		nNumWordsInText += m_pBibleDatabase->m_lstBooks[ndxBook].m_nNumWrd;
+	for (unsigned int ndxBook=0; ndxBook<m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size(); ++ndxBook) {
+		nNumWordsInText += m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[ndxBook].m_nNumWrd;
 	}
 
 	m_pBibleDatabase->m_mapWordList.clear();
@@ -1133,16 +1133,16 @@ bool CReadDatabase::ValidateData()
 
 	unsigned int ncntWrd_Vrs = 0;	// Word count in current Verse
 
-	if (m_pBibleDatabase->m_lstBookVerses.size() != m_pBibleDatabase->m_lstBooks.size()) {
+	if (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.size() != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size()) {
 		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book List and Table of Contents have different sizes!\nCheck the database!", "ReadDB"));
 		return false;
 	}
 
-	ncntTstTot = m_pBibleDatabase->m_lstTestaments.size();
-	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_lstBooks.size(); ++nBk) {		// Books
-		if ((m_pBibleDatabase->m_lstBooks[nBk-1].m_nTstNdx < 1) || (m_pBibleDatabase->m_lstBooks[nBk-1].m_nTstNdx > ncntTstTot)) {
+	ncntTstTot = m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size();
+	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size(); ++nBk) {		// Books
+		if ((m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nTstNdx < 1) || (m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nTstNdx > ncntTstTot)) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) References Invalid Testament %3", "ReadDB")
-							.arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_nTstNdx));
+							.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nTstNdx));
 			return false;
 		}
 		ncntChp_Bk = 0;
@@ -1150,24 +1150,24 @@ bool CReadDatabase::ValidateData()
 		ncntWrd_Bk = 0;
 		ncntBkTot++;
 		// Colophons are part of the book's words, but not part of the chapter's:
-		if (m_pBibleDatabase->m_lstBooks[nBk-1].m_bHaveColophon) {
-			const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
+		if (m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_bHaveColophon) {
+			const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 			TVerseEntryMap::const_iterator itrBook = aBookVerses.find(CRelIndex(nBk,0,0,0));
 			if (itrBook != aBookVerses.end()) {
 				ncntWrdTot += itrBook->second.m_nNumWrd;
 				ncntWrd_Bk += itrBook->second.m_nNumWrd;
 			} // Should we assert on the else??
 		}
-		for (unsigned int nChp=1; nChp<=m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {	// Chapters
+		for (unsigned int nChp=1; nChp<=m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {	// Chapters
 			ncntVrs_Chp = 0;
 			ncntWrd_Chp = 0;
-			TChapterMap::const_iterator itrChapters = m_pBibleDatabase->m_mapChapters.find(CRelIndex(nBk,nChp,0,0));
-			if (itrChapters == m_pBibleDatabase->m_mapChapters.end()) continue;
+			TChapterMap::const_iterator itrChapters = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.find(CRelIndex(nBk,nChp,0,0));
+			if (itrChapters == m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end()) continue;
 			ncntChpTot++;
 			ncntChp_Bk++;
 			for (unsigned int nVrs=(itrChapters->second.m_bHaveSuperscription ? 0 : 1); nVrs<=itrChapters->second.m_nNumVrs; ++nVrs) {	// Verses
 				ncntWrd_Vrs = 0;
-				const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
+				const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 				TVerseEntryMap::const_iterator itrBook = aBookVerses.find(CRelIndex(nBk,nChp,nVrs,0));
 				if (itrBook == aBookVerses.end()) continue;
 				if (nVrs != 0) {
@@ -1182,28 +1182,28 @@ bool CReadDatabase::ValidateData()
 			}
 			if (ncntVrs_Chp != itrChapters->second.m_nNumVrs) {
 				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!", "ReadDB")
-								.arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(ncntVrs_Chp).arg(itrChapters->second.m_nNumVrs));
+								.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(ncntVrs_Chp).arg(itrChapters->second.m_nNumVrs));
 				return false;
 			}
 			if (ncntWrd_Chp != itrChapters->second.m_nNumWrd) {
 				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Words, expected %5 Words!", "ReadDB")
-								.arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(ncntWrd_Chp).arg(itrChapters->second.m_nNumWrd));
+								.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(ncntWrd_Chp).arg(itrChapters->second.m_nNumWrd));
 				return false;
 			}
 		}
-		if (ncntChp_Bk != m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp) {
+		if (ncntChp_Bk != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!", "ReadDB")
-							.arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntChp_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumChp));
+							.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntChp_Bk).arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp));
 			return false;
 		}
-		if (ncntVrs_Bk != m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumVrs) {
+		if (ncntVrs_Bk != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumVrs) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Verses, expected %4 Verses!", "ReadDB")
-							.arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntVrs_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumVrs));
+							.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntVrs_Bk).arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumVrs));
 			return false;
 		}
-		if (ncntWrd_Bk != m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumWrd) {
+		if (ncntWrd_Bk != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumWrd) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Words, expected %4 Words!", "ReadDB")
-							.arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntWrd_Bk).arg(m_pBibleDatabase->m_lstBooks[nBk-1].m_nNumWrd));
+							.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntWrd_Bk).arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumWrd));
 			return false;
 		}
 	}

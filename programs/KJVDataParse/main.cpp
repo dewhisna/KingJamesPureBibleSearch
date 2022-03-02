@@ -825,7 +825,7 @@ protected:
 	CVerseEntry &activeVerseEntry()
 	{
 		CRelIndex &ndxActive = activeVerseIndex();
-		return (m_pBibleDatabase->m_lstBookVerses[ndxActive.book()-1])[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)];
+		return (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[ndxActive.book()-1])[CRelIndex(ndxActive.book(), ndxActive.chapter(), ndxActive.verse(), 0)];
 	}
 
 private:
@@ -951,19 +951,19 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(unsigned int nBk)
 	// Make nBk 0-based to simplify:
 	--nBk;
 
-	m_pBibleDatabase->m_EntireBible.m_nNumBk++;
-	m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumBk++;
-	m_pBibleDatabase->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBooks.size())));
-	m_pBibleDatabase->m_lstBooks[nBk].m_nTstBkNdx = bookIndexToTestamentBookIndex(nBk+1);
-	m_pBibleDatabase->m_lstBooks[nBk].m_nTstNdx = nTst;
-	m_pBibleDatabase->m_lstBooks[nBk].m_strBkName = g_arrBibleBooks.at(nBk).m_strName;
-	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0));	// Our main OSIS abbreviation must always be the first entry!
-	m_pBibleDatabase->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
-	m_pBibleDatabase->m_lstBooks[nBk].m_strTblName = g_arrBibleBooks.at(nBk).m_strTableName;
-	m_pBibleDatabase->m_lstBooks[nBk].m_strDesc = g_arrBibleBooks.at(nBk).m_strDescription;
-	m_pBibleDatabase->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_lstBookVerses.size())));
+	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumBk++;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[nTst-1].m_nNumBk++;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size())));
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_nTstBkNdx = bookIndexToTestamentBookIndex(nBk+1);
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_nTstNdx = nTst;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_strBkName = g_arrBibleBooks.at(nBk).m_strName;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0));	// Our main OSIS abbreviation must always be the first entry!
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_lstBkAbbr.append(g_arrBibleBooks.at(nBk).m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_strTblName = g_arrBibleBooks.at(nBk).m_strTableName;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_strDesc = g_arrBibleBooks.at(nBk).m_strDescription;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.resize(qMax(static_cast<unsigned int>(nBk+1), static_cast<unsigned int>(m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.size())));
 
-	return &m_pBibleDatabase->m_lstBooks[nBk];
+	return &m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk];
 }
 
 bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts)
@@ -1160,7 +1160,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			} else {
 				// We can have nested Words of Jesus with open form:
 				if (m_bInWordsOfJesus) {
-					CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxColophon.book()-1])[CRelIndex(m_ndxColophon.book(), m_ndxColophon.chapter(), m_ndxColophon.verse(), 0)];
+					CVerseEntry &verse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[m_ndxColophon.book()-1])[CRelIndex(m_ndxColophon.book(), m_ndxColophon.chapter(), m_ndxColophon.verse(), 0)];
 					verse.m_strText += g_chrParseTag;
 					verse.m_lstParseStack.push_back("j:");
 				}
@@ -1219,10 +1219,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				std::cerr << "Book: " << g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0).toUtf8().data() << "\n";
 				// note: nBk is index into array, not book number:
 				nTst = bookIndexToTestamentIndex(nBk+1);
-				while (m_pBibleDatabase->m_lstTestaments.size() < nTst) {
-					CTestamentEntry aTestament(CBibleTestaments::name(m_pBibleDatabase->m_lstTestaments.size()+1));
-					m_pBibleDatabase->m_EntireBible.m_nNumTst++;
-					m_pBibleDatabase->m_lstTestaments.push_back(aTestament);
+				while (m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size() < nTst) {
+					CTestamentEntry aTestament(CBibleTestaments::name(m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size()+1));
+					m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumTst++;
+					m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.push_back(aTestament);
 					std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
 				}
 				if (m_xfteFormatType == XFTE_ZEFANIA) m_ndxCurrent.setBook(nBk+1);
@@ -1234,7 +1234,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			if (m_ndxCurrent.verse() == 0) {
 				std::cerr << "\n*** Pilcrow marker outside of verse at: " << m_pBibleDatabase->PassageReferenceText(m_ndxCurrent).toUtf8().data() << "\n";
 			} else {
-				CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+				CVerseEntry &verse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 				verse.m_nPilcrow = CVerseEntry::PTE_MARKER;
 			}
 		}
@@ -1300,22 +1300,22 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				nBk = m_ndxCurrent.book() - 1;		// Let nBk be our array index for our current book
 				std::cerr << "Book: " << g_arrBibleBooks.at(nBk).m_lstOsisAbbr.at(0).toUtf8().data() << " Chapter: " << QString("%1").arg(m_ndxCurrent.chapter()).toUtf8().data();
 				nTst = bookIndexToTestamentIndex(nBk+1);
-				m_pBibleDatabase->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
+				m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[m_ndxCurrent];			// Make sure the chapter entry is created, even though we have nothing to put in it yet
 				if (m_ndxCurrent.chapter() == bookStartingChapterVerse(nBk).chapter()) {
 					addBookToBibleDatabase(nBk+1);
 				}
-				Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(nBk));
+				Q_ASSERT(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size() > static_cast<unsigned int>(nBk));
 				if (m_ndxCurrent.chapter() == bookStartingChapterVerse(nBk).chapter()) {
 					for (CRelIndex ndxAddChp = CRelIndex(nBk+1, 1, 0, 0); ndxAddChp != m_ndxCurrent; ndxAddChp.setChapter(ndxAddChp.chapter()+1)) {
-						m_pBibleDatabase->m_mapChapters[ndxAddChp];			// Make sure the chapter entry is created for the empty chapters
+						m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[ndxAddChp];			// Make sure the chapter entry is created for the empty chapters
 					}
-					m_pBibleDatabase->m_EntireBible.m_nNumChp += bookStartingChapterVerse(nBk).chapter();
-					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp += bookStartingChapterVerse(nBk).chapter();
-					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp += bookStartingChapterVerse(nBk).chapter();
+					m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumChp += bookStartingChapterVerse(nBk).chapter();
+					m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[nTst-1].m_nNumChp += bookStartingChapterVerse(nBk).chapter();
+					m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_nNumChp += bookStartingChapterVerse(nBk).chapter();
 				} else {
-					m_pBibleDatabase->m_EntireBible.m_nNumChp++;
-					m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumChp++;
-					m_pBibleDatabase->m_lstBooks[nBk].m_nNumChp++;
+					m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumChp++;
+					m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[nTst-1].m_nNumChp++;
+					m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk].m_nNumChp++;
 				}
 			}
 		}
@@ -1330,7 +1330,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			m_bOpenEndedVerse = false;
 			// We can have nested Words of Jesus with open form:
 			if ((m_bInWordsOfJesus) && (m_bInVerse)) {
-				CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
+				CVerseEntry &verse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[m_ndxCurrent.book()-1])[CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0)];
 				verse.m_strText += g_chrParseTag;
 				verse.m_lstParseStack.push_back("j:");
 			}
@@ -1404,13 +1404,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					std::cerr << ".";
 				}
 
-				bool bPreExisted = ((m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1]).find(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0))
-										!= (m_pBibleDatabase->m_lstBookVerses[m_ndxCurrent.book()-1]).end());
+				bool bPreExisted = ((m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[m_ndxCurrent.book()-1]).find(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0))
+										!= (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[m_ndxCurrent.book()-1]).end());
 
 				if (CRelIndex(0, m_ndxCurrent.chapter(), m_ndxCurrent.verse(), 0) == bookStartingChapterVerse(m_ndxCurrent.book()-1)) {
 					for (CRelIndex ndxAddVrs = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 1, 0); ndxAddVrs != m_ndxCurrent; ndxAddVrs.setVerse(ndxAddVrs.verse()+1)) {
 						// Create all intentionally missing verses:
-						(m_pBibleDatabase->m_lstBookVerses[ndxAddVrs.book()-1])[CRelIndex(ndxAddVrs.book(), ndxAddVrs.chapter(), ndxAddVrs.verse(), 0)];
+						(m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[ndxAddVrs.book()-1])[CRelIndex(ndxAddVrs.book(), ndxAddVrs.chapter(), ndxAddVrs.verse(), 0)];
 					}
 				}
 
@@ -1853,9 +1853,9 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 		}
 	}
 
-	bool bPreExisted = ((m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1]).find(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0))
-							!= (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1]).end());
-	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
+	bool bPreExisted = ((m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1]).find(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0))
+							!= (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1]).end());
+	CVerseEntry &verse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 
 	if (m_nDelayedPilcrow != CVerseEntry::PTE_NONE) {
 		verse.m_nPilcrow = m_nDelayedPilcrow;
@@ -1916,12 +1916,12 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 			unsigned int nVerseOffset = 1;
 			unsigned int nTst = bookIndexToTestamentIndex(relIndex.book());
 			if (CRelIndex(0, relIndex.chapter(), relIndex.verse(), 0) == bookStartingChapterVerse(relIndex.book()-1)) nVerseOffset = bookStartingChapterVerse(relIndex.book()-1).verse();
-			m_pBibleDatabase->m_EntireBible.m_nNumVrs += nVerseOffset;
-			Q_ASSERT(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_lstTestaments.size());
-			m_pBibleDatabase->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
-			Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
-			m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_nNumVrs += nVerseOffset;
-			m_pBibleDatabase->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumVrs += nVerseOffset;
+			m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumVrs += nVerseOffset;
+			Q_ASSERT(static_cast<unsigned int>(nTst) <= m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size());
+			m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[nTst-1].m_nNumVrs += nVerseOffset;
+			Q_ASSERT(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
+			m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[relIndex.book()-1].m_nNumVrs += nVerseOffset;
+			m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumVrs += nVerseOffset;
 		}
 		if ((relIndex.book() == PSALMS_BOOK_NUM) && (relIndex.chapter() == 119) && (((relIndex.verse()-1)%8) == 0)) {
 			verse.m_strText += g_chrParseTag;
@@ -1930,12 +1930,12 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	}
 
 	if (nVT == VT_COLOPHON) {
-		Q_ASSERT(m_pBibleDatabase->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
-		m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_bHaveColophon = true;
+		Q_ASSERT(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size() > static_cast<unsigned int>(relIndex.book()-1));
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[relIndex.book()-1].m_bHaveColophon = true;
 	}
 
 	if (nVT == VT_SUPERSCRIPTION) {
-		m_pBibleDatabase->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_bHaveSuperscription = true;
+		m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_bHaveSuperscription = true;
 	}
 }
 
@@ -1968,7 +1968,7 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 
 	QString strTempText = strText;
 
-	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
+	CVerseEntry &verse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 
 	// Do bracket footnotes ahead of bracket colophons
 	if (m_bUseBracketFootnotes) {		// Note: Bracket-Footnotes will appear in normal verse text during parsing
@@ -2008,8 +2008,8 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 			if ((ndxStart = strTempText.indexOf(QChar('['))) != -1) {
 				ndxEnd = strTempText.mid(ndxStart+1).indexOf(QChar(']'));
 				if (!m_bNoColophonVerses) {
-					m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_bHaveColophon = true;
-					CVerseEntry &colophonVerse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), 0, 0, 0)];
+					m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[relIndex.book()-1].m_bHaveColophon = true;
+					CVerseEntry &colophonVerse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), 0, 0, 0)];
 					colophonVerse.m_strText += strTempText.mid(ndxStart+1).mid(0, ndxEnd);
 				}
 				m_ndxColophon = CRelIndex(relIndex.book(), 0, 0, 0);
@@ -2029,7 +2029,7 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 			}
 		} else if (m_bInColophon) {
 			int ndxEnd;
-			CVerseEntry &colophonVerse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[m_ndxColophon];
+			CVerseEntry &colophonVerse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1])[m_ndxColophon];
 			if ((ndxEnd = strTempText.indexOf(QChar(']'))) != -1) {
 				if (!m_bNoColophonVerses) {
 					colophonVerse.m_strText += strTempText.mid(0, ndxEnd);
@@ -2096,7 +2096,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 		}
 	}
 
-	CVerseEntry &verse = (m_pBibleDatabase->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
+	CVerseEntry &verse = (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[relIndex.book()-1])[CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), 0)];
 	QString strTemp = verse.m_strText;
 
 	if (m_bInBracketNotes) {
@@ -2355,11 +2355,11 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 	fncCompleteWord();
 
 	// Calculate counts for this verse for the database:
-	m_pBibleDatabase->m_EntireBible.m_nNumWrd += nWordCount;
-	m_pBibleDatabase->m_lstTestaments[m_pBibleDatabase->m_lstBooks.at(relIndex.book()-1).m_nTstNdx-1].m_nNumWrd += nWordCount;
-	m_pBibleDatabase->m_lstBooks[relIndex.book()-1].m_nNumWrd += nWordCount;
+	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumWrd += nWordCount;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.at(relIndex.book()-1).m_nTstNdx-1].m_nNumWrd += nWordCount;
+	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[relIndex.book()-1].m_nNumWrd += nWordCount;
 	if (relIndex.chapter() != 0) {
-		m_pBibleDatabase->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumWrd += nWordCount;
+		m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[CRelIndex(relIndex.book(), relIndex.chapter(), 0, 0)].m_nNumWrd += nWordCount;
 	}
 	verse.m_nNumWrd += nWordCount;
 	verse.m_lstWords.append(lstWords);

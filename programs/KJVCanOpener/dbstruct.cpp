@@ -1037,37 +1037,37 @@ uint32_t CBibleDatabase::NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) con
 
 	// Add the number of words for all books prior to the target book:
 	if (nBk == 0) return 0;
-	if (nBk > m_lstBooks.size()) return 0;
+	if (nBk > m_itrCurrentLayout->m_lstBooks.size()) return 0;
 	for (unsigned int ndxBk = 1; ndxBk < nBk; ++ndxBk) {
-		nNormalIndex += m_lstBooks.at(ndxBk-1).m_nNumWrd;
+		nNormalIndex += m_itrCurrentLayout->m_lstBooks.at(ndxBk-1).m_nNumWrd;
 	}
 	// Add the number of words for all chapters in this book prior to the target chapter:
-	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
+	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
 
-	if ((nChp != 0) && (m_lstBooks.at(nBk-1).m_bHaveColophon)) {
-		nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd;
+	if ((nChp != 0) && (m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) {
+		nNormalIndex += (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd;
 	}
 
-	if (nChp > m_lstBooks.at(nBk-1).m_nNumChp) return 0;
+	if (nChp > m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nNumChp) return 0;
 	for (unsigned int ndxChp = 1; ndxChp < nChp; ++ndxChp) {
-		nNormalIndex += m_mapChapters.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
+		nNormalIndex += m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,ndxChp,0,0)).m_nNumWrd;
 	}
 	// Add the number of words for all verses in this book prior to the target verse:
-	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
+	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nChp > 0) {
-		if ((nVrs != 0) && (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
-			nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+		if ((nVrs != 0) && (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
+			nNormalIndex += (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
 		}
-		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+		if (nVrs > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 		for (unsigned int ndxVrs = 1; ndxVrs < nVrs; ++ndxVrs) {
-			nNormalIndex += (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,ndxVrs,0)).m_nNumWrd;
+			nNormalIndex += (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,ndxVrs,0)).m_nNumWrd;
 		}
 	} else {
 		if (nVrs != 0) return 0;
 	}
 	// Add the target word:
 	if (nWrd == 0) nWrd = 1;
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
+	if (nWrd > (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 	nNormalIndex += nWrd;
 
 	return nNormalIndex;
@@ -1080,42 +1080,42 @@ CRelIndex CBibleDatabase::DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
 
 	if (nNormalIndex == 0) return 0;
 
-	while (nBk < m_lstBooks.size()) {
-		if (m_lstBooks[nBk].m_nNumWrd >= nWrd) break;
-		nWrd -= m_lstBooks[nBk].m_nNumWrd;
+	while (nBk < m_itrCurrentLayout->m_lstBooks.size()) {
+		if (m_itrCurrentLayout->m_lstBooks[nBk].m_nNumWrd >= nWrd) break;
+		nWrd -= m_itrCurrentLayout->m_lstBooks[nBk].m_nNumWrd;
 		nBk++;
 	}
-	if (nBk >= m_lstBooks.size()) return 0;
+	if (nBk >= m_itrCurrentLayout->m_lstBooks.size()) return 0;
 	nBk++;
 
-	unsigned int nChp = (m_lstBooks.at(nBk-1).m_bHaveColophon ? 0 : 1);
+	unsigned int nChp = (m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon ? 0 : 1);
 
-	while (nChp <= m_lstBooks.at(nBk-1).m_nNumChp) {
+	while (nChp <= m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nNumChp) {
 		if (nChp > 0) {
-			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
-			nWrd -= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
+			if (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd >= nWrd) break;
+			nWrd -= m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd;
 		} else {
 			// Handle Colophon:
-			if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd >= nWrd) break;
-			nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd;
+			if ((m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd >= nWrd) break;
+			nWrd -= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,0,0,0)).m_nNumWrd;
 		}
 		nChp++;
 	}
-	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if (nChp > m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp) return 0;
 
-	unsigned int nVrs = (((nChp == 0) || (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) ? 0 : 1);
+	unsigned int nVrs = (((nChp == 0) || (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) ? 0 : 1);
 	if (nChp > 0) {
-		while (nVrs <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
+		while (nVrs <= m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) {
 			// Note: Superscription is handled implicitly:
-			if ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
-			nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd;
+			if ((m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd >= nWrd) break;
+			nWrd -= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd;
 			nVrs++;
 		}
-		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+		if (nVrs > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	}
 
 	// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
-	if ((nWrd != 1) && (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd)) return 0;
+	if ((nWrd != 1) && (nWrd > (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd)) return 0;
 
 	return CRelIndex(nBk, nChp, nVrs, nWrd);
 }
@@ -1132,28 +1132,28 @@ uint32_t CBibleDatabase::NormalizeIndex(const CRelIndex &ndxRelIndex) const
 	if (!ndxRelIndex.isSet()) return 0;
 
 	if (nBk == 0) return 0;
-	if (nBk > m_lstBooks.size()) return 0;
-	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
-	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
-	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
+	if (nBk > m_itrCurrentLayout->m_lstBooks.size()) return 0;
+	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
+	if (nChp > m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nWrd == 0) nWrd = 1;
 	if (nChp > 0) {
 		// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
 		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
 		if ((nVrs == 1) && (nWrd == 1)) {
-			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
-				return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
-						(m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
+			if (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
+				return (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
+						(m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
 			}
-			return (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+			return (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
 		}
-		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+		if (nVrs > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	} else {
 		if (nVrs != 0) return 0;
 	}
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
+	if (nWrd > (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 
-	return ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
+	return ((m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 }
 
 CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
@@ -1162,8 +1162,8 @@ CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 
 	if (nWrd == 0) return 0;
 
-	unsigned int nBk = m_lstBooks.size();
-	while ((nBk > 0) && (nWrd <= m_lstBooks.at(nBk-1).m_nWrdAccum)) {
+	unsigned int nBk = m_itrCurrentLayout->m_lstBooks.size();
+	while ((nBk > 0) && (nWrd <= m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nWrdAccum)) {
 		nBk--;
 	}
 	if (nBk == 0) {
@@ -1171,26 +1171,26 @@ CRelIndex CBibleDatabase::DenormalizeIndex(uint32_t nNormalIndex) const
 		return 0;
 	}
 
-	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;
-	while ((nChp > 0) && (nWrd <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum)) {
+	unsigned int nChp = m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nNumChp;
+	while ((nChp > 0) && (nWrd <= m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum)) {
 		nChp--;
 	}
-	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
+	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) {
 		Q_ASSERT(false);
 		return 0;
 	}
 
-	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
-	while ((nVrs > 0) && (nWrd <= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum)) {
+	unsigned int nVrs = ((nChp != 0) ? m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
+	while ((nVrs > 0) && (nWrd <= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum)) {
 		nVrs--;
 	}
-	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
+	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
 		Q_ASSERT(false);
 		return 0;
 	}
 
-	nWrd -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum;
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+	nWrd -= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum;
+	if (nWrd > (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
 		// We can get here if the caller is addressing one word beyond the end-of-the-text, for example,
 		//		and this has always been defined as "0" (out-of-bounds or not-set), just like the "0"
 		//		at the beginning of the text.
@@ -1213,35 +1213,35 @@ uint32_t CBibleDatabase::NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const
 	if (!ndxRelIndex.isSet()) return 0;
 
 	if (nBk == 0) return 0;
-	if (nBk > m_lstBooks.size()) return 0;
-	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
-	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
-	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
+	if (nBk > m_itrCurrentLayout->m_lstBooks.size()) return 0;
+	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
+	if (nChp > m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nWrd == 0) nWrd = 1;
 	if (nLtr == 0) nLtr = 1;
 	if (nChp > 0) {
 		// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
 		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
 		if ((nVrs == 1) && (nWrd == 1)) {
-			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
-				nWordNormal = (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
-						(m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
+			if (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
+				nWordNormal = (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
+						(m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
 				goto NormalizeIndexEx_completter;
 			}
-			nWordNormal = (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+			nWordNormal = (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
 			goto NormalizeIndexEx_completter;
 		}
-		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+		if (nVrs > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	} else {
 		if (nVrs != 0) return 0;
 	}
-	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
+	if (nWrd > (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 
-	nWordNormal = ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
+	nWordNormal = ((m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 
 NormalizeIndexEx_completter:
 	if (nLtr > concordanceEntryForWordAtIndex(nWordNormal)->letterCount()) return 0;
-	uint64_t nLetterNormal = (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	uint64_t nLetterNormal = (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
 	while (--nWrd) {		// Add letters of previous words (order is reversed)
 		nLetterNormal += concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
 	}
@@ -1254,8 +1254,8 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
 
 	if (nLtr == 0) return 0;
 
-	unsigned int nBk = m_lstBooks.size();
-	while ((nBk > 0) && (nLtr <= m_lstBooks.at(nBk-1).m_nLtrAccum)) {
+	unsigned int nBk = m_itrCurrentLayout->m_lstBooks.size();
+	while ((nBk > 0) && (nLtr <= m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nLtrAccum)) {
 		nBk--;
 	}
 	if (nBk == 0) {
@@ -1263,33 +1263,33 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
 		return 0;
 	}
 
-	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;
-	while ((nChp > 0) && (nLtr <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum)) {
+	unsigned int nChp = m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nNumChp;
+	while ((nChp > 0) && (nLtr <= m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum)) {
 		nChp--;
 	}
-	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
+	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) {
 		Q_ASSERT(false);
 		return 0;
 	}
 
-	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
-	while ((nVrs > 0) && (nLtr <= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum)) {
+	unsigned int nVrs = ((nChp != 0) ? m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
+	while ((nVrs > 0) && (nLtr <= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum)) {
 		nVrs--;
 	}
-	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
+	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
 		Q_ASSERT(false);
 		return 0;
 	}
 
-	nLtr -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	nLtr -= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
 	unsigned int nWrd = 1;
-	while (nWrd <= m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+	while (nWrd <= m_itrCurrentLayout->m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
 		uint32_t nWrdLtrCount = concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
 		if (nLtr <= nWrdLtrCount) break;
 		nLtr -= nWrdLtrCount;
 		++nWrd;
 	}
-	if (nWrd > m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+	if (nWrd > m_itrCurrentLayout->m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
 		// We can get here if the caller is addressing one word beyond the end-of-the-text, for example,
 		//		and this has always been defined as "0" (out-of-bounds or not-set), just like the "0"
 		//		at the beginning of the text. (so don't assert here)
@@ -1346,15 +1346,15 @@ QString CBibleDatabase::toJsonBkChpStruct() const
 QString CBibleDatabase::testamentName(const CRelIndex &nRelIndex) const
 {
 	uint32_t nTst = testament(nRelIndex);
-	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return QString();
-	return m_lstTestaments.at(nTst-1).m_strTstName;
+	if ((nTst < 1) || (nTst > m_itrCurrentLayout->m_lstTestaments.size())) return QString();
+	return m_itrCurrentLayout->m_lstTestaments.at(nTst-1).m_strTstName;
 }
 
 uint32_t CBibleDatabase::testament(const CRelIndex &nRelIndex) const
 {
 	uint32_t nBk = nRelIndex.book();
-	if ((nBk < 1) || (nBk > m_lstBooks.size())) return 0;
-	return m_lstBooks.at(nBk-1).m_nTstNdx;
+	if ((nBk < 1) || (nBk > m_itrCurrentLayout->m_lstBooks.size())) return 0;
+	return m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nTstNdx;
 }
 
 QString CBibleDatabase::bookCategoryName(const CRelIndex &nRelIndex) const
@@ -1391,16 +1391,16 @@ BIBLE_BOOK_CATEGORIES_ENUM CBibleDatabase::bookCategory(const CRelIndex &nRelInd
 QString CBibleDatabase::bookName(const CRelIndex &nRelIndex) const
 {
 	uint32_t nBk = nRelIndex.book();
-	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
-	const CBookEntry &book = m_lstBooks[nBk-1];
+	if ((nBk < 1) || (nBk > m_itrCurrentLayout->m_lstBooks.size())) return QString();
+	const CBookEntry &book = m_itrCurrentLayout->m_lstBooks[nBk-1];
 	return book.m_strBkName;
 }
 
 QString CBibleDatabase::bookNameAbbr(const CRelIndex &nRelIndex) const
 {
 	uint32_t nBk = nRelIndex.book();
-	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
-	const CBookEntry &book = m_lstBooks[nBk-1];
+	if ((nBk < 1) || (nBk > m_itrCurrentLayout->m_lstBooks.size())) return QString();
+	const CBookEntry &book = m_itrCurrentLayout->m_lstBooks[nBk-1];
 	if (book.m_lstBkAbbr.size() >= 2) return book.m_lstBkAbbr.at(1);		// Return preferred Common Abbreviation if it exists
 	if (book.m_lstBkAbbr.size() == 1) return book.m_lstBkAbbr.at(0);		// Return OSIS Abbreviation of there are no Common Abbreviations
 	Q_ASSERT(false);
@@ -1410,8 +1410,8 @@ QString CBibleDatabase::bookNameAbbr(const CRelIndex &nRelIndex) const
 QString CBibleDatabase::bookOSISAbbr(const CRelIndex &nRelIndex) const
 {
 	uint32_t nBk = nRelIndex.book();
-	if ((nBk < 1) || (nBk > m_lstBooks.size())) return QString();
-	const CBookEntry &book = m_lstBooks[nBk-1];
+	if ((nBk < 1) || (nBk > m_itrCurrentLayout->m_lstBooks.size())) return QString();
+	const CBookEntry &book = m_itrCurrentLayout->m_lstBooks[nBk-1];
 	if (book.m_lstBkAbbr.size() >= 1) return book.m_lstBkAbbr.at(0);		// Return OSIS Abbreviation
 	Q_ASSERT(false);
 	return QString();
@@ -1420,8 +1420,8 @@ QString CBibleDatabase::bookOSISAbbr(const CRelIndex &nRelIndex) const
 CRelIndex CBibleDatabase::bookIndexFromOSISAbbr(const QString &strOSISAbbr) const
 {
 	CRelIndex ndxBook;
-	for (TBookList::size_type ndx = 0; ndx < m_lstBooks.size(); ++ndx) {
-		if (strOSISAbbr.compare(m_lstBooks.at(ndx).m_lstBkAbbr.at(0), Qt::CaseInsensitive) == 0) {
+	for (TBookList::size_type ndx = 0; ndx < m_itrCurrentLayout->m_lstBooks.size(); ++ndx) {
+		if (strOSISAbbr.compare(m_itrCurrentLayout->m_lstBooks.at(ndx).m_lstBkAbbr.at(0), Qt::CaseInsensitive) == 0) {
 			ndxBook.setBook(ndx+1);
 			break;
 		}
@@ -1799,12 +1799,12 @@ CRefCountCalc::CRefCountCalc(const CBibleDatabase *pBibleDatabase, REF_TYPE_ENUM
 
 unsigned int CBibleDatabase::bookWordCountProper(unsigned int nBook) const
 {
-	Q_ASSERT((nBook > 0) && (nBook <= m_lstBooks.size()));
-	const CBookEntry &bookEntry = m_lstBooks[nBook-1];
-	const TVerseEntryMap &mapVerses = m_lstBookVerses[nBook-1];
+	Q_ASSERT((nBook > 0) && (nBook <= m_itrCurrentLayout->m_lstBooks.size()));
+	const CBookEntry &bookEntry = m_itrCurrentLayout->m_lstBooks[nBook-1];
+	const TVerseEntryMap &mapVerses = m_itrCurrentLayout->m_lstBookVerses[nBook-1];
 	unsigned int nWords = bookEntry.m_nNumWrd;
 	for (unsigned int ndxChp = 1; ndxChp < bookEntry.m_nNumChp; ++ndxChp) {
-		if (m_mapChapters.at(CRelIndex(nBook, ndxChp, 0,0)).m_bHaveSuperscription) {
+		if (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, ndxChp, 0,0)).m_bHaveSuperscription) {
 			nWords -= mapVerses.at(CRelIndex(nBook, ndxChp, 0, 0)).m_nNumWrd;
 		}
 	}
@@ -1815,11 +1815,11 @@ unsigned int CBibleDatabase::bookWordCountProper(unsigned int nBook) const
 
 unsigned int CBibleDatabase::chapterWordCountProper(unsigned int nBook, unsigned int nChapter) const
 {
-	Q_ASSERT((nBook > 0) && (nBook <= m_lstBooks.size()));
-	Q_ASSERT((nChapter > 0) && (nChapter <= m_lstBooks[nBook-1].m_nNumChp));
+	Q_ASSERT((nBook > 0) && (nBook <= m_itrCurrentLayout->m_lstBooks.size()));
+	Q_ASSERT((nChapter > 0) && (nChapter <= m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumChp));
 	CRelIndex ndxChapter(nBook, nChapter, 0, 0);
-	const TVerseEntryMap &mapVerses = m_lstBookVerses.at(nBook-1);
-	const CChapterEntry &chapterEntry = m_mapChapters.at(ndxChapter);
+	const TVerseEntryMap &mapVerses = m_itrCurrentLayout->m_lstBookVerses.at(nBook-1);
+	const CChapterEntry &chapterEntry = m_itrCurrentLayout->m_mapChapters.at(ndxChapter);
 	unsigned int nWords = chapterEntry.m_nNumWrd;
 	if (chapterEntry.m_bHaveSuperscription) nWords -= mapVerses.at(ndxChapter).m_nNumWrd;
 	return nWords;
@@ -1852,26 +1852,26 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		// ===================
 		// Testament of Bible:
 		if (nTestament) {
-			if (nTestament > m_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
+			if (nTestament > m_itrCurrentLayout->m_lstTestaments.size()) return CRelIndex();		// Testament too large, past end of Bible
 			for (unsigned int ndx=1; ndx<nTestament; ++ndx) {
 				// Ripple down to children:
-				nBook += m_lstTestaments[ndx-1].m_nNumBk;
+				nBook += m_itrCurrentLayout->m_lstTestaments[ndx-1].m_nNumBk;
 			}
 		}	// At this point, top specified index will be relative to the Bible, nTestament isn't needed beyond this point
 
 		// ===================
 		// Book of Bible/Testament:
-		if (nBook > m_lstBooks.size()) return CRelIndex();
+		if (nBook > m_itrCurrentLayout->m_lstBooks.size()) return CRelIndex();
 		for (unsigned int ndx=1; ndx<nBook; ++ndx)
-			ndxWord += m_lstBooks[ndx-1].m_nNumWrd;					// Add words for Books prior to target
+			ndxWord += m_itrCurrentLayout->m_lstBooks[ndx-1].m_nNumWrd;					// Add words for Books prior to target
 
 		// ===================
 		// Chapter of Bible/Testament:
-		while (nChapter > m_lstBooks[nBook-1].m_nNumChp) {		// Resolve nBook
-			ndxWord += m_lstBooks[nBook-1].m_nNumWrd;			// Add words for books prior to target book
-			nChapter -= m_lstBooks[nBook-1].m_nNumChp;
+		while (nChapter > m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumChp) {		// Resolve nBook
+			ndxWord += m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumWrd;			// Add words for books prior to target book
+			nChapter -= m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumChp;
 			nBook++;
-			if (nBook > m_lstBooks.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
+			if (nBook > m_itrCurrentLayout->m_lstBooks.size()) return CRelIndex();	// Chapter too large (past end of last Book of Bible/Testament)
 		}
 		// Chapter of Book:
 		//	Note:  Here we'll push the verses of the chapter down to nVerse and
@@ -1885,27 +1885,27 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		//			especially since we have to do that anyway.  We won't
 		//			update ndxWord here since that will get done in the Verse
 		//			loop below once we push this down to that:
-		if (nChapter>m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
+		if (nChapter>m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();		// Chapter too large (past end of book)
 		for (unsigned int ndx=1; ndx<nChapter; ++ndx) {
-			nVerse += m_mapChapters.at(CRelIndex(nBook, ndx, 0, 0)).m_nNumVrs;	// Push all chapters prior to target down to nVerse level
+			nVerse += m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, ndx, 0, 0)).m_nNumVrs;	// Push all chapters prior to target down to nVerse level
 		}
 		nChapter = 1;	// Reset to beginning of book so nVerse can count from there
 
 		// ===================
 		// Verse of Bible/Testament:
-		while (nVerse > m_lstBooks[nBook-1].m_nNumVrs) {	// Resolve nBook
-			ndxWord += m_lstBooks[nBook-1].m_nNumWrd;		// Add words for books prior to target book
-			nVerse -= m_lstBooks[nBook-1].m_nNumVrs;
+		while (nVerse > m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumVrs) {	// Resolve nBook
+			ndxWord += m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumWrd;		// Add words for books prior to target book
+			nVerse -= m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumVrs;
 			nBook++;
-			if (nBook > m_lstBooks.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
+			if (nBook > m_itrCurrentLayout->m_lstBooks.size()) return CRelIndex();	// Verse too large (past end of last Book of Bible/Testament)
 		}
 		// Verse of Book:
-		if (nVerse>m_lstBooks[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
-		while (nVerse > m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) {		// Resolve nChapter
-			nVerse -= m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs;
+		if (nVerse>m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumVrs) return CRelIndex();		// Verse too large (past end of book)
+		while (nVerse > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) {		// Resolve nChapter
+			nVerse -= m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs;
 			nWord += chapterWordCountProper(nBook, nChapter);	// Push all chapters prior to target down to nWord level
 			nChapter++;
-			if (nChapter > m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
+			if (nChapter > m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();	// Verse too large (past end of last Chapter of Book)
 		}
 
 		// Verse of Chapter:
@@ -1920,9 +1920,9 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		//			especially since we have to do that anyway.  We won't
 		//			update ndxWord here since that will get done in the Word
 		//			loop below once we push this down to that:
-		if (nVerse>m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
+		if (nVerse>m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();		// Verse too large (past end of Chapter of Book)
 		for (unsigned int ndx=1; ndx<nVerse; ++ndx) {
-			nWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, ndx, 0)).m_nNumWrd;				// Push all verses prior to target down to nWord level
+			nWord += m_itrCurrentLayout->m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, ndx, 0)).m_nNumWrd;			// Push all verses prior to target down to nWord level
 		}
 		nVerse = 1;		// Reset to beginning of chapter so nWord can count from there
 
@@ -1931,46 +1931,46 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		// ===================
 		// Word of Bible/Testament:
 		while (nWord > bookWordCountProper(nBook)) {		// Resolve nBook
-			ndxWord += m_lstBooks[nBook-1].m_nNumWrd;
+			ndxWord += m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumWrd;
 			nWord -= bookWordCountProper(nBook);
 			nBook++;
-			if (nBook > m_lstBooks.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
+			if (nBook > m_itrCurrentLayout->m_lstBooks.size()) return CRelIndex();		// Word too large (past end of last Book of Bible/Testament)
 		}
 		// Word of Book:
-		if (nWord>m_lstBooks[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
+		if (nWord>m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumWrd) return CRelIndex();	// Word too large (past end of Book/Chapter)
 
 		// If the current book has a colophon, add words from the colophon since
 		//		they logistically come ahead of the chapters:
-		if (m_lstBooks[nBook-1].m_bHaveColophon) {
-			ndxWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, 0, 0, 0)).m_nNumWrd;
+		if (m_itrCurrentLayout->m_lstBooks[nBook-1].m_bHaveColophon) {
+			ndxWord += m_itrCurrentLayout->m_lstBookVerses[nBook-1].at(CRelIndex(nBook, 0, 0, 0)).m_nNumWrd;
 		}
 
 		while (nWord > chapterWordCountProper(nBook, nChapter)) {	// Resolve nChapter
-			ndxWord += m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
+			ndxWord += m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
 			nWord -= chapterWordCountProper(nBook, nChapter);
 			nChapter++;
-			if (nChapter > m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
+			if (nChapter > m_itrCurrentLayout->m_lstBooks[nBook-1].m_nNumChp) return CRelIndex();		// Word too large (past end of last Verse of last Book/Chapter)
 		}
 
 		// Word of Chapter:
-		if (nWord>m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
+		if (nWord>m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Book/Chapter)
 
 		// If the current chapter has a superscription, add words from the superscription since
 		//		they logistically come ahead of the vereses:
-		if (m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_bHaveSuperscription) {
-			ndxWord += m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
+		if (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_bHaveSuperscription) {
+			ndxWord += m_itrCurrentLayout->m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumWrd;
 		}
 
-		const TVerseEntryMap &bookVerses = m_lstBookVerses[nBook-1];
+		const TVerseEntryMap &bookVerses = m_itrCurrentLayout->m_lstBookVerses[nBook-1];
 		while (nWord > bookVerses.at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd) {	// Resolve nVerse
 			ndxWord += bookVerses.at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd;
 			nWord -= bookVerses.at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd;
 			nVerse++;
-			if (nVerse > m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
+			if (nVerse > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBook, nChapter, 0, 0)).m_nNumVrs) return CRelIndex();	// Word too large (past end of last Verse of last Book/Chapter)
 		}
 
 		// Word of Verse:
-		if (nWord>m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
+		if (nWord>m_itrCurrentLayout->m_lstBookVerses[nBook-1].at(CRelIndex(nBook, nChapter, nVerse, 0)).m_nNumWrd) return CRelIndex();		// Word too large (past end of Verse of Chapter of Book)
 		ndxWord += nWord;		// Add up to include target word
 
 		// ===================
@@ -1986,8 +1986,8 @@ CRelIndex CBibleDatabase::calcRelIndex(
 		ndxWord = NormalizeIndex(ndxStart);
 		if (ndxWord == 0) {
 			// Set ndxWord to the total number of words in Bible:
-			for (unsigned int ndx = 0; ndx<m_lstTestaments.size(); ++ndx) {
-				ndxWord += m_lstTestaments[ndx].m_nNumWrd;
+			for (unsigned int ndx = 0; ndx<m_itrCurrentLayout->m_lstTestaments.size(); ++ndx) {
+				ndxWord += m_itrCurrentLayout->m_lstTestaments[ndx].m_nNumWrd;
 			}
 		}
 		// ndxWord is now pointing to the last word of the last verse of
@@ -2245,6 +2245,9 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 		m_descriptor(bblDesc),
 		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
+	m_mapVersificationLayouts[BVTE_KJV] = TVersificationLayout();		// All databases will have a KJV Versification
+	m_itrCurrentLayout = m_mapVersificationLayouts.find(BVTE_KJV);
+
 	// Note: For ReadSpecialBibleDatabase() to work correctly (command-line tools), this function must be
 	//	able to work with the BDE_SPECIAL_TEST descriptor:
 	if (bblDesc.m_strUUID.compare(bibleDescriptor(BDE_SPECIAL_TEST).m_strUUID, Qt::CaseInsensitive) != 0) {
@@ -2289,7 +2292,7 @@ bool CBibleDatabase::completelyContains(const TPhraseTag &aPhraseTag) const
 
 TTagBoundsPair CBibleDatabase::bounds() const
 {
-	return TTagBoundsPair(1, m_EntireBible.m_nNumWrd);
+	return TTagBoundsPair(1, m_itrCurrentLayout->m_EntireBible.m_nNumWrd);
 }
 
 TPhraseTag CBibleDatabase::bookPhraseTag(const CRelIndex &nRelIndex) const
@@ -2324,15 +2327,15 @@ void CBibleDatabase::registerTextLayoutHandlers(QAbstractTextDocumentLayout *pDo
 
 const CTestamentEntry *CBibleDatabase::testamentEntry(uint32_t nTst) const
 {
-	Q_ASSERT((nTst >= 1) && (nTst <= m_lstTestaments.size()));
-	if ((nTst < 1) || (nTst > m_lstTestaments.size())) return nullptr;
-	return &m_lstTestaments.at(nTst-1);
+	Q_ASSERT((nTst >= 1) && (nTst <= m_itrCurrentLayout->m_lstTestaments.size()));
+	if ((nTst < 1) || (nTst > m_itrCurrentLayout->m_lstTestaments.size())) return nullptr;
+	return &m_itrCurrentLayout->m_lstTestaments.at(nTst-1);
 }
 
 const CBookEntry *CBibleDatabase::bookEntry(uint32_t nBk) const
 {
-	if ((nBk < 1) || (nBk > m_lstBooks.size())) return nullptr;
-	return &m_lstBooks.at(nBk-1);
+	if ((nBk < 1) || (nBk > m_itrCurrentLayout->m_lstBooks.size())) return nullptr;
+	return &m_itrCurrentLayout->m_lstBooks.at(nBk-1);
 }
 
 const CBookEntry *CBibleDatabase::bookEntry(const CRelIndex &ndx) const
@@ -2343,16 +2346,16 @@ const CBookEntry *CBibleDatabase::bookEntry(const CRelIndex &ndx) const
 #ifdef OSIS_PARSER_BUILD
 const CChapterEntry *CBibleDatabase::chapterEntry(const CRelIndex &ndx, bool bForceCreate) const
 {
-	if (bForceCreate) (const_cast<TChapterMap &>(m_mapChapters))[CRelIndex(ndx.book(),ndx.chapter(),0,0)];		// Force the creation of this entry
-	TChapterMap::const_iterator chapter = m_mapChapters.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
-	if (chapter == m_mapChapters.end()) return nullptr;
+	if (bForceCreate) (const_cast<TChapterMap &>(m_itrCurrentLayout->m_mapChapters))[CRelIndex(ndx.book(),ndx.chapter(),0,0)];		// Force the creation of this entry
+	TChapterMap::const_iterator chapter = m_itrCurrentLayout->m_mapChapters.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+	if (chapter == m_itrCurrentLayout->m_mapChapters.end()) return nullptr;
 	return &(chapter->second);
 }
 
 const CVerseEntry *CBibleDatabase::verseEntry(const CRelIndex &ndx, bool bForceCreate) const
 {
-	if ((ndx.book() < 1) || (ndx.book() > m_lstBookVerses.size())) return nullptr;
-	const TVerseEntryMap &book = m_lstBookVerses[ndx.book()-1];
+	if ((ndx.book() < 1) || (ndx.book() > m_itrCurrentLayout->m_lstBookVerses.size())) return nullptr;
+	const TVerseEntryMap &book = m_itrCurrentLayout->m_lstBookVerses[ndx.book()-1];
 	if (bForceCreate) (const_cast<TVerseEntryMap &>(book))[CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0)];			// Force the creation of this entry
 	const TVerseEntryMap::const_iterator mapVerse = book.find(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0));
 	if (mapVerse == book.end()) return nullptr;
@@ -2361,15 +2364,15 @@ const CVerseEntry *CBibleDatabase::verseEntry(const CRelIndex &ndx, bool bForceC
 #else
 const CChapterEntry *CBibleDatabase::chapterEntry(const CRelIndex &ndx) const
 {
-	TChapterMap::const_iterator chapter = m_mapChapters.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
-	if (chapter == m_mapChapters.end()) return nullptr;
+	TChapterMap::const_iterator chapter = m_itrCurrentLayout->m_mapChapters.find(CRelIndex(ndx.book(),ndx.chapter(),0,0));
+	if (chapter == m_itrCurrentLayout->m_mapChapters.end()) return nullptr;
 	return &(chapter->second);
 }
 
 const CVerseEntry *CBibleDatabase::verseEntry(const CRelIndex &ndx) const
 {
-	if ((ndx.book() < 1) || (ndx.book() > m_lstBookVerses.size())) return nullptr;
-	const TVerseEntryMap &book = m_lstBookVerses[ndx.book()-1];
+	if ((ndx.book() < 1) || (ndx.book() > m_itrCurrentLayout->m_lstBookVerses.size())) return nullptr;
+	const TVerseEntryMap &book = m_itrCurrentLayout->m_lstBookVerses[ndx.book()-1];
 	const TVerseEntryMap::const_iterator mapVerse = book.find(CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0));
 	if (mapVerse == book.end()) return nullptr;
 	return &(mapVerse->second);
