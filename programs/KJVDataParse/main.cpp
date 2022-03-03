@@ -2209,6 +2209,10 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				Q_ASSERT(nPos != -1);		// Every ParseStack entry must contain a ':'
 				QString strOp = strParse.left(nPos);
 				if (strOp.compare("L") == 0) {
+					if (bInWord) {
+						verse.m_strTemplate += " ";		// Need a space to avoid "ww" templates that don't track correctly (which can happen when missing a space during manual OSIS edit)
+						fncCompleteWord();		// Complete the word for this lemma sequence, as they must be distinct words
+					}
 					tagLemmaEntry.setRelIndex(CRelIndex(relIndex.book(), relIndex.chapter(), relIndex.verse(), nWordCount+1));
 					tagLemmaEntry.setCount(1);
 					strLemmaAttr = strParse.mid(nPos+1);
