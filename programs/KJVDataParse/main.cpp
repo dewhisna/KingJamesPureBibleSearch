@@ -2423,6 +2423,7 @@ int main(int argc, char *argv[])
 	bool bUseBracketFootnotes = false;
 	bool bUseBracketFootnotesExcluded = false;
 	bool bExcludeDeuterocanonical = false;
+	bool bMissingOK = false;		// Missing OR Extra Chapters/Verses are OK, (i.e. don't enforce KJV Versification)
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilename;
@@ -2482,6 +2483,8 @@ int main(int argc, char *argv[])
 			bUseBracketFootnotesExcluded = true;
 		} else if (strArg.compare("-x") == 0) {
 			bExcludeDeuterocanonical = true;
+		} else if (strArg.compare("-m") == 0) {
+			bMissingOK = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -2516,6 +2519,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -bfx=  Enable Bracket Inline Footnotes and Exclude them\n").toUtf8().data();
 		std::cerr << QString("           (Identical to -bf, but excludes them, and overrides -f)\n").toUtf8().data();
 		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
+		std::cerr << QString("    -m  =  Missing/Extra Chapters/Verses are OK (don't fit to KJV Versification)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -2700,8 +2704,9 @@ int main(int argc, char *argv[])
 
 		unsigned int nChapterWordAccum = 0;
 		unsigned int nChaptersExpected = qMax(pBook->m_nNumChp, static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()));
+		if (bMissingOK) nChaptersExpected = pBook->m_nNumChp;
 		for (unsigned int nChp=(pBook->m_bHaveColophon ? 0 : 1); nChp<=nChaptersExpected; ++nChp) {
-			if ((nChp != 0) && (nChp > static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()))) {
+			if (!bMissingOK && (nChp != 0) && (nChp > static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()))) {
 				std::cerr << QString("\n*** WARNING: Module has extra Chapter : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			}
 			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : nullptr);
@@ -2729,11 +2734,12 @@ int main(int argc, char *argv[])
 //			std::cout << QString("%1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, 0, 0))).toUtf8().data();
 			unsigned int nVerseWordAccum = 0;
 			unsigned int nVersesExpected = ((pChapter != nullptr) ? qMax(pChapter->m_nNumVrs, static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0)) : 0);
+			if (bMissingOK) nVersesExpected = pChapter->m_nNumVrs;
 
 			// Remove empty non-canonical verses that got added posthumous during parsing
 			//	that are trailing at the end of the chapter (leave any in the middle of
 			//	the chapter, as they are placeholders):
-			if (nChp > 0) {		// Do this only for non-colophons
+			if ((nChp > 0) && !bMissingOK) {		// Do this only for non-colophons
 				for (unsigned int nVrs=nVersesExpected; nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0); --nVrs) {
 					const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
 					if ((pVerse != nullptr) && (pVerse->m_nNumWrd == 0) && (pVerse->m_strTemplate.trimmed().isEmpty())) {
@@ -2752,7 +2758,7 @@ int main(int argc, char *argv[])
 			}
 
 			for (unsigned int nVrs=((pChapter != nullptr) ? (pChapter->m_bHaveSuperscription ? 0 : 1) : 0); nVrs<=nVersesExpected; ++nVrs) {
-				if ((nVrs != 0) && (nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0))) {
+				if (!bMissingOK && (nVrs != 0) && (nVrs > static_cast<unsigned int>((nChp <= static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size())) ? lstChapterVerseCounts.at(nBk-1).at(nChp-1).toUInt() : 0))) {
 					std::cerr << QString("\n*** WARNING: Module has extra Verse : %1\n").arg(pBibleDatabase->PassageReferenceText(CRelIndex(nBk, nChp, nVrs, 0))).toUtf8().data();
 				}
 				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
