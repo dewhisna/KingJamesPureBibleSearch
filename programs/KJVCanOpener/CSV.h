@@ -95,6 +95,8 @@ public:
 	CCSVStream &operator <<(const QStringList &aStringList);	// Write individual rows
 	CCSVStream &operator >>(QStringList &aStringList);			// Read individual rows
 
+	void ungetLine(const QStringList &aStringList);
+
 	QList<QStringList> readAll();								// Read entire file
 	void writeAll(const QList<QStringList> &lstStringLists);	// Write entire file
 

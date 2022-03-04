@@ -230,6 +230,20 @@ CCSVStream &CCSVStream::operator >>(QStringList &aStringList)
 	return *this;
 }
 
+void CCSVStream::ungetLine(const QStringList &aStringList)
+{
+	QString strOut;
+
+	for (QStringList::const_iterator itr = aStringList.begin(); itr != aStringList.end(); ++itr) {
+		if (!strOut.isEmpty()) strOut += m_chrDelim;
+		strOut += escape(*itr, false, m_chrDelim);
+	}
+
+	strOut += '\n';
+
+	m_strUngetBuff.prepend(strOut);
+}
+
 QList<QStringList> CCSVStream::readAll()
 {
 	QList<QStringList> lstStringLists;
