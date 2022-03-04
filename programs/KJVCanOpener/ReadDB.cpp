@@ -187,8 +187,8 @@ public:
 	{
 
 	}
-
 #endif	// !NOT_USING_SQL
+
 	bool findTable(const QString &strTableName)
 	{
 		m_strTableName = strTableName;
@@ -199,11 +199,18 @@ public:
 		if (m_pCSVStream != nullptr) {
 			if (!readCCDatabaseRecord(m_pParentWidget, lstFields, m_pCSVStream, 2)) return false;
 			// Format:  <TABLE>,count
-			if ((lstFields.size() != 2) ||
-				(lstFields.at(0) != strTableName)) {
+			if (lstFields.size() != 2) {
 				displayWarning(m_pParentWidget, g_constrReadDatabase, QObject::tr("Invalid %1 section header in CCDatabase\n\n%2", "ReadDB").arg(strTableName).arg(lstFields.join(",")));
 				return false;
 			}
+			if (lstFields.at(0) != strTableName) {
+				// If the table doesn't match the one expected,
+				//	unget it so we can try reading it as another
+				//	table type:
+				m_pCSVStream->ungetLine(lstFields);
+				return false;
+			}
+
 			m_nRecordCount = lstFields.at(1).toInt();
 		} else {
 #ifndef NOT_USING_SQL
