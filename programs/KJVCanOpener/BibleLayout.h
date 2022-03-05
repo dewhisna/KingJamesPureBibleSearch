@@ -71,7 +71,12 @@ enum BIBLE_VERSIFICATION_TYPE_ENUM {		// Note: This list cannot change without b
 class CBibleVersifications : public QObject
 {
 	Q_OBJECT
-	typedef QStringList TBibleVersificationList;	// List of BIBLE_VERSIFICATION_TYPE_ENUM Versifications
+
+	struct TVersificationEntry {
+		QString m_strName;
+		QString m_strUUID;
+	};
+	typedef QList<TVersificationEntry> TBibleVersificationList;	// List of BIBLE_VERSIFICATION_TYPE_ENUM Versifications
 
 public:
 	static TBibleVersificationList::size_type count()
@@ -82,7 +87,20 @@ public:
 	static QString name(BIBLE_VERSIFICATION_TYPE_ENUM nVersificationType)
 	{
 		Q_ASSERT((nVersificationType >= 0) && (nVersificationType < count()));
-		return g_arrBibleVersifications.at(nVersificationType);
+		return g_arrBibleVersifications.at(nVersificationType).m_strName;
+	}
+	static QString uuid(BIBLE_VERSIFICATION_TYPE_ENUM nVersificationType)
+	{
+		Q_ASSERT((nVersificationType >= 0) && (nVersificationType < count()));
+		return g_arrBibleVersifications.at(nVersificationType).m_strUUID;
+	}
+	static BIBLE_VERSIFICATION_TYPE_ENUM lookup(const QString &strUUID)
+	{
+		for (int ndx = 0; ndx < count(); ++ndx) {
+			if (strUUID.compare(g_arrBibleVersifications.at(ndx).m_strUUID, Qt::CaseInsensitive) == 0)
+				return static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(ndx);
+		}
+		return BVTE_KJV;		// Default to KJV Standard Versification as fallback
 	}
 
 private:

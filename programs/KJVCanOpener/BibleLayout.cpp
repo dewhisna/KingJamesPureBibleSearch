@@ -29,8 +29,8 @@
 
 const CBibleVersifications::TBibleVersificationList CBibleVersifications::g_arrBibleVersifications =
 {
-	CBibleVersifications::tr("King James"),
-	CBibleVersifications::tr("Hebrew Masoretic"),
+	{ CBibleVersifications::tr("King James"), "" },				// No UUID for KJV, since it's the base standard
+	{ CBibleVersifications::tr("Hebrew Masoretic"), "567D4E10-9BF8-11EC-8BC2-0800200C9A66" },
 };
 
 // ============================================================================
