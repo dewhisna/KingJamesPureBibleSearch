@@ -60,6 +60,8 @@
 #include "SoundEx.h"
 #endif
 
+#define TEST_WORD_COUNTS_IN_VALIDATION 0
+
 // ============================================================================
 
 namespace {
@@ -1341,8 +1343,6 @@ bool CReadDatabase::ValidateData()
 	unsigned int ncntVrs_Chp = 0;	// Verse count in current Chapter
 	unsigned int ncntWrd_Chp = 0;	// Word count in current Chapter
 
-	unsigned int ncntWrd_Vrs = 0;	// Word count in current Verse
-
 	if (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.size() != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size()) {
 		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book List and Table of Contents have different sizes!\nCheck the database!", "ReadDB"));
 		return false;
@@ -1362,10 +1362,10 @@ bool CReadDatabase::ValidateData()
 		// Colophons are part of the book's words, but not part of the chapter's:
 		if (m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_bHaveColophon) {
 			const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
-			TVerseEntryMap::const_iterator itrBook = aBookVerses.find(CRelIndex(nBk,0,0,0));
-			if (itrBook != aBookVerses.end()) {
-				ncntWrdTot += itrBook->second.m_nNumWrd;
-				ncntWrd_Bk += itrBook->second.m_nNumWrd;
+			TVerseEntryMap::const_iterator itrVerses = aBookVerses.find(CRelIndex(nBk,0,0,0));
+			if (itrVerses != aBookVerses.end()) {
+				ncntWrdTot += itrVerses->second.m_nNumWrd;
+				ncntWrd_Bk += itrVerses->second.m_nNumWrd;
 			} // Should we assert on the else??
 		}
 		for (unsigned int nChp=1; nChp<=m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {	// Chapters
@@ -1376,19 +1376,25 @@ bool CReadDatabase::ValidateData()
 			ncntChpTot++;
 			ncntChp_Bk++;
 			for (unsigned int nVrs=(itrChapters->second.m_bHaveSuperscription ? 0 : 1); nVrs<=itrChapters->second.m_nNumVrs; ++nVrs) {	// Verses
-				ncntWrd_Vrs = 0;
 				const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
-				TVerseEntryMap::const_iterator itrBook = aBookVerses.find(CRelIndex(nBk,nChp,nVrs,0));
-				if (itrBook == aBookVerses.end()) continue;
+				TVerseEntryMap::const_iterator itrVerses = aBookVerses.find(CRelIndex(nBk,nChp,nVrs,0));
+				if (itrVerses == aBookVerses.end()) continue;
 				if (nVrs != 0) {
 					ncntVrsTot++;
 					ncntVrs_Chp++;
 					ncntVrs_Bk++;
 				}
-				ncntWrdTot += itrBook->second.m_nNumWrd;			// Words
-				ncntWrd_Vrs += itrBook->second.m_nNumWrd;
-				ncntWrd_Chp += itrBook->second.m_nNumWrd;
-				ncntWrd_Bk += itrBook->second.m_nNumWrd;
+				ncntWrdTot += itrVerses->second.m_nNumWrd;			// Words
+				ncntWrd_Chp += itrVerses->second.m_nNumWrd;
+				ncntWrd_Bk += itrVerses->second.m_nNumWrd;
+#if TEST_WORD_COUNTS_IN_VALIDATION
+				QStringList lstWordTemplate = itrVerses->second.m_strTemplate.split('w');
+				if (itrVerses->second.m_nNumWrd != (lstWordTemplate.size()-1)) {
+					displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3, Verse %4 contains %5 Words, expected %6 Words!", "ReadDB")
+									.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(nVrs).arg(lstWordTemplate.size()-1).arg(itrVerses->second.m_nNumWrd));
+					return false;
+				}
+#endif
 			}
 			if (ncntVrs_Chp != itrChapters->second.m_nNumVrs) {
 				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Verses, expected %5 Verses!", "ReadDB")
