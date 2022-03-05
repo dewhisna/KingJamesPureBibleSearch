@@ -81,6 +81,7 @@ protected:
 	bool ReadPHRASESTable();
 	bool ReadLEMMASTable();
 	bool ReadSTRONGSTable();
+	bool ReadVersificationTables();
 	bool ValidateData();
 
 	// ------------------------------------------------------------------------

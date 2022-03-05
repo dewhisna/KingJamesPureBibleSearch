@@ -189,6 +189,9 @@ public:
 	}
 #endif	// !NOT_USING_SQL
 
+	const QString &tableName() const { return m_strTableName; }
+	const QString &tableInfo() const { return m_strTableInfo; }
+
 	bool findTable(const QString &strTableName)
 	{
 		m_strTableName = strTableName;
@@ -198,8 +201,12 @@ public:
 
 		if (m_pCSVStream != nullptr) {
 			if (!readCCDatabaseRecord(m_pParentWidget, lstFields, m_pCSVStream, 2)) return false;
-			// Format:  <TABLE>,count
-			if (lstFields.size() != 2) {
+			// Format:  <TABLE>,count[,TableInfo]
+			//	Where 'TableInfo' is an optional field that carries more information
+			//	about the table and is specific to the type of table.  For example,
+			//	a VERSIFICATION table might use a UUID that specifically maps the
+			//	specific versification.
+			if (lstFields.size() < 2) {
 				displayWarning(m_pParentWidget, g_constrReadDatabase, QObject::tr("Invalid %1 section header in CCDatabase\n\n%2", "ReadDB").arg(strTableName).arg(lstFields.join(",")));
 				return false;
 			}
@@ -212,8 +219,13 @@ public:
 			}
 
 			m_nRecordCount = lstFields.at(1).toInt();
+			m_bContinue = (m_nRecordCount > 0);
+			if (lstFields.size() > 2) {
+				m_strTableInfo = lstFields.at(2);
+			}
 		} else {
 #ifndef NOT_USING_SQL
+			m_bContinue = false;
 			QSqlQuery queryTable(m_myDatabase);
 
 			// Check to see if the table exists:
@@ -227,6 +239,7 @@ public:
 				return false;
 			}
 			queryTable.finish();
+			m_bContinue = true;
 #else
 			return false;
 #endif	// !NOT_USING_SQL
@@ -294,6 +307,7 @@ private:
 	int m_nRecordCount;
 	bool m_bContinue;
 	QString m_strTableName;
+	QString m_strTableInfo;
 	QWidget *m_pParentWidget;
 	CCSVStream *m_pCSVStream;
 #ifndef NOT_USING_SQL
@@ -1059,7 +1073,7 @@ bool CReadDatabase::ReadLEMMASTable()
 
 	m_pBibleDatabase->m_mapLemmaEntries.clear();
 
-	dbParser.startQueryLoop("BkChpVrsWrdNdx,Count,Attrs");
+	dbParser.startQueryLoop("BkChpVrsWrdNdx, Count, Attrs");
 
 	while (dbParser.haveData()) {
 		QStringList lstFields;
@@ -1089,19 +1103,12 @@ bool CReadDatabase::ReadSTRONGSTable()
 #endif
 
 	if (dbParser.atEnd()) return true;		// Strongs is optional and old databases won't have it
-
-	if (!dbParser.findTable("STRONGS")) {
-		if (!m_pCCDatabase.isNull()) {
-			return false;
-		} else {
-			return true;			// If this is an SQL-only database, SQL Files won't report EndOfStream above, but Strongs is optional
-		}
-	}
+	if (!dbParser.findTable("STRONGS") || !dbParser.haveData()) return true;		// Strongs is optional, old databases won't have it at all, and new databases may have zero entries
 
 	m_pBibleDatabase->m_mapStrongsEntries.clear();
 	m_pBibleDatabase->m_mapStrongsOrthographyMap.clear();
 
-	dbParser.startQueryLoop("StrongsMapNdx,Orth,Trans,Pron,Def");
+	dbParser.startQueryLoop("StrongsMapNdx, Orth, Trans, Pron, Def");
 
 	while (dbParser.haveData()) {
 		QStringList lstFields;
@@ -1114,6 +1121,202 @@ bool CReadDatabase::ReadSTRONGSTable()
 		strongsEntry.setDefinition(lstFields.at(4));
 		m_pBibleDatabase->m_mapStrongsEntries[strongsEntry.strongsMapIndex()] = strongsEntry;
 		m_pBibleDatabase->m_mapStrongsOrthographyMap.insert(strongsEntry.orthographyPlainText(), strongsEntry.strongsMapIndex());
+	}
+
+	dbParser.endQueryLoop();
+
+	return true;
+}
+
+bool CReadDatabase::ReadVersificationTables()
+{
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+
+	// Versification Table Format:
+	//	BkChpVrsNdx, BkAbbr, NumChp, NumVrs, NumWrd, nPilcrow, TText
+	//	16777216,Gen,50,1533,20704,0,""			-- 0x01000000 : Book-only: NumChp=Book_Chapter_Count, NumVrs=Book_Verse_Count, NumWrd=Book_Word_Count, nPilcrow/TText = Colophon Template, Empty=None
+	//	16842752,Gen,1,31,440,0,""				-- 0x01010000 : Book/Chapter: NumChp=Chapter_Index, NumVrs=Chapter_Verse_Count, NumWrd=Chapter_Word_Count, nPilcrow/TText = Superscription Template, Empty=None
+	//	16843008,Gen,1,1,7,0,""					-- 0x01010100 : Book/Chapter/Verse: NumChp=Chapter_Index, NumVrs=Verse_Index, NumWrd=Verse_Word_Count, nPilcrow/TText = Verse Template
+	//	16843264,Gen,1,2,14,0,""				-- 0x01010200 : ""
+	//	16843520,Gen,1,3,6,0,""					-- 0x01010300 : ""
+	//	...
+
+	// SQL Databases can't support Versification Tables:
+	if (m_pCCDatabase.isNull()) return true;		// Return true since Versifications are optional
+
+	// Read the Versification tables:
+
+#ifndef NOT_USING_SQL
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data(), m_myDatabase);
+#else
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
+#endif
+
+	if (dbParser.atEnd()) return true;		// Versification Tables are optional and old databases won't have it
+	if (!dbParser.findTable("VERSIFICATION") || !dbParser.haveData()) return true;		// Versification Tables are optional, old databases won't have it at all, and new databases may have zero entries
+
+	dbParser.startQueryLoop("BkChpVrsNdx, BkAbbr, NumChp, NumVrs, NumWrd, nPilcrow, TText");
+
+	BIBLE_VERSIFICATION_TYPE_ENUM nVersificationType = CBibleVersifications::lookup(dbParser.tableInfo());
+	if (m_pBibleDatabase->hasVersificationType(nVersificationType)) {
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Duplicate or Invalid Versification Layout ID: \"%1\"", "ReadDB").arg(dbParser.tableInfo()));
+		return false;
+	}
+
+	// The KJV database contains common details for Testaments, number
+	//	of books, etc., which must match across versifications:
+	CBibleDatabase::TVersificationLayoutMap::const_iterator itrKJV = m_pBibleDatabase->m_mapVersificationLayouts.find(BVTE_KJV);
+
+	m_pBibleDatabase->m_mapVersificationLayouts[nVersificationType] = CBibleDatabase::TVersificationLayout();
+	CBibleDatabase::TVersificationLayoutMap::iterator itrNewV11n = m_pBibleDatabase->m_mapVersificationLayouts.find(nVersificationType);
+
+	// Setup the Testament List with things common from KJV:
+	itrNewV11n->m_lstTestaments.reserve(itrKJV->m_lstTestaments.size());
+	for (TTestamentList::size_type nTst = 0; nTst < itrKJV->m_lstTestaments.size(); ++nTst) {
+		const CTestamentEntry &entryKJV = itrKJV->m_lstTestaments.at(nTst);
+		CTestamentEntry entryNew;
+		entryNew.m_strTstName = entryKJV.m_strTstName;
+		entryNew.m_nNumBk = entryKJV.m_nNumBk;
+		itrNewV11n->m_lstTestaments.push_back(entryNew);
+	}
+	itrNewV11n->m_EntireBible.m_nNumTst = itrKJV->m_EntireBible.m_nNumTst;
+
+	// Setup the Book List with things common from KJV:
+	itrNewV11n->m_lstBookVerses.reserve(itrKJV->m_lstBooks.size());
+	for (TBookList::size_type nBk = 0; nBk < itrKJV->m_lstBooks.size(); ++nBk) {
+		const CBookEntry &entryKJV = itrKJV->m_lstBooks.at(nBk);
+		CBookEntry entryNew;
+		entryNew.m_nTstBkNdx = entryKJV.m_nTstBkNdx;
+		entryNew.m_nTstNdx = entryKJV.m_nTstNdx;
+		entryNew.m_strBkName = entryKJV.m_strBkName;
+		entryNew.m_lstBkAbbr = entryKJV.m_lstBkAbbr;
+		entryNew.m_strTblName = entryKJV.m_strTblName;
+		entryNew.m_strDesc = entryKJV.m_strDesc;
+		itrNewV11n->m_lstBooks.push_back(entryNew);
+		// ----
+		itrNewV11n->m_lstBookVerses.push_back(TVerseEntryMap());
+	}
+	itrNewV11n->m_EntireBible.m_nNumBk = itrKJV->m_EntireBible.m_nNumBk;
+
+	unsigned int nTotalChp = 0;
+	unsigned int nTotalVrs = 0;
+	unsigned int nTotalWrds = 0;
+	// ----
+	unsigned int nTotalChpBooks = 0;		// Cross-check count of chapters from book entries
+	unsigned int nTotalVrsBooks = 0;		// Cross-check count of verses from book entries
+	unsigned int nTotalWrdsBooks = 0;		// Cross-check count of words from book entries
+	// ----
+	unsigned int nTotalVrsChapters = 0;		// Cross-check count of verses from chapter entries
+	unsigned int nTotalWrdsChapters = 0;	// Cross-check count of words from chapter entries
+
+	while (dbParser.haveData()) {
+		QStringList lstFields;
+		if (!dbParser.readNextRecord(lstFields, 7)) return false;
+
+		CRelIndex ndxRel(lstFields.at(0).toUInt());
+		Q_ASSERT(ndxRel.isSet());
+		if (!ndxRel.isSet()) continue;
+
+		unsigned int nNumChp = lstFields.at(2).toUInt();
+		unsigned int nNumVrs = lstFields.at(3).toUInt();
+		unsigned int nNumWrd = lstFields.at(4).toUInt();
+		CVerseEntry::PILCROW_TYPE_ENUM nPilcrow = static_cast<CVerseEntry::PILCROW_TYPE_ENUM>(lstFields.at(5).toUInt());
+		QString strTemplate = lstFields.at(6);
+
+		Q_ASSERT(ndxRel.book() != 0);
+		Q_ASSERT(ndxRel.word() == 0);
+		if ((ndxRel.book() != 0) && (ndxRel.word() == 0)) {
+			if (ndxRel.chapter() == 0) {
+				// Book Entry:
+				CBookEntry &bookEntry = itrNewV11n->m_lstBooks[ndxRel.book()-1];
+				bookEntry.m_nNumChp = nNumChp;			// Chapters in this book
+				bookEntry.m_nNumVrs = nNumVrs;			// Verses in this book
+				bookEntry.m_nNumWrd = nNumWrd;			// Words in this book
+				bookEntry.m_nWrdAccum = nTotalWrds;
+				// TODO : Add support for extended indexes and letter counts?
+
+				nTotalChpBooks += nNumChp;
+				nTotalVrsBooks += nNumVrs;
+				nTotalWrdsBooks += nNumWrd;
+
+				// Zero chapter/Verse = Optional Colophon for Book:
+				if (!strTemplate.isEmpty()) {
+					bookEntry.m_bHaveColophon = true;
+					QStringList lstWords = strTemplate.split('w');		// We don't have word counts for this pseudo-verse, so compute it from the template
+					Q_ASSERT(!lstWords.empty());
+					CVerseEntry &verseEntry = itrNewV11n->m_lstBookVerses[ndxRel.book()-1][ndxRel];
+					verseEntry.m_nPilcrow = nPilcrow;
+					verseEntry.m_strTemplate = strTemplate;
+					verseEntry.m_nNumWrd = lstWords.size()-1;		// split will create one too many word entries, so subtract 1
+					verseEntry.m_nWrdAccum = nTotalWrds;
+					// TODO : Add support for extended indexes and letter counts?
+					++nTotalVrs;
+					nTotalWrds += verseEntry.m_nNumWrd;
+				}
+			} else {
+				Q_ASSERT(ndxRel.chapter() == nNumChp);
+				if (ndxRel.chapter() == nNumChp) {
+					if (ndxRel.verse() == 0) {
+						// Chapter Entry:
+						CChapterEntry &chapterEntry = itrNewV11n->m_mapChapters[ndxRel];
+						chapterEntry.m_nNumVrs = nNumVrs;		// Verses in this chapter
+						chapterEntry.m_nNumWrd = nNumWrd;		// Words in this chapter
+						chapterEntry.m_nWrdAccum = nTotalWrds;
+						// TODO : Add support for extended indexes and letter counts?
+						++nTotalChp;
+
+						nTotalVrsChapters += nNumVrs;
+						nTotalWrdsChapters += nNumWrd;
+
+						// Zero Verse = Optional Superscription for Chapter:
+						if (!strTemplate.isEmpty()) {
+							chapterEntry.m_bHaveSuperscription = true;
+							QStringList lstWords = strTemplate.split('w');		// We don't have word counts for this pseudo-verse, so compute it from the template
+							Q_ASSERT(!lstWords.empty());
+							CVerseEntry &verseEntry = itrNewV11n->m_lstBookVerses[ndxRel.book()-1][ndxRel];
+							verseEntry.m_nPilcrow = nPilcrow;
+							verseEntry.m_strTemplate = strTemplate;
+							verseEntry.m_nNumWrd = lstWords.size()-1;		// split will create one too many word entries, so subtract 1
+							verseEntry.m_nWrdAccum = nTotalWrds;
+							// TODO : Add support for extended indexes and letter counts?
+							++nTotalVrs;
+							nTotalWrds += verseEntry.m_nNumWrd;
+						}
+					} else {
+						Q_ASSERT(ndxRel.verse() == nNumVrs);
+						if (ndxRel.verse() == nNumVrs) {
+							// Verse Entry:
+							CVerseEntry &verseEntry  = itrNewV11n->m_lstBookVerses[ndxRel.book()-1][ndxRel];
+							verseEntry.m_nPilcrow = nPilcrow;
+							verseEntry.m_strTemplate = strTemplate;
+							verseEntry.m_nNumWrd = nNumWrd;
+							verseEntry.m_nWrdAccum = nTotalWrds;
+							// TODO : Add support for extended indexes and letter counts?
+							++nTotalVrs;
+							nTotalWrds += verseEntry.m_nNumWrd;
+						} else {
+							// TODO : Display error that Verse Number doesn't match
+						}
+					}
+				} else {
+					// TODO : Display error that Chapter Number doesn't match
+				}
+			}
+		} else {
+			// TODO : Display error for Zero-Book or Non-Zero-Word
+		}
+	}
+
+	itrNewV11n->m_EntireBible.m_nNumChp = nTotalChp;
+	itrNewV11n->m_EntireBible.m_nNumVrs = nTotalVrs;
+	itrNewV11n->m_EntireBible.m_nNumWrd = nTotalWrds;
+
+	if ((nTotalChp != nTotalChpBooks) ||
+		((nTotalVrs != nTotalVrsBooks) || (nTotalVrs != nTotalVrsChapters)) ||
+		((nTotalWrds != nTotalWrdsBooks) || (nTotalWrds != nTotalWrdsChapters))) {
+
+		// TODO : Display error if integrity check fails
+
 	}
 
 	dbParser.endQueryLoop();
@@ -1415,6 +1618,7 @@ bool CReadDatabase::readBibleStub()
 		(!ReadPHRASESTable()) ||
 		(!ReadLEMMASTable()) ||
 		(!ReadSTRONGSTable()) ||
+		(!ReadVersificationTables()) ||
 		(!ValidateData())) return false;
 #ifdef USE_EXTENDED_INDEXES
 	// Build Letter counts.  Do this here after reading the
