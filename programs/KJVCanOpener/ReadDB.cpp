@@ -1297,15 +1297,28 @@ bool CReadDatabase::ReadVersificationTables()
 							++nTotalVrs;
 							nTotalWrds += verseEntry.m_nNumWrd;
 						} else {
-							// TODO : Display error that Verse Number doesn't match
+							// Verse doesn't match:
+							displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Versification: %1\nLine: %2\nIndex Verse: %3 doesn't match given Verse: %4!", "ReadDB")
+											.arg(dbParser.tableInfo()).arg(lstFields.join(",")).arg(ndxRel.verse()).arg(nNumVrs));
+							return false;
 						}
 					}
 				} else {
-					// TODO : Display error that Chapter Number doesn't match
+					// Chapter doesn't match:
+					displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Versification: %1\nLine: %2\nIndex Chapter: %3 doesn't match given Chapter: %4!", "ReadDB")
+									.arg(dbParser.tableInfo()).arg(lstFields.join(",")).arg(ndxRel.chapter()).arg(nNumChp));
+					return false;
 				}
 			}
 		} else {
-			// TODO : Display error for Zero-Book or Non-Zero-Word
+			// Zero-Book or Non-Zero-Word:
+			if (ndxRel.book() == 0) {
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Versification: %1\nLine: %2\nIndex Book is Zero!", "ReadDB")
+								.arg(dbParser.tableInfo()).arg(lstFields.join(",")));
+				return false;
+			}
+			// Silently ignore Non-Zero-Word so we can reserve it for future expansion.
+			//	The assert above the 'if' should catch errors until we repurpose it.
 		}
 	}
 
@@ -1316,9 +1329,15 @@ bool CReadDatabase::ReadVersificationTables()
 	if ((nTotalChp != nTotalChpBooks) ||
 		((nTotalVrs != nTotalVrsBooks) || (nTotalVrs != nTotalVrsChapters)) ||
 		((nTotalWrds != nTotalWrdsBooks) || (nTotalWrds != nTotalWrdsChapters))) {
-
-		// TODO : Display error if integrity check fails
-
+		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Versification: %1 Validation Failed!\n"
+																	"Total Chapters: %2,  Book Chapters Specified: %3\n"
+																	"Total Verses: %4, Book Verses Specified: %5, Chapter Verses Specified: %6\n"
+																	"Total Words: %7, Book Words Specified: %8, Chapter Words Specified: %9", "ReadDB")
+																	.arg(dbParser.tableInfo())
+																	.arg(nTotalChp).arg(nTotalChpBooks)
+																	.arg(nTotalVrs).arg(nTotalVrsBooks).arg(nTotalVrsChapters)
+																	.arg(nTotalWrds).arg(nTotalWrdsBooks).arg(nTotalWrdsChapters));
+		return false;
 	}
 
 	dbParser.endQueryLoop();
