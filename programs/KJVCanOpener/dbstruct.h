@@ -1457,6 +1457,11 @@ public:
 	unsigned int bookWordCountProper(unsigned int nBook) const;
 	unsigned int chapterWordCountProper(unsigned int nBook, unsigned int nChapter) const;
 
+	inline bool hasVersificationType(BIBLE_VERSIFICATION_TYPE_ENUM nVersification) const
+	{
+		return m_mapVersificationLayouts.contains(nVersification);
+	}
+
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
 	{
 		return m_itrCurrentLayout->m_EntireBible;

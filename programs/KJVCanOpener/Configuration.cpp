@@ -55,6 +55,8 @@
 #include <QwwColorButton>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QStandardItemModel>
+#include <QStandardItem>
 #include <QMessageBox>
 #include <QTimer>
 #if QT_VERSION >= 0x050000
@@ -1340,6 +1342,17 @@ void CConfigBibleDatabase::setSettingControls(const QString &strUUID)
 		//	that isn't cantillation, this will need to be updated accordingly:
 		ui.checkBoxHideCantillationMarks->setEnabled(!pBibleDatabase->searchSpaceIsCompleteConcordance());
 		ui.comboBoxVersification->setEnabled(pBibleDatabase->descriptor().m_btoFlags & BTO_AllowVersification);
+		if (pBibleDatabase->descriptor().m_btoFlags & BTO_AllowVersification) {
+			QStandardItemModel *pModel = qobject_cast<QStandardItemModel *>(ui.comboBoxVersification->model());
+			Q_ASSERT(pModel != nullptr);
+			for (int ndx = 0; ndx < pModel->rowCount(); ++ndx) {
+				QStandardItem *pItem = pModel->item(ndx);
+				Q_ASSERT(pItem != nullptr);
+				pItem->setFlags(pBibleDatabase->hasVersificationType(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(pItem->data(Qt::UserRole).toInt()))
+									? (pItem->flags() | Qt::ItemIsEnabled)
+									: (pItem->flags() & ~Qt::ItemIsEnabled));
+			}
+		}
 		ui.comboBoxCategoryGroup->setEnabled(true);
 		ui.buttonDisplayBibleInfo->setEnabled(!pBibleDatabase->info().isEmpty());
 		m_pBibleWordDiffListModel->setBibleDatabase(pBibleDatabase);
