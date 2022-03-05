@@ -2399,220 +2399,49 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 // ============================================================================
 // ============================================================================
 
-int main(int argc, char *argv[])
+enum OUTPUT_ERROR_CODES_ENUM {
+	ERR_CODE_NONE = 0,
+	ERR_CODE_USAGE = -1,							// Usage/Command-line error
+	ERR_CODE_BUILD_PATH = -2,						// Output path bad
+	ERR_CODE_OSIS_FILE_MISSING = -3,				// OSIS Input File Open Failed
+	ERR_CODE_INFO_FILE_MISSING = -4,				// Info Open Failed or Copy Failed
+	ERR_CODE_OSIS_PARSE_FAILED = -5,				// OSIS Parse Failed
+	ERR_CODE_DBINFO_FILE_WRITE_FAILED = -6,			// DBInfo File Write Failed
+	ERR_CODE_TESTAMENT_FILE_WRITE_FAILED = -7,		// Testament File Write Failed
+	ERR_CODE_BOOK_FILE_WRITE_FAILED = -8,			// Book (TOC) File Write Failed
+	ERR_CODE_CHAPTER_FILE_WRITE_FAILED = -9,		// Chapter (Layout) File Write Failed
+	ERR_CODE_VERSE_FILE_WRITE_FAILED = -10,			// Verse (Book) File Write Failed
+	ERR_CODE_WORDS_FILE_WRITE_FAILED = -11,			// Words File Write Failed
+	ERR_CODE_WORD_SUMMARY_FILE_WRITE_FAILED = -12,	// Word Summary File Write Failed
+	ERR_CODE_FOOTNOTES_FILE_WRITE_FAILED = -13,		// Footnotes File Write Failed
+	ERR_CODE_PHRASES_FILE_WRITE_FAILED = -14,		// Phrases File Write Failed
+	ERR_CODE_LEMMAS_FILE_WRITE_FAILED = -15,		// Lemmas File Write Failed
+	ERR_CODE_STRONGS_FILE_WRITE_FAILED = -16,		// Strongs File Write Failed
+	ERR_CODE_VERSIFICATION_FILE_WRITE_FAILED = -17,	// Versification File Write Failed
+};
+
+// ============================================================================
+// ============================================================================
+
+static int writeDBInfoFile(const QDir &dirOutput, const TBibleDescriptor &bblDescriptor, const QString &strInfoFilename)
 {
-	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
-
-#if QT_VERSION < 0x050000
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
-
-	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
-	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
-
-	// Load translations and set main application based on our locale:
-	CTranslatorList::instance()->setApplicationLanguage();
-
-	int nArgsFound = 0;
-	bool bUnknownOption = false;
-	bool bNoColophonVerses = false;
-	bool bUseBracketColophons = false;
-	bool bDisableColophons = false;
-	bool bNoSuperscriptionVerses = false;
-	bool bDisableSuperscriptions = false;
-	bool bBracketItalics = false;
-	bool bNoArabicNumeralWords = false;
-	bool bInlineFootnotes = false;
-	bool bUseBracketFootnotes = false;
-	bool bUseBracketFootnotesExcluded = false;
-	bool bExcludeDeuterocanonical = false;
-	bool bMissingOK = false;		// Missing OR Extra Chapters/Verses are OK, (i.e. don't enforce KJV Versification)
-	int nDescriptor = -1;
-	QString strOSISFilename;
-	QString strInfoFilename;
-	QString strOutputPath;
-	bool bLookingForOutputPath = false;
-	QString strDefaultOutputPath = QProcessEnvironment::systemEnvironment().value(constrBuildDBPathEnvKey);
-	if (!strDefaultOutputPath.isEmpty()) strDefaultOutputPath = QFileInfo(strDefaultOutputPath, "data").absoluteFilePath();
-	QString strStrongsImpPath;
-	bool bLookingforSegVariant = false;
-	QString strSegVariant;
-
-	for (int ndx = 1; ndx < argc; ++ndx) {
-		QString strArg = QString::fromUtf8(argv[ndx]);
-		if (!strArg.startsWith("-")) {
-			if (bLookingForOutputPath) {
-				strOutputPath = strArg;
-				bLookingForOutputPath = false;
-			} else if (bLookingforSegVariant) {
-				strSegVariant = strArg;
-				bLookingforSegVariant = false;
-			} else {
-				++nArgsFound;
-				if (nArgsFound == 1) {
-					nDescriptor = strArg.toInt();
-				} else if (nArgsFound == 2) {
-					strOSISFilename = strArg;
-				} else if (nArgsFound == 3) {
-					strInfoFilename = strArg;
-				} else if (nArgsFound == 4) {
-					strStrongsImpPath = strArg;
-				}
-			}
-		} else if (strArg.compare("-o") == 0) {
-			bLookingForOutputPath = true;
-		} else if (strArg.compare("-c") == 0) {
-			bNoColophonVerses = true;
-		} else if (strArg.compare("-bc") == 0) {
-			bUseBracketColophons = true;
-		} else if (strArg.compare("-cd") == 0) {
-			bDisableColophons = true;
-		} else if (strArg.compare("-s") == 0) {
-			bNoSuperscriptionVerses = true;
-		} else if (strArg.compare("-sd") == 0) {
-			bDisableSuperscriptions = true;
-		} else if (strArg.compare("-i") == 0) {
-			bBracketItalics = true;
-		} else if (strArg.compare("-v") == 0) {
-			bLookingforSegVariant = true;
-		} else if (strArg.compare("-n") == 0) {
-			bNoArabicNumeralWords = true;
-		} else if (strArg.compare("-f") == 0) {
-			bInlineFootnotes = true;
-		} else if (strArg.compare("-bf") == 0) {
-			bUseBracketFootnotes = true;
-		} else if (strArg.compare("-bfx") == 0) {
-			bUseBracketFootnotes = true;
-			bUseBracketFootnotesExcluded = true;
-		} else if (strArg.compare("-x") == 0) {
-			bExcludeDeuterocanonical = true;
-		} else if (strArg.compare("-m") == 0) {
-			bMissingOK = true;
-		} else {
-			bUnknownOption = true;
-		}
-	}
-
-	if (strOutputPath.isEmpty()) strOutputPath = strDefaultOutputPath;
-
-	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
-		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
-		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
-		std::cerr << QString("    necessary to import into KJPBS into <datafile-path> (see -o option below)\n\n").toUtf8().data();
-		std::cerr << QString("<infofile> is the path/filename to the information file to include\n\n").toUtf8().data();
-		std::cerr << QString("Options\n").toUtf8().data();
-		std::cerr << QString("    -o <datafile-path> = Data File Output path%1\n").arg(strDefaultOutputPath.isEmpty() ? " (required)" : "").toUtf8().data();
-		if (!strDefaultOutputPath.isEmpty()) {
-			std::cerr << QString("           (optional, if not specified, will use env path of: \"%1\")\n").arg(strDefaultOutputPath).toUtf8().data();
-		}
-		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses (only as footnotes)\n").toUtf8().data();
-		std::cerr << QString("    -bc =  Enable Bracket Colophons (such as used in the TR text)\n").toUtf8().data();
-		std::cerr << QString("           (use with -c to find the bracket colophons and remove them)\n").toUtf8().data();
-		std::cerr << QString("           (Note: -bc will take precedence over -i)\n").toUtf8().data();
-		std::cerr << QString("    -cd =  Disable all Colophon generation (pseudo-verses and footnote form)\n").toUtf8().data();
-		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses (only as footnotes)\n").toUtf8().data();
-		std::cerr << QString("    -sd =  Disable all Superscription generation (pseudo-verses and footnote form)\n").toUtf8().data();
-		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
-		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
-		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
-		std::cerr << QString("    -f  =  Inline footnotes as Uncounted Parentheticals\n").toUtf8().data();
-		std::cerr << QString("    -bf =  Enable Bracket Inline Footnotes (such as used in the RusSynodal)\n").toUtf8().data();
-		std::cerr << QString("           (Note: -bf will take precedence over -i and -bc, and implies -f)\n").toUtf8().data();
-		std::cerr << QString("    -bfx=  Enable Bracket Inline Footnotes and Exclude them\n").toUtf8().data();
-		std::cerr << QString("           (Identical to -bf, but excludes them, and overrides -f)\n").toUtf8().data();
-		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
-		std::cerr << QString("    -m  =  Missing/Extra Chapters/Verses are OK (don't fit to KJV Versification)\n").toUtf8().data();
-		std::cerr << QString("\n").toUtf8().data();
-		std::cerr << QString("UUID-Index:\n").toUtf8().data();
-		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
-			BIBLE_DESCRIPTOR_ENUM nBDETemp = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
-			std::cerr << QString("    %1 = %2 (%3)\n").arg(ndx).arg(bibleDescriptor(nBDETemp).m_strDBName).arg(bibleDescriptor(nBDETemp).m_strDBDesc).toUtf8().data();
-		}
-		std::cerr << "\n";
-		return -1;
-	}
-
-	if ((nDescriptor < 0) || (static_cast<unsigned int>(nDescriptor) >= bibleDescriptorCount())) {
-		std::cerr << "Unknown UUID-Index\n";
-		return -1;
-	}
-
-	BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor);
-	TBibleDescriptor bblDescriptor = bibleDescriptor(nBDE);
-
-	QDir dirOutput(strOutputPath);
-	if (!dirOutput.exists()) {
-		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.path()).toUtf8().data();
-		return -2;
-	}
-
-	QFile fileOSIS;
-
-	fileOSIS.setFileName(strOSISFilename);
-	if (!fileOSIS.open(QIODevice::ReadOnly)) {
-		std::cerr << QString("\n\n*** Failed to open OSIS database \"%1\"\n").arg(strOSISFilename).toUtf8().data();
-		return -3;
-	}
-
-	QXmlInputSource xmlInput(&fileOSIS);
-	QXmlSimpleReader xmlReader;
-	COSISXmlHandler xmlHandler(bblDescriptor);
-
-	xmlHandler.setNoColophonVerses(bNoColophonVerses);
-	xmlHandler.setUseBracketColophons(bUseBracketColophons);
-	xmlHandler.setDisableColophons(bDisableColophons);
-	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
-	xmlHandler.setDisableSuperscriptions(bDisableSuperscriptions);
-	xmlHandler.setBracketItalics(bBracketItalics);
-	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
-	xmlHandler.setInlineFootnotes(bInlineFootnotes);
-	xmlHandler.setUseBracketFootnotes(bUseBracketFootnotes);
-	xmlHandler.setUseBracketFootnotesExcluded(bUseBracketFootnotesExcluded);
-	xmlHandler.setExcludeDeuterocanonical(bExcludeDeuterocanonical);
-	xmlHandler.setSegVariant(strSegVariant);
-	xmlHandler.setStrongsImpFilepath(strStrongsImpPath);
-
-	xmlReader.setContentHandler(&xmlHandler);
-	xmlReader.setErrorHandler(&xmlHandler);
-//	xmlReader.setFeature("http://www.bibletechnologies.net/2003/OSIS/namespace", true);
-
-	if (!xmlReader.parse(xmlInput)) {
-		std::cerr << QString("\n\n*** Failed to parse OSIS database \"%1\"\n%2\n").arg(strOSISFilename).arg(xmlHandler.errorString()).toUtf8().data();
-		return -4;
-	}
-
-	const CBibleDatabase *pBibleDatabase = xmlHandler.bibleDatabase();
-	bblDescriptor = pBibleDatabase->descriptor();		// Update descriptor from parsing
-
-	// ------------------------------------------------------------------------
-
-	QFile fileTestaments;	// Testaments CSV being written
-	QFile fileBooks;		// Books CSV being written (Originally known as "TOC")
-	QFile fileChapters;		// Chapters CSV being written (Originally known as "Layout")
-	QFile fileVerses;		// Verses CSV being written (Originally known as "BOOKS")
-	QFile fileWords;		// Words CSV being written
-	QFile fileFootnotes;	// Footnotes CSV being written
-	QFile fileWordSummary;	// Words Summary CSV being written
-	QFile filePhrases;		// Default search phrases CSV being written (deprecated)
-	QFile fileLemmas;		// Lemma list being written
-	QFile fileStrongs;		// Strongs database list being written
-
 	QFileInfo fiInfoFile(strInfoFilename);
 	if (!strInfoFilename.isEmpty()) {
+		std::cerr << strInfoFilename.toUtf8().data() << "\n";
 		if ((!fiInfoFile.exists()) || (!fiInfoFile.isFile())) {
 			std::cerr << QString("\n\n*** Info Filename \"%1\" doesn't exist\n\n").arg(strInfoFilename).toUtf8().data();
-			return -3;
+			return ERR_CODE_INFO_FILE_MISSING;
 		}
 		if (!QFile::copy(fiInfoFile.absoluteFilePath(), dirOutput.absoluteFilePath(fiInfoFile.fileName()))) {
 			std::cerr << QString("\n\n*** Failed to copy Info File from \"%1\" to \"%2\"\n\n")
 						 .arg(fiInfoFile.absoluteFilePath())
 						 .arg(dirOutput.absoluteFilePath(fiInfoFile.fileName()))
 						 .toUtf8().data();
+			return ERR_CODE_INFO_FILE_MISSING;
 		}
 	}
 
+	std::cerr << "DBInfo.ini\n";
 	QSettings settingsDBInfo(dirOutput.absoluteFilePath("DBInfo.ini"), QSettings::IniFormat);
 #if QT_VERSION < 0x060000
 	settingsDBInfo.setIniCodec("UTF-8");
@@ -2633,10 +2462,21 @@ int main(int argc, char *argv[])
 	settingsDBInfo.setValue("InfoFilename", (!strInfoFilename.isEmpty() ? fiInfoFile.fileName() : QString()));
 	settingsDBInfo.endGroup();
 
+	if (settingsDBInfo.status() != QSettings::NoError) return ERR_CODE_DBINFO_FILE_WRITE_FAILED;
+
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
+static int writeTestamentsFile(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
+{
+	QFile fileTestaments;	// Testaments CSV being written
+
 	fileTestaments.setFileName(dirOutput.absoluteFilePath("TESTAMENT.csv"));
 	if (!fileTestaments.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Testament Output File \"%1\"\n").arg(fileTestaments.fileName()).toUtf8().data();
-		return -5;
+		return ERR_CODE_TESTAMENT_FILE_WRITE_FAILED;
 	}
 
 	fileTestaments.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
@@ -2647,26 +2487,13 @@ int main(int argc, char *argv[])
 	std::cerr << QFileInfo(fileTestaments).fileName().toUtf8().data() << "\n";
 	fileTestaments.close();
 
-	fileBooks.setFileName(dirOutput.absoluteFilePath("TOC.csv"));
-	if (!fileBooks.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Books Output File \"%1\"\n").arg(fileBooks.fileName()).toUtf8().data();
-		return -6;
-	}
+	return ERR_CODE_NONE;
+}
 
-	fileBooks.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
-	fileBooks.write(QString("BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc\r\n").toUtf8());
+// ----------------------------------------------------------------------------
 
-	fileChapters.setFileName(dirOutput.absoluteFilePath("LAYOUT.csv"));
-	if (!fileChapters.open(QIODevice::WriteOnly)) {
-		std::cerr << QString("\n\n*** Failed to open Chapters Output File \"%1\"\n").arg(fileChapters.fileName()).toUtf8().data();
-		return -7;
-	}
-
-	fileChapters.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	fileChapters.write(QString("BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n").toUtf8());
-
-
-	TBibleChapterVerseCounts lstChapterVerseCounts;
+struct TWordListBaton
+{
 	// mapWordList will be for ALL forms of all words so that we can get mapping/counts
 	//	for all unique forms of words.  Words in this map will NOT be indexed by the
 	//	lowercase nor the base-form of the word, but by the actual word itself.
@@ -2676,6 +2503,38 @@ int main(int argc, char *argv[])
 	//	alternates:
 	TWordListMap mapWordList;				// mapWordList is indexed by the Word form as-is (no changes in case or cantillation)
 	TAltWordListMap mapAltWordList;			// mapAltWordList is indexed by the LowerCase decantillated form of the Word
+};
+
+static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase,
+									TWordListBaton &wordListBaton,
+									COSISXmlHandler &xmlHandler, bool bMissingOK,
+									bool bWriteFiles)		// If bWriteFiles is false -- don't write files, just compute counts
+{
+	QFile fileBooks;		// Books CSV being written (Originally known as "TOC")
+	QFile fileChapters;		// Chapters CSV being written (Originally known as "Layout")
+	QFile fileVerses;		// Verses CSV being written (Originally known as "BOOKS")
+
+	if (bWriteFiles) {
+		fileBooks.setFileName(dirOutput.absoluteFilePath("TOC.csv"));
+		if (!fileBooks.open(QIODevice::WriteOnly)) {
+			std::cerr << QString("\n\n*** Failed to open Books Output File \"%1\"\n").arg(fileBooks.fileName()).toUtf8().data();
+			return ERR_CODE_BOOK_FILE_WRITE_FAILED;
+		}
+
+		fileBooks.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
+		fileBooks.write(QString("BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc\r\n").toUtf8());
+
+		fileChapters.setFileName(dirOutput.absoluteFilePath("LAYOUT.csv"));
+		if (!fileChapters.open(QIODevice::WriteOnly)) {
+			std::cerr << QString("\n\n*** Failed to open Chapters Output File \"%1\"\n").arg(fileChapters.fileName()).toUtf8().data();
+			return ERR_CODE_CHAPTER_FILE_WRITE_FAILED;
+		}
+
+		fileChapters.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+		fileChapters.write(QString("BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n").toUtf8());
+	}
+
+	TBibleChapterVerseCounts lstChapterVerseCounts;
 
 	unsigned int nWordAccum = 0;
 	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
@@ -2695,16 +2554,20 @@ int main(int argc, char *argv[])
 		}
 		(const_cast<CBookEntry*>(pBook))->m_nWrdAccum = nWordAccum;
 
-		fileVerses.setFileName(dirOutput.absoluteFilePath(QString("BOOK_%1_%2.csv").arg(nBk, 2, 10, QChar('0')).arg(pBook->m_strTblName)));
-		if (!fileVerses.open(QIODevice::WriteOnly)) {
-			std::cerr << QString("\n\n*** Failed to open Verses Output File \"%1\"\n").arg(fileVerses.fileName()).toUtf8().data();
-			return -8;
+		if (bWriteFiles) {
+			fileVerses.setFileName(dirOutput.absoluteFilePath(QString("BOOK_%1_%2.csv").arg(nBk, 2, 10, QChar('0')).arg(pBook->m_strTblName)));
+			if (!fileVerses.open(QIODevice::WriteOnly)) {
+				std::cerr << QString("\n\n*** Failed to open Verses Output File \"%1\"\n").arg(fileVerses.fileName()).toUtf8().data();
+				return ERR_CODE_VERSE_FILE_WRITE_FAILED;
+			}
+
+			fileVerses.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+			fileVerses.write(QString("ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText\r\n").toUtf8());
+
+			std::cerr << QFileInfo(fileVerses).fileName().toUtf8().data();
+		} else {
+			std::cerr << pBook->m_strTblName.toUtf8().data();
 		}
-
-		fileVerses.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-		fileVerses.write(QString("ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText\r\n").toUtf8());
-
-		std::cerr << QFileInfo(fileVerses).fileName().toUtf8().data();
 
 		unsigned int nChapterWordAccum = 0;
 		unsigned int nChaptersExpected = qMax(pBook->m_nNumChp, static_cast<unsigned int>(lstChapterVerseCounts.at(nBk-1).size()));
@@ -2818,15 +2681,17 @@ int main(int argc, char *argv[])
 				QStringList lstTempTemplate = pVerse->m_strTemplate.trimmed().split('\"');
 				QString strBuffTemplate = lstTempTemplate.join("\"\"");
 
-				// ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText
-				fileVerses.write(QString("%1,%2,%3,\"%4\",\"%5\",\"%6\"\r\n")
-								 .arg(CRelIndex(0,0,nChp,nVrs).index())		// 1
-								 .arg(pVerse->m_nNumWrd)					// 2
-								 .arg(pVerse->m_nPilcrow)					// 3
-								 .arg(QString())							// 4	(PlainText)
-								 .arg(QString())							// 5	(RichText)
-								 .arg(strBuffTemplate)						// 6	(TemplateText)
-								 .toUtf8());
+				if (bWriteFiles) {
+					// ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText
+					fileVerses.write(QString("%1,%2,%3,\"%4\",\"%5\",\"%6\"\r\n")
+									 .arg(CRelIndex(0,0,nChp,nVrs).index())		// 1
+									 .arg(pVerse->m_nNumWrd)					// 2
+									 .arg(pVerse->m_nPilcrow)					// 3
+									 .arg(QString())							// 4	(PlainText)
+									 .arg(QString())							// 5	(RichText)
+									 .arg(strBuffTemplate)						// 6	(TemplateText)
+									 .toUtf8());
+				}
 
 
 				// Now use the words we've gathered from this verse to build the Word Lists and Concordance:
@@ -2836,8 +2701,8 @@ int main(int argc, char *argv[])
 					//QString strWord = pVerse->m_lstWords.at(nWrd-1);
 					QString strRichWord = pVerse->m_lstRichWords.at(nWrd-1);
 					QString strDeCantillatedWord = StringParse::deCantillate(strRichWord);
-					CWordEntry &wordEntry = mapWordList[strRichWord];
-					TWordListSet &wordSet = mapAltWordList[strDeCantillatedWord.toLower()];
+					CWordEntry &wordEntry = wordListBaton.mapWordList[strRichWord];
+					TWordListSet &wordSet = wordListBaton.mapAltWordList[strDeCantillatedWord.toLower()];
 					wordSet.insert(strRichWord);
 					wordEntry.m_ndxNormalizedMapping.push_back(pVerse->m_nWrdAccum+nWrd);
 				}
@@ -2865,17 +2730,18 @@ int main(int argc, char *argv[])
 				nChapterWordAccum += nVerseWordAccum;		// Book has words of Colophons that aren't part of chapters proper
 			}
 
-			if (pChapter != nullptr) {
-				// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
-				fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
-								   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
-								   .arg(pChapter->m_nNumVrs)					// 2
-								   .arg(pChapter->m_nNumWrd)					// 3
-								   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
-								   .arg(nChp)									// 5
-								   .toUtf8());
+			if (bWriteFiles) {
+				if (pChapter != nullptr) {
+					// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
+					fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
+									   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
+									   .arg(pChapter->m_nNumVrs)					// 2
+									   .arg(pChapter->m_nNumWrd)					// 3
+									   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
+									   .arg(nChp)									// 5
+									   .toUtf8());
+				}
 			}
-
 		}
 		if (nChapterWordAccum != pBook->m_nNumWrd) {
 			std::cerr << QString("\n*** Error: %1 Book Word Count (%2) doesn't match sum of Chapter Word Counts (%3)!\n")
@@ -2889,22 +2755,24 @@ int main(int argc, char *argv[])
 					  << pBibleDatabase->PassageReferenceText(CRelIndex(nBk, 0, 0, 0)).toUtf8().data() << "\n";
 		}
 
-		fileVerses.close();
+		if (bWriteFiles) {
+			fileVerses.close();
 
-		// BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
-		fileBooks.write(QString("%1,%2,%3,\"%4\",%5,%6,%7,%8,%9,\"%10\",\"%11\"\r\n")
-						.arg(nBk)							// 1
-						.arg(pBook->m_nTstBkNdx)			// 2
-						.arg(pBook->m_nTstNdx)				// 3
-						.arg(pBook->m_strBkName)			// 4
-						.arg(pBook->m_lstBkAbbr.join(";"))	// 5
-						.arg(pBook->m_strTblName)			// 6
-						.arg(pBook->m_nNumChp)				// 7
-						.arg(pBook->m_nNumVrs)				// 8
-						.arg(pBook->m_nNumWrd)				// 9
-						.arg(pBibleDatabase->bookCategoryName(CRelIndex(nBk, 0, 0, 0)))		// 10 - Note: Category is deprecated, but write it for compatibility with creating databases for old KJPBS versions
-						.arg(pBook->m_strDesc)				// 11
-						.toUtf8());
+			// BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
+			fileBooks.write(QString("%1,%2,%3,\"%4\",%5,%6,%7,%8,%9,\"%10\",\"%11\"\r\n")
+							.arg(nBk)							// 1
+							.arg(pBook->m_nTstBkNdx)			// 2
+							.arg(pBook->m_nTstNdx)				// 3
+							.arg(pBook->m_strBkName)			// 4
+							.arg(pBook->m_lstBkAbbr.join(";"))	// 5
+							.arg(pBook->m_strTblName)			// 6
+							.arg(pBook->m_nNumChp)				// 7
+							.arg(pBook->m_nNumVrs)				// 8
+							.arg(pBook->m_nNumWrd)				// 9
+							.arg(pBibleDatabase->bookCategoryName(CRelIndex(nBk, 0, 0, 0)))		// 10 - Note: Category is deprecated, but write it for compatibility with creating databases for old KJPBS versions
+							.arg(pBook->m_strDesc)				// 11
+							.toUtf8());
+		}
 
 
 		std::cerr << "\n";
@@ -2913,18 +2781,28 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n*** Warning: Total book count (%1) exceeds maximum allowed (%2)!\n").arg(pBibleDatabase->bibleEntry().m_nNumBk).arg(CRelIndex::maxBookCount()).toUtf8().data();
 	}
 
-	std::cerr << QFileInfo(fileChapters).fileName().toUtf8().data() << "\n";
-	fileChapters.close();
+	if (bWriteFiles) {
+		std::cerr << QFileInfo(fileChapters).fileName().toUtf8().data() << "\n";
+		fileChapters.close();
 
-	std::cerr << QFileInfo(fileBooks).fileName().toUtf8().data() << "\n";
-	fileBooks.close();
+		std::cerr << QFileInfo(fileBooks).fileName().toUtf8().data() << "\n";
+		fileBooks.close();
+	}
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
+static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase,
+									TWordListBaton &wordListBaton)
+{
+	QFile fileWords;		// Words CSV being written
 
 	fileWords.setFileName(dirOutput.absoluteFilePath("WORDS.csv"));
 	if (!fileWords.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Words Output File \"%1\"\n").arg(fileWords.fileName()).toUtf8().data();
-		return -9;
+		return ERR_CODE_WORDS_FILE_WRITE_FAILED;
 	}
 	std::cerr << QFileInfo(fileWords).fileName().toUtf8().data();
 
@@ -2936,12 +2814,12 @@ int main(int argc, char *argv[])
 	// We've now built a list of word indexes and alternate forms, and now we
 	//	need to take this list and convert it to the form of the database:
 	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
-	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
+	for (TAltWordListMap::const_iterator itrUniqWrd = wordListBaton.mapAltWordList.begin(); itrUniqWrd != wordListBaton.mapAltWordList.end(); ++itrUniqWrd) {
 		const TWordListSet &setAltWords = itrUniqWrd->second;
 		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
 		for (TWordListSet::const_iterator itrAltWrd = setAltWords.begin(); itrAltWrd != setAltWords.end(); ++itrAltWrd) {
-			TWordListMap::const_iterator itrWrd = mapWordList.find(*itrAltWrd);
-			if (itrWrd == mapWordList.end()) {
+			TWordListMap::const_iterator itrWrd = wordListBaton.mapWordList.find(*itrAltWrd);
+			if (itrWrd == wordListBaton.mapWordList.end()) {
 				std::cerr << QString("\n*** Error: %1 -> %2 -- Couldn't Find it (something bad happened!)\n").arg(itrUniqWrd->first).arg(*itrAltWrd).toUtf8().data();
 				continue;
 			}
@@ -2985,10 +2863,12 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
+	QFile fileWordSummary;	// Words Summary CSV being written
+
 	fileWordSummary.setFileName(dirOutput.absoluteFilePath("WORDS_summary.csv"));
 	if (!fileWordSummary.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Words Summary Output File \"%1\"\n").arg(fileWordSummary.fileName()).toUtf8().data();
-		return -9;
+		return ERR_CODE_WORD_SUMMARY_FILE_WRITE_FAILED;
 	}
 	std::cerr << QFileInfo(fileWordSummary).fileName().toUtf8().data();
 
@@ -3018,7 +2898,7 @@ int main(int argc, char *argv[])
 
 // Use previously defined mapDbWordList:
 //	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
-	for (TAltWordListMap::const_iterator itrUniqWrd = mapAltWordList.begin(); itrUniqWrd != mapAltWordList.end(); ++itrUniqWrd) {
+	for (TAltWordListMap::const_iterator itrUniqWrd = wordListBaton.mapAltWordList.begin(); itrUniqWrd != wordListBaton.mapAltWordList.end(); ++itrUniqWrd) {
 		const TWordListSet &setAltWords = itrUniqWrd->second;
 		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
 		QString strAltWords;
@@ -3086,25 +2966,20 @@ int main(int argc, char *argv[])
 	fileWordSummary.close();
 	std::cerr << "\n";
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
 
-	if (strSegVariant.isEmpty() && xmlHandler.foundSegVariant()) {
-		std::cerr << "\n"
-					 "*** WARNING: Text contains seg variant text tags and no variant to parse was specified!\n"
-					 "             Resulting database file will contain all variants run together!!\n\n";
-	} else if (!strSegVariant.isEmpty() && !xmlHandler.foundSegVariant()) {
-		std::cerr << "\n"
-					 "*** WARNING: Specified seg variant wasn't found!  Resulting database file may be missing text!!\n\n";
-	}
+// ----------------------------------------------------------------------------
 
-	// ------------------------------------------------------------------------
-
+static int writeFootnotesFile(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
+{
+	QFile fileFootnotes;	// Footnotes CSV being written
 	unsigned int nFootnoteIndex = 0;
 
 	fileFootnotes.setFileName(dirOutput.absoluteFilePath("FOOTNOTES.csv"));
 	if (!fileFootnotes.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Footnotes Output File \"%1\"\n").arg(fileFootnotes.fileName()).toUtf8().data();
-		return -9;
+		return ERR_CODE_FOOTNOTES_FILE_WRITE_FAILED;
 	}
 	std::cerr << QFileInfo(fileFootnotes).fileName().toUtf8().data();
 
@@ -3129,7 +3004,16 @@ int main(int argc, char *argv[])
 	fileFootnotes.close();
 	std::cerr << "\n";
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
+static int writePhrasesFile(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
+{
+	Q_UNUSED(pBibleDatabase);
+
+	QFile filePhrases;		// Default search phrases CSV being written (deprecated)
 
 	// Phrases are somewhat deprecated.  Write an empty PHRASES file so that the
 	//	KJPBS build will succeed.  The person doing the build can always override
@@ -3137,7 +3021,7 @@ int main(int argc, char *argv[])
 	filePhrases.setFileName(dirOutput.absoluteFilePath("PHRASES.csv"));
 	if (!filePhrases.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Phrases Output File \"%1\"\n").arg(filePhrases.fileName()).toUtf8().data();
-		return -10;
+		return ERR_CODE_PHRASES_FILE_WRITE_FAILED;
 	}
 	std::cerr << QFileInfo(filePhrases).fileName().toUtf8().data();
 
@@ -3147,13 +3031,21 @@ int main(int argc, char *argv[])
 	filePhrases.close();
 	std::cerr << "\n";
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
+static int writeLemmasFile(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
+{
+
+	QFile fileLemmas;		// Lemma list being written
 
 	// Write Lemmas:
 	fileLemmas.setFileName(dirOutput.absoluteFilePath("LEMMAS.csv"));
 	if (!fileLemmas.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Lemma Output File \"%1\"\n").arg(fileLemmas.fileName()).toUtf8().data();
-		return -11;
+		return ERR_CODE_LEMMAS_FILE_WRITE_FAILED;
 	}
 	std::cerr << QFileInfo(fileLemmas).fileName().toUtf8().data();
 
@@ -3181,13 +3073,20 @@ int main(int argc, char *argv[])
 	fileLemmas.close();
 	std::cerr << "\n";
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
+static int writeStrongs(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
+{
+	QFile fileStrongs;		// Strongs database list being written
 
 	// Write Strongs Database:
 	fileStrongs.setFileName(dirOutput.absoluteFilePath("STRONGS.csv"));
 	if (!fileStrongs.open(QIODevice::WriteOnly)) {
 		std::cerr << QString("\n\n*** Failed to open Strongs Output File \"%1\"\n").arg(fileStrongs.fileName()).toUtf8().data();
-		return -11;
+		return ERR_CODE_STRONGS_FILE_WRITE_FAILED;
 	}
 	std::cerr << QFileInfo(fileStrongs).fileName().toUtf8().data();
 
@@ -3212,9 +3111,143 @@ int main(int argc, char *argv[])
 	fileStrongs.close();
 	std::cerr << "\n";
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
 
-#if CHECK_INDEXES
+// ----------------------------------------------------------------------------
+
+static int writeVersification(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase, BIBLE_VERSIFICATION_TYPE_ENUM nV11nType)
+{
+	QFile fileVersification;	// Versification CSV being written (Will be appended to allow multiple passes)
+
+	fileVersification.setFileName(dirOutput.absoluteFilePath("VERSIFICATION.csv"));
+	bool bExists = fileVersification.exists();
+	if (!fileVersification.open(QIODevice::WriteOnly | QIODevice::Append)) {
+		std::cerr << QString("\n\n*** Failed to open Versification Output File \"%1\"\n").arg(fileVersification.fileName()).toUtf8().data();
+		return ERR_CODE_VERSIFICATION_FILE_WRITE_FAILED;
+	}
+	std::cerr << QFileInfo(fileVersification).fileName().toUtf8().data();
+
+	if (!bExists) {
+		fileVersification.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
+	}
+
+	QString strFileVersification;
+	CCSVStream csvFileVersification(&strFileVersification, QIODevice::WriteOnly);
+	unsigned int nEntryCount = 0;
+
+	// Don't write the CSV headers so we can have running concatenated versification tables
+	//csvFileVersification << QStringList({ "BkChpVrsNdx", "BkAbbr", "NumChp", "NumVrs", "NumWrd", "nPilcrow", "TText" });
+
+	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
+		Q_ASSERT(pBook != nullptr);
+
+		if (!pBook->m_bHaveColophon) {
+			// If there's no Colophon, write the book entry here.
+			//	Otherwise, it will be written with a colophon below:
+
+			CRelIndex ndxCurrent(nBk, 0, 0, 0);
+			csvFileVersification << QStringList({
+					QString("%1").arg(ndxCurrent.index()),			// 1 : BkChpVrsNdx
+					pBook->m_lstBkAbbr.at(0),						// 2 : BkAbbr (OSIS)
+					QString("%1").arg(pBook->m_nNumChp),			// 3 : NumChp
+					QString("%1").arg(pBook->m_nNumVrs),			// 4 : NumVrs
+					QString("%1").arg(pBook->m_nNumWrd),			// 5 : NumWrd
+					"0",											// 6 : nPilcrow
+					""												// 7 : TText
+				});
+			++nEntryCount;
+		}
+
+		for (unsigned int nChp=(pBook->m_bHaveColophon ? 0 : 1); nChp<=pBook->m_nNumChp; ++nChp) {
+			const CChapterEntry *pChapter = ((nChp != 0) ? pBibleDatabase->chapterEntry(CRelIndex(nBk, nChp, 0, 0)) : nullptr);
+			unsigned int nStartVerse = 1;
+			if (nChp != 0) {
+				Q_ASSERT(pChapter != nullptr);
+				nStartVerse = (pChapter->m_bHaveSuperscription ? 0 : 1);
+			} else {
+				nStartVerse = 0;
+			}
+
+			// Note: pChapter will be nullptr below when writing colophon:
+
+			if ((pChapter != nullptr) && (!pChapter->m_bHaveSuperscription)) {
+				// If there's no Superscription, write the chapter entry here.
+				//	Otherwise, it will be written with a superscription below:
+
+				CRelIndex ndxCurrent(nBk, nChp, 0, 0);
+				csvFileVersification << QStringList({
+						QString("%1").arg(ndxCurrent.index()),		// 1 : BkChpVrsNdx
+						pBook->m_lstBkAbbr.at(0),					// 2 : BkAbbr (OSIS)
+						QString("%1").arg(nChp),					// 3 : NumChp
+						QString("%1").arg(pChapter->m_nNumVrs),		// 4 : NumVrs
+						QString("%1").arg(pChapter->m_nNumWrd),		// 5 : NumWrd
+						"0",										// 6 : nPilcrow
+						""											// 7 : TText
+					});
+				++nEntryCount;
+			}
+
+			for (unsigned int nVrs=nStartVerse; nVrs<= ((pChapter != nullptr) ? pChapter->m_nNumVrs : 0); ++nVrs) {
+				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(CRelIndex(nBk, nChp, nVrs, 0));
+				Q_ASSERT(pVerse != nullptr);
+
+				// Round-trip Index Check: (could be disabled/removed)
+				for (unsigned int nWrd=1; nWrd<=pVerse->m_nNumWrd; ++nWrd) {
+					uint32_t nNormalAccum = pBibleDatabase->NormalizeIndex(CRelIndex(nBk, nChp, nVrs, nWrd));
+					uint32_t nNormalNoAccum = pBibleDatabase->NormalizeIndexNoAccum(CRelIndex(nBk, nChp, nVrs, nWrd));
+					if (nNormalAccum != nNormalNoAccum) {
+						std::cerr << QString("\n*** Error: CRelIndex(%1, %2, %3, %4) : NormalAccum->%5 != NormalNoAccum->%6\n")
+									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(nNormalAccum).arg(nNormalNoAccum).toUtf8().data();
+						Q_ASSERT(nNormalAccum == nNormalNoAccum);
+					}
+					CRelIndex ndxDenormalAccum = pBibleDatabase->DenormalizeIndex(pVerse->m_nWrdAccum+nWrd);
+					CRelIndex ndxDenormalNoAccum = pBibleDatabase->DenormalizeIndexNoAccum(pVerse->m_nWrdAccum+nWrd);
+					if (ndxDenormalAccum != ndxDenormalNoAccum) {
+						std::cerr << QString("\n*** Error: CRelIndex(%1, %2, %3, %4)->Accum:%5  DenormalAccum->%6 != DenormalNoAccum=%7\n")
+									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(pVerse->m_nWrdAccum+nWrd).arg(ndxDenormalAccum.index()).arg(ndxDenormalNoAccum.index()).toUtf8().data();
+						Q_ASSERT(ndxDenormalAccum == ndxDenormalNoAccum);
+					}
+					CRelIndex ndxTest = CRelIndex(nBk, nChp, nVrs, nWrd);
+					uint32_t nNormal = pBibleDatabase->NormalizeIndex(ndxTest);
+					CRelIndex ndxDenormal = pBibleDatabase->DenormalizeIndex(nNormal);
+					if (ndxDenormal != ndxTest) {
+						std::cerr << QString("\n*** Error: Roundtrip : CRelIndex(%1, %2, %3, %4)=%5 -> Normal=%6 -> Denormal=%7\n")
+									 .arg(nBk).arg(nChp).arg(nVrs).arg(nWrd).arg(ndxTest.index()).arg(nNormal).arg(ndxDenormal.index()).toUtf8().data();
+						Q_ASSERT(ndxDenormal == ndxTest);
+					}
+				}
+
+				CRelIndex ndxCurrent(nBk, nChp, nVrs, 0);
+				csvFileVersification << QStringList({
+						QString("%1").arg(ndxCurrent.index()),					// 1 : BkChpVrsNdx
+						pBook->m_lstBkAbbr.at(0),								// 2 : BkAbbr (OSIS)
+						QString("%1").arg(nChp ? nChp : pBook->m_nNumChp),		// 3 : NumChp
+						QString("%1").arg(nVrs ? nVrs : (nChp ? pChapter->m_nNumVrs : pBook->m_nNumVrs)),	// 4 : NumVrs
+						QString("%1").arg(nVrs ? pVerse->m_nNumWrd : (nChp ? pChapter->m_nNumWrd : pBook->m_nNumWrd)),	// 5 : NumWrd
+						QString("%1").arg(pVerse->m_nPilcrow),					// 6 : nPilcrow
+						pVerse->m_strTemplate									// 7 : TText
+					});
+				++nEntryCount;
+			}
+		}
+
+		std::cerr << ".";
+	}
+	std::cerr << "\n";
+
+	fileVersification.write(QString("VERSIFICATION,%1,%2\n").arg(nEntryCount).arg(CBibleVersifications::uuid(nV11nType)).toUtf8());
+	fileVersification.write(strFileVersification.toUtf8());
+	fileVersification.close();
+
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
+int checkIndexes(const CBibleDatabase *pBibleDatabase)		// Not static to avoid unused warning when CHECK_INDEXES is disabled
+{
 	std::cerr << "Checking Indexes";
 	for (unsigned int nBk=1; nBk<=pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
@@ -3261,11 +3294,14 @@ int main(int argc, char *argv[])
 		std::cerr << ".";
 	}
 	std::cerr << "\n";
-#endif
 
-	// ------------------------------------------------------------------------
+	return ERR_CODE_NONE;
+}
 
-/*
+// ----------------------------------------------------------------------------
+
+int dumpIndexes(const CBibleDatabase *pBibleDatabase)		// Not static to avoid unused warning when not called
+{
 	std::cout << QString("Bible:  Testaments: %1  Books: %2  Chapters: %3  Verses: %4  Words: %5\n")
 						.arg(pBibleDatabase->bibleEntry().m_nNumTst)
 						.arg(pBibleDatabase->bibleEntry().m_nNumBk)
@@ -3305,10 +3341,282 @@ int main(int argc, char *argv[])
 						.toUtf8().data();
 		}
 	}
-*/
+
+	return ERR_CODE_NONE;
+}
+
+// ============================================================================
+// ============================================================================
+
+int main(int argc, char *argv[])
+{
+	QCoreApplication a(argc, argv);
+	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+
+#if QT_VERSION < 0x050000
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+#endif
+
+	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
+	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
+
+	// Load translations and set main application based on our locale:
+	CTranslatorList::instance()->setApplicationLanguage();
+
+	int nArgsFound = 0;
+	bool bUnknownOption = false;
+	bool bNoColophonVerses = false;
+	bool bUseBracketColophons = false;
+	bool bDisableColophons = false;
+	bool bNoSuperscriptionVerses = false;
+	bool bDisableSuperscriptions = false;
+	bool bBracketItalics = false;
+	bool bNoArabicNumeralWords = false;
+	bool bInlineFootnotes = false;
+	bool bUseBracketFootnotes = false;
+	bool bUseBracketFootnotesExcluded = false;
+	bool bExcludeDeuterocanonical = false;
+	bool bMissingOK = false;		// Missing OR Extra Chapters/Verses are OK, (i.e. don't enforce KJV Versification)
+	int nDescriptor = -1;
+	QString strOSISFilename;
+	QString strInfoFilename;
+	QString strOutputPath;
+	bool bLookingForOutputPath = false;
+	QString strDefaultOutputPath = QProcessEnvironment::systemEnvironment().value(constrBuildDBPathEnvKey);
+	if (!strDefaultOutputPath.isEmpty()) strDefaultOutputPath = QFileInfo(strDefaultOutputPath, "data").absoluteFilePath();
+	QString strStrongsImpPath;
+	bool bLookingForSegVariant = false;
+	QString strSegVariant;
+	bool bLookingForVersification = false;
+	QString strV11n;
+
+	for (int ndx = 1; ndx < argc; ++ndx) {
+		QString strArg = QString::fromUtf8(argv[ndx]);
+		if (!strArg.startsWith("-")) {
+			if (bLookingForOutputPath) {
+				strOutputPath = strArg;
+				bLookingForOutputPath = false;
+			} else if (bLookingForSegVariant) {
+				strSegVariant = strArg;
+				bLookingForSegVariant = false;
+			} else if (bLookingForVersification) {
+				strV11n = strArg;
+				bLookingForVersification = false;
+			} else {
+				++nArgsFound;
+				if (nArgsFound == 1) {
+					nDescriptor = strArg.toInt();
+				} else if (nArgsFound == 2) {
+					strOSISFilename = strArg;
+				} else if (nArgsFound == 3) {
+					strInfoFilename = strArg;
+				} else if (nArgsFound == 4) {
+					strStrongsImpPath = strArg;
+				}
+			}
+		} else if (strArg.compare("-o") == 0) {
+			bLookingForOutputPath = true;
+		} else if (strArg.compare("-c") == 0) {
+			bNoColophonVerses = true;
+		} else if (strArg.compare("-bc") == 0) {
+			bUseBracketColophons = true;
+		} else if (strArg.compare("-cd") == 0) {
+			bDisableColophons = true;
+		} else if (strArg.compare("-s") == 0) {
+			bNoSuperscriptionVerses = true;
+		} else if (strArg.compare("-sd") == 0) {
+			bDisableSuperscriptions = true;
+		} else if (strArg.compare("-i") == 0) {
+			bBracketItalics = true;
+		} else if (strArg.compare("-v") == 0) {
+			bLookingForSegVariant = true;
+		} else if (strArg.compare("-n") == 0) {
+			bNoArabicNumeralWords = true;
+		} else if (strArg.compare("-f") == 0) {
+			bInlineFootnotes = true;
+		} else if (strArg.compare("-bf") == 0) {
+			bUseBracketFootnotes = true;
+		} else if (strArg.compare("-bfx") == 0) {
+			bUseBracketFootnotes = true;
+			bUseBracketFootnotesExcluded = true;
+		} else if (strArg.compare("-x") == 0) {
+			bExcludeDeuterocanonical = true;
+		} else if (strArg.compare("-m") == 0) {
+			bMissingOK = true;
+		} else if (strArg.compare("-v11n") == 0) {
+			bLookingForVersification = true;
+		} else {
+			bUnknownOption = true;
+		}
+	}
+
+	if (strOutputPath.isEmpty()) strOutputPath = strDefaultOutputPath;
+
+	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
+		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
+		std::cerr << QString("    necessary to import into KJPBS into <datafile-path> (see -o option below)\n\n").toUtf8().data();
+		std::cerr << QString("<infofile> is the path/filename to the information file to include\n\n").toUtf8().data();
+		std::cerr << QString("Options\n").toUtf8().data();
+		std::cerr << QString("    -o <datafile-path> = Data File Output path%1\n").arg(strDefaultOutputPath.isEmpty() ? " (required)" : "").toUtf8().data();
+		if (!strDefaultOutputPath.isEmpty()) {
+			std::cerr << QString("           (optional, if not specified, will use env path of: \"%1\")\n").arg(strDefaultOutputPath).toUtf8().data();
+		}
+		std::cerr << QString("    -c  =  Don't generate Colophons as pseudo-verses (only as footnotes)\n").toUtf8().data();
+		std::cerr << QString("    -bc =  Enable Bracket Colophons (such as used in the TR text)\n").toUtf8().data();
+		std::cerr << QString("           (use with -c to find the bracket colophons and remove them)\n").toUtf8().data();
+		std::cerr << QString("           (Note: -bc will take precedence over -i)\n").toUtf8().data();
+		std::cerr << QString("    -cd =  Disable all Colophon generation (pseudo-verses and footnote form)\n").toUtf8().data();
+		std::cerr << QString("    -s  =  Don't generate Superscriptions as pseudo-verses (only as footnotes)\n").toUtf8().data();
+		std::cerr << QString("    -sd =  Disable all Superscription generation (pseudo-verses and footnote form)\n").toUtf8().data();
+		std::cerr << QString("    -i  =  Enable Bracket Italic detection conversion to TransChange\n").toUtf8().data();
+		std::cerr << QString("    -v <variant> = Export only segment variant of <variant>\n").toUtf8().data();
+		std::cerr << QString("    -n  =  Don't detect Arabic numerals as words\n").toUtf8().data();
+		std::cerr << QString("    -f  =  Inline footnotes as Uncounted Parentheticals\n").toUtf8().data();
+		std::cerr << QString("    -bf =  Enable Bracket Inline Footnotes (such as used in the RusSynodal)\n").toUtf8().data();
+		std::cerr << QString("           (Note: -bf will take precedence over -i and -bc, and implies -f)\n").toUtf8().data();
+		std::cerr << QString("    -bfx=  Enable Bracket Inline Footnotes and Exclude them\n").toUtf8().data();
+		std::cerr << QString("           (Identical to -bf, but excludes them, and overrides -f)\n").toUtf8().data();
+		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
+		std::cerr << QString("    -m  =  Missing/Extra Chapters/Verses are OK (don't fit to KJV Versification)\n").toUtf8().data();
+		std::cerr << QString("    -v11n <index> = Write only the specified versification file\n").toUtf8().data();
+		std::cerr << QString("           (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("UUID-Index:\n").toUtf8().data();
+		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
+			BIBLE_DESCRIPTOR_ENUM nBDETemp = static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx);
+			std::cerr << QString("    %1 = %2 (%3)\n").arg(ndx).arg(bibleDescriptor(nBDETemp).m_strDBName).arg(bibleDescriptor(nBDETemp).m_strDBDesc).toUtf8().data();
+		}
+		std::cerr << "\n";
+		std::cerr << QString("Versification Index:\n").toUtf8().data();
+		for (int ndx = 0; ndx < CBibleVersifications::count(); ++ndx) {
+			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(CBibleVersifications::name(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(ndx))).toUtf8().data();
+		}
+		std::cerr << "\n";
+		return ERR_CODE_USAGE;
+	}
+
+	if ((nDescriptor < 0) || (static_cast<unsigned int>(nDescriptor) >= bibleDescriptorCount())) {
+		std::cerr << "Unknown UUID-Index\n";
+		return ERR_CODE_USAGE;
+	}
+
+	BIBLE_VERSIFICATION_TYPE_ENUM nV11nType = static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(strV11n.toUInt());
+	if (!strV11n.isEmpty()) {
+		if ((nV11nType < 0) || (nV11nType >= CBibleVersifications::count())) {
+			std::cerr << "Unknown Versification Type Index specified\n";
+			return ERR_CODE_USAGE;
+		}
+		if (!bMissingOK) {
+			std::cerr << "*** Warning: You may want to specify -m (Missing OK) when writing versifications\n";
+		}
+	}
+
+	BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor);
+	TBibleDescriptor bblDescriptor = bibleDescriptor(nBDE);
+
+	QDir dirOutput(strOutputPath);
+	if (!dirOutput.exists()) {
+		std::cerr << QString("\n\n*** Output path \"%1\" doesn't exist\n\n").arg(dirOutput.path()).toUtf8().data();
+		return ERR_CODE_BUILD_PATH;
+	}
+
+	QFile fileOSIS;
+
+	fileOSIS.setFileName(strOSISFilename);
+	if (!fileOSIS.open(QIODevice::ReadOnly)) {
+		std::cerr << QString("\n\n*** Failed to open OSIS database \"%1\"\n").arg(strOSISFilename).toUtf8().data();
+		return ERR_CODE_OSIS_FILE_MISSING;
+	}
+
+	QXmlInputSource xmlInput(&fileOSIS);
+	QXmlSimpleReader xmlReader;
+	COSISXmlHandler xmlHandler(bblDescriptor);
+
+	xmlHandler.setNoColophonVerses(bNoColophonVerses);
+	xmlHandler.setUseBracketColophons(bUseBracketColophons);
+	xmlHandler.setDisableColophons(bDisableColophons);
+	xmlHandler.setNoSuperscriptionVerses(bNoSuperscriptionVerses);
+	xmlHandler.setDisableSuperscriptions(bDisableSuperscriptions);
+	xmlHandler.setBracketItalics(bBracketItalics);
+	xmlHandler.setNoArabicNumeralWords(bNoArabicNumeralWords);
+	xmlHandler.setInlineFootnotes(bInlineFootnotes);
+	xmlHandler.setUseBracketFootnotes(bUseBracketFootnotes);
+	xmlHandler.setUseBracketFootnotesExcluded(bUseBracketFootnotesExcluded);
+	xmlHandler.setExcludeDeuterocanonical(bExcludeDeuterocanonical);
+	xmlHandler.setSegVariant(strSegVariant);
+	xmlHandler.setStrongsImpFilepath(strStrongsImpPath);
+
+	xmlReader.setContentHandler(&xmlHandler);
+	xmlReader.setErrorHandler(&xmlHandler);
+//	xmlReader.setFeature("http://www.bibletechnologies.net/2003/OSIS/namespace", true);
+
+	if (!xmlReader.parse(xmlInput)) {
+		std::cerr << QString("\n\n*** Failed to parse OSIS database \"%1\"\n%2\n").arg(strOSISFilename).arg(xmlHandler.errorString()).toUtf8().data();
+		return ERR_CODE_OSIS_PARSE_FAILED;
+	}
+
+	const CBibleDatabase *pBibleDatabase = xmlHandler.bibleDatabase();
+	bblDescriptor = pBibleDatabase->descriptor();		// Update descriptor from parsing
 
 	// ------------------------------------------------------------------------
 
+	if (strV11n.isEmpty()) {
+		std::cerr << "\nWriting Files:\n";
+	} else {
+		std::cerr << "\nProcessing Counts:\n";
+	}
+
+	int nRetVal = 0;
+	TWordListBaton wordListBaton;
+
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeDBInfoFile(dirOutput, bblDescriptor, strInfoFilename);
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeTestamentsFile(dirOutput, pBibleDatabase);
+	nRetVal = nRetVal ? nRetVal : doBooksChaptersVerses(dirOutput, pBibleDatabase, wordListBaton, xmlHandler, bMissingOK, strV11n.isEmpty());
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeWordsFiles(dirOutput, pBibleDatabase, wordListBaton);
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeFootnotesFile(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writePhrasesFile(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeLemmasFile(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeStrongs(dirOutput, pBibleDatabase);
+
+	if (!strV11n.isEmpty()) {
+		std::cerr << "\nWriting Files:\n";
+	}
+
+	nRetVal = (nRetVal || strV11n.isEmpty()) ? nRetVal : writeVersification(dirOutput, pBibleDatabase, nV11nType);
+
+	// ------------------------------------------------------------------------
+
+	if (!nRetVal) {
+		if (strSegVariant.isEmpty() && xmlHandler.foundSegVariant()) {
+			std::cerr << "\n"
+						 "*** WARNING: Text contains seg variant text tags and no variant to parse was specified!\n"
+						 "             Resulting database file will contain all variants run together!!\n\n";
+		} else if (!strSegVariant.isEmpty() && !xmlHandler.foundSegVariant()) {
+			std::cerr << "\n"
+						 "*** WARNING: Specified seg variant wasn't found!  Resulting database file may be missing text!!\n\n";
+		}
+	}
+
+	// ------------------------------------------------------------------------
+
+	if (!nRetVal) {
+		QString strParsedUTF8 = xmlHandler.parsedUTF8Chars();
+		std::cerr << "UTF8 Characters Parsed: \"" << strParsedUTF8.toUtf8().data() << "\"\n";
+		for (int i = 0; i<strParsedUTF8.size(); ++i) {
+			std::cerr << "    \"" << QString(strParsedUTF8.at(i)).toUtf8().data() << "\" (" << QString("%1").arg(strParsedUTF8.at(i).unicode(), 4, 16, QChar('0')).toUtf8().data() << ")\n";
+		}
+	}
+
+	// ------------------------------------------------------------------------
+
+#if CHECK_INDEXES
+	nRetVal = nRetVal ? nRetVal : checkIndexes(pBibleDatabase);
+	//nRetVal = nRetVal ? nRetVal : dumpIndexes(pBibleDatabase);
+#endif
+
+	// ------------------------------------------------------------------------
 
 /*
 	std::cout << "\n============================ Element Names  =================================\n";
@@ -3331,15 +3639,7 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	QString strParsedUTF8 = xmlHandler.parsedUTF8Chars();
-	std::cerr << "UTF8 Characters Parsed: \"" << strParsedUTF8.toUtf8().data() << "\"\n";
-	for (int i = 0; i<strParsedUTF8.size(); ++i) {
-		std::cerr << "    \"" << QString(strParsedUTF8.at(i)).toUtf8().data() << "\" (" << QString("%1").arg(strParsedUTF8.at(i).unicode(), 4, 16, QChar('0')).toUtf8().data() << ")\n";
-	}
-
-	// ------------------------------------------------------------------------
-
 //	return a.exec();
-	return 0;
+	return nRetVal;
 }
 
