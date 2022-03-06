@@ -1408,11 +1408,23 @@ public:
 
 	// CRelIndex Transformation Functions:
 #ifdef OSIS_PARSER_BUILD
-	uint32_t NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const;
-	CRelIndex DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
+	inline uint32_t NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const
+	{
+		return m_itrCurrentLayout->NormalizeIndexNoAccum(ndxRelIndex);
+	}
+	inline CRelIndex DenormalizeIndexNoAccum(uint32_t nNormalIndex) const
+	{
+		return m_itrCurrentLayout->DenormalizeIndexNoAccum(nNormalIndex);
+	}
 #endif
-	uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const;
-	CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
+	inline uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const
+	{
+		return m_itrCurrentLayout->NormalizeIndex(ndxRelIndex);
+	}
+	inline CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const
+	{
+		return m_itrCurrentLayout->DenormalizeIndex(nNormalIndex);
+	}
 #ifdef USE_EXTENDED_INDEXES
 	uint32_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const;
 	CRelIndexEx DenormalizeIndexEx(uint32_t nNormalIndex) const;
@@ -1543,6 +1555,13 @@ private:
 
 // Main Database Data:
 	struct TVersificationLayout {
+#ifdef OSIS_PARSER_BUILD
+		uint32_t NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const;
+		CRelIndex DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
+#endif
+		uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const;
+		CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
+		// ----
 		CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
 		TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
 		TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
