@@ -1552,6 +1552,7 @@ private:
 	typedef QMap<BIBLE_VERSIFICATION_TYPE_ENUM, TVersificationLayout> TVersificationLayoutMap;
 	TVersificationLayoutMap m_mapVersificationLayouts;		// We will always have a main KJV versification.  Others are optional and dependent on specific Bible database
 	TVersificationLayoutMap::iterator m_itrCurrentLayout;	// Currently active versification layout for this database. This will always be a valid enumerator. It's not const so that ReadDB and KJVDataParse don't have to be special-cased (and it's private anyway)
+	TVersificationLayoutMap::iterator m_itrKJVLayout;		// Pointer to main KJV Layout for quick comparison against current
 
 	TWordListMap m_mapWordList;				// Master word-list Map (Indexed by lowercase word)
 	QStringList m_lstWordList;				// Master word-list List as lowercase, used for searching lower/upper-bound for m_mapWordList

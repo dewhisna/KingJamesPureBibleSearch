@@ -2248,7 +2248,8 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
 	m_mapVersificationLayouts[BVTE_KJV] = TVersificationLayout();		// All databases will have a KJV Versification
-	m_itrCurrentLayout = m_mapVersificationLayouts.find(BVTE_KJV);
+	m_itrKJVLayout = m_mapVersificationLayouts.find(BVTE_KJV);
+	m_itrCurrentLayout = m_itrKJVLayout;
 	// Note: It doesn't do any good to set the m_itrCurrentLayout here
 	//	to the BibleDatabaseSettings value because this database object
 	//	gets constructed before ReadDB has actually read the versification
