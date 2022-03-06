@@ -103,8 +103,8 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 
 	setupModel(aSearchCriteria.searchWithin(), true);
 
-	// This one should be a Direct connection so that we update the database words immediately before users get updated:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::DirectConnection);
+	// Used Queued Connection so that Bible Database can catch the signal first:
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::QueuedConnection);
 }
 
 CSearchWithinModel::~CSearchWithinModel()
