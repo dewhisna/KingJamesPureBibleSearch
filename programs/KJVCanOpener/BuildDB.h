@@ -61,6 +61,7 @@ protected:
 	bool BuildPhrasesTable();
 	bool BuildLemmasTable();
 	bool BuildStrongsTable();
+	bool BuildVersificationTables();
 
 private:
 	QWidget *m_pParent;

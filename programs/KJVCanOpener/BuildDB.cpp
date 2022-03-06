@@ -1494,6 +1494,39 @@ bool CBuildDatabase::BuildStrongsTable()
 	return true;
 }
 
+bool CBuildDatabase::BuildVersificationTables()
+{
+	// Build the Versification tables:
+	// The Versification Tables are already in the final
+	//	format coming out of KJVDataParse and can just be
+	//	copied straight in to the CCDB (not supported by
+	//	the SQL databases).
+
+	if (m_pCCDatabase.isNull()) return true;		// SQL doesn't support Versification tables
+
+	// Open the table data file:
+	QFile fileVersification(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/VERSIFICATION.csv")).absoluteFilePath());
+	if (!fileVersification.exists()) return true;		// Versification is optional.  Silently skip if the file doesn't exist
+	if (!fileVersification.open(QIODevice::ReadOnly)) {
+		displayInformation(m_pParent, g_constrBuildDatabase,
+			QObject::tr("Failed to open %1 for reading.  Skipping Versification Generation.", "BuildDB").arg(fileVersification.fileName()));
+		return true;
+	}
+
+	// Read file and populate table:
+	CCSVStream csv(&fileVersification);
+
+	while (!csv.atEnd()) {
+		QStringList sl;
+		csv >> sl;
+		(*m_pCCDatabase) << sl;
+	}
+
+	fileVersification.close();
+
+	return true;
+}
+
 bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename)
 {
 #ifndef NOT_USING_SQL
@@ -1544,7 +1577,8 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 			(!BuildFootnotesTables()) ||
 			(!BuildPhrasesTable()) ||
 			(!BuildLemmasTable()) ||
-			(!BuildStrongsTable())) bSuccess = false;
+			(!BuildStrongsTable()) ||
+			(!BuildVersificationTables())) bSuccess = false;
 	}
 
 #ifndef NOT_USING_SQL
