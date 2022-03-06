@@ -1657,9 +1657,9 @@ bool CReadDatabase::readBibleStub()
 	//	the other tables and can't be computed until the
 	//	WordsTable is read:
 	uint32_t nLtrCount = 0;
-	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->m_lstBooks.size(); ++nBk) {
-		CBookEntry &theBook = m_pBibleDatabase->m_lstBooks[nBk-1];
-		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_lstBookVerses[nBk-1];
+	for (unsigned int nBk = 1; nBk <= m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size(); ++nBk) {
+		CBookEntry &theBook = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1];
+		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 
 		theBook.m_nLtrAccum = nLtrCount;
 		if (theBook.m_bHaveColophon) {
@@ -1678,8 +1678,8 @@ bool CReadDatabase::readBibleStub()
 		}
 		for (unsigned int nChp = 1; nChp <= theBook.m_nNumChp; ++nChp) {
 			CRelIndex ndxBkChp(nBk, nChp, 0, 0);
-			if (m_pBibleDatabase->m_mapChapters.find(ndxBkChp) == m_pBibleDatabase->m_mapChapters.end()) continue;
-			CChapterEntry &theChapter = m_pBibleDatabase->m_mapChapters[ndxBkChp];
+			if (m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.find(ndxBkChp) == m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end()) continue;
+			CChapterEntry &theChapter = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[ndxBkChp];
 
 			theChapter.m_nLtrAccum = nLtrCount;
 			for (unsigned int nVrs = (theChapter.m_bHaveSuperscription ? 0 : 1);
@@ -1702,9 +1702,9 @@ bool CReadDatabase::readBibleStub()
 			theBook.m_nNumLtr += theChapter.m_nNumLtr;
 		}
 
-		m_pBibleDatabase->m_lstTestaments[theBook.m_nTstNdx-1].m_nNumLtr += theBook.m_nNumLtr;
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[theBook.m_nTstNdx-1].m_nNumLtr += theBook.m_nNumLtr;
 	}
-	m_pBibleDatabase->m_EntireBible.m_nNumLtr = nLtrCount;
+	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumLtr = nLtrCount;
 #endif
 	return true;
 }
