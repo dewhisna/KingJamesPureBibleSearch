@@ -1236,6 +1236,11 @@ bool CReadDatabase::ReadVersificationTables()
 					bookEntry.m_nNumWrd = nNumWrd;			// Words in this book
 					bookEntry.m_nWrdAccum = nTotalWrds;
 					// TODO : Add support for extended indexes and letter counts?
+					CTestamentEntry &testamentEntry = itrNewV11n->m_lstTestaments[bookEntry.m_nTstNdx-1];
+					testamentEntry.m_nNumChp += nNumChp;
+					testamentEntry.m_nNumVrs += nNumVrs;
+					testamentEntry.m_nNumWrd += nNumWrd;
+					// TODO : Add support for extended indexes and letter counts?
 
 					nTotalChpBooks += nNumChp;
 					nTotalVrsBooks += nNumVrs;
