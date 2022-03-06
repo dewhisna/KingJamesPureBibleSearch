@@ -275,7 +275,7 @@ void CBrowserWidget::en_clickedSetBrowserDisplayMode()
 		case BDME_BIBLE_TEXT:
 			// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
 			//	them or else we'll confuse the user:
-			if (!m_pBibleDatabase->lemmaMap().empty()) setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
+			if (m_pBibleDatabase->haveLemmas()) setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY);
 			break;
 		case BDME_LEMMA_MORPHOGRAPHY:
 			setBrowserDisplayMode(BDME_BIBLE_TEXT);
@@ -287,7 +287,7 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 {
 	// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
-	if (m_pBibleDatabase->lemmaMap().empty()) nBrowserDisplayMode = BDME_BIBLE_TEXT;
+	if (!m_pBibleDatabase->haveLemmas()) nBrowserDisplayMode = BDME_BIBLE_TEXT;
 
 	m_nBrowserDisplayMode = nBrowserDisplayMode;
 
@@ -431,7 +431,7 @@ void CBrowserWidget::initialize()
 	// Don't allow switching to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
 	#ifdef USING_QT_WEBENGINE
-		pAction->setEnabled(!m_pBibleDatabase->lemmaMap().empty());
+		pAction->setEnabled(m_pBibleDatabase->haveLemmas());
 	#else
 		pAction->setEnabled(false);
 	#endif

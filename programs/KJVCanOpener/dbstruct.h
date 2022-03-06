@@ -1512,19 +1512,39 @@ public:
 	QString wordAtIndex(uint32_t ndxNormal, WORD_TYPE_ENUM nWordType) const;			// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	QString wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nWordType) const;		// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above) -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
+	bool haveFootnotes() const
+	{
+		return !m_mapFootnotes.empty();
+	}
+#ifdef OSIS_PARSER_BUILD
+	// Note: Footnotes are indexed via primary KJV versification and not
+	//	alternate versification.  Therefore, keep the map private (only
+	//	accessible by CBibleDatabase and OSIS_PARSER) (i.e. KJVDataParse)
+	//	to help prevent accidentally using the content incorrectly:
 	inline const TFootnoteEntryMap &footnotesMap() const				// Entire Footnote Map, needed for database generation
 	{
 		return m_mapFootnotes;
 	}
+#endif
 	inline const CPhraseList &phraseList() const						// Returns the Common Phrases List from the Main Database for this Bible Database
 	{
 		return m_lstCommonPhrases;
 	}
 	const CLemmaEntry *lemmaEntry(const CRelIndex &ndx) const;			// Lemma Data Entry, Used CRelIndex: [Book | Chapter | Verse | Word], supports Colophons and Superscription indexes
+	bool haveLemmas() const
+	{
+		return !m_mapLemmaEntries.empty();
+	}
+#ifdef OSIS_PARSER_BUILD
+	// Note: Lemmas are indexed via primary KJV versification and not
+	//	alternate versification.  Therefore, keep the map private (only
+	//	accessible by CBibleDatabase and OSIS_PARSER) (i.e. KJVDataParse)
+	//	to help prevent accidentally using the content incorrectly:
 	inline const TLemmaEntryMap &lemmaMap() const						// Entire Lemma Map, needed for database generation
 	{
 		return m_mapLemmaEntries;
 	}
+#endif
 	const CStrongsEntry *strongsEntryByIndex(const QString &strIndex) const;		// Strongs Entry by Map Index (G1, H22, etc);
 	QList<const CStrongsEntry *> strongsEntriesByOthography(const QString &strOrth) const;	// Strongs Entries from Orthographic Word
 	QStringList strongsIndexesFromOrthograph(const QString &strOrth) const;		// Lookup Orthographic Word and return a List of Strongs Map Indexes
