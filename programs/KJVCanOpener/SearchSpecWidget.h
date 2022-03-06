@@ -115,7 +115,7 @@ public slots:
 	void en_searchResultsReady();
 	void en_activatedPhraseEditor(const CPhraseLineEdit *pEditor);
 protected slots:
-	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
 	void en_changedHideMatchingPhrasesLists(bool bHideMatchingPhrasesLists);
 
 protected:

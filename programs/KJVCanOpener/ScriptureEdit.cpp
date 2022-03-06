@@ -136,7 +136,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedScriptureBrowserLineHeight(qreal)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
-	U::connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::QueuedConnection);
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::QueuedConnection);
 
 	U::connect(&m_dlyRerenderCompressor, SIGNAL(triggered()), this, SLOT(rerender()));
 
@@ -938,9 +938,10 @@ void CScriptureText<T,U>::en_detailUpdate()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+void CScriptureText<T,U>::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
 {
 	Q_UNUSED(aSettings);
+	Q_UNUSED(bForce);
 	if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
 		m_dlyRerenderCompressor.trigger();
 	}

@@ -109,7 +109,7 @@ TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 	setBibleDatabasePath(false);
 
 	// This one should be a Direct connection so that we update the database words immediately before users get updated:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::DirectConnection);
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::DirectConnection);
 }
 
 TBibleDatabaseList::~TBibleDatabaseList()
@@ -435,12 +435,14 @@ void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool
 	emit changedBibleDatabaseList();
 }
 
-void TBibleDatabaseList::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+void TBibleDatabaseList::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
 {
 	Q_UNUSED(aSettings);
+	Q_UNUSED(bForce);
 
 	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
 	if (!pBibleDatabase.isNull()) {
+		pBibleDatabase->setVersificationType();
 		pBibleDatabase->setRenderedWords();
 	}
 }
@@ -2247,6 +2249,11 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 {
 	m_mapVersificationLayouts[BVTE_KJV] = TVersificationLayout();		// All databases will have a KJV Versification
 	m_itrCurrentLayout = m_mapVersificationLayouts.find(BVTE_KJV);
+	// Note: It doesn't do any good to set the m_itrCurrentLayout here
+	//	to the BibleDatabaseSettings value because this database object
+	//	gets constructed before ReadDB has actually read the versification
+	//	tables, so the other versifications aren't valid yet.  Instead,
+	//	ReadDB will have to initiate a pseudo settings change after reading.
 
 	// Note: For ReadSpecialBibleDatabase() to work correctly (command-line tools), this function must be
 	//	able to work with the BDE_SPECIAL_TEST descriptor:
@@ -2273,6 +2280,15 @@ CBibleDatabase::~CBibleDatabase()
 		delete m_pKJPBSWordScriptureObject;
 		m_pKJPBSWordScriptureObject = nullptr;
 	}
+}
+
+bool CBibleDatabase::setVersificationType()
+{
+	BIBLE_VERSIFICATION_TYPE_ENUM nVersification = settings().versification();
+	if (!hasVersificationType(nVersification)) return false;
+	m_itrCurrentLayout = m_mapVersificationLayouts.find(nVersification);
+	Q_ASSERT(m_itrCurrentLayout != m_mapVersificationLayouts.end());
+	return true;
 }
 
 TBibleDatabaseSettings CBibleDatabase::settings() const

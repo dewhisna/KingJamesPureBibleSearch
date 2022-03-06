@@ -30,6 +30,7 @@
 #include "PhraseNavigator.h"
 #include "ParseSymbols.h"
 #include "ReportError.h"
+#include "PersistentSettings.h"
 
 #ifndef NOT_USING_SQL
 #include <QtSql>
@@ -1768,6 +1769,10 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
+
+		// Trigger settings change to make sure rendering is updated, since
+		//	things like versification won't be valid at database construction:
+		CPersistentSettings::instance()->triggerForcedChangeBibleDatabaseSettings(m_pBibleDatabase->compatibilityUUID());
 	} else {
 		m_pBibleDatabase.clear();
 	}
@@ -1847,6 +1852,10 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
+
+		// Trigger settings change to make sure rendering is updated, since
+		//	things like versification won't be valid at database construction:
+		CPersistentSettings::instance()->triggerForcedChangeBibleDatabaseSettings(m_pBibleDatabase->compatibilityUUID());
 	} else {
 		m_pBibleDatabase.clear();
 	}

@@ -258,7 +258,7 @@ signals:
 	void changedShowOCntInSearchResultsRefs(bool bShow);
 	void changedShowWrdNdxInSearchResultsRefs(bool bShow);
 
-	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
 	void changedMainBibleDatabaseSelection(const QString &strUUID);
 
 	void changedDictionaryDatabaseSettings(const QString &strUUID, const TDictionaryDatabaseSettings &aSettings);
@@ -337,6 +337,8 @@ public slots:
 	void setCopyOCntInSearchResultsRefs(bool bCopy);
 	void setShowWrdNdxInSearchResultsRefs(bool bShow);
 	void setCopyWrdNdxInSearchResultsRefs(bool bCopy);
+
+	void triggerForcedChangeBibleDatabaseSettings(const QString &strUUID);
 
 	void setApplicationLanguage(const QString &strLangName);
 

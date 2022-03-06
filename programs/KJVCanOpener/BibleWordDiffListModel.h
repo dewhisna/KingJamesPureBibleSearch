@@ -55,7 +55,7 @@ public:
 	void setBibleDatabase(CBibleDatabasePtr pBibleDatabase);
 
 private slots:
-	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;

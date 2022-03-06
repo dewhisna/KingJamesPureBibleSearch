@@ -33,7 +33,7 @@ CBibleWordDiffListModel::CBibleWordDiffListModel(CBibleDatabasePtr pBibleDatabas
 	setBibleDatabase(pBibleDatabase);
 
 	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &)), Qt::QueuedConnection);
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::QueuedConnection);
 }
 
 CBibleWordDiffListModel::~CBibleWordDiffListModel()
@@ -147,9 +147,10 @@ Qt::ItemFlags CBibleWordDiffListModel::flags(const QModelIndex &index) const
 	return Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsSelectable;
 }
 
-void CBibleWordDiffListModel::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
+void CBibleWordDiffListModel::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
 {
 	Q_UNUSED(aSettings);
+	Q_UNUSED(bForce);
 
 	if (!m_pBibleDatabase.isNull()) {
 		if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {

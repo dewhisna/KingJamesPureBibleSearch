@@ -1461,6 +1461,7 @@ public:
 	{
 		return m_mapVersificationLayouts.contains(nVersification);
 	}
+	bool setVersificationType();
 
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
 	{
@@ -1581,7 +1582,7 @@ Q_DECLARE_METATYPE(CBibleDatabase *)
 typedef QSharedPointer<CBibleDatabase> CBibleDatabasePtr;
 Q_DECLARE_METATYPE(CBibleDatabasePtr)
 
-class  TBibleDatabaseList : public QObject, protected QList<CBibleDatabasePtr>
+class TBibleDatabaseList : public QObject, protected QList<CBibleDatabasePtr>
 {
 	Q_OBJECT
 
@@ -1641,7 +1642,7 @@ signals:
 	void changedAvailableBibleDatabaseList();
 
 protected slots:
-	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
 
 private:
 	CBibleDatabasePtr m_pMainBibleDatabase;

@@ -305,7 +305,7 @@ signals:
 	void changedSearchWithin();
 
 protected slots:
-	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings);
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
 
 private:
 	void fireChildrenChange(const QModelIndex &index);
@@ -319,6 +319,7 @@ private:
 	bool m_bBibleHasColophons;
 	bool m_bBibleHasSuperscriptions;
 	BIBLE_BOOK_CATEGORY_GROUP_ENUM m_nLastCategoryGroup;	// Used to detect when the category has changed during Bible Database Option change
+	BIBLE_VERSIFICATION_TYPE_ENUM m_nLastVersificationType;	// Used to detect when the versification changed during Bible Database Option change
 };
 
 // ============================================================================
