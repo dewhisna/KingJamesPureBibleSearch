@@ -2479,10 +2479,15 @@ static int writeTestamentsFile(const QDir &dirOutput, const CBibleDatabase *pBib
 		return ERR_CODE_TESTAMENT_FILE_WRITE_FAILED;
 	}
 
+	CCSVStream csvFileTestaments(&fileTestaments);
+
 	fileTestaments.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
-	fileTestaments.write(QString("TstNdx, TstName\r\n").toUtf8());
+	csvFileTestaments << QStringList({ "TstNdx", "TstName" });
 	for (unsigned int nTst=1; nTst<=pBibleDatabase->bibleEntry().m_nNumTst; ++nTst) {
-		fileTestaments.write(QString("%1,\"%2\"\r\n").arg(nTst).arg(pBibleDatabase->testamentEntry(nTst)->m_strTstName).toUtf8());
+		csvFileTestaments << QStringList({
+								QString("%1").arg(nTst),
+								pBibleDatabase->testamentEntry(nTst)->m_strTstName
+							});
 	}
 	std::cerr << QFileInfo(fileTestaments).fileName().toUtf8().data() << "\n";
 	fileTestaments.close();
@@ -2511,8 +2516,11 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 									bool bWriteFiles)		// If bWriteFiles is false -- don't write files, just compute counts
 {
 	QFile fileBooks;		// Books CSV being written (Originally known as "TOC")
+	CCSVStream csvFileBooks(&fileBooks);
 	QFile fileChapters;		// Chapters CSV being written (Originally known as "Layout")
+	CCSVStream csvFileChapters(&fileChapters);
 	QFile fileVerses;		// Verses CSV being written (Originally known as "BOOKS")
+	CCSVStream csvFileVerses(&fileVerses);
 
 	if (bWriteFiles) {
 		fileBooks.setFileName(dirOutput.absoluteFilePath("TOC.csv"));
@@ -2522,7 +2530,7 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 		}
 
 		fileBooks.write(QString(QChar(0xFEFF)).toUtf8());			// UTF-8 BOM
-		fileBooks.write(QString("BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc\r\n").toUtf8());
+		csvFileBooks << QStringList({ "BkNdx", "TstBkNdx", "TstNdx", "BkName", "BkAbbr", "TblName", "NumChp", "NumVrs", "NumWrd", "Cat", "Desc" });
 
 		fileChapters.setFileName(dirOutput.absoluteFilePath("LAYOUT.csv"));
 		if (!fileChapters.open(QIODevice::WriteOnly)) {
@@ -2531,7 +2539,7 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 		}
 
 		fileChapters.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-		fileChapters.write(QString("BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx\r\n").toUtf8());
+		csvFileChapters << QStringList({ "BkChpNdx", "NumVrs", "NumWrd", "BkAbbr", "ChNdx" });
 	}
 
 	TBibleChapterVerseCounts lstChapterVerseCounts;
@@ -2562,7 +2570,7 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 			}
 
 			fileVerses.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-			fileVerses.write(QString("ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText\r\n").toUtf8());
+			csvFileVerses << QStringList({ "ChpVrsNdx", "NumWrd", "nPilcrow", "PText", "RText", "TText" });
 
 			std::cerr << QFileInfo(fileVerses).fileName().toUtf8().data();
 		} else {
@@ -2678,19 +2686,16 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 					}
 				}
 
-				QStringList lstTempTemplate = pVerse->m_strTemplate.trimmed().split('\"');
-				QString strBuffTemplate = lstTempTemplate.join("\"\"");
-
 				if (bWriteFiles) {
 					// ChpVrsNdx,NumWrd,nPilcrow,PText,RText,TText
-					fileVerses.write(QString("%1,%2,%3,\"%4\",\"%5\",\"%6\"\r\n")
-									 .arg(CRelIndex(0,0,nChp,nVrs).index())		// 1
-									 .arg(pVerse->m_nNumWrd)					// 2
-									 .arg(pVerse->m_nPilcrow)					// 3
-									 .arg(QString())							// 4	(PlainText)
-									 .arg(QString())							// 5	(RichText)
-									 .arg(strBuffTemplate)						// 6	(TemplateText)
-									 .toUtf8());
+					csvFileVerses << QStringList({
+									QString("%1").arg(CRelIndex(0,0,nChp,nVrs).index()),	// 1
+									QString("%1").arg(pVerse->m_nNumWrd),					// 2
+									QString("%1").arg(pVerse->m_nPilcrow),					// 3
+									QString(),												// 4	(PlainText)
+									QString(),												// 5	(RichText)
+									pVerse->m_strTemplate.trimmed()							// 6	(TemplateText)
+							});
 				}
 
 
@@ -2733,13 +2738,13 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 			if (bWriteFiles) {
 				if (pChapter != nullptr) {
 					// BkChpNdx,NumVrs,NumWrd,BkAbbr,ChNdx
-					fileChapters.write(QString("%1,%2,%3,%4,%5\r\n")
-									   .arg(CRelIndex(0,0,nBk,nChp).index())		// 1
-									   .arg(pChapter->m_nNumVrs)					// 2
-									   .arg(pChapter->m_nNumWrd)					// 3
-									   .arg(pBook->m_lstBkAbbr.at(0))				// 4 -- OSIS Abbr Only!
-									   .arg(nChp)									// 5
-									   .toUtf8());
+					csvFileChapters << QStringList({
+									QString("%1").arg(CRelIndex(0,0,nBk,nChp).index()),		// 1
+									QString("%1").arg(pChapter->m_nNumVrs),					// 2
+									QString("%1").arg(pChapter->m_nNumWrd),					// 3
+									pBook->m_lstBkAbbr.at(0),								// 4 -- OSIS Abbr Only!
+									QString("%1").arg(nChp)									// 5
+							});
 				}
 			}
 		}
@@ -2759,19 +2764,19 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 			fileVerses.close();
 
 			// BkNdx,TstBkNdx,TstNdx,BkName,BkAbbr,TblName,NumChp,NumVrs,NumWrd,Cat,Desc
-			fileBooks.write(QString("%1,%2,%3,\"%4\",%5,%6,%7,%8,%9,\"%10\",\"%11\"\r\n")
-							.arg(nBk)							// 1
-							.arg(pBook->m_nTstBkNdx)			// 2
-							.arg(pBook->m_nTstNdx)				// 3
-							.arg(pBook->m_strBkName)			// 4
-							.arg(pBook->m_lstBkAbbr.join(";"))	// 5
-							.arg(pBook->m_strTblName)			// 6
-							.arg(pBook->m_nNumChp)				// 7
-							.arg(pBook->m_nNumVrs)				// 8
-							.arg(pBook->m_nNumWrd)				// 9
-							.arg(pBibleDatabase->bookCategoryName(CRelIndex(nBk, 0, 0, 0)))		// 10 - Note: Category is deprecated, but write it for compatibility with creating databases for old KJPBS versions
-							.arg(pBook->m_strDesc)				// 11
-							.toUtf8());
+			csvFileBooks << QStringList({
+									QString("%1").arg(nBk),							// 1
+									QString("%1").arg(pBook->m_nTstBkNdx),			// 2
+									QString("%1").arg(pBook->m_nTstNdx),			// 3
+									pBook->m_strBkName,								// 4
+									pBook->m_lstBkAbbr.join(";"),					// 5
+									pBook->m_strTblName,							// 6
+									QString("%1").arg(pBook->m_nNumChp),			// 7
+									QString("%1").arg(pBook->m_nNumVrs),			// 8
+									QString("%1").arg(pBook->m_nNumWrd),			// 9
+									pBibleDatabase->bookCategoryName(CRelIndex(nBk, 0, 0, 0)),	// 10 - Note: Category is deprecated, but write it for compatibility with creating databases for old KJPBS versions
+									pBook->m_strDesc								// 11
+							});
 		}
 
 
@@ -2806,8 +2811,10 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 	}
 	std::cerr << QFileInfo(fileWords).fileName().toUtf8().data();
 
+	CCSVStream csvFileWords(&fileWords);
+
 	fileWords.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	fileWords.write(QString("WrdNdx,Word,bIndexCasePreserve,NumTotal,AltWords,AltWordCounts,NormalMap\r\n").toUtf8());
+	csvFileWords << QStringList({ "WrdNdx", "Word", "bIndexCasePreserve", "NumTotal", "AltWords", "AltWordCounts", "NormalMap" });
 
 	unsigned int nWordIndex = 0;
 
@@ -2840,22 +2847,23 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 
 		nWordIndex++;
 		int nSpecFlags = (wordEntryDb.m_bCasePreserve ? 1 :0) + (wordEntryDb.m_bIsProperWord ? 2 :0);		// Setup sepcial bit-flags field
-		fileWords.write(QString("%1,\"%2\",%3,%4,").arg(nWordIndex).arg(wordEntryDb.m_strWord).arg(nSpecFlags).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8());
-		for (int i=0; i<wordEntryDb.m_lstAltWords.size(); ++i) {
-			fileWords.write(QString((i == 0) ? "\"" : ",").toUtf8());
-			fileWords.write(wordEntryDb.m_lstAltWords.at(i).toUtf8());
-		}
-		fileWords.write(QString("\",").toUtf8());
+		QStringList lstAltWordCounts;
 		for (int i=0; i<wordEntryDb.m_lstAltWordCount.size(); ++i) {
-			fileWords.write(QString((i == 0) ? "\"" : ",").toUtf8());
-			fileWords.write(QString("%1").arg(wordEntryDb.m_lstAltWordCount.at(i)).toUtf8());
+			lstAltWordCounts.append(QString("%1").arg(wordEntryDb.m_lstAltWordCount.at(i)));
 		}
-		fileWords.write(QString("\",").toUtf8());
+		QStringList lstNormalMapping;
 		for (unsigned int i=0; i<wordEntryDb.m_ndxNormalizedMapping.size(); ++i) {
-			fileWords.write(QString((i == 0) ? "\"" : ",").toUtf8());
-			fileWords.write(QString("%1").arg(wordEntryDb.m_ndxNormalizedMapping.at(i)).toUtf8());
+			lstNormalMapping.append(QString("%1").arg(wordEntryDb.m_ndxNormalizedMapping.at(i)));
 		}
-		fileWords.write(QString("\"\r\n").toUtf8());
+		csvFileWords << QStringList({
+									QString("%1").arg(nWordIndex),		// 1 : WrdNdx
+									wordEntryDb.m_strWord,				// 2 : Word
+									QString("%1").arg(nSpecFlags),		// 3 : SpecFlags [bIndexCasePreserve]
+									QString("%1").arg(wordEntryDb.m_ndxNormalizedMapping.size()),	// 4 : NumTotal
+									wordEntryDb.m_lstAltWords.join(","),	// 5 : AltWords
+									lstAltWordCounts.join(","),			// 6 : AltWordCounts
+									lstNormalMapping.join(",")			// 7 : NormalMap
+							});
 	}
 
 	fileWords.close();
@@ -2872,6 +2880,8 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 	}
 	std::cerr << QFileInfo(fileWordSummary).fileName().toUtf8().data();
 
+	CCSVStream csvFileWordSummary(&fileWordSummary);
+
 	unsigned int nTotalWordCount = 0;
 	unsigned int arrTotalTestamentWordCounts[NUM_TST];
 	memset(arrTotalTestamentWordCounts, 0, sizeof(arrTotalTestamentWordCounts));
@@ -2883,22 +2893,23 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 	unsigned int nRepBk = (bHaveApoc ? NUM_BK : (NUM_BK_OT_NT));
 
 	fileWordSummary.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	fileWordSummary.write(QString("\"Word\",\"AltWords\",\"Entire\nBible\"").toUtf8());
+	QStringList lstSummaryLine({ "Word", "AltWords", "Entire\nBible" });
 	for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
 		QString strTemp = CBibleTestaments::name(nTst+1);
 		strTemp.replace(' ', '\n');
-		fileWordSummary.write(QString(",\"%1\"").arg(strTemp).toUtf8());
+		lstSummaryLine.append(strTemp);
 	}
 	for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
-		fileWordSummary.write(QString(",\"%1\"").arg(g_arrBibleBooks.at(nBk).m_strName).toUtf8());
+		lstSummaryLine.append(g_arrBibleBooks.at(nBk).m_strName);
 	}
-	fileWordSummary.write(QString("\r\n").toUtf8());
+	csvFileWordSummary << lstSummaryLine;
 
 	nWordIndex = 0;
 
 // Use previously defined mapDbWordList:
 //	TWordListMap &mapDbWordList = const_cast<TWordListMap &>(pBibleDatabase->mapWordList());
 	for (TAltWordListMap::const_iterator itrUniqWrd = wordListBaton.mapAltWordList.begin(); itrUniqWrd != wordListBaton.mapAltWordList.end(); ++itrUniqWrd) {
+		lstSummaryLine.clear();
 		const TWordListSet &setAltWords = itrUniqWrd->second;
 		CWordEntry &wordEntryDb = mapDbWordList[itrUniqWrd->first];
 		QString strAltWords;
@@ -2907,7 +2918,9 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 			strAltWords += *itrAltWrd;
 		}
 
-		fileWordSummary.write(QString("\"%1\",\"%2\",%3").arg(wordEntryDb.m_strWord).arg(strAltWords).arg(wordEntryDb.m_ndxNormalizedMapping.size()).toUtf8());
+		lstSummaryLine.append(wordEntryDb.m_strWord);
+		lstSummaryLine.append(strAltWords);
+		lstSummaryLine.append(QString("%1").arg(wordEntryDb.m_ndxNormalizedMapping.size()));
 
 		Q_ASSERT(wordEntryDb.m_lstAltWords.size() == wordEntryDb.m_lstAltWordCount.size());
 		Q_ASSERT(wordEntryDb.m_lstAltWords.size() > 0);
@@ -2915,10 +2928,8 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 		if ((nWordIndex % 100) == 0) std::cerr << ".";
 		nWordIndex++;
 
-		unsigned int arrTestamentWordCounts[NUM_TST];
-		memset(arrTestamentWordCounts, 0, sizeof(arrTestamentWordCounts));
-		unsigned int arrBookWordCounts[NUM_BK];
-		memset(arrBookWordCounts, 0, sizeof(arrBookWordCounts));
+		unsigned int arrTestamentWordCounts[NUM_TST] = { };
+		unsigned int arrBookWordCounts[NUM_BK] = { };
 
 		for (TNormalizedIndexList::const_iterator itr = wordEntryDb.m_ndxNormalizedMapping.begin(); itr != wordEntryDb.m_ndxNormalizedMapping.end(); ++itr) {
 			CRelIndex ndx(pBibleDatabase->DenormalizeIndex(*itr));
@@ -2946,22 +2957,25 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 		}
 
 		for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
-			fileWordSummary.write(QString(",%1").arg(arrTestamentWordCounts[nTst]).toUtf8());
+			lstSummaryLine.append(QString("%1").arg(arrTestamentWordCounts[nTst]));
 		}
 		for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
-			fileWordSummary.write(QString(",%1").arg(arrBookWordCounts[nBk]).toUtf8());
+			lstSummaryLine.append(QString("%1").arg(arrBookWordCounts[nBk]));
 		}
 
-		fileWordSummary.write(QString("\r\n").toUtf8());
+		csvFileWordSummary << lstSummaryLine;
 	}
-	fileWordSummary.write(QString("\"\",\"\",%1").arg(nTotalWordCount).toUtf8());
+	lstSummaryLine.clear();
+	lstSummaryLine.append(QString());
+	lstSummaryLine.append(QString());
+	lstSummaryLine.append(QString("%1").arg(nTotalWordCount));
 	for (unsigned int nTst=0; nTst<nRepTst; ++nTst) {
-		fileWordSummary.write(QString(",%1").arg(arrTotalTestamentWordCounts[nTst]).toUtf8());
+		lstSummaryLine.append(QString("%1").arg(arrTotalTestamentWordCounts[nTst]));
 	}
 	for (unsigned int nBk=0; nBk<nRepBk; ++nBk) {
-		fileWordSummary.write(QString(",%1").arg(arrTotalBookWordCounts[nBk]).toUtf8());
+		lstSummaryLine.append(QString("%1").arg(arrTotalBookWordCounts[nBk]));
 	}
-	fileWordSummary.write(QString("\r\n").toUtf8());
+	csvFileWordSummary << lstSummaryLine;
 
 	fileWordSummary.close();
 	std::cerr << "\n";
@@ -2983,19 +2997,21 @@ static int writeFootnotesFile(const QDir &dirOutput, const CBibleDatabase *pBibl
 	}
 	std::cerr << QFileInfo(fileFootnotes).fileName().toUtf8().data();
 
+	CCSVStream csvFileFootnotes(&fileFootnotes);
+
 	fileFootnotes.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	fileFootnotes.write(QString("BkChpVrsWrdNdx,PFootnote,RFootnote\r\n").toUtf8());
+	csvFileFootnotes << QStringList({ "BkChpVrsWrdNdx", "PFootnote", "RFootnote" });
 
 	const TFootnoteEntryMap &mapFootnotes = pBibleDatabase->footnotesMap();
 	for (TFootnoteEntryMap::const_iterator itrFootnotes = mapFootnotes.begin(); itrFootnotes != mapFootnotes.end(); ++itrFootnotes) {
 		QStringList lstTempFootnote = (itrFootnotes->second).text().split('\"');
 		QString strTempFootnote = lstTempFootnote.join("\"\"");
 		// BkChpVrsWrdNdx,PFootnote,RFootnote
-		fileFootnotes.write(QString("%1,\"%2\",\"%3\"\r\n")
-							.arg((itrFootnotes->first).index())			// 1
-							.arg(strTempFootnote)						// 2			-- TODO : FIX
-							.arg(strTempFootnote)						// 3			-- TODO : FIX
-							.toUtf8());
+		csvFileFootnotes << QStringList({
+								QString("%1").arg((itrFootnotes->first).index()),		// 1
+								strTempFootnote,										// 2			-- TODO : FIX
+								strTempFootnote											// 3			-- TODO : FIX
+						});
 
 		if ((nFootnoteIndex % 100) == 0) std::cerr << ".";
 		nFootnoteIndex++;
@@ -3025,8 +3041,10 @@ static int writePhrasesFile(const QDir &dirOutput, const CBibleDatabase *pBibleD
 	}
 	std::cerr << QFileInfo(filePhrases).fileName().toUtf8().data();
 
+	CCSVStream csvFilePhrases(&filePhrases);
+
 	filePhrases.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	filePhrases.write(QString("Ndx,Phrase,CaseSensitive,AccentSensitive,Exclude\r\n").toUtf8());
+	csvFilePhrases << QStringList({ "Ndx", "Phrase", "CaseSensitive", "AccentSensitive", "Exclude" });
 
 	filePhrases.close();
 	std::cerr << "\n";
@@ -3038,7 +3056,6 @@ static int writePhrasesFile(const QDir &dirOutput, const CBibleDatabase *pBibleD
 
 static int writeLemmasFile(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
 {
-
 	QFile fileLemmas;		// Lemma list being written
 
 	// Write Lemmas:
@@ -3049,8 +3066,10 @@ static int writeLemmasFile(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 	}
 	std::cerr << QFileInfo(fileLemmas).fileName().toUtf8().data();
 
+	CCSVStream csvFileLemmas(&fileLemmas);
+
 	fileLemmas.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
-	fileLemmas.write(QString("BkChpVrsWrdNdx,Count,Attrs\r\n").toUtf8());
+	csvFileLemmas << QStringList({ "BkChpVrsWrdNdx", "Count", "Attrs" });
 
 	unsigned int nLemmaBk = 0;
 	const TLemmaEntryMap &mapLemmas = pBibleDatabase->lemmaMap();
@@ -3063,11 +3082,11 @@ static int writeLemmasFile(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 		QStringList lstTempLemma = (itrLemmas->second).lemmaAttrs().split('\"');
 		QString strTempLemma = lstTempLemma.join("\"\"");
 		// Ndx,Count,Attrs
-		fileLemmas.write(QString("%1,%2,\"%3\"\r\n")
-							.arg(itrLemmas->second.tag().relIndex().index())
-							.arg(itrLemmas->second.tag().count())
-							.arg(strTempLemma)
-							.toUtf8());
+		csvFileLemmas << QStringList({
+							QString("%1").arg(itrLemmas->second.tag().relIndex().index()),
+							QString("%1").arg(itrLemmas->second.tag().count()),
+							strTempLemma
+						});
 	}
 
 	fileLemmas.close();
@@ -3227,7 +3246,7 @@ static int writeVersification(const QDir &dirOutput, const CBibleDatabase *pBibl
 						QString("%1").arg(nVrs ? nVrs : (nChp ? pChapter->m_nNumVrs : pBook->m_nNumVrs)),	// 4 : NumVrs
 						QString("%1").arg(nVrs ? pVerse->m_nNumWrd : (nChp ? pChapter->m_nNumWrd : pBook->m_nNumWrd)),	// 5 : NumWrd
 						QString("%1").arg(pVerse->m_nPilcrow),					// 6 : nPilcrow
-						pVerse->m_strTemplate									// 7 : TText
+						pVerse->m_strTemplate.trimmed()							// 7 : TText
 					});
 				++nEntryCount;
 			}
