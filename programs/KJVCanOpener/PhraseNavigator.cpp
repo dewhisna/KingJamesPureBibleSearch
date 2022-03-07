@@ -1577,7 +1577,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 		scriptureHTML.appendRawText("</span>");
 		scriptureHTML.endParagraph();
 		scriptureHTML.endDiv();
-	} else {
+	} else if (!m_pBibleDatabase->isVersificationRemapped()) {	// Footnote style colophon doesn't work on VersificationRemapping since footnotes are stored with KJV REF
 		// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 		scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
 		if ((flagsTRO & TRO_Colophons) &&
@@ -1795,7 +1795,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 				scriptureHTML.appendRawText("</span>");
 				scriptureHTML.endParagraph();
 				scriptureHTML.endDiv();
-			} else {
+			} else if (!m_pBibleDatabase->isVersificationRemapped()) {	// Footnote style colophon doesn't work on VersificationRemapping since footnotes are stored with KJV REF
 				// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 				scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
 				if ((flagsTRO & TRO_Colophons) &&
@@ -1897,7 +1897,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText("</span>");
 		scriptureHTML.endParagraph();
 		scriptureHTML.endDiv();
-	} else {
+	} else if (!m_pBibleDatabase->isVersificationRemapped()) {	// Footnote style superscription doesn't work on VersificationRemapping since footnotes are stored with KJV REF
 		// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 		scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
 		if ((flagsTRO & TRO_Superscriptions) &&
@@ -2066,7 +2066,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.appendRawText("</span>");
 			scriptureHTML.endParagraph();
 			scriptureHTML.endDiv();
-		} else {
+		} else if (!m_pBibleDatabase->isVersificationRemapped()) {	// Footnote style colophon doesn't work on VersificationRemapping since footnotes are stored with KJV REF
 			// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 			scriptureHTML.startBuffered();			// Start buffering so we can insert colophon division if there is a footnote
 			if ((flagsTRO & TRO_Colophons) &&
@@ -2171,7 +2171,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.appendRawText("</span>");
 			scriptureHTML.endParagraph();
 			scriptureHTML.endDiv();
-		} else {
+		} else if (!m_pBibleDatabase->isVersificationRemapped()) {	// Footnote style superscription doesn't work on VersificationRemapping since footnotes are stored with KJV REF
 			// If pseudo-verse doesn't exist, drop back to try old "footnote" style:
 			scriptureHTML.startBuffered();			// Start buffering so we can insert superscription division if there is a footnote
 			if ((flagsTRO & TRO_Superscriptions) &&

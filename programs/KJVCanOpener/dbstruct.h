@@ -1474,6 +1474,7 @@ public:
 		return m_mapVersificationLayouts.contains(nVersification);
 	}
 	bool setVersificationType();
+	inline bool isVersificationRemapped() const { return (m_itrCurrentLayout != m_itrKJVLayout); }
 
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
 	{
