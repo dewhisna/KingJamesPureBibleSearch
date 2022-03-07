@@ -2483,14 +2483,16 @@ QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nW
 
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 {
-	TFootnoteEntryMap::const_iterator footnote = m_mapFootnotes.find(ndx);
+	TFootnoteEntryMap::const_iterator footnote = m_mapFootnotes.find(
+				(m_itrCurrentLayout == m_itrKJVLayout) ? ndx : m_itrKJVLayout->DenormalizeIndex(m_itrCurrentLayout->NormalizeIndex(ndx)));
 	if (footnote == m_mapFootnotes.end()) return nullptr;
 	return &(footnote->second);
 }
 
 const CLemmaEntry *CBibleDatabase::lemmaEntry(const CRelIndex &ndx) const
 {
-	TLemmaEntryMap::const_iterator lemma = m_mapLemmaEntries.find(ndx);
+	TLemmaEntryMap::const_iterator lemma = m_mapLemmaEntries.find(
+				(m_itrCurrentLayout == m_itrKJVLayout) ? ndx : m_itrKJVLayout->DenormalizeIndex(m_itrCurrentLayout->NormalizeIndex(ndx)));
 	if (lemma == m_mapLemmaEntries.end()) return nullptr;
 	return &(lemma->second);
 }
