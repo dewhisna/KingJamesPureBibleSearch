@@ -95,16 +95,13 @@ CSearchWithinModel::CSearchWithinModel(CBibleDatabasePtr pBibleDatabase, const C
 	:	QAbstractItemModel(pParent),
 		m_pBibleDatabase(pBibleDatabase),
 		m_bBibleHasColophons(false),			// These will be setup in setupModel(), but need defaults...
-		m_bBibleHasSuperscriptions(false),
-		m_nLastCategoryGroup(BBCGE_KJV),		// Especially for m_nLastCategoryGroup
-		m_nLastVersificationType(BVTE_KJV)		//	and m_nLastVersificationType
+		m_bBibleHasSuperscriptions(false)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	setupModel(aSearchCriteria.searchWithin(), true);
+	setupModel(aSearchCriteria.searchWithin());
 
-	// Used Queued Connection so that Bible Database can catch the signal first:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::QueuedConnection);
+	connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
 }
 
 CSearchWithinModel::~CSearchWithinModel()
@@ -114,26 +111,19 @@ CSearchWithinModel::~CSearchWithinModel()
 
 // ============================================================================
 
-void CSearchWithinModel::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
+void CSearchWithinModel::en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+															const TBibleDatabaseSettings &newSettings, bool bForce)
 {
 	if ((strUUID.compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) &&
-		((aSettings.categoryGroup() != m_nLastCategoryGroup) ||
-		 (aSettings.versification() != m_nLastVersificationType))) {
-		setupModel(searchWithin(), bForce);
+		(bForce ||
+		 (newSettings.categoryGroup() != oldSettings.categoryGroup()) ||
+		 (newSettings.versification() != oldSettings.versification()))) {
+		setupModel(searchWithin());
 	}
 }
 
-void CSearchWithinModel::setupModel(const TRelativeIndexSet &aSetSearchWithin, bool bInitial)
+void CSearchWithinModel::setupModel(const TRelativeIndexSet &aSetSearchWithin)
 {
-	if (!bInitial &&
-		(m_nLastCategoryGroup == m_pBibleDatabase->settings().categoryGroup()) &&
-		(m_nLastVersificationType == m_pBibleDatabase->settings().versification())) {
-		return;
-	}
-
-	m_nLastCategoryGroup = m_pBibleDatabase->settings().categoryGroup();
-	m_nLastVersificationType = m_pBibleDatabase->settings().versification();
-
 	beginResetModel();
 
 	m_rootSearchWithinModelIndex.clear();

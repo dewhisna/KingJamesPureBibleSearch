@@ -139,7 +139,10 @@ protected:
 
 	virtual void en_detailUpdate() override;
 
-	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce) override;
+	virtual void en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													 const TBibleDatabaseSettings &newSettings, bool bForce) override;
+	virtual void en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													const TBibleDatabaseSettings &newSettings, bool bForce) override;
 
 //public slots:
 public:
@@ -259,7 +262,10 @@ protected slots:
 
 	virtual void en_detailUpdate() = 0;
 
-	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce) = 0;
+	virtual void en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													const TBibleDatabaseSettings &newSettings, bool bForce) = 0;
+	virtual void en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													const TBibleDatabaseSettings &newSettings, bool bForce) = 0;
 
 public slots:
 	virtual void rerender() = 0;
@@ -318,7 +324,10 @@ protected slots:
 
 	virtual void en_detailUpdate() = 0;
 
-	virtual void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce) = 0;
+	virtual void en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													const TBibleDatabaseSettings &newSettings, bool bForce) = 0;
+	virtual void en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													const TBibleDatabaseSettings &newSettings, bool bForce) = 0;
 
 public slots:
 	virtual void rerender() = 0;

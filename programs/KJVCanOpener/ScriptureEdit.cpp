@@ -135,8 +135,9 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedScriptureBrowserLineHeight(qreal)), &m_dlyRerenderCompressor, SLOT(trigger()));
-	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
-	U::connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::QueuedConnection);
+
+	U::connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
+	U::connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
 
 	U::connect(&m_dlyRerenderCompressor, SIGNAL(triggered()), this, SLOT(rerender()));
 
@@ -938,12 +939,68 @@ void CScriptureText<T,U>::en_detailUpdate()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
+void CScriptureText<T,U>::en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+															const TBibleDatabaseSettings &newSettings, bool bForce)
 {
-	Q_UNUSED(aSettings);
 	Q_UNUSED(bForce);
 	if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
-		m_dlyRerenderCompressor.trigger();
+		if (oldSettings.versification() != newSettings.versification()) {
+			// Clear anything else with a CRelIndex in it, since it may be invalid
+			//	for the new versification, causing a crash during rerender:
+			selection().clear();
+			m_tagLast = TPhraseTag();
+			m_tagLastActive = TPhraseTag();
+		}
+	}
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+																const TBibleDatabaseSettings &newSettings, bool bForce)
+{
+	Q_UNUSED(bForce);
+	if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
+		if (oldSettings.versification() != newSettings.versification()) {
+			// The current book has to exist, since they must be the same
+			//	across versifications.  But if the current chapter doesn't
+			//	exist, move to the start of the book:
+			if (!m_pBibleDatabase->chapterEntry(m_ndxCurrent)) {
+				m_ndxCurrent = m_pBibleDatabase->calcRelIndex(CRelIndex(m_ndxCurrent.book(), 1, 0, 0), CBibleDatabase::RIME_Absolute);
+				m_ndxCurrent.setVerse(0);		// Select chapter only so browser will display headings
+				m_ndxCurrent.setWord(0);
+
+				i_CScriptureBrowser *pBrowser = qobject_cast<i_CScriptureBrowser*>(this);
+				if (pBrowser) {
+					// There's a race-condition between setSource and clearHistory.
+					//	clearHistory keeps the "current document" as its top entry.
+					//	However, rerender happens on a signal emit, causing it to
+					//	not update the "current document" until after clearHistory
+					//	has run.  That means, if we are changing versification and
+					//	the current page goes out of scope, we will crash if the
+					//	user scrolls back in history unless we first set the current
+					//	document to the new one (see above).  And then clearHistory.
+					//	That way, the history "top" will be the new document we are
+					//	going to, not what it is now...  this took FOREVER to figure
+					//	out why clearHistory wasn't clearing it.  It was, just not
+					//	the current top.
+					pBrowser->setSource(QString("#%1").arg(m_ndxCurrent.asAnchor()));
+					pBrowser->clearHistory();
+				}
+			}
+		}
+
+		//m_dlyRerenderCompressor.trigger();
+		rerender();		// Direct call to rerender to avoid delays
+
+		if (oldSettings.versification() != newSettings.versification()) {
+			i_CScriptureBrowser *pBrowser = qobject_cast<i_CScriptureBrowser*>(this);
+			if (pBrowser) {
+				// This second call to clearHistory is needed for past history
+				//	prior to the current document.  The one above before the
+				//	rerender only handles the current top case:
+				pBrowser->clearHistory();
+			}
+		}
 	}
 }
 
@@ -982,7 +1039,8 @@ void CScriptureText<T,U>::en_gotoIndex(const TPhraseTag &tag)
 template<class T, class U>
 void CScriptureText<T,U>::rerender()
 {
-	if ((selection().primarySelection().relIndex().chapter() == 0) &&
+	if ((selection().primarySelection().relIndex().book() != 0) &&
+		(selection().primarySelection().relIndex().chapter() == 0) &&
 		(selection().primarySelection().relIndex().verse() == 0) &&
 		(selection().primarySelection().relIndex().word() == 0)) {
 		// Special case if it's an entire book, use our last active tag:

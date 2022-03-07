@@ -370,7 +370,10 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 			for (TBibleDatabaseSettingsMap::ConstIterator itrUUIDs = pTarget->m_mapBibleDatabaseSettings.constBegin();
 															itrUUIDs != pTarget->m_mapBibleDatabaseSettings.constEnd();
 															++itrUUIDs) {
-				emit changedBibleDatabaseSettings(itrUUIDs.key(), itrUUIDs.value(), false);
+				emit changedBibleDatabaseSettings(itrUUIDs.key(),
+													pSource->m_mapBibleDatabaseSettings.value(itrUUIDs.key()),
+													itrUUIDs.value(),
+													false);
 			}
 		}
 		if (pSource->m_strMainBibleDatabaseUUID != pTarget->m_strMainBibleDatabaseUUID) emit changedMainBibleDatabaseSelection(pTarget->m_strMainBibleDatabaseUUID);
@@ -882,7 +885,7 @@ void CPersistentSettings::setBibleDatabaseSettings(const QString &strUUID, const
 	bool bFound = m_pPersistentSettingData->m_mapBibleDatabaseSettings.contains(strUUID);
 	TBibleDatabaseSettings oldSettings = m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, TBibleDatabaseSettings());
 	m_pPersistentSettingData->m_mapBibleDatabaseSettings[strUUID] = aSettings;
-	if ((!bFound) || (oldSettings != aSettings)) emit changedBibleDatabaseSettings(strUUID, aSettings, false);
+	if ((!bFound) || (oldSettings != aSettings)) emit changedBibleDatabaseSettings(strUUID, oldSettings, aSettings, false);
 }
 
 void CPersistentSettings::setMainBibleDatabaseUUID(const QString &strUUID)
@@ -895,7 +898,7 @@ void CPersistentSettings::setMainBibleDatabaseUUID(const QString &strUUID)
 
 void CPersistentSettings::triggerForcedChangeBibleDatabaseSettings(const QString &strUUID)
 {
-	emit changedBibleDatabaseSettings(strUUID, bibleDatabaseSettings(strUUID), true);
+	emit changedBibleDatabaseSettings(strUUID, bibleDatabaseSettings(strUUID), bibleDatabaseSettings(strUUID), true);
 }
 
 // ----------------------------------------------------------------------------

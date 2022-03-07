@@ -1681,9 +1681,15 @@ signals:
 	void changedMainBibleDatabase(CBibleDatabasePtr pBibleDatabase);
 	void changedBibleDatabaseList();
 	void changedAvailableBibleDatabaseList();
+	void beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+											const TBibleDatabaseSettings &newSettings, bool bForce);		// bForce = Force Update even if settings aren't actually different
+	void endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+											const TBibleDatabaseSettings &newSettings, bool bForce);		// bForce = Force Update even if settings aren't actually different
 
 protected slots:
-	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
+	// en_changedBibleDatabaseSettings is triggered from CPersistentSettings:
+	void en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+											const TBibleDatabaseSettings &newSettings, bool bForce);
 
 private:
 	CBibleDatabasePtr m_pMainBibleDatabase;

@@ -98,6 +98,8 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags)), this, SIGNAL(rerender()));
 
+	connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
+
 // Data Connections:
 	connect(pSearchResultsListModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
 	connect(pSearchResultsListModel, SIGNAL(verseListChanged()), this, SLOT(en_SearchResultsVerseListChanged()));
@@ -748,6 +750,24 @@ void CBrowserWidget::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearc
 	doHighlighting(true);
 	m_bShowExcludedSearchResults = bShowExcludedSearchResults;
 	doHighlighting(false);
+}
+
+// ----------------------------------------------------------------------------
+
+void CBrowserWidget::en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+															const TBibleDatabaseSettings &newSettings, bool bForce)
+{
+	Q_UNUSED(bForce);
+	if ((m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) &&
+		(oldSettings.versification() != newSettings.versification())) {
+		// To avoid crash in cursor tracking when changing versification schemes,
+		//	due to race-condition with search updates, etc., just clear the text
+		//	here.  Doing this here instead of in CScriptureText because clearing
+		//	all CScriptureText derivations wreaks havoc in the other ones, like
+		//	in the Configuration dialog, where previews get blanked and not
+		//	redrawn:
+		m_pScriptureBrowser->clear();
+	}
 }
 
 // ----------------------------------------------------------------------------

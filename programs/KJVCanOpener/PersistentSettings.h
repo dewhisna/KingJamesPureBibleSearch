@@ -258,7 +258,8 @@ signals:
 	void changedShowOCntInSearchResultsRefs(bool bShow);
 	void changedShowWrdNdxInSearchResultsRefs(bool bShow);
 
-	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce);
+	void changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+										const TBibleDatabaseSettings &newSettings, bool bForce);
 	void changedMainBibleDatabaseSelection(const QString &strUUID);
 
 	void changedDictionaryDatabaseSettings(const QString &strUUID, const TDictionaryDatabaseSettings &aSettings);

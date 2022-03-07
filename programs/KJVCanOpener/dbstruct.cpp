@@ -108,8 +108,7 @@ TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 {
 	setBibleDatabasePath(false);
 
-	// This one should be a Direct connection so that we update the database words immediately before users get updated:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::DirectConnection);
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
 }
 
 TBibleDatabaseList::~TBibleDatabaseList()
@@ -435,15 +434,15 @@ void TBibleDatabaseList::addBibleDatabase(CBibleDatabasePtr pBibleDatabase, bool
 	emit changedBibleDatabaseList();
 }
 
-void TBibleDatabaseList::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
+void TBibleDatabaseList::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+															const TBibleDatabaseSettings &newSettings, bool bForce)
 {
-	Q_UNUSED(aSettings);
-	Q_UNUSED(bForce);
-
 	CBibleDatabasePtr pBibleDatabase = atUUID(strUUID);
 	if (!pBibleDatabase.isNull()) {
+		emit beginChangeBibleDatabaseSettings(strUUID, oldSettings, newSettings, bForce);
 		pBibleDatabase->setVersificationType();
 		pBibleDatabase->setRenderedWords();
+		emit endChangeBibleDatabaseSettings(strUUID, oldSettings, newSettings, bForce);
 	}
 }
 

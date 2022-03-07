@@ -187,6 +187,9 @@ private slots:
 	void en_SearchResultsColorChanged(const QColor &color);
 	void en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults);
 
+	void en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+												const TBibleDatabaseSettings &newSettings, bool bForce);
+
 private:
 	void setupChapterScrollbar();
 

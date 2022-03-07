@@ -117,8 +117,7 @@ CSearchSpecWidget::CSearchSpecWidget(CBibleDatabasePtr pBibleDatabase, bool bHav
 	connect(ui.widgetSearchCriteria, SIGNAL(gotoIndex(const CRelIndex &)), this, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)));
 
 	// -------------------- Bible Database Settings:
-	//		Used Queued Connection so that Bible Database can catch the signal first and update the rendered word list before we get called:
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, bool)), Qt::QueuedConnection);
+	connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
 
 	// -------------------- Persistent Settings:
 	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)), Qt::QueuedConnection);
@@ -634,9 +633,11 @@ void CSearchSpecWidget::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	}
 }
 
-void CSearchSpecWidget::en_changedBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings, bool bForce)
+void CSearchSpecWidget::en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+															const TBibleDatabaseSettings &newSettings, bool bForce)
 {
-	Q_UNUSED(aSettings);
+	Q_UNUSED(oldSettings);
+	Q_UNUSED(newSettings);
 	Q_UNUSED(bForce);
 	if (m_pBibleDatabase->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) == 0) {
 		for (int ndx = 0; ndx < m_lstSearchPhraseEditors.size(); ++ndx) {
