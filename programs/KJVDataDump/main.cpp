@@ -27,6 +27,7 @@
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
+#include "../KJVCanOpener/PersistentSettings.h"
 // ----
 #include "../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"
 
@@ -87,13 +88,20 @@ int main(int argc, char *argv[])
 	bool bOutputVerseText = false;
 	bool bOutputTransChangeAdded = false;
 	bool bOutputWebChannelBibleAudioURLs = false;
+	bool bLookingForVersification = false;
+	QString strV11n;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
 		if (!strArg.startsWith("-")) {
-			++nArgsFound;
-			if (nArgsFound == 1) {
-				nDescriptor = strArg.toInt();
+			if (bLookingForVersification) {
+				strV11n = strArg;
+				bLookingForVersification = false;
+			} else {
+				++nArgsFound;
+				if (nArgsFound == 1) {
+					nDescriptor = strArg.toInt();
+				}
 			}
 		} else if (strArg.compare("-sc") == 0) {
 			bSkipColophons = true;
@@ -113,10 +121,14 @@ int main(int argc, char *argv[])
 			bOutputTransChangeAdded = true;
 		} else if (strArg.compare("-wba") == 0) {
 			bOutputWebChannelBibleAudioURLs = true;
+		} else if (strArg.compare("-v11n") == 0) {
+			bLookingForVersification = true;
 		} else {
 			bUnknownOption = true;
 		}
 	}
+
+	if (bLookingForVersification) bUnknownOption = true;	// Still looking for versification index
 
 	if ((nArgsFound != 1) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataDump Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
@@ -130,11 +142,18 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -t  =  Print Verse Templates\n").toUtf8().data();
 		std::cerr << QString("  -x  =  Print Verse Text\n").toUtf8().data();
 		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x)\n").toUtf8().data();
-		std::cerr << QString("  -wba =  Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
+		std::cerr << QString("  -wba = Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
+		std::cerr << QString("  -v11n <index> = Use versification <index> if the database supports it\n").toUtf8().data();
+		std::cerr << QString("         (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
 			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(ndx)).m_strDBDesc).toUtf8().data();
+		}
+		std::cerr << "\n";
+		std::cerr << QString("Versification Index:\n").toUtf8().data();
+		for (int ndx = 0; ndx < CBibleVersifications::count(); ++ndx) {
+			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(CBibleVersifications::name(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(ndx))).toUtf8().data();
 		}
 		std::cerr << "\n";
 		return -1;
@@ -165,6 +184,28 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+
+	BIBLE_VERSIFICATION_TYPE_ENUM nV11nType = static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(strV11n.toUInt());
+	if (!strV11n.isEmpty()) {
+		if ((nV11nType < 0) || (nV11nType >= CBibleVersifications::count())) {
+			std::cerr << "Unknown Versification Type Index specified\n";
+			return -4;
+		}
+
+		if (!pBibleDatabase->hasVersificationType(nV11nType)) {
+			std::cerr << "That Bible Database doesn't support Versification Index: " << nV11nType << "\n";
+			return -5;
+		}
+
+		// Switch Versifications:
+		TBibleDatabaseSettings settings = CPersistentSettings::instance()->bibleDatabaseSettings(pBibleDatabase->compatibilityUUID());
+		settings.setVersification(nV11nType);
+		CPersistentSettings::instance()->setBibleDatabaseSettings(pBibleDatabase->compatibilityUUID(), settings);
+	}
+
+	// ------------------------------------------------------------------------
+
 	static QStringList lstVerseWords;
 
 	class CMyVerseTextRichifierTags : public CVerseTextPlainRichifierTags
@@ -188,7 +229,6 @@ int main(int argc, char *argv[])
 		bool m_bOutputTransChangeAdded;
 	} vtrt(bOutputVerseText, bOutputTransChangeAdded);
 
-	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
 	CRelIndex ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
 
