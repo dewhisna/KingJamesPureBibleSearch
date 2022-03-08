@@ -3471,6 +3471,9 @@ int main(int argc, char *argv[])
 
 	if (strOutputPath.isEmpty()) strOutputPath = strDefaultOutputPath;
 
+	if (bLookingForSegVariant) bUnknownOption = true;		// Still looking for SegVariant
+	if (bLookingForVersification) bUnknownOption = true;	// Still looking for versification index
+
 	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
