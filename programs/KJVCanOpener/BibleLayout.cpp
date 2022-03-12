@@ -310,7 +310,7 @@ const TBibleBookList g_arrBibleBooks =
 	{ 0, { "2Macc" }, "MACC2", CBibleBookNames::tr("2 Maccabees"), CBibleBookAbbr::tr("2Macc;2Mc;2Ma"), CBibleBookDescription::tr("The Second Book of the Maccabees") },
 	{ 0, { "3Macc" }, "MACC3", CBibleBookNames::tr("3 Maccabees"), CBibleBookAbbr::tr("3Macc;3Mc;3Ma"), CBibleBookDescription::tr("The Third Book of the Maccabees") },
 	{ 0, { "4Macc" }, "MACC4", CBibleBookNames::tr("4 Maccabees"), CBibleBookAbbr::tr("4Macc;4Mc;4Ma"), CBibleBookDescription::tr("The Fourth Book of the Maccabees") },
-	{ 0, { "Ps151", "AddPs" }, "PS151", CBibleBookNames::tr("Psalm 151"), CBibleBookAbbr::tr("Ps151"), CBibleBookDescription::tr("Psalm 151") },
+	{ CRelIndex(0, 151, 1, 0).index(), { "Ps151", "AddPs" }, "PS151", CBibleBookNames::tr("Psalm 151"), CBibleBookAbbr::tr("Ps151"), CBibleBookDescription::tr("Psalm 151") },
 	{ 0, { "Odes" }, "ODES", CBibleBookNames::tr("Odes"), CBibleBookAbbr::tr("Odes;Oda"), CBibleBookDescription::tr("Book of Odes") },
 	{ 0, { "PsSal", "PssSol", "PsSol" }, "PSS", CBibleBookNames::tr("Psalms of Salomon"), CBibleBookAbbr::tr("PssSol;PsSal;PsSol"), CBibleBookDescription::tr("Psalms of Salomon") },
 };
@@ -407,7 +407,13 @@ CKJVBibleChapterVerseCounts::CKJVBibleChapterVerseCounts()
 		// ---- Above is in the KJVA, Below is not
 		/* 3Macc */ "29,33,30,21,51,41,23",		// 7 Chapters
 		/* 4Macc */ "35,24,21,26,38,35,25,29,32,21,27,20,27,20,32,25,24,24",	// 18 Chapters
-		/* Ps151 */ "16",	// Is divided into 7 verses for 151a (Hebrew), 2 for 151b (Hebrew and Syriac), and 7 (Greek)
+		/* Ps151 */ "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+					"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+					"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+					"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+					"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"
+					"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"		// (AddPs) (starts at 151:1)
+					"16",	// Is divided into 7 verses for 151a (Hebrew), 2 for 151b (Hebrew and Syriac), and 7 (Greek)
 		/* Odes  */ "5,0,11,15,15,18,26,22,12,6,24,13,4,10,10,20,17,16,11,10,9,12,22,14,12,13,3,20,11,7,13,3,13,6,7,8,4,22,13,6,16,20",		// 42 Odes
 		/* PsSal */ "8,37,12,25,19,6,10,34,11,8,9,6,12,10,13,15,46,12",	// 18 Psalms
 	};
