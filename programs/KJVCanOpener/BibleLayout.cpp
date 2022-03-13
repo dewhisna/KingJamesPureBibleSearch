@@ -167,6 +167,7 @@ const TBibleBookCategoryMap g_mapKJVBookCategories =
 	{ "PsSal", BBCE_WISDOM_POETIC },
 	{ "PssSol", BBCE_WISDOM_POETIC },
 	{ "PsSol", BBCE_WISDOM_POETIC },
+	{ "EpJer", BBCE_WISDOM_POETIC },
 };
 
 // ------------------------------------
@@ -222,6 +223,24 @@ const TBibleBookCategoryMap g_mapHebrewMasoreticBookCategories =
 // Everything below this point is only for external CLI tools, like
 //	KJVDataParse for creating databases and parsing external files!
 //
+
+// OSIS Starting Index for Normal Entries are absolute to their
+//	starting location with 'book' being optional (set to zero if
+//	not specifying it) and with an implied [nBk, 1, 1, 0] value
+//	if set to 0 (i.e. not set).  By absolute, it means it's
+//	expected that the chapter/verse values of the book entry in
+//	the database match those of the book and aren't adjusted.
+//
+// OSIS Starting Index for Duality Entries are relative to their
+//	parent 'book'.  These are used for places where one book is
+//	contained completely inside another book.  For example, the
+//	EpJer is generally considered to be chapter 6 of Baruch.
+//	Therefore EpJer is a duality.  It's chapter/verse entries
+//	are relative to the specified target.  That is, an index
+//	of chapter 6, verse 1 on EpJer will map chapter 1, verse 1
+//	of the EpJer book to chapter 6, verse 1 of the target Baruch.
+//	The target (1-baed) book number should be used for the book
+//	on the index and must match the corresponding list entry.
 
 const TBibleBookList g_arrBibleBooks =
 {
@@ -313,6 +332,8 @@ const TBibleBookList g_arrBibleBooks =
 	{ CRelIndex(0, 151, 1, 0).index(), { "Ps151", "AddPs" }, "PS151", CBibleBookNames::tr("Psalm 151"), CBibleBookAbbr::tr("Ps151"), CBibleBookDescription::tr("Psalm 151") },
 	{ 0, { "Odes" }, "ODES", CBibleBookNames::tr("Odes"), CBibleBookAbbr::tr("Odes;Oda"), CBibleBookDescription::tr("Book of Odes") },
 	{ 0, { "PsSal", "PssSol", "PsSol" }, "PSS", CBibleBookNames::tr("Psalms of Salomon"), CBibleBookAbbr::tr("PssSol;PsSal;PsSol"), CBibleBookDescription::tr("Psalms of Salomon") },
+	// ---- Begin Aprocrypha/Deuterocanon Dualities:
+	{ CRelIndex(74, 6, 1, 0).index(), { "EpJer" }, "EPJER", CBibleBookNames::tr("Epistle of Jeremy"), CBibleBookAbbr::tr("EpJer;EpJ"), CBibleBookDescription::tr("Epistle of Jeremy (Barach 6)") },		// Equivalent to Baruch 6, but for when specified separately
 };
 
 // ============================================================================
@@ -415,7 +436,7 @@ CKJVBibleChapterVerseCounts::CKJVBibleChapterVerseCounts()
 					"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"		// (AddPs) (starts at 151:1)
 					"16",	// Is divided into 7 verses for 151a (Hebrew), 2 for 151b (Hebrew and Syriac), and 7 (Greek)
 		/* Odes  */ "5,0,11,15,15,18,26,22,12,6,24,13,4,10,10,20,17,16,11,10,9,12,22,14,12,13,3,20,11,7,13,3,13,6,7,8,4,22,13,6,16,20",		// 42 Odes
-		/* PsSal */ "8,37,12,25,19,6,10,34,11,8,9,6,12,10,13,15,46,12",	// 18 Psalms
+		/* PsSal */ "8,37,12,25,19,6,10,34,11,8,9,6,12,10,13,15,46,12",			// 18 Psalms
 	};
 
 	for (uint32_t ndx = 0; ndx < NUM_BK; ++ndx) {

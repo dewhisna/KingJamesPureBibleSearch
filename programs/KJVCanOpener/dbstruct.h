@@ -441,6 +441,9 @@ public:
 		m_nNumLtr(0),
 		m_nLtrAccum(0),
 #endif
+#ifdef OSIS_PARSER_BUILD
+		m_bCreated(false),
+#endif
 		m_bHaveColophon(false)
 	{ }
 	~CBookEntry() { }
@@ -459,6 +462,10 @@ public:
 	uint32_t m_nLtrAccum;		// Number of accumulated letters prior to, but not including this book
 #endif
 	QString m_strDesc;			// Description (subtitle)
+
+#ifdef OSIS_PARSER_BUILD
+	bool m_bCreated;			// Set to true in KJVDataParse when this book entry has been created
+#endif
 
 	bool m_bHaveColophon;		// True if this book has a Colophon pseudo-verse (will be indexed as [nBk|0|0|0] in the TVerseEntryMap, ie. nChp==0, nVrs==0)
 };

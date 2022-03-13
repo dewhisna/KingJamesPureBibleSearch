@@ -249,7 +249,7 @@ class CBibleBookDescription : public QObject
 // Books:
 // TBibleBook Structure -- Used for Parsing Bible Database Files (KJVDataParse, etc)
 typedef struct TBibleBook {
-	uint32_t m_ndxStartingChapterVerse;		// CRelIndex of Chapter and Verse this book is supposed to start at (used to handle special case Apocrypha entries, like AddEsther), Stored as uint32_t instead of CRelIndex to avoid circular include
+	uint32_t m_ndxStartingIndex;			// CRelIndex of Book, Chapter, and Verse this book is supposed to start at (used to handle special case Apocrypha entries, like AddEsther), Stored as uint32_t instead of CRelIndex to avoid circular include
 	QStringList m_lstOsisAbbr;				// List of OSIS IDs to apply for this book (to allow for things like EsthGr and AddEsth to be synonyms).  Only the FIRST will be used in our databases!
 	QString m_strTableName;					// Database Table Name for this book
 	QString m_strName;						// BookName (Translated)
