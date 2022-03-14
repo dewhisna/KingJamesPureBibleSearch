@@ -94,6 +94,11 @@
 		Deuteronomy, Books of Kings, Books of Chronicles, Songs of Songs)
 		and the Russian Bible Society (all other books).
 
+  Talking Bibles, Russian Synodal 1876 : https://listen.talkingbibles.org/en/language/rus
+	(c)1991 Talking Bibles
+	Year of Audio Bible Edition: 1991
+	Bible version: 1876, Synodal Bible (Basic Russian translation)
+
   Hebrew Masoretic Text : Letteris Hebrew Bible
 	Title: Letteris Hebrew Bible
     Author: Abraham Shmuelof
@@ -154,7 +159,8 @@ public:
 		BAS_SHERBERG_JONES = 0x100,				// Jon Sherberg and James Earl Jones Version
 		BAS_REINA_VALERA_1865 = 0x200,			// Spanish Reina-Valera 1865 Narration
 		BAS_1876_RUSSIAN_SYNODAL = 0x400,		// 1876 Russian Synodal Narration
-		BAS_HEBREW_MASORETIC_LETTERIS = 0x800,	// Hebrew Masoretic, Letteris Bible, Abraham Shmuelof Narration
+		BAS_TB_1876_RUSSIAN_SYNODAL = 0x800,	// Talking Bibles 1876 Russian Synodal Narration
+		BAS_HEBREW_MASORETIC_LETTERIS = 0x1000,	// Hebrew Masoretic, Letteris Bible, Abraham Shmuelof Narration
 		BAS_ALL = 0xFFFFFFFF
 	};
 	Q_DECLARE_FLAGS(BibleAudioSourcesFlags, BibleAudioSources)

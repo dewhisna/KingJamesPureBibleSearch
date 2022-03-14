@@ -856,6 +856,94 @@ namespace {
 
 	// ------------------------------------------------------------------------
 
+	// Talking Bibles : 1876 Russian Synodal:
+	//	Filename format: x_TN/yy_BOOKNAME/yy_BOOKNAME_zzz.mp3
+	//		x = Testament number (1 = OT, 2 = NT)
+	//		TN = 2-character Testament Name in uppercase (OT or NT)
+	//		yy = Book number, 1-based, zero-filled to 2-digits.  Book number
+	//			is RELATIVE to the testament.  That is, it starts over
+	//			at 01 for Matthew.
+	//		BOOKNAME = lowercase bookname from the list here
+	//		zzz = Chapter number, 1-based, zero-filled to 3-digits in the
+	//				OT, but 2-digits in the NT, with the exception of
+	//				the books with only 1 chapter (Obadiah, Philemon, 2John,
+	//				3John, and Jude) which have no "_zzz" part and are the
+	//				same as the book entry.
+
+	// Book names as they appear on the Talking Bibles 1876 Russian Synodal recording files:
+	const QString g_arrconstrTBRussianSynodalBooks[NUM_BK_OT_NT] = {
+		"01_genesis",
+		"02_exodus",
+		"03_leviticus",
+		"04_numbers",
+		"05_deuteronomy",
+		"06_joshua",
+		"07_judges",
+		"08_ruth",
+		"09_1-samuel",
+		"10_2-samuel",
+		"11_1-kings",
+		"12_2-kings",
+		"13_1-chronicles",
+		"14_2-chronicles",
+		"15_ezra",
+		"16_nehemiah",
+		"17_esther",
+		"18_job",
+		"19_psalms",
+		"20_proverbs",
+		"21_ecclesiastes",
+		"22_songofsolomon",
+		"23_isaiah",
+		"24_jeremiah",
+		"25_lamentations",
+		"26_ezekiel",
+		"27_daniel",
+		"28_hosea",
+		"29_joel",
+		"30_amos",
+		"31_obadiah",
+		"32_jonah",
+		"33_micah",
+		"34_nahum",
+		"35_habakkuk",
+		"36_zephaniah",
+		"37_haggai",
+		"38_zechariah",
+		"39_malachi",
+		"01_matthew",
+		"02_mark",
+		"03_luke",
+		"04_john",
+		"05_acts",
+		"06_romans",
+		"07_1-corinthians",
+		"08_2-corinthians",
+		"09_galatians",
+		"10_ephesians",
+		"11_philippians",
+		"12_colossians",
+		"13_1-thessalonians",
+		"14_2-thessalonians",
+		"15_1-timothy",
+		"16_2-timothy",
+		"17_titus",
+		"18_philemon",
+		"19_hebrews",
+		"20_james",
+		"21_1-peter",
+		"22_2-peter",
+		"23_1-john",
+		"24_2-john",
+		"25_3-john",
+		"26_jude",
+		"27_revelation",
+	};
+
+	const QString g_constrTBRussianSynodalURL = "https://audios.dewtronics.com/TalkingBibles/RussianSynodal1876/%1";
+
+	// ------------------------------------------------------------------------
+
 	// Book names as they appear on the Masoretic, Letteris Bible,
 	//	Abraham Shmuelof Narration recording files:
 	struct TMasoreticLetteris {
@@ -1156,12 +1244,36 @@ QString CWebChannelBibleAudio::urlsForChapterAudio(const CBibleDatabasePtr pBibl
 		}
 
 		if (bRussianSynodalValid) {
-			// 1876 Russian Synodal:
-			QString strRSBkChp = QString("%1/%2.mp3").arg(g_arrconRussianSynodalBooks[nBk-1], 2, 10, QChar('0'))
-													.arg(nChp, 2, 10, QChar('0'));
-			if (flagsBAS & BAS_1876_RUSSIAN_SYNODAL) {
+			// Talking Bibles : 1876 Russian Synodal:
+			if (flagsBAS & BAS_TB_1876_RUSSIAN_SYNODAL) {
+				QString strTBRSTstBkChp = QString("%1/%2/%2").arg((nTst == 1) ? "1_OT" : "2_NT")
+										.arg(g_arrconstrTBRussianSynodalBooks[nBk-1]);
+				//	Filename format: x_TN/yy_BOOKNAME/yy_BOOKNAME_zzz.mp3
+				if ((nTst == 1) &&
+					(nBk != pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_OBADIAH).book())) {
+					strTBRSTstBkChp.append(QString("_%1").arg(nChp, 3, 10, QChar('0')));
+				} else if ((nTst == 2) &&
+					((nBk != pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_PHILEMON).book()) &&
+					 (nBk != pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_2JOHN).book()) &&
+					 (nBk != pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_3JOHN).book()) &&
+					 (nBk != pBibleDatabase->bookIndexFromOSISAbbr(OSISNAME_JUDE).book()))) {
+					strTBRSTstBkChp.append(QString("_%1").arg(nChp, 2, 10, QChar('0')));
+				}
+				strTBRSTstBkChp.append(".mp3");
+
 				QJsonObject objBibleAudio;
-				objBibleAudio["name"] = "1876 Russian Synodal";
+				objBibleAudio["name"] = "Talking Bible (Non-Drama)";
+				objBibleAudio["url"] = QString(QUrl(QString(g_constrTBRussianSynodalURL).arg(strTBRSTstBkChp)).toEncoded());
+				arrBibleAudioList.append(objBibleAudio);
+			}
+
+			// 1876 Russian Synodal:
+			if (flagsBAS & BAS_1876_RUSSIAN_SYNODAL) {
+				QString strRSBkChp = QString("%1/%2.mp3").arg(g_arrconRussianSynodalBooks[nBk-1], 2, 10, QChar('0'))
+														.arg(nChp, 2, 10, QChar('0'));
+
+				QJsonObject objBibleAudio;
+				objBibleAudio["name"] = "Russian Bible Society (Drama)";
 				objBibleAudio["url"] = QString(QUrl(QString(g_constrRussianSynodalURL).arg(strRSBkChp)).toEncoded());
 				arrBibleAudioList.append(objBibleAudio);
 			}
