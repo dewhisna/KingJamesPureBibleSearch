@@ -24,6 +24,8 @@
 #ifndef DATABASE_DESCRIPTORS_H
 #define DATABASE_DESCRIPTORS_H
 
+#include "BibleLayout.h"
+
 #include <QMetaType>
 #include <QString>
 #include <QStringList>
@@ -72,6 +74,7 @@ typedef struct TBibleDescriptor {
 	QString m_strS3DBFilename;			// Sqlite3 Database filename
 	QString m_strCCDBFilename;			// Compressed-CSV Database filename
 	QString m_strHighlighterUUID;		// Master Highlighter UUID for databases with compatible versification to point to their master
+	BIBLE_VERSIFICATION_TYPE_ENUM m_nMainVersification = BVTE_KJV;	// Bible Versification (default to KJV)
 
 	bool isValid() const { return !m_strUUID.isEmpty(); }
 } TBibleDescriptor;

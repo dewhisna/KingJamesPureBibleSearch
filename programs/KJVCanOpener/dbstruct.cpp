@@ -2246,9 +2246,10 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 		m_descriptor(bblDesc),
 		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
-	m_mapVersificationLayouts[BVTE_KJV] = TVersificationLayout();		// All databases will have a KJV Versification
-	m_itrKJVLayout = m_mapVersificationLayouts.find(BVTE_KJV);
-	m_itrCurrentLayout = m_itrKJVLayout;
+	Q_ASSERT((bblDesc.m_nMainVersification >= 0) && (bblDesc.m_nMainVersification < BVTE_COUNT));
+	m_mapVersificationLayouts[bblDesc.m_nMainVersification] = TVersificationLayout();		// All databases will have a Main Versification
+	m_itrMainLayout = m_mapVersificationLayouts.find(bblDesc.m_nMainVersification);
+	m_itrCurrentLayout = m_itrMainLayout;
 	// Note: It doesn't do any good to set the m_itrCurrentLayout here
 	//	to the BibleDatabaseSettings value because this database object
 	//	gets constructed before ReadDB has actually read the versification
@@ -2483,7 +2484,7 @@ QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nW
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 {
 	TFootnoteEntryMap::const_iterator footnote = m_mapFootnotes.find(
-				(m_itrCurrentLayout == m_itrKJVLayout) ? ndx : m_itrKJVLayout->DenormalizeIndex(m_itrCurrentLayout->NormalizeIndex(ndx)));
+				(m_itrCurrentLayout == m_itrMainLayout) ? ndx : m_itrMainLayout->DenormalizeIndex(m_itrCurrentLayout->NormalizeIndex(ndx)));
 	if (footnote == m_mapFootnotes.end()) return nullptr;
 	return &(footnote->second);
 }
@@ -2491,7 +2492,7 @@ const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 const CLemmaEntry *CBibleDatabase::lemmaEntry(const CRelIndex &ndx) const
 {
 	TLemmaEntryMap::const_iterator lemma = m_mapLemmaEntries.find(
-				(m_itrCurrentLayout == m_itrKJVLayout) ? ndx : m_itrKJVLayout->DenormalizeIndex(m_itrCurrentLayout->NormalizeIndex(ndx)));
+				(m_itrCurrentLayout == m_itrMainLayout) ? ndx : m_itrMainLayout->DenormalizeIndex(m_itrCurrentLayout->NormalizeIndex(ndx)));
 	if (lemma == m_mapLemmaEntries.end()) return nullptr;
 	return &(lemma->second);
 }

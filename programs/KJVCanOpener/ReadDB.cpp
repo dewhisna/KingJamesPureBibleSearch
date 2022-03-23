@@ -1165,40 +1165,40 @@ bool CReadDatabase::ReadVersificationTables()
 			return false;
 		}
 
-		// The KJV database contains common details for Testaments, number
+		// The Main Database contains common details for Testaments, number
 		//	of books, etc., which must match across versifications:
-		CBibleDatabase::TVersificationLayoutMap::const_iterator itrKJV = m_pBibleDatabase->m_mapVersificationLayouts.find(BVTE_KJV);
+		CBibleDatabase::TVersificationLayoutMap::const_iterator itrMain = static_cast<CBibleDatabase::TVersificationLayoutMap::const_iterator>(m_pBibleDatabase->m_itrMainLayout);
 
 		m_pBibleDatabase->m_mapVersificationLayouts[nVersificationType] = CBibleDatabase::TVersificationLayout();
 		CBibleDatabase::TVersificationLayoutMap::iterator itrNewV11n = m_pBibleDatabase->m_mapVersificationLayouts.find(nVersificationType);
 
-		// Setup the Testament List with things common from KJV:
-		itrNewV11n->m_lstTestaments.reserve(itrKJV->m_lstTestaments.size());
-		for (TTestamentList::size_type nTst = 0; nTst < itrKJV->m_lstTestaments.size(); ++nTst) {
-			const CTestamentEntry &entryKJV = itrKJV->m_lstTestaments.at(nTst);
+		// Setup the Testament List with things common from Main:
+		itrNewV11n->m_lstTestaments.reserve(itrMain->m_lstTestaments.size());
+		for (TTestamentList::size_type nTst = 0; nTst < itrMain->m_lstTestaments.size(); ++nTst) {
+			const CTestamentEntry &entryMain = itrMain->m_lstTestaments.at(nTst);
 			CTestamentEntry entryNew;
-			entryNew.m_strTstName = entryKJV.m_strTstName;
-			entryNew.m_nNumBk = entryKJV.m_nNumBk;
+			entryNew.m_strTstName = entryMain.m_strTstName;
+			entryNew.m_nNumBk = entryMain.m_nNumBk;
 			itrNewV11n->m_lstTestaments.push_back(entryNew);
 		}
-		itrNewV11n->m_EntireBible.m_nNumTst = itrKJV->m_EntireBible.m_nNumTst;
+		itrNewV11n->m_EntireBible.m_nNumTst = itrMain->m_EntireBible.m_nNumTst;
 
-		// Setup the Book List with things common from KJV:
-		itrNewV11n->m_lstBookVerses.reserve(itrKJV->m_lstBooks.size());
-		for (TBookList::size_type nBk = 0; nBk < itrKJV->m_lstBooks.size(); ++nBk) {
-			const CBookEntry &entryKJV = itrKJV->m_lstBooks.at(nBk);
+		// Setup the Book List with things common from Main:
+		itrNewV11n->m_lstBookVerses.reserve(itrMain->m_lstBooks.size());
+		for (TBookList::size_type nBk = 0; nBk < itrMain->m_lstBooks.size(); ++nBk) {
+			const CBookEntry &entryMain = itrMain->m_lstBooks.at(nBk);
 			CBookEntry entryNew;
-			entryNew.m_nTstBkNdx = entryKJV.m_nTstBkNdx;
-			entryNew.m_nTstNdx = entryKJV.m_nTstNdx;
-			entryNew.m_strBkName = entryKJV.m_strBkName;
-			entryNew.m_lstBkAbbr = entryKJV.m_lstBkAbbr;
-			entryNew.m_strTblName = entryKJV.m_strTblName;
-			entryNew.m_strDesc = entryKJV.m_strDesc;
+			entryNew.m_nTstBkNdx = entryMain.m_nTstBkNdx;
+			entryNew.m_nTstNdx = entryMain.m_nTstNdx;
+			entryNew.m_strBkName = entryMain.m_strBkName;
+			entryNew.m_lstBkAbbr = entryMain.m_lstBkAbbr;
+			entryNew.m_strTblName = entryMain.m_strTblName;
+			entryNew.m_strDesc = entryMain.m_strDesc;
 			itrNewV11n->m_lstBooks.push_back(entryNew);
 			// ----
 			itrNewV11n->m_lstBookVerses.push_back(TVerseEntryMap());
 		}
-		itrNewV11n->m_EntireBible.m_nNumBk = itrKJV->m_EntireBible.m_nNumBk;
+		itrNewV11n->m_EntireBible.m_nNumBk = itrMain->m_EntireBible.m_nNumBk;
 
 		unsigned int nTotalChp = 0;
 		unsigned int nTotalVrs = 0;
@@ -1775,9 +1775,19 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
 
-		// Trigger settings change to make sure rendering is updated, since
-		//	things like versification won't be valid at database construction:
-		CPersistentSettings::instance()->triggerForcedChangeBibleDatabaseSettings(m_pBibleDatabase->compatibilityUUID());
+		TBibleDatabaseSettings currentSettings = m_pBibleDatabase->settings();
+		if (!m_pBibleDatabase->hasVersificationType(currentSettings.versification())) {
+			// If the current settings versification isn't in the database, switch
+			//	to the current settings (which should match the descriptor during the
+			//	Bible database construction).  Note: this will trigger a settings
+			//	change event so we don't need to do it twice (hence the else):
+			currentSettings.setVersification(m_pBibleDatabase->m_itrCurrentLayout.key());
+			m_pBibleDatabase->setSettings(currentSettings);
+		} else {
+			// Trigger settings change to make sure rendering is updated, since
+			//	things like versification won't be valid at database construction:
+			CPersistentSettings::instance()->triggerForcedChangeBibleDatabaseSettings(m_pBibleDatabase->compatibilityUUID());
+		}
 	} else {
 		m_pBibleDatabase.clear();
 	}
@@ -1858,9 +1868,19 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
 
-		// Trigger settings change to make sure rendering is updated, since
-		//	things like versification won't be valid at database construction:
-		CPersistentSettings::instance()->triggerForcedChangeBibleDatabaseSettings(m_pBibleDatabase->compatibilityUUID());
+		TBibleDatabaseSettings currentSettings = m_pBibleDatabase->settings();
+		if (!m_pBibleDatabase->hasVersificationType(currentSettings.versification())) {
+			// If the current settings versification isn't in the database, switch
+			//	to the current settings (which should match the descriptor during the
+			//	Bible database construction).  Note: this will trigger a settings
+			//	change event so we don't need to do it twice (hence the else):
+			currentSettings.setVersification(m_pBibleDatabase->m_itrCurrentLayout.key());
+			m_pBibleDatabase->setSettings(currentSettings);
+		} else {
+			// Trigger settings change to make sure rendering is updated, since
+			//	things like versification won't be valid at database construction:
+			CPersistentSettings::instance()->triggerForcedChangeBibleDatabaseSettings(m_pBibleDatabase->compatibilityUUID());
+		}
 	} else {
 		m_pBibleDatabase.clear();
 	}

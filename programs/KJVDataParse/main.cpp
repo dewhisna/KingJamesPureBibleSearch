@@ -2512,6 +2512,7 @@ static int writeDBInfoFile(const QDir &dirOutput, const TBibleDescriptor &bblDes
 	settingsDBInfo.setValue("Description", bblDescriptor.m_strDBDesc);
 	settingsDBInfo.setValue("UUID", bblDescriptor.m_strUUID);
 	settingsDBInfo.setValue("InfoFilename", (!strInfoFilename.isEmpty() ? fiInfoFile.fileName() : QString()));
+	settingsDBInfo.setValue("Versification", CBibleVersifications::uuid(bblDescriptor.m_nMainVersification));
 	settingsDBInfo.endGroup();
 
 	if (settingsDBInfo.status() != QSettings::NoError) return ERR_CODE_DBINFO_FILE_WRITE_FAILED;
@@ -2603,7 +2604,22 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 			lstChapterVerseCounts.push_back(QStringList());
 		} else {
 			// Predefined books from our list:
-			lstChapterVerseCounts.push_back(CKJVBibleChapterVerseCounts::instance()->at(nBk-1));
+			switch (pBibleDatabase->descriptor().m_nMainVersification) {
+				case BVTE_KJV:
+					lstChapterVerseCounts.push_back(CKJVBibleChapterVerseCounts::instance()->at(nBk-1));
+					break;
+				case BVTE_HEBREW_MASORETIC:
+					lstChapterVerseCounts.push_back(CMTBibleChapterVerseCounts::instance()->at(nBk-1));
+					break;
+				case BVTE_SYNODAL:
+					lstChapterVerseCounts.push_back(CSynodalBibleChapterVerseCounts::instance()->at(nBk-1));
+					break;
+				case BVTE_COUNT:
+				default:
+					Q_ASSERT(false);		// Invalid Versification Index
+					lstChapterVerseCounts.push_back(QStringList());
+					break;
+			}
 		}
 		const CBookEntry *pBook = pBibleDatabase->bookEntry(nBk);
 		bool bHadBook = true;
@@ -3462,6 +3478,8 @@ int main(int argc, char *argv[])
 	QString strSegVariant;
 	bool bLookingForVersification = false;
 	QString strV11n;
+	bool bLookingForVersificationAdd = false;
+	QString strV11nAdd;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -3475,6 +3493,9 @@ int main(int argc, char *argv[])
 			} else if (bLookingForVersification) {
 				strV11n = strArg;
 				bLookingForVersification = false;
+			} else if (bLookingForVersificationAdd) {
+				strV11nAdd = strArg;
+				bLookingForVersificationAdd = false;
 			} else {
 				++nArgsFound;
 				if (nArgsFound == 1) {
@@ -3518,6 +3539,8 @@ int main(int argc, char *argv[])
 			bMissingOK = true;
 		} else if (strArg.compare("-v11n") == 0) {
 			bLookingForVersification = true;
+		} else if (strArg.compare("-v11nadd") == 0) {
+			bLookingForVersificationAdd = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -3527,6 +3550,7 @@ int main(int argc, char *argv[])
 
 	if (bLookingForSegVariant) bUnknownOption = true;		// Still looking for SegVariant
 	if (bLookingForVersification) bUnknownOption = true;	// Still looking for versification index
+	if (bLookingForVersificationAdd) bUnknownOption = true;	// Still looking for versification add index
 
 	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
@@ -3556,7 +3580,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("           (Identical to -bf, but excludes them, and overrides -f)\n").toUtf8().data();
 		std::cerr << QString("    -x  =  Exclude Apocrypha/Deuterocanonical Text\n").toUtf8().data();
 		std::cerr << QString("    -m  =  Missing/Extra Chapters/Verses are OK (don't fit to KJV Versification)\n").toUtf8().data();
-		std::cerr << QString("    -v11n <index> = Write only the specified versification file\n").toUtf8().data();
+		std::cerr << QString("    -v11n <index> = Used to specify versification to override the database's default\n").toUtf8().data();
+		std::cerr << QString("           (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
+		std::cerr << QString("    -v11nadd <index> = Write only the additional specified versification file\n").toUtf8().data();
 		std::cerr << QString("           (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
@@ -3578,19 +3604,31 @@ int main(int argc, char *argv[])
 		return ERR_CODE_USAGE;
 	}
 
-	BIBLE_VERSIFICATION_TYPE_ENUM nV11nType = static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(strV11n.toUInt());
+	BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor);
+	TBibleDescriptor bblDescriptor = bibleDescriptor(nBDE);
+
+	// Main Versification:
 	if (!strV11n.isEmpty()) {
+		BIBLE_VERSIFICATION_TYPE_ENUM nV11nType = static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(strV11n.toUInt());
 		if ((nV11nType < 0) || (nV11nType >= CBibleVersifications::count())) {
 			std::cerr << "Unknown Versification Type Index specified\n";
 			return ERR_CODE_USAGE;
 		}
-		if (!bMissingOK) {
-			std::cerr << "*** Warning: You may want to specify -m (Missing OK) when writing versifications\n";
-		}
+
+		bblDescriptor.m_nMainVersification = nV11nType;
 	}
 
-	BIBLE_DESCRIPTOR_ENUM nBDE = static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor);
-	TBibleDescriptor bblDescriptor = bibleDescriptor(nBDE);
+	// Additional Versification:
+	BIBLE_VERSIFICATION_TYPE_ENUM nV11nAddType = static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(strV11nAdd.toUInt());
+	if (!strV11nAdd.isEmpty()) {
+		if ((nV11nAddType < 0) || (nV11nAddType >= CBibleVersifications::count())) {
+			std::cerr << "Unknown Versification Type Index specified\n";
+			return ERR_CODE_USAGE;
+		}
+		if (!bMissingOK) {
+			std::cerr << "*** Warning: You may want to specify -m (Missing OK) when writing alternate versifications\n";
+		}
+	}
 
 	QDir dirOutput(strOutputPath);
 	if (!dirOutput.exists()) {
@@ -3638,7 +3676,7 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	if (strV11n.isEmpty()) {
+	if (strV11nAdd.isEmpty()) {
 		std::cerr << "\nWriting Files:\n";
 	} else {
 		std::cerr << "\nProcessing Counts:\n";
@@ -3647,20 +3685,20 @@ int main(int argc, char *argv[])
 	int nRetVal = 0;
 	TWordListBaton wordListBaton;
 
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeDBInfoFile(dirOutput, bblDescriptor, strInfoFilename);
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeTestamentsFile(dirOutput, pBibleDatabase);
-	nRetVal = nRetVal ? nRetVal : doBooksChaptersVerses(dirOutput, pBibleDatabase, wordListBaton, xmlHandler, bMissingOK, strV11n.isEmpty());
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeWordsFiles(dirOutput, pBibleDatabase, wordListBaton);
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeFootnotesFile(dirOutput, pBibleDatabase);
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writePhrasesFile(dirOutput, pBibleDatabase);
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeLemmasFile(dirOutput, pBibleDatabase);
-	nRetVal = (nRetVal || !strV11n.isEmpty()) ? nRetVal : writeStrongs(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeDBInfoFile(dirOutput, bblDescriptor, strInfoFilename);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeTestamentsFile(dirOutput, pBibleDatabase);
+	nRetVal = nRetVal ? nRetVal : doBooksChaptersVerses(dirOutput, pBibleDatabase, wordListBaton, xmlHandler, bMissingOK, strV11nAdd.isEmpty());
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeWordsFiles(dirOutput, pBibleDatabase, wordListBaton);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeFootnotesFile(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writePhrasesFile(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeLemmasFile(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeStrongs(dirOutput, pBibleDatabase);
 
-	if (!strV11n.isEmpty()) {
+	if (!strV11nAdd.isEmpty()) {
 		std::cerr << "\nWriting Files:\n";
 	}
 
-	nRetVal = (nRetVal || strV11n.isEmpty()) ? nRetVal : writeVersification(dirOutput, pBibleDatabase, nV11nType);
+	nRetVal = (nRetVal || strV11nAdd.isEmpty()) ? nRetVal : writeVersification(dirOutput, pBibleDatabase, nV11nAddType);
 
 	// ------------------------------------------------------------------------
 

@@ -61,8 +61,9 @@ constexpr char OSISNAME_JUDE[] = "Jude";
 
 // Versifications:
 enum BIBLE_VERSIFICATION_TYPE_ENUM {		// Note: This list cannot change without breaking settings
-	BVTE_KJV = 0,							// KJV Standard Versification
-	BVTE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Standard
+	BVTE_KJV = 0,							// KJV Standard Versification (KJV, techincally KJVA)
+	BVTE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Standard (MT)
+	BVTE_SYNODAL = 2,						// Russian Synodal Versification (Synodal)
 	// ----
 	BVTE_COUNT
 };
@@ -265,6 +266,7 @@ extern const TBibleBookList g_arrBibleBooks;
 // Bible Book->Chapter/Verse Mapping:
 typedef QList<QStringList> TBibleChapterVerseCounts;
 
+// BVTE_KJV Versification (KJV, technically KJVA) :
 class CKJVBibleChapterVerseCounts : public TBibleChapterVerseCounts
 {
 private:
@@ -272,6 +274,30 @@ private:
 
 public:
 	static const CKJVBibleChapterVerseCounts *instance();
+};
+
+// ----------------------------------------------------------------------------
+
+// BVTE_HEBREW_MASORETIC Versification (MT) :
+class CMTBibleChapterVerseCounts : public TBibleChapterVerseCounts
+{
+private:
+	CMTBibleChapterVerseCounts();
+
+public:
+	static const CMTBibleChapterVerseCounts *instance();
+};
+
+// ----------------------------------------------------------------------------
+
+// BVTE_SYNODAL Versification (Synodal) :
+class CSynodalBibleChapterVerseCounts : public TBibleChapterVerseCounts
+{
+private:
+	CSynodalBibleChapterVerseCounts();
+
+public:
+	static const CSynodalBibleChapterVerseCounts *instance();
 };
 
 // ============================================================================

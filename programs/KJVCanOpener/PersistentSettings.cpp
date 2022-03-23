@@ -877,13 +877,19 @@ QStringList CPersistentSettings::bibleDatabaseSettingsUUIDList() const
 
 TBibleDatabaseSettings CPersistentSettings::bibleDatabaseSettings(const QString &strUUID) const
 {
-	return (m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, TBibleDatabaseSettings()));
+	// Default construct a TBibleDatabaseSettings and set the default
+	//	versification to the one specified in the descriptor and use
+	//	that for the return value if it's not in our map:
+	TBibleDatabaseSettings aSettings;
+	BIBLE_DESCRIPTOR_ENUM bde = bibleDescriptorFromUUID(strUUID);
+	if (bde != BDE_UNKNOWN) aSettings.setVersification(bibleDescriptor(bde).m_nMainVersification);
+	return (m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, aSettings));
 }
 
 void CPersistentSettings::setBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &aSettings)
 {
 	bool bFound = m_pPersistentSettingData->m_mapBibleDatabaseSettings.contains(strUUID);
-	TBibleDatabaseSettings oldSettings = m_pPersistentSettingData->m_mapBibleDatabaseSettings.value(strUUID, TBibleDatabaseSettings());
+	TBibleDatabaseSettings oldSettings = bibleDatabaseSettings(strUUID);
 	m_pPersistentSettingData->m_mapBibleDatabaseSettings[strUUID] = aSettings;
 	if ((!bFound) || (oldSettings != aSettings)) emit changedBibleDatabaseSettings(strUUID, oldSettings, aSettings, false);
 }
