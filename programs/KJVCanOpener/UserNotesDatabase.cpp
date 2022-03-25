@@ -26,6 +26,8 @@
 
 #include "PersistentSettings.h"
 
+#include "ParseSymbols.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
@@ -95,6 +97,35 @@ namespace {
 	const QString constrEnabledAttr("Enabled");
 	const QString constrVisibleAttr("Visible");
 	const QString constrKeywordsAttr("Keywords");
+}
+
+// ============================================================================
+
+TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBibleDatabase) const
+{
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return TCrossReferenceMap(*this);
+
+	TCrossReferenceMap mapScoped;
+
+	for (const_iterator itrMap = begin(); itrMap != end(); ++itrMap) {
+		if (pBibleDatabase->NormalizeIndex(itrMap->first) == 0) continue;
+
+		TRelativeIndexSet setRefs;
+		for (TRelativeIndexSet::const_iterator itrSet = (itrMap->second).begin(); itrSet != (itrMap->second).end(); ++itrSet) {
+			if (pBibleDatabase->NormalizeIndex(*itrSet) != 0) setRefs.insert(*itrSet);
+		}
+		if (!setRefs.empty()) mapScoped[itrMap->first] = setRefs;
+	}
+
+	return mapScoped;
+}
+
+// ============================================================================
+
+bool HighlighterNameSortPredicate::operator() (const QString &v1, const QString &v2) const
+{
+	return (StringParse::decompose(v1, false).compare(StringParse::decompose(v2, false), Qt::CaseInsensitive) < 0);
 }
 
 // ============================================================================

@@ -326,58 +326,6 @@ struct XformLower {
 typedef std::vector<uint32_t> TNormalizedIndexList;			// Normalized Index List for words into book/chapter/verse/word
 typedef std::vector<CRelIndex> TRelativeIndexList;			// Relative Index List for words into book/chapter/verse/word
 typedef std::set<CRelIndex, RelativeIndexSortPredicate> TRelativeIndexSet;		// Relative Index Set for words into book/chapter/verse/word
-class TCrossReferenceMap : public std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>		// Map of Relative Index to Relative Index Set, used for cross-references (such as User Notes Database cross-reference, etc)
-{
-public:
-	TCrossReferenceMap()
-		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>(),
-			m_bNoWordRefs(true)
-	{
-
-	}
-
-	TCrossReferenceMap(const TCrossReferenceMap &aMap)
-		:	std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>(aMap),
-			m_bNoWordRefs(true)
-	{
-
-	}
-
-	TCrossReferenceMap & operator=(const TCrossReferenceMap &aMap) = default;
-
-	inline bool haveCrossReferencesFor(const CRelIndex &ndx) const
-	{
-		return (find(relIndexMaskWord(ndx)) != end());
-	}
-	inline bool haveCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond) const
-	{
-		const TRelativeIndexSet refs = crossReferencesFor(ndxFirst);
-		TRelativeIndexSet::const_iterator itr = refs.find(relIndexMaskWord(ndxSecond));
-		return (itr != refs.end());
-	}
-	inline const TRelativeIndexSet crossReferencesFor(const CRelIndex &ndx) const
-	{
-		TCrossReferenceMap::const_iterator itr = find(relIndexMaskWord(ndx));
-		if (itr == end()) return TRelativeIndexSet();
-		return (itr->second);
-	}
-	TCrossReferenceMap createScopedMap(const CBibleDatabase *pBibleDatabase) const;
-
-private:
-	// TODO : If we ever change this to allow WordRefs, we must update calls in
-	//		VerseListModel to properly mask the word for the special "word 1"
-	//		indexes used for verses to distinguish other types
-	inline CRelIndex relIndexMaskWord(const CRelIndex &ndx) const
-	{
-		if (m_bNoWordRefs) {
-			return CRelIndex(ndx.book(), ndx.chapter(), ndx.verse(), 0);
-		}
-		return ndx;
-	}
-
-private:
-	bool m_bNoWordRefs;
-};
 
 // ============================================================================
 
@@ -1020,14 +968,6 @@ struct TPhraseTagListSortPredicate {
 		return (s1.relIndex().index() < s2.relIndex().index());
 	}
 };
-
-struct HighlighterNameSortPredicate {
-	bool operator() (const QString &v1, const QString &v2) const;
-};
-
-// PhraseTag Highlighter Mapping Types:
-typedef std::map<QString, TPhraseTagList, HighlighterNameSortPredicate> THighlighterTagMap;		// Map of HighlighterName to TPhraseTagList (Highlighters are kept in sorted decomposed alphabetical order for overlay order)
-typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;						// Map of Bible Database UUID to THighlighterTagMap
 
 // ============================================================================
 
