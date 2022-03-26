@@ -117,7 +117,7 @@ typedef std::map<CRelIndex, CUserNoteEntry, RelativeIndexSortPredicate> CUserNot
 
 //
 // User highlighter data is stored as:
-//			Map of BibleDatabaseUUID (Highlighter) -> Map of HighlighterName -> TPhraseTagList
+//			Map of BibleDatabaseUUID (Highlighter) -> Map of Versifications -> Map of HighlighterName -> TPhraseTagList
 //
 //	This way we can find all of the highlightations that are for the specific
 //		database being rendered, and then find the highlighter name for which
@@ -130,7 +130,8 @@ struct HighlighterNameSortPredicate {
 
 // PhraseTag Highlighter Mapping Types:
 typedef std::map<QString, TPhraseTagList, HighlighterNameSortPredicate> THighlighterTagMap;		// Map of HighlighterName to TPhraseTagList (Highlighters are kept in sorted decomposed alphabetical order for overlay order)
-typedef std::map<QString, THighlighterTagMap> TBibleDBHighlighterTagMap;						// Map of Bible Database UUID to THighlighterTagMap
+typedef std::map<QString, THighlighterTagMap> TVersificationHighlighterTagMap;					// Map of Versification UUID to THighlighterTagMap
+typedef std::map<QString, TVersificationHighlighterTagMap> TBibleDBHighlighterTagMap;			// Map of Bible Database UUID to TVersificationHighlighterTagMap
 
 // ----------------------------------------------------------------------------
 
@@ -279,15 +280,17 @@ public:
 	// --------------------
 
 private:
-	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
+	const THighlighterTagMap *highlighterTagsFor(const QString &strDatabaseUUID, const QString &strV11nUUID) const
 	{
-		TBibleDBHighlighterTagMap::const_iterator itr = m_mapHighlighterTags.find(strUUID);
-		if (itr == m_mapHighlighterTags.end()) return nullptr;
-		return &(itr->second);
+		TBibleDBHighlighterTagMap::const_iterator itrDB = m_mapHighlighterTags.find(strDatabaseUUID);
+		if (itrDB == m_mapHighlighterTags.end()) return nullptr;
+		TVersificationHighlighterTagMap::const_iterator itrV11n = itrDB->second.find(strV11nUUID);
+		if (itrV11n == itrDB->second.end()) return nullptr;
+		return &(itrV11n->second);
 	}
-	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
+	const TPhraseTagList *highlighterTagsFor(const QString &strDatabaseUUID, const QString &strV11nUUID, const QString &strUserDefinedHighlighterName) const
 	{
-		const THighlighterTagMap *pmapHighlightTags = highlighterTagsFor(strUUID);
+		const THighlighterTagMap *pmapHighlightTags = highlighterTagsFor(strDatabaseUUID, strV11nUUID);
 		if (pmapHighlightTags == nullptr) return nullptr;
 		THighlighterTagMap::const_iterator itr = pmapHighlightTags->find(strUserDefinedHighlighterName);
 		if (itr == pmapHighlightTags->end()) return nullptr;
@@ -298,12 +301,12 @@ public:
 	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
 	{
 		Q_ASSERT(!pBibleDatabase.isNull());
-		return highlighterTagsFor(pBibleDatabase->highlighterUUID());
+		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), CBibleVersifications::uuid(pBibleDatabase->versification()));
 	}
 	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
 		Q_ASSERT(!pBibleDatabase.isNull());
-		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), strUserDefinedHighlighterName);
+		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), CBibleVersifications::uuid(pBibleDatabase->versification()), strUserDefinedHighlighterName);
 	}
 	bool existsHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
@@ -312,7 +315,9 @@ public:
 	bool existsHighlighterTagsFor(const QString &strUserDefinedHighlighterName) const
 	{
 		for (TBibleDBHighlighterTagMap::const_iterator itrDB = m_mapHighlighterTags.begin(); itrDB != m_mapHighlighterTags.end(); ++itrDB) {
-			if (highlighterTagsFor(itrDB->first, strUserDefinedHighlighterName)) return true;
+			for (TVersificationHighlighterTagMap::const_iterator itrV11n = itrDB->second.begin(); itrV11n != itrDB->second.end(); ++itrV11n) {
+				if (highlighterTagsFor(itrDB->first, itrV11n->first, strUserDefinedHighlighterName)) return true;
+			}
 		}
 		return false;
 	}
@@ -430,6 +435,7 @@ private:
 	CRelIndex m_ndxRelIndexTag;							// RelIndex Tag Value when processing <CRelIndex> tag
 	unsigned int m_nCount;								// Count attribute when present
 	QString m_strDatabaseUUID;							// Bible Database UUID attribute when present
+	QString m_strV11nUUID;								// Versification UUID attribute when present
 	QString m_strHighlighterName;						// HighlighterName attribute when present
 	QString m_strColor;									// Color attribute when present
 	QString m_strBackgroundColor;						// BackgroundColor attribute when present
