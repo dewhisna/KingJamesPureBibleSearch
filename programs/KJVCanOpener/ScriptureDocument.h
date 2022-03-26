@@ -85,7 +85,7 @@ public:
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) = 0;
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace) = 0;
+	virtual bool addNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddExpandAnchor, bool bForceVisible, bool bAddLeadInSpace) = 0;
 	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors) = 0;
 
 	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors, bool bAddLeadInSpace) = 0;
@@ -139,7 +139,7 @@ public:
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) override;
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false) override;
+	virtual bool addNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false) override;
 	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true) override;
 
 	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false) override;
@@ -162,7 +162,7 @@ public:
 
 	virtual bool addKJPBSWord(const CBibleDatabase *pBibleDatabase, const CRelIndex &relIndex) override;
 
-	virtual bool addNoteFor(const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false) override;
+	virtual bool addNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddExpandAnchor = true, bool bForceVisible = false, bool bAddLeadInSpace = false) override;
 	virtual bool addFootnoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true) override;
 
 	virtual bool addCrossRefsFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &relNdx, bool bAddAnchors = true, bool bAddLeadInSpace = false) override;

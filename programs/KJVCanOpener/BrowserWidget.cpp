@@ -159,9 +159,10 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_highlightersChanged()));
 
 	// User Notes changing:
-	connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(const CRelIndex &)), this, SLOT(en_userNoteEvent(const CRelIndex &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_userNoteEvent(const CRelIndex &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(const CRelIndex &)), this, SLOT(en_userNoteEvent(const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllUserNotes()), this, SLOT(en_allUserNotesChanged()));
 
 	// Cross Refs changing:
 	connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(const CRelIndex &, const CRelIndex &)));
@@ -772,8 +773,9 @@ void CBrowserWidget::en_beginChangeBibleDatabaseSettings(const QString &strUUID,
 
 // ----------------------------------------------------------------------------
 
-void CBrowserWidget::en_userNoteEvent(const CRelIndex &ndx)
+void CBrowserWidget::en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx)
 {
+	if (nVersification != m_pBibleDatabase->versification()) return;
 	if (!selection().isSet()) return;
 	CRelIndex ndxNote = ndx;
 	TPhraseTagList tagsCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTagList(m_ndxCurrent);
@@ -784,6 +786,11 @@ void CBrowserWidget::en_userNoteEvent(const CRelIndex &ndx)
 		((ndx.chapter() == 0) && (ndx.book() == (m_ndxCurrent.book()-1)))) {		// This compare is needed for book notes rendered at the end of the book when we are displaying the first chapter of the next book
 		emit rerender();
 	}
+}
+
+void CBrowserWidget::en_allUserNotesChanged()
+{
+	emit rerender();					// Re-render text (note: The Note may be deleted as well as changed)
 }
 
 void CBrowserWidget::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)

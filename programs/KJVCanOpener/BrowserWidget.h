@@ -112,7 +112,8 @@ public slots:
 	void en_highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_highlightersAboutToChange();
 	void en_highlightersChanged();
-	void en_userNoteEvent(const CRelIndex &ndx);		// Triggered on User Note Added/Changed/Remove
+	void en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);		// Triggered on User Note Added/Changed/Remove
+	void en_allUserNotesChanged();						// Triggered if entire UserNotes changed
 	void en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Triggered on Cross-Ref Added/Remove
 	void en_allCrossRefsChanged();						// Triggered if entire Cross-Refs changed
 

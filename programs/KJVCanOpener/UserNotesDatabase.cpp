@@ -244,7 +244,7 @@ void CUserNotesDatabase::setDataFrom(const CUserNotesDatabase &other)
 	m_bIsDirty = false;
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
-	emit addedUserNote(CRelIndex());
+	emit changedAllUserNotes();
 	emit changedUserNotesKeywords();
 	emit changedAllCrossRefs();
 }
@@ -344,10 +344,18 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		m_bInKJNDocumentText = true;
 	} else if ((m_bInKJNDocumentText) && (!m_bInNotes) && (localName.compare(constrNotesTag, Qt::CaseInsensitive) == 0) &&
 			   (!m_bInCrossReferences && !m_bInHighlighting && !m_bInHighlighterDefinitions)) {
+		int ndxV11nUUID = findAttribute(attr, constrV11nAttr);
+		if (ndxV11nUUID != -1) {
+			m_strV11nUUID = attr.value(ndxV11nUUID);
+		} else {
+			// If there is no Versification UUID, default to the KJV Versification
+			//	to support backward compatibility:
+			m_strV11nUUID = CBibleVersifications::uuid(BVTE_KJV);
+		}
 #ifdef DEBUG_KJN_XML_READ
 		int ndxSize = findAttribute(attr, constrSizeAttr);
 		if (ndxSize != -1) {
-			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
+			qDebug("%s : Versification: \"%s\", Size: %s", localName.toUtf8().data(), m_strV11nUUID.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
 #endif
 		m_bInNotes = true;
@@ -575,7 +583,7 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 #ifdef DEBUG_KJN_XML_READ
 		qDebug("Text: \"%s\"", m_strXMLBuffer.toUtf8().data());
 #endif
-		CUserNoteEntry &userNote = m_mapNotes[m_ndxRelIndex];
+		CUserNoteEntry &userNote = m_mapNotes[m_strV11nUUID][m_ndxRelIndex];
 		userNote.setText(m_strXMLBuffer);
 		userNote.m_lstKeywords = m_strKeywords.split(QChar(','), My_QString_SkipEmptyParts);
 		userNote.setVerseCount(m_nCount);
@@ -683,7 +691,6 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 
 	emit aboutToChangeHighlighters();		// Highlighter definitions (not tags) -- Guarantee this gets sent as the clear() only does it if we have definitions
 	clear();				// This will set "isDirty", which we'll leave set until we've finished loading it
-	emit removedUserNote(CRelIndex());
 	m_strLastError.clear();
 
 	QtIOCompressor inUND(pIODevice);
@@ -718,7 +725,7 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 	m_bKeepDirtyAfterLoad = false;
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
-	emit addedUserNote(CRelIndex());
+	emit changedAllUserNotes();
 	emit changedUserNotesKeywords();
 	emit changedAllCrossRefs();
 
@@ -790,24 +797,27 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 						.arg(constrVersionAttr).arg(KJN_FILE_VERSION).toUtf8());
 	m_nVersion = KJN_FILE_VERSION;
 
-	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrNotesTag)
-							.arg(constrSizeAttr).arg(m_mapNotes.size())
-							.toUtf8());
-	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
-		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\"%11>\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
-								.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
-								.arg(constrCountAttr).arg((itrNotes->second).verseCount())
-								.arg(constrBackgroundColorAttr).arg(htmlEscape((itrNotes->second).backgroundColor().name()))
-								.arg(constrVisibleAttr).arg((itrNotes->second).isVisible() ? "True" : "False")
-								.arg(((itrNotes->second).m_lstKeywords.size() != 0) ? QString(" %1=\"%2\"").arg(constrKeywordsAttr).arg(htmlEscape((itrNotes->second).m_lstKeywords.join(","))) : QString())
+	for (TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.begin(); itrV11n != m_mapNotes.end(); ++itrV11n) {
+		outUND.write(QString("\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrNotesTag)
+								.arg(constrV11nAttr).arg(itrV11n->first)
+								.arg(constrSizeAttr).arg(itrV11n->second.size())
 								.toUtf8());
-		QString strNote = (itrNotes->second).text();
-		strNote.replace("]]>", "]]&gt;");			// safe-guard to make sure we don't have any embedded CDATA terminators
-		outUND.write(strNote.toUtf8());
-		outUND.write(QString("]]>\n").toUtf8());
-		outUND.write(QString("\t\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrNoteTag).toUtf8());
+		for (TUserNoteEntryMap::const_iterator itrNotes = itrV11n->second.begin(); itrNotes != itrV11n->second.end(); ++itrNotes) {
+			outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\"%11>\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
+									.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
+									.arg(constrCountAttr).arg((itrNotes->second).verseCount())
+									.arg(constrBackgroundColorAttr).arg(htmlEscape((itrNotes->second).backgroundColor().name()))
+									.arg(constrVisibleAttr).arg((itrNotes->second).isVisible() ? "True" : "False")
+									.arg(((itrNotes->second).m_lstKeywords.size() != 0) ? QString(" %1=\"%2\"").arg(constrKeywordsAttr).arg(htmlEscape((itrNotes->second).m_lstKeywords.join(","))) : QString())
+									.toUtf8());
+			QString strNote = (itrNotes->second).text();
+			strNote.replace("]]>", "]]&gt;");			// safe-guard to make sure we don't have any embedded CDATA terminators
+			outUND.write(strNote.toUtf8());
+			outUND.write(QString("]]>\n").toUtf8());
+			outUND.write(QString("\t\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrNoteTag).toUtf8());
+		}
+		outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrNotesTag).toUtf8());
 	}
-	outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrNotesTag).toUtf8());
 
 	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrHighlightingTag)
 							.arg(constrSizeAttr).arg(m_mapHighlighterTags.size())
@@ -881,51 +891,66 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 
 // ============================================================================
 
-void CUserNotesDatabase::setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote)
+void CUserNotesDatabase::setNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx, const CUserNoteEntry &strNote)
 {
-	bool bExists = existsNoteFor(ndx);
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return;
+	bool bExists = existsNoteFor(pBibleDatabase, ndx);
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
 	QStringList lstKeywords;
 	if (bExists) {
-		lstKeywords = m_mapNotes.at(ndx).keywordList();
+		lstKeywords = m_mapNotes.at(strV11n).at(ndx).keywordList();
 	}
-	m_mapNotes[ndx] = strNote;
-	m_mapNotes[ndx].setPassageTag(ndx, strNote.verseCount());
+	m_mapNotes[strV11n][ndx] = strNote;
+	m_mapNotes[strV11n][ndx].setPassageTag(ndx, strNote.verseCount());
 	m_bIsDirty = true;
 	if (!bExists) {
-		emit addedUserNote(ndx);
+		emit addedUserNote(pBibleDatabase->versification(), ndx);
 		emit changedUserNotesKeywords();
 	} else {
-		emit changedUserNote(ndx);
+		emit changedUserNote(pBibleDatabase->versification(), ndx);
 		if (lstKeywords != strNote.keywordList()) emit changedUserNotesKeywords();
 	}
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::removeNoteFor(const CRelIndex &ndx)
+void CUserNotesDatabase::removeNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx)
 {
-	bool bExists = existsNoteFor(ndx);
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return;
+	bool bExists = existsNoteFor(pBibleDatabase, ndx);
 	if (!bExists) return;
-	m_mapNotes.erase(ndx);
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
+	m_mapNotes.at(strV11n).erase(ndx);
+	if (m_mapNotes.at(strV11n).empty()) m_mapNotes.erase(strV11n);
 	m_bIsDirty = true;
-	emit removedUserNote(ndx);
+	emit removedUserNote(pBibleDatabase->versification(), ndx);
 	emit changedUserNotesKeywords();
 	emit changedUserNotesDatabase();
 }
 
 void CUserNotesDatabase::removeAllNotes()
 {
-	m_mapNotes.clear();
-	m_bIsDirty = true;
-	emit removedUserNote(CRelIndex());
-	emit changedUserNotesKeywords();
-	emit changedUserNotesDatabase();
+	if (!m_mapNotes.empty()) {
+		m_mapNotes.clear();
+		m_bIsDirty = true;
+		emit changedAllUserNotes();
+		emit changedUserNotesKeywords();
+		emit changedUserNotesDatabase();
+	}
 }
 
-QStringList CUserNotesDatabase::compositeKeywordList() const
+QStringList CUserNotesDatabase::compositeKeywordList(const CBibleDatabase *pBibleDatabase) const
 {
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return QStringList();
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
+
 	QStringList lstKeywords;
 
-	for (CUserNoteEntryMap::const_iterator itrNotes = m_mapNotes.begin(); itrNotes != m_mapNotes.end(); ++itrNotes) {
+	TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.find(strV11n);
+	if (itrV11n == m_mapNotes.cend()) return QStringList();
+	for (TUserNoteEntryMap::const_iterator itrNotes = itrV11n->second.cbegin(); itrNotes != itrV11n->second.cend(); ++itrNotes) {
 		lstKeywords.append((itrNotes->second).m_lstKeywords);
 	}
 
@@ -1271,7 +1296,7 @@ void CUserNotesDatabase::initUserNotesDatabaseData()
 	m_bKeepDirtyAfterLoad = false;
 	emit changedUserNotesDatabase();
 	emit changedHighlighters();
-	emit addedUserNote(CRelIndex());
+	emit changedAllUserNotes();
 	emit changedUserNotesKeywords();
 	emit changedAllCrossRefs();
 }

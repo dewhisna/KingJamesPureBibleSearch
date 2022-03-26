@@ -1474,7 +1474,7 @@ CSearchResults::CSearchResults(CBibleDatabasePtr pBibleDatabase, QWidget *parent
 
 	// Setup our keyword model -- note we have to do this after setting up our SearchResultsTreeView
 	//		since it will call it to set the keyword list for filtering:
-	m_pNoteKeywordWidget->setKeywordList(g_pUserNotesDatabase->compositeKeywordList(), g_pUserNotesDatabase->compositeKeywordList());
+	m_pNoteKeywordWidget->setKeywordList(g_pUserNotesDatabase->compositeKeywordList(m_pBibleDatabase.data()), g_pUserNotesDatabase->compositeKeywordList(m_pBibleDatabase.data()));
 	keywordListChanged(true);
 
 	connect(m_pNoteKeywordWidget, SIGNAL(keywordListChanged()), this, SLOT(en_modelKeywordListChanged()));
@@ -1655,7 +1655,7 @@ void CSearchResults::keywordListChanged(bool bInitialLoad)
 
 	QStringList lstCompositeKeywords;
 	lstCompositeKeywords.append(QString());			// Special entry for notes without keywords
-	lstCompositeKeywords.append(g_pUserNotesDatabase->compositeKeywordList());
+	lstCompositeKeywords.append(g_pUserNotesDatabase->compositeKeywordList(m_pBibleDatabase.data()));
 
 	if (bInitialLoad) {
 		m_pNoteKeywordWidget->setKeywordList(lstCompositeKeywords, lstCompositeKeywords);

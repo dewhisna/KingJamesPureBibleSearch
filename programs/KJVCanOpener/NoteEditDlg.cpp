@@ -211,7 +211,7 @@ void CNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 	m_ndxLocation.setWord(0);		// Work with whole verses only
 	ui.editNoteLocation->setText(m_pBibleDatabase->PassageReferenceText(m_ndxLocation));
 
-	m_UserNote = m_pUserNotesDatabase->noteFor(m_ndxLocation);
+	m_UserNote = m_pUserNotesDatabase->noteFor(m_pBibleDatabase.data(), m_ndxLocation);
 
 	m_bDoingUpdate = true;
 
@@ -219,7 +219,7 @@ void CNoteEditDlg::setLocationIndex(const CRelIndex &ndxLocation)
 	setBackgroundColorPreview();
 
 	// Setup Keywords:
-	ui.widgetNoteKeywords->setKeywordList(m_UserNote.keywordList(), m_pUserNotesDatabase->compositeKeywordList());
+	ui.widgetNoteKeywords->setKeywordList(m_UserNote.keywordList(), m_pUserNotesDatabase->compositeKeywordList(m_pBibleDatabase.data()));
 
 	m_pRichTextEdit->setHtml(m_UserNote.text());
 	m_bIsDirty = false;
@@ -244,7 +244,7 @@ void CNoteEditDlg::accept()
 
 	m_UserNote.setText(m_pRichTextEdit->toHtml());
 	m_UserNote.setIsVisible(true);			// Make note visible when they are explicitly setting it
-	m_pUserNotesDatabase->setNoteFor(m_ndxLocation, m_UserNote);
+	m_pUserNotesDatabase->setNoteFor(m_pBibleDatabase.data(), m_ndxLocation, m_UserNote);
 	m_bIsDirty = false;
 	m_bHaveGeometry = true;
 	QDialog::accept();
@@ -311,7 +311,7 @@ void CNoteEditDlg::en_ButtonClicked(QAbstractButton *button)
 																	(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel);
 		if (nResult != QMessageBox::Ok) return;
 		m_bIsDirty = false;
-		m_pUserNotesDatabase->removeNoteFor(m_ndxLocation);
+		m_pUserNotesDatabase->removeNoteFor(m_pBibleDatabase.data(), m_ndxLocation);
 		QDialog::accept();
 	}
 }

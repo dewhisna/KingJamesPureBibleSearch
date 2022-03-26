@@ -43,7 +43,7 @@
 
 //
 // User notes data is stored as:
-//		Map of CRelIndex -> CUserNoteEntry
+//		Map of Versifications -> Map of CRelIndex -> CUserNoteEntry
 //
 
 class CUserNoteEntry
@@ -110,7 +110,8 @@ private:
 	bool m_bIsVisible;			// Visible in Scripture Browser
 };
 
-typedef std::map<CRelIndex, CUserNoteEntry, RelativeIndexSortPredicate> CUserNoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
+typedef std::map<CRelIndex, CUserNoteEntry, RelativeIndexSortPredicate> TUserNoteEntryMap;		// Index by [nBk|nChp|nVrs|nWrd]
+typedef std::map<QString, TUserNoteEntryMap> TVersificationUserNoteEntryMap;					// Map of Versification UUID to TUserNoteEntryMap
 
 
 // ============================================================================
@@ -265,17 +266,36 @@ public:
 
 	// --------------------
 
-	CUserNoteEntry noteFor(const CRelIndex &ndx) const {
-		CUserNoteEntryMap::const_iterator itr = m_mapNotes.find(ndx);
-		if (itr == m_mapNotes.end()) return CUserNoteEntry();
-		return (itr->second);
+	CUserNoteEntry noteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx) const
+	{
+		Q_ASSERT(pBibleDatabase != nullptr);
+		if (pBibleDatabase == nullptr) return CUserNoteEntry();
+		TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.find(CBibleVersifications::uuid(pBibleDatabase->versification()));
+		if (itrV11n == m_mapNotes.cend()) return CUserNoteEntry();
+		TUserNoteEntryMap::const_iterator itrNote = itrV11n->second.find(ndx);
+		if (itrNote == itrV11n->second.cend()) return CUserNoteEntry();
+		return (itrNote->second);
 	}
-	bool existsNoteFor(const CRelIndex &ndx) const { return (m_mapNotes.find(ndx) != m_mapNotes.end()); }
-	void setNoteFor(const CRelIndex &ndx, const CUserNoteEntry &strNote);
-	void removeNoteFor(const CRelIndex &ndx);
+	bool existsNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx) const
+	{
+		Q_ASSERT(pBibleDatabase != nullptr);
+		if (pBibleDatabase == nullptr) return false;
+		TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.find(CBibleVersifications::uuid(pBibleDatabase->versification()));
+		if (itrV11n == m_mapNotes.cend()) return false;
+		return (itrV11n->second.find(ndx) != itrV11n->second.cend());
+	}
+	void setNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx, const CUserNoteEntry &strNote);
+	void removeNoteFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx);
 	void removeAllNotes();
-	const CUserNoteEntryMap &notesMap() const { return m_mapNotes; }
-	QStringList compositeKeywordList() const;
+	const TUserNoteEntryMap *notesMap(const CBibleDatabase *pBibleDatabase) const
+	{
+		Q_ASSERT(pBibleDatabase != nullptr);
+		if (pBibleDatabase == nullptr) return nullptr;
+		TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.find(CBibleVersifications::uuid(pBibleDatabase->versification()));
+		if (itrV11n == m_mapNotes.cend()) return nullptr;
+		return &itrV11n->second;
+	}
+	QStringList compositeKeywordList(const CBibleDatabase *pBibleDatabase) const;
 
 	// --------------------
 
@@ -365,10 +385,11 @@ signals:
 	void aboutToChangeHighlighters();											// Fired before either individual or entire UserDefinedColor map change
 	void changedHighlighters();													// Fired on both individual and entire UserDefinedColor map change
 
-	void changedUserNote(const CRelIndex &ndx);			// Fired on Set with data changed only -- not used on add/remove all
-	void addedUserNote(const CRelIndex &ndx);			// Fired on Set (as new).  If !ndx.isSet() then the entire list changed (such as file load)
-	void removedUserNote(const CRelIndex &ndx);			// Fired on Remove.  If !ndx.isSet() then the entire list changed (such as remove all)
-	void changedUserNotesKeywords();					// Fired if a note changes its keyword list
+	void changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);		// Fired on Set with data changed only -- not used on add/remove all
+	void addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);			// Fired on Set (as new).  If !ndx.isSet() then the entire list changed (such as file load)
+	void removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);		// Fired on Remove.  If !ndx.isSet() then the entire list changed (such as remove all)
+	void changedUserNotesKeywords();											// Fired if a note changes its keyword list
+	void changedAllUserNotes();
 
 	void addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
 	void removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
@@ -416,7 +437,7 @@ private:
 		bool m_bIsDirty;
 	} m_UserNotesDatabaseData1, m_UserNotesDatabaseData2, *m_pUserNotesDatabaseData;
 
-	CUserNoteEntryMap m_mapNotes;						// User notes
+	TVersificationUserNoteEntryMap m_mapNotes;			// User notes by versification
 	TBibleDBHighlighterTagMap m_mapHighlighterTags;		// Tags to highlight by Bible Database compatibility and Highlighter name
 	TCrossReferenceMap m_mapCrossReference;				// Cross reference of passage to other passages
 

@@ -118,9 +118,10 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase *, const QString &)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_changedUserNote(const CRelIndex &)));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedUserNote(const CRelIndex &)), this, SLOT(en_addedUserNote(const CRelIndex &)));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedUserNote(const CRelIndex &)), this, SLOT(en_removedUserNote(const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllUserNotes()), this, SLOT(en_changedAllUserNotes()));
 
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_changedAllCrossRefs()));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(const CRelIndex &, const CRelIndex &)));
@@ -128,7 +129,7 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	}
 
 	en_changedHighlighters();			// Make sure we've loaded the initial default highlighters (or from the current set if we are rebuilding this class for some reason)
-	en_addedUserNote(CRelIndex());		// Make sure we've loaded the initial notes list from the document
+	en_changedAllUserNotes();			// Make sure we've loaded the initial notes list from the document
 	en_changedAllCrossRefs();			// Make sure we've loaded the initial crossRefs list from the document
 }
 
@@ -646,7 +647,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						dataGenHTML.beginBold();
 						dataGenHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
 						dataGenHTML.endBold();
-						dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
+						dataGenHTML.addNoteFor(m_private.m_pBibleDatabase.data(), ndxDisplayVerse, false, true);
 					} else {
 						dataGenHTML.appendLiteralText(m_private.m_pBibleDatabase->bookName(ndxRel));
 					}
@@ -705,7 +706,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					}
 					if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
 						dataGenHTML.endBold();
-						dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
+						dataGenHTML.addNoteFor(m_private.m_pBibleDatabase.data(), ndxDisplayVerse, false, true);
 					}
 				}
 				return dataGenHTML.getResult();
@@ -742,7 +743,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					dataGenHTML.appendRawText(itrVerse->getVerseRichText((role == VERSE_COPYING_ROLE) ? m_private.m_richifierTagsCopying : m_private.m_richifierTagsDisplay, false));
 				}
 				if (m_userNotesResults.m_mapVerses.contains(ndxVerse)) {
-					dataGenHTML.addNoteFor(ndxDisplayVerse, false, true);
+					dataGenHTML.addNoteFor(m_private.m_pBibleDatabase.data(), ndxDisplayVerse, false, true);
 				}
 				return dataGenHTML.getResult();
 			} else if (m_private.m_nDisplayMode == CVerseListModel::VDME_HEADING) {
@@ -1087,7 +1088,7 @@ Qt::ItemFlags CVerseListModel::flags(const QModelIndex &index) const
 		if ((ndxRel.isSet()) &&
 			((ndxRel.verse() != 0)  ||
 			 ((ndxRel.verse() == 0) && (ndxRel.word() != 0)) ||
-			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(ndxRel))))) {
+			 ((m_private.m_nViewMode == VVME_USERNOTES) && (m_private.m_pUserNotesDatabase->existsNoteFor(m_private.m_pBibleDatabase.data(), ndxRel))))) {
 			if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 #ifndef IS_MOBILE_APP
 			return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled /* | Qt::ItemIsEditable */;		// | Qt::ItemIsDropEnabled;
@@ -1607,7 +1608,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lst
 
 				if ((!bHeadingTextOnly) && (m_private.m_nViewMode == VVME_USERNOTES)) {
 					if (m_userNotesResults.m_mapVerses.contains(ndxRel)) {
-						docHeadingsHTML.addNoteFor(ndxDisplayVerse, false, true);
+						docHeadingsHTML.addNoteFor(m_private.m_pBibleDatabase.data(), ndxDisplayVerse, false, true);
 					}
 				}
 			}
@@ -1945,24 +1946,33 @@ void CVerseListModel::setUserNoteKeywordFilter(const QStringList &lstKeywordFilt
 	if (m_private.m_nViewMode == VVME_USERNOTES) buildUserNotesResults();
 }
 
-void CVerseListModel::en_changedUserNote(const CRelIndex &ndx)
+void CVerseListModel::en_changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx)
 {
 	Q_UNUSED(ndx);				// TODO : Add logic to use ndx to insert/remove a single note if we can
-	if (m_private.m_nViewMode == VVME_USERNOTES) {
+	if ((m_private.m_nViewMode == VVME_USERNOTES) && (nVersification == m_private.m_pBibleDatabase->versification())) {
 		emit layoutAboutToBeChanged();
 		m_userNotesResults.m_mapSizeHints.clear();
 		emit layoutChanged();
 	}
 }
 
-void CVerseListModel::en_addedUserNote(const CRelIndex &ndx)
+void CVerseListModel::en_addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx)
 {
-	buildUserNotesResults(ndx, true);
+	if (nVersification == m_private.m_pBibleDatabase->versification()) {
+		buildUserNotesResults(ndx, true);
+	}
 }
 
-void CVerseListModel::en_removedUserNote(const CRelIndex &ndx)
+void CVerseListModel::en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx)
 {
-	buildUserNotesResults(ndx, false);
+	if (nVersification == m_private.m_pBibleDatabase->versification()) {
+		buildUserNotesResults(ndx, false);
+	}
+}
+
+void CVerseListModel::en_changedAllUserNotes()
+{
+	buildUserNotesResults();
 }
 
 void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
@@ -1984,40 +1994,42 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 	zResults.m_mapExtraVerseIndexes.clear();
 	zResults.m_mapSizeHints.clear();
 
-	const CUserNoteEntryMap &mapNotes = m_private.m_pUserNotesDatabase->notesMap();
-	zResults.m_lstVerseIndexes.reserve(mapNotes.size());
+	const TUserNoteEntryMap *pMapNotes = m_private.m_pUserNotesDatabase->notesMap(m_private.m_pBibleDatabase.data());
+	if (pMapNotes) {
+		zResults.m_lstVerseIndexes.reserve(pMapNotes->size());
 
-	for (CUserNoteEntryMap::const_iterator itrNote = mapNotes.begin(); itrNote != mapNotes.end(); ++itrNote) {
-		CRelIndex ndxNote = (itrNote->first);
-		Q_ASSERT(ndxNote.isSet());
-		if ((ndxNote.chapter() != 0) && (ndxNote.verse() != 0)) {
-			ndxNote.setWord(1);			// Whole verses only
-		} else {
-			ndxNote.setWord(0);			// We don't allow notes on colophons and superscriptions
-		}
+		for (TUserNoteEntryMap::const_iterator itrNote = pMapNotes->cbegin(); itrNote != pMapNotes->cend(); ++itrNote) {
+			CRelIndex ndxNote = (itrNote->first);
+			Q_ASSERT(ndxNote.isSet());
+			if ((ndxNote.chapter() != 0) && (ndxNote.verse() != 0)) {
+				ndxNote.setWord(1);			// Whole verses only
+			} else {
+				ndxNote.setWord(0);			// We don't allow notes on colophons and superscriptions
+			}
 
-		if (m_private.m_pBibleDatabase->NormalizeIndex(ndxNote) == 0) continue;		// Don't include notes for references outside our database (like Aprocrypha notes outside on database without Apocrypha)
+			if (m_private.m_pBibleDatabase->NormalizeIndex(ndxNote) == 0) continue;		// Don't include notes for references outside our database (like Aprocrypha notes outside on database without Apocrypha)
 
-		const QStringList &noteKeywordList = (itrNote->second).keywordList();
+			const QStringList &noteKeywordList = (itrNote->second).keywordList();
 
-		bool bInclude = false;
+			bool bInclude = false;
 
-		if ((m_lstUserNoteKeywordFilter.isEmpty()) ||
-			((bShowNotesWithoutKeywords) && (noteKeywordList.isEmpty()))) {
-			bInclude = true;
-		} else {
-			for (int n = 0; n < noteKeywordList.size(); ++n) {
-				if (m_lstUserNoteKeywordFilter.contains(StringParse::decompose(noteKeywordList.at(n), false), Qt::CaseInsensitive)) {
-					bInclude = true;
-					break;
+			if ((m_lstUserNoteKeywordFilter.isEmpty()) ||
+				((bShowNotesWithoutKeywords) && (noteKeywordList.isEmpty()))) {
+				bInclude = true;
+			} else {
+				for (int n = 0; n < noteKeywordList.size(); ++n) {
+					if (m_lstUserNoteKeywordFilter.contains(StringParse::decompose(noteKeywordList.at(n), false), Qt::CaseInsensitive)) {
+						bInclude = true;
+						break;
+					}
 				}
 			}
-		}
 
-		if (bInclude) {
-			Q_ASSERT(!zResults.m_mapVerses.contains(ndxNote));
-			zResults.m_mapVerses.insert(ndxNote, CVerseListItem(zResults.makeVerseIndex(ndxNote), m_private.m_pBibleDatabase));
-			zResults.m_lstVerseIndexes.append(ndxNote);
+			if (bInclude) {
+				Q_ASSERT(!zResults.m_mapVerses.contains(ndxNote));
+				zResults.m_mapVerses.insert(ndxNote, CVerseListItem(zResults.makeVerseIndex(ndxNote), m_private.m_pBibleDatabase));
+				zResults.m_lstVerseIndexes.append(ndxNote);
+			}
 		}
 	}
 

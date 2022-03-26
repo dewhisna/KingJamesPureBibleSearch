@@ -863,9 +863,10 @@ protected slots:
 	void en_highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_changedHighlighters();
 
-	void en_changedUserNote(const CRelIndex &ndx);
-	void en_addedUserNote(const CRelIndex &ndx);
-	void en_removedUserNote(const CRelIndex &ndx);
+	void en_changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);
+	void en_addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);
+	void en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);
+	void en_changedAllUserNotes();
 
 	void en_addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
 	void en_removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);

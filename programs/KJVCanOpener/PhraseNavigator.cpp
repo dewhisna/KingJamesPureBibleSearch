@@ -1554,7 +1554,7 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	}
 	// If we have a User Note for this book, print it too:
 	if ((flagsTRO & TRO_UserNotes) &&
-		(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
+		(scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 		scriptureHTML.insertHorizontalRule();
 
 	// Add colophon for the book if it exists and we are instructed to add it:
@@ -1764,7 +1764,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 		// And Notes:
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
+			scriptureHTML.addNoteFor(m_pBibleDatabase.data(), relPrev, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING) ||
 			(vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
@@ -1809,7 +1809,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			}
 
 			if (flagsTRO & TRO_UserNotes)
-				scriptureHTML.addNoteFor(CRelIndex(relPrev.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
+				scriptureHTML.addNoteFor(m_pBibleDatabase.data(), CRelIndex(relPrev.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 				// No extra <hr> as we have one below for the whole chapter anyway
 		}
 	}
@@ -1866,7 +1866,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 		// If we have a User Note for this book, print it too:
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
+			(scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxBook, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 			scriptureHTML.insertHorizontalRule();
 	}
 
@@ -1917,7 +1917,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 	// If we have a chapter User Note for this chapter, print it too:
 	if ((flagsTRO & TRO_UserNotes) &&
-		(scriptureHTML.addNoteFor(ndxBookChap, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
+		(scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxBookChap, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 		scriptureHTML.insertHorizontalRule();
 
 	// Print the Chapter Text:
@@ -2000,7 +2000,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		// Output notes for this verse, but make use of the buffer in case we need to end the paragraph tag:
 		scriptureHTML.startBuffered();
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true))) {
+			(scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true))) {
 			if (bInIndent) {
 				scriptureHTML.endIndent();
 				bInIndent = false;
@@ -2079,7 +2079,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.flushBuffer(true);		// Flush and stop buffering, if we haven't already
 		}
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(CRelIndex(ndx.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
+			scriptureHTML.addNoteFor(m_pBibleDatabase.data(), CRelIndex(ndx.book(),0,0,0), (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 			// No extra <hr> as we have one below for the whole chapter anyway
 	}
 
@@ -2140,7 +2140,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			}
 			// If we have a User Note for this book, print it too:
 			if ((flagsTRO & TRO_UserNotes) &&
-				(scriptureHTML.addNoteFor(ndxBookNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
+				(scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxBookNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 				scriptureHTML.insertHorizontalRule();
 		}
 		// Print Heading for this Chapter:
@@ -2191,7 +2191,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 
 		// If we have a chapter User Note for this chapter, print it too:
 		if ((flagsTRO & TRO_UserNotes) &&
-			(scriptureHTML.addNoteFor(ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
+			(scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxBookChapNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible))))
 			scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
@@ -2224,7 +2224,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		}
 		// And Notes:
 		if (flagsTRO & TRO_UserNotes)
-			scriptureHTML.addNoteFor(relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
+			scriptureHTML.addNoteFor(m_pBibleDatabase.data(), relNext, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible), true);
 
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING) ||
 			(vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_DS_INDENT)) {
@@ -2465,7 +2465,7 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 	scriptureHTML.endParagraph();
 
 	if (flagsTRO & TRO_UserNotes)
-		scriptureHTML.addNoteFor(ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
+		scriptureHTML.addNoteFor(m_pBibleDatabase.data(), ndxVerse, (flagsTRO & TRO_UserNoteExpandAnchors), (flagsTRO & TRO_UserNotesForceVisible));
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		scriptureHTML.appendRawText("</body></html>");

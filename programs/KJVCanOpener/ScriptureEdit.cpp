@@ -1284,8 +1284,8 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 			if (!ndxLink.isSet()) return;
 
 			Q_ASSERT(!g_pUserNotesDatabase.isNull());
-			Q_ASSERT(g_pUserNotesDatabase->existsNoteFor(ndxLink));
-			if (!g_pUserNotesDatabase->existsNoteFor(ndxLink)) return;
+			Q_ASSERT(g_pUserNotesDatabase->existsNoteFor(m_pBibleDatabase.data(), ndxLink));
+			if (!g_pUserNotesDatabase->existsNoteFor(m_pBibleDatabase.data(), ndxLink)) return;
 
 			if ((ndxLink.chapter() == 0) &&
 				(ndxLink.book() == m_ndxCurrent.book())) {
@@ -1299,9 +1299,9 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 				}
 			}
 
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(ndxLink);
+			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(m_pBibleDatabase.data(), ndxLink);
 			userNote.setIsVisible(!userNote.isVisible());
-			g_pUserNotesDatabase->setNoteFor(ndxLink, userNote);
+			g_pUserNotesDatabase->setNoteFor(m_pBibleDatabase.data(), ndxLink, userNote);
 
 			// Note: The Note change above will automatically trigger a rerender()
 		} else if (strAnchor.startsWith(QChar('R'))) {
@@ -1340,12 +1340,14 @@ template<class T, class U>
 void CScriptureText<T,U>::en_showAllNotes()
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
-	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
-	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
-		if (!itrNotes->second.isVisible()) {
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(itrNotes->first);
-			userNote.setIsVisible(true);
-			g_pUserNotesDatabase->setNoteFor(itrNotes->first, userNote);
+	const TUserNoteEntryMap *pMapNotes = g_pUserNotesDatabase->notesMap(m_pBibleDatabase.data());
+	if (pMapNotes) {
+		for (TUserNoteEntryMap::const_iterator itrNotes = pMapNotes->cbegin(); itrNotes != pMapNotes->cend(); ++itrNotes) {
+			if (!itrNotes->second.isVisible()) {
+				CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(m_pBibleDatabase.data(), itrNotes->first);
+				userNote.setIsVisible(true);
+				g_pUserNotesDatabase->setNoteFor(m_pBibleDatabase.data(), itrNotes->first, userNote);
+			}
 		}
 	}
 
@@ -1356,12 +1358,14 @@ template<class T, class U>
 void CScriptureText<T,U>::en_hideAllNotes()
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
-	const CUserNoteEntryMap &mapNotes = g_pUserNotesDatabase->notesMap();
-	for (CUserNoteEntryMap::const_iterator itrNotes = mapNotes.begin(); itrNotes != mapNotes.end(); ++itrNotes) {
-		if (itrNotes->second.isVisible()) {
-			CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(itrNotes->first);
-			userNote.setIsVisible(false);
-			g_pUserNotesDatabase->setNoteFor(itrNotes->first, userNote);
+	const TUserNoteEntryMap *pMapNotes = g_pUserNotesDatabase->notesMap(m_pBibleDatabase.data());
+	if (pMapNotes) {
+		for (TUserNoteEntryMap::const_iterator itrNotes = pMapNotes->cbegin(); itrNotes != pMapNotes->cend(); ++itrNotes) {
+			if (itrNotes->second.isVisible()) {
+				CUserNoteEntry userNote = g_pUserNotesDatabase->noteFor(m_pBibleDatabase.data(), itrNotes->first);
+				userNote.setIsVisible(false);
+				g_pUserNotesDatabase->setNoteFor(m_pBibleDatabase.data(), itrNotes->first, userNote);
+			}
 		}
 	}
 
