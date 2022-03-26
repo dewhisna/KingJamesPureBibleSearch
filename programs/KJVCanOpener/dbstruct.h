@@ -1422,6 +1422,7 @@ public:
 	}
 	bool setVersificationType();
 	inline bool isVersificationRemapped() const { return (m_itrCurrentLayout != m_itrMainLayout); }
+	inline BIBLE_VERSIFICATION_TYPE_ENUM versification() const { return m_itrCurrentLayout.key(); }
 
 	inline const CBibleEntry &bibleEntry() const						// Bible stats entry
 	{
