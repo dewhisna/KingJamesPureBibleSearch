@@ -298,17 +298,17 @@ private:
 	}
 
 public:
-	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
+	const THighlighterTagMap *highlighterTagsFor(const CBibleDatabase *pBibleDatabase) const
 	{
-		Q_ASSERT(!pBibleDatabase.isNull());
+		Q_ASSERT(pBibleDatabase != nullptr);
 		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), CBibleVersifications::uuid(pBibleDatabase->versification()));
 	}
-	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
+	const TPhraseTagList *highlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
-		Q_ASSERT(!pBibleDatabase.isNull());
+		Q_ASSERT(pBibleDatabase != nullptr);
 		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), CBibleVersifications::uuid(pBibleDatabase->versification()), strUserDefinedHighlighterName);
 	}
-	bool existsHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
+	bool existsHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
 		return (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) != nullptr);
 	}
@@ -321,12 +321,12 @@ public:
 		}
 		return false;
 	}
-	void setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
-	void appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
-	void appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag);
-	void removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag);
-	void removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
-	void removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName = QString());
+	void setHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
+	void appendHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
+	void appendHighlighterTagFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag);
+	void removeHighlighterTagFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag);
+	void removeHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags);
+	void removeHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName = QString());
 	void removeAllHighlighterTags();
 
 	// --------------------
@@ -357,8 +357,8 @@ public slots:
 	void removeAllHighlighters();
 
 signals:
-	void highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
-	void highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void highlighterTagsAboutToChange(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
 
 	void changedHighlighter(const QString &strUserDefinedHighlighterName);		// Note: If entire map is swapped or cleared, this signal isn't fired!
 	void removedHighlighter(const QString &strUserDefinedHighlighterName);		// Note: If entire map is swapped or cleared, this signal isn't fired!

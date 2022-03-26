@@ -936,9 +936,9 @@ QStringList CUserNotesDatabase::compositeKeywordList() const
 
 // ============================================================================
 
-void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
+void CUserNotesDatabase::setHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
 	const QString strDBUUID = pBibleDatabase->highlighterUUID();
 	Q_ASSERT(!strDBUUID.isEmpty());
 	const QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
@@ -955,9 +955,9 @@ void CUserNotesDatabase::setHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase,
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
+void CUserNotesDatabase::appendHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
 	const QString strDBUUID = pBibleDatabase->highlighterUUID();
 	Q_ASSERT(!strDBUUID.isEmpty());
 	const QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
@@ -966,7 +966,7 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	for (TPhraseTagList::const_iterator itrTags = lstTags.constBegin(); itrTags != lstTags.constEnd(); ++itrTags) {
-		m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase.data(), *itrTags);
+		m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, *itrTags);
 	}
 	std::sort(m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].begin(),
 			m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].end(),
@@ -976,9 +976,9 @@ void CUserNotesDatabase::appendHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
+void CUserNotesDatabase::appendHighlighterTagFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
-	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
 	const QString strDBUUID = pBibleDatabase->highlighterUUID();
 	Q_ASSERT(!strDBUUID.isEmpty());
 	const QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
@@ -986,7 +986,7 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	if ((strDBUUID.isEmpty()) || (strUserDefinedHighlighterName.isEmpty())) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
-	m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase.data(), aTag);
+	m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].intersectingInsert(pBibleDatabase, aTag);
 	std::sort(m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].begin(),
 			m_mapHighlighterTags[strDBUUID][strV11n][strUserDefinedHighlighterName].end(),
 			TPhraseTagListSortPredicate::ascendingLessThan);
@@ -995,9 +995,9 @@ void CUserNotesDatabase::appendHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
+void CUserNotesDatabase::removeHighlighterTagFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag)
 {
-	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(pBibleDatabase->highlighterUUID());
 	if (itrBibleDB == m_mapHighlighterTags.end()) return;
@@ -1007,7 +1007,7 @@ void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	if (itrTags == (itrV11n->second).end()) return;
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
-	itrTags->second.removeIntersection(pBibleDatabase.data(), aTag);
+	itrTags->second.removeIntersection(pBibleDatabase, aTag);
 	if (itrTags->second.empty()) itrV11n->second.erase(itrTags);
 	if (itrV11n->second.empty()) itrBibleDB->second.erase(itrV11n);
 	if (itrBibleDB->second.empty()) m_mapHighlighterTags.erase(itrBibleDB);
@@ -1016,9 +1016,9 @@ void CUserNotesDatabase::removeHighlighterTagFor(CBibleDatabasePtr pBibleDatabas
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
+void CUserNotesDatabase::removeHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstTags)
 {
-	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
 
 	TBibleDBHighlighterTagMap::iterator itrBibleDB = m_mapHighlighterTags.find(pBibleDatabase->highlighterUUID());
 	if (itrBibleDB == m_mapHighlighterTags.end()) return;
@@ -1029,7 +1029,7 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 
 	emit highlighterTagsAboutToChange(pBibleDatabase, strUserDefinedHighlighterName);
 	for (int ndx = 0; ndx < lstTags.size(); ++ndx) {
-		itrTags->second.removeIntersection(pBibleDatabase.data(), lstTags.at(ndx));
+		itrTags->second.removeIntersection(pBibleDatabase, lstTags.at(ndx));
 		if (itrTags->second.empty()) {
 			itrV11n->second.erase(itrTags);
 			if (itrV11n->second.empty()) itrBibleDB->second.erase(itrV11n);
@@ -1042,9 +1042,9 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 	emit changedUserNotesDatabase();
 }
 
-void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+void CUserNotesDatabase::removeHighlighterTagsFor(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	Q_ASSERT(!pBibleDatabase.isNull());
+	Q_ASSERT(pBibleDatabase != nullptr);
 	const QString strDBUUID = pBibleDatabase->highlighterUUID();
 	Q_ASSERT(!strDBUUID.isEmpty());
 	if (strDBUUID.isEmpty()) return;
@@ -1079,10 +1079,10 @@ void CUserNotesDatabase::removeHighlighterTagsFor(CBibleDatabasePtr pBibleDataba
 void CUserNotesDatabase::removeAllHighlighterTags()
 {
 	if (!m_mapHighlighterTags.empty()) {
-		emit highlighterTagsAboutToChange(CBibleDatabasePtr(), QString());
+		emit highlighterTagsAboutToChange(nullptr, QString());
 		m_mapHighlighterTags.clear();
 		m_bIsDirty = true;
-		emit highlighterTagsChanged(CBibleDatabasePtr(), QString());
+		emit highlighterTagsChanged(nullptr, QString());
 		emit changedUserNotesDatabase();
 	}
 }

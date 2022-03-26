@@ -1219,7 +1219,7 @@ void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSeco
 
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
-	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase, strHighlighterName);
+	const TPhraseTagList *plstHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase.data(), strHighlighterName);
 
 	bool bCompletelyContained = (plstHighlighterTags != nullptr);		// Assume it will be completely contained if we have a highlighter and if any phrase isn't, this will get cleared
 	TPhraseTagList lstHighlightList;
@@ -1258,13 +1258,13 @@ void CScriptureText<T,U>::en_highlightPassage(int ndxHighlighterTool, bool bSeco
 		TPhraseTag tagSel = lstHighlightList.at(ndxSel);
 
 		if (bCompletelyContained) {
-			g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+			g_pUserNotesDatabase->removeHighlighterTagFor(m_pBibleDatabase.data(), strHighlighterName, tagSel);
 		} else {
 			if (tagSel.haveSelection()) {
-				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, tagSel);
+				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase.data(), strHighlighterName, tagSel);
 			} else {
 				// If we don't have a word selected, and there's no phrase to remove for it (above), go ahead and insert this word:
-				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase, strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
+				g_pUserNotesDatabase->appendHighlighterTagFor(m_pBibleDatabase.data(), strHighlighterName, TPhraseTag(tagSel.relIndex(), 1));
 			}
 		}
 	}

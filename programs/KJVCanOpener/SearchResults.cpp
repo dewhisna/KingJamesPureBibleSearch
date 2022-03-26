@@ -614,7 +614,7 @@ void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, b
 
 	QString strHighlighterName = parentCanOpener()->highlighterButtons()->highlighter(ndxHighlighterTool);
 	if (strHighlighterName.isEmpty()) return;
-	const TPhraseTagList *plstHighlighterTags = vlmodel()->userNotesDatabase()->highlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName);
+	const TPhraseTagList *plstHighlighterTags = vlmodel()->userNotesDatabase()->highlighterTagsFor(vlmodel()->bibleDatabase().data(), strHighlighterName);
 
 	QModelIndexList lstVerses = getSelectedVerses();
 	if (lstVerses.isEmpty()) return;
@@ -643,12 +643,12 @@ void CSearchResultsTreeView::en_highlightSearchResults(int ndxHighlighterTool, b
 																	(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 		if (nResult != QMessageBox::Yes) return;
 		CBusyCursor iAmBusy(nullptr);
-		vlmodel()->userNotesDatabase()->removeHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
+		vlmodel()->userNotesDatabase()->removeHighlighterTagsFor(vlmodel()->bibleDatabase().data(), strHighlighterName, lstVerseTags);
 		return;
 	}
 
 	CBusyCursor iAmBusy(nullptr);
-	vlmodel()->userNotesDatabase()->appendHighlighterTagsFor(vlmodel()->bibleDatabase(), strHighlighterName, lstVerseTags);
+	vlmodel()->userNotesDatabase()->appendHighlighterTagsFor(vlmodel()->bibleDatabase().data(), strHighlighterName, lstVerseTags);
 }
 #endif
 

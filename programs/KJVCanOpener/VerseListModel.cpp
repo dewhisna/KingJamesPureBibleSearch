@@ -115,7 +115,7 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
 	if (!m_private.m_pUserNotesDatabase.isNull()) {
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase *, const QString &)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedUserNote(const CRelIndex &)), this, SLOT(en_changedUserNote(const CRelIndex &)));
@@ -759,7 +759,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						CSearchResultHighlighter srHighlighter(itrVerse->phraseTags(), (m_private.m_nViewMode != CVerseListModel::VVME_SEARCH_RESULTS));
 						navigator.doHighlighting(srHighlighter);
 						if (showHighlightersInSearchResults()) {
-							const THighlighterTagMap *pmapHighlighterTags = userNotesDatabase()->highlighterTagsFor(m_private.m_pBibleDatabase);
+							const THighlighterTagMap *pmapHighlighterTags = userNotesDatabase()->highlighterTagsFor(m_private.m_pBibleDatabase.data());
 							if (pmapHighlighterTags) {
 								// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
 								//			(the map is already sorted)
@@ -1392,8 +1392,8 @@ bool CVerseListModel::dropMimeData(const QMimeData *pData, Qt::DropAction nActio
 			//			or else the highlighter change notification will change our list and cause the
 			//			list to change on us before the append!
 			TPhraseTagList lstTags(itrVerse->phraseTags());
-			m_private.m_pUserNotesDatabase->removeHighlighterTagsFor(m_private.m_pBibleDatabase, lstHighlighterIndexPairs.at(ndxVerse).first, lstTags);
-			m_private.m_pUserNotesDatabase->appendHighlighterTagsFor(m_private.m_pBibleDatabase, strTargetHighlighter, lstTags);
+			m_private.m_pUserNotesDatabase->removeHighlighterTagsFor(m_private.m_pBibleDatabase.data(), lstHighlighterIndexPairs.at(ndxVerse).first, lstTags);
+			m_private.m_pUserNotesDatabase->appendHighlighterTagsFor(m_private.m_pBibleDatabase.data(), strTargetHighlighter, lstTags);
 		}
 
 		return true;
@@ -1821,9 +1821,9 @@ void CVerseListModel::setParsedPhrases(const CSearchResultsData &searchResultsDa
 
 // ----------------------------------------------------------------------------
 
-void CVerseListModel::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+void CVerseListModel::en_highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
-	if ((pBibleDatabase.isNull()) ||
+	if ((pBibleDatabase == nullptr) ||
 		(pBibleDatabase->highlighterUUID().compare(m_private.m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
 		if (strUserDefinedHighlighterName.isEmpty()) {
 			// Rebuild all highlighters if this is a broadcast for all highlighters
@@ -1856,16 +1856,16 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 		for (TUserDefinedColorMap::const_iterator itrHighlighters = mapHighlighters.constBegin(); itrHighlighters != mapHighlighters.constEnd(); ++itrHighlighters) {
 			// Must add it to our list before calling buildHighlighterResults(ndx):
 			m_vlmrListHighlighters.push_back(TVerseListModelResults(&m_private, itrHighlighters.key(), VLMRTE_HIGHLIGHTERS, VLMNTE_UNDEFINED, ndxHighlighter));
-			buildHighlighterResults(ndxHighlighter, m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, itrHighlighters.key()));
+			buildHighlighterResults(ndxHighlighter, m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase.data(), itrHighlighters.key()));
 			ndxHighlighter++;
 		}
 
-//		const THighlighterTagMap *pHighlighters = m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase);
+//		const THighlighterTagMap *pHighlighters = m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase.data());
 //		if (pHighlighters != nullptr) {
 //			ndxHighlighter = 0;
 //			for (THighlighterTagMap::const_iterator itrHighlighters = pHighlighters->begin(); itrHighlighters != pHighlighters->end(); ++itrHighlighters) {
 //				// Must add it to our list before calling buildHighlighterResults(ndx):
-//				m_vlmrListHighlighters.push_back(TVerseListModelResults(&m_private, itrHighlighters->first, ndxHighlighter));
+//				m_vlmrListHighlighters.push_back(TVerseListModelResults(&m_private, itrHighlighters->first, VLMRTE_HIGHLIGHTERS, VLMNTE_UNDEFINED, ndxHighlighter));
 //				buildHighlighterResults(ndxHighlighter, &(itrHighlighters->second));
 //				ndxHighlighter++;
 //			}
@@ -1874,7 +1874,7 @@ void CVerseListModel::buildHighlighterResults(int ndxHighlighter)
 		Q_ASSERT((ndxHighlighter >= 0) && (ndxHighlighter < m_vlmrListHighlighters.size()));
 		TVerseListModelResults &zResults = const_cast<TVerseListModelResults &>(results(VLMRTE_HIGHLIGHTERS, ndxHighlighter));
 
-		buildHighlighterResults(ndxHighlighter, m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase, zResults.resultsName()));
+		buildHighlighterResults(ndxHighlighter, m_private.m_pUserNotesDatabase->highlighterTagsFor(m_private.m_pBibleDatabase.data(), zResults.resultsName()));
 	}
 
 	if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {

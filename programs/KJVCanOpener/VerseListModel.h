@@ -860,7 +860,7 @@ protected slots:
 	void en_changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void en_changedCopyOptions();
 
-	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void en_highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_changedHighlighters();
 
 	void en_changedUserNote(const CRelIndex &ndx);

@@ -108,8 +108,8 @@ public slots:
 	void setFocusPassageReferenceEditor();
 	void en_SearchResultsVerseListAboutToChange();
 	void en_SearchResultsVerseListChanged();
-	void en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
-	void en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void en_highlighterTagsAboutToChange(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
+	void en_highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName);
 	void en_highlightersAboutToChange();
 	void en_highlightersChanged();
 	void en_userNoteEvent(const CRelIndex &ndx);		// Triggered on User Note Added/Changed/Remove

@@ -153,8 +153,8 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedShowExcludedSearchResultsInBrowser(bool)), this, SLOT(en_ShowExcludedSearchResultsChanged(bool)));
 
-	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsAboutToChange(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsAboutToChange(CBibleDatabasePtr, const QString &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(CBibleDatabasePtr, const QString &)), this, SLOT(en_highlighterTagsChanged(CBibleDatabasePtr, const QString &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsAboutToChange(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsAboutToChange(const CBibleDatabase *, const QString &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase *, const QString &)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(aboutToChangeHighlighters()), this, SLOT(en_highlightersAboutToChange()));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_highlightersChanged()));
 
@@ -672,19 +672,19 @@ void CBrowserWidget::en_SearchResultsVerseListChanged()
 #endif
 }
 
-void CBrowserWidget::en_highlighterTagsAboutToChange(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+void CBrowserWidget::en_highlighterTagsAboutToChange(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
 	Q_UNUSED(strUserDefinedHighlighterName);
-	if ((pBibleDatabase.isNull()) ||
+	if ((pBibleDatabase == nullptr) ||
 		(pBibleDatabase->highlighterUUID().compare(m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
 		doHighlighting(true);				// Remove existing highlighting
 	}
 }
 
-void CBrowserWidget::en_highlighterTagsChanged(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName)
+void CBrowserWidget::en_highlighterTagsChanged(const CBibleDatabase *pBibleDatabase, const QString &strUserDefinedHighlighterName)
 {
 	Q_UNUSED(strUserDefinedHighlighterName);
-	if ((pBibleDatabase.isNull()) ||
+	if ((pBibleDatabase == nullptr) ||
 		(pBibleDatabase->highlighterUUID().compare(m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
 		doHighlighting();					// Highlight using new tags
 	}
@@ -707,7 +707,7 @@ void CBrowserWidget::doHighlighting(bool bClear)
 		m_pScriptureBrowser->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
 
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
-	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase);
+	const THighlighterTagMap *pmapHighlighterTags = g_pUserNotesDatabase->highlighterTagsFor(m_pBibleDatabase.data());
 	if (pmapHighlighterTags) {
 		// Note: These are painted in sorted order so they overlay each other with alphabetical precedence:
 		//			(the map is already sorted)
