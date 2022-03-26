@@ -278,21 +278,12 @@ public:
 
 	// --------------------
 
-	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
-	{
-		Q_ASSERT(!pBibleDatabase.isNull());
-		return highlighterTagsFor(pBibleDatabase->highlighterUUID());
-	}
+private:
 	const THighlighterTagMap *highlighterTagsFor(const QString &strUUID) const
 	{
 		TBibleDBHighlighterTagMap::const_iterator itr = m_mapHighlighterTags.find(strUUID);
 		if (itr == m_mapHighlighterTags.end()) return nullptr;
 		return &(itr->second);
-	}
-	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
-	{
-		Q_ASSERT(!pBibleDatabase.isNull());
-		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), strUserDefinedHighlighterName);
 	}
 	const TPhraseTagList *highlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
 	{
@@ -302,13 +293,21 @@ public:
 		if (itr == pmapHighlightTags->end()) return nullptr;
 		return &(itr->second);
 	}
+
+public:
+	const THighlighterTagMap *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase) const
+	{
+		Q_ASSERT(!pBibleDatabase.isNull());
+		return highlighterTagsFor(pBibleDatabase->highlighterUUID());
+	}
+	const TPhraseTagList *highlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
+	{
+		Q_ASSERT(!pBibleDatabase.isNull());
+		return highlighterTagsFor(pBibleDatabase->highlighterUUID(), strUserDefinedHighlighterName);
+	}
 	bool existsHighlighterTagsFor(CBibleDatabasePtr pBibleDatabase, const QString &strUserDefinedHighlighterName) const
 	{
 		return (highlighterTagsFor(pBibleDatabase, strUserDefinedHighlighterName) != nullptr);
-	}
-	bool existsHighlighterTagsFor(const QString &strUUID, const QString &strUserDefinedHighlighterName) const
-	{
-		return (highlighterTagsFor(strUUID, strUserDefinedHighlighterName) != nullptr);
 	}
 	bool existsHighlighterTagsFor(const QString &strUserDefinedHighlighterName) const
 	{
