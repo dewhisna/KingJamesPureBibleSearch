@@ -283,7 +283,9 @@ bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleData
 	Q_ASSERT(pBibleDatabase != nullptr);
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
-	const TCrossReferenceMap mapCrossRefs = g_pUserNotesDatabase->crossRefsMap().createScopedMap(pBibleDatabase);
+	const TCrossReferenceMap *pRefMap = g_pUserNotesDatabase->crossRefsMap(pBibleDatabase);
+	if (pRefMap == nullptr) return false;
+	const TCrossReferenceMap mapCrossRefs = pRefMap->createScopedMap(pBibleDatabase);
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
 		const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
 		bool bNext = false;
@@ -424,7 +426,9 @@ bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDat
 	Q_ASSERT(pBibleDatabase != nullptr);
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 
-	const TCrossReferenceMap mapCrossRefs = g_pUserNotesDatabase->crossRefsMap().createScopedMap(pBibleDatabase);
+	const TCrossReferenceMap *pRefMap = g_pUserNotesDatabase->crossRefsMap(pBibleDatabase);
+	if (pRefMap == nullptr) return false;
+	const TCrossReferenceMap mapCrossRefs = pRefMap->createScopedMap(pBibleDatabase);
 	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
 		const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
 		bool bNext = false;

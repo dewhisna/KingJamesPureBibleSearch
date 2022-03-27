@@ -165,8 +165,8 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllUserNotes()), this, SLOT(en_allUserNotesChanged()));
 
 	// Cross Refs changing:
-	connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(const CRelIndex &, const CRelIndex &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(const CRelIndex &, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_allCrossRefsChanged()));
 }
 
@@ -793,8 +793,9 @@ void CBrowserWidget::en_allUserNotesChanged()
 	emit rerender();					// Re-render text (note: The Note may be deleted as well as changed)
 }
 
-void CBrowserWidget::en_crossRefsEvent(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+void CBrowserWidget::en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
+	if (nVersification != m_pBibleDatabase->versification()) return;
 	if (!selection().isSet()) return;
 	CRelIndex ndxCrossRefFirst = ndxFirst;
 	CRelIndex ndxCrossRefSecond = ndxSecond;

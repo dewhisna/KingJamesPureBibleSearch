@@ -69,7 +69,8 @@ CCrossRefEditDlg::CCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesD
 	// Create a working copy and initialize it to the existing database:
 	m_pWorkingUserNotesDatabase = QSharedPointer<CUserNotesDatabase>(new CUserNotesDatabase());
 //	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
-	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pUserNotesDatabase->crossRefsMap());
+	const TCrossReferenceMap *pRefMap = m_pUserNotesDatabase->crossRefsMap(m_pBibleDatabase.data());
+	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pBibleDatabase.data(), pRefMap ? *pRefMap : TCrossReferenceMap());
 
 	ui.setupUi(this);
 
@@ -205,7 +206,8 @@ void CCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 
 	// Update working database from source database:
 //	m_pWorkingUserNotesDatabase->setDataFrom(*(m_pUserNotesDatabase.data()));
-	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pUserNotesDatabase->crossRefsMap());
+	const TCrossReferenceMap *pRefMap = m_pUserNotesDatabase->crossRefsMap(m_pBibleDatabase.data());
+	m_pWorkingUserNotesDatabase->setCrossRefsMap(m_pBibleDatabase.data(), pRefMap ? *pRefMap : TCrossReferenceMap());
 	m_pCrossRefTreeView->setSingleCrossRefSourceIndex(ndxRel);
 	m_bIsDirty = false;
 }
@@ -216,7 +218,8 @@ void CCrossRefEditDlg::saveCrossRefs()
 {
 	Q_ASSERT(!m_pUserNotesDatabase.isNull());
 
-	m_pUserNotesDatabase->setCrossRefsMap(m_pWorkingUserNotesDatabase->crossRefsMap());
+	const TCrossReferenceMap *pRefMap = m_pWorkingUserNotesDatabase->crossRefsMap(m_pBibleDatabase.data());
+	m_pUserNotesDatabase->setCrossRefsMap(m_pBibleDatabase.data(), pRefMap ? *pRefMap : TCrossReferenceMap());
 	m_bIsDirty = false;
 }
 
@@ -269,9 +272,9 @@ void CCrossRefEditDlg::en_crossRefTreeViewEntryActivated(const QModelIndex &inde
 	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
 	ndxSource.setWord(0);		// Note: This is needed because passages always begin at word 1 and our cross-refs are always indexed from 0
 	if ((ndxTarget.isSet()) && (ndxInitial != ndxTarget)) {
-		bool bRemove = m_pWorkingUserNotesDatabase->removeCrossReference(ndxSource, ndxInitial);
+		bool bRemove = m_pWorkingUserNotesDatabase->removeCrossReference(m_pBibleDatabase.data(), ndxSource, ndxInitial);
 		Q_ASSERT(bRemove);
-		bool bAdd = m_pWorkingUserNotesDatabase->setCrossReference(ndxSource, ndxTarget);
+		bool bAdd = m_pWorkingUserNotesDatabase->setCrossReference(m_pBibleDatabase.data(), ndxSource, ndxTarget);
 		Q_ASSERT(bAdd);
 		if (bAdd || bRemove) m_bIsDirty = true;
 	}
@@ -327,9 +330,10 @@ void CCrossRefEditDlg::en_AddReferenceClicked()
 		if (ndxTarget.isSet()) {
 			if (ndxSource == ndxTarget) {
 				displayWarning(this, windowTitle(), tr("You can't set a cross-reference to reference itself.", "Errors"));
-			} else if (m_pWorkingUserNotesDatabase->crossRefsMap().haveCrossReference(ndxSource, ndxTarget)) {
+			} else if (m_pWorkingUserNotesDatabase->crossRefsMap(m_pBibleDatabase.data()) &&
+					   m_pWorkingUserNotesDatabase->crossRefsMap(m_pBibleDatabase.data())->haveCrossReference(ndxSource, ndxTarget)) {
 				displayWarning(this, windowTitle(), tr("That cross-reference already exists.", "Errors"));
-			} else if (m_pWorkingUserNotesDatabase->setCrossReference(ndxSource, ndxTarget)) {
+			} else if (m_pWorkingUserNotesDatabase->setCrossReference(m_pBibleDatabase.data(), ndxSource, ndxTarget)) {
 				m_bIsDirty = true;
 				bRefSet = true;
 			}
@@ -354,7 +358,7 @@ void CCrossRefEditDlg::en_DelReferenceClicked()
 	CRelIndex ndxSource = m_tagSourcePassage.relIndex();
 	ndxSource.setWord(0);
 	for (unsigned int ndx = 0; ndx < lstRefsToRemove.size(); ++ndx) {
-		if (m_pWorkingUserNotesDatabase->removeCrossReference(ndxSource, lstRefsToRemove.at(ndx))) {
+		if (m_pWorkingUserNotesDatabase->removeCrossReference(m_pBibleDatabase.data(), ndxSource, lstRefsToRemove.at(ndx))) {
 			bSomethingChanged = true;
 		}
 	}

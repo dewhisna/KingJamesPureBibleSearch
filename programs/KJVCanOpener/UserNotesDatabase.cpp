@@ -487,10 +487,18 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		m_bInPhraseTag = true;
 	} else if ((m_bInKJNDocumentText) && (!m_bInCrossReferences) && (localName.compare(constrCrossReferencesTag, Qt::CaseInsensitive) == 0) &&
 			   (!m_bInNotes && !m_bInHighlighting && !m_bInHighlighterDefinitions)) {
+		int ndxV11nUUID = findAttribute(attr, constrV11nAttr);
+		if (ndxV11nUUID != -1) {
+			m_strV11nUUID = attr.value(ndxV11nUUID);
+		} else {
+			// If there is no Versification UUID, default to the KJV Versification
+			//	to support backward compatibility:
+			m_strV11nUUID = CBibleVersifications::uuid(BVTE_KJV);
+		}
 #ifdef DEBUG_KJN_XML_READ
 		int ndxSize = findAttribute(attr, constrSizeAttr);
 		if (ndxSize != -1) {
-			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
+			qDebug("%s : Versification: \"%s\", Size: %s", localName.toUtf8().data(), m_strV11nUUID.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
 #endif
 		m_bInCrossReferences = true;
@@ -613,8 +621,8 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 		m_bInHighlighting = false;
 	} else if ((m_bInCrossReferences) && (m_bInCrossRef) && (m_bInRelIndex) && (localName.compare(constrRelIndexTag, Qt::CaseInsensitive) == 0)) {
 		if (m_ndxRelIndex != m_ndxRelIndexTag) {				// Add it only if the cross-reference doesn't reference itself
-			m_mapCrossReference[m_ndxRelIndex].insert(m_ndxRelIndexTag);
-			m_mapCrossReference[m_ndxRelIndexTag].insert(m_ndxRelIndex);
+			m_mapCrossReference[m_strV11nUUID][m_ndxRelIndex].insert(m_ndxRelIndexTag);
+			m_mapCrossReference[m_strV11nUUID][m_ndxRelIndexTag].insert(m_ndxRelIndex);
 		}
 		m_ndxRelIndexTag.clear();
 		m_bInRelIndex = false;
@@ -849,22 +857,25 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	}
 	outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrHighlightingTag).toUtf8());
 
-	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrCrossReferencesTag)
-							.arg(constrSizeAttr).arg(m_mapCrossReference.size())
-							.toUtf8());
-	for (TCrossReferenceMap::const_iterator itrCrossRef = m_mapCrossReference.begin(); itrCrossRef != m_mapCrossReference.end(); ++itrCrossRef) {
-		outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrCrossRefTag)
-								.arg(constrRelIndexAttr).arg((itrCrossRef->first).asAnchor())
-								.arg(constrSizeAttr).arg((itrCrossRef->second).size())
+	for (TVersificationCrossRefMap::const_iterator itrV11n = m_mapCrossReference.begin(); itrV11n != m_mapCrossReference.end(); ++itrV11n) {
+		outUND.write(QString("\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrCrossReferencesTag)
+								.arg(constrV11nAttr).arg(itrV11n->first)
+								.arg(constrSizeAttr).arg(itrV11n->second.size())
 								.toUtf8());
-		for (TRelativeIndexSet::const_iterator itrTargetRefs = (itrCrossRef->second).begin(); itrTargetRefs != (itrCrossRef->second).end(); ++itrTargetRefs) {
-			outUND.write(QString("\t\t\t\t<%1:%2 %3=\"%4\" />\n").arg(constrKJNPrefix).arg(constrRelIndexTag)
-									.arg(constrValueAttr).arg((*itrTargetRefs).asAnchor())
+		for (TCrossReferenceMap::const_iterator itrCrossRef = itrV11n->second.begin(); itrCrossRef != itrV11n->second.end(); ++itrCrossRef) {
+			outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrCrossRefTag)
+									.arg(constrRelIndexAttr).arg((itrCrossRef->first).asAnchor())
+									.arg(constrSizeAttr).arg((itrCrossRef->second).size())
 									.toUtf8());
+			for (TRelativeIndexSet::const_iterator itrTargetRefs = (itrCrossRef->second).begin(); itrTargetRefs != (itrCrossRef->second).end(); ++itrTargetRefs) {
+				outUND.write(QString("\t\t\t\t<%1:%2 %3=\"%4\" />\n").arg(constrKJNPrefix).arg(constrRelIndexTag)
+										.arg(constrValueAttr).arg((*itrTargetRefs).asAnchor())
+										.toUtf8());
+			}
+			outUND.write(QString("\t\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrCrossRefTag).toUtf8());
 		}
-		outUND.write(QString("\t\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrCrossRefTag).toUtf8());
+		outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrCrossReferencesTag).toUtf8());
 	}
-	outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrCrossReferencesTag).toUtf8());
 
 	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrHighlighterDefinitionsTag)
 							.arg(constrSizeAttr).arg(m_pUserNotesDatabaseData->m_mapHighlighterDefinitions.size())
@@ -1114,56 +1125,76 @@ void CUserNotesDatabase::removeAllHighlighterTags()
 
 // ============================================================================
 
-bool CUserNotesDatabase::setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+bool CUserNotesDatabase::setCrossReference(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return false;
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
+
 	if (ndxFirst == ndxSecond) return false;							// Don't allow cross references to ourselves (that's just stupid, and can lead to weird consequences)
 
 	// Since they are cross-linked, it doesn't matter which way we do this check:
-	TRelativeIndexSet sCrossRef = crossRefsMap().crossReferencesFor(ndxFirst);
+	TRelativeIndexSet sCrossRef = m_mapCrossReference[strV11n].crossReferencesFor(ndxFirst);
 	if (sCrossRef.find(ndxSecond) != sCrossRef.end()) return false;		// Don't add it if it already exists
 
-	m_mapCrossReference[ndxFirst].insert(ndxSecond);
-	m_mapCrossReference[ndxSecond].insert(ndxFirst);
+	m_mapCrossReference[strV11n][ndxFirst].insert(ndxSecond);
+	m_mapCrossReference[strV11n][ndxSecond].insert(ndxFirst);
 	m_bIsDirty = true;
-	emit addedCrossRef(ndxFirst, ndxSecond);
+	emit addedCrossRef(pBibleDatabase->versification(), ndxFirst, ndxSecond);
 	emit changedUserNotesDatabase();
 	return true;
 }
 
-bool CUserNotesDatabase::removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
+bool CUserNotesDatabase::removeCrossReference(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxFirst, const CRelIndex &ndxSecond)
 {
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return false;
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
+
 	Q_ASSERT(ndxFirst != ndxSecond);
 	if (ndxFirst == ndxSecond) return false;
-	TCrossReferenceMap::iterator itrMapFirst = m_mapCrossReference.find(ndxFirst);
-	TCrossReferenceMap::iterator itrMapSecond = m_mapCrossReference.find(ndxSecond);
-	if ((itrMapFirst == m_mapCrossReference.end()) || (itrMapSecond == m_mapCrossReference.end())) return false;
+	TVersificationCrossRefMap::iterator itrV11n = m_mapCrossReference.find(strV11n);
+	if (itrV11n == m_mapCrossReference.cend()) return false;
+
+	TCrossReferenceMap::iterator itrMapFirst = itrV11n->second.find(ndxFirst);
+	TCrossReferenceMap::iterator itrMapSecond = itrV11n->second.find(ndxSecond);
+	if ((itrMapFirst == itrV11n->second.end()) || (itrMapSecond == itrV11n->second.end())) return false;
 
 	// Remove the cross-reference entries from each other:
 	(itrMapFirst->second).erase(ndxSecond);
 	(itrMapSecond->second).erase(ndxFirst);
 
 	// Remove mappings that become empty:
-	if ((itrMapFirst->second).empty()) m_mapCrossReference.erase(ndxFirst);
-	if ((itrMapSecond->second).empty()) m_mapCrossReference.erase(ndxSecond);
+	if (itrMapFirst->second.empty()) itrV11n->second.erase(ndxFirst);
+	if (itrMapSecond->second.empty()) itrV11n->second.erase(ndxSecond);
+	if (itrV11n->second.empty()) m_mapCrossReference.erase(strV11n);
 
 	m_bIsDirty = true;
-	emit removedCrossRef(ndxFirst, ndxSecond);
+	emit removedCrossRef(pBibleDatabase->versification(), ndxFirst, ndxSecond);
 	emit changedUserNotesDatabase();
 	return true;
 }
 
-bool CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
+bool CUserNotesDatabase::removeCrossReferencesFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx)
 {
-	TCrossReferenceMap::iterator itrMap = m_mapCrossReference.find(ndx);
-	if (itrMap == m_mapCrossReference.end()) return false;
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return false;
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
+
+	TVersificationCrossRefMap::iterator itrV11n = m_mapCrossReference.find(strV11n);
+	if (itrV11n == m_mapCrossReference.cend()) return false;
+
+	TCrossReferenceMap::iterator itrMap = itrV11n->second.find(ndx);
+	if (itrMap == itrV11n->second.end()) return false;
 
 	for (TRelativeIndexSet::iterator itrSet = (itrMap->second).begin(); itrSet != (itrMap->second).end(); ++itrSet) {
 		Q_ASSERT(*itrSet != ndx);		// Shouldn't have any cross references to our same index, as we didn't allow them to be added
 		if (*itrSet == ndx) continue;
-		m_mapCrossReference[*itrSet].erase(ndx);			// Remove all cross references of other indexes to this index
-		if (m_mapCrossReference[*itrSet].empty()) m_mapCrossReference.erase(*itrSet);			// Remove any mappings that become empty
+		itrV11n->second[*itrSet].erase(ndx);			// Remove all cross references of other indexes to this index
+		if (itrV11n->second[*itrSet].empty()) itrV11n->second.erase(*itrSet);			// Remove any mappings that become empty
 	}
-	m_mapCrossReference.erase(ndx);		// Now, remove this index mapping to other indexes
+	itrV11n->second.erase(ndx);		// Now, remove this index mapping to other indexes
+	if (itrV11n->second.empty()) m_mapCrossReference.erase(strV11n);
 
 	m_bIsDirty = true;
 	emit changedAllCrossRefs();				// TODO : Once we get better support for individual changes in the model, replace this with individual remove calls during erases above
@@ -1173,15 +1204,21 @@ bool CUserNotesDatabase::removeCrossReferencesFor(const CRelIndex &ndx)
 
 void CUserNotesDatabase::removeAllCrossReferences()
 {
-	m_mapCrossReference.clear();
-	m_bIsDirty = true;
-	emit changedAllCrossRefs();
-	emit changedUserNotesDatabase();
+	if (!m_mapCrossReference.empty()) {
+		m_mapCrossReference.clear();
+		m_bIsDirty = true;
+		emit changedAllCrossRefs();
+		emit changedUserNotesDatabase();
+	}
 }
 
-void CUserNotesDatabase::setCrossRefsMap(const TCrossReferenceMap &mapCrossRefs)
+void CUserNotesDatabase::setCrossRefsMap(const CBibleDatabase *pBibleDatabase, const TCrossReferenceMap &mapCrossRefs)
 {
-	m_mapCrossReference = mapCrossRefs;
+	Q_ASSERT(pBibleDatabase != nullptr);
+	if (pBibleDatabase == nullptr) return;
+	QString strV11n = CBibleVersifications::uuid(pBibleDatabase->versification());
+
+	m_mapCrossReference[strV11n] = mapCrossRefs;
 	m_bIsDirty = true;
 	emit changedAllCrossRefs();
 	emit changedUserNotesDatabase();

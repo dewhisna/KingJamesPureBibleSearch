@@ -179,7 +179,7 @@ typedef QMap<TQStringHighlighterName, TUserDefinedColor> TUserDefinedColorMap;
 
 //
 // User cross-ref data is stored as:
-//		Map of CRelIndex -> TRelativeIndexSet
+//		Map of Versifications -> Map of CRelIndex -> TRelativeIndexSet
 //
 
 class TCrossReferenceMap : public std::map<CRelIndex, TRelativeIndexSet, RelativeIndexSortPredicate>		// Map of Relative Index to Relative Index Set, used for cross-references (such as User Notes Database cross-reference, etc)
@@ -234,6 +234,9 @@ private:
 private:
 	bool m_bNoWordRefs;
 };
+
+typedef std::map<QString, TCrossReferenceMap> TVersificationCrossRefMap;					// Map of Versification UUID to TCrossReferenceMap
+
 
 // ============================================================================
 
@@ -351,12 +354,19 @@ public:
 
 	// --------------------
 
-	bool setCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);			// Returns true if it was set or false if it was already set or can't be set
-	bool removeCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Returns true if it was removed or false if it wasn't there or can't be removed
-	bool removeCrossReferencesFor(const CRelIndex &ndx);									// Returns true if it was removed or false if it wasn't there or can't be removed
+	bool setCrossReference(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Returns true if it was set or false if it was already set or can't be set
+	bool removeCrossReference(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxFirst, const CRelIndex &ndxSecond);		// Returns true if it was removed or false if it wasn't there or can't be removed
+	bool removeCrossReferencesFor(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx);									// Returns true if it was removed or false if it wasn't there or can't be removed
 	void removeAllCrossReferences();
-	const TCrossReferenceMap &crossRefsMap() const { return m_mapCrossReference; }
-	void setCrossRefsMap(const TCrossReferenceMap &mapCrossRefs);
+	const TCrossReferenceMap *crossRefsMap(const CBibleDatabase *pBibleDatabase) const
+	{
+		Q_ASSERT(pBibleDatabase != nullptr);
+		if (pBibleDatabase == nullptr) return nullptr;
+		TVersificationCrossRefMap::const_iterator itrV11n = m_mapCrossReference.find(CBibleVersifications::uuid(pBibleDatabase->versification()));
+		if (itrV11n == m_mapCrossReference.cend()) return nullptr;
+		return &itrV11n->second;
+	}
+	void setCrossRefsMap(const CBibleDatabase *pBibleDatabase, const TCrossReferenceMap &mapCrossRefs);
 
 	// --------------------
 
@@ -391,8 +401,8 @@ signals:
 	void changedUserNotesKeywords();											// Fired if a note changes its keyword list
 	void changedAllUserNotes();
 
-	void addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
-	void removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
 	void changedAllCrossRefs();
 
 	void changedUserNotesDatabase();
@@ -439,7 +449,7 @@ private:
 
 	TVersificationUserNoteEntryMap m_mapNotes;			// User notes by versification
 	TBibleDBHighlighterTagMap m_mapHighlighterTags;		// Tags to highlight by Bible Database compatibility and Highlighter name
-	TCrossReferenceMap m_mapCrossReference;				// Cross reference of passage to other passages
+	TVersificationCrossRefMap m_mapCrossReference;		// Cross reference of passage to other passages
 
 	QString m_strFilePathName;							// FilePathName of KJN used on load/save and available for saving in persistent settings for this KJN when setting as the default file
 	QString m_strErrorFilePathName;						// FilePathName previously used if there was an error reading an existing file.  This allows us to force a save-prompt when exiting without accidentally overwriting it, prompting them with the old filename and path. (Cleared on successful save or load on hard file)

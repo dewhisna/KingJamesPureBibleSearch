@@ -123,9 +123,9 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllUserNotes()), this, SLOT(en_changedAllUserNotes()));
 
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_changedAllCrossRefs()));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(const CRelIndex &, const CRelIndex &)));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(const CRelIndex &, const CRelIndex &)), this, SLOT(en_removedCrossRef(const CRelIndex &, const CRelIndex &)));
 	}
 
 	en_changedHighlighters();			// Make sure we've loaded the initial default highlighters (or from the current set if we are rebuilding this class for some reason)
@@ -2041,18 +2041,22 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 
 // ----------------------------------------------------------------------------
 
-void CVerseListModel::en_addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2)
+void CVerseListModel::en_addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxRef1, const CRelIndex &ndxRef2)
 {
 	Q_UNUSED(ndxRef1);			// TODO : Add logic to use ndxRef1/ndxRef2 to insert/remove a single cross-ref if we can
 	Q_UNUSED(ndxRef2);
-	buildCrossRefsResults();
+	if (nVersification == m_private.m_pBibleDatabase->versification()) {
+		buildCrossRefsResults();
+	}
 }
 
-void CVerseListModel::en_removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2)
+void CVerseListModel::en_removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxRef1, const CRelIndex &ndxRef2)
 {
 	Q_UNUSED(ndxRef1);			// TODO : Add logic to use ndxRef1/ndxRef2 to insert/remove a single cross-ref if we can
 	Q_UNUSED(ndxRef2);
-	buildCrossRefsResults();
+	if (nVersification == m_private.m_pBibleDatabase->versification()) {
+		buildCrossRefsResults();
+	}
 }
 
 void CVerseListModel::en_changedAllCrossRefs()
@@ -2075,21 +2079,24 @@ void CVerseListModel::buildCrossRefsResults()
 	zResults.m_mapSizeHints.clear();
 
 	zResults.m_mapCrossRefs.clear();
-	zResults.m_mapCrossRefs = m_private.m_pUserNotesDatabase->crossRefsMap().createScopedMap(m_private.m_pBibleDatabase.data());
+	const TCrossReferenceMap *pRefMap = m_private.m_pUserNotesDatabase->crossRefsMap(m_private.m_pBibleDatabase.data());
+	if (pRefMap) {
+		zResults.m_mapCrossRefs = pRefMap->createScopedMap(m_private.m_pBibleDatabase.data());
 
-	zResults.m_lstVerseIndexes.reserve(zResults.m_mapCrossRefs.size());
-	for (TCrossReferenceMap::const_iterator itrCrossRef = zResults.m_mapCrossRefs.begin(); itrCrossRef != zResults.m_mapCrossRefs.end(); ++itrCrossRef) {
-		CRelIndex ndxCrossRef = (itrCrossRef->first);
-		Q_ASSERT(ndxCrossRef.isSet());
-		if ((ndxCrossRef.chapter() != 0) && (ndxCrossRef.verse() != 0)) {
-			ndxCrossRef.setWord(1);			// Whole verses only
-		} else {
-			ndxCrossRef.setWord(0);			// We don't allow cross-refs to colophons and superscriptions
+		zResults.m_lstVerseIndexes.reserve(zResults.m_mapCrossRefs.size());
+		for (TCrossReferenceMap::const_iterator itrCrossRef = zResults.m_mapCrossRefs.begin(); itrCrossRef != zResults.m_mapCrossRefs.end(); ++itrCrossRef) {
+			CRelIndex ndxCrossRef = (itrCrossRef->first);
+			Q_ASSERT(ndxCrossRef.isSet());
+			if ((ndxCrossRef.chapter() != 0) && (ndxCrossRef.verse() != 0)) {
+				ndxCrossRef.setWord(1);			// Whole verses only
+			} else {
+				ndxCrossRef.setWord(0);			// We don't allow cross-refs to colophons and superscriptions
+			}
+
+			Q_ASSERT(!zResults.m_mapVerses.contains(ndxCrossRef));
+			zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLMNTE_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
+			zResults.m_lstVerseIndexes.append(ndxCrossRef);
 		}
-
-		Q_ASSERT(!zResults.m_mapVerses.contains(ndxCrossRef));
-		zResults.m_mapVerses.insert(ndxCrossRef, CVerseListItem(zResults.makeVerseIndex(ndxCrossRef, VLMNTE_CROSS_REFERENCE_SOURCE_NODE), m_private.m_pBibleDatabase));
-		zResults.m_lstVerseIndexes.append(ndxCrossRef);
 	}
 
 	if (m_private.m_nViewMode == VVME_CROSSREFS) {

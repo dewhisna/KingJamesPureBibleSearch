@@ -868,8 +868,8 @@ protected slots:
 	void en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndx);
 	void en_changedAllUserNotes();
 
-	void en_addedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
-	void en_removedCrossRef(const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void en_addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
+	void en_removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM nVersification, const CRelIndex &ndxRef1, const CRelIndex &ndxRef2);
 	void en_changedAllCrossRefs();
 
 public:
