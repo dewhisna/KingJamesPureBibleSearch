@@ -109,11 +109,11 @@ TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBi
 
 	TCrossReferenceMap mapScoped;
 
-	for (const_iterator itrMap = begin(); itrMap != end(); ++itrMap) {
+	for (const_iterator itrMap = cbegin(); itrMap != cend(); ++itrMap) {
 		if (pBibleDatabase->NormalizeIndex(itrMap->first) == 0) continue;
 
 		TRelativeIndexSet setRefs;
-		for (TRelativeIndexSet::const_iterator itrSet = (itrMap->second).begin(); itrSet != (itrMap->second).end(); ++itrSet) {
+		for (TRelativeIndexSet::const_iterator itrSet = itrMap->second.cbegin(); itrSet != itrMap->second.cend(); ++itrSet) {
 			if (pBibleDatabase->NormalizeIndex(*itrSet) != 0) setRefs.insert(*itrSet);
 		}
 		if (!setRefs.empty()) mapScoped[itrMap->first] = setRefs;
@@ -805,12 +805,12 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 						.arg(constrVersionAttr).arg(KJN_FILE_VERSION).toUtf8());
 	m_nVersion = KJN_FILE_VERSION;
 
-	for (TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.begin(); itrV11n != m_mapNotes.end(); ++itrV11n) {
+	for (TVersificationUserNoteEntryMap::const_iterator itrV11n = m_mapNotes.cbegin(); itrV11n != m_mapNotes.cend(); ++itrV11n) {
 		outUND.write(QString("\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrNotesTag)
 								.arg(constrV11nAttr).arg(itrV11n->first)
 								.arg(constrSizeAttr).arg(itrV11n->second.size())
 								.toUtf8());
-		for (TUserNoteEntryMap::const_iterator itrNotes = itrV11n->second.begin(); itrNotes != itrV11n->second.end(); ++itrNotes) {
+		for (TUserNoteEntryMap::const_iterator itrNotes = itrV11n->second.cbegin(); itrNotes != itrV11n->second.cend(); ++itrNotes) {
 			outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\" %9=\"%10\"%11>\n<![CDATA[").arg(constrKJNPrefix).arg(constrNoteTag)
 									.arg(constrRelIndexAttr).arg((itrNotes->first).asAnchor())
 									.arg(constrCountAttr).arg((itrNotes->second).verseCount())
@@ -830,21 +830,21 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	outUND.write(QString("\t\t<%1:%2 %3=\"%4\">\n").arg(constrKJNPrefix).arg(constrHighlightingTag)
 							.arg(constrSizeAttr).arg(m_mapHighlighterTags.size())
 							.toUtf8());
-	for (TBibleDBHighlighterTagMap::const_iterator itrHighlightDB = m_mapHighlighterTags.begin(); itrHighlightDB != m_mapHighlighterTags.end(); ++itrHighlightDB) {
-		for (TVersificationHighlighterTagMap::const_iterator itrHighlightV11n = itrHighlightDB->second.begin(); itrHighlightV11n != itrHighlightDB->second.end(); ++itrHighlightV11n) {
+	for (TBibleDBHighlighterTagMap::const_iterator itrHighlightDB = m_mapHighlighterTags.cbegin(); itrHighlightDB != m_mapHighlighterTags.cend(); ++itrHighlightDB) {
+		for (TVersificationHighlighterTagMap::const_iterator itrHighlightV11n = itrHighlightDB->second.cbegin(); itrHighlightV11n != itrHighlightDB->second.cend(); ++itrHighlightV11n) {
 			const THighlighterTagMap &highlightMap(itrHighlightV11n->second);
 			outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" %7=\"%8\">\n").arg(constrKJNPrefix).arg(constrHighlighterDBTag)
 											.arg(constrUUIDAttr).arg(htmlEscape(itrHighlightDB->first))
 											.arg(constrV11nAttr).arg(htmlEscape(itrHighlightV11n->first))
 											.arg(constrSizeAttr).arg(highlightMap.size())
 											.toUtf8());
-			for (THighlighterTagMap::const_iterator itrHighlightHL = highlightMap.begin(); itrHighlightHL != highlightMap.end(); ++itrHighlightHL) {
+			for (THighlighterTagMap::const_iterator itrHighlightHL = highlightMap.cbegin(); itrHighlightHL != highlightMap.cend(); ++itrHighlightHL) {
 				const TPhraseTagList &tagList(itrHighlightHL->second);
 				outUND.write(QString("\t\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrHighlighterTagsTag)
 														.arg(constrHighlighterNameAttr).arg(htmlEscape(itrHighlightHL->first))
 														.arg(constrSizeAttr).arg(tagList.size())
 														.toUtf8());
-				for (TPhraseTagList::const_iterator itrTags = tagList.begin(); itrTags != tagList.end(); ++itrTags) {
+				for (TPhraseTagList::const_iterator itrTags = tagList.constBegin(); itrTags != tagList.constEnd(); ++itrTags) {
 					outUND.write(QString("\t\t\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\" />\n").arg(constrKJNPrefix).arg(constrPhraseTagTag)
 															.arg(constrRelIndexAttr).arg(itrTags->relIndex().asAnchor())
 															.arg(constrCountAttr).arg(itrTags->count())
@@ -857,17 +857,17 @@ bool CUserNotesDatabase::save(QIODevice *pIODevice)
 	}
 	outUND.write(QString("\t\t</%1:%2>\n").arg(constrKJNPrefix).arg(constrHighlightingTag).toUtf8());
 
-	for (TVersificationCrossRefMap::const_iterator itrV11n = m_mapCrossReference.begin(); itrV11n != m_mapCrossReference.end(); ++itrV11n) {
+	for (TVersificationCrossRefMap::const_iterator itrV11n = m_mapCrossReference.cbegin(); itrV11n != m_mapCrossReference.cend(); ++itrV11n) {
 		outUND.write(QString("\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrCrossReferencesTag)
 								.arg(constrV11nAttr).arg(itrV11n->first)
 								.arg(constrSizeAttr).arg(itrV11n->second.size())
 								.toUtf8());
-		for (TCrossReferenceMap::const_iterator itrCrossRef = itrV11n->second.begin(); itrCrossRef != itrV11n->second.end(); ++itrCrossRef) {
+		for (TCrossReferenceMap::const_iterator itrCrossRef = itrV11n->second.cbegin(); itrCrossRef != itrV11n->second.cend(); ++itrCrossRef) {
 			outUND.write(QString("\t\t\t<%1:%2 %3=\"%4\" %5=\"%6\">\n").arg(constrKJNPrefix).arg(constrCrossRefTag)
 									.arg(constrRelIndexAttr).arg((itrCrossRef->first).asAnchor())
 									.arg(constrSizeAttr).arg((itrCrossRef->second).size())
 									.toUtf8());
-			for (TRelativeIndexSet::const_iterator itrTargetRefs = (itrCrossRef->second).begin(); itrTargetRefs != (itrCrossRef->second).end(); ++itrTargetRefs) {
+			for (TRelativeIndexSet::const_iterator itrTargetRefs = itrCrossRef->second.cbegin(); itrTargetRefs != itrCrossRef->second.cend(); ++itrTargetRefs) {
 				outUND.write(QString("\t\t\t\t<%1:%2 %3=\"%4\" />\n").arg(constrKJNPrefix).arg(constrRelIndexTag)
 										.arg(constrValueAttr).arg((*itrTargetRefs).asAnchor())
 										.toUtf8());
@@ -1255,8 +1255,8 @@ bool CUserNotesDatabase::renameHighlighter(const QString &strOldUserDefinedHighl
 	if (!existsHighlighter(strOldUserDefinedHighlighterName)) return false;
 	if (existsHighlighter(strNewUserDefinedHighlighterName)) return false;
 
-	for (TBibleDBHighlighterTagMap::const_iterator itrDB = m_mapHighlighterTags.begin(); itrDB != m_mapHighlighterTags.end(); ++itrDB) {
-		for (TVersificationHighlighterTagMap::const_iterator itrV11n = itrDB->second.begin(); itrV11n != itrDB->second.end(); ++itrV11n) {
+	for (TBibleDBHighlighterTagMap::const_iterator itrDB = m_mapHighlighterTags.cbegin(); itrDB != m_mapHighlighterTags.cend(); ++itrDB) {
+		for (TVersificationHighlighterTagMap::const_iterator itrV11n = itrDB->second.cbegin(); itrV11n != itrDB->second.cend(); ++itrV11n) {
 			if (highlighterTagsFor(itrDB->first, itrV11n->first, strOldUserDefinedHighlighterName)) return false;
 		}
 	}
