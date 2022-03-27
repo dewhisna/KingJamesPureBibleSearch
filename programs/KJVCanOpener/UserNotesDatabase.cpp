@@ -338,6 +338,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			return false;
 		}
 		m_nVersion = attr.value(ndxVersion).toInt();
+		if (m_nVersion < KJN_FILE_VERSION) m_bKeepDirtyAfterLoad = true;	// Auto-update old KJN files to avoid repeatedly prompting user on KJPBS opening
 #ifdef DEBUG_KJN_XML_READ
 		qDebug("%s : Version %d", localName.toUtf8().data(), m_nVersion);
 #endif

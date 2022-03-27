@@ -37,7 +37,7 @@
 
 // ============================================================================
 
-#define KJN_FILE_VERSION 1				// Current KJN File Version (King James Notes file)
+#define KJN_FILE_VERSION 2				// Current KJN File Version (King James Notes file)
 
 // ============================================================================
 
