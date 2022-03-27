@@ -102,6 +102,7 @@ option(USE_SEARCH_PHRASE_COMPLETER_POPUP_DELAY "Enable Search Phrase Auto-Comple
 option(USE_SEARCH_RESULTS_UPDATE_DELAY "Enable Search Results Update Delay" OFF)
 option(USE_MULTITHREADED_SEARCH_RESULTS "Enable Multithreaded Search Results Computation" ON)
 option(USE_MULTITHREADED_INVERT_LOGIC "Use Single-Threaded as Default when Multithreading Enabled" ON)
+option(USE_EXTENDED_REL_INDEXES "Use Extended RelIndexes" OFF)
 # -------------------------------------
 option(ENABLE_TRANSLATIONS "Enable Translations" ON)
 
@@ -898,6 +899,13 @@ if(USE_MULTITHREADED_INVERT_LOGIC)
 	)
 endif()
 
+
+# Enable Extended RelIndexes:
+if(USE_EXTENDED_REL_INDEXES)
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		USE_EXTENDED_INDEXES
+	)
+endif()
 
 
 # -----------------------------------------------------------------------------
