@@ -33,6 +33,8 @@
 #include <QTimer>
 #include <QPushButton>
 
+#include "PhraseNavigator.h"		// Needed for TIP_EDIT_TYPE_ENUM
+
 // ============================================================================
 
 // Forward Declarations:
@@ -42,10 +44,10 @@ class CTipEdit : public QTextEdit
 {
 	Q_OBJECT
 public:
-	CTipEdit(CKJVCanOpener *pCanOpener, QWidget *parent);
+	CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidget *parent);
 	virtual ~CTipEdit();
-	static CTipEdit *instance(const CKJVCanOpener *pCanOpener);
-	static bool tipEditIsPinned(const CKJVCanOpener *pCanOpener);					// Push Pin to convert to modeless dialog
+	static CTipEdit *instance(TIP_EDIT_TYPE_ENUM nTipType, const CKJVCanOpener *pCanOpener);
+	static bool tipEditIsPinned(TIP_EDIT_TYPE_ENUM nTipType, const CKJVCanOpener *pCanOpener);					// Push Pin to convert to modeless dialog
 
 	virtual bool eventFilter(QObject *o, QEvent *e) override;
 
@@ -87,7 +89,7 @@ public slots:
 	// Cleanup the _q_stylesheet_parent propery.
 	void styleSheetParentDestroyed() {
 		setProperty("_q_stylesheet_parent", QVariant());
-		styleSheetParent = 0;
+		styleSheetParent = nullptr;
 	}
 
 protected slots:
@@ -103,6 +105,7 @@ private:
 private:
 	QWidget *styleSheetParent;
 	CKJVCanOpener *m_pParentCanOpener;		// Active CanOpener whent his tip was created (i.e. the CanOpener that it belongs to)
+	TIP_EDIT_TYPE_ENUM m_nTipEditType;		// Type of this CTipEdit
 
 private:
 	QWidget *widget;
@@ -119,12 +122,12 @@ class CToolTipEdit
 {
 	CToolTipEdit() { }
 public:
-	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w = nullptr);
-	static void showText(CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w, const QRect &rect);
-	static inline void hideText(CKJVCanOpener *pCanOpener) { showText(pCanOpener, QPoint(), QString()); }
+	static void showText(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w = nullptr);
+	static void showText(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QPoint &pos, const QString &strText, QWidget *w, const QRect &rect);
+	static inline void hideText(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener) { showText(nTipType, pCanOpener, QPoint(), QString()); }
 
-	static bool isVisible(CKJVCanOpener *pCanOpener);
-	static QString text(CKJVCanOpener *pCanOpener);
+	static bool isVisible(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener);
+	static QString text(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener);
 
 	static QPalette palette();
 	static void setPalette(const QPalette &);

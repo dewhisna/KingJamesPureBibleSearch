@@ -128,11 +128,11 @@ protected:
 	virtual bool event(QEvent *pEvent) override;
 
 	friend class CTipEdit;
-	CTipEdit *tipEdit() const { return m_pTipEdit; }
-	void setTipEdit(CTipEdit *pTipEdit) { m_pTipEdit = pTipEdit; }
+	CTipEdit *tipEdit(TIP_EDIT_TYPE_ENUM nTipType) const { return m_pTipEdit[nTipType]; }
+	void setTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CTipEdit *pTipEdit) { m_pTipEdit[nTipType] = pTipEdit; }
 
-	bool tipEditIsPinned() const { return m_bTipEditIsPinned; }
-	void setTipEditIsPinned(bool bIsPinned) { m_bTipEditIsPinned = bIsPinned; }
+	bool tipEditIsPinned(TIP_EDIT_TYPE_ENUM nTipType) const { return m_bTipEditIsPinned[nTipType]; }
+	void setTipEditIsPinned(TIP_EDIT_TYPE_ENUM nTipType, bool bIsPinned) { m_bTipEditIsPinned[nTipType] = bIsPinned; }
 
 signals:
 	void changedSearchResults();
@@ -294,8 +294,8 @@ private:
 	CHighlighterButtons *m_pHighlighterButtons;
 	QAction *m_pActionUserNoteEditor;
 	QAction *m_pActionCrossRefsEditor;
-	CTipEdit *m_pTipEdit;
-	bool m_bTipEditIsPinned;
+	CTipEdit *m_pTipEdit[TETE_COUNT] = {};
+	bool m_bTipEditIsPinned[TETE_COUNT] = {};
 	Ui::CKJVCanOpener ui;
 };
 

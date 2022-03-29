@@ -269,7 +269,7 @@ bool CVerseListDelegate::helpEvent(QHelpEvent *event, QAbstractItemView *view, c
 #else
 			if ((pSearchResultsView->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS) ||
 				(pSearchResultsView->viewMode() == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
-				if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::tipEditIsPinned(pSearchResultsView->parentCanOpener()))) {
+				if (pSearchResultsView->isActive() && pSearchResultsView->haveDetails() && (!CTipEdit::tipEditIsPinned(TETE_DETAILS, pSearchResultsView->parentCanOpener()))) {
 //					QVariant tooltip = index.data(Qt::ToolTipRole);
 //					if (tooltip.canConvert<QString>()) {
 //	//						QToolTip::showText(event->globalPos(), tooltip.toString(), view);

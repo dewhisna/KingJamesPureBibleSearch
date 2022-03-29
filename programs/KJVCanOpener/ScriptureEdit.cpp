@@ -603,13 +603,13 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	switch (ev->type()) {
 		case QEvent::ToolTip:
 			{
-				if ((!U::hasFocus()) || (!haveDetails()) || (CTipEdit::tipEditIsPinned(parentCanOpener()))) {
+				if ((!U::hasFocus()) || (!haveDetails()) || (CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener()))) {
 					ev->ignore();
 					return true;
 				}
 
 //				QHelpEvent *pHelpEvent = static_cast<QHelpEvent*>(ev);
-//				if (m_navigator.handleToolTipEvent(parentCanOpener(), pHelpEvent, m_CursorFollowHighlighter, m_selectedPhrase.second)) {
+//				if (m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), pHelpEvent, m_CursorFollowHighlighter, m_selectedPhrase.second)) {
 //					m_HighlightTimer.stop();
 //				} else {
 //					pHelpEvent->ignore();
@@ -665,7 +665,7 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 template<class T, class U>
 bool CScriptureText<T,U>::haveDetails() const
 {
-	QString strToolTip = m_navigator.getToolTip(m_tagLast, selection());
+	QString strToolTip = m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection());
 	return (!strToolTip.isEmpty());
 }
 
@@ -673,7 +673,7 @@ template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
 	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection()))
+	if (m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection()))
 		m_HighlightTimer.stop();
 }
 
@@ -922,7 +922,7 @@ void CScriptureText<T,U>::updateSelection()
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
-	if ((CTipEdit::tipEditIsPinned(parentCanOpener())) && (prevSelection != m_lstSelectedPhrases))
+	if ((CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener())) && (prevSelection != m_lstSelectedPhrases))
 		m_dlyDetailUpdate.trigger();
 
 #ifdef USING_QT_SPEECH
@@ -935,7 +935,7 @@ void CScriptureText<T,U>::updateSelection()
 template<class T, class U>
 void CScriptureText<T,U>::en_detailUpdate()
 {
-	m_navigator.handleToolTipEvent(parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection());
+	m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection());
 }
 
 template<class T, class U>
@@ -1122,11 +1122,11 @@ void CScriptureText<T,U>::en_copyReferenceDetails()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, true));
+		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, false));
+		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -1140,11 +1140,11 @@ void CScriptureText<T,U>::en_copyPassageStatistics()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, true));
+		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, false));
+		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -1158,11 +1158,11 @@ void CScriptureText<T,U>::en_copyEntirePassageDetails()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, true));
+		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, false));
+		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());

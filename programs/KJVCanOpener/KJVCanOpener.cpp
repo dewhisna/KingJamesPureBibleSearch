@@ -305,9 +305,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pCrossRefsEditorDlg(nullptr),
 	m_pHighlighterButtons(nullptr),
 	m_pActionUserNoteEditor(nullptr),
-	m_pActionCrossRefsEditor(nullptr),
-	m_pTipEdit(nullptr),
-	m_bTipEditIsPinned(false)
+	m_pActionCrossRefsEditor(nullptr)
 {
 	Q_ASSERT(!g_pMyApplication.isNull());
 	Q_ASSERT(!m_pBibleDatabase.isNull());

@@ -39,6 +39,25 @@
 
 // ============================================================================
 
+//
+// This enum doesn't really have anything to do with PhraseNavigator except
+//	that these classes generate the tooltip text in CTipEdit.  All users of
+//	PhraseNavigator are users that would show CTipEdit.  It was originally
+//	in ToolTipEdit.h.  However, those classes need GUI/Widgets classes,
+//	which isn't generally true of PhraseNavigator and its users.  We could
+//	put this in its own header file, but that seems excessive.  For now,
+//	just put it here (got to love include file loops and interdependencies):
+//
+
+enum TIP_EDIT_TYPE_ENUM {
+	TETE_DETAILS = 0,			// Normal KJPBS Detail View
+	TETE_GEMATRIA = 1,			// Gematria View
+	// ----
+	TETE_COUNT
+};
+
+// ============================================================================
+
 // Forward declarations:
 class CParsedPhrase;
 
@@ -633,10 +652,10 @@ public:
 
 	void removeAnchors();
 
-	static QString getToolTip(const CBibleDatabasePtr &pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false);
-	QString getToolTip(const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const
+	static QString getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const CBibleDatabasePtr &pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false);
+	QString getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false) const
 	{
-		return getToolTip(m_pBibleDatabase, tag, selection, nToolTipType, bPlainText);
+		return getToolTip(nTipType, m_pBibleDatabase, tag, selection, nToolTipType, bPlainText);
 	}
 
 	static QString getFootnote(const CBibleDatabasePtr &pBibleDatabase, const CRelIndex &ndx, bool bPlainText = false);

@@ -582,7 +582,7 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 							CPhraseNavigator::TRO_SuppressPrePostChapters),
 							&srHighlighter);
 
-	strText += "<hr />" + m_pPhraseNavigator->getToolTip(TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
+	strText += "<hr />" + m_pPhraseNavigator->getToolTip(TETE_DETAILS, TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
 															CSelectionPhraseTagList(),
 															CPhraseNavigator::TTE_COMPLETE,
 															false);

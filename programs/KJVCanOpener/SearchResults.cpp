@@ -1157,7 +1157,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	m_pStatusAction->setStatusTip(strStatusText);
 	m_pStatusAction->showStatusText();
 
-	if (CTipEdit::tipEditIsPinned(parentCanOpener())) showDetails();
+	if (CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener())) showDetails();
 
 	emit selectionListChanged();
 }
@@ -1186,9 +1186,9 @@ void CSearchResultsTreeView::showDetails()
 
 //		QToolTip::showText(mapToGlobal(visualRect(QTreeView::currentIndex()).topRight()), varTooltip.toString(), this);
 		QToolTip::hideText();
-		CToolTipEdit::showText(parentCanOpener(), mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
+		CToolTipEdit::showText(TETE_DETAILS, parentCanOpener(), mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
 	} else {
-		if (CTipEdit::tipEditIsPinned(parentCanOpener())) CToolTipEdit::hideText(parentCanOpener());
+		if (CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener())) CToolTipEdit::hideText(TETE_DETAILS, parentCanOpener());
 	}
 }
 

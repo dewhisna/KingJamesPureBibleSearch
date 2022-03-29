@@ -659,7 +659,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				(role == TOOLTIP_PLAINTEXT_ROLE) ||
 				(role == TOOLTIP_NOHEADING_ROLE) ||
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-				return CPhraseNavigator::getToolTip(m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
+				return CPhraseNavigator::getToolTip(TETE_DETAILS, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
 			}
 			return QVariant();
 		}
@@ -716,7 +716,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				(role == TOOLTIP_PLAINTEXT_ROLE) ||
 				(role == TOOLTIP_NOHEADING_ROLE) ||
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
-				return CPhraseNavigator::getToolTip(m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
+				return CPhraseNavigator::getToolTip(TETE_DETAILS, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
 			}
 			return QVariant();
 		}
@@ -859,7 +859,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 					(role != TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) strToolTip += "</pre></qt>";
 				return strToolTip;
 			} else {
-				return CPhraseNavigator::getToolTip(m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList(itrVerse->phraseTags()));
+				return CPhraseNavigator::getToolTip(TETE_DETAILS, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList(itrVerse->phraseTags()));
 			}
 		}
 
