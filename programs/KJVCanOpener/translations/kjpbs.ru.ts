@@ -884,7 +884,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-Copyright (C) 2012-2020 Donna Whisnant, a.k.a. Dewtronics.
+Copyright (C) 2012-2022 Donna Whisnant, a.k.a. Dewtronics.
 Contact: http://www.dewtronics.com/
 Written and Developed for Bethel Church, Festus, MO.</source>
         <comment>AboutBox</comment>
