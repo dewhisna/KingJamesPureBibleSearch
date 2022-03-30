@@ -691,7 +691,8 @@ QString CGematriaCalc::tooltip(const CBibleDatabase *pBibleDatabase, const TPhra
 	uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxStart);
 	uint64_t arrnValues[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};
 	bool arrbSkip[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};
-	while (nCount--) {
+	unsigned int nCountLoop = nCount;
+	while (nCountLoop--) {
 		for (uint32_t nBaseType = 0; nBaseType < GBTE_COUNT; ++nBaseType) {
 			for (uint32_t nMathXform = 0; nMathXform < GMTE_COUNT; ++nMathXform) {
 				for (uint32_t nLtrXform = 0; nLtrXform < GLTE_COUNT; ++nLtrXform) {
@@ -730,6 +731,15 @@ QString CGematriaCalc::tooltip(const CBibleDatabase *pBibleDatabase, const TPhra
 			}
 		}
 		strToolTip += strThisToolTip;
+	}
+
+	if (!strToolTip.isEmpty()) {
+		if (!bPlainText) {
+			strToolTip += "</pre><hr /><pre>";
+		} else {
+			strToolTip += "--------------------\n";
+		}
+		strToolTip += "\n" + QObject::tr("%n Word(s) Included", "Statistics", nCount) + "\n";
 	}
 
 	return strToolTip;
