@@ -79,7 +79,7 @@ CSelectedPhraseList CPhraseNavigatorEdit::getSelectedPhrases() const
 	return getSelectedPhrases(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data(), true));
 }
 
-bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter &aHighlighter, const CSelectionPhraseTagList &selection) const
+bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter *pHighlighter, const CSelectionPhraseTagList &selection) const
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -89,7 +89,9 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVC
 	QString strToolTip = getToolTip(nTipType, tagReference, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? static_cast<TPhraseTagList>(selection) : TPhraseTagList(tagReference)));
+		if (pHighlighter) {
+			highlightCursorFollowTag(*pHighlighter, (selection.haveSelection() ? static_cast<TPhraseTagList>(selection) : TPhraseTagList(tagReference)));
+		}
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(nTipType, pCanOpener, pHelpEvent->globalPos(), strToolTip, &m_TextEditor);
@@ -97,7 +99,9 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVC
 			QToolTip::showText(pHelpEvent->globalPos(), strToolTip);
 		}
 	} else {
-		highlightCursorFollowTag(aHighlighter);
+		if (pHighlighter) {
+			highlightCursorFollowTag(*pHighlighter);
+		}
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::hideText(nTipType, pCanOpener);
@@ -110,14 +114,16 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVC
 	return true;
 }
 
-bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, CCursorFollowHighlighter &aHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const
+bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, CCursorFollowHighlighter *pHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	QString strToolTip = getToolTip(nTipType, tag, selection);
 
 	if (!strToolTip.isEmpty()) {
-		highlightCursorFollowTag(aHighlighter, (selection.haveSelection() ? static_cast<TPhraseTagList>(selection) : TPhraseTagList(TPhraseTag(tag.relIndex(), 1))));
+		if (pHighlighter) {
+			highlightCursorFollowTag(*pHighlighter, (selection.haveSelection() ? static_cast<TPhraseTagList>(selection) : TPhraseTagList(TPhraseTag(tag.relIndex(), 1))));
+		}
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::showText(nTipType, pCanOpener, m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip, m_TextEditor.viewport(), m_TextEditor.rect());
@@ -125,7 +131,9 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVC
 			QToolTip::showText(m_TextEditor.mapToGlobal(m_TextEditor.cursorRect().topRight()), strToolTip);
 		}
 	} else {
-		highlightCursorFollowTag(aHighlighter);
+		if (pHighlighter) {
+			highlightCursorFollowTag(*pHighlighter);
+		}
 		if (m_bUseToolTipEdit) {
 			QToolTip::hideText();
 			CToolTipEdit::hideText(nTipType, pCanOpener);

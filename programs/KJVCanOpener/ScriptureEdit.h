@@ -95,6 +95,7 @@ public:
 	}
 
 	bool haveDetails() const;
+	bool haveGematria() const;
 
 	CKJVCanOpener *parentCanOpener() const;
 
@@ -150,6 +151,7 @@ public:
 	virtual void setFont(const QFont& aFont) override;
 	virtual void setTextBrightness(bool bInvert, int nBrightness) override;
 	virtual void showDetails() override;
+	virtual void showGematria() override;
 	virtual void showPassageNavigator() override;
 	virtual void en_copy() override;
 	virtual void en_copyPlain() override;
@@ -272,6 +274,7 @@ public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;
+	virtual void showGematria() = 0;
 	virtual void showPassageNavigator() = 0;			// Don't implement this because we don't want the navigator launching the navigator
 	virtual void en_copy() = 0;
 	virtual void en_copyPlain() = 0;
@@ -334,6 +337,7 @@ public slots:
 	virtual void setFont(const QFont& aFont) = 0;
 	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
 	virtual void showDetails() = 0;
+	virtual void showGematria() = 0;
 	virtual void showPassageNavigator() = 0;
 	virtual void en_copy() = 0;
 	virtual void en_copyPlain() = 0;

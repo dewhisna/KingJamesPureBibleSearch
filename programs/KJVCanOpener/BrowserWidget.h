@@ -79,6 +79,7 @@ public:
 	inline CSelectionPhraseTagList selection() const { return m_pScriptureBrowser->selection(); }
 
 	inline bool haveDetails() const { return m_pScriptureBrowser->haveDetails(); }
+	inline bool haveGematria() const { return m_pScriptureBrowser->haveGematria(); }
 
 	inline bool isBackwardAvailable() const { return m_pScriptureBrowser->isBackwardAvailable(); }
 	inline bool isForwardAvailable() const { return m_pScriptureBrowser->isForwardAvailable(); }
@@ -95,6 +96,7 @@ public:
 
 public slots:
 	void showDetails();
+	void showGematria();
 	void showPassageNavigator();
 
 	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);

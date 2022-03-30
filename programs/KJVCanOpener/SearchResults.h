@@ -83,6 +83,7 @@ public:
 	inline QAction *getLocalEditMenuInsertionPoint() const { return m_pMenuInsertionPoint; }
 
 	bool haveDetails() const;
+	bool haveGematria() const;
 	bool isActive() const;
 
 	inline CVerseListModel *vlmodel() const {
@@ -135,6 +136,7 @@ public slots:
 
 	virtual void showPassageNavigator();
 	virtual void showDetails();
+	virtual void showGematria();
 	virtual void setFontSearchResults(const QFont& aFont);
 	virtual void setTextBrightness(bool bInvert, int nBrightness);
 
@@ -264,6 +266,7 @@ public:
 	inline QAction *getLocalEditMenuInsertionPoint() const { return m_pSearchResultsTreeView->getLocalEditMenuInsertionPoint(); }
 
 	inline bool haveDetails() const { return m_pSearchResultsTreeView->haveDetails(); }
+	inline bool haveGematria() const { return m_pSearchResultsTreeView->haveGematria(); }
 	inline bool isActive() const { return m_pSearchResultsTreeView->isActive(); }
 
 	inline bool haveResults() const { return ((vlmodel()->searchResults(false).GetResultsCount() > 0) || (vlmodel()->searchResults(true).GetResultsCount() > 0)); }
@@ -281,6 +284,7 @@ public slots:
 	void setSingleCrossRefSourceIndex(const CRelIndex &ndx);
 	void showPassageNavigator();
 	void showDetails();
+	void showGematria();
 	void setParsedPhrases(const CSearchResultsData &searchResultsData);		// Will build verseList and return the list of tags so they can be passed to a highlighter, etc
 	void keywordListChanged(bool bInitialLoad = false);
 
@@ -289,6 +293,7 @@ signals:			// Outgoing Pass-Through:
 	void gotoIndex(const TPhraseTag &);
 	void changedSearchResults();
 	void setDetailsEnable();
+	void setGematriaEnable();
 
 	void activatedSearchResults();
 	void canExpandAll(bool bEnable);

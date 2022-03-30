@@ -661,6 +661,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
 				return CPhraseNavigator::getToolTip(TETE_DETAILS, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
 			}
+			if (role == TOOLTIP_GEMATRIA_ROLE) {
+				return CPhraseNavigator::getToolTip(TETE_GEMATRIA, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
+			}
 			return QVariant();
 		}
 
@@ -717,6 +720,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				(role == TOOLTIP_NOHEADING_ROLE) ||
 				(role == TOOLTIP_NOHEADING_PLAINTEXT_ROLE)) {
 				return CPhraseNavigator::getToolTip(TETE_DETAILS, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
+			}
+			if (role == TOOLTIP_GEMATRIA_ROLE) {
+				return CPhraseNavigator::getToolTip(TETE_GEMATRIA, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList());
 			}
 			return QVariant();
 		}
@@ -861,6 +867,10 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 			} else {
 				return CPhraseNavigator::getToolTip(TETE_DETAILS, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList(itrVerse->phraseTags()));
 			}
+		}
+
+		if (role == TOOLTIP_GEMATRIA_ROLE) {
+			return CPhraseNavigator::getToolTip(TETE_GEMATRIA, m_private.m_pBibleDatabase, TPhraseTag(ndxDisplayVerse), CSelectionPhraseTagList(itrVerse->phraseTags()));
 		}
 
 		if (role == VERSE_ENTRY_ROLE) {

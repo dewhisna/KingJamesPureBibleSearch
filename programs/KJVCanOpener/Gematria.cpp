@@ -24,6 +24,7 @@
 #include "Gematria.h"
 
 #include "ParseSymbols.h"
+#include "dbstruct.h"
 
 #include <vector>
 #include <map>
@@ -575,6 +576,7 @@ const CGematriaNames::TGematriaNameList CGematriaNames::g_arrGematriaBaseTypeNam
 	CGematriaNames::tr("Standard Abs Val"),
 	CGematriaNames::tr("Standard Abs Lrg Val"),
 	CGematriaNames::tr("Ordinal Val"),
+	CGematriaNames::tr("Preceding Sum"),
 };
 
 const CGematriaNames::TGematriaNameList CGematriaNames::g_arrGematriaMathXformNames =
@@ -582,7 +584,7 @@ const CGematriaNames::TGematriaNameList CGematriaNames::g_arrGematriaMathXformNa
 	QString(),
 	CGematriaNames::tr("Squared"),
 	CGematriaNames::tr("Cubed"),
-	CGematriaNames::tr("Preceding Sum"),
+	CGematriaNames::tr("Revua Square"),
 };
 
 const CGematriaNames::TGematriaNameList CGematriaNames::g_arrGematriaLetterXformNames =
@@ -652,3 +654,78 @@ CGematriaCalc::CGematriaCalc(LANGUAGE_ID_ENUM nLangID, const QString &strWord)
 
 // ============================================================================
 
+QString CGematriaCalc::tooltip(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagReference, bool bPlainText)
+{
+	Q_ASSERT(pBibleDatabase != nullptr);
+
+	if (!tagReference.isSet()) return QString();
+
+	QString strToolTip;
+	CRelIndex ndxStart = tagReference.relIndex();
+	unsigned int nCount = tagReference.count();
+	if (nCount == 0) {
+		CRefCountCalc refCalc(pBibleDatabase, CRefCountCalc::RTE_WORD, ndxStart);
+
+		if (ndxStart.word()) {
+			nCount = 1;			// Single word
+		} else if (ndxStart.verse()) {
+			nCount = refCalc.ofVerse().second;
+		} else if (ndxStart.chapter()) {
+			ndxStart = pBibleDatabase->calcRelIndex(ndxStart, CBibleDatabase::RIME_StartOfChapter);
+			refCalc = CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_WORD, ndxStart);
+			nCount = refCalc.ofChapter().second;
+		} else if (ndxStart.book()) {
+			ndxStart = pBibleDatabase->calcRelIndex(ndxStart, CBibleDatabase::RIME_StartOfBook);
+			refCalc = CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_WORD, ndxStart);
+			nCount = refCalc.ofBook().second;
+		}
+	}
+
+	uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxStart);
+	uint64_t arrnValues[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};
+	bool arrbSkip[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};
+	while (nCount--) {
+		for (uint32_t nBaseType = 0; nBaseType < GBTE_COUNT; ++nBaseType) {
+			for (uint32_t nMathXform = 0; nMathXform < GMTE_COUNT; ++nMathXform) {
+				for (uint32_t nLtrXform = 0; nLtrXform < GLTE_COUNT; ++nLtrXform) {
+					const CConcordanceEntry *pConcordanceEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxNormal);
+					Q_ASSERT(pConcordanceEntry != nullptr);
+					if (pConcordanceEntry == nullptr) {
+						arrbSkip[nBaseType][nMathXform][nLtrXform] = true;
+					} else {
+						const CGematriaCalc &nWordGematria = pConcordanceEntry->gematria();
+						arrnValues[nBaseType][nMathXform][nLtrXform] += nWordGematria.m_arrnValues[nBaseType][nMathXform][nLtrXform];
+						arrbSkip[nBaseType][nMathXform][nLtrXform] = arrbSkip[nBaseType][nMathXform][nLtrXform] ||
+								nWordGematria.m_arrbSkip[nBaseType][nMathXform][nLtrXform];
+					}
+				}
+			}
+		}
+
+		++ndxNormal;
+	}
+
+	for (uint32_t nBaseType = 0; nBaseType < GBTE_COUNT; ++nBaseType) {
+		QString strThisToolTip;
+		for (uint32_t nMathXform = 0; nMathXform < GMTE_COUNT; ++nMathXform) {
+			for (uint32_t nLtrXform = 0; nLtrXform < GLTE_COUNT; ++nLtrXform) {
+				if (arrbSkip[nBaseType][nMathXform][nLtrXform]) continue;
+				if (arrnValues[nBaseType][nMathXform][nLtrXform] == 0) continue;
+				strThisToolTip += QString("%1: %2\n").arg(CGematriaNames::name(CGematriaIndex(nBaseType, nMathXform, nLtrXform)))
+												.arg(arrnValues[nBaseType][nMathXform][nLtrXform]);
+			}
+		}
+		if (!strToolTip.isEmpty() && !strThisToolTip.isEmpty()) {
+			if (!bPlainText) {
+				strToolTip += "</pre><hr /><pre>";
+			} else {
+				strToolTip += "--------------------\n";
+			}
+		}
+		strToolTip += strThisToolTip;
+	}
+
+	return strToolTip;
+}
+
+// ============================================================================

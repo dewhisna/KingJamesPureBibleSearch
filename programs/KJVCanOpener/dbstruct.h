@@ -55,6 +55,10 @@
 #include <QSqlDatabase>
 #endif
 
+#ifdef USE_GEMATRIA
+#include "Gematria.h"
+#endif
+
 #ifndef _countof
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif
@@ -530,6 +534,10 @@ public:
 	QList<unsigned int> m_lstAltWordCount;		// Count for each alternate word.  This will be the number of entries for this word in the mapping below
 	TNormalizedIndexList m_ndxNormalizedMapping;	// Normalized Indexes Mapping into entire Bible
 
+#ifdef USE_GEMATRIA
+	QList<CGematriaCalc> m_lstGematria;	// Per-word gematria calculations
+#endif
+
 	struct SortPredicate {
 		bool operator() (const QString &s1, const QString &s2) const
 		{
@@ -588,6 +596,10 @@ public:
 	virtual const QString &renderedWord() const override { return m_itrEntryWord->second.m_lstRenderedAltWords.at(m_nAltWordIndex); }
 	inline bool isProperWord() const { return m_itrEntryWord->second.m_bIsProperWord; }
 	inline int index() const { return m_nIndex; }
+
+#ifdef USE_GEMATRIA
+	inline const CGematriaCalc &gematria() const { return m_itrEntryWord->second.m_lstGematria.at(m_nAltWordIndex); }
+#endif
 
 #ifdef USE_EXTENDED_INDEXES
 	uint32_t letterCount() const

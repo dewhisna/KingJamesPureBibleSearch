@@ -33,6 +33,11 @@
 #include <stdint.h>
 #include <algorithm>		// min/max
 
+// Forward Declarations:
+class CBibleDatabase;
+class CRelIndex;
+class TPhraseTag;
+
 // ============================================================================
 
 enum GEMATRIA_BASE_TYPE_ENUM {
@@ -158,6 +163,8 @@ public:
 		Q_ASSERT(ndx.letterXform() < GLTE_COUNT);
 		return m_arrbSkip[ndx.baseType()][ndx.mathXform()][ndx.letterXform()];
 	}
+
+	static QString tooltip(const CBibleDatabase *pBibleDatabase, const TPhraseTag &tagReference, bool bPlainText);
 
 private:
 	uint32_t m_arrnValues[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};		// Sums

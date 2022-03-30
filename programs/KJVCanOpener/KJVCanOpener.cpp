@@ -266,6 +266,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionExpandAll(nullptr),
 	m_pActionCollapseAll(nullptr),
 	m_pActionViewDetails(nullptr),
+#ifdef USE_GEMATRIA
+	m_pActionViewGematria(nullptr),
+#endif
 	// ----
 	m_pActionBookBackward(nullptr),
 	m_pActionBookForward(nullptr),
@@ -716,6 +719,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(this, SIGNAL(canShowDetails(bool)), m_pActionViewDetails, SLOT(setEnabled(bool)));
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionViewDetails);
 
+#ifdef USE_GEMATRIA
+	m_pActionViewGematria = m_pViewMenu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), tr("View &Gematria...", "MainMenu"), this, SLOT(en_viewGematria()));
+	m_pActionViewGematria->setStatusTip(tr("View Passage Gematria", "MainMenu"));
+	m_pActionViewGematria->setEnabled(false);
+	connect(this, SIGNAL(canShowGematria(bool)), m_pActionViewGematria, SLOT(setEnabled(bool)));
+	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionViewGematria);
+#endif
+
 	// --- Navigate Menu
 	QMenu *pNavMenu = ui.menuBar->addMenu(tr("&Navigate", "MainMenu"));
 
@@ -804,6 +815,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	ui.browserNavigationToolBar->addSeparator();
 	ui.browserNavigationToolBar->addAction(m_pActionViewDetails);
+#ifdef USE_GEMATRIA
+	ui.browserNavigationToolBar->addAction(m_pActionViewGematria);
+#endif
 
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	// --- Settings Menu
@@ -948,6 +962,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	connect(m_pSearchResultWidget, SIGNAL(searchResultActivated(const QModelIndex &)), this, SLOT(en_SearchResultActivated(const QModelIndex &)));
 	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
+	connect(m_pSearchResultWidget, SIGNAL(setGematriaEnable()), this, SLOT(setGematriaEnable()));
 
 	// -------------------- Search Results to Search Spec pass-through:
 
@@ -2309,6 +2324,7 @@ void CKJVCanOpener::en_activatedBrowser(bool bPassageReferenceEditor)
 	en_addDictionaryEditMenu(false, false);
 	en_addDictionaryEditMenu(false, true);
 	setDetailsEnable();
+	setGematriaEnable();
 }
 
 void CKJVCanOpener::en_activatedSearchResults()
@@ -2321,6 +2337,7 @@ void CKJVCanOpener::en_activatedSearchResults()
 	en_addDictionaryEditMenu(false, false);
 	en_addDictionaryEditMenu(false, true);
 	setDetailsEnable();
+	setGematriaEnable();
 }
 
 void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
@@ -2332,6 +2349,7 @@ void CKJVCanOpener::en_activatedPhraseEditor(const CPhraseLineEdit *pEditor)
 	en_addDictionaryEditMenu(false, false);
 	en_addDictionaryEditMenu(false, true);
 	setDetailsEnable();
+	setGematriaEnable();
 }
 
 void CKJVCanOpener::en_activatedDictionary(bool bWordEditor)
@@ -2344,6 +2362,7 @@ void CKJVCanOpener::en_activatedDictionary(bool bWordEditor)
 	en_addDictionaryEditMenu(false, !bWordEditor);
 	en_addDictionaryEditMenu(true, bWordEditor);
 	setDetailsEnable();
+	setGematriaEnable();
 }
 
 bool CKJVCanOpener::isBrowserFocusedOrActive() const
@@ -2780,6 +2799,32 @@ void CKJVCanOpener::setDetailsEnable()
 	}
 
 	emit canShowDetails(bDetailsEnable);
+}
+
+void CKJVCanOpener::en_viewGematria()
+{
+#ifdef USE_GEMATRIA
+	if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveGematria())) {
+		m_pBrowserWidget->showGematria();
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveGematria())) {
+		m_pSearchResultWidget->showGematria();
+	}
+#endif
+}
+
+void CKJVCanOpener::setGematriaEnable()
+{
+	bool bGematriaEnable = false;
+
+#ifdef USE_GEMATRIA
+	if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveGematria())) {
+		bGematriaEnable = true;
+	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveGematria())) {
+		bGematriaEnable = true;
+	}
+#endif
+
+	emit canShowGematria(bGematriaEnable);
 }
 
 // ------------------------------------------------------------------

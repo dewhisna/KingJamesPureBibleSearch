@@ -137,6 +137,7 @@ protected:
 signals:
 	void changedSearchResults();
 	void canShowDetails(bool bHaveDetails);
+	void canShowGematria(bool bHaveGematria);
 	void windowActivated(CKJVCanOpener *pCanOpener);
 	void canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 	void isClosing(CKJVCanOpener *pCanOpener);
@@ -202,6 +203,9 @@ protected slots:
 	void en_viewDetails();
 	void setDetailsEnable();
 
+	void en_viewGematria();
+	void setGematriaEnable();
+
 	void en_HelpManual();
 	void en_HelpAbout();
 	void en_PureBibleSearchDotCom();
@@ -249,6 +253,9 @@ private:
 	QAction *m_pActionExpandAll;	// View menu Expand All
 	QAction *m_pActionCollapseAll;	// View menu Collapse All
 	QAction *m_pActionViewDetails;	// View Details
+#ifdef USE_GEMATRIA
+	QAction *m_pActionViewGematria;	// View Gematria
+#endif
 	// ----
 	QAction *m_pActionBookBackward;	// Navigate Book Backward
 	QAction *m_pActionBookForward;	// Navigate Book Forward

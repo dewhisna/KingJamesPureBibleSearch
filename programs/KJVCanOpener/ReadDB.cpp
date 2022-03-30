@@ -816,6 +816,10 @@ bool CReadDatabase::ReadWordsTable()
 				entryWord.m_lstDeApostrAltWords.push_back(StringParse::deApostrHyphen(strSearchWord, true));
 				entryWord.m_lstDeApostrHyphenAltWords.push_back(StringParse::deApostrHyphen(strSearchWord, false));
 				entryWord.m_lstRenderedAltWords.push_back(QString());		// Placeholder to be filled in below with the call to setRenderedWords()
+
+#ifdef USE_GEMATRIA
+				entryWord.m_lstGematria.push_back(CGematriaCalc(m_pBibleDatabase->langID(), strTemp));
+#endif
 			}
 		}
 		m_pBibleDatabase->setRenderedWords(entryWord);

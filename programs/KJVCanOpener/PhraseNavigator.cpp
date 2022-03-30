@@ -3181,7 +3181,8 @@ QString CPhraseNavigator::getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const CBibleDa
 							strToolTip += tr("Word:", "Statistics") + " \"" + pBibleDatabase->wordAtIndex(ndxNormal, WTE_RENDERED) + "\"\n";
 						}
 					}
-					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference);
+					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference,
+												(nTipType == TETE_DETAILS) ? RIMASK_ALL : RIMASK_HEADING);
 				} else {
 					strToolTip += tr("Phrase:", "Statistics") + " \"";
 					uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxReference);
@@ -3197,7 +3198,8 @@ QString CPhraseNavigator::getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const CBibleDa
 						strToolTip += "???";
 					}
 					strToolTip += "\"\n";
-					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference, RIMASK_ALL, nCount);
+					strToolTip += pBibleDatabase->SearchResultToolTip(ndxReference,
+												(nTipType == TETE_DETAILS) ? RIMASK_ALL : RIMASK_HEADING, nCount);
 				}
 			}
 			if (nTipType == TETE_DETAILS) {
@@ -3239,7 +3241,9 @@ QString CPhraseNavigator::getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const CBibleDa
 					}
 				}
 			} else if (nTipType == TETE_GEMATRIA) {
-				// TODO : Do Gematria results:
+#ifdef USE_GEMATRIA
+				strToolTip += CGematriaCalc::tooltip(pBibleDatabase.data(), TPhraseTag(ndxReference, nCount), bPlainText);
+#endif
 
 				if (bHaveSelection) {
 					strToolTip += "\n" + tr("%n Word(s) Selected", "Statistics", nCount) + "\n";

@@ -822,6 +822,11 @@ void CBrowserWidget::showDetails()
 	m_pScriptureBrowser->showDetails();
 }
 
+void CBrowserWidget::showGematria()
+{
+	m_pScriptureBrowser->showGematria();
+}
+
 void CBrowserWidget::showPassageNavigator()
 {
 	m_pScriptureBrowser->showPassageNavigator();

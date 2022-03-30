@@ -603,7 +603,10 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 	switch (ev->type()) {
 		case QEvent::ToolTip:
 			{
-				if ((!U::hasFocus()) || (!haveDetails()) || (CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener()))) {
+				if ((!U::hasFocus()) ||
+					(!haveDetails() && !haveGematria()) ||
+					(CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener())) ||
+					(CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener()))) {
 					ev->ignore();
 					return true;
 				}
@@ -673,8 +676,28 @@ template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
 	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection()))
+	if (m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
 		m_HighlightTimer.stop();
+}
+
+template<class T, class U>
+bool CScriptureText<T,U>::haveGematria() const
+{
+#ifdef USE_GEMATRIA
+	return (m_tagLast.isSet() || selection().primarySelection().isSet());
+#else
+	return false;
+#endif
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::showGematria()
+{
+#ifdef USE_GEMATRIA
+	U::ensureCursorVisible();
+	if (m_navigator.handleToolTipEvent(TETE_GEMATRIA, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
+		m_HighlightTimer.stop();
+#endif
 }
 
 template<>
@@ -810,6 +833,13 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	pActionDetails->setEnabled(haveDetails());
 	pActionDetails->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
+
+#ifdef USE_GEMATRIA
+	QAction *pActionGematria = menu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), QObject::tr("View &Gematria...", "MainMenu"));
+	pActionGematria->setEnabled(haveGematria());
+	T::connect(pActionGematria, SIGNAL(triggered()), this, SLOT(showGematria()));
+#endif
+
 #ifndef USE_ASYNC_DIALOGS
 	menu->exec(T::viewport()->mapToGlobal(pos));
 	delete menu;
@@ -922,7 +952,9 @@ void CScriptureText<T,U>::updateSelection()
 	}
 	m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
-	if ((CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener())) && (prevSelection != m_lstSelectedPhrases))
+	if ((CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener()) ||
+		 CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener()))
+		&& (prevSelection != m_lstSelectedPhrases))
 		m_dlyDetailUpdate.trigger();
 
 #ifdef USING_QT_SPEECH
@@ -935,7 +967,18 @@ void CScriptureText<T,U>::updateSelection()
 template<class T, class U>
 void CScriptureText<T,U>::en_detailUpdate()
 {
-	m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), m_CursorFollowHighlighter, m_tagLast, selection());
+	// Note: Only do the CursorFollowHighlighter update on Details unless
+	//	we only have Gematria
+
+	bool bDoDetails = CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener());
+	bool bDoGematria = CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener());
+
+	if (bDoDetails) {
+		m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection());
+	}
+	if (bDoGematria) {
+		m_navigator.handleToolTipEvent(TETE_GEMATRIA, parentCanOpener(), bDoDetails ? nullptr : &m_CursorFollowHighlighter, m_tagLast, selection());
+	}
 }
 
 template<class T, class U>

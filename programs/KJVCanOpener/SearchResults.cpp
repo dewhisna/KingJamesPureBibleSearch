@@ -1158,6 +1158,7 @@ void CSearchResultsTreeView::handle_selectionChanged()
 	m_pStatusAction->showStatusText();
 
 	if (CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener())) showDetails();
+	if (CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener())) showGematria();
 
 	emit selectionListChanged();
 }
@@ -1199,6 +1200,34 @@ bool CSearchResultsTreeView::haveDetails() const
 	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::TOOLTIP_ROLE);
 	if ((varTooltip.canConvert<QString>()) &&
 		(!varTooltip.toString().isEmpty())) return true;
+
+	return false;
+}
+
+void CSearchResultsTreeView::showGematria()
+{
+#ifdef USE_GEMATRIA
+	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::TOOLTIP_GEMATRIA_ROLE);
+	if (varTooltip.canConvert<QString>()) {
+		scrollTo(currentIndex(), QAbstractItemView::EnsureVisible);
+
+		QToolTip::hideText();
+		CToolTipEdit::showText(TETE_GEMATRIA, parentCanOpener(), mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
+	} else {
+		if (CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener())) CToolTipEdit::hideText(TETE_GEMATRIA, parentCanOpener());
+	}
+#endif
+}
+
+bool CSearchResultsTreeView::haveGematria() const
+{
+#ifdef USE_GEMATRIA
+	if (!currentIndex().isValid()) return false;
+
+	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::VERSE_ENTRY_ROLE);
+	if ((varTooltip.canConvert<CVerseListItem>()) &&
+		varTooltip.value<CVerseListItem>().isSet()) return true;
+#endif
 
 	return false;
 }
@@ -1490,6 +1519,7 @@ CSearchResults::CSearchResults(CBibleDatabasePtr pBibleDatabase, QWidget *parent
 	connect(m_pSearchResultsTreeView, SIGNAL(searchResultActivated(const QModelIndex &)), this, SIGNAL(searchResultActivated(const QModelIndex &)));
 	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setDetailsEnable()));
+	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setGematriaEnable()));
 
 	connect(m_pSearchResultsTreeView, SIGNAL(activatedSearchResults()), this, SIGNAL(activatedSearchResults()));
 	connect(m_pSearchResultsTreeView, SIGNAL(canExpandAll(bool)), this, SIGNAL(canExpandAll(bool)));
@@ -1546,6 +1576,11 @@ void CSearchResults::showPassageNavigator()
 void CSearchResults::showDetails()
 {
 	m_pSearchResultsTreeView->showDetails();
+}
+
+void CSearchResults::showGematria()
+{
+	m_pSearchResultsTreeView->showGematria();
 }
 
 bool CSearchResults::editableNodeSelected() const

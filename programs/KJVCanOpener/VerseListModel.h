@@ -563,12 +563,13 @@ public:
 	}
 
 	enum VERSE_DATA_ROLES_ENUM {
-		VERSE_ENTRY_ROLE = Qt::UserRole + 0,				// Return CVerseListItem object
-		VERSE_COPYING_ROLE = Qt::UserRole + 1,				// Same as Qt::DisplayRole, but for Copying mode (i.e. copy options used in generation)
-		TOOLTIP_ROLE = Qt::UserRole + 2,					// Use our own ToolTip role so we can have user click Ctrl-D to see details ToolTip.  Qt::ToolTip will be a message telling them to do that.
-		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 3,			// Same as TOOLTIP_ROLE, but as PlainText instead of RichText
-		TOOLTIP_NOHEADING_ROLE = Qt::UserRole + 4,			// Same as TOOLTIP_ROLE, but without Verse Reference Heading
-		TOOLTIP_NOHEADING_PLAINTEXT_ROLE = Qt::UserRole + 5	// Same as TOOLTIP_PLAINTEXT_ROLE, but without Verse Reference Heading
+		VERSE_ENTRY_ROLE = Qt::UserRole + 0,					// Return CVerseListItem object
+		VERSE_COPYING_ROLE = Qt::UserRole + 1,					// Same as Qt::DisplayRole, but for Copying mode (i.e. copy options used in generation)
+		TOOLTIP_ROLE = Qt::UserRole + 2,						// Use our own ToolTip role so we can have user click Ctrl-D to see details ToolTip.  Qt::ToolTip will be a message telling them to do that.
+		TOOLTIP_PLAINTEXT_ROLE = Qt::UserRole + 3,				// Same as TOOLTIP_ROLE, but as PlainText instead of RichText
+		TOOLTIP_NOHEADING_ROLE = Qt::UserRole + 4,				// Same as TOOLTIP_ROLE, but without Verse Reference Heading
+		TOOLTIP_NOHEADING_PLAINTEXT_ROLE = Qt::UserRole + 5,	// Same as TOOLTIP_PLAINTEXT_ROLE, but without Verse Reference Heading
+		TOOLTIP_GEMATRIA_ROLE = Qt::UserRole + 6,				// Gematria ToolTip role
 	};
 
 	// ------------------------------------------------------------------------
