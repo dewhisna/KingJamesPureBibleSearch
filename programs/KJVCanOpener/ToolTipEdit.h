@@ -32,6 +32,7 @@
 #include <QTextEdit>
 #include <QTimer>
 #include <QPushButton>
+#include <QSizeGrip>
 
 #include "PhraseNavigator.h"		// Needed for TIP_EDIT_TYPE_ENUM
 
@@ -109,6 +110,7 @@ private:
 
 private:
 	QWidget *widget;
+	QSizeGrip *m_pResizer;
 	QRect rect;
 	bool m_bDoingContextMenu;
 	QPushButton *m_pPushButton;

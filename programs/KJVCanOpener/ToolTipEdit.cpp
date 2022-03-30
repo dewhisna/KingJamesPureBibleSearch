@@ -109,6 +109,7 @@ CTipEdit::CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidg
 		m_pParentCanOpener(pCanOpener),
 		m_nTipEditType(nTipType),
 		widget(nullptr),
+		m_pResizer(nullptr),
 		m_bDoingContextMenu(false),
 		m_pPushButton(nullptr),
 		m_bFirstActivate(true)
@@ -155,6 +156,16 @@ CTipEdit::CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidg
 	m_pPushButton->setIconSize(QSize(32, 32));
 	QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
 	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
+
+	m_pResizer = new QSizeGrip(this);
+	m_pResizer->resize(m_pResizer->sizeHint());
+	if (isRightToLeft()) {
+		m_pResizer->move(window()->rect().bottomLeft()-m_pResizer->rect().bottomLeft());
+	} else {
+		m_pResizer->move(window()->rect().bottomRight()-m_pResizer->rect().bottomRight());
+	}
+	m_pResizer->raise();
+	m_pResizer->show();
 
 	if (instance(m_nTipEditType, m_pParentCanOpener)) instance(m_nTipEditType, m_pParentCanOpener)->deleteLater();
 	setInstance(this);
@@ -261,7 +272,7 @@ void CTipEdit::adjustToolTipSize()
 	if (widget) {
 		resize(QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra);
 	} else if (pCanOpener) {
-		resize (QSize(qMin(pCanOpener->width()/2, docSize.width()), qMin(pCanOpener->height(), docSize.height())) + extra);
+		resize(QSize(qMin(pCanOpener->width()/2, docSize.width()), qMin(pCanOpener->height(), docSize.height())) + extra);
 	} else {
 		resize(docSize + extra);
 	}
@@ -300,6 +311,15 @@ void CTipEdit::resizeEvent(QResizeEvent *e)
 
 	QTextEdit::resizeEvent(e);
 	setPushPinPosition();
+
+	if (m_pResizer) {
+		if (isRightToLeft()) {
+			m_pResizer->move(window()->rect().bottomLeft()-m_pResizer->rect().bottomLeft());
+		} else {
+			m_pResizer->move(window()->rect().bottomRight()-m_pResizer->rect().bottomRight());
+		}
+		m_pResizer->raise();
+	}
 }
 
 void CTipEdit::setPushPinPosition()
