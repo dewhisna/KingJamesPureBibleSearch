@@ -672,10 +672,17 @@ QString CGematriaCalc::tooltip(const CBibleDatabase *pBibleDatabase, const TPhra
 			nCount = refCalc.ofVerse().second;
 		} else if (ndxStart.chapter()) {
 			ndxStart = pBibleDatabase->calcRelIndex(ndxStart, CBibleDatabase::RIME_StartOfChapter);
+			Q_ASSERT(pBibleDatabase->chapterEntry(ndxStart) != nullptr);
+			if (pBibleDatabase->chapterEntry(ndxStart)->m_bHaveSuperscription) ndxStart.setVerse(0);
 			refCalc = CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_WORD, ndxStart);
 			nCount = refCalc.ofChapter().second;
 		} else if (ndxStart.book()) {
 			ndxStart = pBibleDatabase->calcRelIndex(ndxStart, CBibleDatabase::RIME_StartOfBook);
+			Q_ASSERT(pBibleDatabase->bookEntry(ndxStart) != nullptr);
+			if (pBibleDatabase->bookEntry(ndxStart)->m_bHaveColophon) {
+				ndxStart.setChapter(0);
+				ndxStart.setVerse(0);
+			}
 			refCalc = CRefCountCalc(pBibleDatabase, CRefCountCalc::RTE_WORD, ndxStart);
 			nCount = refCalc.ofBook().second;
 		}
