@@ -629,8 +629,8 @@ public:
 		TVerseIndexPtr extraVerseIndex(const TVerseIndex &aVerseIndex) const
 		{
 			TExtraVerseIndexKey keyExtraVerse(aVerseIndex.relIndex(), aVerseIndex.nodeType());
-			TExtraVerseIndexPtrMap::const_iterator itr = m_mapExtraVerseIndexes.find(keyExtraVerse);
-			if (itr == m_mapExtraVerseIndexes.constEnd()) itr = m_mapExtraVerseIndexes.find(TExtraVerseIndexKey(aVerseIndex.relIndex(), VLMNTE_UNDEFINED));
+			TExtraVerseIndexPtrMap::const_iterator itr = m_mapExtraVerseIndexes.constFind(keyExtraVerse);
+			if (itr == m_mapExtraVerseIndexes.constEnd()) itr = m_mapExtraVerseIndexes.constFind(TExtraVerseIndexKey(aVerseIndex.relIndex(), VLMNTE_UNDEFINED));
 			if (itr != m_mapExtraVerseIndexes.constEnd()) return itr.value();
 
 			return m_mapExtraVerseIndexes.insert(keyExtraVerse, TVerseIndexPtr(new TVerseIndex(aVerseIndex))).value();

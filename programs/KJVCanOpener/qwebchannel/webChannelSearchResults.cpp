@@ -228,7 +228,7 @@ void CWebChannelSearchResults::internal_setSearchPhrases(const QString &strPhras
 
 	QStringList lstPhrases = strPhrases.split(";", My_QString_SkipEmptyParts);
 	if (lstPhrases.size() > MAX_SEARCH_PHRASES) {
-		lstPhrases.erase(lstPhrases.begin() + MAX_SEARCH_PHRASES, lstPhrases.end());
+		lstPhrases.erase(lstPhrases.constBegin() + MAX_SEARCH_PHRASES, lstPhrases.constEnd());
 	}
 	if (lstPhrases.isEmpty()) {
 		m_searchResultsData.m_lstParsedPhrases.clear();

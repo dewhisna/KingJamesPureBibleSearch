@@ -153,7 +153,7 @@ void CSearchWithinModel::setupModel(const TRelativeIndexSet &aSetSearchWithin)
 			if (pBookEntry->m_nTstNdx != nTst) continue;
 			if (pBookEntry->m_nNumWrd == 0) continue;		// Skip books if it has no words (like a Pentateuch only database)
 			BIBLE_BOOK_CATEGORIES_ENUM nCat = m_pBibleDatabase->bookCategory(CRelIndex(nBk, 0, 0, 0));
-			CSearchWithinModelIndexMap::const_iterator itrCategoryIndexes = mapCategoryIndexes.find(nCat);
+			CSearchWithinModelIndexMap::const_iterator itrCategoryIndexes = mapCategoryIndexes.constFind(nCat);
 			CSearchWithinModelIndex *pIndexCategory = nullptr;
 			if (itrCategoryIndexes != mapCategoryIndexes.constEnd()) {
 				pIndexCategory = itrCategoryIndexes.value();
