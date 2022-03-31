@@ -371,7 +371,8 @@ bool CMMDBLookup::lookup(QString &strResultsJSON, const QString &strIPAddress, c
 		int nStatus;
 		if (!strPartialDataPath.isEmpty()) {
 			MMDB_entry_data_s entry_data;
-			const char *pPartialDataPath = strPartialDataPath.toUtf8().data();
+			QByteArray baPartialDataPath = strPartialDataPath.toUtf8();
+			const char *pPartialDataPath = baPartialDataPath.data();
 			nStatus = MMDB_aget_value(&lookupResult.entry, &entry_data, &pPartialDataPath);
 			if (MMDB_SUCCESS == nStatus) {
 				if (entry_data.offset) {
