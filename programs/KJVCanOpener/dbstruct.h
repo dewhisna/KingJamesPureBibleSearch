@@ -291,11 +291,11 @@ public:
 	REF_TYPE_ENUM refType() const { return m_nRefType; }
 	CRelIndex refIndex() const { return m_ndxRef; }
 
-	TCountOf ofBible() const { return m_nOfBible; }
-	TCountOf ofTestament() const { return m_nOfTst; }
-	TCountOf ofBook() const { return m_nOfBk; }
-	TCountOf ofChapter() const { return m_nOfChp; }
-	TCountOf ofVerse() const { return m_nOfVrs; }
+	const TCountOf &ofBible() const { return m_nOfBible; }
+	const TCountOf &ofTestament() const { return m_nOfTst; }
+	const TCountOf &ofBook() const { return m_nOfBk; }
+	const TCountOf &ofChapter() const { return m_nOfChp; }
+	const TCountOf &ofVerse() const { return m_nOfVrs; }
 
 private:
 	CRelIndex m_ndxRef;			// Relative Index
