@@ -234,11 +234,11 @@ void CHighlighterButtons::setHighlighterPreview(int ndx, const QString &strUserD
 
 	if (strUserDefinedHighlighterName.isEmpty()) {
 		m_lstButtons[ndx]->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
-		m_pActionGroupHighlighterTools->actions()[ndx]->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
+		m_pActionGroupHighlighterTools->actions().at(ndx)->setIcon(QIcon(":/res/highlighter_translucent_01-256.png"));
 	} else {
 		QIcon iconHighlighter(iconHighlighterPreview(strUserDefinedHighlighterName));
 		m_lstButtons[ndx]->setIcon(QIcon(iconHighlighter));
-		m_pActionGroupHighlighterTools->actions()[ndx]->setIcon(QIcon(iconHighlighter));
+		m_pActionGroupHighlighterTools->actions().at(ndx)->setIcon(QIcon(iconHighlighter));
 	}
 }
 
