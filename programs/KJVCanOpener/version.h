@@ -24,6 +24,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
+#include <QtGlobal>
+
 #define VER_QT						"3.0.90"
 #define VER_FILEVERSION				3,0,90,0
 #define VER_FILEVERSION_STR			"3,0,90,0\0"

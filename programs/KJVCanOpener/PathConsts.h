@@ -24,6 +24,8 @@
 #ifndef PATH_CONSTS_H
 #define PATH_CONSTS_H
 
+#include <QtGlobal>
+
 // ============================================================================
 
 namespace {
