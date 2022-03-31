@@ -684,7 +684,11 @@ template<class T, class U>
 bool CScriptureText<T,U>::haveGematria() const
 {
 #ifdef USE_GEMATRIA
-	return (m_tagLast.isSet() || selection().primarySelection().isSet());
+	if (TBibleDatabaseList::useGematria()) {
+		return (m_tagLast.isSet() || selection().primarySelection().isSet());
+	} else {
+		return false;
+	}
 #else
 	return false;
 #endif
@@ -694,9 +698,11 @@ template<class T, class U>
 void CScriptureText<T,U>::showGematria()
 {
 #ifdef USE_GEMATRIA
-	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(TETE_GEMATRIA, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
-		m_HighlightTimer.stop();
+	if (TBibleDatabaseList::useGematria()) {
+		U::ensureCursorVisible();
+		if (m_navigator.handleToolTipEvent(TETE_GEMATRIA, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
+			m_HighlightTimer.stop();
+	}
 #endif
 }
 
@@ -835,9 +841,11 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
 
 #ifdef USE_GEMATRIA
-	QAction *pActionGematria = menu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), QObject::tr("View &Gematria...", "MainMenu"));
-	pActionGematria->setEnabled(haveGematria());
-	T::connect(pActionGematria, SIGNAL(triggered()), this, SLOT(showGematria()));
+	if (TBibleDatabaseList::useGematria()) {
+		QAction *pActionGematria = menu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), QObject::tr("View &Gematria...", "MainMenu"));
+		pActionGematria->setEnabled(haveGematria());
+		T::connect(pActionGematria, SIGNAL(triggered()), this, SLOT(showGematria()));
+	}
 #endif
 
 #ifndef USE_ASYNC_DIALOGS

@@ -3242,7 +3242,9 @@ QString CPhraseNavigator::getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const CBibleDa
 				}
 			} else if (nTipType == TETE_GEMATRIA) {
 #ifdef USE_GEMATRIA
-				strToolTip += CGematriaCalc::tooltip(pBibleDatabase.data(), TPhraseTag(ndxReference, nCount), bPlainText);
+				if (TBibleDatabaseList::useGematria()) {
+					strToolTip += CGematriaCalc::tooltip(pBibleDatabase.data(), TPhraseTag(ndxReference, nCount), bPlainText);
+				}
 #endif
 			}
 		}

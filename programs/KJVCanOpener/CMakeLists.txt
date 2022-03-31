@@ -103,7 +103,7 @@ option(USE_SEARCH_RESULTS_UPDATE_DELAY "Enable Search Results Update Delay" OFF)
 option(USE_MULTITHREADED_SEARCH_RESULTS "Enable Multithreaded Search Results Computation" ON)
 option(USE_MULTITHREADED_INVERT_LOGIC "Use Single-Threaded as Default when Multithreading Enabled" ON)
 option(USE_EXTENDED_REL_INDEXES "Use Extended RelIndexes" OFF)
-option(USE_GEMATRIA "Use Gematria Calculations" OFF)
+option(USE_GEMATRIA "Use Gematria Calculations" ON)
 # -------------------------------------
 option(ENABLE_TRANSLATIONS "Enable Translations" ON)
 

@@ -1207,14 +1207,16 @@ bool CSearchResultsTreeView::haveDetails() const
 void CSearchResultsTreeView::showGematria()
 {
 #ifdef USE_GEMATRIA
-	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::TOOLTIP_GEMATRIA_ROLE);
-	if (varTooltip.canConvert<QString>()) {
-		scrollTo(currentIndex(), QAbstractItemView::EnsureVisible);
+	if (TBibleDatabaseList::useGematria()) {
+		QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::TOOLTIP_GEMATRIA_ROLE);
+		if (varTooltip.canConvert<QString>()) {
+			scrollTo(currentIndex(), QAbstractItemView::EnsureVisible);
 
-		QToolTip::hideText();
-		CToolTipEdit::showText(TETE_GEMATRIA, parentCanOpener(), mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
-	} else {
-		if (CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener())) CToolTipEdit::hideText(TETE_GEMATRIA, parentCanOpener());
+			QToolTip::hideText();
+			CToolTipEdit::showText(TETE_GEMATRIA, parentCanOpener(), mapToGlobal(visualRect(currentIndex()).topRight()), varTooltip.toString(), this, rect());
+		} else {
+			if (CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener())) CToolTipEdit::hideText(TETE_GEMATRIA, parentCanOpener());
+		}
 	}
 #endif
 }
@@ -1222,11 +1224,13 @@ void CSearchResultsTreeView::showGematria()
 bool CSearchResultsTreeView::haveGematria() const
 {
 #ifdef USE_GEMATRIA
-	if (!currentIndex().isValid()) return false;
+	if (TBibleDatabaseList::useGematria()) {
+		if (!currentIndex().isValid()) return false;
 
-	QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::VERSE_ENTRY_ROLE);
-	if ((varTooltip.canConvert<CVerseListItem>()) &&
-		varTooltip.value<CVerseListItem>().isSet()) return true;
+		QVariant varTooltip = vlmodel()->data(currentIndex(), CVerseListModel::VERSE_ENTRY_ROLE);
+		if ((varTooltip.canConvert<CVerseListItem>()) &&
+			varTooltip.value<CVerseListItem>().isSet()) return true;
+	}
 #endif
 
 	return false;

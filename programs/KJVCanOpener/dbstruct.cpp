@@ -102,6 +102,9 @@ const QString &initialAppDirPath()
 
 // ============================================================================
 
+bool TBibleDatabaseList::g_bUseGematria = false;
+
+
 TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 	:	QObject(pParent),
 		m_bHaveSearchedAvailableDatabases(false)

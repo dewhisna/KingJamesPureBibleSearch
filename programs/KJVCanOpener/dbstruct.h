@@ -1594,6 +1594,9 @@ public:
 	virtual ~TBibleDatabaseList();
 	static TBibleDatabaseList *instance();
 
+	static bool useGematria() { return g_bUseGematria; }
+	static void setUseGematria(bool bUseGematria) { g_bUseGematria = bUseGematria; }
+
 	static const QString &bibleDatabasePath()
 	{
 		return instance()->m_strBibleDatabasePath;
@@ -1657,6 +1660,7 @@ private:
 	QList<TBibleDescriptor> m_lstAvailableDatabaseDescriptors;		// List of descriptors for available Bible databases
 
 	QString m_strBibleDatabasePath;
+	static bool g_bUseGematria;						// Set to true when the command-line -gematria option is specified (here so that it works with all applications, not just the main KJPBS GUI)
 };
 
 // ============================================================================

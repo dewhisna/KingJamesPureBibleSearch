@@ -720,11 +720,13 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionViewDetails);
 
 #ifdef USE_GEMATRIA
-	m_pActionViewGematria = m_pViewMenu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), tr("View &Gematria...", "MainMenu"), this, SLOT(en_viewGematria()));
-	m_pActionViewGematria->setStatusTip(tr("View Passage Gematria", "MainMenu"));
-	m_pActionViewGematria->setEnabled(false);
-	connect(this, SIGNAL(canShowGematria(bool)), m_pActionViewGematria, SLOT(setEnabled(bool)));
-	m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionViewGematria);
+	if (TBibleDatabaseList::useGematria()) {
+		m_pActionViewGematria = m_pViewMenu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), tr("View &Gematria...", "MainMenu"), this, SLOT(en_viewGematria()));
+		m_pActionViewGematria->setStatusTip(tr("View Passage Gematria", "MainMenu"));
+		m_pActionViewGematria->setEnabled(false);
+		connect(this, SIGNAL(canShowGematria(bool)), m_pActionViewGematria, SLOT(setEnabled(bool)));
+		m_pSearchResultWidget->getLocalEditMenu()->addAction(m_pActionViewGematria);
+	}
 #endif
 
 	// --- Navigate Menu
@@ -816,7 +818,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	ui.browserNavigationToolBar->addSeparator();
 	ui.browserNavigationToolBar->addAction(m_pActionViewDetails);
 #ifdef USE_GEMATRIA
-	ui.browserNavigationToolBar->addAction(m_pActionViewGematria);
+	if (TBibleDatabaseList::useGematria()) {
+		ui.browserNavigationToolBar->addAction(m_pActionViewGematria);
+	}
 #endif
 
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
@@ -2804,10 +2808,12 @@ void CKJVCanOpener::setDetailsEnable()
 void CKJVCanOpener::en_viewGematria()
 {
 #ifdef USE_GEMATRIA
-	if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveGematria())) {
-		m_pBrowserWidget->showGematria();
-	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveGematria())) {
-		m_pSearchResultWidget->showGematria();
+	if (TBibleDatabaseList::useGematria()) {
+		if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveGematria())) {
+			m_pBrowserWidget->showGematria();
+		} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveGematria())) {
+			m_pSearchResultWidget->showGematria();
+		}
 	}
 #endif
 }
@@ -2817,10 +2823,12 @@ void CKJVCanOpener::setGematriaEnable()
 	bool bGematriaEnable = false;
 
 #ifdef USE_GEMATRIA
-	if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveGematria())) {
-		bGematriaEnable = true;
-	} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveGematria())) {
-		bGematriaEnable = true;
+	if (TBibleDatabaseList::useGematria()) {
+		if ((isBrowserFocusedOrActive()) && (m_pBrowserWidget->haveGematria())) {
+			bGematriaEnable = true;
+		} else if ((isSearchResultsFocusedOrActive()) && (m_pSearchResultWidget->haveGematria())) {
+			bGematriaEnable = true;
+		}
 	}
 #endif
 

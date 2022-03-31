@@ -818,7 +818,9 @@ bool CReadDatabase::ReadWordsTable()
 				entryWord.m_lstRenderedAltWords.push_back(QString());		// Placeholder to be filled in below with the call to setRenderedWords()
 
 #ifdef USE_GEMATRIA
-				entryWord.m_lstGematria.push_back(CGematriaCalc(m_pBibleDatabase->langID(), strTemp));
+				if (TBibleDatabaseList::useGematria()) {
+					entryWord.m_lstGematria.push_back(CGematriaCalc(m_pBibleDatabase->langID(), strTemp));
+				}
 #endif
 			}
 		}

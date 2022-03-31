@@ -279,6 +279,8 @@ int main(int argc, char *argv[])
 				bLookingForTTSServerURL = true;
 			} else if (strArg.compare("-webchannel", Qt::CaseInsensitive) == 0) {
 				bLookingForWebChannelHostPort = true;
+			} else if (strArg.compare("-gematria", Qt::CaseInsensitive) == 0) {
+				TBibleDatabaseList::setUseGematria(true);
 			} else {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Unrecognized command-line option \"%1\"", "Errors").arg(strArg));
 			}
@@ -407,6 +409,8 @@ int main(int argc, char *argv[])
 		std::cout << "        -webchannel 12345,0.0.0.0    (listen Any IPv4, port 12345)\n\n";
 		std::cout << "    (Send SIGHUP or SIGTERM to shutdown server)\n";
 		std::cout << "\n";
+		std::cout << "-gematria = Enable Gematria Computations/Statistics\n";
+		std::cout << "\n";
 		delete pApp;
 		return 0;
 	}
@@ -459,6 +463,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
+#endif
+
+#ifndef USE_GEMATRIA
+	if (TBibleDatabaseList::useGematria()) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Gematria support is not compiled into this version of King James Pure Bible Search!\n\nContinuing without gematria enabled.", "Errors"));
+		TBibleDatabaseList::setUseGematria(false);
+	}
 #endif
 
 	// Check/Set Stealth Mode:
