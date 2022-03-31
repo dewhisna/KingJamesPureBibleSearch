@@ -254,7 +254,7 @@ private slots:
 	void en_changedNotesFileAutoSaveTime(int nAutoSaveTime);
 
 protected:
-	bool event(QEvent *event);
+	virtual bool event(QEvent *event) override;
 
 	void setSplashMessage(const QString &strMessage = QString());
 
