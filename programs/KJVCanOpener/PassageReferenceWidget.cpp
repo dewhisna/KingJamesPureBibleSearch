@@ -80,16 +80,16 @@ CPassageReferenceWidget::CPassageReferenceWidget(QWidget *parent)
 	m_pActionSelectAll->setEnabled(false);
 //	connect(m_pActionSelectAll, SIGNAL(triggered()), ui.editPassageReference, SLOT(setFocus()));
 
-	connect(ui.editPassageReference, SIGNAL(textChanged(const QString &)), this, SLOT(en_setMenuEnables(const QString &)));
+	connect(ui.editPassageReference, SIGNAL(textChanged(QString)), this, SLOT(en_setMenuEnables(QString)));
 
 	ui.editPassageReference->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(ui.editPassageReference, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_passageReferenceContextMenuRequested(const QPoint &)));
+	connect(ui.editPassageReference, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_passageReferenceContextMenuRequested(QPoint)));
 
 	ui.editPassageReference->installEventFilter(this);
 
 	// ------------------------------------------------------------------------
 
-	connect(ui.editPassageReference, SIGNAL(textChanged(const QString &)), this, SLOT(en_PassageReferenceChanged(const QString &)));
+	connect(ui.editPassageReference, SIGNAL(textChanged(QString)), this, SLOT(en_PassageReferenceChanged(QString)));
 }
 
 CPassageReferenceWidget::~CPassageReferenceWidget()

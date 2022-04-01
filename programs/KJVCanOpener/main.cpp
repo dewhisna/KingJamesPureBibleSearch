@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 #if defined(USING_SINGLEAPPLICATION) || defined(USING_QT_SINGLEAPPLICATION)
 
 	// Hook receiving messages from other KJPBS app launches:
-	pApp->connect(&instance, SIGNAL(messageReceived(const QString &)), pApp, SLOT(receivedKJPBSMessage(const QString &)));
+	pApp->connect(&instance, SIGNAL(messageReceived(QString)), pApp, SLOT(receivedKJPBSMessage(QString)));
 
 #endif
 

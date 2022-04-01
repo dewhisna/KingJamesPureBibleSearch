@@ -155,7 +155,7 @@ CNoteEditDlg::CNoteEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesDatabaseP
 	// --------------------------------------------------------------
 
 	connect(m_pRichTextEdit, SIGNAL(textChanged()), this, SLOT(en_textChanged()));
-	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_BackgroundColorPicked(const QColor &)));
+	connect(m_pBackgroundColorButton, SIGNAL(colorPicked(QColor)), this, SLOT(en_BackgroundColorPicked(QColor)));
 	connect(ui.buttonSetAsDefaultBackgroundColor, SIGNAL(clicked()), this, SLOT(en_setDefaultNoteBackgroundColor()));
 	connect(ui.widgetNoteKeywords, SIGNAL(keywordListChanged()), this, SLOT(en_keywordListChanged()));
 	connect(ui.buttonInsertLink, SIGNAL(clicked()), this, SLOT(en_clickedInsertReferenceLink()));

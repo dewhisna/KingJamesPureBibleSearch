@@ -109,22 +109,22 @@ CVerseListModel::CVerseListModel(CBibleDatabasePtr pBibleDatabase, CUserNotesDat
 	m_private.m_richifierTagsDisplay.setFromPersistentSettings(*CPersistentSettings::instance(), false);
 	m_private.m_richifierTagsCopying.setFromPersistentSettings(*CPersistentSettings::instance(), true);
 
-	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(QColor)), this, SLOT(en_WordsOfJesusColorChanged(QColor)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(QColor)), this, SLOT(en_SearchResultsColorChanged(QColor)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), this, SLOT(en_changedShowPilcrowMarkers(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedCopyOptions()), this, SLOT(en_changedCopyOptions()));
 
 	if (!m_private.m_pUserNotesDatabase.isNull()) {
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase *, const QString &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase*,QString)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase*,QString)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_changedHighlighters()));
 
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)), this, SLOT(en_changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)), this, SLOT(en_addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)), this, SLOT(en_removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllUserNotes()), this, SLOT(en_changedAllUserNotes()));
 
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
-		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)), this, SLOT(en_addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)));
+		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)), this, SLOT(en_removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)));
 		connect(m_private.m_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_changedAllCrossRefs()));
 	}
 
@@ -2737,7 +2737,7 @@ void CVerseListModel::buildScopedResultsFromParsedPhrases(const CSearchResultsDa
 		}
 
 		m_pSearchResultsThreadCtrl = new CThreadedSearchResultCtrl(m_private.m_pBibleDatabase, searchResultsData);
-		connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl *)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl *)));
+		connect(m_pSearchResultsThreadCtrl.data(), SIGNAL(resultsReady(const CThreadedSearchResultCtrl*)), this, SLOT(en_searchResultsReady(const CThreadedSearchResultCtrl*)));
 		m_pSearchResultsThreadCtrl->startWorking();
 	} else {
 #endif

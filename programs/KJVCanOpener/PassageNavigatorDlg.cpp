@@ -89,7 +89,7 @@ CPassageNavigatorDlg::CPassageNavigatorDlg(CBibleDatabasePtr pBibleDatabase,
 	en_modeChanged(m_pNavigator->isRelative());
 
 	connect(m_pNavigator, SIGNAL(modeChanged(bool)), this, SLOT(en_modeChanged(bool)));
-	connect(m_pNavigator, SIGNAL(gotoIndex(const TPhraseTag &)), this, SLOT(en_gotoIndex(const TPhraseTag &)));
+	connect(m_pNavigator, SIGNAL(gotoIndex(TPhraseTag)), this, SLOT(en_gotoIndex(TPhraseTag)));
 
 	// --------------------------------------------------------------
 

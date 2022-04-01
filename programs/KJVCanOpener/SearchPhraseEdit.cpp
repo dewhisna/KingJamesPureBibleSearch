@@ -175,11 +175,11 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 	pCommonPhrasesModel->sort(0, Qt::AscendingOrder);
 	m_pCommonPhrasesCompleter->setModel(pCommonPhrasesModel);		// Note: Parenting the model (above) to the Completer, the completer will delete the old model when we call setModel()
 
-//	connect(m_pCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCompletion(const QString &)));
-	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
+//	connect(m_pCompleter, SIGNAL(activated(QString)), this, SLOT(insertCompletion(QString)));
+	connect(m_pCompleter, SIGNAL(activated(QModelIndex)), this, SLOT(insertCompletion(QModelIndex)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM)), this, SLOT(en_changedSearchPhraseCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM)));
 	connect(m_pButtonDroplist, SIGNAL(clicked()), this, SLOT(en_dropCommonPhrasesClicked()));
-	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(const QString &)), this, SLOT(insertCommonPhraseCompletion(const QString&)));
+	connect(m_pCommonPhrasesCompleter, SIGNAL(activated(QString)), this, SLOT(insertCommonPhraseCompletion(QString)));
 	connect(this, SIGNAL(phraseChanged()), this, SLOT(en_phraseChanged()));		// Handle internal flag for cross-thread changes
 
 	m_pStatusAction = new QAction(this);
@@ -599,7 +599,7 @@ CSearchPhraseEdit::CSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHav
 	ui.treeViewMatchingPhrases->setModel(m_pMatchingPhrasesModel);
 	if (pOldModel) delete pOldModel;
 	connect(ui.toolButtonShowMatchingPhrases, SIGNAL(clicked(bool)), this, SLOT(en_showMatchingPhrases(bool)));
-	connect(ui.treeViewMatchingPhrases, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(en_matchingPhraseActivated(const QModelIndex &)));
+	connect(ui.treeViewMatchingPhrases, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(en_matchingPhraseActivated(QModelIndex)));
 	ui.treeViewMatchingPhrases->installEventFilter(this);
 
 	ui.toolButtonShowMatchingPhrases->setVisible(!CPersistentSettings::instance()->hideMatchingPhrasesLists());
@@ -610,7 +610,7 @@ CSearchPhraseEdit::CSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHav
 	connect(&m_dlyTextChanged, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchActivationDelay(int)));
 
-	connect(CPersistentSettings::instance(), SIGNAL(changedUserPhrases(const QString &)), this, SLOT(setPhraseButtonEnables(const QString &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedUserPhrases(QString)), this, SLOT(setPhraseButtonEnables(QString)));
 
 	connect(ui.chkCaseSensitive, SIGNAL(clicked(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
 	connect(ui.editPhrase, SIGNAL(changeCaseSensitive(bool)), this, SLOT(en_CaseSensitiveChanged(bool)));
@@ -622,7 +622,7 @@ CSearchPhraseEdit::CSearchPhraseEdit(CBibleDatabasePtr pBibleDatabase, bool bHav
 	connect(ui.buttonAddPhrase, SIGNAL(clicked()), this, SLOT(en_phraseAdd()));
 	connect(ui.buttonDelPhrase, SIGNAL(clicked()), this, SLOT(en_phraseDel()));
 	connect(ui.buttonClear, SIGNAL(clicked()), this, SLOT(en_phraseClear()));
-	connect(ui.editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(ui.editPhrase, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)));
 	connect(ui.buttonRemove, SIGNAL(clicked()), this, SLOT(closeSearchPhrase()));
 	connect(ui.editPhrase, SIGNAL(enterTriggered()), this, SIGNAL(enterTriggered()));
 }

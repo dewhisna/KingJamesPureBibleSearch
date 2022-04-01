@@ -130,14 +130,14 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	setFont(CPersistentSettings::instance()->fontScriptureBrowser());
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 
-	U::connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), this, SLOT(setFont(const QFont &)));
-	U::connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+	U::connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(QFont)), this, SLOT(setFont(QFont)));
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(setTextBrightness(bool,int)));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedScriptureBrowserLineHeight(qreal)), &m_dlyRerenderCompressor, SLOT(trigger()));
 
-	U::connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
-	U::connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
+	U::connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)));
+	U::connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)), this, SLOT(en_endChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)));
 
 	U::connect(&m_dlyRerenderCompressor, SIGNAL(triggered()), this, SLOT(rerender()));
 
@@ -206,14 +206,14 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	}
 
 	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
-		T::connect(this, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
+		T::connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(en_anchorClicked(QUrl)));
 
 		// Trigger adding our higlighters and things are we've discovered our CKJVCanOpener parent:
 		QTimer::singleShot(1, this, SLOT(en_findParentCanOpener()));
 	}
 
 	T::setContextMenuPolicy(Qt::CustomContextMenu);
-	U::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequested(const QPoint &)));
+	U::connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_customContextMenuRequested(QPoint)));
 
 //	T::connect(ui->actionReplace, SIGNAL(triggered()), this, SLOT(findReplaceDialog()));
 
@@ -375,7 +375,7 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
-		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int, bool)), this, SLOT(en_highlightPassage(int, bool)));
+		T::connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int,bool)), this, SLOT(en_highlightPassage(int,bool)));
 		m_pEditMenu->addSeparator();
 		m_pEditMenu->addAction(pCanOpener->actionUserNoteEditor());
 		m_pActionShowAllNotes = m_pEditMenu->addAction(QObject::tr("Show All Notes", "MainMenu"), this, SLOT(en_showAllNotes()));
@@ -775,7 +775,7 @@ void CScriptureText<T,U>::showPassageNavigator()
 	}
 #else
 	CPassageNavigatorDlg *pDlg = new CPassageNavigatorDlg(m_pBibleDatabase, T::parentWidget());
-	T::connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	T::connect(pDlg, SIGNAL(gotoIndex(TPhraseTag)), this, SIGNAL(gotoIndex(TPhraseTag)));
 	pDlg->navigator().startAbsoluteMode(tagSel);
 	pDlg->show();
 #endif

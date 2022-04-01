@@ -542,7 +542,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// --- Edit Menu
 	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
-	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(m_pSearchSpecWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (m_pDictionaryWidget != nullptr)
 		connect(m_pDictionaryWidget, SIGNAL(activatedDictionary(bool)), this, SLOT(en_activatedDictionary(bool)));
@@ -750,7 +750,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	m_pActionChapterForward = pNavMenu->addAction(tr("Chapter Forward", "MainMenu"), m_pBrowserWidget, SLOT(en_ChapterForward()), QKeySequence(Qt::ALT | Qt::Key_PageDown));
 	m_pActionChapterForward->setStatusTip(tr("Move Forward one Chapter", "MainMenu"));
 	connect(m_pActionChapterForward, SIGNAL(triggered()), m_pBrowserWidget, SLOT(setFocusBrowser()));
-	connect(m_pBrowserWidget, SIGNAL(en_gotoIndex(const TPhraseTag &)), this, SLOT(en_gotoIndex(const TPhraseTag &)));
+	connect(m_pBrowserWidget, SIGNAL(en_gotoIndex(TPhraseTag)), this, SLOT(en_gotoIndex(TPhraseTag)));
 
 	pNavMenu->addSeparator();
 
@@ -953,18 +953,18 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// -------------------- Search Phrase Widgets:
 
 	connect(m_pSearchSpecWidget, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CSearchPhraseEdit*)));
-	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CSearchPhraseEdit *)));
+	connect(m_pSearchSpecWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), this, SLOT(en_phraseChanged(CSearchPhraseEdit*)));
 	connect(m_pSearchSpecWidget, SIGNAL(copySearchPhraseSummary()), this, SLOT(en_copySearchPhraseSummary()));
-	connect(m_pSearchSpecWidget, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)), this, SLOT(en_triggeredSearchWithinGotoIndex(const CRelIndex &)));
+	connect(m_pSearchSpecWidget, SIGNAL(triggeredSearchWithinGotoIndex(CRelIndex)), this, SLOT(en_triggeredSearchWithinGotoIndex(CRelIndex)));
 
 	// -------------------- Search Spec:
 
-	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(const CSearchResultsData &)), this, SLOT(en_changedSearchSpec(const CSearchResultsData &)));
+	connect(m_pSearchSpecWidget, SIGNAL(changedSearchSpec(CSearchResultsData)), this, SLOT(en_changedSearchSpec(CSearchResultsData)));
 
 	// -------------------- Search Results List View:
 
-	connect(m_pSearchResultWidget, SIGNAL(searchResultActivated(const QModelIndex &)), this, SLOT(en_SearchResultActivated(const QModelIndex &)));
-	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
+	connect(m_pSearchResultWidget, SIGNAL(searchResultActivated(QModelIndex)), this, SLOT(en_SearchResultActivated(QModelIndex)));
+	connect(m_pSearchResultWidget, SIGNAL(gotoIndex(TPhraseTag)), m_pBrowserWidget, SLOT(gotoIndex(TPhraseTag)));
 	connect(m_pSearchResultWidget, SIGNAL(setDetailsEnable()), this, SLOT(setDetailsEnable()));
 	connect(m_pSearchResultWidget, SIGNAL(setGematriaEnable()), this, SLOT(setGematriaEnable()));
 
@@ -976,8 +976,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
 	if (m_pDictionaryWidget != nullptr) {
-		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(CBibleDatabasePtr,const TPhraseTag &)), m_pDictionaryWidget, SLOT(setWord(CBibleDatabasePtr,const TPhraseTag &)));
-		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(const QString &)), m_pBrowserWidget, SLOT(gotoPassageReference(const QString &)));
+		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(CBibleDatabasePtr,TPhraseTag)), m_pDictionaryWidget, SLOT(setWord(CBibleDatabasePtr,TPhraseTag)));
+		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(QString)), m_pBrowserWidget, SLOT(gotoPassageReference(QString)));
 	}
 #endif
 
@@ -1953,7 +1953,7 @@ void CKJVCanOpener::en_OpenSearch()
 //	pDlg->setModal(true);
 //	pDlg->setFileMode(QFileDialog::ExistingFile);
 //	pDlg->setAcceptMode(QFileDialog::AcceptOpen);
-//	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(openKJVSearchFile(const QString &)));
+//	connect(pDlg, SIGNAL(fileSelected(QString)), this, SLOT(openKJVSearchFile(QString)));
 //	pDlg->show();
 #endif
 }
@@ -1973,7 +1973,7 @@ void CKJVCanOpener::en_SaveSearch()
 //	pDlg->setModal(true);
 //	pDlg->setFileMode(QFileDialog::AnyFile);
 //	pDlg->setAcceptMode(QFileDialog::AcceptSave);
-//	connect(pDlg, SIGNAL(fileSelected(const QString &)), this, SLOT(saveKJVSearchFile(const QString &)));
+//	connect(pDlg, SIGNAL(fileSelected(QString)), this, SLOT(saveKJVSearchFile(QString)));
 //	pDlg->show();
 #endif
 }
@@ -2645,8 +2645,8 @@ void CKJVCanOpener::en_PassageNavigatorTriggered()
 		}
 #else
 		CPassageNavigatorDlg *pDlg = new CPassageNavigatorDlg(m_pBibleDatabase, this);
-		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(gotoIndex(const TPhraseTag &)));
-		connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), m_pBrowserWidget, SLOT(setFocusBrowser()));
+		connect(pDlg, SIGNAL(gotoIndex(TPhraseTag)), m_pBrowserWidget, SLOT(gotoIndex(TPhraseTag)));
+		connect(pDlg, SIGNAL(gotoIndex(TPhraseTag)), m_pBrowserWidget, SLOT(setFocusBrowser()));
 		pDlg->show();
 #endif
 	}

@@ -63,10 +63,10 @@ int main(int argc, char **argv)
 		layout->addWidget(textEdit);
 	Q4puGenericSignalSpy * spy = new Q4puGenericSignalSpy(&a);
 	spy->spyOn(treeView);
-	QObject::connect(spy, SIGNAL(caughtSignal(const QString&)),
-					 textEdit, SLOT(append(const QString&)));
-	QObject::connect(spy, SIGNAL(caughtSlot(const QString&)),
-					 textEdit, SLOT(append(const QString&)));
+	QObject::connect(spy, SIGNAL(caughtSignal(QString)),
+					 textEdit, SLOT(append(QString)));
+	QObject::connect(spy, SIGNAL(caughtSlot(QString)),
+					 textEdit, SLOT(append(QString)));
 	topLevel->show();
 	return a.exec();
 }

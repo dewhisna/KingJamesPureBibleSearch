@@ -224,7 +224,7 @@ void CReflowDelegate::setItemDelegateForColumn(int column, QAbstractItemDelegate
 
 	if (pDelegate) {
 		if (delegateRefCount(pDelegate) == 0) {
-			connect(pDelegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)), this, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
+			connect(pDelegate, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)), this, SIGNAL(closeEditor(QWidget*,QAbstractItemDelegate::EndEditHint)));
 			connect(pDelegate, SIGNAL(commitData(QWidget*)), this, SIGNAL(commitData(QWidget*)));
 			connect(pDelegate, SIGNAL(sizeHintChanged(QModelIndex)), this, SLOT(layoutItem(QModelIndex)));
 		}
@@ -499,8 +499,8 @@ bool CReflowDelegate::helpEvent(QHelpEvent* event, QAbstractItemView* view, cons
 	bool retval = false;
 	QMetaObject::invokeMethod(itemDelegate(index), "helpEvent",
 							  Q_RETURN_ARG(bool, retval),
-							  Q_ARG(QHelpEvent *, event),
-							  Q_ARG(QAbstractItemView *, view),
+							  Q_ARG(QHelpEvent*, event),
+							  Q_ARG(QAbstractItemView*, view),
 							  Q_ARG(QStyleOptionViewItem, option),
 							  Q_ARG(QModelIndex, index));
 	return retval;

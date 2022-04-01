@@ -62,7 +62,7 @@ public:
 		CThreadedSearchResultWorker *pWorker = new CThreadedSearchResultWorker;
 		pWorker->moveToThread(&m_theThread);
 		connect(&m_theThread, SIGNAL(finished()), pWorker, SLOT(deleteLater()));		// When the thread ends, delete the object since it becomes detached at that point
-		connect(this, SIGNAL(internalStartWorking(CSearchResultsProcess *)), pWorker, SLOT(doWork(CSearchResultsProcess *)));
+		connect(this, SIGNAL(internalStartWorking(CSearchResultsProcess*)), pWorker, SLOT(doWork(CSearchResultsProcess*)));
 		connect(pWorker, SIGNAL(resultsReady()), this, SLOT(en_resultsReady()));
 		m_theThread.start();
 	}

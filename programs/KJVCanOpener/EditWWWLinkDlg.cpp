@@ -44,7 +44,7 @@ CEditWWWLinkDlg::CEditWWWLinkDlg(const QString strURL, QWidget *pParent)
 	ui.buttonBox->button(QDialogButtonBox::Cancel)->setIcon(QIcon(":/res/cancel-24.png"));
 
 	// Connect before setting the text so we'll trigger our slot:
-	connect(ui.editWWWLink, SIGNAL(textChanged(const QString &)), this, SLOT(en_textChanged(const QString &)));
+	connect(ui.editWWWLink, SIGNAL(textChanged(QString)), this, SLOT(en_textChanged(QString)));
 	ui.editWWWLink->setText(strURL);
 	ui.editWWWLink->setFocus();
 	QTimer::singleShot(0, this, SLOT(en_unselect()));			// Have to unselect after we've displayed and the editor has finished updating itself

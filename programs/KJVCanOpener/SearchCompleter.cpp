@@ -390,7 +390,7 @@ CSoundExSearchCompleterFilter::CSoundExSearchCompleterFilter(CSearchStringListMo
 	Q_ASSERT(m_pSearchStringListModel != nullptr);
 	connect(m_pSearchStringListModel, SIGNAL(modelChanged()), this, SLOT(en_modelChanged()), Qt::DirectConnection);
 
-	connect(m_pSearchStringListModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_dataChanged(const QModelIndex &, const QModelIndex &)));
+	connect(m_pSearchStringListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(en_dataChanged(QModelIndex,QModelIndex)));
 	connect(m_pSearchStringListModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
 	connect(m_pSearchStringListModel, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
 }

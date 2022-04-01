@@ -156,14 +156,14 @@ CWebChannelServer::CWebChannelServer(const QHostAddress &anAddress, quint16 nPor
 		m_pGeoLocater(nullptr)
 {
 	m_pGeoLocater = new CWebChannelGeoLocate(this);
-	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient *, const QString &, const QString &)), this, SLOT(setClientLocation(const CWebChannelClient *, const QString &, const QString &)));
+	connect(m_pGeoLocater, SIGNAL(locationInfo(const CWebChannelClient*,QString,QString)), this, SLOT(setClientLocation(const CWebChannelClient*,QString,QString)));
 
 	// setup the QWebSocketServer
 	m_server.listen(anAddress, nPort);
 
 	// create the CWebChannelAdminObjects
 	m_pWebChannelAdminObjects = new CWebChannelAdminObjects(this);
-	connect(m_pWebChannelAdminObjects.data(), SIGNAL(broadcast(const QString &)), this, SLOT(sendBroadcast(const QString &)));
+	connect(m_pWebChannelAdminObjects.data(), SIGNAL(broadcast(QString)), this, SLOT(sendBroadcast(QString)));
 
 	// Handle connections:
 	connect(&m_clientWrapper, SIGNAL(clientConnected(WebSocketTransport*)), this, SLOT(en_clientConnected(WebSocketTransport*)));

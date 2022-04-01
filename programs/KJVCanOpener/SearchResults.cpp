@@ -336,8 +336,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	setFontSearchResults(CPersistentSettings::instance()->fontSearchResults());
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(const QFont &)), this, SLOT(setFontSearchResults(const QFont &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedSearchResults(QFont)), this, SLOT(setFontSearchResults(QFont)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(setTextBrightness(bool,int)));
 
 #ifdef USING_QT_SPEECH
 	Q_ASSERT(!g_pMyApplication.isNull());
@@ -353,9 +353,9 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	connect(vlmodel(), SIGNAL(modelReset()), this, SLOT(en_listChanged()));
 	connect(vlmodel(), SIGNAL(layoutChanged()), this, SLOT(en_listChanged()));
 
-	connect(this, SIGNAL(displayContextMenu(const QPoint &)), this, SLOT(en_displayContextMenu(const QPoint &)), Qt::QueuedConnection);
+	connect(this, SIGNAL(displayContextMenu(QPoint)), this, SLOT(en_displayContextMenu(QPoint)), Qt::QueuedConnection);
 
-	connect(this, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(handle_searchResultActivated(const QModelIndex &)));
+	connect(this, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(handle_searchResultActivated(QModelIndex)));
 }
 
 CSearchResultsTreeView::~CSearchResultsTreeView()
@@ -397,7 +397,7 @@ void CSearchResultsTreeView::en_findParentCanOpener()
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		m_pEditMenu->addActions(pCanOpener->highlighterButtons()->actions());
 		m_pEditMenuLocal->insertActions(m_pMenuUserNotesInsertionPoint, pCanOpener->highlighterButtons()->actions());
-		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int, bool)), this, SLOT(en_highlightSearchResults(int, bool)));
+		connect(pCanOpener->highlighterButtons(), SIGNAL(highlighterToolTriggered(int,bool)), this, SLOT(en_highlightSearchResults(int,bool)));
 		// ----
 		m_pEditMenu->addSeparator();
 		m_pEditMenuLocal->insertSeparator(m_pMenuUserNotesInsertionPoint);
@@ -765,7 +765,7 @@ void CSearchResultsTreeView::showPassageNavigator()
 	}
 #else
 	CPassageNavigatorDlg *pDlg = new CPassageNavigatorDlg(vlmodel()->bibleDatabase(), this);
-	connect(pDlg, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	connect(pDlg, SIGNAL(gotoIndex(TPhraseTag)), this, SIGNAL(gotoIndex(TPhraseTag)));
 	pDlg->navigator().startAbsoluteMode(TPhraseTag(ndxRel, 0));
 	pDlg->show();
 #endif
@@ -1520,8 +1520,8 @@ CSearchResults::CSearchResults(CBibleDatabasePtr pBibleDatabase, QWidget *parent
 	connect(this, SIGNAL(changedSearchResults()), m_pSearchResultsTreeView, SLOT(en_listChanged()));
 
 	// Set Outgoing Pass-Through Signals:
-	connect(m_pSearchResultsTreeView, SIGNAL(searchResultActivated(const QModelIndex &)), this, SIGNAL(searchResultActivated(const QModelIndex &)));
-	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	connect(m_pSearchResultsTreeView, SIGNAL(searchResultActivated(QModelIndex)), this, SIGNAL(searchResultActivated(QModelIndex)));
+	connect(m_pSearchResultsTreeView, SIGNAL(gotoIndex(TPhraseTag)), this, SIGNAL(gotoIndex(TPhraseTag)));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setDetailsEnable()));
 	connect(m_pSearchResultsTreeView, SIGNAL(currentItemChanged()), this, SIGNAL(setGematriaEnable()));
 
@@ -1536,8 +1536,8 @@ CSearchResults::CSearchResults(CBibleDatabasePtr pBibleDatabase, QWidget *parent
 	// Set Incoming Pass-Through Signals:
 	connect(this, SIGNAL(expandAll()), m_pSearchResultsTreeView, SLOT(expandAll()));
 	connect(this, SIGNAL(collapseAll()), m_pSearchResultsTreeView, SLOT(collapseAll()));
-	connect(this, SIGNAL(setFontSearchResults(const QFont &)), m_pSearchResultsTreeView, SLOT(setFontSearchResults(const QFont &)));
-	connect(this, SIGNAL(setTextBrightness(bool, int)), m_pSearchResultsTreeView, SLOT(setTextBrightness(bool, int)));
+	connect(this, SIGNAL(setFontSearchResults(QFont)), m_pSearchResultsTreeView, SLOT(setFontSearchResults(QFont)));
+	connect(this, SIGNAL(setTextBrightness(bool,int)), m_pSearchResultsTreeView, SLOT(setTextBrightness(bool,int)));
 
 	setSearchResultsType();
 }

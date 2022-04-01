@@ -114,10 +114,10 @@ CSearchSpecWidget::CSearchSpecWidget(CBibleDatabasePtr pBibleDatabase, bool bHav
 	connect(ui.widgetSearchCriteria, SIGNAL(changedSearchCriteria()), this, SLOT(en_changedSearchCriteria()));
 
 	// Connect Pass-through:
-	connect(ui.widgetSearchCriteria, SIGNAL(gotoIndex(const CRelIndex &)), this, SIGNAL(triggeredSearchWithinGotoIndex(const CRelIndex &)));
+	connect(ui.widgetSearchCriteria, SIGNAL(gotoIndex(CRelIndex)), this, SIGNAL(triggeredSearchWithinGotoIndex(CRelIndex)));
 
 	// -------------------- Bible Database Settings:
-	connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_endChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
+	connect(TBibleDatabaseList::instance(), SIGNAL(endChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)), this, SLOT(en_endChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)));
 
 	// -------------------- Persistent Settings:
 	connect(CPersistentSettings::instance(), SIGNAL(changedHideMatchingPhrasesLists(bool)), this, SLOT(en_changedHideMatchingPhrasesLists(bool)), Qt::QueuedConnection);
@@ -316,7 +316,7 @@ CSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
 	connect(pPhraseWidget, SIGNAL(resizing(CSearchPhraseEdit*)), this, SLOT(en_phraseResizing(CSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)), this, SLOT(en_closingSearchPhrase(CSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(changingShowMatchingPhrases(CSearchPhraseEdit*)), this, SLOT(en_changingShowMatchingPhrases(CSearchPhraseEdit*)));
-//	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit *)), this, SLOT(en_phraseChanged(CSearchPhraseEdit *)));
+//	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), this, SLOT(en_phraseChanged(CSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
 
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), &m_dlySearchResultsUpdate, SLOT(trigger()));
@@ -332,7 +332,7 @@ CSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
 	// Set pass-throughs:
 	connect(pPhraseWidget, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)), this, SIGNAL(closingSearchPhrase(CSearchPhraseEdit*)));
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), this, SIGNAL(phraseChanged(CSearchPhraseEdit*)));
-	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit *)));
+	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)));
 
 	m_lstSearchPhraseEditors.append(pPhraseWidget);
 	pPhraseWidget->showSeperatorLine(true);		// Always show the separator since we have the "AddSearchPhrase" button

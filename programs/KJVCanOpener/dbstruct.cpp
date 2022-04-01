@@ -111,7 +111,7 @@ TBibleDatabaseList::TBibleDatabaseList(QObject *pParent)
 {
 	setBibleDatabasePath(false);
 
-	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_changedBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)), this, SLOT(en_changedBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)));
 }
 
 TBibleDatabaseList::~TBibleDatabaseList()

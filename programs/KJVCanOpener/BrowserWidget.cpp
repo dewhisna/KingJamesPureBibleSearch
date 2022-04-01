@@ -98,17 +98,17 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags)), this, SIGNAL(rerender()));
 
-	connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(const QString &, const TBibleDatabaseSettings &, const TBibleDatabaseSettings &, bool)));
+	connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)));
 
 // Data Connections:
 	connect(pSearchResultsListModel, SIGNAL(verseListAboutToChange()), this, SLOT(en_SearchResultsVerseListAboutToChange()));
 	connect(pSearchResultsListModel, SIGNAL(verseListChanged()), this, SLOT(en_SearchResultsVerseListChanged()));
 
 // UI Connections:
-	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(const TPhraseTag &)), &m_dlyGotoIndex, SLOT(trigger(const TPhraseTag &)));
-	connect(&m_dlyGotoIndex, SIGNAL(triggered(const TPhraseTag &)), this, SLOT(gotoIndex(const TPhraseTag &)));
-	connect(this, SIGNAL(en_gotoIndex(const TPhraseTag &)), m_pScriptureBrowser, SLOT(en_gotoIndex(const TPhraseTag &)));
-	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
+	connect(m_pScriptureBrowser, SIGNAL(gotoIndex(TPhraseTag)), &m_dlyGotoIndex, SLOT(trigger(TPhraseTag)));
+	connect(&m_dlyGotoIndex, SIGNAL(triggered(TPhraseTag)), this, SLOT(gotoIndex(TPhraseTag)));
+	connect(this, SIGNAL(en_gotoIndex(TPhraseTag)), m_pScriptureBrowser, SLOT(en_gotoIndex(TPhraseTag)));
+	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(QUrl)), this, SLOT(en_sourceChanged(QUrl)));
 	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
 
 	connect(ui.btnHideNavigation, SIGNAL(clicked()), this, SLOT(en_clickedHideNavigationPane()));
@@ -121,7 +121,7 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(ui.comboBibleBk, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleBkComboIndexChanged(int)));
 	connect(ui.comboBibleChp, SIGNAL(currentIndexChanged(int)), this, SLOT(delayBibleChpComboIndexChanged(int)));
 
-	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(delayPassageReference(const TPhraseTag &)));
+	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(TPhraseTag)), this, SLOT(delayPassageReference(TPhraseTag)));
 	connect(ui.widgetPassageReference, SIGNAL(enterPressed()), this, SLOT(PassageReferenceEnterPressed()));
 
 	connect(&m_dlyBkCombo, SIGNAL(triggered(int)), this, SLOT(BkComboIndexChanged(int)));
@@ -131,7 +131,7 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(&m_dlyBibleBkCombo, SIGNAL(triggered(int)), this, SLOT(BibleBkComboIndexChanged(int)));
 	connect(&m_dlyBibleChpCombo, SIGNAL(triggered(int)), this, SLOT(BibleChpComboIndexChanged(int)));
 
-	connect(&m_dlyPassageReference, SIGNAL(triggered(const TPhraseTag &)), this, SLOT(PassageReferenceChanged(const TPhraseTag &)));
+	connect(&m_dlyPassageReference, SIGNAL(triggered(TPhraseTag)), this, SLOT(PassageReferenceChanged(TPhraseTag)));
 
 	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedScriptureText()));
 	connect(ui.widgetPassageReference, SIGNAL(activatedPassageReference()), this, SLOT(en_activatedPassageReference()));
@@ -149,24 +149,24 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(this, SIGNAL(rerender()), m_pScriptureBrowser, SLOT(rerender()));
 
 	// Highlighting colors changing:
-	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(const QColor &)), this, SLOT(en_SearchResultsColorChanged(const QColor &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(const QColor &)), this, SLOT(en_WordsOfJesusColorChanged(const QColor &)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(QColor)), this, SLOT(en_SearchResultsColorChanged(QColor)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedColorWordsOfJesus(QColor)), this, SLOT(en_WordsOfJesusColorChanged(QColor)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedShowExcludedSearchResultsInBrowser(bool)), this, SLOT(en_ShowExcludedSearchResultsChanged(bool)));
 
-	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsAboutToChange(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsAboutToChange(const CBibleDatabase *, const QString &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase *, const QString &)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase *, const QString &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsAboutToChange(const CBibleDatabase*,QString)), this, SLOT(en_highlighterTagsAboutToChange(const CBibleDatabase*,QString)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(highlighterTagsChanged(const CBibleDatabase*,QString)), this, SLOT(en_highlighterTagsChanged(const CBibleDatabase*,QString)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(aboutToChangeHighlighters()), this, SLOT(en_highlightersAboutToChange()));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedHighlighters()), this, SLOT(en_highlightersChanged()));
 
 	// User Notes changing:
-	connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(addedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(removedUserNote(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)), this, SLOT(en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllUserNotes()), this, SLOT(en_allUserNotesChanged()));
 
 	// Cross Refs changing:
-	connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
-	connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)), this, SLOT(en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM, const CRelIndex &, const CRelIndex &)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(addedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)), this, SLOT(en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)));
+	connect(g_pUserNotesDatabase.data(), SIGNAL(removedCrossRef(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)), this, SLOT(en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM,CRelIndex,CRelIndex)));
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedAllCrossRefs()), this, SLOT(en_allCrossRefsChanged()));
 }
 

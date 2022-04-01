@@ -66,7 +66,7 @@ public:
 	CNoteKeywordModelListView(QWidget *pParent = nullptr)
 		:	QListView(pParent)
 	{
-		connect(this, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_activated(const QModelIndex &)));
+		connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(en_activated(QModelIndex)));
 	}
 
 	virtual ~CNoteKeywordModelListView() { }

@@ -98,7 +98,7 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 	}
 	if (m_pRetriggerGotoIndex.isNull()) {
 		m_pRetriggerGotoIndex = new DelayedExecutionTimer(-1, RETRIGGER_TIME, this);
-		connect(m_pRetriggerGotoIndex.data(), SIGNAL(triggered(const QString &)), this, SLOT(en_retriggerGotoIndex(const QString &)));
+		connect(m_pRetriggerGotoIndex.data(), SIGNAL(triggered(QString)), this, SLOT(en_retriggerGotoIndex(QString)));
 	}
 
 	m_strLastPhrases.clear();
@@ -724,21 +724,21 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 		connect(pSearchResults, SIGNAL(idleStateChanged(bool)), pChannel, SLOT(en_idleStateChanged(bool)));
 		connect(pSearchResults, SIGNAL(killWebChannel()), pChannel, SLOT(en_killWebChannel()));
 
-		connect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
-		connect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
+		connect(pSearchResults, SIGNAL(bibleSelected(bool,QString,QString)), pChannel, SIGNAL(bibleSelected(bool,QString,QString)));
+		connect(pSearchResults, SIGNAL(searchWithinModelChanged(QString,int)), pChannel, SIGNAL(searchWithinModelChanged(QString,int)));
 
-		connect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
-		connect(pSearchResults, SIGNAL(searchResultsAppend(const QString &, bool)), pChannel, SIGNAL(searchResultsAppend(const QString &, bool)));
-		connect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
-		connect(pSearchResults, SIGNAL(setAutoCompleter(const QString &, const QString &)), pChannel, SIGNAL(setAutoCompleter(const QString &, const QString &)));
-		connect(pSearchResults, SIGNAL(updatePhrase(const QString &, const QString &)), pChannel, SIGNAL(updatePhrase(const QString &, const QString &)));
+		connect(pSearchResults, SIGNAL(searchResultsChanged(QString,QString,QString)), pChannel, SIGNAL(searchResultsChanged(QString,QString,QString)));
+		connect(pSearchResults, SIGNAL(searchResultsAppend(QString,bool)), pChannel, SIGNAL(searchResultsAppend(QString,bool)));
+		connect(pSearchResults, SIGNAL(setAutoCorrectText(QString,QString)), pChannel, SIGNAL(setAutoCorrectText(QString,QString)));
+		connect(pSearchResults, SIGNAL(setAutoCompleter(QString,QString)), pChannel, SIGNAL(setAutoCompleter(QString,QString)));
+		connect(pSearchResults, SIGNAL(updatePhrase(QString,QString)), pChannel, SIGNAL(updatePhrase(QString,QString)));
 
-		connect(pSearchResults, SIGNAL(searchResultsDetails(uint32_t, const QString &)), pChannel, SIGNAL(searchResultsDetails(uint32_t, const QString &)));
+		connect(pSearchResults, SIGNAL(searchResultsDetails(uint32_t,QString)), pChannel, SIGNAL(searchResultsDetails(uint32_t,QString)));
 
-		connect(pSearchResults, SIGNAL(resolvedPassageReference(uint32_t, uint32_t)), pChannel, SIGNAL(resolvedPassageReference(uint32_t, uint32_t)));
+		connect(pSearchResults, SIGNAL(resolvedPassageReference(uint32_t,uint32_t)), pChannel, SIGNAL(resolvedPassageReference(uint32_t,uint32_t)));
 
-		connect(pSearchResults, SIGNAL(scriptureBrowserRender(unsigned int, uint32_t, const QString &, const QString &)), pChannel, SIGNAL(scriptureBrowserRender(unsigned int, uint32_t, const QString &, const QString &)));
-		connect(pSearchResults, SIGNAL(setBibleAudioURLs(const QString &)), pChannel, SIGNAL(setBibleAudioURLs(const QString &)));
+		connect(pSearchResults, SIGNAL(scriptureBrowserRender(uint,uint32_t,QString,QString)), pChannel, SIGNAL(scriptureBrowserRender(uint,uint32_t,QString,QString)));
+		connect(pSearchResults, SIGNAL(setBibleAudioURLs(QString)), pChannel, SIGNAL(setBibleAudioURLs(QString&)));
 	}
 
 	// Initialize after connects in case pSearchResults wants to emit any signals during init:
@@ -793,17 +793,17 @@ void CWebChannelThreadController::destroyWebChannelSearchResults(CWebChannelObje
 	//		all signals from CWebChannelSearchResults and CWebChannelObjects:
 	disconnect(pSearchResults, SIGNAL(idleStateChanged(bool)), pChannel, SLOT(en_idleStateChanged(bool)));
 	disconnect(pSearchResults, SIGNAL(killWebChannel()), pChannel, SLOT(en_killWebChannel()));
-	disconnect(pSearchResults, SIGNAL(bibleSelected(bool, const QString &, const QString &)), pChannel, SIGNAL(bibleSelected(bool, const QString &, const QString &)));
-	disconnect(pSearchResults, SIGNAL(searchWithinModelChanged(const QString &,int)), pChannel, SIGNAL(searchWithinModelChanged(const QString &, int)));
-	disconnect(pSearchResults, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)), pChannel, SIGNAL(searchResultsChanged(const QString &, const QString &, const QString &)));
-	disconnect(pSearchResults, SIGNAL(searchResultsAppend(const QString &, bool)), pChannel, SIGNAL(searchResultsAppend(const QString &, bool)));
-	disconnect(pSearchResults, SIGNAL(setAutoCorrectText(const QString &, const QString &)), pChannel, SIGNAL(setAutoCorrectText(const QString &, const QString &)));
-	disconnect(pSearchResults, SIGNAL(setAutoCompleter(const QString &, const QString &)), pChannel, SIGNAL(setAutoCompleter(const QString &, const QString &)));
-	disconnect(pSearchResults, SIGNAL(updatePhrase(const QString &, const QString &)), pChannel, SIGNAL(updatePhrase(const QString &, const QString &)));
-	disconnect(pSearchResults, SIGNAL(searchResultsDetails(uint32_t, const QString &)), pChannel, SIGNAL(searchResultsDetails(uint32_t, const QString &)));
-	disconnect(pSearchResults, SIGNAL(resolvedPassageReference(uint32_t, uint32_t)), pChannel, SIGNAL(resolvedPassageReference(uint32_t, uint32_t)));
-	disconnect(pSearchResults, SIGNAL(scriptureBrowserRender(unsigned int, uint32_t, const QString &, const QString &)), pChannel, SIGNAL(scriptureBrowserRender(unsigned int, uint32_t, const QString &, const QString &)));
-	disconnect(pSearchResults, SIGNAL(setBibleAudioURLs(const QString &)), pChannel, SIGNAL(setBibleAudioURLs(const QString &)));
+	disconnect(pSearchResults, SIGNAL(bibleSelected(bool,QString,QString)), pChannel, SIGNAL(bibleSelected(bool,QString,QString)));
+	disconnect(pSearchResults, SIGNAL(searchWithinModelChanged(QString,int)), pChannel, SIGNAL(searchWithinModelChanged(QString,int)));
+	disconnect(pSearchResults, SIGNAL(searchResultsChanged(QString,QString,QString)), pChannel, SIGNAL(searchResultsChanged(QString,QString,QString)));
+	disconnect(pSearchResults, SIGNAL(searchResultsAppend(QString,bool)), pChannel, SIGNAL(searchResultsAppend(QString,bool)));
+	disconnect(pSearchResults, SIGNAL(setAutoCorrectText(QString,QString)), pChannel, SIGNAL(setAutoCorrectText(QString,QString)));
+	disconnect(pSearchResults, SIGNAL(setAutoCompleter(QString,QString)), pChannel, SIGNAL(setAutoCompleter(QString,QString)));
+	disconnect(pSearchResults, SIGNAL(updatePhrase(QString,QString)), pChannel, SIGNAL(updatePhrase(QString,QString)));
+	disconnect(pSearchResults, SIGNAL(searchResultsDetails(uint32_t,QString)), pChannel, SIGNAL(searchResultsDetails(uint32_t,QString)));
+	disconnect(pSearchResults, SIGNAL(resolvedPassageReference(uint32_t,uint32_t)), pChannel, SIGNAL(resolvedPassageReference(uint32_t,uint32_t)));
+	disconnect(pSearchResults, SIGNAL(scriptureBrowserRender(uint,uint32_t,QString,QString)), pChannel, SIGNAL(scriptureBrowserRender(uint,uint32_t,QString,QString)));
+	disconnect(pSearchResults, SIGNAL(setBibleAudioURLs(QString)), pChannel, SIGNAL(setBibleAudioURLs(QString)));
 
 	pSearchResults->deleteLater();
 }
@@ -831,7 +831,7 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 		bSuccess = QMetaObject::invokeMethod(pChannel,
 									"bibleList",
 									Qt::DirectConnection,		// This should make sure the list fires before the default selection propagates
-									Q_ARG(const QString &, TBibleDatabaseList::instance()->availableBibleDatabasesAsJson()));
+									Q_ARG(QString, TBibleDatabaseList::instance()->availableBibleDatabasesAsJson()));
 		Q_ASSERT(bSuccess);
 	}
 
@@ -851,8 +851,8 @@ bool CWebChannelThreadController::selectBible(CWebChannelObjects *pChannel, cons
 												"bibleSelected",
 												Qt::QueuedConnection,
 												Q_ARG(bool, false),
-												Q_ARG(const QString &, QString()),
-												Q_ARG(const QString &, QString()));
+												Q_ARG(QString, QString()),
+												Q_ARG(QString, QString()));
 		Q_ASSERT(bSuccess);
 	}
 
@@ -867,8 +867,8 @@ void CWebChannelThreadController::setSearchPhrases(CWebChannelObjects *pChannel,
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"setSearchPhrases",
 													Qt::QueuedConnection,
-													Q_ARG(const QString &, strPhrases),
-													Q_ARG(const QString &, strSearchWithin),
+													Q_ARG(QString, strPhrases),
+													Q_ARG(QString, strSearchWithin),
 													Q_ARG(int, nSearchScope));
 		Q_ASSERT(bSuccess);
 	}
@@ -894,10 +894,10 @@ void CWebChannelThreadController::autoCorrect(CWebChannelObjects *pChannel, cons
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"autoCorrect",
 													Qt::QueuedConnection,
-													Q_ARG(const QString &, strElementID),
-													Q_ARG(const QString &, strPhrase),
+													Q_ARG(QString, strElementID),
+													Q_ARG(QString, strPhrase),
 													Q_ARG(int, nCursorPos),
-													Q_ARG(const QString &, strLastPhrase),
+													Q_ARG(QString, strLastPhrase),
 													Q_ARG(int,  nLastCursorPos));
 		Q_ASSERT(bSuccess);
 	}
@@ -911,9 +911,9 @@ void CWebChannelThreadController::calcUpdatedPhrase(CWebChannelObjects *pChannel
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"calcUpdatedPhrase",
 													Qt::QueuedConnection,
-													Q_ARG(const QString &, strElementID),
-													Q_ARG(const QString &, strPhrase),
-													Q_ARG(const QString &, strAutoCompleter),
+													Q_ARG(QString, strElementID),
+													Q_ARG(QString, strPhrase),
+													Q_ARG(QString, strAutoCompleter),
 													Q_ARG(int, nCursorPos));
 		Q_ASSERT(bSuccess);
 	}
@@ -940,7 +940,7 @@ void CWebChannelThreadController::resolvePassageReference(CWebChannelObjects *pC
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"resolvePassageReference",
 													Qt::QueuedConnection,
-													Q_ARG(const QString &, strPassageReference));
+													Q_ARG(QString, strPassageReference));
 		Q_ASSERT(bSuccess);
 	}
 }
@@ -955,7 +955,7 @@ void CWebChannelThreadController::gotoIndex(CWebChannelObjects *pChannel, uint32
 													Qt::QueuedConnection,
 													Q_ARG(uint32_t, ndxRel),
 													Q_ARG(int, nMoveMode),
-													Q_ARG(const QString &, strParam));
+													Q_ARG(QString, strParam));
 		Q_ASSERT(bSuccess);
 	}
 }
@@ -968,8 +968,8 @@ void CWebChannelThreadController::gotoChapter(CWebChannelObjects *pChannel, unsi
 		bool bSuccess = QMetaObject::invokeMethod(pSearchResults,
 													"gotoChapter",
 													Qt::QueuedConnection,
-													Q_ARG(unsigned int, nChp),
-													Q_ARG(const QString &, strParam));
+													Q_ARG(uint, nChp),
+													Q_ARG(QString, strParam));
 		Q_ASSERT(bSuccess);
 	}
 }

@@ -93,7 +93,7 @@ void CDictionaryLineEdit::setDictionary(CDictionaryDatabasePtr pDictionary)
 
 	m_pCompleter->setCompletionFilterMode(CPersistentSettings::instance()->dictionaryCompleterFilterMode());
 
-	connect(m_pCompleter, SIGNAL(activated(const QModelIndex &)), this, SLOT(insertCompletion(const QModelIndex &)));
+	connect(m_pCompleter, SIGNAL(activated(QModelIndex)), this, SLOT(insertCompletion(QModelIndex)));
 
 	// Reset the word to trigger an update so widget will update definition with that of the new database:
 	if (!toPlainText().isEmpty()) {
@@ -301,10 +301,10 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const Q
 	ui.editDictionaryWord->initialize(m_pDictionaryDatabase);
 
 	ui.definitionBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(ui.definitionBrowser, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_definitionBrowserContextMenuRequested(const QPoint &)));
+	connect(ui.definitionBrowser, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_definitionBrowserContextMenuRequested(QPoint)));
 
 	ui.editDictionaryWord->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(ui.editDictionaryWord, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_editDictionaryWordContextMenuRequested(const QPoint &)));
+	connect(ui.editDictionaryWord, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_editDictionaryWordContextMenuRequested(QPoint)));
 
 	setDictionaryActivationDelay(CPersistentSettings::instance()->dictionaryActivationDelay());
 	connect(ui.editDictionaryWord, SIGNAL(textChanged()), &m_dlyTextChanged, SLOT(trigger()));
@@ -314,20 +314,20 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const Q
 	setFont(CPersistentSettings::instance()->fontDictionary());
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedDictionary(const QFont &)), this, SLOT(setFont(const QFont &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedDictionary(QFont)), this, SLOT(setFont(QFont)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(setTextBrightness(bool,int)));
 
 	connect(ui.buttonClearWord, SIGNAL(clicked()), ui.editDictionaryWord, SLOT(clear()));
 	connect(ui.buttonClearWord, SIGNAL(clicked()), ui.editDictionaryWord, SLOT(setFocus()));
 
-	connect(ui.definitionBrowser, SIGNAL(anchorClicked(const QUrl &)), this, SLOT(en_anchorClicked(const QUrl &)));
+	connect(ui.definitionBrowser, SIGNAL(anchorClicked(QUrl)), this, SLOT(en_anchorClicked(QUrl)));
 	connect(ui.buttonHistoryBack, SIGNAL(clicked()), ui.definitionBrowser, SLOT(backward()));
 	connect(ui.buttonHistoryBack, SIGNAL(clicked()), ui.editDictionaryWord, SLOT(setFocus()));
 	connect(ui.definitionBrowser, SIGNAL(backwardAvailable(bool)), ui.buttonHistoryBack, SLOT(setEnabled(bool)));
 	connect(ui.buttonHistoryForward, SIGNAL(clicked()), ui.definitionBrowser, SLOT(forward()));
 	connect(ui.buttonHistoryForward, SIGNAL(clicked()), ui.editDictionaryWord, SLOT(setFocus()));
 	connect(ui.definitionBrowser, SIGNAL(forwardAvailable(bool)), ui.buttonHistoryForward, SLOT(setEnabled(bool)));
-	connect(ui.definitionBrowser, SIGNAL(sourceChanged(const QUrl &)), this, SLOT(en_sourceChanged(const QUrl &)));
+	connect(ui.definitionBrowser, SIGNAL(sourceChanged(QUrl)), this, SLOT(en_sourceChanged(QUrl)));
 }
 
 CDictionaryWidget::~CDictionaryWidget()

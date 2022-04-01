@@ -71,8 +71,8 @@ CPassageNavigator::CPassageNavigator(CBibleDatabasePtr pBibleDatabase, QWidget *
 	connect(ui.comboChapterDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_ChapterDirectChanged(int)));
 	connect(ui.comboVerseDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_VerseDirectChanged(int)));
 	connect(ui.comboWordDirect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_WordDirectChanged(int)));
-	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(const TPhraseTag &)), this, SLOT(en_PassageReferenceChanged(const TPhraseTag &)));
-	connect(m_pEditVersePreview, SIGNAL(gotoIndex(const TPhraseTag &)), this, SIGNAL(gotoIndex(const TPhraseTag &)));
+	connect(ui.widgetPassageReference, SIGNAL(passageReferenceChanged(TPhraseTag)), this, SLOT(en_PassageReferenceChanged(TPhraseTag)));
+	connect(m_pEditVersePreview, SIGNAL(gotoIndex(TPhraseTag)), this, SIGNAL(gotoIndex(TPhraseTag)));
 }
 
 CPassageNavigator::~CPassageNavigator()

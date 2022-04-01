@@ -104,9 +104,9 @@ CHighlighterColorButtonSignalReflector::CHighlighterColorButtonSignalReflector(C
 	:	QObject(nullptr),
 		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
 {
-	connect(this, SIGNAL(colorPicked(const QString &, const QColor &)), pConfigurator, SLOT(en_HighlighterColorPicked(const QString &, const QColor &)));
-	connect(this, SIGNAL(colorClicked(const QString &)), pConfigurator, SLOT(en_HighlighterColorClicked(const QString &)));
-	connect(this, SIGNAL(enableChanged(const QString &, bool)), pConfigurator, SLOT(en_HighlighterEnableChanged(const QString &, bool)));
+	connect(this, SIGNAL(colorPicked(QString,QColor)), pConfigurator, SLOT(en_HighlighterColorPicked(QString,QColor)));
+	connect(this, SIGNAL(colorClicked(QString)), pConfigurator, SLOT(en_HighlighterColorClicked(QString)));
+	connect(this, SIGNAL(enableChanged(QString,bool)), pConfigurator, SLOT(en_HighlighterEnableChanged(QString,bool)));
 }
 
 CHighlighterColorButtonSignalReflector::~CHighlighterColorButtonSignalReflector()
@@ -205,7 +205,7 @@ CHighlighterColorButton::CHighlighterColorButton(CConfigTextFormat *pConfigurato
 	m_pHorzLayout->addWidget(m_pEnableCheckbox);
 
 	setBrightness(CPersistentSettings::instance()->adjustDialogElementBrightness(), CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(en_setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_setTextBrightness(bool,int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_adjustDialogElementBrightnessChanged(bool)));
 
 	m_pHorzLayout->addStretch(0);
@@ -215,7 +215,7 @@ CHighlighterColorButton::CHighlighterColorButton(CConfigTextFormat *pConfigurato
 	setSizeHint(m_pWidget->sizeHint());
 	pList->setItemWidget(this, m_pWidget);
 
-	connect(m_pColorButton, SIGNAL(colorPicked(const QColor &)), this, SLOT(en_colorPicked(const QColor &)));
+	connect(m_pColorButton, SIGNAL(colorPicked(QColor)), this, SLOT(en_colorPicked(QColor)));
 	connect(m_pColorButton, SIGNAL(clicked()), this, SLOT(en_clicked()));
 	connect(m_pEnableCheckbox, SIGNAL(clicked(bool)), this, SLOT(en_enableClicked(bool)));
 }
@@ -416,10 +416,10 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 	ui.buttonCursorFollowColor->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 	ui.vertLayoutColorOptions->addWidget(ui.buttonCursorFollowColor);
 
-	connect(toQwwColorButton(ui.buttonWordsOfJesusColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_WordsOfJesusColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui.buttonWordsOfJesusColor), SIGNAL(colorPicked(QColor)), this, SLOT(en_WordsOfJesusColorPicked(QColor)));
 	connect(ui.checkBoxEnableWordsOfJesusColor, SIGNAL(clicked(bool)), this, SLOT(en_clickedEnableWordsOfJesusColor(bool)));
-	connect(toQwwColorButton(ui.buttonSearchResultsColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_SearchResultsColorPicked(const QColor &)));
-	connect(toQwwColorButton(ui.buttonCursorFollowColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_CursorTrackerColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui.buttonSearchResultsColor), SIGNAL(colorPicked(QColor)), this, SLOT(en_SearchResultsColorPicked(QColor)));
+	connect(toQwwColorButton(ui.buttonCursorFollowColor), SIGNAL(colorPicked(QColor)), this, SLOT(en_CursorTrackerColorPicked(QColor)));
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	ui.listWidgetHighlighterColors->setSelectionMode(QAbstractItemView::NoSelection);
@@ -431,14 +431,14 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 	ui.toolButtonRenameHighlighter->setEnabled(false);
 
 	connect(ui.comboBoxHighlighters, SIGNAL(currentIndexChanged(int)), this, SLOT(en_comboBoxHighlightersTextChanged(int)));
-	connect(ui.comboBoxHighlighters, SIGNAL(editTextChanged(const QString &)), this, SLOT(en_comboBoxHighlightersTextChanged(const QString &)));
+	connect(ui.comboBoxHighlighters, SIGNAL(editTextChanged(QString)), this, SLOT(en_comboBoxHighlightersTextChanged(QString)));
 	connect(ui.comboBoxHighlighters, SIGNAL(enterPressed()), ui.toolButtonAddHighlighter, SLOT(click()));
 
 	connect(ui.toolButtonAddHighlighter, SIGNAL(clicked()), this, SLOT(en_addHighlighterClicked()));
 	connect(ui.toolButtonRemoveHighlighter, SIGNAL(clicked()), this, SLOT(en_removeHighlighterClicked()));
 	connect(ui.toolButtonRenameHighlighter, SIGNAL(clicked()), this, SLOT(en_renameHighlighterClicked()));
 
-	connect(ui.listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*, QListWidgetItem*)));
+	connect(ui.listWidgetHighlighterColors, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(en_currentColorListViewItemChanged(QListWidgetItem*,QListWidgetItem*)));
 #else
 	ui.listWidgetHighlighterColors->hide();
 	ui.comboBoxHighlighters->hide();
@@ -474,10 +474,10 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 	ui.dblSpinBoxSearchResultsFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
 	ui.dblSpinBoxDictionaryFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
 
-	connect(ui.fontComboBoxApplication, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ApplicationFontChanged(const QFont &)));
-	connect(ui.fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_ScriptureBrowserFontChanged(const QFont &)));
-	connect(ui.fontComboBoxSearchResults, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_SearchResultsFontChanged(const QFont &)));
-	connect(ui.fontComboBoxDictionary, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_DictionaryFontChanged(const QFont &)));
+	connect(ui.fontComboBoxApplication, SIGNAL(currentFontChanged(QFont)), this, SLOT(en_ApplicationFontChanged(QFont)));
+	connect(ui.fontComboBoxScriptureBrowser, SIGNAL(currentFontChanged(QFont)), this, SLOT(en_ScriptureBrowserFontChanged(QFont)));
+	connect(ui.fontComboBoxSearchResults, SIGNAL(currentFontChanged(QFont)), this, SLOT(en_SearchResultsFontChanged(QFont)));
+	connect(ui.fontComboBoxDictionary, SIGNAL(currentFontChanged(QFont)), this, SLOT(en_DictionaryFontChanged(QFont)));
 	connect(ui.dblSpinBoxApplicationFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ApplicationFontSizeChanged(double)));
 	connect(ui.dblSpinBoxScriptureBrowserFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_ScriptureBrowserFontSizeChanged(double)));
 	connect(ui.dblSpinBoxSearchResultsFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_SearchResultsFontSizeChanged(double)));
@@ -1128,9 +1128,9 @@ CConfigBibleDatabase::CConfigBibleDatabase(QWidget *parent)
 		ui.comboBoxCategoryGroup->addItem(CBibleBookCategoryGroups::name(static_cast<BIBLE_BOOK_CATEGORY_GROUP_ENUM>(ndx)), ndx);
 	}
 
-	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
-	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(const QString &)), this, SLOT(en_loadBibleDatabase(const QString &)));
-	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
+	connect(ui.treeBibleDatabases->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(en_currentChanged(QModelIndex,QModelIndex)));
+	connect(m_pBibleDatabaseListModel, SIGNAL(loadBibleDatabase(QString)), this, SLOT(en_loadBibleDatabase(QString)));
+	connect(m_pBibleDatabaseListModel, SIGNAL(changedAutoLoadStatus(QString,bool)), this, SLOT(en_changedAutoLoadStatus(QString,bool)));
 
 	connect(ui.comboBoxMainBibleDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
 
@@ -1439,9 +1439,9 @@ CConfigDictDatabase::CConfigDictDatabase(QWidget *parent)
 
 	ui.comboBoxMainDictDatabaseSelect->setModel(m_pDictDatabaseListModel);
 
-	connect(ui.treeDictDatabases->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(en_currentChanged(const QModelIndex &, const QModelIndex &)));
-	connect(m_pDictDatabaseListModel, SIGNAL(loadDictDatabase(const QString &)), this, SLOT(en_loadDictDatabase(const QString &)));
-	connect(m_pDictDatabaseListModel, SIGNAL(changedAutoLoadStatus(const QString &, bool)), this, SLOT(en_changedAutoLoadStatus(const QString &, bool)));
+	connect(ui.treeDictDatabases->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(en_currentChanged(QModelIndex,QModelIndex)));
+	connect(m_pDictDatabaseListModel, SIGNAL(loadDictDatabase(QString)), this, SLOT(en_loadDictDatabase(QString)));
+	connect(m_pDictDatabaseListModel, SIGNAL(changedAutoLoadStatus(QString,bool)), this, SLOT(en_changedAutoLoadStatus(QString,bool)));
 
 	connect(ui.comboBoxMainDictDatabaseSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedMainDBCurrentChanged(int)));
 
@@ -1607,13 +1607,13 @@ CConfigUserNotesDatabase::CConfigUserNotesDatabase(CUserNotesDatabasePtr pUserNo
 
 	connect(ui.btnSetPrimaryUserNotesFilename, SIGNAL(clicked()), this, SLOT(en_clickedSetPrimaryUserNotesFilename()));
 	connect(ui.btnStartNewUserNotesFile, SIGNAL(clicked()), this, SLOT(en_clickedStartNewUserNotesFile()));
-	connect(ui.editPrimaryUserNotesFilename, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedPrimaryUserNotesFilename(const QString &)));
+	connect(ui.editPrimaryUserNotesFilename, SIGNAL(textChanged(QString)), this, SLOT(en_changedPrimaryUserNotesFilename(QString)));
 	connect(ui.checkBoxKeepBackup, SIGNAL(clicked()), this, SLOT(en_changedKeepBackup()));
-	connect(ui.editBackupExtension, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedBackupExtension()));
+	connect(ui.editBackupExtension, SIGNAL(textChanged(QString)), this, SLOT(en_changedBackupExtension()));
 
 	connect(ui.spinBoxAutoSaveTime, SIGNAL(valueChanged(int)), this, SLOT(en_changedAutoSaveTime(int)));
 
-	connect(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor), SIGNAL(colorPicked(const QColor &)), this, SLOT(en_DefaultNoteBackgroundColorPicked(const QColor &)));
+	connect(toQwwColorButton(ui.buttonDefaultNoteBackgroundColor), SIGNAL(colorPicked(QColor)), this, SLOT(en_DefaultNoteBackgroundColorPicked(QColor)));
 
 	loadSettings();
 	// If initial name was empty, we won't have gotten a change notification, so
@@ -2440,7 +2440,7 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	ui.dblSpinBoxCopyFontSize->setRange(FONT_MIN_SIZE, FONT_MAX_SIZE);
 
-	connect(ui.fontComboBoxCopyFont, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(en_changedFontCopyFont(const QFont &)));
+	connect(ui.fontComboBoxCopyFont, SIGNAL(currentFontChanged(QFont)), this, SLOT(en_changedFontCopyFont(QFont)));
 	connect(ui.dblSpinBoxCopyFontSize, SIGNAL(valueChanged(double)), this, SLOT(en_changedFontCopyFontSize(double)));
 
 	// ----------
@@ -3107,7 +3107,7 @@ CConfigTTSOptions::CConfigTTSOptions(QWidget *parent)
 		ui.editTTSServerURL->setPlaceholderText(tr("Not used on this platform", "SpeechSettings"));
 	}
 
-	connect(ui.editTTSServerURL, SIGNAL(textChanged(const QString &)), this, SLOT(en_changedTTSServerURL(const QString &)));
+	connect(ui.editTTSServerURL, SIGNAL(textChanged(QString)), this, SLOT(en_changedTTSServerURL(QString)));
 
 	ui.comboBoxTTSVoiceSelection->clear();
 	QtSpeech::TVoiceNamesList lstVoiceNames = QtSpeech::voices();

@@ -102,7 +102,7 @@ CHighlighterButtons::CHighlighterButtons(QObject *pParent)
 		m_pActionGroupHighlighterTools->addAction(pActionToolButton);
 		pActionToolButton->setEnabled(false);		// Will get enabled on proper focus-in to Search Results and/or Scripture Browser
 		pActionToolButton->setData(ndx);		// Data is our Highlighter Tool Index
-		connect(pActionToolButton, SIGNAL(highlightTriggered(QAction*, bool)), this, SLOT(en_highlighterToolTriggered(QAction*, bool)));
+		connect(pActionToolButton, SIGNAL(highlightTriggered(QAction*,bool)), this, SLOT(en_highlighterToolTriggered(QAction*,bool)));
 
 		TToolButtonPtr pButtonHighlighter = new CHighlighterWidgetAction(pActionToolButton, pParent);
 		m_lstButtons.append(pButtonHighlighter);

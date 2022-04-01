@@ -44,19 +44,19 @@ int main( int argc, char **argv )
 	Q3TextEdit *te = new Q3TextEdit( dlg );
 
 	// Connect widgets
-	QObject::connect( cw, SIGNAL( rChanged( int ) ), sld_R, SLOT( setValue( int ) ) );
-	QObject::connect( cw, SIGNAL( gChanged( int ) ), sld_G, SLOT( setValue( int ) ) );
-	QObject::connect( cw, SIGNAL( bChanged( int ) ), sld_B, SLOT( setValue( int ) ) );
-	QObject::connect( cw, SIGNAL( hChanged( int ) ), sld_H, SLOT( setValue( int ) ) );
-	QObject::connect( cw, SIGNAL( sChanged( int ) ), sld_S, SLOT( setValue( int ) ) );
-	QObject::connect( cw, SIGNAL( vChanged( int ) ), sld_V, SLOT( setValue( int ) ) );
+	QObject::connect( cw, SIGNAL( rChanged(int) ), sld_R, SLOT( setValue(int) ) );
+	QObject::connect( cw, SIGNAL( gChanged(int) ), sld_G, SLOT( setValue(int) ) );
+	QObject::connect( cw, SIGNAL( bChanged(int) ), sld_B, SLOT( setValue(int) ) );
+	QObject::connect( cw, SIGNAL( hChanged(int) ), sld_H, SLOT( setValue(int) ) );
+	QObject::connect( cw, SIGNAL( sChanged(int) ), sld_S, SLOT( setValue(int) ) );
+	QObject::connect( cw, SIGNAL( vChanged(int) ), sld_V, SLOT( setValue(int) ) );
 
-	QObject::connect( sld_R, SIGNAL( valueChanged( int ) ), cw, SLOT( setR( int ) ) );
-	QObject::connect( sld_G, SIGNAL( valueChanged( int ) ), cw, SLOT( setG( int ) ) );
-	QObject::connect( sld_B, SIGNAL( valueChanged( int ) ), cw, SLOT( setB( int ) ) );
-	QObject::connect( sld_H, SIGNAL( valueChanged( int ) ), cw, SLOT( setH( int ) ) );
-	QObject::connect( sld_S, SIGNAL( valueChanged( int ) ), cw, SLOT( setS( int ) ) );
-	QObject::connect( sld_V, SIGNAL( valueChanged( int ) ), cw, SLOT( setV( int ) ) );
+	QObject::connect( sld_R, SIGNAL( valueChanged(int) ), cw, SLOT( setR(int) ) );
+	QObject::connect( sld_G, SIGNAL( valueChanged(int) ), cw, SLOT( setG(int) ) );
+	QObject::connect( sld_B, SIGNAL( valueChanged(int) ), cw, SLOT( setB(int) ) );
+	QObject::connect( sld_H, SIGNAL( valueChanged(int) ), cw, SLOT( setH(int) ) );
+	QObject::connect( sld_S, SIGNAL( valueChanged(int) ), cw, SLOT( setS(int) ) );
+	QObject::connect( sld_V, SIGNAL( valueChanged(int) ), cw, SLOT( setV(int) ) );
 	
 	// Set a color after the connections 
 	// have been made to update the slider values
@@ -87,8 +87,8 @@ int main( int argc, char **argv )
 	Q4puGenericSignalSpy *spy = new Q4puGenericSignalSpy( dlg );
 	spy->spyOn( cw );
 
-	QObject::connect( spy, SIGNAL( caughtSignal( const QString& ) ), te, SLOT( append( const QString& ) ) );
-	QObject::connect( spy, SIGNAL( caughtSlot( const QString& ) ), te, SLOT( append( const QString& ) ) );
+	QObject::connect( spy, SIGNAL( caughtSignal(QString) ), te, SLOT( append(QString) ) );
+	QObject::connect( spy, SIGNAL( caughtSlot(QString) ), te, SLOT( append(QString) ) );
 	
 	// Apply layout and show dialog
 	dlg->setLayout( layout );

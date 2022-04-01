@@ -307,8 +307,8 @@ CNoteKeywordWidget::CNoteKeywordWidget(QWidget *parent)
 	pKeywordView->setSelectionMode(QAbstractItemView::SingleSelection);
 	pKeywordView->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui.comboKeywords->setView(pKeywordView);
-	connect(pKeywordView, SIGNAL(currentKeywordChanged(const QString &)), this, SLOT(en_keywordCurrentIndexChanged(const QString &)));
-//	connect(ui.comboKeywords, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(en_keywordCurrentIndexChanged(const QString &)));
+	connect(pKeywordView, SIGNAL(currentKeywordChanged(QString)), this, SLOT(en_keywordCurrentIndexChanged(QString)));
+//	connect(ui.comboKeywords, SIGNAL(currentIndexChanged(QString)), this, SLOT(en_keywordCurrentIndexChanged(QString)));
 	connect(ui.comboKeywords, SIGNAL(enterPressed()), this, SLOT(en_keywordEntered()));
 
 	// Setup Keywords:
@@ -319,8 +319,8 @@ CNoteKeywordWidget::CNoteKeywordWidget(QWidget *parent)
 	setKeywordListPreview();
 
 	connect(m_pKeywordModel, SIGNAL(changedNoteKeywords()), this, SLOT(en_keywordListChanged()));
-	connect(ui.comboKeywords, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequested(const QPoint &)));
-	connect(pKeywordView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_customContextMenuRequestedView(const QPoint &)));
+	connect(ui.comboKeywords, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_customContextMenuRequested(QPoint)));
+	connect(pKeywordView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_customContextMenuRequestedView(QPoint)));
 }
 
 CNoteKeywordWidget::~CNoteKeywordWidget()

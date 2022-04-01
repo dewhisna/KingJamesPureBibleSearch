@@ -52,11 +52,11 @@ CSearchCriteriaWidget::CSearchCriteriaWidget(QWidget *parent) :
 
 	connect(ui.comboSearchScope, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchScopeMode(int)));
 
-	connect(ui.treeViewSearchWithin, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(en_SearchWithinItemActivated(const QModelIndex &)));
+	connect(ui.treeViewSearchWithin, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(en_SearchWithinItemActivated(QModelIndex)));
 
 	// Setup Default TextBrightness:
 	setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(setTextBrightness(bool,int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(setAdjustDialogElementBrightness(bool)));
 }
 

@@ -133,10 +133,10 @@ CCrossRefEditDlg::CCrossRefEditDlg(CBibleDatabasePtr pBibleDatabase, CUserNotesD
 	ui.treeCrossRefs = nullptr;
 	ui.verticalLayoutRefList->insertWidget(ndx, m_pCrossRefTreeView);
 
-	connect(m_pCrossRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(en_crossRefTreeViewContextMenuRequested(const QPoint &)));
+	connect(m_pCrossRefTreeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(en_crossRefTreeViewContextMenuRequested(QPoint)));
 	connect(m_pCrossRefTreeView, SIGNAL(currentItemChanged()), this, SLOT(en_crossRefTreeViewCurrentItemChanged()));
 	connect(m_pCrossRefTreeView, SIGNAL(selectionListChanged()), this, SLOT(en_crossRefTreeViewSelectionListChanged()));
-	connect(m_pCrossRefTreeView, SIGNAL(activated(const QModelIndex &)), this, SLOT(en_crossRefTreeViewEntryActivated(const QModelIndex &)));
+	connect(m_pCrossRefTreeView, SIGNAL(activated(QModelIndex)), this, SLOT(en_crossRefTreeViewEntryActivated(QModelIndex)));
 
 	// --------------------------------------------------------------
 

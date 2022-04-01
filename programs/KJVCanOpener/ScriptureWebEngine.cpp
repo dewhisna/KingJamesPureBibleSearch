@@ -128,8 +128,8 @@ CScriptureWebEngineView::CScriptureWebEngineView(CVerseListModel *pSearchResults
 	en_setFont(CPersistentSettings::instance()->fontScriptureBrowser());
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 
-	connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(const QFont &)), this, SLOT(en_setFont(const QFont &)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(en_setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(QFont)), this, SLOT(en_setFont(QFont)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_setTextBrightness(bool,int)));
 }
 
 CScriptureWebEngineView::~CScriptureWebEngineView()

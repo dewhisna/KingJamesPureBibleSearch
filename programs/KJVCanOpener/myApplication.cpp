@@ -662,7 +662,7 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 {
 	// Setup Default TextBrightness:
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
-	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool, int)), this, SLOT(en_setTextBrightness(bool, int)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_setTextBrightness(bool,int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_setAdjustDialogElementBrightness(bool)));
 }
 
@@ -779,8 +779,8 @@ Q4puGenericSignalSpy *CMyApplication::createSpy(QObject *pOwner, QObject *pSpyOn
 	Q_ASSERT(!g_pMyApplication.isNull());
 	Q4puGenericSignalSpy *pSpy = new Q4puGenericSignalSpy((pOwner != nullptr) ? pOwner : g_pMyApplication);
 
-	QObject::connect(pSpy, SIGNAL(caughtSignal(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSignal(const QString &)));
-	QObject::connect(pSpy, SIGNAL(caughtSlot(const QString&)), g_pMyApplication, SLOT(signalSpyCaughtSlot(const QString &)));
+	QObject::connect(pSpy, SIGNAL(caughtSignal(QString)), g_pMyApplication, SLOT(signalSpyCaughtSignal(QString)));
+	QObject::connect(pSpy, SIGNAL(caughtSlot(QString)), g_pMyApplication, SLOT(signalSpyCaughtSlot(QString)));
 
 	// If we are given an object to spy on, attach to it.  If not, but were given
 	//		an owner, attach to it.  If not, don't attach to anything...
@@ -841,7 +841,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(isClosing(CKJVCanOpener*)), this, SLOT(removeKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
-	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*, bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*, bool)));
+	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*,bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*,bool)));
 	//	Do this via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
 	//	won't crash if the menu that was triggering it gets yanked out from under it:
 	connect(pCanOpener, SIGNAL(triggerUpdateSearchWindowList()), this, SIGNAL(updateSearchWindowList()), Qt::QueuedConnection);
