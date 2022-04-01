@@ -125,7 +125,7 @@ CTipEdit::CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidg
 	//	type and not Qt::Window like old Emscripten.
 	setWindowFlags(Qt::Tool | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_nTipEditType, m_pParentCanOpener) ? Qt::WindowTitleHint : Qt::WindowType()));
 #else
-	setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowSystemMenuHint | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_nTipEditType, m_pParentCanOpener) ? Qt::WindowTitleHint : Qt::WindowType()));
+	setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::BypassGraphicsProxyWidget | Qt::WindowStaysOnTopHint | (tipEditIsPinned(m_nTipEditType, m_pParentCanOpener) ? Qt::WindowTitleHint : Qt::WindowType()));
 #endif
 	setReadOnly(true);
 	setLineWrapMode(QTextEdit::NoWrap);
