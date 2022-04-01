@@ -578,6 +578,16 @@ endif()
 #testlib:QT.testlib.CONFIG -= console
 
 
+if(VNC)
+	# Unlike our special qws/vnc-linux-x86_64-g++ target for 4.8.7
+	#	VNC builds, the Qt5/Qt6 VNC platform doesn't define VNCSERVER
+	#	so we must do it ourselves:
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		VNCSERVER
+	)
+endif()
+
+
 if(CONSOLE)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		IS_CONSOLE_APP
