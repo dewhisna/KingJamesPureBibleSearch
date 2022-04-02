@@ -995,7 +995,7 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(int nBk)				// 0-based
 		// Only create the book if we haven't done so already:
 		m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumBk++;
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[nTst-1].m_nNumBk++;
-		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.resize(qMax(nBkText+1, m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size()));
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.resize(qMax(nBkText+1, static_cast<unsigned int>(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size())));
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText].m_bCreated = true;
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText].m_nTstBkNdx = bookIndexToTestamentBookIndex(nBkText+1);
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText].m_nTstNdx = nTst;
@@ -1004,7 +1004,7 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(int nBk)				// 0-based
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText].m_lstBkAbbr.append(g_arrBibleBooks.at(nBkPri).m_strCommonAbbr.split(QChar(';'), My_QString_SkipEmptyParts));
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText].m_strTblName = g_arrBibleBooks.at(nBkPri).m_strTableName;
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText].m_strDesc = g_arrBibleBooks.at(nBkPri).m_strDescription;
-		m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.resize(qMax(nBkText+1, m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.size()));
+		m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.resize(qMax(nBkText+1, static_cast<unsigned int>(m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.size())));
 	}
 	if (nBkPri != static_cast<unsigned int>(nBk)) {
 		// If this is a duality entry, add its abbreviates to its primary:

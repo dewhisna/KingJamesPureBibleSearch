@@ -448,7 +448,7 @@ CKJVBibleChapterVerseCounts::CKJVBibleChapterVerseCounts()
 
 	for (uint32_t ndx = 0; ndx < _countof(arrChapterVerseCounts); ++ndx) {
 		push_back(arrChapterVerseCounts[ndx].m_strChpVerses.split(","));
-		Q_ASSERT(arrChapterVerseCounts[ndx].m_nNumChp == last().size());
+		Q_ASSERT(arrChapterVerseCounts[ndx].m_nNumChp == static_cast<unsigned int>(last().size()));
 	}
 
 	Q_ASSERT(size() == NUM_BK);
@@ -511,7 +511,7 @@ CMTBibleChapterVerseCounts::CMTBibleChapterVerseCounts()
 
 	for (uint32_t ndx = 0; ndx < _countof(arrChapterVerseCounts); ++ndx) {
 		push_back(arrChapterVerseCounts[ndx].m_strChpVerses.split(","));
-		Q_ASSERT(arrChapterVerseCounts[ndx].m_nNumChp == last().size());
+		Q_ASSERT(arrChapterVerseCounts[ndx].m_nNumChp == static_cast<unsigned int>(last().size()));
 	}
 
 	Q_ASSERT(size() == NUM_BK_OT);
@@ -534,7 +534,7 @@ CSynodalBibleChapterVerseCounts::CSynodalBibleChapterVerseCounts()
 
 	for (uint32_t ndx = 0; ndx < _countof(arrChapterVerseCounts); ++ndx) {
 		push_back(arrChapterVerseCounts[ndx].m_strChpVerses.split(","));
-		Q_ASSERT(arrChapterVerseCounts[ndx].m_nNumChp == last().size());
+		Q_ASSERT(arrChapterVerseCounts[ndx].m_nNumChp == static_cast<unsigned int>(last().size()));
 	}
 
 	Q_ASSERT(size() == NUM_BK);
