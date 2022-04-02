@@ -62,6 +62,7 @@ endif()
 set(GUI_TYPE)
 
 set(CONSOLE ON)
+set(USE_GEMATRIA ON)
 
 # -----------------------------------------------------------------------------
 
@@ -113,6 +114,12 @@ set(KJVDataDump_SOURCES
 	"../KJVCanOpener/qwebchannel/webChannelBibleAudio.cpp"
 )
 
+if(USE_GEMATRIA)
+	list(APPEND KJVDataDump_SOURCES
+		"../KJVCanOpener/Gematria.cpp"
+	)
+endif()
+
 # -------------------------------------
 
 # Headers Files:
@@ -142,6 +149,12 @@ set(KJVDataDump_HEADERS
 	# ----
 	"../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"
 )
+
+if(USE_GEMATRIA)
+	list(APPEND KJVDataDump_HEADERS
+		"../KJVCanOpener/Gematria.h"
+	)
+endif()
 
 # -------------------------------------
 
@@ -230,6 +243,14 @@ if(CONSOLE)
 	)
 endif()
 
+# -----------------------------------
+
+# Enable Gematria Calculations:
+if(USE_GEMATRIA)
+	target_compile_definitions(${KJVDataDump_TARGET} PRIVATE
+		USE_GEMATRIA
+	)
+endif()
 
 # -----------------------------------
 

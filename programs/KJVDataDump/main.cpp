@@ -28,6 +28,10 @@
 #include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/PersistentSettings.h"
+#ifdef USE_GEMATRIA
+#include "../KJVCanOpener/Gematria.h"
+#include "../KJVCanOpener/CSV.h"
+#endif
 // ----
 #include "../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"
 
@@ -39,6 +43,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
+#include <QList>
 #include <QtGlobal>
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
@@ -89,6 +94,9 @@ int main(int argc, char *argv[])
 	bool bOutputTransChangeAdded = false;
 	bool bOutputWebChannelBibleAudioURLs = false;
 	bool bLookingForVersification = false;
+#ifdef USE_GEMATRIA
+	bool bOutputGematria = false;
+#endif
 	QString strV11n;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
@@ -123,6 +131,10 @@ int main(int argc, char *argv[])
 			bOutputWebChannelBibleAudioURLs = true;
 		} else if (strArg.compare("-v11n") == 0) {
 			bLookingForVersification = true;
+#ifdef USE_GEMATRIA
+		} else if (strArg.compare("-gematria") == 0) {
+			bOutputGematria = true;
+#endif
 		} else {
 			bUnknownOption = true;
 		}
@@ -133,7 +145,7 @@ int main(int argc, char *argv[])
 	if ((nArgsFound != 1) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataDump Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index>\n\n").arg(argv[0]).toUtf8().data();
-		std::cerr << QString("Reads the specified database and dumps relevant each verse\n\n").toUtf8().data();
+		std::cerr << QString("Reads the specified database and dumps relevant data for each verse\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
@@ -145,6 +157,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -wba = Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
 		std::cerr << QString("  -v11n <index> = Use versification <index> if the database supports it\n").toUtf8().data();
 		std::cerr << QString("         (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
+#ifdef USE_GEMATRIA
+		std::cerr << QString("  -gematria = Dump CSV output of all gematria counts (supersedes verse text output modes)\n").toUtf8().data();
+#endif
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -171,6 +186,16 @@ int main(int argc, char *argv[])
 	// ------------------------------------------------------------------------
 
 	std::cerr << QString("Reading database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
+
+#ifdef USE_GEMATRIA
+	// If outputting gematria, we must enable it before we
+	//	read the database file or else the database won't
+	//	have gematria values and we will crash below trying
+	//	to use them:
+	if (bOutputGematria) {
+		TBibleDatabaseList::setUseGematria(true);
+	}
+#endif
 
 	CReadDatabase rdbMain;
 	if (!rdbMain.haveBibleDatabaseFiles(bblDescriptor)) {
@@ -229,6 +254,18 @@ int main(int argc, char *argv[])
 		bool m_bOutputTransChangeAdded;
 	} vtrt(bOutputVerseText, bOutputTransChangeAdded);
 
+#ifdef USE_GEMATRIA
+	struct TGematriaVerseValues {
+		uint32_t m_nNormalIndex = 0;
+		CRelIndex m_nRelIndex;
+		uint64_t m_arrnValues[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};
+		bool m_arrbUse[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};			// Note: Inverted from logic in CGematriaCalc
+	};
+	typedef QList<TGematriaVerseValues> CGematriaVerseValueList;
+
+	bool arrbGematriaColsToUse[GBTE_COUNT][GMTE_COUNT][GLTE_COUNT] = {};	// Note: Inverted from logic in CGematriaCalc
+	CGematriaVerseValueList lstGematriaVerseValues;
+#endif
 
 	CRelIndex ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
 
@@ -260,37 +297,70 @@ int main(int argc, char *argv[])
 			ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_NextChapter);
 			continue;
 		} else {
-			const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxCurrent);
-			if (pVerse) {
-				lstVerseWords.clear();
-				QString strParsedVerse = pBibleDatabase->richVerseText(ndxCurrent, vtrt);
-
-				if ((!bOutputVerseText && bOutputTemplates) ||
-					(bOutputVerseText && !lstVerseWords.isEmpty())) {
-					QString strSpacer;
-					if (bPrintReference) {
-						CRelIndex ndxVerse(ndxCurrent);
-						ndxVerse.setWord(0);
-						QString strRef = (bPrintReferenceAbbrev ?
-												pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
-												pBibleDatabase->PassageReferenceText(ndxVerse));
-						std::cout << strRef.toUtf8().data() << " : ";
-						strSpacer.fill(QChar(' '), strRef.size() + 3);
-					}
-					if (bOutputTemplates) {
-						std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
-					}
-					if (bOutputVerseText) {
-						if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
-						if (bOutputTransChangeAdded) {
-							std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
-						} else {
-							std::cout << strParsedVerse.toUtf8().data();
+#ifdef USE_GEMATRIA
+			if (bOutputGematria) {
+				CRefCountCalc refCalc(pBibleDatabase.data(), CRefCountCalc::RTE_WORD, ndxCurrent);
+				unsigned int nCount = refCalc.ofVerse().second;
+				uint32_t ndxNormal = pBibleDatabase->NormalizeIndex(ndxCurrent);
+				TGematriaVerseValues gvv;
+				gvv.m_nNormalIndex = ndxNormal;
+				gvv.m_nRelIndex = ndxCurrent;
+				while (nCount--) {
+					for (uint32_t nBaseType = 0; nBaseType < GBTE_COUNT; ++nBaseType) {
+						for (uint32_t nMathXform = 0; nMathXform < GMTE_COUNT; ++nMathXform) {
+							for (uint32_t nLtrXform = 0; nLtrXform < GLTE_COUNT; ++nLtrXform) {
+								const CConcordanceEntry *pConcordanceEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxNormal);
+								Q_ASSERT(pConcordanceEntry != nullptr);
+								if (pConcordanceEntry != nullptr) {
+									CGematriaIndex ndxGematria(nBaseType, nMathXform, nLtrXform);
+									const CGematriaCalc &nWordGematria = pConcordanceEntry->gematria();
+									gvv.m_arrnValues[nBaseType][nMathXform][nLtrXform] += nWordGematria.value(ndxGematria);
+									gvv.m_arrbUse[nBaseType][nMathXform][nLtrXform] = gvv.m_arrbUse[nBaseType][nMathXform][nLtrXform] || !nWordGematria.skip(ndxGematria);
+									arrbGematriaColsToUse[nBaseType][nMathXform][nLtrXform] = arrbGematriaColsToUse[nBaseType][nMathXform][nLtrXform] || gvv.m_arrbUse[nBaseType][nMathXform][nLtrXform];
+								}
+							}
 						}
-						std::cout << std::endl;
+					}
+
+					++ndxNormal;
+				}
+				lstGematriaVerseValues.push_back(gvv);
+			} else {
+#endif
+				const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxCurrent);
+				if (pVerse) {
+					lstVerseWords.clear();
+					QString strParsedVerse = pBibleDatabase->richVerseText(ndxCurrent, vtrt);
+
+					if ((!bOutputVerseText && bOutputTemplates) ||
+						(bOutputVerseText && !lstVerseWords.isEmpty())) {
+						QString strSpacer;
+						if (bPrintReference) {
+							CRelIndex ndxVerse(ndxCurrent);
+							ndxVerse.setWord(0);
+							QString strRef = (bPrintReferenceAbbrev ?
+													pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
+													pBibleDatabase->PassageReferenceText(ndxVerse));
+							std::cout << strRef.toUtf8().data() << " : ";
+							strSpacer.fill(QChar(' '), strRef.size() + 3);
+						}
+						if (bOutputTemplates) {
+							std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
+						}
+						if (bOutputVerseText) {
+							if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
+							if (bOutputTransChangeAdded) {
+								std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
+							} else {
+								std::cout << strParsedVerse.toUtf8().data();
+							}
+							std::cout << std::endl;
+						}
 					}
 				}
+#ifdef USE_GEMATRIA
 			}
+#endif
 		}
 
 		// Must increment to next physical word index instead of using calculator movement
@@ -299,6 +369,53 @@ int main(int argc, char *argv[])
 		ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_EndOfVerse);
 		ndxCurrent = pBibleDatabase->DenormalizeIndex(pBibleDatabase->NormalizeIndex(ndxCurrent)+1);
 	}
+
+#ifdef USE_GEMATRIA
+	// Dump gematria calc results (done here to drop entire columns with no output):
+	if (bOutputGematria) {
+		QString strGematriaOutput;
+		CCSVStream csv(&strGematriaOutput, QIODevice::WriteOnly);
+		// Print CSV Headers:
+		csv << QString("NormalIndex");
+		csv << QString("RelIndex");
+		csv << QString("Reference");
+		for (uint32_t nBaseType = 0; nBaseType < GBTE_COUNT; ++nBaseType) {
+			for (uint32_t nMathXform = 0; nMathXform < GMTE_COUNT; ++nMathXform) {
+				for (uint32_t nLtrXform = 0; nLtrXform < GLTE_COUNT; ++nLtrXform) {
+					if (arrbGematriaColsToUse[nBaseType][nMathXform][nLtrXform]) {
+						CGematriaIndex ndxGematria(nBaseType, nMathXform, nLtrXform);
+						csv << CGematriaNames::name(ndxGematria);
+					}
+				}
+			}
+		}
+		csv.endLine();
+		// Print Gematria results lines:
+		for (auto const &gvv : lstGematriaVerseValues) {
+			csv << QString("%1").arg(gvv.m_nNormalIndex);
+			csv << gvv.m_nRelIndex.asAnchor();
+			CRelIndex ndxRef = gvv.m_nRelIndex;
+			if (!ndxRef.isColophon() && !ndxRef.isSuperscription()) ndxRef.setWord(0);		// Make refs print correctly without word index
+			if (bPrintReferenceAbbrev) {
+				csv << pBibleDatabase->PassageReferenceAbbrText(ndxRef, true);
+			} else {
+				csv << pBibleDatabase->PassageReferenceText(ndxRef, true);
+			}
+			for (uint32_t nBaseType = 0; nBaseType < GBTE_COUNT; ++nBaseType) {
+				for (uint32_t nMathXform = 0; nMathXform < GMTE_COUNT; ++nMathXform) {
+					for (uint32_t nLtrXform = 0; nLtrXform < GLTE_COUNT; ++nLtrXform) {
+						if (arrbGematriaColsToUse[nBaseType][nMathXform][nLtrXform]) {
+							CGematriaIndex ndxGematria(nBaseType, nMathXform, nLtrXform);
+							csv << QString("%1").arg(gvv.m_arrnValues[nBaseType][nMathXform][nLtrXform]);
+						}
+					}
+				}
+			}
+			csv.endLine();
+		}
+		std::cout << strGematriaOutput.toUtf8().data();
+	}
+#endif
 
 	// ------------------------------------------------------------------------
 
