@@ -937,9 +937,11 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 
 void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 {
+	CKJVCanOpener *pLastCanOpener = (m_nLastActivateCanOpener >= 0) ? m_lstKJVCanOpeners.at(m_nLastActivateCanOpener) : nullptr;
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 		if (m_lstKJVCanOpeners.at(ndx) == pCanOpener) {
 			m_nLastActivateCanOpener = ndx;
+			emit changeActiveCanOpener(pCanOpener, pLastCanOpener);
 			return;
 		}
 	}

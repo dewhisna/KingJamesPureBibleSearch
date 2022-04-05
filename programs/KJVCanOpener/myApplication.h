@@ -224,6 +224,7 @@ signals:
 	void loadFile(const QString &strFilename);
 	void canQuitChanged(bool bCanQuit);
 	void updateSearchWindowList();
+	void changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener, CKJVCanOpener *pOldActiveCanOpener);
 
 #ifdef SIGNAL_SPY_DEBUG
 public slots:
