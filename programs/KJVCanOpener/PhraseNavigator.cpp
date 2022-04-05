@@ -873,7 +873,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 #endif
 
 		if ((ndx == 0) || (bInFirstWordStar)) {				// If we're matching the first word, build complete index to start off the compare:
-			int nFirstWord = m_pBibleDatabase->lstWordList().indexOf(expCurWordWildKey);
+			int nFirstWord = expCurWordWildKey.isValid() ? m_pBibleDatabase->lstWordList().indexOf(expCurWordWildKey) : -1;
 			if (nFirstWord == -1) {
 				if (nCursorWord > ndx) {
 					// If we've stopped matching before the cursor, we have no "next words":
@@ -887,14 +887,14 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 				bInFirstWordStar = true;			// Treat "*" special, as if we have a match with no results, but yet we do
 			} else {
 				bInFirstWordStar = false;
-				int nLastWord = m_pBibleDatabase->lstWordList().lastIndexOf(expCurWordWildKey);
+				int nLastWord = expCurWordWildKey.isValid() ? m_pBibleDatabase->lstWordList().lastIndexOf(expCurWordWildKey) : -1;
 				Q_ASSERT(nLastWord != -1);			// Should have at least one match since forward search matched above!
 
 				for (int ndxWord = nFirstWord; ndxWord <= nLastWord; ++ndxWord) {
 #if QT_VERSION >= 0x050F00
-					if (!expCurWordExactKey.match(m_pBibleDatabase->lstWordList().at(ndxWord)).hasMatch()) continue;
+					if (!expCurWordExactKey.isValid() || !expCurWordExactKey.match(m_pBibleDatabase->lstWordList().at(ndxWord)).hasMatch()) continue;
 #else
-					if (!expCurWordExactKey.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
+					if (!expCurWordExactKey.isValid() || !expCurWordExactKey.exactMatch(m_pBibleDatabase->lstWordList().at(ndxWord))) continue;
 #endif
 					TWordListMap::const_iterator itrWordMap = m_pBibleDatabase->mapWordList().find(m_pBibleDatabase->lstWordList().at(ndxWord));
 					Q_ASSERT(itrWordMap != m_pBibleDatabase->mapWordList().end());
@@ -911,9 +911,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 									 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? wordEntry.m_lstDecomposedAltWords.at(ndxAltWord) : wordEntry.m_lstDecomposedHyphenAltWords.at(ndxAltWord)) :
 									 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? wordEntry.m_lstDeApostrAltWords.at(ndxAltWord) : wordEntry.m_lstDeApostrHyphenAltWords.at(ndxAltWord)));
 #if QT_VERSION >= 0x050F00
-							if (expCurWord.match(strAltWord).hasMatch()) {
+							if (expCurWord.isValid() && expCurWord.match(strAltWord).hasMatch()) {
 #else
-							if (expCurWord.exactMatch(strAltWord)) {
+							if (expCurWord.isValid() && expCurWord.exactMatch(strAltWord)) {
 #endif
 								subPhrase.m_lstMatchMapping.insert(subPhrase.m_lstMatchMapping.end(),
 																	&wordEntry.m_ndxNormalizedMapping[nCount],
@@ -937,9 +937,9 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->decomposedWord() : pNextWordEntry->decomposedHyphenWord()) :
 							 ((!m_pBibleDatabase->settings().hyphenSensitive()) ? pNextWordEntry->deApostrWord() : pNextWordEntry->deApostrHyphenWord()));
 #if QT_VERSION >= 0x050F00
-					if (expCurWord.match(strNextWord).hasMatch()) {
+					if (expCurWord.isValid() && expCurWord.match(strNextWord).hasMatch()) {
 #else
-					if (expCurWord.exactMatch(strNextWord)) {
+					if (expCurWord.isValid() && expCurWord.exactMatch(strNextWord)) {
 #endif
 						lstNextMapping.push_back(subPhrase.m_lstMatchMapping.at(ndxWord)+1);
 					}
