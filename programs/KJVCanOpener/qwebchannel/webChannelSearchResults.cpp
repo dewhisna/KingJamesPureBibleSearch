@@ -738,7 +738,7 @@ CWebChannelSearchResults *CWebChannelThreadController::createWebChannelSearchRes
 		connect(pSearchResults, SIGNAL(resolvedPassageReference(uint32_t,uint32_t)), pChannel, SIGNAL(resolvedPassageReference(uint32_t,uint32_t)));
 
 		connect(pSearchResults, SIGNAL(scriptureBrowserRender(uint,uint32_t,QString,QString)), pChannel, SIGNAL(scriptureBrowserRender(uint,uint32_t,QString,QString)));
-		connect(pSearchResults, SIGNAL(setBibleAudioURLs(QString)), pChannel, SIGNAL(setBibleAudioURLs(QString&)));
+		connect(pSearchResults, SIGNAL(setBibleAudioURLs(QString)), pChannel, SIGNAL(setBibleAudioURLs(QString)));
 	}
 
 	// Initialize after connects in case pSearchResults wants to emit any signals during init:
