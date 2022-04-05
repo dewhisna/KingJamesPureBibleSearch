@@ -104,6 +104,7 @@ option(USE_MULTITHREADED_SEARCH_RESULTS "Enable Multithreaded Search Results Com
 option(USE_MULTITHREADED_INVERT_LOGIC "Use Single-Threaded as Default when Multithreading Enabled" ON)
 option(USE_EXTENDED_REL_INDEXES "Use Extended RelIndexes" OFF)
 option(USE_GEMATRIA "Use Gematria Calculations" ON)
+cmake_dependent_option(USE_GEOMAP "Use Geo Map Support" OFF "NOT CONSOLE;NOT VNC;NOT WASM;NOT EMSCRIPTEN" OFF)
 # -------------------------------------
 option(ENABLE_TRANSLATIONS "Enable Translations" ON)
 
@@ -134,6 +135,7 @@ if(ENABLE_TRANSLATIONS)
 	list(APPEND QT_COMPONENTS_NOLINK LinguistTools)
 endif()
 
+
 if(NOT CONSOLE)
 	set(GUI_TYPE)
 	if(WIN32)
@@ -143,6 +145,12 @@ if(NOT CONSOLE)
 		set(GUI_TYPE MACOSX_BUNDLE)
 	endif()
 endif()
+
+
+if(USE_GEOMAP)
+	list(APPEND QT_COMPONENTS Qml Quick)
+endif()
+
 
 # -----------------------------------------------------------------------------
 
@@ -270,6 +278,12 @@ if(USE_GEMATRIA)
 	)
 endif()
 
+if(USE_GEOMAP)
+	list(APPEND KJVCanOpener_SOURCES
+		"GeoMap.cpp"
+	)
+endif()
+
 # -------------------------------------
 
 # Headers Files:
@@ -376,6 +390,12 @@ endif()
 if(USE_GEMATRIA)
 	list(APPEND KJVCanOpener_HEADERS
 		"Gematria.h"
+	)
+endif()
+
+if(USE_GEOMAP)
+	list(APPEND KJVCanOpener_HEADERS
+		"GeoMap.h"
 	)
 endif()
 
@@ -935,6 +955,14 @@ endif()
 if(USE_GEMATRIA)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		USE_GEMATRIA
+	)
+endif()
+
+
+# Enable GeoMap Visualizations:
+if(USE_GEOMAP)
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		USE_GEOMAP
 	)
 endif()
 

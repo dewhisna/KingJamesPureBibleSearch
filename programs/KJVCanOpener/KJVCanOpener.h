@@ -52,6 +52,9 @@ class CCrossRefEditDlg;
 class CHighlighterButtons;
 class CTipEdit;
 class CDictionaryWidget;
+#ifdef USE_GEOMAP
+class CGeoMap;
+#endif
 
 // ============================================================================
 
@@ -206,6 +209,9 @@ protected slots:
 	void en_viewGematria();
 	void setGematriaEnable();
 
+	void en_viewGeoMap();
+	void setGeoMapEnable(bool bEnable);
+
 	void en_HelpManual();
 	void en_HelpAbout();
 	void en_PureBibleSearchDotCom();
@@ -223,6 +229,8 @@ protected slots:
 	void en_LaunchTTSOptionsConfig();
 
 	void en_NewCanOpener(QAction *pAction = nullptr);
+
+	void en_changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener, CKJVCanOpener *pOldActiveCanOpener);
 
 #ifdef USING_QT_SPEECH
 	void en_speechPause();
@@ -255,6 +263,9 @@ private:
 	QAction *m_pActionViewDetails;	// View Details
 #ifdef USE_GEMATRIA
 	QAction *m_pActionViewGematria;	// View Gematria
+#endif
+#ifdef USE_GEOMAP
+	QAction *m_pActionViewGeoMap;	// View GeoMap
 #endif
 	// ----
 	QAction *m_pActionBookBackward;	// Navigate Book Backward
@@ -289,6 +300,10 @@ private:
 
 	bool m_bCanClose;				// Set to false when displaying a window-modal dialog to keep application from trying to close us
 	bool m_bIsClosing;				// True when window has issued an isClosing signal and set a deleteLater(), used as a guard for our event handler
+
+#ifdef USE_GEOMAP
+	QPointer<CGeoMap> m_pGeoMap;
+#endif
 
 	CSearchSpecWidget *m_pSearchSpecWidget;
 	QSplitter *m_pSplitter;

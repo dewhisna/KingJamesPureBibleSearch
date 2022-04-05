@@ -122,5 +122,44 @@
 		<file>res/menu-icon-128.png</file>
 		<file>res/menu-icon-256.png</file>
 		<file>res/Gematria-icon-2.jpg</file>
+		<file>res/GeoMap_icon_1-512.png</file>
+		<!--
+			Sidebar sites earth world globe Icon
+			https://icon-icons.com/icon/sidebar-sites-earth-world-globe/19206
+		-->
+		<file>res/earth_world_globe_20458-32.png</file>
+		<file>res/earth_world_globe_20458-48.png</file>
+		<file>res/earth_world_globe_20458-64.png</file>
+		<file>res/earth_world_globe_20458-96.png</file>
+		<file>res/earth_world_globe_20458-128.png</file>
+		<file>res/earth_world_globe_20458-256.png</file>
+		<file>res/earth_world_globe_20458-512.png</file>
+		<!--
+			GeoMap Resources:
+			Based On: https://www.qt.io/blog/2017/05/24/qtlocation-using-offline-map-tiles-openstreetmap-plugin
+		-->
+		<file>res/geomap/geomap.qml</file>
+
+		<file>res/geomap/offline_tiles/osm_100-l-3-0-0-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-1-0-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-1-0-1.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-1-1-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-1-1-1.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-0-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-0-1.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-0-2.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-0-3.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-1-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-1-1.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-1-2.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-1-3.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-2-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-2-1.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-2-2.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-2-3.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-3-0.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-3-1.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-3-2.png</file>
+		<file>res/geomap/offline_tiles/osm_100-l-3-2-3-3.png</file>
 	</qresource>
 </RCC>

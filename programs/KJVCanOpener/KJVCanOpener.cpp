@@ -45,6 +45,10 @@
 #include "PhraseNavigator.h"
 #include "PhraseListModel.h"
 
+#ifdef USE_GEOMAP
+#include "GeoMap.h"
+#endif
+
 #if __cplusplus > 199711L
 #include <random>
 #include <chrono>
@@ -269,6 +273,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #ifdef USE_GEMATRIA
 	m_pActionViewGematria(nullptr),
 #endif
+#ifdef USE_GEOMAP
+	m_pActionViewGeoMap(nullptr),
+#endif
 	// ----
 	m_pActionBookBackward(nullptr),
 	m_pActionBookForward(nullptr),
@@ -317,6 +324,10 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 	// Seed our random number generator for launching random passages:
 	srand(time(nullptr));
+
+#ifdef USE_GEOMAP
+	m_pGeoMap = new CGeoMap(this);
+#endif
 
 	QAction *pAction;
 
@@ -539,6 +550,8 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pAction->setEnabled(g_pMyApplication->canQuit());
 	connect(g_pMyApplication.data(), SIGNAL(canQuitChanged(bool)), pAction, SLOT(setEnabled(bool)));
 
+	connect(g_pMyApplication.data(), SIGNAL(changeActiveCanOpener(CKJVCanOpener*,CKJVCanOpener*)), this, SLOT(en_changeActiveCanOpener(CKJVCanOpener*,CKJVCanOpener*)));
+
 	// --- Edit Menu
 	connect(m_pBrowserWidget, SIGNAL(activatedBrowser(bool)), this, SLOT(en_activatedBrowser(bool)));
 	connect(m_pSearchResultWidget, SIGNAL(activatedSearchResults()), this, SLOT(en_activatedSearchResults()));
@@ -729,6 +742,14 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	}
 #endif
 
+#ifdef USE_GEOMAP
+	m_pActionViewGeoMap = m_pViewMenu->addAction(QIcon(":/res/GeoMap_icon_1-512.png"), tr("View GeoM&ap", "MainMenu"), this, SLOT(en_viewGeoMap()));
+	m_pActionViewGeoMap->setStatusTip(tr("View GeoMap", "MainMenu"));
+	m_pActionViewGeoMap->setCheckable(true);
+	m_pActionViewGeoMap->setChecked(false);
+	connect(m_pGeoMap, &CGeoMap::closedGeoMap, this, [this]() { m_pActionViewGeoMap->setChecked(false); });
+#endif
+
 	// --- Navigate Menu
 	QMenu *pNavMenu = ui.menuBar->addMenu(tr("&Navigate", "MainMenu"));
 
@@ -821,6 +842,9 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	if (TBibleDatabaseList::useGematria()) {
 		ui.browserNavigationToolBar->addAction(m_pActionViewGematria);
 	}
+#endif
+#ifdef USE_GEOMAP
+	ui.browserNavigationToolBar->addAction(m_pActionViewGeoMap);
 #endif
 
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
@@ -1735,6 +1759,10 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 	raise();
 	activateWindow();
 
+#ifdef USE_GEOMAP
+	if (!m_pGeoMap.isNull()) m_pGeoMap->setWindowTitle("GeoMap : " + windowTitle());
+#endif
+
 	if (bIsFirstCanOpener) {
 		// If the Search Result was focused last time, focus it again, else if
 		//	the browser was focus last time, focus it again.  Otherwise, leave
@@ -1853,6 +1881,15 @@ void CKJVCanOpener::closeEvent(QCloseEvent *event)
 	} else if ((!m_pBibleDatabase.isNull()) && (g_pMyApplication->isLastCanOpener(m_pBibleDatabase->compatibilityUUID()))) {
 		savePersistentSettings(true);
 	}
+
+#ifdef USE_GEOMAP
+	// Note: We must delete the QQmlApplicationEngine object in CGeoMap
+	//	before we delete our QApplication object or we will SegFault.
+	//	Plus, we must do this here instead of in the destructor, otherwise
+	//	the "QML Application" will take over the event loop and the
+	//	deleteLater() for KJVCanOpener won't actually run...
+	if (!m_pGeoMap.isNull()) delete m_pGeoMap;
+#endif
 
 	m_bIsClosing = true;
 	emit isClosing(this);
@@ -2833,6 +2870,36 @@ void CKJVCanOpener::setGematriaEnable()
 #endif
 
 	emit canShowGematria(bGematriaEnable);
+}
+
+void CKJVCanOpener::en_viewGeoMap()
+{
+#ifdef USE_GEOMAP
+	Q_ASSERT(m_pActionViewGeoMap != nullptr);
+	if (!m_pGeoMap.isNull()) m_pGeoMap->displayGeoMap(m_pActionViewGeoMap->isChecked());
+#endif
+}
+
+void CKJVCanOpener::setGeoMapEnable(bool bEnabled)
+{
+#ifdef USE_GEOMAP
+	Q_ASSERT(m_pActionViewGeoMap != nullptr);
+	m_pActionViewGeoMap->setEnabled(bEnabled);
+#endif
+}
+
+void CKJVCanOpener::en_changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener, CKJVCanOpener *pOldActiveCanOpener)
+{
+#ifdef USE_GEOMAP
+	Q_ASSERT(m_pActionViewGeoMap != nullptr);
+	if (m_pActionViewGeoMap->isChecked() && !m_pGeoMap.isNull()) {
+		if ((pNewActiveCanOpener == this) && (pOldActiveCanOpener != this)) {
+			m_pGeoMap->displayGeoMap(true);
+		} else if ((pOldActiveCanOpener == this) && (pNewActiveCanOpener != this)) {
+			m_pGeoMap->displayGeoMap(false);
+		}
+	}
+#endif
 }
 
 // ------------------------------------------------------------------
