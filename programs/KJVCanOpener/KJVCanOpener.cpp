@@ -2885,6 +2885,8 @@ void CKJVCanOpener::setGeoMapEnable(bool bEnabled)
 #ifdef USE_GEOMAP
 	Q_ASSERT(m_pActionViewGeoMap != nullptr);
 	m_pActionViewGeoMap->setEnabled(bEnabled);
+#else
+	Q_UNUSED(bEnabled);
 #endif
 }
 
@@ -2899,6 +2901,9 @@ void CKJVCanOpener::en_changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener,
 			m_pGeoMap->displayGeoMap(false);
 		}
 	}
+#else
+	Q_UNUSED(pNewActiveCanOpener);
+	Q_UNUSED(pOldActiveCanOpener);
 #endif
 }
 
