@@ -310,7 +310,7 @@ bool CUserNotesDatabase::characters(const QString &strChars)
 	return true;
 }
 
-bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attr)
+bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &attr)
 {
 	Q_UNUSED(qName);
 
@@ -657,7 +657,7 @@ bool CUserNotesDatabase::endElement(const QString &namespaceURI, const QString &
 QString CUserNotesDatabase::errorString() const
 {
 	QString strErrorText = m_strLastError;
-	QString strReaderError = QXmlDefaultHandler::errorString();
+	QString strReaderError = CXmlDefaultHandler::errorString();
 	if ((!strErrorText.isEmpty()) && (!strReaderError.isEmpty())) strErrorText += QChar('\n');
 	strErrorText += strReaderError;
 	return strErrorText;
@@ -709,16 +709,12 @@ bool CUserNotesDatabase::load(QIODevice *pIODevice)
 		return false;
 	}
 
-	QXmlInputSource xmlInput(&inUND);
-	QXmlSimpleReader xmlReader;
-
-	xmlReader.setContentHandler(this);
-	xmlReader.setErrorHandler(this);
-	xmlReader.setLexicalHandler(this);
+	CXmlReader xmlReader(&inUND);
+	xmlReader.setXmlHandler(this);
 
 	clearXMLVars();
 
-	if (!xmlReader.parse(xmlInput)) {
+	if (!xmlReader.parse()) {
 		m_strLastError = tr("Failed to read and parse King James User Notes Database File!", "KJNErrors") + QString("\n\n") + errorString();
 		inUND.close();
 		return false;

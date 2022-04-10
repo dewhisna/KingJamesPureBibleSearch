@@ -35,8 +35,6 @@ greaterThan(QT_MAJOR_VERSION,4) {
 
 QT       *= core gui xml
 
-# Qt6 drops SAX XML Parser which we need.  For now, get it from the Qt5 compatibility shim:
-greaterThan(QT_MAJOR_VERSION,5):QT*=core5compat
 DEFINES *= QT_DEPRECATED_WARNINGS
 
 defined(qtHaveModule, test) {
@@ -373,7 +371,8 @@ SOURCES += \
 	UserNotesDatabase.cpp \
 	VerseListModel.cpp \
 	VerseListDelegate.cpp \
-	VerseRichifier.cpp
+	VerseRichifier.cpp \
+	XML.cpp
 
 buildKJVDatabase:SOURCES += \
 	BuildDB.cpp
@@ -452,7 +451,8 @@ HEADERS += \
 	VerseListModel.h \
 	VerseListDelegate.h \
 	VerseRichifier.h \
-	version.h
+	version.h \
+	XML.h
 
 buildKJVDatabase:HEADERS += \
 	BuildDB.h

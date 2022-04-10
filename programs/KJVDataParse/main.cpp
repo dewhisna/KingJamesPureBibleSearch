@@ -27,6 +27,7 @@
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/CSV.h"
 #include "../KJVCanOpener/BibleLayout.h"
+#include "../KJVCanOpener/XML.h"
 
 #include "xc_KJVDataParse.h"
 
@@ -43,8 +44,6 @@
 #else
 #include <QRegExp>
 #endif
-#include <QXmlAttributes>
-#include <QXmlDefaultHandler>
 #include <QStringList>
 #include <QtGlobal>
 #include <QSettings>
@@ -304,8 +303,8 @@ static QString WordFromWordSet(const TWordListSet &setAltWords)
 // ============================================================================
 // ============================================================================
 
-// Like the QXmlAttributes::index() function, but case-insensitive
-static int findAttribute(const QXmlAttributes &attr, const QString &strName)
+// Like the CXmlAttributes::index() function, but case-insensitive
+static int findAttribute(const CXmlAttributes &attr, const QString &strName)
 {
 	for (int i = 0; i < attr.count(); ++i) {
 		if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;
@@ -313,7 +312,7 @@ static int findAttribute(const QXmlAttributes &attr, const QString &strName)
 	return -1;
 }
 
-static QString stringifyAttributes(const QXmlAttributes &attr)
+static QString stringifyAttributes(const CXmlAttributes &attr)
 {
 	QString strTemp;
 	for (int i=0; i<attr.count(); ++i) {
@@ -323,9 +322,9 @@ static QString stringifyAttributes(const QXmlAttributes &attr)
 	return strTemp;
 }
 
-//static QXmlAttributes attributesFromString(const QString &str)
+//static CXmlAttributes attributesFromString(const QString &str)
 //{
-//	QXmlAttributes attrs;
+//	CXmlAttributes attrs;
 //	QStringList lstPairs = str.split(',');
 //	for (int i=0; i<lstPairs.count(); ++i) {
 //		QStringList lstEntry = lstPairs.at(i).split('=');
@@ -342,7 +341,7 @@ static QString stringifyAttributes(const QXmlAttributes &attr)
 // ============================================================================
 // ============================================================================
 
-class CStrongsImpXmlHandler : public QXmlDefaultHandler
+class CStrongsImpXmlHandler : public CXmlDefaultHandler
 {
 	enum STRONGS_IMP_PARSER_STATE {
 		SIPSE_ENTRYFREE = 0,
@@ -365,15 +364,13 @@ public:
 	virtual ~CStrongsImpXmlHandler()
 	{ }
 
-	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts) override;
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &atts) override;
 	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
 	virtual bool characters(const QString &ch) override;
-	virtual bool error(const QXmlParseException &exception) override;
-	virtual bool fatalError(const QXmlParseException &exception) override;
-	virtual bool warning(const QXmlParseException &exception) override;
+	virtual bool error(const CXmlParseException &exception) override;
 	virtual QString errorString() const override
 	{
-		return (!m_strErrorString.isEmpty() ? m_strErrorString : QXmlDefaultHandler::errorString());
+		return (!m_strErrorString.isEmpty() ? m_strErrorString : CXmlDefaultHandler::errorString());
 	}
 	virtual bool endDocument() override;
 
@@ -431,7 +428,7 @@ void CStrongsImpXmlHandler::endRenderElement()
 	m_lstRenderElementStack.pop_back();
 }
 
-bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts)
+bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &atts)
 {
 	Q_UNUSED(namespaceURI);
 	Q_UNUSED(qName);
@@ -680,23 +677,13 @@ bool CStrongsImpXmlHandler::characters(const QString &ch)
 	return true;
 }
 
-bool CStrongsImpXmlHandler::error(const QXmlParseException &exception)
+bool CStrongsImpXmlHandler::error(const CXmlParseException &exception)
 {
 	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
-	std::cerr << QString("Line: %1  Column: %2\nPublicID: \"%3\"\nSystemID: \"%4\"\n")
+	std::cerr << QString("Line: %1  Column: %2\nErrorCode: %3\n")
 					.arg(exception.lineNumber()).arg(exception.columnNumber())
-					.arg(exception.publicId()).arg(exception.systemId()).toUtf8().data();
+					.arg(exception.error()).toUtf8().data();
 	return true;
-}
-
-bool CStrongsImpXmlHandler::fatalError(const QXmlParseException &exception)
-{
-	return error(exception);
-}
-
-bool CStrongsImpXmlHandler::warning(const QXmlParseException &exception)
-{
-	return error(exception);
 }
 
 bool CStrongsImpXmlHandler::endDocument()
@@ -707,7 +694,7 @@ bool CStrongsImpXmlHandler::endDocument()
 // ============================================================================
 // ============================================================================
 
-class COSISXmlHandler : public QXmlDefaultHandler
+class COSISXmlHandler : public CXmlDefaultHandler
 {
 public:
 	enum XML_FORMAT_TYPE_ENUM {
@@ -792,15 +779,13 @@ public:
 	QStringList elementNames() const { return m_lstElementNames; }
 	QStringList attrNames() const { return m_lstAttrNames; }
 
-	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts) override;
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &atts) override;
 	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
 	virtual bool characters(const QString &ch) override;
-	virtual bool error(const QXmlParseException &exception) override;
-	virtual bool fatalError(const QXmlParseException &exception) override;
-	virtual bool warning(const QXmlParseException &exception) override;
+	virtual bool error(const CXmlParseException &exception) override;
 	virtual QString errorString() const override
 	{
-		return (!m_strErrorString.isEmpty() ? m_strErrorString : QXmlDefaultHandler::errorString());
+		return (!m_strErrorString.isEmpty() ? m_strErrorString : CXmlDefaultHandler::errorString());
 	}
 	virtual bool endDocument() override;
 
@@ -1014,7 +999,7 @@ const CBookEntry *COSISXmlHandler::addBookToBibleDatabase(int nBk)				// 0-based
 	return &m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBkText];
 }
 
-bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &atts)
+bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &atts)
 {
 	Q_UNUSED(namespaceURI);
 	Q_UNUSED(qName);
@@ -1753,23 +1738,13 @@ bool COSISXmlHandler::characters(const QString &ch)
 	return true;
 }
 
-bool COSISXmlHandler::error(const QXmlParseException &exception)
+bool COSISXmlHandler::error(const CXmlParseException &exception)
 {
 	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
-	std::cerr << QString("Line: %1  Column: %2\nPublicID: \"%3\"\nSystemID: \"%4\"\n")
+	std::cerr << QString("Line: %1  Column: %2\nErrorCode: %3\n")
 					.arg(exception.lineNumber()).arg(exception.columnNumber())
-					.arg(exception.publicId()).arg(exception.systemId()).toUtf8().data();
+					.arg(exception.error()).toUtf8().data();
 	return true;
-}
-
-bool COSISXmlHandler::fatalError(const QXmlParseException &exception)
-{
-	return error(exception);
-}
-
-bool COSISXmlHandler::warning(const QXmlParseException &exception)
-{
-	return error(exception);
 }
 
 bool COSISXmlHandler::endDocument()
@@ -1816,12 +1791,10 @@ bool COSISXmlHandler::endDocument()
 		}
 
 		QBuffer xmlBuffer(&baDataLine);
-		QXmlInputSource xmlInput(&xmlBuffer);
-		QXmlSimpleReader xmlReader;
+		CXmlReader xmlReader(&xmlBuffer);
 
-		xmlReader.setContentHandler(&xmlHandler);
-		xmlReader.setErrorHandler(&xmlHandler);
-		if (xmlReader.parse(xmlInput)) {
+		xmlReader.setXmlHandler(&xmlHandler);
+		if (xmlReader.parse()) {
 			if (m_pBibleDatabase->m_mapStrongsEntries.find(xmlHandler.strongsEntry().strongsMapIndex()) !=
 				m_pBibleDatabase->m_mapStrongsEntries.cend()) {
 				std::cerr << QString("\n*** Duplicate Strongs Map Index: %1\n").arg(strIndexLine).toUtf8().data();
@@ -3644,8 +3617,7 @@ int main(int argc, char *argv[])
 		return ERR_CODE_OSIS_FILE_MISSING;
 	}
 
-	QXmlInputSource xmlInput(&fileOSIS);
-	QXmlSimpleReader xmlReader;
+	CXmlReader xmlReader(&fileOSIS);
 	COSISXmlHandler xmlHandler(bblDescriptor);
 
 	xmlHandler.setNoColophonVerses(bNoColophonVerses);
@@ -3662,11 +3634,10 @@ int main(int argc, char *argv[])
 	xmlHandler.setSegVariant(strSegVariant);
 	xmlHandler.setStrongsImpFilepath(strStrongsImpPath);
 
-	xmlReader.setContentHandler(&xmlHandler);
-	xmlReader.setErrorHandler(&xmlHandler);
+	xmlReader.setXmlHandler(&xmlHandler);
 //	xmlReader.setFeature("http://www.bibletechnologies.net/2003/OSIS/namespace", true);
 
-	if (!xmlReader.parse(xmlInput)) {
+	if (!xmlReader.parse()) {
 		std::cerr << QString("\n\n*** Failed to parse OSIS database \"%1\"\n%2\n").arg(strOSISFilename).arg(xmlHandler.errorString()).toUtf8().data();
 		return ERR_CODE_OSIS_PARSE_FAILED;
 	}

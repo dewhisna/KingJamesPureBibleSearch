@@ -26,10 +26,9 @@
 
 #include "dbstruct.h"
 #include "PersistentSettings.h"
+#include "XML.h"
 
 #include <map>
-#include <QXmlAttributes>
-#include <QXmlDefaultHandler>
 #include <QSharedPointer>
 #include <QIODevice>
 #include <QStringList>
@@ -240,7 +239,7 @@ typedef std::map<QString, TCrossReferenceMap> TVersificationCrossRefMap;					// 
 
 // ============================================================================
 
-class CUserNotesDatabase : public QObject, protected QXmlDefaultHandler
+class CUserNotesDatabase : public QObject, protected CXmlDefaultHandler
 {
 	Q_OBJECT
 
@@ -412,7 +411,7 @@ signals:
 protected:
 	// XML Parsing overrides:
 	virtual bool characters(const QString &strChars) override;
-	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const QXmlAttributes &attr) override;
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &attr) override;
 	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
 	virtual QString errorString() const override;
 	virtual bool startCDATA() override;
@@ -420,7 +419,7 @@ protected:
 
 private:
 	void clearXMLVars();
-	static int findAttribute(const QXmlAttributes &attr, const QString &strName)
+	static int findAttribute(const CXmlAttributes &attr, const QString &strName)
 	{
 		for (int i = 0; i < attr.count(); ++i) {
 			if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;

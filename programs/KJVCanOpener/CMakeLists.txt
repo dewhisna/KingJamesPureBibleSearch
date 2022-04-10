@@ -157,10 +157,6 @@ endif()
 list(REMOVE_DUPLICATES QT_COMPONENTS)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS ${QT_COMPONENTS} ${QT_COMPONENTS_NOLINK} OPTIONAL_COMPONENTS ${QT_OPTIONAL_COMPONENTS})
-if(QT_VERSION_MAJOR EQUAL 6)
-	# Qt6 drops SAX XML Parser which we need.  For now, get it from the Qt5 compatibility shim:
-	list(APPEND QT_COMPONENTS Core5Compat)
-endif()
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS ${QT_COMPONENTS} ${QT_COMPONENTS_NOLINK} OPTIONAL_COMPONENTS ${QT_OPTIONAL_COMPONENTS})
 set(QT_LINK_LIBS)
 foreach(_component ${QT_COMPONENTS})
@@ -230,6 +226,7 @@ set(KJVCanOpener_SOURCES
 	"VerseListModel.cpp"
 	"VerseListDelegate.cpp"
 	"VerseRichifier.cpp"
+	"XML.cpp"
 )
 
 if(OPTION_BUILD_BIBLE_DATABASE)
@@ -344,6 +341,7 @@ set(KJVCanOpener_HEADERS
 	"VerseListDelegate.h"
 	"VerseRichifier.h"
 	"version.h"
+	"XML.h"
 )
 
 if(OPTION_BUILD_BIBLE_DATABASE)
