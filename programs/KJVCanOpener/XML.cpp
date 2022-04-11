@@ -23,6 +23,9 @@
 
 #include "XML.h"
 
+#include <QByteArray>
+#include <QIODevice>
+
 // ============================================================================
 
 // --------------
@@ -296,6 +299,9 @@ bool CXmlReader::parse()
 					break;
 				case QXmlStreamReader::StartDocument:
 					if (!m_pHandler->startDocument()) {
+						m_stream.raiseError(m_pHandler->errorString());
+					} else if (!m_pHandler->processingInstruction("xml",
+								QString("version='%1' encoding='%2'").arg(m_stream.documentVersion().toString(), m_stream.documentEncoding().toString()))) {
 						m_stream.raiseError(m_pHandler->errorString());
 					}
 					break;

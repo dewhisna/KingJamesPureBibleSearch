@@ -29,13 +29,15 @@
 #define XML_H_
 
 #include <QString>
-#include <QByteArray>
-#include <QIODevice>
 #include <QXmlStreamReader>
 
 #include <utility>
 
 // ============================================================================
+
+// Forward Declarations:
+class QIODevice;
+class QByteArray;
 
 //class CXmlNamespaceSupport;
 class CXmlAttributes;
@@ -45,8 +47,6 @@ class CXmlDefaultHandler;
 class CXmlParseException;
 
 class CXmlReader;
-
-//QXmlSimpleReader
 
 // ----------------------------------------------------------------------------
 
