@@ -332,7 +332,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		}
 		m_bInKJNDocument = true;
 	} else if ((m_bInKJNDocument) && (!m_bInKJNDocumentText) && (localName.compare(constrKJNDocumentTextTag, Qt::CaseInsensitive) == 0)) {
-		int ndxVersion = findAttribute(attr, constrVersionAttr);
+		int ndxVersion = attr.index(constrVersionAttr, Qt::CaseInsensitive);
 		if (ndxVersion == -1) {
 			m_strLastError = tr("Missing Version Identifier", "KJNErrors");
 			return false;
@@ -345,7 +345,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		m_bInKJNDocumentText = true;
 	} else if ((m_bInKJNDocumentText) && (!m_bInNotes) && (localName.compare(constrNotesTag, Qt::CaseInsensitive) == 0) &&
 			   (!m_bInCrossReferences && !m_bInHighlighting && !m_bInHighlighterDefinitions)) {
-		int ndxV11nUUID = findAttribute(attr, constrV11nAttr);
+		int ndxV11nUUID = attr.index(constrV11nAttr, Qt::CaseInsensitive);
 		if (ndxV11nUUID != -1) {
 			m_strV11nUUID = attr.value(ndxV11nUUID);
 		} else {
@@ -354,14 +354,14 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strV11nUUID = CBibleVersifications::uuid(BVTE_KJV);
 		}
 #ifdef DEBUG_KJN_XML_READ
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 			qDebug("%s : Versification: \"%s\", Size: %s", localName.toUtf8().data(), m_strV11nUUID.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
 #endif
 		m_bInNotes = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInNotes) && (!m_bInNote) && (localName.compare(constrNoteTag, Qt::CaseInsensitive) == 0)) {
-		int ndxRelIndex = findAttribute(attr, constrRelIndexAttr);
+		int ndxRelIndex = attr.index(constrRelIndexAttr, Qt::CaseInsensitive);
 		if (ndxRelIndex == -1) {
 			m_strLastError = tr("Missing RelIndex on Note Declaration", "KJNErrors");
 			return false;
@@ -371,11 +371,11 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strLastError = tr("RelIndex for Note Declaration specifies a Null Destination", "KJNErrors");
 			return false;
 		}
-		int ndxCountIndex = findAttribute(attr, constrCountAttr);
+		int ndxCountIndex = attr.index(constrCountAttr, Qt::CaseInsensitive);
 		m_nCount = ((ndxCountIndex != -1) ? attr.value(ndxCountIndex).toUInt() : 0);		// Count is optional
-		int ndxBackgroundColor = findAttribute(attr, constrBackgroundColorAttr);
+		int ndxBackgroundColor = attr.index(constrBackgroundColorAttr, Qt::CaseInsensitive);
 		if (ndxBackgroundColor != -1) m_strBackgroundColor = attr.value(ndxBackgroundColor);
-		int ndxVisible = findAttribute(attr, constrVisibleAttr);
+		int ndxVisible = attr.index(constrVisibleAttr, Qt::CaseInsensitive);
 		if (ndxVisible == -1) {
 			m_bVisible = true;
 		} else {
@@ -385,7 +385,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 				return false;
 			}
 		}
-		int ndxKeywords = findAttribute(attr, constrKeywordsAttr);			// Keywords are optional
+		int ndxKeywords = attr.index(constrKeywordsAttr, Qt::CaseInsensitive);			// Keywords are optional
 		if (ndxKeywords != -1) {
 			m_strKeywords = attr.value(ndxKeywords);
 		} else {
@@ -405,14 +405,14 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (!m_bInHighlighting) && (localName.compare(constrHighlightingTag, Qt::CaseInsensitive) == 0) &&
 			   (!m_bInCrossReferences && !m_bInNotes && !m_bInHighlighterDefinitions)) {
 #ifdef DEBUG_KJN_XML_READ
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
 #endif
 		m_bInHighlighting = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighting) && (!m_bInHighlighterDB) && (localName.compare(constrHighlighterDBTag, Qt::CaseInsensitive) == 0)) {
-		int ndxDBUUID = findAttribute(attr, constrUUIDAttr);
+		int ndxDBUUID = attr.index(constrUUIDAttr, Qt::CaseInsensitive);
 		if (ndxDBUUID == -1) {
 			m_strLastError = tr("Missing DatabaseUUID on HighlighterDB Declaration", "KJNErrors");
 			return false;
@@ -429,7 +429,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strDatabaseUUID = bibleDescriptor(BDE_KJV).m_strUUID;
 			m_bKeepDirtyAfterLoad = true;			// Force writing correction
 		}
-		int ndxV11nUUID = findAttribute(attr, constrV11nAttr);
+		int ndxV11nUUID = attr.index(constrV11nAttr, Qt::CaseInsensitive);
 		if (ndxV11nUUID != -1) {
 			m_strV11nUUID = attr.value(ndxV11nUUID);
 		} else {
@@ -438,7 +438,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strV11nUUID = CBibleVersifications::uuid(BVTE_KJV);
 		}
 #ifdef DEBUG_KJN_XML_READ
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
@@ -446,7 +446,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 #endif
 		m_bInHighlighterDB = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighting) && (m_bInHighlighterDB) && (!m_bInHighlighterTags) && (localName.compare(constrHighlighterTagsTag, Qt::CaseInsensitive) == 0)) {
-		int ndxHighlighterName = findAttribute(attr, constrHighlighterNameAttr);
+		int ndxHighlighterName = attr.index(constrHighlighterNameAttr, Qt::CaseInsensitive);
 		if (ndxHighlighterName == -1) {
 			m_strLastError = tr("Missing HighlighterName on HighlighterTags Declaration", "KJNErrors");
 			return false;
@@ -456,7 +456,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strLastError = tr("HighligherName on HighlighterTags Declaration is Empty", "KJNErrors");
 			return false;
 		}
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 #ifdef DEBUG_KJN_XML_READ
 			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
@@ -470,7 +470,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 #endif
 		m_bInHighlighterTags = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighting) && (m_bInHighlighterDB) && (m_bInHighlighterTags) && (!m_bInPhraseTag) && (localName.compare(constrPhraseTagTag, Qt::CaseInsensitive) == 0)) {
-		int ndxRelIndex = findAttribute(attr, constrRelIndexAttr);
+		int ndxRelIndex = attr.index(constrRelIndexAttr, Qt::CaseInsensitive);
 		if (ndxRelIndex == -1) {
 			m_strLastError = tr("Missing RelIndex on PhraseTag Declaration in HighlighterTag Declaration", "KJNErrors");
 			return false;
@@ -480,7 +480,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strLastError = tr("RelIndex for PhraseTag Declaration in HighlighterTag Declaration specifies a Null Destination", "KJNErrors");
 			return false;
 		}
-		int ndxCountIndex = findAttribute(attr, constrCountAttr);
+		int ndxCountIndex = attr.index(constrCountAttr, Qt::CaseInsensitive);
 		m_nCount = ((ndxCountIndex != -1) ? attr.value(ndxCountIndex).toUInt() : 0);		// Count is optional
 #ifdef DEBUG_KJN_XML_READ
 		qDebug("%s : RelIndex: %d  Count: %d", localName.toUtf8().data(), m_ndxRelIndex.index(), m_nCount);
@@ -488,7 +488,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 		m_bInPhraseTag = true;
 	} else if ((m_bInKJNDocumentText) && (!m_bInCrossReferences) && (localName.compare(constrCrossReferencesTag, Qt::CaseInsensitive) == 0) &&
 			   (!m_bInNotes && !m_bInHighlighting && !m_bInHighlighterDefinitions)) {
-		int ndxV11nUUID = findAttribute(attr, constrV11nAttr);
+		int ndxV11nUUID = attr.index(constrV11nAttr, Qt::CaseInsensitive);
 		if (ndxV11nUUID != -1) {
 			m_strV11nUUID = attr.value(ndxV11nUUID);
 		} else {
@@ -497,14 +497,14 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strV11nUUID = CBibleVersifications::uuid(BVTE_KJV);
 		}
 #ifdef DEBUG_KJN_XML_READ
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 			qDebug("%s : Versification: \"%s\", Size: %s", localName.toUtf8().data(), m_strV11nUUID.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
 #endif
 		m_bInCrossReferences = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInCrossReferences) && (!m_bInCrossRef) && (localName.compare(constrCrossRefTag, Qt::CaseInsensitive) == 0)) {
-		int ndxRelIndex = findAttribute(attr, constrRelIndexAttr);
+		int ndxRelIndex = attr.index(constrRelIndexAttr, Qt::CaseInsensitive);
 		if (ndxRelIndex == -1) {
 			m_strLastError = tr("Missing RelIndex on CrossRef Declaration", "KJNErrors");
 			return false;
@@ -515,7 +515,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			return false;
 		}
 #ifdef DEBUG_KJN_XML_READ
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
@@ -523,7 +523,7 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 #endif
 		m_bInCrossRef = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInCrossReferences) && (m_bInCrossRef) && (!m_bInRelIndex) && (localName.compare(constrRelIndexTag, Qt::CaseInsensitive) == 0)) {
-		int ndxValue = findAttribute(attr, constrValueAttr);
+		int ndxValue = attr.index(constrValueAttr, Qt::CaseInsensitive);
 		if (ndxValue == -1) {
 			m_strLastError = tr("Missing Value on RelIndex Declaration in CrossRef Declaration", "KJNErrors");
 			return false;
@@ -540,14 +540,14 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 	} else if ((m_bInKJNDocumentText) && (!m_bInHighlighterDefinitions) && (localName.compare(constrHighlighterDefinitionsTag, Qt::CaseInsensitive) == 0) &&
 			   (!m_bInNotes && !m_bInCrossReferences && !m_bInHighlighting)) {
 #ifdef DEBUG_KJN_XML_READ
-		int ndxSize = findAttribute(attr, constrSizeAttr);
+		int ndxSize = attr.index(constrSizeAttr, Qt::CaseInsensitive);
 		if (ndxSize != -1) {
 			qDebug("%s : Size: %s", localName.toUtf8().data(), attr.value(ndxSize).toUtf8().data());
 		}
 #endif
 		m_bInHighlighterDefinitions = true;
 	} else if ((m_bInKJNDocumentText) && (m_bInHighlighterDefinitions) && (!m_bInHighlighterDef) && (localName.compare(constrHighlighterDefTag, Qt::CaseInsensitive) == 0)) {
-		int ndxHighlighterName = findAttribute(attr, constrHighlighterNameAttr);
+		int ndxHighlighterName = attr.index(constrHighlighterNameAttr, Qt::CaseInsensitive);
 		if (ndxHighlighterName == -1) {
 			m_strLastError = tr("Missing HighlighterName on HighlighterDef Declaration", "KJNErrors");
 			return false;
@@ -557,13 +557,13 @@ bool CUserNotesDatabase::startElement(const QString &namespaceURI, const QString
 			m_strLastError = tr("HighligherName on HighlighterDef Declaration is Empty", "KJNErrors");
 			return false;
 		}
-		int ndxColor = findAttribute(attr, constrColorAttr);
+		int ndxColor = attr.index(constrColorAttr, Qt::CaseInsensitive);
 		if (ndxColor == -1) {
 			m_strLastError = tr("Missing Color on HighligherDef Declaration", "KJNErrors");
 			return false;
 		}
 		m_strColor = attr.value(ndxColor);
-		int ndxEnabled = findAttribute(attr, constrEnabledAttr);
+		int ndxEnabled = attr.index(constrEnabledAttr, Qt::CaseInsensitive);
 		if (ndxEnabled == -1) {
 			m_bEnabled = true;
 		} else {

@@ -303,15 +303,6 @@ static QString WordFromWordSet(const TWordListSet &setAltWords)
 // ============================================================================
 // ============================================================================
 
-// Like the CXmlAttributes::index() function, but case-insensitive
-static int findAttribute(const CXmlAttributes &attr, const QString &strName)
-{
-	for (int i = 0; i < attr.count(); ++i) {
-		if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;
-	}
-	return -1;
-}
-
 static QString stringifyAttributes(const CXmlAttributes &attr)
 {
 	QString strTemp;
@@ -461,7 +452,7 @@ bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QStr
 		m_strCurrentMapIndex.clear();
 		m_strongsEntry.setOrthography(QString());
 
-		ndx = findAttribute(atts, "n");
+		ndx = atts.index("n", Qt::CaseInsensitive);
 		if (ndx != -1) {
 			QStringList lstIndex = atts.value(ndx).split('|');
 			if (lstIndex.size() < 2) {
@@ -482,7 +473,7 @@ bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QStr
 
 		m_strCurrentMapIndex.clear();		// Redundant, but we'll do it in case an entry has multiple 'title' elements
 	} else if (localName.compare("orth", Qt::CaseInsensitive) == 0) {
-		ndx = findAttribute(atts, "type");
+		ndx = atts.index("type", Qt::CaseInsensitive);
 		if ((ndx != -1) && (atts.value(ndx).compare("trans", Qt::CaseInsensitive) == 0)) {
 			m_vctParseState.push_back(SIPSE_TRANSLITERATION);
 			m_strongsEntry.setTransliteration(QString());
@@ -491,25 +482,25 @@ bool CStrongsImpXmlHandler::startElement(const QString &namespaceURI, const QStr
 			m_strongsEntry.setOrthography(QString());
 		}
 
-		ndx = findAttribute(atts, "rend");
+		ndx = atts.index("rend", Qt::CaseInsensitive);
 		if (ndx != -1) beginRenderElement(atts.value(ndx));
 	} else if (localName.compare("pron", Qt::CaseInsensitive) == 0) {
 		m_vctParseState.push_back(SIPSE_PRONUNCIATION);
 		m_strongsEntry.setPronunciation(QString());
 
-		ndx = findAttribute(atts, "rend");
+		ndx = atts.index("rend", Qt::CaseInsensitive);
 		if (ndx != -1) beginRenderElement(atts.value(ndx));
 	} else if (localName.compare("def", Qt::CaseInsensitive) == 0) {
 		m_vctParseState.push_back(SIPSE_DEFINITION);
 		m_strongsEntry.setDefinition(QString());
 
-		ndx = findAttribute(atts, "rend");
+		ndx = atts.index("rend", Qt::CaseInsensitive);
 		if (ndx != -1) beginRenderElement(atts.value(ndx));
 	} else if (localName.compare("hi", Qt::CaseInsensitive) == 0) {
-		ndx = findAttribute(atts, "rend");
+		ndx = atts.index("rend", Qt::CaseInsensitive);
 		if (ndx != -1) beginRenderElement(atts.value(ndx));
 	} else if (localName.compare("ref", Qt::CaseInsensitive) == 0) {
-		ndx = findAttribute(atts, "target");
+		ndx = atts.index("target", Qt::CaseInsensitive);
 		if (ndx != -1) {
 			// Push the reference attribute into current text element before we push the reference state
 			m_bRefIsStrongs = (atts.value(ndx).indexOf("Strong:", 0, Qt::CaseInsensitive) >= 0);
@@ -1080,10 +1071,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		m_xfteFormatType = XFTE_ZEFANIA;
 		std::cerr << "XMLType: ZEFANIA\n";
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (localName.compare("osisText", Qt::CaseInsensitive) == 0))  {
-		ndx = findAttribute(atts, "osisIDWork");
+		ndx = atts.index("osisIDWork", Qt::CaseInsensitive);
 		if (ndx != -1) m_pBibleDatabase->m_descriptor.m_strWorkID = atts.value(ndx);
 		std::cerr << "Work: " << atts.value(ndx).toUtf8().data() << "\n";
-		ndx = findAttribute(atts, "lang");
+		ndx = atts.index("lang", Qt::CaseInsensitive);
 		if  (ndx != -1) {
 			LANGUAGE_ID_ENUM nOrigLangID = m_pBibleDatabase->langID();
 			m_pBibleDatabase->m_descriptor.m_strLanguage = atts.value(ndx);
@@ -1133,7 +1124,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			//		<title type="psalm" canonical="true">A Psalm of David, when he fled from Absalom his son.</title>
 			//
 			//		<verse osisID="Ps.119.1" sID="Ps.119.1"/><title type="acrostic" canonical="true"><foreign n="א">ALEPH.</foreign></title>
-			ndx = findAttribute(atts, "type");
+			ndx = atts.index("type", Qt::CaseInsensitive);
 			if ((ndx != -1) &&
 				((atts.value(ndx).compare("section", Qt::CaseInsensitive) == 0) ||
 				 (atts.value(ndx).compare("psalm", Qt::CaseInsensitive) == 0))) {
@@ -1151,10 +1142,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (localName.compare("foreign", Qt::CaseInsensitive) == 0)) {
 		m_bInForeignText = true;				// Old format way of handling acrostics
 	} else if ((m_xfteFormatType == XFTE_OSIS) &&
-			   (((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) ||
+			   (((localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = atts.index("type", Qt::CaseInsensitive)) != -1) && (atts.value(ndx).compare("colophon", Qt::CaseInsensitive) == 0)) ||
 				(localName.compare("closer", Qt::CaseInsensitive) == 0))) {
 		// Note: This must come here as colophon's may (old form) or may not (new form) have m_ndxCurrent set depending on placement relative to books, chapters, and verses:
-		ndx = findAttribute(atts, "osisID");
+		ndx = atts.index("osisID", Qt::CaseInsensitive);
 		if (ndx != -1) {
 			QStringList lstOsisID = atts.value(ndx).split('.');
 			if ((lstOsisID.size() < 1) || ((m_nCurrentBookIndex = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
@@ -1179,13 +1170,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 		} else {
 			m_ndxColophon = CRelIndex(m_ndxCurrent.book(), 0, 0, 0);
 		}
-		if (findAttribute(atts, "sID") != -1) {
+		if (atts.index("sID", Qt::CaseInsensitive) != -1) {
 			// Start of open-ended colophon:
 			if (m_bInColophon && !m_bUseBracketColophons) {
 				std::cerr << "\n*** Start of open-ended colophon before end of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
 			}
 			startVerseEntry(m_ndxColophon, true);
-		} else if (findAttribute(atts, "eID") != -1) {
+		} else if (atts.index("eID", Qt::CaseInsensitive) != -1) {
 			// End of open-ended colophon:
 			if (!m_bInColophon && !m_bUseBracketColophons) {
 				std::cerr << "\n*** End of open-ended colophon before start of colophon : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
@@ -1210,13 +1201,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				((m_xfteFormatType == XFTE_ZEFANIA) && (localName.compare("BIBLEBOOK", Qt::CaseInsensitive) == 0)))) {
 		m_nCurrentBookIndex = -1;
 		if (m_xfteFormatType == XFTE_OSIS) {
-			ndx = findAttribute(atts, "type");
+			ndx = atts.index("type", Qt::CaseInsensitive);
 			if ((ndx != -1) && (atts.value(ndx).compare("x-testament", Qt::CaseInsensitive) == 0)) {
 //				std::cerr << "Testament Tag\n";
 			} else if ((ndx != -1) && (atts.value(ndx).compare("book", Qt::CaseInsensitive) == 0)) {
 				// Some OSIS files just have book tags and no x-testament tags, so we'll try to infer
 				//		testament here:
-				ndx = findAttribute(atts, "osisID");
+				ndx = atts.index("osisID", Qt::CaseInsensitive);
 				if (ndx != -1) {
 					QStringList lstOsisID = atts.value(ndx).split('.');
 					if ((lstOsisID.size() != 1) || ((m_nCurrentBookIndex = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
@@ -1225,7 +1216,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				}
 			}
 		} else if (m_xfteFormatType == XFTE_ZEFANIA) {
-			ndx = findAttribute(atts, "bnumber");
+			ndx = atts.index("bnumber", Qt::CaseInsensitive);
 			if (ndx != -1) {
 				m_nCurrentBookIndex = atts.value(ndx).toInt() - 1;			// Note: m_nCurrentBookIndex is index into array, not book number
 				if ((m_nCurrentBookIndex < 0) || (m_nCurrentBookIndex >= g_arrBibleBooks.size())) {
@@ -1240,7 +1231,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			if (bookIsDeuterocanonical(bookStartingIndex(m_nCurrentBookIndex).book()) && m_bExcludeDeuterocanonical) {
 				if ((localName.compare("div", Qt::CaseInsensitive) != 0) ||
 					((localName.compare("div", Qt::CaseInsensitive) == 0) &&
-					 (findAttribute(atts, "eID") == -1))) {
+					 (atts.index("eID", Qt::CaseInsensitive) == -1))) {
 					// Don't log this if this is a <div> tag with "eID" set, as
 					//	we will have already written it for "sID":
 					std::cerr << "Book: " << osisAbbrFromBookIndex(m_nCurrentBookIndex).toUtf8().data();
@@ -1260,8 +1251,8 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				if (m_xfteFormatType == XFTE_ZEFANIA) m_ndxCurrent.setBook(bookStartingIndex(m_nCurrentBookIndex).book());
 			}
 		}
-	} else if ((m_xfteFormatType == XFTE_OSIS) && (m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("paragraph", Qt::CaseInsensitive) == 0)) {
-		ndx = findAttribute(atts, "sID");			// Paragraph Starts are tagged with sID, Paragraph Ends are tagged with eID -- we only care about the starts for our Pilcrows -- example text: Reina-Valera 1909
+	} else if ((m_xfteFormatType == XFTE_OSIS) && (m_ndxCurrent.isSet()) && (localName.compare("div", Qt::CaseInsensitive) == 0) && ((ndx = atts.index("type", Qt::CaseInsensitive)) != -1) && (atts.value(ndx).compare("paragraph", Qt::CaseInsensitive) == 0)) {
+		ndx = atts.index("sID", Qt::CaseInsensitive);			// Paragraph Starts are tagged with sID, Paragraph Ends are tagged with eID -- we only care about the starts for our Pilcrows -- example text: Reina-Valera 1909
 		if (ndx != -1) {
 			if (m_ndxCurrent.verse() == 0) {
 				std::cerr << "\n*** Pilcrow marker outside of verse at: " << m_pBibleDatabase->PassageReferenceText(m_ndxCurrent).toUtf8().data() << "\n";
@@ -1274,7 +1265,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			   ((m_xfteFormatType == XFTE_OSIS) ||
 				((m_ndxCurrent.isSet()) && (m_ndxCurrent.chapter() == 0) && (m_xfteFormatType == XFTE_ZEFANIA)))) {
 		// Note: Coming into this function, either ndxCurrent isn't set and we set both book and chapter (OSIS) or book only is set and we set chapter (ZEFANIA)
-		if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = findAttribute(atts, "eID")) != -1)) {
+		if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = atts.index("eID", Qt::CaseInsensitive)) != -1)) {
 			// End of open-ended chapter:
 			if ((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() == 0)) {
 				std::cerr << "\n*** End of open-ended chapter before start of chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
@@ -1283,7 +1274,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			// At the end of closed-form, leave the chapter number set (indicating bInChapter) and process closing in the endElement for this end-tag.  But don't start new chapter here
 		} else {
 			if (m_xfteFormatType == XFTE_OSIS) {
-				ndx = findAttribute(atts, "osisID");
+				ndx = atts.index("osisID", Qt::CaseInsensitive);
 				if (ndx != -1) {
 					QStringList lstOsisID = atts.value(ndx).split('.');
 					if ((lstOsisID.size() != 2) || ((m_nCurrentBookIndex = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
@@ -1291,7 +1282,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 						std::cerr << "\n*** Unknown Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 					} else {
 						if (!m_bExcludeDeuterocanonical || !bookIsDeuterocanonical(bookStartingIndex(m_nCurrentBookIndex).book())) {
-							if (findAttribute(atts, "sID") != -1) {
+							if (atts.index("sID", Qt::CaseInsensitive) != -1) {
 								// Start of open-ended chapter:
 								if (m_ndxCurrent.chapter()) {
 									std::cerr << "\n*** Start of open-ended chapter before end of chapter : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
@@ -1316,7 +1307,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				}
 			} else if (m_xfteFormatType == XFTE_ZEFANIA) {
 				Q_ASSERT((m_ndxCurrent.verse() == 0) && (m_ndxCurrent.word() == 0));
-				ndx = findAttribute(atts, "cnumber");
+				ndx = atts.index("cnumber", Qt::CaseInsensitive);
 				if (ndx != -1) {
 					m_ndxCurrent = CRelIndex(m_ndxCurrent.book(), atts.value(ndx).toUInt(), 0, 0);
 					if (m_ndxCurrent.chapter() == 0) {
@@ -1357,7 +1348,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_ndxCurrent.isSet()) &&
 			   (((m_xfteFormatType == XFTE_OSIS) && (localName.compare("verse", Qt::CaseInsensitive) == 0)) ||
 				((m_xfteFormatType == XFTE_ZEFANIA) && (localName.compare("vers", Qt::CaseInsensitive) == 0)))) {
-		if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = findAttribute(atts, "eID")) != -1)) {
+		if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = atts.index("eID", Qt::CaseInsensitive)) != -1)) {
 			// End of open-ended verse:
 			if (!m_bInVerse) {
 				std::cerr << "\n*** End of open-ended verse before start of verse : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
@@ -1377,7 +1368,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			bool bFoundNewVerse = false;
 			bool bOpenEnded = false;
 			if (m_xfteFormatType == XFTE_OSIS) {
-				ndx = findAttribute(atts, "osisID");
+				ndx = atts.index("osisID", Qt::CaseInsensitive);
 				if (ndx != -1) {
 					QStringList lstOsisID = atts.value(ndx).split('.');
 					if ((lstOsisID.size() != 3) || ((m_nCurrentBookIndex = bookIndexFromOSISAbbr(lstOsisID.at(0))) == -1)) {
@@ -1388,7 +1379,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 						m_ndxCurrent.setWord(0);
 						std::cerr << "\n*** Verse osisID doesn't match Chapter osisID : " << atts.value(ndx).toUtf8().data() << "\n";
 					} else {
-						if (findAttribute(atts, "sID") != -1) {
+						if (atts.index("sID", Qt::CaseInsensitive) != -1) {
 							// Start of open-ended verse:
 							if (m_bInVerse) {
 								std::cerr << "\n*** Start of open-ended verse before end of verse : osisID=" << atts.value(ndx).toUtf8().data() << "\n";
@@ -1408,7 +1399,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 					}
 				}
 			} else if (m_xfteFormatType == XFTE_ZEFANIA) {
-				ndx = findAttribute(atts, "vnumber");
+				ndx = atts.index("vnumber", Qt::CaseInsensitive);
 				if (ndx != -1) {
 					m_ndxCurrent = CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), atts.value(ndx).toUInt(), 0);
 					if (m_ndxCurrent.verse() == 0) {
@@ -1479,13 +1470,13 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 
 		CVerseEntry::PILCROW_TYPE_ENUM nPilcrow = CVerseEntry::PTE_NONE;
 
-		if (((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("x-p", Qt::CaseInsensitive) == 0)) {
-			if (((ndx = findAttribute(atts, "subType")) != -1) && (atts.value(ndx).compare("x-added", Qt::CaseInsensitive) == 0)) {
+		if (((ndx = atts.index("type", Qt::CaseInsensitive)) != -1) && (atts.value(ndx).compare("x-p", Qt::CaseInsensitive) == 0)) {
+			if (((ndx = atts.index("subType", Qt::CaseInsensitive)) != -1) && (atts.value(ndx).compare("x-added", Qt::CaseInsensitive) == 0)) {
 				nPilcrow = CVerseEntry::PTE_MARKER_ADDED;
 			} else{
 				nPilcrow = CVerseEntry::PTE_MARKER;
 			}
-		} else if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = findAttribute(atts, "type")) != -1) && (atts.value(ndx).compare("x-extra-p", Qt::CaseInsensitive) == 0)) {
+		} else if ((m_xfteFormatType == XFTE_OSIS) && ((ndx = atts.index("type", Qt::CaseInsensitive)) != -1) && (atts.value(ndx).compare("x-extra-p", Qt::CaseInsensitive) == 0)) {
 			nPilcrow = CVerseEntry::PTE_EXTRA;
 		}
 
@@ -1502,9 +1493,9 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
 			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
 		// <seg subType="x-1" type="x-variant">
-		ndx = findAttribute(atts, "type");		// TODO : In addition to 'x-variant', add support for full OSIS 'variant', which is currently a work-in-progress
+		ndx = atts.index("type", Qt::CaseInsensitive);		// TODO : In addition to 'x-variant', add support for full OSIS 'variant', which is currently a work-in-progress
 		if ((ndx != -1) && (atts.value(ndx).compare("x-variant", Qt::CaseInsensitive) == 0)) {
-			ndx = findAttribute(atts, "subType");
+			ndx = atts.index("subType", Qt::CaseInsensitive);
 			if (ndx != -1) {
 				m_strCurrentSegVariant = atts.value(ndx);
 				if ((m_strSegVariant.isEmpty()) || (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) == 0)) {
@@ -1526,7 +1517,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			   (!m_bInNotes) &&	// Note: Allow transChangeAdded inside of inline bracketed notes
 			   ((localName.compare("transChange", Qt::CaseInsensitive) == 0) ||
 				(localName.compare("hi", Qt::CaseInsensitive) == 0))) {
-		ndx = findAttribute(atts, "type");
+		ndx = atts.index("type", Qt::CaseInsensitive);
 		if ((ndx != -1) &&
 			(((localName.compare("transChange", Qt::CaseInsensitive) == 0) &&
 			  (atts.value(ndx).compare("added", Qt::CaseInsensitive) == 0)) ||		// <transChange type="added">
@@ -1541,7 +1532,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
 			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
-		ndx = findAttribute(atts, "who");
+		ndx = atts.index("who", Qt::CaseInsensitive);
 		if ((ndx != -1) && (atts.value(ndx).compare("Jesus", Qt::CaseInsensitive) == 0)) {
 			m_bInWordsOfJesus = true;
 			CVerseEntry &verse = activeVerseEntry();

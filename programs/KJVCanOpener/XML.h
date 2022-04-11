@@ -94,18 +94,18 @@ public:
 		std::swap(attList, other.attList);
 	}
 
-	int index(const QString &qName) const;
-	int index(QLatin1String qName) const;
-	int index(const QString &uri, const QString &localPart) const;
+	int index(const QString &qName, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+	int index(QLatin1String qName, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+	int index(const QString &uri, const QString &localPart, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 	inline int length() const { return attList.count(); }
 	inline int count() const { return attList.count(); }
 	QString localName(int index) const { return attList.at(index).localname; }
 	QString qName(int index) const { return attList.at(index).qname; }
 	QString uri(int index) const { return attList.at(index).uri; }
 	QString value(int index) const;
-	QString value(const QString &qName) const;
-	QString value(QLatin1String qName) const;
-	QString value(const QString &uri, const QString &localName) const;
+	QString value(const QString &qName, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+	QString value(QLatin1String qName, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+	QString value(const QString &uri, const QString &localName, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
 	void clear() { attList.clear(); }
 	void append(const QString &qName, const QString &uri, const QString &localPart, const QString &value);

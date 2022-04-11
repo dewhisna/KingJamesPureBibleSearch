@@ -419,13 +419,6 @@ protected:
 
 private:
 	void clearXMLVars();
-	static int findAttribute(const CXmlAttributes &attr, const QString &strName)
-	{
-		for (int i = 0; i < attr.count(); ++i) {
-			if (attr.localName(i).compare(strName, Qt::CaseInsensitive) == 0) return i;
-		}
-		return -1;
-	}
 
 private:
 	// m_UserNotesDatabaseData1 and m_UserNotesDatabaseData2 are

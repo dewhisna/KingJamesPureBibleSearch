@@ -33,29 +33,29 @@
 // --------------
 
 // index : Returns the index of the qualified name or -1 if it wasn't found:
-int CXmlAttributes::index(const QString &qName) const
+int CXmlAttributes::index(const QString &qName, Qt::CaseSensitivity cs) const
 {
 	for (int i = 0; i < attList.size(); ++i) {
-		if (attList.at(i).qname == qName)
+		if (attList.at(i).qname.compare(qName, cs) == 0)
 			return i;
 	}
 	return -1;
 }
 
-int CXmlAttributes::index(QLatin1String qName) const
+int CXmlAttributes::index(QLatin1String qName, Qt::CaseSensitivity cs) const
 {
 	for (int i = 0; i < attList.size(); ++i) {
-		if (attList.at(i).qname == qName)
+		if (attList.at(i).qname.compare(qName, cs) == 0)
 			return i;
 	}
 	return -1;
 }
 
-int CXmlAttributes::index(const QString &uri, const QString &localPart) const
+int CXmlAttributes::index(const QString &uri, const QString &localPart, Qt::CaseSensitivity cs) const
 {
 	for (int i = 0; i < attList.size(); ++i) {
 		const Attribute &att = attList.at(i);
-		if (att.uri == uri && att.localname == localPart)
+		if ((att.uri.compare(uri, cs) == 0) && (att.localname.compare(localPart, cs) == 0))
 			return i;
 	}
 	return -1;
@@ -67,21 +67,21 @@ QString CXmlAttributes::value(int index) const
 	return attList.at(index).value;
 }
 
-QString CXmlAttributes::value(const QString &qName) const
+QString CXmlAttributes::value(const QString &qName, Qt::CaseSensitivity cs) const
 {
-	int i = index(qName);
+	int i = index(qName, cs);
 	return ((i > -1) ? attList.at(i).value : QString());
 }
 
-QString CXmlAttributes::value(QLatin1String qName) const
+QString CXmlAttributes::value(QLatin1String qName, Qt::CaseSensitivity cs) const
 {
-	int i = index(qName);
+	int i = index(qName, cs);
 	return ((i > -1) ? attList.at(i).value : QString());
 }
 
-QString CXmlAttributes::value(const QString &uri, const QString &localName) const
+QString CXmlAttributes::value(const QString &uri, const QString &localName, Qt::CaseSensitivity cs) const
 {
-	int i = index(uri, localName);
+	int i = index(uri, localName, cs);
 	return ((i > -1) ? attList.at(i).value : QString());
 }
 
