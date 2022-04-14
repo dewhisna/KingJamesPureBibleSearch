@@ -70,10 +70,10 @@ public:
 	int lineNumber() const { return m_nLine; }
 
 private:
-	QXmlStreamReader::Error m_nError;
+	QXmlStreamReader::Error m_nError = QXmlStreamReader::NoError;
 	QString m_strMessage;
-	int m_nColumn;
-	int m_nLine;
+	int m_nColumn = 0;
+	int m_nLine = 0;
 };
 
 // ----------------------------------------------------------------------------
