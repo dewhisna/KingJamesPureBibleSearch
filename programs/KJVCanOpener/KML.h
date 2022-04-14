@@ -240,8 +240,7 @@ private:
 	//
 	bool m_bInKml = false;
 	bool m_bInDocument = false;
-	// TODO : Replace this with simple index:
-	QStringList m_lstInFolder;			// Since Folders can be nested, if this list is empty, we are not in a folder, otherwise it's the list of Map keys needed to index to the current folder
+	int m_nInFolder = 0;				// Since Folders can be nested, this number will be the index for the current folder (0==Document)
 	bool m_bInName = false;
 	bool m_bInDescription = false;
 	bool m_bInStyle = false;

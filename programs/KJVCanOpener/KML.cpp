@@ -295,18 +295,17 @@ bool CKmlDocument::startElement(const QString &namespaceURI, const QString &loca
 		currentFolder().placemarks().push_back(CKmlPlacemark());	// Add new placemark to our current folder's list
 	} else if (localName.compare("Folder", Qt::CaseInsensitive) == 0) {			// Check Nested Folders (Note: Document itself is a folder)
 		// Since the name is an element instead of an attribute, we don't
-		//	know the folder name (i.e. map key) yet, so put a placeholder
-		//	for now.  Also, insert it in the folder map under an empty
-		//	name and then swap it after we resolve the name:
+		//	know the folder name (i.e. map key) yet, so put it under
+		//	and empty name and then swap it after we resolve the name:
 		currentFolder().folders().insert(QString(), CKmlFolder());
-		m_lstInFolder.append(QString());
+		++m_nInFolder;
 	} else if (localName.compare("name", Qt::CaseInsensitive) == 0) {			// Note: Document or Folder
 		m_bInName = true;
 		m_strParseName.clear();
 	} else if (localName.compare("description", Qt::CaseInsensitive) == 0) {	// Note: Document or Folder
 		m_bInDescription = true;
 		m_strParseDescription.clear();
-	} else if (m_lstInFolder.isEmpty() && (localName.compare("Style", Qt::CaseInsensitive) == 0)) {	// Note: Style is on Document only (not subfolders)
+	} else if ((m_nInFolder == 0) && (localName.compare("Style", Qt::CaseInsensitive) == 0)) {	// Note: Style is on Document only (not subfolders)
 		m_bInStyle = true;
 		int ndxID = atts.index("id", Qt::CaseInsensitive);
 		if (ndxID == -1) {
@@ -482,12 +481,12 @@ bool CKmlDocument::endElement(const QString &namespaceURI, const QString &localN
 		Q_ASSERT(m_bInPlacemark);
 		m_bInPlacemark = false;
 	} else if (localName.compare("Folder", Qt::CaseInsensitive) == 0) {			// Check Nested Folders (Note: Document itself is a folder)
-		Q_ASSERT(!m_lstInFolder.empty());
+		Q_ASSERT(m_nInFolder > 0);
 		// The new folder was originally inserted with an empty name.
 		//	But it should now have a name from its 'name' element.  Now,
 		//	we will swap them before popping the folder:
 		CKmlFolder &realFolder = currentFolder();		// This is the real folder with an empty name
-		m_lstInFolder.pop_back();
+		--m_nInFolder;
 		TFolderMap::iterator itrNoName = currentFolder().folders().find(QString());	// Iterator to folder with empty name
 		Q_ASSERT(itrNoName != currentFolder().folders().end());
 		Q_ASSERT(&itrNoName.value() == &realFolder);
@@ -536,8 +535,8 @@ bool CKmlDocument::error(const CXmlParseException &exception)
 CKmlFolder &CKmlDocument::currentFolder()
 {
 	CKmlFolder *pFolder = this;
-	for (const QString &strFolderName : m_lstInFolder) {
-		TFolderMap::iterator itrFolder = pFolder->folders().find(strFolderName);
+	for (int ndx = 0; ndx < m_nInFolder; ++ndx) {
+		TFolderMap::iterator itrFolder = pFolder->folders().find(QString());
 		Q_ASSERT(itrFolder != folders().end());
 		pFolder = &itrFolder.value();
 	}
