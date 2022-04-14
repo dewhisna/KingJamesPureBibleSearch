@@ -44,15 +44,6 @@ class QByteArray;
 class CKmlContainer
 {
 public:
-//	CKmlContainer() = default;
-//	CKmlContainer(const CKmlContainer &other) = default;
-//	CKmlContainer(CKmlContainer &&other) = default;
-//	explicit CKmlContainer(	const QString &strName,
-//							const QString &strDesc)
-//		:	m_strName(strName),
-//			m_strDescription(strDesc)
-//	{ }
-
 	const QString &name() const { return m_strName; }
 	void setName(const QString &strName) { m_strName = strName; }
 
@@ -76,20 +67,6 @@ public:
 		KPTE_POLYGON = 1,
 		KPTE_LINESTRING = 2,
 	};
-
-//	CKmlPlacemark() = default;
-//	CKmlPlacemark(const CKmlPlacemark &other) = default;
-//	CKmlPlacemark(CKmlPlacemark &&other) = default;
-//	explicit CKmlPlacemark(	const QString &strName,
-//							const QString &strDesc,
-//							KML_PLACEMARK_TYPE_ENUM nType,
-//							const QUrl &urlStyle,
-//							const TCoordinateList &lstCoordinates)
-//		:	CKmlContainer(strName, strDesc),
-//			m_nType(nType),
-//			m_urlStyle(urlStyle),
-//			m_lstCoordinates(lstCoordinates)
-//	{ }
 
 	KML_PLACEMARK_TYPE_ENUM type() const { return m_nType; }
 	void setType(KML_PLACEMARK_TYPE_ENUM nType) { m_nType = nType; }
@@ -118,11 +95,6 @@ typedef QList<CKmlPlacemark> TKmlPlacemarkList;
 class CKmlBaseStyle
 {
 public:
-//	CKmlBaseStyle() = default;
-//	CKmlBaseStyle(const CKmlBaseStyle &other) = default;
-//	CKmlBaseStyle(CKmlBaseStyle &&other) = default;
-//	virtual ~CKmlBaseStyle() = default;
-
 	enum KML_STYLE_TYPE_ENUM {
 		KSTE_ICON = 0,
 		KSTE_LINE = 1,
@@ -138,11 +110,6 @@ typedef QSharedPointer<CKmlBaseStyle> CKmlBaseStylePtr;
 class CKmlIconStyle : public CKmlBaseStyle
 {
 public:
-//	CKmlIconStyle() = default;
-//	CKmlIconStyle(const CKmlIconStyle &other) = default;
-//	CKmlIconStyle(CKmlIconStyle &&other) = default;
-//	virtual ~CKmlIconStyle() = default;
-
 	virtual KML_STYLE_TYPE_ENUM type() const override { return KSTE_ICON; }
 
 	const QUrl &urlIcon() const { return m_urlIcon; }
@@ -161,11 +128,6 @@ private:
 class CKmlLineStyle : public CKmlBaseStyle
 {
 public:
-//	CKmlLineStyle() = default;
-//	CKmlLineStyle(const CKmlLineStyle &other) = default;
-//	CKmlLineStyle(CKmlLineStyle &&other) = default;
-//	virtual ~CKmlLineStyle() = default;
-
 	virtual KML_STYLE_TYPE_ENUM type() const override { return KSTE_LINE; }
 
 	QColor color() const { return m_color; }
@@ -184,11 +146,6 @@ private:
 class CKmlPolyStyle : public CKmlBaseStyle
 {
 public:
-//	CKmlPolyStyle() = default;
-//	CKmlPolyStyle(const CKmlPolyStyle &other) = default;
-//	CKmlPolyStyle(CKmlPolyStyle &&other) = default;
-//	virtual ~CKmlPolyStyle() = default;
-
 	virtual KML_STYLE_TYPE_ENUM type() const override { return KSTE_POLY; }
 
 	QColor color() const { return m_color; }
@@ -212,10 +169,6 @@ private:
 class CKmlStyle : public QMap<CKmlBaseStyle::KML_STYLE_TYPE_ENUM, CKmlBaseStylePtr>
 {
 public:
-//	CKmlStyle(const QString &strID)
-//		:	m_strID(strID)
-//	{ }
-
 	const QString &id() const { return m_strID; }
 	void setID(const QString &strID) { m_strID = strID; }
 
@@ -239,14 +192,6 @@ class CKmlFolder : public CKmlContainer
 public:
 	typedef QMap<QString, CKmlFolder> TFolderMap;		// Map of Folder Name to CKmlFolder
 
-//	CKmlFolder() = default;
-//	CKmlFolder(const CKmlFolder &other) = default;
-//	CKmlFolder(CKmlFolder &&other) = default;
-//	explicit CKmlFolder(const QString &strName,
-//						const QString &strDesc)
-//		:	CKmlContainer(strName, strDesc)
-//	{ }
-
 	TKmlPlacemarkList &placemarks() { return m_lstPlacemarks; }
 	const TKmlPlacemarkList &placemarks() const { return m_lstPlacemarks; }
 
@@ -263,14 +208,6 @@ private:
 class CKmlDocument : public CKmlFolder, protected CXmlDefaultHandler
 {
 public:
-//	CKmlDocument() = default;
-//	CKmlDocument(const CKmlDocument &other) = default;
-//	CKmlDocument(CKmlDocument &&other) = default;
-//	explicit CKmlDocument(const QString &strName,
-//						const QString &strDesc)
-//		:	CKmlFolder(strName, strDesc)
-//	{ }
-
 	bool read(QIODevice *device);
     bool read(const QByteArray &data);
     bool read(const QString &data);
