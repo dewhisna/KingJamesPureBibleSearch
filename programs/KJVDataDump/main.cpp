@@ -89,9 +89,11 @@ int main(int argc, char *argv[])
 	bool bSkipSuperscriptions = false;
 	bool bPrintReference = false;
 	bool bPrintReferenceAbbrev = false;
+	bool bPrintPilcrowMarkers = false;
 	bool bOutputTemplates = false;
 	bool bOutputVerseText = false;
 	bool bOutputTransChangeAdded = false;
+	bool bOutputVPL = false;
 	bool bOutputWebChannelBibleAudioURLs = false;
 	bool bLookingForVersification = false;
 #ifdef USE_GEMATRIA
@@ -120,6 +122,8 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-ra") == 0) {
 			bPrintReference = true;
 			bPrintReferenceAbbrev = true;
+		} else if (strArg.compare("-p") == 0) {
+			bPrintPilcrowMarkers = true;
 		} else if (strArg.compare("-t") == 0) {
 			bOutputTemplates = true;
 		} else if (strArg.compare("-x") == 0) {
@@ -127,6 +131,11 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-a") == 0) {
 			bOutputVerseText = true;
 			bOutputTransChangeAdded = true;
+		} else if (strArg.compare("-vpl") == 0) {
+			bOutputVPL = true;
+			bPrintReference = true;
+			bPrintPilcrowMarkers = true;
+			bOutputVerseText = true;
 		} else if (strArg.compare("-wba") == 0) {
 			bOutputWebChannelBibleAudioURLs = true;
 		} else if (strArg.compare("-v11n") == 0) {
@@ -151,9 +160,11 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -r  =  Print Reference\n").toUtf8().data();
 		std::cerr << QString("  -ra =  Print Abbreviated Reference (implies -r)\n").toUtf8().data();
+		std::cerr << QString("  -p  =  Print Pilcrow Markers (when outputting text with -x)\n").toUtf8().data();
 		std::cerr << QString("  -t  =  Print Verse Templates\n").toUtf8().data();
 		std::cerr << QString("  -x  =  Print Verse Text\n").toUtf8().data();
 		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x)\n").toUtf8().data();
+		std::cerr << QString("  -vpl = Print Verse Per Line format (implies -x, -r, and -p)\n").toUtf8().data();
 		std::cerr << QString("  -wba = Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
 		std::cerr << QString("  -v11n <index> = Use versification <index> if the database supports it\n").toUtf8().data();
 		std::cerr << QString("         (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
@@ -236,10 +247,11 @@ int main(int argc, char *argv[])
 	class CMyVerseTextRichifierTags : public CVerseTextPlainRichifierTags
 	{
 	public:
-		CMyVerseTextRichifierTags(bool bOutputText, bool bOutputTransChangeAdded)
+		CMyVerseTextRichifierTags(bool bOutputText, bool bOutputTransChangeAdded, bool bOutputPilcrowMarkers)
 			:	m_bOutputText(bOutputText),
 				m_bOutputTransChangeAdded(bOutputTransChangeAdded)
 		{
+			setShowPilcrowMarkers(bOutputPilcrowMarkers);
 		}
 	protected:
 		virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const override
@@ -252,7 +264,7 @@ int main(int argc, char *argv[])
 	private:
 		bool m_bOutputText;
 		bool m_bOutputTransChangeAdded;
-	} vtrt(bOutputVerseText, bOutputTransChangeAdded);
+	} vtrt(bOutputVerseText, bOutputTransChangeAdded, bPrintPilcrowMarkers);
 
 #ifdef USE_GEMATRIA
 	struct TGematriaVerseValues {
@@ -268,6 +280,7 @@ int main(int argc, char *argv[])
 #endif
 
 	CRelIndex ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
+	CRelIndex ndxLastVPL;
 
 	while (ndxCurrent.isSet()) {
 		if ((bSkipColophons && ndxCurrent.isColophon()) ||
@@ -336,13 +349,24 @@ int main(int argc, char *argv[])
 						(bOutputVerseText && !lstVerseWords.isEmpty())) {
 						QString strSpacer;
 						if (bPrintReference) {
-							CRelIndex ndxVerse(ndxCurrent);
-							ndxVerse.setWord(0);
-							QString strRef = (bPrintReferenceAbbrev ?
-													pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
-													pBibleDatabase->PassageReferenceText(ndxVerse));
-							std::cout << strRef.toUtf8().data() << " : ";
-							strSpacer.fill(QChar(' '), strRef.size() + 3);
+							if (!bOutputVPL) {
+								CRelIndex ndxVerse(ndxCurrent);
+								ndxVerse.setWord(0);
+								QString strRef = (bPrintReferenceAbbrev ?
+														pBibleDatabase->PassageReferenceAbbrText(ndxVerse) :
+														pBibleDatabase->PassageReferenceText(ndxVerse));
+								std::cout << strRef.toUtf8().data() << " : ";
+								strSpacer.fill(QChar(' '), strRef.size() + 3);
+							} else {
+								if ((ndxLastVPL.book() != ndxCurrent.book()) || (ndxLastVPL.chapter() != ndxCurrent.chapter())) {
+									// Print book/chapter headings:
+									std::cout << "#" << pBibleDatabase->bookOSISAbbr(ndxCurrent).toUtf8().data() << "." << ndxCurrent.chapter() << std::endl;
+								}
+								// Print verse reference prefix:
+								std::cout << "#" << pBibleDatabase->bookOSISAbbr(ndxCurrent).toUtf8().data()
+											<< "." << ndxCurrent.chapter() << "." << ndxCurrent.verse() << " ";
+								ndxLastVPL = ndxCurrent;
+							}
 						}
 						if (bOutputTemplates) {
 							std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
