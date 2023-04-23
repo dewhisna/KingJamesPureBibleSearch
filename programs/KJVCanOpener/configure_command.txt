@@ -968,6 +968,9 @@ WARNING: Need LOTS of RAM to compile, even on a 2 Core CPU, especially for WebEn
 8GB isn't even when running parallel on a 2 Core!  You can barely squeak by with 8GB
 if only building on a single core with nothing else running -- barely.
 
+Note: Qt is broken with CMake >= 3.25.0:
+https://bugreports.qt.io/browse/QTBUG-109046
+
 
 ===============================================================================
 ===============================================================================
@@ -2611,6 +2614,91 @@ crontab -e
 Note: check-kjpbs will automatically launch webchannel!
 
 
+--------------------------------------------------------------------------------
+
+MediaDrop Bionic to Focal Porting Notes:
+----------------------------------------
+1) After upgrading from Bionic to Focal, MySQL will fail to startup correctly,
+which seemingly has something to do with the older format data and mixed installs
+from the past.  Plus, MediaDrop uses an ancient SQLAlchemy which doesn't work with
+MySQL 8.0 on Focal anyway.  Therefore, it's necessary to first export all data
+from MySQL on the old system via:
+
+mysqldump -u root --password=rootpassword --all-databases > mediadrop.sql
+
+2) After Focal upgrade, remove and flush MySQL:
+
+sudo apt-get purge mysql-server mysql-client mysql-common mysql-community-client mysql-community-server libmysqlclient-dev
+sudo apt-get autoclean && sudo apt-get clean && sudo apt-get update
+(delete the old MySQL data too)
+
+3) Install MySQL 5.7 on Focal:
+
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb
+
+sudo dpkg -i mysql-apt-config_0.8.12-1_all.deb
+
+Note: This will walk you through selecting MySQL version.  Select "bionic"
+for the system.  And enter the first option of server/client and change the
+version from 8.0 to 5.7.  Then select "OK" -> OK.
+
+Add missing gpg key:
+
+sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 3A79BD29
+
+sudo apt-get update
+sudo apt install  mysql-client=5.7* mysql-server=5.7* libmysqlclient-dev=5.7*
+
+4) Import old data:
+
+mysql -u root -prootpassword < mediadrop.sql
+
+5) Fix mediadrop_user permissions:
+
+mysql -u root -p
+mysql> flush privileges;
+mysql> grant usage on mediadrop_db.* to mediadrop_user@localhost identified by 'mysecretpassword';
+mysql> grant all privileges on mediadrop_db.* to mediadrop_user@localhost;
+mysql> exit;
+
+6) Create a new venv:
+
+sudo -i
+cd /var/www/mediadrop
+mv venv venv_OLD_bionic
+virtualenv --python=/usr/bin/python2.7 venv
+source venv/bin/activate
+cd mediadrop-git
+-- Edit setup.cfg and comment out the "allow_hosts" line and then run:
+python setup.py develop
+cd ..
+chmod -R a+r venv
+-- (Not sure if the following command is needed or not.  I did and it worked, but?)
+paster setup-app deployment.ini
+service apache2 reload
+
+7) Create an apt preferences file to pin these versions:
+
+sudo joe /etc/apt/preferences.d/mysql.5.7.pref
+
+With this content:
+-----
+Package: libmysqlclient-dev
+Pin: version 5.7*
+Pin-Priority: 550
+
+Package: mysql-client
+Pin: version 5.7*
+Pin-Priority: 550
+
+Package: mysql-server
+Pin: version 5.7*
+Pin-Priority: 550
+-----
+
+
+--------------------------------------------------------------------------------
+
 Setting up MediaDrop
 --------------------
 sudo apt-get install mysql-server mysql-client
@@ -2631,12 +2719,23 @@ ln -s freetype2 freetype
 cd /var/www
 mkdir mediadrop
 cd mediadrop
+-------------
+--- Bionic:
 virtualenv --distribute --no-site-packages venv
+--- Focal:  (Note: On Focal the arguments have changed)
+virtualenv --python=/usr/bin/python2.7 venv
+-------------
 source venv/bin/activate
 git clone ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/mediadrop mediadrop-git
 cd mediadrop-git
 git remote add github git@github.com:dewhisna/mediadrop.git
+-------------
+--- Bionic:
 python setup.py develop --allow-hosts=static.mediadrop.video,static.mediadrop.net,*.pypi.org,pypi.org,*.pythonhosted.org
+--- Focal:
+-- Edit setup.cfg and comment out the "allow_hosts" line and run with:
+python setup.py develop
+-------------
 cd ..
 paster make-config MediaDrop deployment.ini
 -- NOTE: For MediaDrop 0.10.3 the above should be MediaCore
