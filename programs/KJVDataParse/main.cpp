@@ -1782,6 +1782,7 @@ bool COSISXmlHandler::endDocument()
 		}
 
 		QBuffer xmlBuffer(&baDataLine);
+		xmlBuffer.open(QIODevice::ReadOnly);
 		CXmlReader xmlReader(&xmlBuffer);
 
 		xmlReader.setXmlHandler(&xmlHandler);
