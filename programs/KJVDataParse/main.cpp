@@ -2444,17 +2444,30 @@ static int writeDBInfoFile(const QDir &dirOutput, const TBibleDescriptor &bblDes
 {
 	QFileInfo fiInfoFile(strInfoFilename);
 	if (!strInfoFilename.isEmpty()) {
+		std::cerr << fiInfoFile.fileName().toUtf8().data() << " <- ";
 		std::cerr << strInfoFilename.toUtf8().data() << "\n";
 		if ((!fiInfoFile.exists()) || (!fiInfoFile.isFile())) {
 			std::cerr << QString("\n\n*** Info Filename \"%1\" doesn't exist\n\n").arg(strInfoFilename).toUtf8().data();
 			return ERR_CODE_INFO_FILE_MISSING;
 		}
-		if (!QFile::copy(fiInfoFile.absoluteFilePath(), dirOutput.absoluteFilePath(fiInfoFile.fileName()))) {
-			std::cerr << QString("\n\n*** Failed to copy Info File from \"%1\" to \"%2\"\n\n")
-						 .arg(fiInfoFile.absoluteFilePath())
-						 .arg(dirOutput.absoluteFilePath(fiInfoFile.fileName()))
-						 .toUtf8().data();
-			return ERR_CODE_INFO_FILE_MISSING;
+		// Copy the Info file only if the paths aren't the same -- ideally, this would
+		//	also take the case-sensitivity of the file system into account, but there
+		//	doesn't seem to be any sane way to do that.  So, just use the sensitive version:
+		if (fiInfoFile.absoluteFilePath().compare(dirOutput.absoluteFilePath(fiInfoFile.fileName())) != 0) {
+			if (QFileInfo::exists(dirOutput.absoluteFilePath(fiInfoFile.fileName()))) {
+				if (!QFile::remove(dirOutput.absoluteFilePath(fiInfoFile.fileName()))) {
+					std::cerr << QString("\n\n*** Failed to remove old Info File at \"%1\"\n\n")
+									.arg(dirOutput.absoluteFilePath(fiInfoFile.fileName()))
+									.toUtf8().data();
+				}
+			}
+			if (!QFile::copy(fiInfoFile.absoluteFilePath(), dirOutput.absoluteFilePath(fiInfoFile.fileName()))) {
+				std::cerr << QString("\n\n*** Failed to copy Info File from \"%1\" to \"%2\"\n\n")
+							 .arg(fiInfoFile.absoluteFilePath())
+							 .arg(dirOutput.absoluteFilePath(fiInfoFile.fileName()))
+							 .toUtf8().data();
+				return ERR_CODE_INFO_FILE_MISSING;
+			}
 		}
 	}
 
