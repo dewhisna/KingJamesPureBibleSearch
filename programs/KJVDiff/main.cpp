@@ -703,32 +703,29 @@ int main(int argc, char *argv[])
 				bool bEOL2 = (itrWordEntry2 == pBible2->mapWordList().end());
 				QString strKeyWord1 = (!bEOL1 ? (itrWordEntry1->first) : QString());
 				QString strKeyWord2 = (!bEOL2 ? (itrWordEntry2->first) : QString());
+				Q_ASSERT(!strKeyWord1.isEmpty() || !strKeyWord2.isEmpty());
 
-				int nComp = strKeyWord1.compare(strKeyWord2);
-				if (nComp == 0) {
-					Q_ASSERT(!strKeyWord1.isEmpty() && !strKeyWord2.isEmpty());
-					if (!bEOL1) ++itrWordEntry1;
-					if (!bEOL2) ++itrWordEntry2;
-				} else if (nComp < 0) {
-					if (!strKeyWord1.isEmpty()) {
-						strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
-						if (!bEOL1) ++itrWordEntry1;
-					} else if (!strKeyWord2.isEmpty()) {
-						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
-						if (!bEOL2) ++itrWordEntry2;
-					}
-				} else if (nComp > 0) {
-					if (!strKeyWord2.isEmpty()) {
-						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
-						if (!bEOL2) ++itrWordEntry2;
-					} else if (!strKeyWord1.isEmpty()) {
-						strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
-						if (!bEOL1) ++itrWordEntry1;
-					}
+				if (strKeyWord1.isEmpty()) {
+					Q_ASSERT(!bEOL2);
+					strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
+					++itrWordEntry2;
+				} else if (strKeyWord2.isEmpty()) {
+					Q_ASSERT(!bEOL1);
+					strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
+					++itrWordEntry1;
 				} else {
-					// We can only be here if nothing is greater than something or we
-					//		ran out of input on both sides and yet didn't exit the loop:
-					Q_ASSERT(false);
+					Q_ASSERT(!bEOL1 && !bEOL2);
+					int nComp = strKeyWord1.compare(strKeyWord2);
+					if (nComp == 0) {
+						++itrWordEntry1;
+						++itrWordEntry2;
+					} else if (nComp < 0) {
+						strWordDiffOutput += (itrWordEntry1->second).m_strWord + "\n";
+						++itrWordEntry1;
+					} else if (nComp > 0) {
+						strWordDiffOutput += QString(" ").repeated(nMaxWordSize + COLUMN_SPACE) + (itrWordEntry2->second).m_strWord + "\n";
+						++itrWordEntry2;
+					}
 				}
 			}
 		}
