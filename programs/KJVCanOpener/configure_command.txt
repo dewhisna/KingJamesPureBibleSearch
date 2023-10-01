@@ -965,11 +965,79 @@ cmake --install .
 Note: For QtWebEngine: node.js version 10.19 or later is required as well as libxshmfence-dev
 
 WARNING: Need LOTS of RAM to compile, even on a 2 Core CPU, especially for WebEngine.
-8GB isn't even when running parallel on a 2 Core!  You can barely squeak by with 8GB
-if only building on a single core with nothing else running -- barely.
+8GB isn't even enough when running parallel on a 2 Core!  You can barely squeak by with
+8GB if only building on a single core with nothing else running -- barely.
 
 Note: Qt is broken with CMake >= 3.25.0:
 https://bugreports.qt.io/browse/QTBUG-109046
+
+
+
+====================
+  Qt 6.5.3 Linux
+====================
+
+Ref: https://doc.qt.io/qt-6/linux-requirements.html
+Dependencies:
+sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev
+
+sudo apt-get install libclang-dev llvm-dev clang
+
+Also, needs these for webengine:
+sudo apt-get install nodejs libxshmfence-dev libxkbfile-dev
+
+For text-to-speech:
+sudo apt-get install flite1-dev
+sudo apt-get install libspeechd-dev speech-dispatcher
+
+Ref: https://doc.qt.io/qt-5/qdoc-guide-clang.html
+sudo apt-get install libclang-12-dev llvm-12-dev clang-12
+
+
+---------------
+NOTE: Qt requires nodejs 12+, but on Bionic 18.04, there is
+only nodejs 8.10, and on Focal 20.04, there is only 10.19.  So, need to do the
+following to move to 12.22:
+curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
+echo "deb [arch=$(dpkg --print-architecture)] https://deb.nodesource.com/node_12.x $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
+sudo apt-get update
+sudo apt-get install nodejs
+---------------
+Requires minimum of gcc 8 (On Bionic, we need):
+sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+sudo apt update
+sudo apt install gcc-9 g++-9
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 7
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 7
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
+sudo update-alternatives --config gcc
+sudo update-alternatives --config g++
+gcc --version
+g++ --version
+---------------
+
+
+cd ~/Qt/
+tar -Jxvf ~/Downloads/software/Qt/6.5.3/qt-everywhere-src-6.5.3.tar.xz
+mv qt-everywhere-src-6.5.3 6.5.3-src
+mkdir 6.5.3-build
+cd 6.5.3-build
+# Note: It can't seem to find clang, even though libclang-dev is installed, unless we set LLVM_INSTALL_DIR (below on Focal):
+export LLVM_INSTALL_DIR=/usr/lib/llvm-12/
+../6.5.3-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.5.3 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon -flite -speechd -- -DFEATURE_clang=ON
+cmake --build . --parallel
+cmake --install .
+
+Note: For QtWebEngine: node.js version 12+ is required as well as libxshmfence-dev
+
+WARNING: Need LOTS of RAM to compile, even on a 2 Core CPU, especially for WebEngine.
+8GB isn't even enough when running parallel on a 2 Core!  You can barely squeak by with
+8GB if only building on a single core with nothing else running -- barely.
+
+Note: Qt was broken with CMake >= 3.25.0 (but apparently fixed here in 6.5.3):
+https://bugreports.qt.io/browse/QTBUG-109046
+
 
 
 ===============================================================================
