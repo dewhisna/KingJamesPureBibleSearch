@@ -198,6 +198,7 @@ int main(int argc, char *argv[])
 	bool bIgnoreHebrewPs119 = false;
 	bool bIgnoreRendering = false;
 	bool bIgnoreVerseText = false;
+	bool bIgnoreInlineFootnotes = false;
 	bool bCaseInsensitive = false;
 	bool bAccentInsensitive = false;
 	bool bHyphenInsensitive = false;
@@ -238,6 +239,8 @@ int main(int argc, char *argv[])
 			bIgnoreRendering = true;
 		} else if (strArg.compare("-v") == 0) {
 			bIgnoreVerseText = true;
+		} else if (strArg.compare("-f") == 0) {
+			bIgnoreInlineFootnotes = true;
 		} else if (strArg.compare("-c") == 0) {
 			bCaseInsensitive = true;
 		} else if (strArg.compare("-a") == 0) {
@@ -282,6 +285,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -s  =  Ignore Psalm 119 Hebrew Letter Tags\n").toUtf8().data();
 		std::cerr << QString("  -r  =  Ignore rendering differences of punctuation, spaces, etc\n").toUtf8().data();
 		std::cerr << QString("  -v  =  Ignore verse text diffs (Verses where words are different)\n").toUtf8().data();
+		std::cerr << QString("  -f  =  Ignore inline footnotes\n").toUtf8().data();
 		std::cerr << QString("  -c  =  Case-Insensitive (i.e. Discard case rather than compare them)\n").toUtf8().data();
 		std::cerr << QString("  -a  =  Accent-Insensitive (i.e. Discard accents rather than compare them)\n").toUtf8().data();
 		std::cerr << QString("  -h  =  Hyphen-Insensitive (i.e. Discard hyphens rather than compare them)\n").toUtf8().data();
@@ -483,6 +487,16 @@ int main(int argc, char *argv[])
 						strTemplate2.remove(QRegExp("[Ll]"));
 #endif
 					}
+					if (bIgnoreInlineFootnotes) {
+#if QT_VERSION >= 0x050000
+						strTemplate1.remove(QRegularExpression("[Nn]"));
+						strTemplate2.remove(QRegularExpression("[Nn]"));
+#else
+						strTemplate1.remove(QRegExp("[Nn]"));
+						strTemplate2.remove(QRegExp("[Nn]"));
+#endif
+					}
+
 					if (bIgnoreHebrewPs119) {
 #if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[M]"));
@@ -537,11 +551,11 @@ int main(int argc, char *argv[])
 					}
 					if (bIgnoreRendering) {
 #if QT_VERSION >= 0x050000
-						strTemplate1.remove(QRegularExpression("[^DdTtJjLlMw]"));
-						strTemplate2.remove(QRegularExpression("[^DdTtJjLlMw]"));
+						strTemplate1.remove(QRegularExpression("[^DdTtJjLlNnMw]"));
+						strTemplate2.remove(QRegularExpression("[^DdTtJjLlNnMw]"));
 #else
-						strTemplate1.remove(QRegExp("[^DdTtJjLlMw]"));
-						strTemplate2.remove(QRegExp("[^DdTtJjLlMw]"));
+						strTemplate1.remove(QRegExp("[^DdTtJjLlNnMw]"));
+						strTemplate2.remove(QRegExp("[^DdTtJjLlNnMw]"));
 #endif
 					}
 					CVerseEntry veNewVerse1((pVerse1 != nullptr) ? *pVerse1 : CVerseEntry());
