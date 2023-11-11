@@ -47,11 +47,13 @@ public:
         int totalwidth = option.fontMetrics.width(index.data(Qt::DisplayRole).toString());
 #endif
         QSize ts;
+        int rw = option.rect.width();
+        if (rw < ds.width()) rw = ds.width();		// Note: uninitialized rect will have (0,0) which will trigger assert in qBound() below
 //         if(totalwidth>option.rect.width())
 //             ts = QSize(totalwidth/2, 2*option.fontMetrics.height());
 //         else
         ts = QSize(totalwidth, option.fontMetrics.height());
-        return QSize(qBound(ds.width(), ts.width(), option.rect.width()), ds.height()+6+ts.height());
+        return QSize(qBound(ds.width(), ts.width(), rw), ds.height()+6+ts.height());
     }
 };
 
