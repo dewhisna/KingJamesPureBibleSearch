@@ -446,8 +446,8 @@ public:
 		: QProxyStyle("fusion")
 	{ }
 #endif
-	int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
-				const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const
+	virtual int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
+				const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override
 	{
 		if (hint == QStyle::SH_ItemView_ActivateItemOnSingleClick) return 0;
 
