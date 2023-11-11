@@ -34,6 +34,10 @@
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
 #include "myApplication.h"
+#if QT_VERSION >= 0x050000
+#include <QGuiApplication>
+#include <QStyleHints>
+#endif
 #include "VerseListModel.h"
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 #include "SaveLoadFileDialog.h"
@@ -552,8 +556,22 @@ void CConfigTextFormat::loadSettings()
 	m_bAdjustDialogElementBrightness = CPersistentSettings::instance()->adjustDialogElementBrightness();
 
 	ui.checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
+#if QT_VERSION >= 0x060500
+	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
+	//	the invert checkbox.  The overall invert for that will be set in KJVCanOpener.
+	//	If the OS and/or color scheme doesn't support dark/light settings, we will
+	//	keep this enabled and let the user set it:
+	ui.checkBoxInvertTextBrightness->setEnabled(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
+#endif
 	ui.horzSliderTextBrigtness->setValue(m_nTextBrightness);
 	ui.checkBoxAdjustDialogElementBrightness->setChecked(m_bAdjustDialogElementBrightness);
+#if QT_VERSION >= 0x060500
+	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
+	//	the adjust dialog element checkbox.  The base value for it will be set in KJVCanOpener.
+	//	If the OS and/or color scheme doesn't support dark/light settings, we will
+	//	keep this enabled and let the user set it:
+	ui.checkBoxAdjustDialogElementBrightness->setEnabled(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
+#endif
 
 	// --------------------------------------------------------------
 
