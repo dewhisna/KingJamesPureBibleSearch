@@ -441,6 +441,11 @@ void CMyDaemon::handleSigUsr1()
 class MyProxyStyle : public QProxyStyle
 {
 public:
+#if QT_VERSION >= 0x050000
+	MyProxyStyle()
+		: QProxyStyle("fusion")
+	{ }
+#endif
 	int styleHint(StyleHint hint, const QStyleOption *option = nullptr,
 				const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const
 	{
