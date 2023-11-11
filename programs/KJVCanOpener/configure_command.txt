@@ -972,6 +972,65 @@ Note: Qt is broken with CMake >= 3.25.0:
 https://bugreports.qt.io/browse/QTBUG-109046
 
 
+====================
+  Qt 6.5.3 MacOS
+ (Universal Build)
+====================
+NOTE: QtWebEngine won't build with Xcode 15.0.1!!  It does with Xcode 14.3.1.
+There seems to be some sort of linker bug in Xcode 15.0.1 triggered by QtWebEngine.
+BUT, here's the kicker.  It says that 14.3.1 isn't compatible with Sonoma.  So what
+you have to do is install 15.0.1 and manually download 14.3.1 and then use:
+$ sudo xcode-select --switch /Applications/Xcode_14.3.1.app
+That will run the compiler from 14.3.1 and still fulfills the 15.0.1 and Sonoma
+requirement.  Note that the command-line tools from 15.0.1 work fine, which is good
+because it won't let you install the 14.3.1 command-line tools.  Ugh!
+NOTE: Requires Big Sur (MacOS 11 or Higher! and OS requires a minimum of 8GB for itself!)
+NOTE: Won't build on MacMini 2012 and older computers!
+Ref: https://doc.qt.io/qt-6/macos-building.html
+Ref: https://doc.qt.io/qt-6/macos.html
+Dependencies:
+  CMake >= 3.21.1
+  Ninja
+  Python html5lib
+  Bison, Flex
+  Gperf
+  Node.js version 8 or later (version 12 recommended)
+  brew install llvm
+
+virtualenv venv_qt_build --python=python3
+source venv_qt_build/bin/activate
+pip install html6lib
+
+xxx export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
+xxx export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+export LLVM_INSTALL_DIR=/opt/homebrew/opt/llvm
+(NOTE: The above export fails on universal build because it only has arm64 target.  This will cause it to not build lupdate, but lupdate work can be done on either a non-universal build or on a different platform.)
+
+cd ~/Qt/
+tar -Jxvf ~/Downloads/software/Qt/6.5.3/qt-everywhere-src-6.5.3.tar.xz
+mv qt-everywhere-src-6.5.3 6.5.3-src
+mkdir 6.5.3-build
+cd 6.5.3-build
+
+With VNC (but doesn't compile correctly as it seems to be a commercial-only feature):
+../6.5.3-src/configure -release -opensource -confirm-license -prefix /Users/dewhisna/Qt/6.5.3 -nomake examples -nomake tests -feature-vnc -- -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DQT_FEATURE_vnc=ON
+
+Without VNC:
+../6.5.3-src/configure -release -opensource -confirm-license -prefix /Users/dewhisna/Qt/6.5.3 -nomake examples -nomake tests -- -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+
+NOTE: Be careful to specify the Intel architecture ("x86_64") first, otherwise Qt may not enable all the x86 functionality.
+NOTE: A universal build always needs to include the architecture of your development machine, as the process relies on tools that are built and run on your machine as part of the overall build.
+cmake --build . --parallel
+cmake --install .
+
+Use port to install libmaxminddb:
+sudo port install libmaxminddb
+
+sudo port install ninja
+
+To find Ninja (from sudo port install ninja):
+In the Kit, add to the environment:  PATH=/opt/local/bin:${PATH}
+
 
 ====================
   Qt 6.5.3 Linux
