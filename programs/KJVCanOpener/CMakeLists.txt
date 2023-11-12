@@ -143,6 +143,11 @@ if(NOT CONSOLE)
 	endif()
 	if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
 		set(GUI_TYPE MACOSX_BUNDLE)
+		set(MACOSX_BUNDLE_ICON_FILE bible.icns)
+
+		set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/res/bible.icns")
+		set_source_files_properties(${app_icon_macos} PROPERTIES
+			   MACOSX_PACKAGE_LOCATION "Resources")
 	endif()
 endif()
 
@@ -466,6 +471,9 @@ if(WIN32)
 	)
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+	list(APPEND KJVCanOpener_RESOURCES ${app_icon_macos})
+endif()
 
 # =============================================================================
 

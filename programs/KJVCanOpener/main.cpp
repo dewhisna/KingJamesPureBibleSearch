@@ -165,12 +165,12 @@ int main(int argc, char *argv[])
 
 #ifndef IS_CONSOLE_APP
 
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32)
 	pApp->setWindowIcon(QIcon(":/res/bible.ico"));
+#elif defined(Q_OS_MAC)
+	pApp->setWindowIcon(QIcon(":/res/bible.icns"));
 #else
-#ifndef Q_OS_MAC			// Normally, this would also include Mac, but Mac has its icon set in the .pro file.  Loading this one makes it fuzzy.
 	pApp->setWindowIcon(QIcon(":/res/bible_48.png"));
-#endif
 #endif
 
 #endif
