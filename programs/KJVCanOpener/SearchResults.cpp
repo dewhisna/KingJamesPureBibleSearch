@@ -233,11 +233,13 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pEditMenuLocal = new QMenu(tr("&Edit", "MainMenu"), this);
 	m_pEditMenu->setStatusTip(tr("Search Results Edit Operations", "MainMenu"));
 	// ----
-	m_pActionCopyVerseEntry = m_pEditMenu->addAction(tr("Copy &Entries", "MainMenu"), this, SLOT(en_copyVerseEntry()), QKeySequence(Qt::CTRL | Qt::Key_T));
+	m_pActionCopyVerseEntry = m_pEditMenu->addAction(tr("Copy &Entries", "MainMenu"), this, SLOT(en_copyVerseEntry()));
+	m_pActionCopyVerseEntry->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
 	m_pActionCopyVerseEntry->setStatusTip(tr("Copy Entries for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyVerseEntry->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseEntry);
-	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text", "MainMenu"), this, SLOT(en_copyVerseText()), QKeySequence(Qt::CTRL | Qt::Key_V));
+	m_pActionCopyVerseText = m_pEditMenu->addAction(tr("Copy &Verse Text", "MainMenu"), this, SLOT(en_copyVerseText()));
+	m_pActionCopyVerseText->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
 	m_pActionCopyVerseText->setStatusTip(tr("Copy Verse Text for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyVerseText->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseText);
@@ -252,7 +254,8 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References", "MainMenu"), this, SLOT(en_copyVerseHeadings()), QKeySequence(Qt::CTRL | Qt::Key_C));
+	m_pActionCopyVerseHeadings = m_pEditMenu->addAction(tr("Copy &References", "MainMenu"), this, SLOT(en_copyVerseHeadings()));
+	m_pActionCopyVerseHeadings->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 	m_pActionCopyVerseHeadings->setStatusTip(tr("Copy Verse References for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyVerseHeadings->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyVerseHeadings);
@@ -260,18 +263,21 @@ CSearchResultsTreeView::CSearchResultsTreeView(CBibleDatabasePtr pBibleDatabase,
 	m_pActionCopyReferenceDetails->setStatusTip(tr("Copy the Word/Phrase Reference Details (Counts) for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyReferenceDetails->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyReferenceDetails);
-	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details", "MainMenu"), this, SLOT(en_copyComplete()), QKeySequence(Qt::CTRL | Qt::Key_B));
+	m_pActionCopyComplete = m_pEditMenu->addAction(tr("Copy &Complete Verse Text and Reference Details", "MainMenu"), this, SLOT(en_copyComplete()));
+	m_pActionCopyComplete->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
 	m_pActionCopyComplete->setStatusTip(tr("Copy Complete Verse Text and Reference Details (Counts) for the selected Search Results to the clipboard", "MainMenu"));
 	m_pActionCopyComplete->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionCopyComplete);
 	// ----
 	m_pEditMenu->addSeparator();
 	m_pEditMenuLocal->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL | Qt::Key_A));
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), this, SLOT(selectAll()));
+	m_pActionSelectAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(tr("Select all Search Results", "MainMenu"));
 	m_pActionSelectAll->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionSelectAll);
-	m_pActionClearSelection = m_pEditMenu->addAction(tr("C&lear Selection", "MainMenu"), this, SLOT(clearSelection()), QKeySequence(Qt::Key_Escape));
+	m_pActionClearSelection = m_pEditMenu->addAction(tr("C&lear Selection", "MainMenu"), this, SLOT(clearSelection()));
+	m_pActionClearSelection->setShortcut(QKeySequence(Qt::Key_Escape));
 	m_pActionClearSelection->setStatusTip(tr("Clear Search Results Selection", "MainMenu"));
 	m_pActionClearSelection->setEnabled(false);
 	m_pEditMenuLocal->addAction(m_pActionClearSelection);

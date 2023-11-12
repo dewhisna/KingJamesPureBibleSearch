@@ -102,39 +102,46 @@ CPhraseLineEdit::CPhraseLineEdit(CBibleDatabasePtr pBibleDatabase, QWidget *pPar
 /*
 	TODO : If we ever address what to do with undo/redo, then put this code back in:
 
-	pAction = m_pEditMenu->addAction(tr("&Undo", "MainMenu"), this, SLOT(undo()), QKeySequence(Qt::CTRL | Qt::Key_Z));
+	pAction = m_pEditMenu->addAction(tr("&Undo", "MainMenu"), this, SLOT(undo()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z));
 	pAction->setStatusTip(tr("Undo last operation to the Search Phrase Editor", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(undoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction(tr("&Redo", "MainMenu"), this, SLOT(redo()), QKeySequence(Qt::CTRL | Qt::Key_Y));
+	pAction = m_pEditMenu->addAction(tr("&Redo", "MainMenu"), this, SLOT(redo()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Y));
 	pAction->setStatusTip(tr("Redo last operation on the Search Phrase Editor", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(redoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
 */
-	pAction = m_pEditMenu->addAction(tr("Cu&t", "MainMenu"), this, SLOT(cut()), QKeySequence(Qt::CTRL | Qt::Key_X));
+	pAction = m_pEditMenu->addAction(tr("Cu&t", "MainMenu"), this, SLOT(cut()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
 	pAction->setStatusTip(tr("Cut selected text from the Search Phrase Editor to the clipboard", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction(tr("&Copy", "MainMenu"), this, SLOT(copy()), QKeySequence(Qt::CTRL | Qt::Key_C));
+	pAction = m_pEditMenu->addAction(tr("&Copy", "MainMenu"), this, SLOT(copy()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 	pAction->setStatusTip(tr("Copy selected text from the Search Phrase Editor to the clipboard", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction(tr("&Paste", "MainMenu"), this, SLOT(paste()), QKeySequence(Qt::CTRL | Qt::Key_V));
+	pAction = m_pEditMenu->addAction(tr("&Paste", "MainMenu"), this, SLOT(paste()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
 	pAction->setStatusTip(tr("Paste text on clipboard into the Search Phrase Editor", "MainMenu"));
 	pAction->setEnabled(true);
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
-	pAction = m_pEditMenu->addAction(tr("&Delete", "MainMenu"), this, SLOT(clear()), QKeySequence(Qt::Key_Delete));
+	pAction = m_pEditMenu->addAction(tr("&Delete", "MainMenu"), this, SLOT(clear()));
+	pAction->setShortcut(QKeySequence(Qt::Key_Delete));
 	pAction->setStatusTip(tr("Delete selected text from the Search Phrase Editor", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(this, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), this, SLOT(setFocus()));
 	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), this, SLOT(selectAll()), QKeySequence(Qt::CTRL | Qt::Key_A));
+	m_pActionSelectAll = m_pEditMenu->addAction(tr("Select &All", "MainMenu"), this, SLOT(selectAll()));
+	m_pActionSelectAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(tr("Select All Text in the Search Phrase Editor", "MainMenu"));
 	m_pActionSelectAll->setEnabled(false);
 	connect(m_pActionSelectAll, SIGNAL(triggered()), this, SLOT(setFocus()));

@@ -225,39 +225,46 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const Q
 /*
 	TODO : If we ever address what to do with undo/redo, then put this code back in:
 
-	pAction = m_pEditMenuDictWord->addAction(tr("&Undo", "MainMenu"), ui.editDictionaryWord, SLOT(undo()), QKeySequence(Qt::CTRL | Qt::Key_Z));
+	pAction = m_pEditMenuDictWord->addAction(tr("&Undo", "MainMenu"), ui.editDictionaryWord, SLOT(undo()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Z));
 	pAction->setStatusTip(tr("Undo last operation to the Dictionary Word Editor", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(ui.editDictionaryWord, SIGNAL(undoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
-	pAction = m_pEditMenuDictWord->addAction(tr("&Redo", "MainMenu"), ui.editDictionaryWord, SLOT(redo()), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z));
+	pAction = m_pEditMenuDictWord->addAction(tr("&Redo", "MainMenu"), ui.editDictionaryWord, SLOT(redo()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Z));
 	pAction->setStatusTip(tr("Redo last operation on the Dictionary Word Editor", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(ui.editDictionaryWord, SIGNAL(redoAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
 	m_pEditMenuDictWord->addSeparator();
 */
-	pAction = m_pEditMenuDictWord->addAction(tr("Cu&t", "MainMenu"), ui.editDictionaryWord, SLOT(cut()), QKeySequence(Qt::CTRL | Qt::Key_X));
+	pAction = m_pEditMenuDictWord->addAction(tr("Cu&t", "MainMenu"), ui.editDictionaryWord, SLOT(cut()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_X));
 	pAction->setStatusTip(tr("Cut selected text from the Dictionary Word Editor to the clipboard", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(ui.editDictionaryWord, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 //	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
-	pAction = m_pEditMenuDictWord->addAction(tr("&Copy", "MainMenu"), ui.editDictionaryWord, SLOT(copy()), QKeySequence(Qt::CTRL | Qt::Key_C));
+	pAction = m_pEditMenuDictWord->addAction(tr("&Copy", "MainMenu"), ui.editDictionaryWord, SLOT(copy()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 	pAction->setStatusTip(tr("Copy selected text from the Dictionary Word Editor to the clipboard", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(ui.editDictionaryWord, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 //	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
-	pAction = m_pEditMenuDictWord->addAction(tr("&Paste", "MainMenu"), ui.editDictionaryWord, SLOT(paste()), QKeySequence(Qt::CTRL | Qt::Key_V));
+	pAction = m_pEditMenuDictWord->addAction(tr("&Paste", "MainMenu"), ui.editDictionaryWord, SLOT(paste()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
 	pAction->setStatusTip(tr("Paste text on clipboard into the Dictionary Word Editor", "MainMenu"));
 	pAction->setEnabled(true);
 //	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
-	pAction = m_pEditMenuDictWord->addAction(tr("&Delete", "MainMenu"), ui.editDictionaryWord, SLOT(clear()), QKeySequence(Qt::Key_Delete));
+	pAction = m_pEditMenuDictWord->addAction(tr("&Delete", "MainMenu"), ui.editDictionaryWord, SLOT(clear()));
+	pAction->setShortcut(QKeySequence(Qt::Key_Delete));
 	pAction->setStatusTip(tr("Delete selected text from the Dictionary Word Editor", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(ui.editDictionaryWord, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 //	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
 	m_pEditMenuDictWord->addSeparator();
-	pAction = m_pEditMenuDictWord->addAction(tr("Select &All", "MainMenu"), ui.editDictionaryWord, SLOT(selectAll()), QKeySequence(Qt::CTRL | Qt::Key_A));
+	pAction = m_pEditMenuDictWord->addAction(tr("Select &All", "MainMenu"), ui.editDictionaryWord, SLOT(selectAll()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	pAction->setStatusTip(tr("Select All Text in the Dictionary Word Editor", "MainMenu"));
 	pAction->setEnabled(true);
 //	connect(pAction, SIGNAL(triggered()), ui.editDictionaryWord, SLOT(setFocus()));
@@ -267,13 +274,15 @@ CDictionaryWidget::CDictionaryWidget(CDictionaryDatabasePtr pDictionary, const Q
 	m_pEditMenuDictionary = new QMenu(tr("&Edit", "MainMenu"), ui.definitionBrowser);
 	m_pEditMenuDictionary->setStatusTip(tr("Dictionary Definition Text Edit Operations", "MainMenu"));
 
-	pAction = m_pEditMenuDictionary->addAction(tr("&Copy", "MainMenu"), ui.definitionBrowser, SLOT(copy()), QKeySequence(Qt::CTRL | Qt::Key_C));
+	pAction = m_pEditMenuDictionary->addAction(tr("&Copy", "MainMenu"), ui.definitionBrowser, SLOT(copy()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 	pAction->setStatusTip(tr("Copy selected text from the Dictionary Definition to the clipboard", "MainMenu"));
 	pAction->setEnabled(false);
 	connect(ui.definitionBrowser, SIGNAL(copyAvailable(bool)), pAction, SLOT(setEnabled(bool)));
 	connect(pAction, SIGNAL(triggered()), ui.definitionBrowser, SLOT(setFocus()));
 	m_pEditMenuDictionary->addSeparator();
-	pAction = m_pEditMenuDictionary->addAction(tr("Select &All", "MainMenu"), ui.definitionBrowser, SLOT(selectAll()), QKeySequence(Qt::CTRL | Qt::Key_A));
+	pAction = m_pEditMenuDictionary->addAction(tr("Select &All", "MainMenu"), ui.definitionBrowser, SLOT(selectAll()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	pAction->setStatusTip(tr("Select All Text in the Dictionary Definition", "MainMenu"));
 	pAction->setEnabled(true);
 	connect(pAction, SIGNAL(triggered()), ui.definitionBrowser, SLOT(setFocus()));
