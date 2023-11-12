@@ -242,7 +242,7 @@ private slots:
 #endif
 
 	void removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener);
-	void activatedKJVCanOpener(CKJVCanOpener *pCanOpener);
+	void activateKJVCanOpener(CKJVCanOpener *pCanOpener);
 	void en_triggeredKJVCanOpener(QAction *pAction);
 
 	void en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
@@ -264,7 +264,7 @@ protected:
 	QString m_strFileToLoad;
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
-	int m_nLastActivateCanOpener;						// Index of last KJVCanOpener that was activated by the user
+	int m_nLastActivatedCanOpener;						// Index of last KJVCanOpener that was activated by the user
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app

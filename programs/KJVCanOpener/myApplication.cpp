@@ -474,7 +474,7 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 #else
 		m_bSingleThreadedSearchResults(true),
 #endif
-		m_nLastActivateCanOpener(-1),
+		m_nLastActivatedCanOpener(-1),
 		m_bUsingCustomStyleSheet(false),
 		m_bAreRestarting(false),
 		m_pSplash(nullptr)
@@ -845,7 +845,7 @@ CKJVCanOpener *CMyApplication::createKJVCanOpener(CBibleDatabasePtr pBibleDataba
 	m_bAreRestarting = false;			// Once we create a new CanOpener we are no longer restarting... But set this AFTER we create the CKJVCanOpener object so that it can properly trigger restorePersistentSettings()
 	m_lstKJVCanOpeners.append(pCanOpener);
 	connect(pCanOpener, SIGNAL(isClosing(CKJVCanOpener*)), this, SLOT(removeKJVCanOpener(CKJVCanOpener*)));
-	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activatedKJVCanOpener(CKJVCanOpener*)));
+	connect(pCanOpener, SIGNAL(windowActivated(CKJVCanOpener*)), this, SLOT(activateKJVCanOpener(CKJVCanOpener*)));
 	connect(pCanOpener, SIGNAL(canCloseChanged(CKJVCanOpener*,bool)), this, SLOT(en_canCloseChanged(CKJVCanOpener*,bool)));
 	//	Do this via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
 	//	won't crash if the menu that was triggering it gets yanked out from under it:
@@ -922,7 +922,7 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 {
 	int ndxCanOpener = m_lstKJVCanOpeners.indexOf(pKJVCanOpener);
 	Q_ASSERT(ndxCanOpener != -1);
-	if (ndxCanOpener == m_nLastActivateCanOpener) m_nLastActivateCanOpener = -1;
+	if (ndxCanOpener == m_nLastActivatedCanOpener) m_nLastActivatedCanOpener = -1;
 	if (ndxCanOpener != -1) m_lstKJVCanOpeners.removeAt(ndxCanOpener);
 	if (!g_pMdiArea.isNull()) {
 		if (m_lstKJVCanOpeners.size() == 0) {
@@ -940,12 +940,12 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 	emit updateSearchWindowList();
 }
 
-void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
+void CMyApplication::activateKJVCanOpener(CKJVCanOpener *pCanOpener)
 {
-	CKJVCanOpener *pLastCanOpener = (m_nLastActivateCanOpener >= 0) ? m_lstKJVCanOpeners.at(m_nLastActivateCanOpener) : nullptr;
+	CKJVCanOpener *pLastCanOpener = (m_nLastActivatedCanOpener >= 0) ? m_lstKJVCanOpeners.at(m_nLastActivatedCanOpener) : nullptr;
 	for (int ndx = 0; ndx < m_lstKJVCanOpeners.size(); ++ndx) {
 		if (m_lstKJVCanOpeners.at(ndx) == pCanOpener) {
-			m_nLastActivateCanOpener = ndx;
+			m_nLastActivatedCanOpener = ndx;
 			emit changeActiveCanOpener(pCanOpener, pLastCanOpener);
 			return;
 		}
@@ -956,12 +956,12 @@ void CMyApplication::activatedKJVCanOpener(CKJVCanOpener *pCanOpener)
 	// The following is needed on Mac to make sure the menu of the
 	//      new KJVCanOpener gets set:
 	if (activeWindow() != static_cast<QWidget *>(pCanOpener))
-			setActiveWindow(pCanOpener);
+		static_cast<QWidget *>(pCanOpener)->activateWindow();
 
 #endif
 
 	Q_ASSERT(false);
-	m_nLastActivateCanOpener = -1;
+	m_nLastActivatedCanOpener = -1;
 }
 
 CKJVCanOpener *CMyApplication::activeCanOpener() const
@@ -1253,7 +1253,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 	switch (nCommand) {
 		case KAMCE_ACTIVATE_EXISTING:
 		{
-			int nIndex = m_nLastActivateCanOpener;
+			int nIndex = m_nLastActivatedCanOpener;
 			if (nIndex == -1) {
 				if (m_lstKJVCanOpeners.size() > 1) nIndex = 0;
 			} else {
