@@ -1026,6 +1026,13 @@ if((CMAKE_SYSTEM_NAME STREQUAL Darwin) AND (QT_VERSION_MAJOR LESS 5))
 endif()
 
 
+if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		WORKAROUND_QTBUG_88928			# Fix Broken Standard Icons on QMessageBox on MacOS
+	)
+endif()
+
+
 if(ANDROID)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		WORKAROUND_QTBUG_35313_35687	# Android QMessageBox dialogs have wrong theming (workaround uses Android Native Dialogs)

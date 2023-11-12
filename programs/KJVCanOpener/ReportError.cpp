@@ -29,13 +29,15 @@
 #include <iostream>
 #endif
 
-#if !defined(IS_CONSOLE_APP) && defined(USE_ASYNC_DIALOGS)
+#if !defined(IS_CONSOLE_APP)
 #include <QCoreApplication>
+#if defined(USE_ASYNC_DIALOGS)
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QPointer>
 #include <QEventLoop>
 #include <QTimer>
+#endif
 #endif
 
 // ============================================================================
@@ -124,8 +126,15 @@ void
 #else
 
 #ifndef USE_ASYNC_DIALOGS
+#if (QT_VERSION >= 0x050700) && defined(Q_OS_MAC) && defined(WORKAROUND_QTBUG_88928)		// Workaround for QTBUG-88928 (it's also broken on Qt6 and Sonoma, etc)
+	// See: https://stackoverflow.com/questions/76869543/why-cant-i-change-the-window-icon-on-a-qmessagebox-with-seticon-in-pyside6
+	QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs, true);
+#endif
 	QMessageBox::StandardButton nRetVal = QMessageBox::warning(pParent, strTitle, strText, nButtons, nDefaultButton);
 	if (fnCompletion) fnCompletion(nRetVal);
+#if (QT_VERSION >= 0x050700) && defined(Q_OS_MAC) && defined(WORKAROUND_QTBUG_88928)		// Workaround for QTBUG-88928 (it's also broken on Qt6 and Sonoma, etc)
+	QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs, false);
+#endif
 	return nRetVal;
 #else
 	asyncShowNewMessageBox(pParent, QMessageBox::Warning, strTitle, strText, nButtons, nDefaultButton, fnCompletion);
@@ -168,8 +177,15 @@ void
 #else
 
 #ifndef USE_ASYNC_DIALOGS
+#if (QT_VERSION >= 0x050700) && defined(Q_OS_MAC) && defined(WORKAROUND_QTBUG_88928)		// Workaround for QTBUG-88928 (it's also broken on Qt6 and Sonoma, etc)
+	// See: https://stackoverflow.com/questions/76869543/why-cant-i-change-the-window-icon-on-a-qmessagebox-with-seticon-in-pyside6
+	QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs, true);
+#endif
 	QMessageBox::StandardButton nRetVal = QMessageBox::information(pParent, strTitle, strText, nButtons, nDefaultButton);
 	if (fnCompletion) fnCompletion(nRetVal);
+#if (QT_VERSION >= 0x050700) && defined(Q_OS_MAC) && defined(WORKAROUND_QTBUG_88928)		// Workaround for QTBUG-88928 (it's also broken on Qt6 and Sonoma, etc)
+	QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs, false);
+#endif
 	return nRetVal;
 #else
 	asyncShowNewMessageBox(pParent, QMessageBox::Information, strTitle, strText, nButtons, nDefaultButton, fnCompletion);
