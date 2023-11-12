@@ -21,7 +21,7 @@
 ##
 ##*****************************************************************************
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20...3.28)
 
 project(xmltest VERSION 1.0.0 DESCRIPTION "SAX QXmlSimpleReader->QXmlStreamReader Test" LANGUAGES CXX)
 
