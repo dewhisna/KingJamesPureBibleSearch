@@ -52,6 +52,8 @@ public:
 			m_bChecked(bChecked)
 	{ }
 
+	CNoteKeywordModelItemData& operator=(const CNoteKeywordModelItemData &other) = default;
+
 	QString m_strKeyword;
 	bool m_bChecked;
 };

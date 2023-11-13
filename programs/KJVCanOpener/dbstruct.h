@@ -953,6 +953,7 @@ public:
 	TPhraseTagList(const TPhraseTag &aTag);
 	TPhraseTagList(const TPhraseTagList &src) = default;
 	TPhraseTagList(const CBibleDatabase *pBibleDatabase, const TPassageTagList &lstPassageTags);
+	TPhraseTagList& operator=(const TPhraseTagList &src) = default;
 
 	bool isSet() const;
 

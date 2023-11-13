@@ -603,6 +603,7 @@ public:
 	class TVerseListModelResults {
 	public:
 		TVerseListModelResults(const TVerseListModelResults &other) = default;
+		TVerseListModelResults& operator=(const TVerseListModelResults &other) = default;
 
 	protected:
 		friend class CVerseListModel;

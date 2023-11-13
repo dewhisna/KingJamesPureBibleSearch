@@ -20,9 +20,6 @@
 #include <QStyleOptionFrame>
 #include "wwglobal_p.h"
 
-const int wid = 360;
-const int hei = 256;
-
 
 class QwwHueSatPickerPrivate : public QwwPrivate {
 public:

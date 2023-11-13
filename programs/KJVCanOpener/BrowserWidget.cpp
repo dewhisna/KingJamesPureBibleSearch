@@ -914,6 +914,7 @@ void CBrowserWidget::setBook(const CRelIndex &ndx)
 		nTstStartBook += m_pBibleDatabase->testamentEntry(ndxTst)->m_nNumBk;
 		nTstStartChp += m_pBibleDatabase->testamentEntry(ndxTst)->m_nNumChp;
 	}
+	Q_UNUSED(nTstStartChp);
 	for (unsigned int ndxTstBk=1, nTstChp=0; ndxTstBk<=m_pBibleDatabase->testamentEntry(nTst)->m_nNumBk; ++ndxTstBk) {
 		nTstChp += m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumChp;
 		if (m_pBibleDatabase->bookEntry(nTstStartBook + ndxTstBk)->m_nNumWrd == 0) continue;		// Skip empty books to handle partial databases

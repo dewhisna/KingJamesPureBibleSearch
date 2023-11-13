@@ -117,7 +117,7 @@ int QwwHueSatRadialPickerPrivate::hue(const QPoint & pt) const {
     int h = qRound(deg);
     if (x>=0 && y>=0) h=180+h;
     else if (x<0 && y>=0) h=360-h;
-    else if (x<0 && y<0) h=h;
+    else if (x<0 && y<0) h=h+0;
     else h=180-h;
     return h % 360;
 }
