@@ -28,7 +28,7 @@ class Q_WW_EXPORT QwwTaskPanel : public QWidget/*QScrollArea*/ {
     Q_PROPERTY(QIcon toggleIcon READ toggleIcon WRITE setToggleIcon)
     Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
 public:
-    QwwTaskPanel(QWidget *parent = 0);
+    QwwTaskPanel(QWidget *parent = nullptr);
     virtual ~QwwTaskPanel();
     void addTask(QWidget *task, const QString &label = QString());
     void addTask(QWidget *task, const QIcon &icon, const QString &label = QString());

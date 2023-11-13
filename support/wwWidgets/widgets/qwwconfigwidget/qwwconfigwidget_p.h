@@ -14,9 +14,20 @@
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
+#include "qwwconfigwidget.h"
+#include "wwglobal_p.h"
+
+class QStackedWidget;
+class QListWidget;
+class QHBoxLayout;
+class QLabel;
+
+
 class ConfigWidgetDelegate : public QAbstractItemDelegate {
 public:
-    ConfigWidgetDelegate(QObject *parent=0) : QAbstractItemDelegate(parent) {}
+    ConfigWidgetDelegate(QObject *parent = nullptr)
+        : QAbstractItemDelegate(parent)
+    {}
 
     void paint ( QPainter * painter, const QStyleOptionViewItem & option, const QModelIndex & index ) const {
         QStyleOptionViewItem opt = option;

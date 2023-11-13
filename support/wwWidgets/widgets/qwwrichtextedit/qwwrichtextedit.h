@@ -21,7 +21,7 @@ class Q_WW_EXPORT QwwRichTextEdit : public QTextEdit {
   Q_FLAGS(Options);
   Q_PROPERTY(Options options READ options WRITE setOptions)
 public:
-  QwwRichTextEdit(QWidget *parent=0);
+  QwwRichTextEdit(QWidget *parent = nullptr);
     enum Option { NoOptions = 0x0, Style = 0x01, Alignment = 0x02, FontFamily = 0x04, FontSize = 0x08, Color = 0x10 };
   Q_DECLARE_FLAGS(Options, Option);
   enum Action {

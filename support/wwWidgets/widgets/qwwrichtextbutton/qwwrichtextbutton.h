@@ -27,8 +27,8 @@ class Q_WW_EXPORT QwwRichTextButton : public QAbstractButton, public QwwPrivatab
     Q_PROPERTY(QString text READ html WRITE setHtml)
     Q_PROPERTY(QString html READ html WRITE setHtml USER true)
 public:
-    QwwRichTextButton(QWidget *parent=0);
-    QwwRichTextButton(QTextDocument *d, QWidget *parent=0);
+    QwwRichTextButton(QWidget *parent = nullptr);
+    QwwRichTextButton(QTextDocument *d, QWidget *parent = nullptr);
     void setDocument(QTextDocument *doc);
     QTextDocument *document() const;
     virtual ~QwwRichTextButton();

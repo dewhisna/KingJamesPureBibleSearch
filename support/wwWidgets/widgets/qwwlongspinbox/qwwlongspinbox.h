@@ -32,7 +32,7 @@ class Q_WW_EXPORT QwwLongSpinBox : public QAbstractSpinBox, public QwwPrivatable
     Q_PROPERTY(qlonglong singleStep READ singleStep WRITE setSingleStep)
 // Q_PROPERTY(QString cleanText READ cleanText)
 public:
-    QwwLongSpinBox(QWidget *parent = 0);
+    QwwLongSpinBox(QWidget *parent = nullptr);
 
     virtual void stepBy ( int steps ) override;
 

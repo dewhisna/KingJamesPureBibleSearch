@@ -22,7 +22,7 @@
 class TaskHeader : public QFrame {
     Q_OBJECT
 public:
-    TaskHeader(QWidget *w, QWidget *parent = 0);
+    TaskHeader(QWidget *w, QWidget *parent = nullptr);
     void setToggleIcon(const QIcon &i);
     void setTaskName(const QString &n);
     void setIcon(const QIcon &i);
@@ -39,7 +39,7 @@ protected:
 class Q_WW_EXPORT Task : public QWidget {
     Q_OBJECT
 public:
-    Task(QWidget *body, QWidget *parent = 0);
+    Task(QWidget *body, QWidget *parent = nullptr);
     void setName(const QString &n) {
         m_header->setTaskName(n);
         m_body->setWindowTitle(n);

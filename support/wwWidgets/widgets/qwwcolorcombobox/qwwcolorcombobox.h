@@ -36,7 +36,7 @@ class Q_WW_EXPORT QwwColorComboBox : public QComboBox, QwwPrivatable {
     Q_PROPERTY(QColor currentColor READ currentColor)
     Q_PROPERTY(QStringList colors READ colors WRITE setColors)
 public:
-    QwwColorComboBox(QWidget *parent = 0);
+    QwwColorComboBox(QWidget *parent = nullptr);
     virtual ~QwwColorComboBox();
     void addColor ( const QColor & color, const QString & name );
     QColor color ( int index ) const;

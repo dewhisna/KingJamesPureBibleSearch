@@ -39,7 +39,7 @@ class Q_WW_EXPORT QwwTipWidget : public QWidget, public QwwPrivatable {
   Q_PROPERTY(bool tipsEnabled
             READ tipsEnabled WRITE setTipsEnabled)
 public:
-  QwwTipWidget(const QStringList &list, QWidget *parent=0);
+  QwwTipWidget(const QStringList &list, QWidget *parent = nullptr);
   int currentTip() const;
   bool tipsEnabled() const;
   QWidget *headerWidget() const;

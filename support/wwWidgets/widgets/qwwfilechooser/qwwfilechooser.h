@@ -38,8 +38,8 @@ class Q_WW_EXPORT QwwFileChooser : public QwwButtonLineEdit {
   Q_PROPERTY(bool usesNativeFileDialog READ usesNativeFileDialog WRITE setUsesNativeFileDialog)
   Q_PROPERTY(QString filter READ filter WRITE setFilter)
 public:
-  QwwFileChooser(QWidget *parent=0);
-  virtual ~QwwFileChooser(){}
+  QwwFileChooser(QWidget *parent = nullptr);
+  virtual ~QwwFileChooser() {}
 #if QT_VERSION >= 0x040200 && !defined(QT_NO_COMPLETER)
   QCompleter::CompletionMode completionMode() const;
   void setCompletionMode(QCompleter::CompletionMode m);

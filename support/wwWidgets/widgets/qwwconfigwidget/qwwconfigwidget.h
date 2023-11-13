@@ -26,7 +26,7 @@ class Q_WW_EXPORT QwwConfigWidget : public QWidget, QwwPrivatable {
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(int count READ count)
 public:
-    QwwConfigWidget(QWidget *parent = 0);
+    QwwConfigWidget(QWidget *parent = nullptr);
     void addGroup(QWidget*, const QIcon &i=QIcon(), const QString &n=QString());
     void insertGroup(int index, QWidget *, const QIcon &i=QIcon(), const QString &n=QString());
     int count() const;

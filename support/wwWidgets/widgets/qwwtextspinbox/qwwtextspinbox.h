@@ -27,8 +27,8 @@ class Q_WW_EXPORT QwwTextSpinBox : public QSpinBox, public QwwPrivatable {
     Q_OBJECT
     Q_PROPERTY(QStringList strings READ strings WRITE setStrings)
 public:
-    QwwTextSpinBox(QWidget *parent=0);
-    QwwTextSpinBox(const QStringList &strings, QWidget *parent=0);
+    QwwTextSpinBox(QWidget *parent = nullptr);
+    QwwTextSpinBox(const QStringList &strings, QWidget *parent = nullptr);
     virtual QValidator::State validate ( QString & input, int & pos ) const override;
     const QStringList &strings() const;
 public slots:

@@ -34,7 +34,7 @@ Q_OBJECT
 Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex STORED true)
 Q_PROPERTY(bool topWidgetVisible READ topWidgetIsVisible WRITE setTopWidgetVisible)
 public:
-    QwwNavigationBar(QWidget *parent = 0);
+    QwwNavigationBar(QWidget *parent = nullptr);
     void addWidget(QWidget *child, const QString &label=QString());
     void addWidget(QWidget *child, const QIcon &, const QString &label=QString());
     void insertWidget(int index, QWidget *child, const QString &label=QString());

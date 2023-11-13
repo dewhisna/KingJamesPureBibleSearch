@@ -22,7 +22,7 @@ class Q_WW_EXPORT QwwNumPad : public QWidget, public QwwPrivatable
 {
 Q_OBJECT
 public:
-    QwwNumPad(QWidget *parent = 0);
+    QwwNumPad(QWidget *parent = nullptr);
 
 public slots:
     void animateClick(const QString &b, int msec = 100);

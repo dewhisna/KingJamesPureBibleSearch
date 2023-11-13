@@ -29,8 +29,8 @@ Q_PROPERTY(bool animated READ isAnimated WRITE setAnimated)
 Q_PROPERTY(int period READ period WRITE setPeriod)
 public:
     enum Shape { Circular, RectangularSunken, RectangularRaised, RectangularPlain};
-    QwwLed(QWidget *parent = 0);
-    QwwLed(const QColor &col, Shape shap = Circular, QWidget *parent = 0);
+    QwwLed(QWidget *parent = nullptr);
+    QwwLed(const QColor &col, Shape shap = Circular, QWidget *parent = nullptr);
     virtual ~QwwLed();
     virtual QSize sizeHint() const override;
     QColor color() const;

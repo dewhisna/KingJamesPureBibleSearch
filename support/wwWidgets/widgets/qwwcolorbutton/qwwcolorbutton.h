@@ -27,7 +27,7 @@ class Q_WW_EXPORT QwwColorButton : public QPushButton, public QwwPrivatable {
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
     Q_PROPERTY(bool showName READ showName WRITE setShowName)
 public:
-    QwwColorButton(QWidget *parent = 0);
+    QwwColorButton(QWidget *parent = nullptr);
     void addColor(const QColor &c, const QString &n = QString());
     void clear();
     QStringList colors() const;

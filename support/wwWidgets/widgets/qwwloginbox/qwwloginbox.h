@@ -44,7 +44,7 @@ public:
         RememberPasswordField=0x20,
         ProxyField=0x40
     };
-    QwwLoginBox(QWidget *parent = 0);
+    QwwLoginBox(QWidget *parent = nullptr);
     Q_DECLARE_FLAGS(Fields, Field);
     Fields fields() const;
     void setFields(Fields f);

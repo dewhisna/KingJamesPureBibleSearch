@@ -26,7 +26,7 @@ Q_PROPERTY(QColor bgColor READ bgColor WRITE setBgColor)
 Q_PROPERTY(bool active READ isActive WRITE setActive)
 Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
 public:
-    QwwTwoColorIndicator(QWidget *parent = 0);
+    QwwTwoColorIndicator(QWidget *parent = nullptr);
 
     const QColor &fgColor() const;
     const QColor &bgColor() const;

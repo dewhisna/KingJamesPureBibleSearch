@@ -26,7 +26,7 @@ class Q_WW_EXPORT QwwListWidget : public QListWidget, public QwwPrivatable
 {
     Q_OBJECT
 public:
-    QwwListWidget(QWidget *parent = 0);
+    QwwListWidget(QWidget *parent = nullptr);
 signals:
     void currentAvailable(bool);
     void moveDownAvailable(bool);

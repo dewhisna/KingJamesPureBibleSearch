@@ -24,7 +24,7 @@ class Q_WW_EXPORT QwwHueSatRadialPicker : public QWidget, public QwwPrivatable {
     Q_PROPERTY(int value READ value WRITE setValue);
     Q_PROPERTY(QColor color READ color WRITE setColor);
 public:
-    QwwHueSatRadialPicker(QWidget *parent = 0);
+    QwwHueSatRadialPicker(QWidget *parent = nullptr);
     int value() const;
     virtual QSize sizeHint() const override;
     virtual QSize minimumSizeHint() const override;

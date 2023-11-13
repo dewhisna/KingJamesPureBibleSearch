@@ -43,7 +43,7 @@ public:
         LastButton = 16
     };
     Q_DECLARE_FLAGS(Buttons, Button)
-    QwwListNavigator(QWidget *parent = 0);
+    QwwListNavigator(QWidget *parent = nullptr);
     void setButtons(Buttons);
     Buttons buttons() const;
     bool autoRaise() const;

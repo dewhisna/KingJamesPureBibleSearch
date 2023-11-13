@@ -15,7 +15,7 @@ class Q_WW_EXPORT QwwResetLineEdit : public QwwButtonLineEdit {
     Q_OBJECT
     Q_PROPERTY(QString defaultText READ defaultText)
 public:
-    QwwResetLineEdit(QWidget *parent=0);
+    QwwResetLineEdit(QWidget *parent = nullptr);
     const QString &defaultText() const;
 public slots:
     void resetText();

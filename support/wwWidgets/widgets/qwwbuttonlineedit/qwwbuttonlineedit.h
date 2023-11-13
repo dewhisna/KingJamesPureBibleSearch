@@ -41,8 +41,8 @@ class Q_WW_EXPORT QwwButtonLineEdit : public QLineEdit, public QwwPrivatable {
 #endif
 public:
     enum Position { None = 0, RightOutside = 1, RightInside = 2, LeftOutside = 3, LeftInside = 4 };
-    QwwButtonLineEdit(QWidget *parent=0);
-    QwwButtonLineEdit(const QString &contents, QWidget *parent=0);
+    QwwButtonLineEdit(QWidget *parent = nullptr);
+    QwwButtonLineEdit(const QString &contents, QWidget *parent = nullptr);
     QIcon icon() const;
     bool autoRaise() const;
     Position buttonPosition() const;

@@ -9,7 +9,7 @@ class QwwClearLineEditPrivate;
 class Q_WW_EXPORT QwwClearLineEdit : public QwwButtonLineEdit {
     Q_OBJECT
 public:
-    QwwClearLineEdit(QWidget *parent=0);
+    QwwClearLineEdit(QWidget *parent = nullptr);
 protected:
     virtual void paintEvent(QPaintEvent*) override;
     virtual void changeEvent(QEvent *) override;
