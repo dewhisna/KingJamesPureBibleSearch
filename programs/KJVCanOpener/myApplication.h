@@ -249,6 +249,7 @@ private slots:
 
 	void en_setTextBrightness(bool bInvert, int nBrightness);
 	void en_setAdjustDialogElementBrightness(bool bAdjust);
+	void en_setDisableToolTips(bool bDisableToolTips);
 
 	void en_notesFileAutoSaveTriggered();
 	void en_changedUserNotesDatabase();

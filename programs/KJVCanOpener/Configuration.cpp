@@ -492,6 +492,7 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(ui.checkBoxInvertTextBrightness, SIGNAL(clicked(bool)), this, SLOT(en_InvertTextBrightnessChanged(bool)));
 	connect(ui.horzSliderTextBrigtness, SIGNAL(valueChanged(int)), this, SLOT(en_TextBrightnessChanged(int)));
 	connect(ui.checkBoxAdjustDialogElementBrightness, SIGNAL(clicked(bool)), this, SLOT(en_AdjustDialogElementBrightness(bool)));
+	connect(ui.checkBoxDisableToolTips, SIGNAL(clicked(bool)), this, SLOT(en_DisableToolTipsChanged(bool)));
 
 	// --------------------------------------------------------------
 
@@ -554,6 +555,7 @@ void CConfigTextFormat::loadSettings()
 	m_bInvertTextBrightness = CPersistentSettings::instance()->invertTextBrightness();
 	m_nTextBrightness = CPersistentSettings::instance()->textBrightness();
 	m_bAdjustDialogElementBrightness = CPersistentSettings::instance()->adjustDialogElementBrightness();
+	m_bDisableToolTips = CPersistentSettings::instance()->disableToolTips();
 
 	ui.checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
 #if QT_VERSION >= 0x060500
@@ -572,6 +574,7 @@ void CConfigTextFormat::loadSettings()
 	//	keep this enabled and let the user set it:
 	ui.checkBoxAdjustDialogElementBrightness->setEnabled(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
 #endif
+	ui.checkBoxDisableToolTips->setChecked(m_bDisableToolTips);
 
 	// --------------------------------------------------------------
 
@@ -596,6 +599,7 @@ void CConfigTextFormat::saveSettings()
 	CPersistentSettings::instance()->setFontDictionary(m_fntDictionary);
 	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
 	CPersistentSettings::instance()->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
+	CPersistentSettings::instance()->setDisableToolTips(m_bDisableToolTips);
 
 	// Save application font only if not in stealth mode:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -725,6 +729,16 @@ void CConfigTextFormat::en_AdjustDialogElementBrightness(bool bAdjust)
 
 	m_bAdjustDialogElementBrightness = bAdjust;
 	setPreview();
+	m_bIsDirty = true;
+	emit dataChanged(false);
+}
+
+void CConfigTextFormat::en_DisableToolTipsChanged(bool bDisableToolTips)
+{
+	if (m_bLoadingData) return;
+
+	m_bDisableToolTips = bDisableToolTips;
+	//setPreview();
 	m_bIsDirty = true;
 	emit dataChanged(false);
 }

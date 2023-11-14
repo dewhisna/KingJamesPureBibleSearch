@@ -116,6 +116,7 @@ namespace {
 	const QString constrInvertTextBrightnessKey("InvertTextBrightness");
 	const QString constrTextBrightnessKey("TextBrightness");
 	const QString constrAdjustDialogElementBrightnessKey("AdjustDialogElementBrightness");
+	const QString constrDisableToolTipsKey("DisableToolTips");
 
 	// Main Bible Database Settings:
 	const QString constrMainAppBibleDatabaseGroup("MainApp/BibleDatabase");
@@ -1172,6 +1173,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		settings.setValue(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness());
 		settings.setValue(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness());
 		settings.setValue(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness());
+		settings.setValue(constrDisableToolTipsKey, CPersistentSettings::instance()->disableToolTips());
 		settings.endGroup();
 
 		// Main App Bible Database Settings:
@@ -1461,6 +1463,7 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 #endif
 			CPersistentSettings::instance()->setAdjustDialogElementBrightness(bAdjustDialogElementBrightness);
 			CPersistentSettings::instance()->setTextBrightness(bInvertTextBrightness, nTextBrightness);
+			CPersistentSettings::instance()->setDisableToolTips(settings.value(constrDisableToolTipsKey, CPersistentSettings::instance()->disableToolTips()).toBool());
 			settings.endGroup();
 		}
 

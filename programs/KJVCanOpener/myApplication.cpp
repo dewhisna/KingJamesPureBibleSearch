@@ -669,6 +669,7 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_setTextBrightness(bool,int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_setAdjustDialogElementBrightness(bool)));
+	connect(CPersistentSettings::instance(), SIGNAL(changedDisableToolTips(bool)), this, SLOT(en_setDisableToolTips(bool)));
 }
 
 // ============================================================================
@@ -1113,6 +1114,7 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
 		// Note: This will automatically cause a repaint:
 		setStyleSheet(QString("%3\n"
+							  "%4\n"
 							  "CPhraseLineEdit { background-color:%1; color:%2; }\n"
 							  "QLineEdit { background-color:%1; color:%2; }\n"
 							  "QComboBox { background-color:%1; color:%2; }\n"
@@ -1124,13 +1126,15 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 							  "QDoubleSpinBox { background-color:%1; color:%2; }\n"
 							).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
 							 .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name())
+							 .arg(CPersistentSettings::instance()->disableToolTips() ? "QToolTip { opacity: 0; }" : "")
 							 .arg(startupStyleSheet()));
 		m_bUsingCustomStyleSheet = true;
 	} else {
-		if (m_bUsingCustomStyleSheet) {
-			setStyleSheet(startupStyleSheet());
-			m_bUsingCustomStyleSheet = false;
-		}
+		setStyleSheet(QString("%1\n"
+							  "%2\n"
+							).arg(CPersistentSettings::instance()->disableToolTips() ? "QToolTip { opacity: 0; }" : "")
+							 .arg(startupStyleSheet()));
+		m_bUsingCustomStyleSheet = false;
 	}
 
 #else
@@ -1143,6 +1147,12 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 void CMyApplication::en_setAdjustDialogElementBrightness(bool bAdjust)
 {
 	Q_UNUSED(bAdjust);
+	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+}
+
+void CMyApplication::en_setDisableToolTips(bool bDisableToolTips)
+{
+	Q_UNUSED(bDisableToolTips);
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 }
 

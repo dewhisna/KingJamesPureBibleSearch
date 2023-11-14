@@ -115,6 +115,7 @@ public slots:
 	void en_InvertTextBrightnessChanged(bool bInvert);
 	void en_TextBrightnessChanged(int nBrightness);
 	void en_AdjustDialogElementBrightness(bool bAdjust);
+	void en_DisableToolTipsChanged(bool bDisableToolTips);
 
 	void en_WordsOfJesusColorPicked(const QColor &color);
 	void en_clickedEnableWordsOfJesusColor(bool bEnable);
@@ -152,6 +153,7 @@ private:
 	bool m_bInvertTextBrightness;
 	int m_nTextBrightness;
 	bool m_bAdjustDialogElementBrightness;
+	bool m_bDisableToolTips;
 
 // UI Private:
 private:

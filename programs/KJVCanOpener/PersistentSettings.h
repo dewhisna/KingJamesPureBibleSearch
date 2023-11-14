@@ -105,6 +105,7 @@ public:
 	bool invertTextBrightness() const { return m_pPersistentSettingData->m_bInvertTextBrightness; }
 	int textBrightness() const { return m_pPersistentSettingData->m_nTextBrightness; }
 	bool adjustDialogElementBrightness() const { return m_pPersistentSettingData->m_bAdjustDialogElementBrightness; }
+	bool disableToolTips() const { return m_pPersistentSettingData->m_bDisableToolTips; }
 
 	static QColor textForegroundColor(bool bInvert, int nBrightness);
 	static QColor textBackgroundColor(bool bInvert, int nBrightness);
@@ -220,6 +221,7 @@ signals:
 
 	void adjustDialogElementBrightnessChanged(bool bAdjust);
 	void changedTextBrightness(bool bInvert, int nBrightness);
+	void changedDisableToolTips(bool bDisableToolTips);
 
 	void changedColorWordsOfJesus(const QColor &color);
 	void changedColorSearchResults(const QColor &color);
@@ -281,6 +283,7 @@ public slots:
 
 	void setTextBrightness(bool bInvert, int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
+	void setDisableToolTips(bool bDisableToolTips);
 
 	void setColorWordsOfJesus(const QColor &color);
 	void setColorSearchResults(const QColor &color);
@@ -371,6 +374,7 @@ private:
 		bool m_bInvertTextBrightness;
 		int m_nTextBrightness;
 		bool m_bAdjustDialogElementBrightness;
+		bool m_bDisableToolTips;
 		QColor m_clrWordsOfJesus;						// Color for the Words of Jesus (usually "red")
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")
 		QColor m_clrCursorFollow;						// Color for the CursorFollow underline highlighter (usually "blue")

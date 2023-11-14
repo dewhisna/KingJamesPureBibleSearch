@@ -87,10 +87,11 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_fntSearchResults("DejaVu Serif", 12),
 		m_fntDictionary("DejaVu Serif", 12),
 #endif
-		// Default Text Brightness Options:
+		// Default Text Brightness and ToolTip Options:
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
 		m_bAdjustDialogElementBrightness(false),
+		m_bDisableToolTips(false),
 		// Default Special Text Colors:
 		m_clrWordsOfJesus(QColor("red")),
 		m_clrSearchResults(QColor("blue")),
@@ -309,6 +310,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if ((pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) ||
 			(pSource->m_nTextBrightness != pTarget->m_nTextBrightness)) emit changedTextBrightness(pTarget->m_bInvertTextBrightness, pTarget->m_nTextBrightness);
 		if (pSource->m_bAdjustDialogElementBrightness != pTarget->m_bAdjustDialogElementBrightness) emit adjustDialogElementBrightnessChanged(pTarget->m_bAdjustDialogElementBrightness);
+		if (pSource->m_bDisableToolTips != pTarget->m_bDisableToolTips) emit changedDisableToolTips(pTarget->m_bDisableToolTips);
 
 		if (pSource->m_clrWordsOfJesus != pTarget->m_clrWordsOfJesus) emit changedColorWordsOfJesus(pTarget->m_clrWordsOfJesus);
 		if (pSource->m_clrSearchResults != pTarget->m_clrSearchResults) emit changedColorSearchResults(pTarget->m_clrSearchResults);
@@ -440,6 +442,14 @@ void CPersistentSettings::setAdjustDialogElementBrightness(bool bAdjust)
 	if (m_pPersistentSettingData->m_bAdjustDialogElementBrightness != bAdjust) {
 		m_pPersistentSettingData->m_bAdjustDialogElementBrightness = bAdjust;
 		emit adjustDialogElementBrightnessChanged(m_pPersistentSettingData->m_bAdjustDialogElementBrightness);
+	}
+}
+
+void CPersistentSettings::setDisableToolTips(bool bDisableToolTips)
+{
+	if (m_pPersistentSettingData->m_bDisableToolTips != bDisableToolTips) {
+		m_pPersistentSettingData->m_bDisableToolTips = bDisableToolTips;
+		emit changedDisableToolTips(m_pPersistentSettingData->m_bDisableToolTips);
 	}
 }
 
