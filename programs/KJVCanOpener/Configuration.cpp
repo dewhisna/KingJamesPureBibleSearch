@@ -3471,6 +3471,8 @@ CConfigurationDialog::CConfigurationDialog(CBibleDatabasePtr pBibleDatabase, CDi
 	m_pButtonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 	pLayout->addWidget(m_pButtonBox);
 
+	setSizeGripEnabled(true);
+
 	m_pConfiguration->setMinimumWidth(m_pConfiguration->sizeHint().width());
 	updateGeometry();
 	adjustSize();
