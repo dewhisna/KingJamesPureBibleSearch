@@ -494,6 +494,13 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 	connect(ui.checkBoxAdjustDialogElementBrightness, SIGNAL(clicked(bool)), this, SLOT(en_AdjustDialogElementBrightness(bool)));
 	connect(ui.checkBoxDisableToolTips, SIGNAL(clicked(bool)), this, SLOT(en_DisableToolTipsChanged(bool)));
 
+#if QT_VERSION >= 0x060500
+	// Connect signals to track system changes during configuration changes, but we
+	//	only need to do this on Qt >= 6.5 which can actually track system changes:
+	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_sysChangedTextBrightness(bool,int)));
+	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_sysAdjustDialogElementBrightnessChanged(bool)));
+#endif
+
 	// --------------------------------------------------------------
 
 	connect(g_pUserNotesDatabase.data(), SIGNAL(changedUserNotesDatabase()), this, SLOT(en_userNotesChanged()));
@@ -557,6 +564,13 @@ void CConfigTextFormat::loadSettings()
 	m_bAdjustDialogElementBrightness = CPersistentSettings::instance()->adjustDialogElementBrightness();
 	m_bDisableToolTips = CPersistentSettings::instance()->disableToolTips();
 
+	// Note: lblInvertTextBrightness is a placeholder for checkBoxInvertTextBrightness.
+	//	When the system is controlling the dark/light theme, then the placeholder will
+	//	be visible.  When the user controls it (like older Qt versions), then the checkbox
+	//	will be visible.  This solves the problem on some themes where the disabled
+	//	checkbox looks identical to the enabled and you can't tell that it's disabled.
+	//	Similarly, lblAdjustDialogElementBrightness is a placeholder for checkBoxAdjustDialogElementBrightness.
+
 	ui.checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
 #if QT_VERSION >= 0x060500
 	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
@@ -564,6 +578,11 @@ void CConfigTextFormat::loadSettings()
 	//	If the OS and/or color scheme doesn't support dark/light settings, we will
 	//	keep this enabled and let the user set it:
 	ui.checkBoxInvertTextBrightness->setEnabled(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
+	ui.checkBoxInvertTextBrightness->setVisible(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
+	ui.lblInvertTextBrightness->setVisible(QGuiApplication::styleHints()->colorScheme() != Qt::ColorScheme::Unknown);
+#else
+	ui.checkBoxInvertTextBrightness->setVisible(true);
+	ui.lblInvertTextBrightness->setVisible(false);
 #endif
 	ui.horzSliderTextBrigtness->setValue(m_nTextBrightness);
 	ui.checkBoxAdjustDialogElementBrightness->setChecked(m_bAdjustDialogElementBrightness);
@@ -573,6 +592,11 @@ void CConfigTextFormat::loadSettings()
 	//	If the OS and/or color scheme doesn't support dark/light settings, we will
 	//	keep this enabled and let the user set it:
 	ui.checkBoxAdjustDialogElementBrightness->setEnabled(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
+	ui.checkBoxAdjustDialogElementBrightness->setVisible(QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Unknown);
+	ui.lblAdjustDialogElementBrightness->setVisible(QGuiApplication::styleHints()->colorScheme() != Qt::ColorScheme::Unknown);
+#else
+	ui.checkBoxAdjustDialogElementBrightness->setVisible(true);
+	ui.lblAdjustDialogElementBrightness->setVisible(false);
 #endif
 	ui.checkBoxDisableToolTips->setChecked(m_bDisableToolTips);
 
@@ -731,6 +755,31 @@ void CConfigTextFormat::en_AdjustDialogElementBrightness(bool bAdjust)
 	setPreview();
 	m_bIsDirty = true;
 	emit dataChanged(false);
+}
+
+void CConfigTextFormat::en_sysChangedTextBrightness(bool bInvert, int nBrightness)
+{
+	Q_UNUSED(nBrightness);		// We leave nBrightness alone, as we'll use the user setting for preview and apply
+	m_bInvertTextBrightness = bInvert;
+	setPreview();
+	// Don't set IsDirty here or raise dataChanged event since the user
+	//	didn't make this change!
+	// Note that this event will also get triggered (unnecessarily) during
+	//	the saveSettings call to set it to what it's already set to, but
+	//	that shouldn't do any harm as long as this function doesn't do anything
+	//	stupid that could cause reentrancy.
+}
+
+void CConfigTextFormat::en_sysAdjustDialogElementBrightnessChanged(bool bAdjust)
+{
+	m_bAdjustDialogElementBrightness = bAdjust;
+	setPreview();
+	// Don't set IsDirty here or raise dataChanged event since the user
+	//	didn't make this change!
+	// Note that this event will also get triggered (unnecessarily) during
+	//	the saveSettings call to set it to what it's already set to, but
+	//	that shouldn't do any harm as long as this function doesn't do anything
+	//	stupid that could cause reentrancy.
 }
 
 void CConfigTextFormat::en_DisableToolTipsChanged(bool bDisableToolTips)

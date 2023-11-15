@@ -139,6 +139,14 @@ public slots:
 
 	void en_userNotesChanged();
 
+protected slots:
+	// These slots are for when the system causes a change in the dark/light mode
+	//	and are triggered by KJVCanOpener via PersistentSettings updates.  They
+	//	must be tracked here so that system changes get reflected in configuration
+	//	editing so things don't get out-of-sync.
+	void en_sysChangedTextBrightness(bool bInvert, int nBrightness);
+	void en_sysAdjustDialogElementBrightnessChanged(bool bAdjust);
+
 private:
 	void recalcColorListWidth();
 

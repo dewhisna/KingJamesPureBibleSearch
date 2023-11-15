@@ -1051,9 +1051,11 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	//	to update it:
 	connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged,
 			[](Qt::ColorScheme nColorScheme)->void {
-				CPersistentSettings::instance()->setTextBrightness(
-					nColorScheme == Qt::ColorScheme::Dark,
-					CPersistentSettings::instance()->textBrightness());
+				if (nColorScheme != Qt::ColorScheme::Unknown) {
+					CPersistentSettings::instance()->setTextBrightness(
+						nColorScheme == Qt::ColorScheme::Dark,
+						CPersistentSettings::instance()->textBrightness());
+				}
 			});
 #endif
 

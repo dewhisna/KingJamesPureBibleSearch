@@ -49,7 +49,23 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
+     <item row="0" column="1">
+      <widget class="QLabel" name="lblInvertTextBrightness">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Color scheme brightness</string>
+       </property>
+       <property name="text">
+        <string>Text Brightness:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" colspan="2">
       <widget class="QSlider" name="horzSliderTextBrigtness">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -74,7 +90,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
+     <item row="1" column="0">
       <widget class="QCheckBox" name="checkBoxAdjustDialogElementBrightness">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -90,7 +106,20 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="1" column="1" colspan="2">
+      <widget class="QLabel" name="lblAdjustDialogElementBrightness">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Note: Application color scheme is controlled by operating system</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
       <widget class="QCheckBox" name="checkBoxDisableToolTips">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
