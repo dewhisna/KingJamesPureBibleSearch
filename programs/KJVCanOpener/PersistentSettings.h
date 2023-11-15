@@ -139,7 +139,7 @@ public:
 	qreal scriptureBrowserLineHeight() const { return m_pPersistentSettingData->m_nScriptureBrowserLineHeight; }
 	BROWSER_NAVIGATION_PANE_MODE_ENUM browserNavigationPaneMode() const { return m_pPersistentSettingData->m_nBrowserNavigationPaneMode; }
 	BROWSER_DISPLAY_MODE_ENUM browserDisplayMode() const { return m_pPersistentSettingData->m_nBrowserDisplayMode; }
-	RANDOM_PASSAGE_WEIGHT_ENUM randomPassageWeightMode() const { return m_pPersistentSettingData->m_nRandomPassageWeightMode; };
+	RANDOM_PASSAGE_WEIGHT_ENUM randomPassageWeightMode() const { return m_pPersistentSettingData->m_nRandomPassageWeightMode; }
 	CPhraseNavigator::FootnoteRenderingModeFlags footnoteRenderingMode() const { return m_pPersistentSettingData->m_nFootnoteRenderingMode; }
 
 	SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
