@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
 	CSearchCriteria searchCriteria;
 	TRelativeIndexSet setSearchWithin;
 	bool bSearchWithinIsEntireBible = true;
+	bool bInvertCriteria = false;
+	CReadDatabaseEx::DB_OVERRIDE_ENUM nDBOE = CReadDatabaseEx::DBOE_None;
 
 	// Default to searching Entire Bible:
 	for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
@@ -105,7 +107,6 @@ int main(int argc, char *argv[])
 	}
 	setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
 	setSearchWithin.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
-	CReadDatabaseEx::DB_OVERRIDE_ENUM nDBOE = CReadDatabaseEx::DBOE_None;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -142,29 +143,65 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-ph") == 0) {
 			bHyphenSensitive = true;
 		} else if (strArg.compare("-sc") == 0) {
-			setSearchWithin.erase(CSearchCriteria::SSI_COLOPHON);
-			bSearchWithinIsEntireBible = false;
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
+			} else {
+				setSearchWithin.erase(CSearchCriteria::SSI_COLOPHON);
+			}
 		} else if (strArg.compare("-ss") == 0) {
-			setSearchWithin.erase(CSearchCriteria::SSI_SUPERSCRIPTION);
-			bSearchWithinIsEntireBible = false;
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+			} else {
+				setSearchWithin.erase(CSearchCriteria::SSI_SUPERSCRIPTION);
+			}
 		} else if (strArg.compare("-so") == 0) {
 			for (unsigned int nBk = 1; nBk <= NUM_BK_OT; ++nBk) {
-				setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+				}
 			}
-			bSearchWithinIsEntireBible = false;
 		} else if (strArg.compare("-sn") == 0) {
 			for (unsigned int nBk = 1; nBk <= NUM_BK_NT; ++nBk) {
-				setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				}
 			}
-			bSearchWithinIsEntireBible = false;
 		} else if (strArg.compare("-sa") == 0) {
 			for (unsigned int nBk = 1; nBk <= NUM_BK_APOC; ++nBk) {
-				setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				}
 			}
 		} else if (strArg.startsWith("-s")) {
 			unsigned int nBk = strArg.mid(2).toUInt();
-			setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
-			bSearchWithinIsEntireBible = false;
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+			} else {
+				setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+			}
+		} else if (strArg.compare("-i") == 0) {
+			bInvertCriteria = true;
+
+			// Invert the current selection:
+			TRelativeIndexSet setInvert;
+			for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
+				if (setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == setSearchWithin.end()) {
+					setInvert.insert(CRelIndex(nBk, 0, 0, 0));
+				}
+			}
+			if (setSearchWithin.find(CSearchCriteria::SSI_COLOPHON) == setSearchWithin.end())
+				setInvert.insert(CSearchCriteria::SSI_COLOPHON);
+			if (setSearchWithin.find(CSearchCriteria::SSI_SUPERSCRIPTION) == setSearchWithin.end())
+				setInvert.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+
+			setSearchWithin = setInvert;
+
 		} else if (strArg.startsWith("-dbo")) {
 			nDBOE = static_cast<CReadDatabaseEx::DB_OVERRIDE_ENUM>(strArg.mid(4).toInt());
 			if ((nDBOE < 0) || (nDBOE >= CReadDatabaseEx::DBOE_COUNT)) bUnknownOption = true;
@@ -185,21 +222,27 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -pc =  Phrases are Case-Sensitive when compared (default=false)\n").toUtf8().data();
 		std::cerr << QString("  -pa =  Phrases are Accent-Sensitive when compared (default=false)\n").toUtf8().data();
 		std::cerr << QString("  -ph =  Phrases are Hyphen-Sensitive when compared (default=false)\n").toUtf8().data();
-		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
-		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
-		std::cerr << QString("  -so =  Skip Old Testament\n").toUtf8().data();
-		std::cerr << QString("  -sn =  Skip New Testament\n").toUtf8().data();
-		std::cerr << QString("  -sa =  Skip Apocrypha\n").toUtf8().data();
-		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
-		std::cerr << QString("           (Default is to search the Entire Bible)\n").toUtf8().data();
 		std::cerr << QString("  -dbo<n> = Database Override Option\n").toUtf8().data();
 		std::cerr << QString("          where <n> is one of the following:\n").toUtf8().data();
 		for (int ndx = 0; ndx < CReadDatabaseEx::DBOE_COUNT; ++ndx) {
 			std::cerr << QString("            %1 : %2%3\n")
-							.arg(ndx)
-							.arg(CReadDatabaseEx::dboeDescription(static_cast<CReadDatabaseEx::DB_OVERRIDE_ENUM>(ndx)))
-							.arg((ndx == CReadDatabaseEx::DBOE_None) ? " (default)" : "").toUtf8().data();
+							 .arg(ndx)
+							 .arg(CReadDatabaseEx::dboeDescription(static_cast<CReadDatabaseEx::DB_OVERRIDE_ENUM>(ndx)))
+							 .arg((ndx == CReadDatabaseEx::DBOE_None) ? " (default)" : "").toUtf8().data();
 		}
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Search Criteria:\n").toUtf8().data();
+		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
+		std::cerr << QString("  -sc =  Skip Colophons (or Search Colophons if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -ss =  Skip Superscriptions (or Search Superscriptions if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -so =  Skip Old Testament (or Search Old Testament if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sn =  Skip New Testament (or Search New Testament if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sa =  Skip Apocrypha (or Search Apocrypha if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
+		std::cerr << QString("           (or Search Book 'N' if -i is used)\n").toUtf8().data();
+		std::cerr << QString("   -i =  Invert search criteria so that the default is to search\n").toUtf8().data();
+		std::cerr << QString("           none of the Bible except when -sX options are used to\n").toUtf8().data();
+		std::cerr << QString("           select a specific Book or Testament, etc.\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -223,7 +266,7 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	std::cerr << QString("Reading database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
+	std::cerr << QString("Reading Bible Database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
 	std::cerr << QString("Database Override Option: %1\n").arg(CReadDatabaseEx::dboeDescription(nDBOE)).toUtf8().data();
 
 	CReadDatabaseEx rdbMain(nDBOE);
@@ -238,7 +281,11 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	std::cerr << QString("Searching for phrases of length %1-%2 words that occur %3 times:\n").arg(nMinLen).arg(nMaxLen).arg(nOccurrences).toUtf8().data();
+	if (nMinLen != nMaxLen) {
+		std::cerr << QString("Searching for phrases with length of %1-%2 words that occur %3 times:\n").arg(nMinLen).arg(nMaxLen).arg(nOccurrences).toUtf8().data();
+	} else {
+		std::cerr << QString("Searching for phrases with length of %1 words that occur %2 times:\n").arg(nMaxLen).arg(nOccurrences).toUtf8().data();
+	}
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
@@ -247,6 +294,8 @@ int main(int argc, char *argv[])
 	pBibleDatabase->setSettings(bdbSettings);
 
 	searchCriteria.setSearchWithin(setSearchWithin);
+	bSearchWithinIsEntireBible = searchCriteria.withinIsEntireBible(pBibleDatabase, false);
+	std::cerr << QString("Searching within %1\n").arg(searchCriteria.searchWithinDescription(pBibleDatabase)).toUtf8().data();
 
 	// Go through entire Bible Database and find all phrases whose length is between
 	//		MinLen and MaxLen:
