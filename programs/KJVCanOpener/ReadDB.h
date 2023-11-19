@@ -47,22 +47,22 @@ class CReadDatabase
 {
 public:
 	CReadDatabase(QWidget *pParent = nullptr);
-	~CReadDatabase();
+	virtual ~CReadDatabase();
 
-	bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
-	bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const;
-	bool ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
-	bool ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain = false);		// If an absolute path is given, it's used, else the path is considered relative to m_strBibleDatabasePath
-	bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
+	virtual bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
+	virtual bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const;
+	virtual bool ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
+	virtual bool ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain = false);		// If an absolute path is given, it's used, else the path is considered relative to m_strBibleDatabasePath
+	virtual bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
 
 	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 	CDictionaryDatabasePtr dictionaryDatabase() const { return m_pDictionaryDatabase; }
 
-	TBibleDescriptor discoverCCDBBibleDatabase(const QString &strFilePathName);
-	TBibleDescriptor discoverS3DBBibleDatabase(const QString &strFilePathName);
+	virtual TBibleDescriptor discoverCCDBBibleDatabase(const QString &strFilePathName);
+	virtual TBibleDescriptor discoverS3DBBibleDatabase(const QString &strFilePathName);
 
-	TDictionaryDescriptor discoverCCDBDictionaryDatabase(const QString &strFilePathName);
-	TDictionaryDescriptor discoverS3DBDictionaryDatabase(const QString &strFilePathName);
+	virtual TDictionaryDescriptor discoverCCDBDictionaryDatabase(const QString &strFilePathName);
+	virtual TDictionaryDescriptor discoverS3DBDictionaryDatabase(const QString &strFilePathName);
 
 	// ------------------------------------------------------------------------
 

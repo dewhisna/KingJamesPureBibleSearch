@@ -642,6 +642,8 @@ public:
 	}
 
 private:
+	friend class CReadDatabaseEx;			// Extension used by CLI tools to override functionality of CReadDatabase
+
 	TWordListMap::const_iterator m_itrEntryWord;	// Bible Word Entry from which this was derived (used to lookup details)
 	int m_nAltWordIndex;					// Index of Composed Word in the reference CWordEntry (as in the actual text)
 	int m_nIndex;							// Index used when sorting and keeping external reference intact (used only by ReadDB)
@@ -1533,6 +1535,7 @@ private:
 	//	is read-only.  Database building is done directly from the CSV files
 	//
 	friend class CReadDatabase;
+	friend class CReadDatabaseEx;			// Extension used by CLI tools to override functionality of CReadDatabase
 	friend class COSISXmlHandler;			// COSISXmlHandler - Used by KJVDataParse for OSIS XML File processing to build KJPBS databases
 
 // Main Database Data:
