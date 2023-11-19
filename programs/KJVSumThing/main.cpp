@@ -23,7 +23,7 @@
 
 #include "../KJVCanOpener/dbstruct.h"
 #include "../KJVCanOpener/dbDescriptors.h"
-#include "../KJVCanOpener/ReadDB.h"
+#include "../KJVCanOpener/ReadDBEx.h"
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/PassageReferenceResolver.h"
 #include "../KJVCanOpener/PhraseNavigator.h"
@@ -68,7 +68,7 @@ namespace {
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
 
-	const unsigned int VERSION = 10000;		// Version 1.0.0
+	const unsigned int VERSION = 20000;		// Version 2.0.0
 
 }	// namespace
 
@@ -442,6 +442,7 @@ int main(int argc, char *argv[])
 	TRelativeIndexSet setSearchWithin;
 	bool bSearchWithinIsEntireBible = true;
 	CSearchCriteria::SEARCH_SCOPE_MODE_ENUM ssmeAllPhrases = CSearchCriteria::SSME_UNSCOPED;
+	CReadDatabaseEx::DB_OVERRIDE_ENUM nDBOE = CReadDatabaseEx::DBOE_None;
 
 	searchCriteria.setSearchScopeMode(CSearchCriteria::SSME_UNSCOPED);
 
@@ -587,6 +588,9 @@ int main(int argc, char *argv[])
 			fmtRender.setIncludePerPhraseOccurrenceNumbers(true);
 		} else if (strArg.compare("-v") == 0) {
 			bVerbose = true;
+		} else if (strArg.startsWith("-dbo")) {
+			nDBOE = static_cast<CReadDatabaseEx::DB_OVERRIDE_ENUM>(strArg.mid(4).toInt());
+			if ((nDBOE < 0) || (nDBOE >= CReadDatabaseEx::DBOE_COUNT)) bUnknownOption = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -613,7 +617,15 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -xN =  Only return results where the modulus multiplier is 'N' (where N >= 1)\n").toUtf8().data();
 		std::cerr << QString("           for example '-x1' only returns results that occur exactly Modulus-Value times\n").toUtf8().data();
-		std::cerr << QString(" -end =  Subtract one word count from the specified <End-Ref>\n").toUtf8().data();
+		std::cerr << QString("  -end =  Subtract one word count from the specified <End-Ref>\n").toUtf8().data();
+		std::cerr << QString("  -dbo<n> = Database Override Option\n").toUtf8().data();
+		std::cerr << QString("          where <n> is one of the following:\n").toUtf8().data();
+		for (int ndx = 0; ndx < CReadDatabaseEx::DBOE_COUNT; ++ndx) {
+			std::cerr << QString("            %1 : %2%3\n")
+							.arg(ndx)
+							.arg(CReadDatabaseEx::dboeDescription(static_cast<CReadDatabaseEx::DB_OVERRIDE_ENUM>(ndx)))
+							.arg((ndx == CReadDatabaseEx::DBOE_None) ? " (default)" : "").toUtf8().data();
+		}
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Search Criteria:\n").toUtf8().data();
 		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
@@ -677,9 +689,10 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	CReadDatabase rdbMain;
-
 	std::cerr << QString("Reading Bible Database: %1\n").arg(bblDescriptor.m_strDBName).toUtf8().data();
+	std::cerr << QString("Database Override Option: %1\n").arg(CReadDatabaseEx::dboeDescription(nDBOE)).toUtf8().data();
+
+	CReadDatabaseEx rdbMain(nDBOE);
 	if (!rdbMain.haveBibleDatabaseFiles(bblDescriptor)) {
 		std::cerr << QString("\n*** ERROR: Unable to locate Bible Database Files!\n").toUtf8().data();
 		return -2;
