@@ -94,6 +94,18 @@ rm Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
 # ---------------------
 
 
+# ----------------------
+# Install linuxdeployqt:
+# ----------------------
+cd $AGENT_HOME
+wget --no-verbose -nc https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+chmod +x linuxdeployqt-continuous-x86_64.AppImage
+./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
+mv squashfs-root linuxdeployqt
+ln -s $AGENT_HOME/linuxdeployqt/AppRun /usr/local/bin/linuxdeployqt
+rm -f linuxdeployqt-continuous-x86_64.AppImage
+
+
 # ---------------------
 # Cleanup Image
 # ---------------------
