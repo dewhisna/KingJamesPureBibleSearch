@@ -73,6 +73,7 @@ bool CReadDatabaseEx::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bS
 		wordEntry.m_ndxNormalizedMapping.erase(
 			std::find(wordEntry.m_ndxNormalizedMapping.begin(), wordEntry.m_ndxNormalizedMapping.end(), ndxNormal));
 		assert(nSizeOld == wordEntry.m_ndxNormalizedMapping.size()+1);
+		Q_UNUSED(nSizeOld);		// Avoid unused warning on non-debug builds
 		// Decrement count for this word:
 		wordEntry.m_lstAltWordCount[ndxOldWord] = wordEntry.m_lstAltWordCount.at(ndxOldWord) - 1;
 
