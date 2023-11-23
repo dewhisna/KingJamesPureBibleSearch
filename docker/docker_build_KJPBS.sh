@@ -132,7 +132,7 @@ mkdir -p $BUILD_HOME/KJVDataParse
 mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/build-KJPBS-$BUILD_TARGET/Release
 cd $PROJECT_DIR/KingJamesPureBibleSearch/build-KJPBS-$BUILD_TARGET/Release
 cmake -S ../../programs/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$QT_DIR -DOPTION_TEXT_TO_SPEECH=OFF
-cmake --build . --target all --parallel
+cmake --build . --target all --parallel 4
 cp KJVCanOpener/KingJamesPureBibleSearch $BUILD_HOME/KJVCanOpener/app/
 ln -s $BUILD_HOME/KJVCanOpener/app/KingJamesPureBibleSearch $INSTALL_DIR/KingJamesPureBibleSearch
 cp KJVDataDump/KJVDataDump $BUILD_HOME/KJVCanOpener/app/
@@ -175,7 +175,7 @@ cp -r $PROJECT_DIR/KingJamesPureBibleSearch/build-KJPBS-$BUILD_TARGET/Release/KJ
 mkdir -p $PROJECT_DIR/KingJamesPureBibleSearch/build-KJPBS_webchannel-$BUILD_TARGET/Release
 cd $PROJECT_DIR/KingJamesPureBibleSearch/build-KJPBS_webchannel-$BUILD_TARGET/Release
 cmake -S ../../programs/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=$QT_DIR -DOPTION_TEXT_TO_SPEECH=OFF -DCONSOLE=ON -DWEBCHANNEL=ON
-cmake --build . --target all --parallel
+cmake --build . --target all --parallel 4
 cp KJVCanOpener/KingJamesPureBibleSearch $BUILD_HOME/KJVCanOpener/app/KingJamesPureBibleSearch_webchannel
 ln -s $BUILD_HOME/KJVCanOpener/app/KingJamesPureBibleSearch_webchannel $INSTALL_DIR/KingJamesPureBibleSearch_webchannel
 
