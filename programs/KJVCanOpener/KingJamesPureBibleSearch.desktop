@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=KingJamesPureBibleSearch
+Comment=Search and Count the Pure King James Bible
+Icon=KingJamesPureBibleSearch
+Terminal=false
+Exec=KJVCanOpener/app/KingJamesPureBibleSearch %f
+Categories=Education;Application;
+MimeType=application/vnd.dewtronics.kjvcanopener.kjsfile;

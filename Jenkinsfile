@@ -1,7 +1,9 @@
 pipeline {
     environment {
-        QTDIR='~/Qt/5.15.2'
-        BUILD_TARGET='Qt_5_15_2_gcc_64'
+        QTDIR='/home/jenkins/Qt/5.15.2'
+        BUILD_ENV='bionic-Qt_5.15.2'
+        BUILD_ARCH='x86_64'
+        BUILD_TARGET="${BUILD_ENV}-${BUILD_ARCH}"
     }
     agent {
         docker {
@@ -16,6 +18,10 @@ pipeline {
                 sh '''
                     cd "${WORKSPACE}"
                     rm -rf *.tar.xz
+                    rm -rf *.AppImage
+                    echo "`date +%y%m%d%H%M%S`-g`git describe --long --always --dirty=-dirty`-${BUILD_ENV}" > VERSION.txt
+                    export VERSION=$(cat VERSION.txt | tr -d '[:space:]')
+                    echo "Version Descriptor: ${VERSION}"
                 '''
             }
         }
@@ -35,7 +41,7 @@ pipeline {
                     mkdir -p "${WORKSPACE_TMP}/build-KJPBS_webchannel-${BUILD_TARGET}/Release"
                     cd "${WORKSPACE_TMP}/build-KJPBS_webchannel-${BUILD_TARGET}/Release"
                     cmake -S "${WORKSPACE}/programs/" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${QTDIR} -DOPTION_TEXT_TO_SPEECH=OFF -DCONSOLE=ON -DWEBCHANNEL=ON
-                    cmake --build . --target all --parallel 4
+                    cmake --build . --target KingJamesPureBibleSearch --parallel 4
                 '''
             }
         }
@@ -93,20 +99,57 @@ pipeline {
                 '''
             }
         }
-        stage('Archive') {
+        stage('Archive_Basic') {
             steps {
                 sh '''
                     cd "${WORKSPACE}"
-                    export GIT_DESC="g`git describe --long --always --dirty=-dirty`"
+                    export VERSION=$(cat VERSION.txt | tr -d '[:space:]')
                     cd "${WORKSPACE_TMP}"
-                    tar -Jcf "KingJamesPureBibleSearch-${BUILD_TARGET}-`date +"%y%m%d%H%M%S"`-${GIT_DESC}-jenkins-${BUILD_NUMBER}.tar.xz" KingJamesPureBibleSearch/
+                    tar -Jcf "KingJamesPureBibleSearch-${VERSION}-${BUILD_ARCH}-jenkins-${BUILD_NUMBER}.tar.xz" KingJamesPureBibleSearch/
                     cp *.tar.xz "${WORKSPACE}/"
                     rm *.tar.xz
-                    rm -rf "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}"
-                    rm -rf "${WORKSPACE_TMP}/build-KJPBS_webchannel-${BUILD_TARGET}"
-                    rm -rf "${WORKSPACE_TMP}/KingJamesPureBibleSearch"
                 '''
                 archiveArtifacts artifacts: '*.tar.xz'
+            }
+        }
+        stage('AppImage_build') {
+            steps {
+                sh '''
+                    cd "${WORKSPACE}"
+                    export VERSION=$(cat VERSION.txt | tr -d '[:space:]')   # Note: VERSION is used here by AppImage
+                    #
+                    cd "${WORKSPACE_TMP}/KingJamesPureBibleSearch"
+                    rm -rf "KJVCanOpener/app/html"
+                    rm -rf "KJVCanOpener/app/KingJamesPureBibleSearch_webchannel"
+                    # Note: Our custom jenkins_workspace Docker image doesn't have all of
+                    #  the dependencies needed for these other SQL drivers and we'll fail
+                    #  to build if we include them.  But we don't need them anyway, so
+                    #  just remove them:
+                    rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqlmysql.so
+                    rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqlodbc.so
+                    rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqlpsql.so
+                    rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqltds.so
+                    cp "${WORKSPACE}/programs/KJVCanOpener/KingJamesPureBibleSearch.desktop" ./
+                    cp "${WORKSPACE}/programs/KJVCanOpener/res/bible_256.png" KJVCanOpener/app/KingJamesPureBibleSearch.png
+                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -qmake=${QTDIR}/bin/qmake
+                    cp *.AppImage "${WORKSPACE}/"
+                    rm *.AppImage
+                '''
+            }
+        }
+        stage('Archive_AppImage') {
+            steps {
+                archiveArtifacts artifacts: '*.AppImage'
+            }
+        }
+        stage('CleanTmp') {
+            steps {
+                sh '''
+                    cd "${WORKSPACE_TMP}"
+                    rm -rf "build-KJPBS-${BUILD_TARGET}"
+                    rm -rf "build-KJPBS_webchannel-${BUILD_TARGET}"
+                    rm -rf "KingJamesPureBibleSearch"
+                '''
             }
         }
     }
