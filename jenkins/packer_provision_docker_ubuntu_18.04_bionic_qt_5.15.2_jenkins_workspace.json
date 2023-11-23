@@ -1,0 +1,38 @@
+{
+  "builders": [{
+    "type": "docker",
+    "image": "ubuntu:18.04",
+    "commit": true,
+    "changes": [
+      "USER root",
+      "WORKDIR /home/jenkins",
+      "EXPOSE 22",
+      "LABEL version={{isotime \"200601021504\"}} description=Workspace_Ubuntu_18.04_Qt_5.15.2",
+      "ONBUILD RUN date",
+      "CMD [\"/bin/bash\"]",
+      "ENTRYPOINT [\"\"]"
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "setup-sshd",
+      "destination": "/tmp/setup-sshd"
+    },
+    {
+      "type": "shell",
+      "script": "provision_docker_ubuntu_18.04_bionic_qt_5.15.2_jenkins_workspace.sh"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-tag",
+      "repository": "localhost:5000/dewtronics/ubuntu_18.04_bionic_qt_5.15.2_jenkins_workspace",
+      "tags": [
+        "latest"
+      ],
+      "force": true
+    }
+  ]
+}
+
