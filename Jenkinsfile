@@ -48,54 +48,54 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/db"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/doc"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/fonts"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/geoip"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/examples"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/license"
-                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVDataParse"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/db"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/doc"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/fonts"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/geoip"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/examples"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/license"
+                    mkdir -p "${WORKSPACE_TMP}/KingJamesPureBibleSearch/translations"
                     #
                     cd "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release"
-                    cp KJVCanOpener/KingJamesPureBibleSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVDataDump/KJVDataDump "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVDataParse/KJVDataParse "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVDictWord/KJVDictWord "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVDiff/KJVDiff "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVLookup/KJVLookup "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVPhraseSearch/KJVPhraseSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVSearch/KJVSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
-                    cp KJVSumThing/KJVSumThing "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
+                    cp KJVCanOpener/KingJamesPureBibleSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVDataDump/KJVDataDump "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVDataParse/KJVDataParse "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVDictWord/KJVDictWord "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVDiff/KJVDiff "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVLookup/KJVLookup "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVPhraseSearch/KJVPhraseSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVSearch/KJVSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
+                    cp KJVSumThing/KJVSumThing "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
                     #
                     cd "${WORKSPACE}/programs/KJVCanOpener/db/"
-                    cp bbl-*.ccdb "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/db/"
-                    cp dct-*.s3db "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/db/"
+                    cp bbl-*.ccdb "${WORKSPACE_TMP}/KingJamesPureBibleSearch/db/"
+                    cp dct-*.s3db "${WORKSPACE_TMP}/KingJamesPureBibleSearch/db/"
                     #
-                    cp "${WORKSPACE}/programs/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/doc/"
-                    cp "${WORKSPACE}/programs/KJVCanOpener/articles/kjv_stats.xls" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/doc/"
-                    cp "${WORKSPACE}/programs/KJVCanOpener/kjvdatagen/kjv_summary.xls" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/doc/"
+                    cp "${WORKSPACE}/programs/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/doc/"
+                    cp "${WORKSPACE}/programs/KJVCanOpener/articles/kjv_stats.xls" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/doc/"
+                    cp "${WORKSPACE}/programs/KJVCanOpener/kjvdatagen/kjv_summary.xls" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/doc/"
                     #
                     cd "${WORKSPACE}/programs/KJVCanOpener/fonts/"
-                    cp *.ttf "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/fonts/"
-                    cp *.TTF "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/fonts/"
+                    cp *.ttf "${WORKSPACE_TMP}/KingJamesPureBibleSearch/fonts/"
+                    cp *.TTF "${WORKSPACE_TMP}/KingJamesPureBibleSearch/fonts/"
                     #
-                    cp "${WORKSPACE}/programs/KJVCanOpener/geoip/GeoIP.conf" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/geoip/"
+                    cp "${WORKSPACE}/programs/KJVCanOpener/geoip/GeoIP.conf" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/geoip/"
                     #
                     cd "${WORKSPACE}/programs/KJVCanOpener/examples/"
-                    cp example*.kjs "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/examples/"
+                    cp example*.kjs "${WORKSPACE_TMP}/KingJamesPureBibleSearch/examples/"
                     #
-                    cp "${WORKSPACE}/programs/KJVCanOpener/gpl-3.0.txt" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/license/"
+                    cp "${WORKSPACE}/programs/KJVCanOpener/gpl-3.0.txt" "${WORKSPACE_TMP}/KingJamesPureBibleSearch/license/"
                     #
-                    cd "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener"
-                    cp -r "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release/KJVCanOpener/translations" .
+                    cd "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release/KJVCanOpener/translations/"
+                    cp *.qm "${WORKSPACE_TMP}/KingJamesPureBibleSearch/translations/"
                     #
-                    cd "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVDataParse"
-                    cp -r "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release/KJVDataParse/translations" .
+                    cd "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release/KJVDataParse/translations/"
+                    cp *.qm "${WORKSPACE_TMP}/KingJamesPureBibleSearch/translations/"
                     #
                     cd "${WORKSPACE_TMP}/build-KJPBS_webchannel-${BUILD_TARGET}/Release"
-                    cp KJVCanOpener/KingJamesPureBibleSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/KingJamesPureBibleSearch_webchannel"
-                    cp -r KJVCanOpener/html "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KJVCanOpener/app/"
+                    cp KJVCanOpener/KingJamesPureBibleSearch "${WORKSPACE_TMP}/KingJamesPureBibleSearch/KingJamesPureBibleSearch_webchannel"
+                    cp -r KJVCanOpener/html "${WORKSPACE_TMP}/KingJamesPureBibleSearch/"
                 '''
             }
         }
@@ -117,10 +117,10 @@ pipeline {
                 sh '''
                     cd "${WORKSPACE}"
                     export VERSION=$(cat VERSION.txt | tr -d '[:space:]')   # Note: VERSION is used here by AppImage
-                    #
                     cd "${WORKSPACE_TMP}/KingJamesPureBibleSearch"
-                    rm -rf "KJVCanOpener/app/html"
-                    rm -rf "KJVCanOpener/app/KingJamesPureBibleSearch_webchannel"
+                    # No need to ship WebChannel daemon build with end-user app bundle:
+                    rm -rf "html"
+                    rm -rf "KingJamesPureBibleSearch_webchannel"
                     # Note: Our custom jenkins_workspace Docker image doesn't have all of
                     #  the dependencies needed for these other SQL drivers and we'll fail
                     #  to build if we include them.  But we don't need them anyway, so
@@ -129,9 +129,10 @@ pipeline {
                     rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqlodbc.so
                     rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqlpsql.so
                     rm -rf /home/jenkins/Qt/5.15.2/plugins/sqldrivers/libqsqltds.so
+                    #
                     cp "${WORKSPACE}/programs/KJVCanOpener/KingJamesPureBibleSearch.desktop" ./
-                    cp "${WORKSPACE}/programs/KJVCanOpener/res/bible_256.png" KJVCanOpener/app/KingJamesPureBibleSearch.png
-                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -qmake=${QTDIR}/bin/qmake
+                    cp "${WORKSPACE}/programs/KJVCanOpener/res/bible_256.png" KingJamesPureBibleSearch.png
+                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -qmake=${QTDIR}/bin/qmake -executable=KJVDataDump -executable=KJVDataParse -executable=KJVDictWord -executable=KJVDiff -executable=KJVLookup -executable=KJVPhraseSearch -executable=KJVSearch -executable=KJVSumThing
                     cp *.AppImage "${WORKSPACE}/"
                     rm *.AppImage
                 '''
