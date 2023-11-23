@@ -28,6 +28,7 @@
 #include "../KJVCanOpener/CSV.h"
 #include "../KJVCanOpener/BibleLayout.h"
 #include "../KJVCanOpener/XML.h"
+#include "../KJVCanOpener/PathConsts.h"
 
 #include "xc_KJVDataParse.h"
 
@@ -86,8 +87,7 @@ const QChar g_chrParseTag = QChar('|');			// Special tag to put into the verse t
 // ============================================================================
 // ============================================================================
 
-const char *g_constrTranslationsPath = "../../KJVDataParse/translations/";
-const char *g_constrTranslationFilenamePrefix = "kjvdataparse";
+const char *g_constrDataParseTranslationFilenamePrefix = "kjvdataparse";
 
 // ============================================================================
 // ============================================================================
@@ -3424,8 +3424,8 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 #endif
 
-	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
-	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
+	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
+	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrDataParseTranslationFilenamePrefix);
 
 	// Load translations and set main application based on our locale:
 	CTranslatorList::instance()->setApplicationLanguage();

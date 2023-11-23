@@ -87,7 +87,7 @@ namespace {
 	const char * const g_constrDictionaryDatabasePath = "db/";
 	const char * const g_constrTranslationsPath = "translations/";
 
-	const char * const g_constrKJPBSBasePath = "../../KJVCanOpener/";
+	const char * const g_constrKJPBSBasePath = "";
 #endif
 
 #ifdef USING_MMDB
