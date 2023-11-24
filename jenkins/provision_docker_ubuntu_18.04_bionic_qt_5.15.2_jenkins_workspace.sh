@@ -53,10 +53,16 @@ wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/kitware.list >/dev/null
 apt-get update
 apt-get install -y cmake
+# Get ninja
+apt-get install zip unzip
+wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip
+unzip ninja-linux.zip
+mv ninja /usr/local/bin/
+rm ninja-linux.zip
 
 
 # ---------------------
-# Setup SSD Config:
+# Setup SSHD Config:
 # ---------------------
 sed -i /etc/ssh/sshd_config \
         -e 's/#PermitRootLogin.*/PermitRootLogin no/' \
