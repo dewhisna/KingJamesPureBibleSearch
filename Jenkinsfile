@@ -132,7 +132,7 @@ pipeline {
                     #
                     cp "${WORKSPACE}/programs/KJVCanOpener/KingJamesPureBibleSearch.desktop" ./
                     cp "${WORKSPACE}/programs/KJVCanOpener/res/bible_256.png" KingJamesPureBibleSearch.png
-                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -qmake=${QTDIR}/bin/qmake -executable=KJVDataDump -executable=KJVDataParse -executable=KJVDictWord -executable=KJVDiff -executable=KJVLookup -executable=KJVPhraseSearch -executable=KJVSearch -executable=KJVSumThing
+                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -no-copy-copyright-files -qmake=${QTDIR}/bin/qmake -executable=KJVDataDump -executable=KJVDataParse -executable=KJVDictWord -executable=KJVDiff -executable=KJVLookup -executable=KJVPhraseSearch -executable=KJVSearch -executable=KJVSumThing
                     cp *.AppImage "${WORKSPACE}/"
                     rm *.AppImage
                 '''
