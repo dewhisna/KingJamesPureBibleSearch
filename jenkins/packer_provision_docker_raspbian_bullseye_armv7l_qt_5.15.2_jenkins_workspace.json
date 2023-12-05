@@ -1,0 +1,33 @@
+{
+  "builders": [{
+    "type": "docker",
+    "image": "balenalib/raspberrypi3-debian:bullseye-build",
+    "commit": true,
+    "changes": [
+      "USER root",
+      "WORKDIR /home/jenkins",
+      "EXPOSE 22",
+      "LABEL version={{isotime \"200601021504\"}} description=Workspace_Raspbian_Bullseye_armv7l_Qt_5.15.2",
+      "ONBUILD RUN date",
+      "CMD [\"/bin/bash\"]",
+      "ENTRYPOINT [\"\"]"
+    ]
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "provision_docker_raspbian_bullseye_armv7l_qt_5.15.2_jenkins_workspace.sh"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-tag",
+      "repository": "localhost:5000/dewtronics/raspbian_bullseye_armv7l_qt_5.15.2_jenkins_workspace",
+      "tags": [
+        "latest"
+      ],
+      "force": true
+    }
+  ]
+}
+
