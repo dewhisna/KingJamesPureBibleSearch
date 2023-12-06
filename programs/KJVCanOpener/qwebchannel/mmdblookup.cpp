@@ -253,7 +253,7 @@ static MMDB_entry_data_list_s *entry_data_list_to_JSON(QBuffer &buffer, MMDB_ent
 		print_indentation(buffer, indent);
 #if MMDB_UINT128_IS_BYTE_ARRAY
 		QString hex_string;
-		const uint8_t *pData = (const uint8_t *)entry_data_list->entry_data.uint128
+		const uint8_t *pData = (const uint8_t *)entry_data_list->entry_data.uint128;
 		uint32_t nSize = 16;
 		while (nSize--) {
 			hex_string += QString("%1").arg(*pData++, 2, 16, QChar('0')).toUpper();
