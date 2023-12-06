@@ -28,6 +28,12 @@
 #include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/PersistentSettings.h"
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#else
+#include <QRegExp>
+#endif
+#define USE_GEMATRIA 1
 #ifdef USE_GEMATRIA
 #include "../KJVCanOpener/Gematria.h"
 #include "../KJVCanOpener/CSV.h"
@@ -96,6 +102,8 @@ int main(int argc, char *argv[])
 	bool bOutputVPL = false;
 	bool bOutputWebChannelBibleAudioURLs = false;
 	bool bLookingForVersification = false;
+	int nLetterCount = 0;
+	int nVowelCount = 0;
 #ifdef USE_GEMATRIA
 	bool bOutputGematria = false;
 #endif
@@ -131,6 +139,20 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-a") == 0) {
 			bOutputVerseText = true;
 			bOutputTransChangeAdded = true;
+		} else if (strArg.startsWith("-L")) {
+			nLetterCount = strArg.mid(2).toInt();
+			if (nLetterCount < 0) {
+				nLetterCount = 0;
+				bUnknownOption = true;
+			} else {
+				bOutputVerseText = true;
+			}
+		} else if (strArg.startsWith("-V")) {
+			nVowelCount = strArg.mid(2).toInt();
+			if (nVowelCount < 0) {
+				nVowelCount = 0;
+				bUnknownOption = true;
+			}
 		} else if (strArg.compare("-vpl") == 0) {
 			bOutputVPL = true;
 			bPrintReference = true;
@@ -166,6 +188,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x)\n").toUtf8().data();
 		std::cerr << QString("  -vpl = Print Verse Per Line format (implies -x, -r, and -p)\n").toUtf8().data();
 		std::cerr << QString("  -wba = Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
+		std::cerr << QString("  -L## = Letter count that matches then number of letters in a verse.\n").toUtf8().data();
+		std::cerr << QString("  -V## = Vowel count that matches then number of vowels in a verse.\n").toUtf8().data();
 		std::cerr << QString("  -v11n <index> = Use versification <index> if the database supports it\n").toUtf8().data();
 		std::cerr << QString("         (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
 #ifdef USE_GEMATRIA
@@ -281,6 +305,7 @@ int main(int argc, char *argv[])
 
 	CRelIndex ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
 	CRelIndex ndxLastVPL;
+	int lineCount = 0;
 
 	while (ndxCurrent.isSet()) {
 		if ((bSkipColophons && ndxCurrent.isColophon()) ||
@@ -371,14 +396,44 @@ int main(int argc, char *argv[])
 						if (bOutputTemplates) {
 							std::cout << pVerse->m_strTemplate.toUtf8().data() << std::endl;
 						}
-						if (bOutputVerseText) {
-							if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
-							if (bOutputTransChangeAdded) {
-								std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
-							} else {
-								std::cout << strParsedVerse.toUtf8().data();
+						if (bOutputVerseText && nLetterCount > 0) {
+							QString verse = strParsedVerse.toUtf8().data();
+							QString clean = QString(verse).toLower().simplified().replace(QRegularExpression("[\\[\\]()\.,:;!?]"), "");
+							QString cleanNoSpaces = QString(clean).remove(' ');
+							int basicVowelCount = clean.count(QRegularExpression("[aeiou]"));
+							int yCount = clean.count(QRegularExpression("y$|y "));
+							int consonantCount = cleanNoSpaces.length() - (basicVowelCount + yCount);
+
+							bool qPrint = true;
+
+							if (cleanNoSpaces.length() == nLetterCount) {
+
+								QStringList list = clean.split(QRegularExpression("\\s"));
+
+								foreach(QString item, list) {
+									int isYbetween2Consonants = item.count(QRegularExpression("[bcdfghjklmnpqrstvwxz]y[bcdfghjklmnpqrstvwxz]"));
+
+									if (isYbetween2Consonants > 0) {
+										basicVowelCount += isYbetween2Consonants;
+										consonantCount -= isYbetween2Consonants;
+									}
+								}
+
+								if (nVowelCount > 0) {
+									if (basicVowelCount + yCount != nVowelCount) {
+										qPrint = false;
+									}
+								}
+
+								if (qPrint) {
+									// Print verse reference prefix:
+									std::cout << ++lineCount << " " << pBibleDatabase->bookOSISAbbr(ndxCurrent).toUtf8().data()
+											  << " " << ndxCurrent.chapter() << ":" << ndxCurrent.verse() << " ";
+
+									std::cout << verse.toStdString() << " (V:" << basicVowelCount + yCount << ", C:" << consonantCount << ")";
+									std::cout << std::endl;
+								}
 							}
-							std::cout << std::endl;
 						}
 					}
 				}
