@@ -96,7 +96,7 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
 	QString strBuildDate(VER_BUILD_DATE_STR);
 	QString strBuildTime(VER_BUILD_TIME_STR);
 	if (!strBuildDate.isEmpty()) {
-		m_pAppBuildDateTime = scene->addText(QString("%1: %2  %3").arg(tr("Build", "AboutBox")).arg(strBuildDate).arg(strBuildTime), QFont("Times New Roman", 10));
+		m_pAppBuildDateTime = scene->addText(QString("%1: %2  %3").arg(tr("Built", "AboutBox")).arg(strBuildDate).arg(strBuildTime), QFont("Times New Roman", 10));
 		m_pAppBuildDateTime->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	}
 	m_pQtVersion = scene->addText(tr("Based on Qt Version %1", "AboutBox").arg(QT_VERSION_STR), QFont("Times New Roman", 10));
