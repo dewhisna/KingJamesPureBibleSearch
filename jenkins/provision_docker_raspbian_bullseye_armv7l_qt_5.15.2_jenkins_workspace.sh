@@ -31,8 +31,8 @@ apt-get install -y gperf
 apt-get install -y binfmt-support bsdmainutils squashfs-tools file
 apt-get install -y joe
 apt-get install -y sudo
-# libgpgme-dev is a dependency of appimage if we want to build/use it:
-apt-get install -y libgpgme-dev
+# libgpgme-dev is a dependency of appimage, as is fuse, if we want to build/use it:
+apt-get install -y libgpgme-dev fuse libfuse2
 #apt-get install -y openssh-server
 apt-get install -y ninja-build
 apt-get install -y libmodbus-dev
