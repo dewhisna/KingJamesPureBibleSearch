@@ -75,9 +75,9 @@ sed -i /etc/ssh/sshd_config \
 cp /tmp/setup-sshd /usr/local/bin/setup-sshd
 
 
-# ---------------------
-# Get prebuilt Qt:
-# ---------------------
+# -----------------------
+# Get prebuilt Qt 5.15.2:
+# -----------------------
 # From: http://download.qt-project.org/official_releases/qt/5.15/5.15.2/
 #   Or: https://download.qt.io/official_releases/qt/5.15/5.15.2/
 cd $AGENT_HOME
@@ -98,6 +98,17 @@ rm Qt_5.15.2_18.04_bionic_gcc_64.tar.xz
 # cd src/3rdparty/
 # cp -r $QT_SRC/qtbase/src/3rdparty/zlib* .
 # ---------------------
+
+
+# ----------------------
+# Get prebuilt Qt 4.8.7:
+# ----------------------
+cd $AGENT_HOME/Qt
+wget --no-verbose -nc http://vnc.purebiblesearch.com/0385467c-d9bb-4f2c-8a5f-8fcd77e01384/Qt_4.8.7-vnc-run_18.04_bionic.tar.xz
+echo 'e0ef4d5d1d93c2edfc1ca6c189aa74b6ad7e59b0  Qt_4.8.7-vnc-run_18.04_bionic.tar.xz' | sha1sum -c
+tar -Jxf Qt_4.8.7-vnc-run_18.04_bionic.tar.xz
+chown -R $user:$user 4.8.7-vnc-run/
+rm Qt_4.8.7-vnc-run_18.04_bionic.tar.xz
 
 
 # ----------------------
