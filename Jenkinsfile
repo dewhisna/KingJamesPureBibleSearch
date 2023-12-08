@@ -127,6 +127,7 @@ def commonCleanStages(QTDIR, BUILD_ENV, BUILD_ARCH, BUILD_TARGET) {
                 cd "${WORKSPACE}"
                 rm -f "KingJamesPureBibleSearch-${VERSION}-${BUILD_ARCH}-jenkins-${BUILD_NUMBER}.tar.xz"
                 rm -f "KingJamesPureBibleSearch-${VERSION}-${BUILD_ARCH}.AppImage"
+                rm -f "KingJamesPureBibleSearch-${VERSION}-${BUILD_ARCH}-AppImage.tar.xz"
                 cd "${WORKSPACE_TMP}"
                 rm -f VERSION-${BUILD_TARGET}.txt
                 rm -rf "build-KJPBS-${BUILD_TARGET}"
@@ -190,7 +191,7 @@ builders['ubuntu_18.04_bionic_qt_5.15.2'] = {
 }
 
 builders['raspbian_bullseye_armv7l_qt_5.15.2'] = {
-    node('docker') {
+    node('docker && qemu') {
         docker.image('localhost:5000/dewtronics/raspbian_bullseye_armv7l_qt_5.15.2_jenkins_workspace').inside {
             def QTDIR='/usr/lib/arm-linux-gnueabihf'
             def BUILD_ENV='bullseye-Qt_5.15.2'
@@ -198,6 +199,120 @@ builders['raspbian_bullseye_armv7l_qt_5.15.2'] = {
             def BUILD_TARGET="$BUILD_ENV-$BUILD_ARCH"
 
             commonBuildStages(QTDIR, BUILD_ENV, BUILD_ARCH, BUILD_TARGET).call()
+
+            stage('AppImage_Staging') {
+                sh '''
+                    export QTDIR='''+QTDIR+'''
+                    export BUILD_ENV='''+BUILD_ENV+'''
+                    export BUILD_ARCH='''+BUILD_ARCH+'''
+                    export BUILD_TARGET='''+BUILD_TARGET+'''
+                    cd "${WORKSPACE_TMP}"
+                    export VERSION=$(cat VERSION-${BUILD_TARGET}.txt | tr -d '[:space:]')
+                    cd "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch"
+                    # No need to ship WebChannel daemon build with end-user app bundle:
+                    rm -rf "html"
+                    rm -rf "KingJamesPureBibleSearch_webchannel"
+                    #
+                    cp "${WORKSPACE}/programs/KJVCanOpener/KingJamesPureBibleSearch.desktop" ./
+                    cp "${WORKSPACE}/programs/KJVCanOpener/res/bible_256.png" KingJamesPureBibleSearch.png
+                    #
+                    cd "${WORKSPACE_TMP}/${BUILD_TARGET}"
+                    tar -Jcf "KingJamesPureBibleSearch-${VERSION}-${BUILD_ARCH}-AppImage.tar.xz" KingJamesPureBibleSearch/
+                    cp *.tar.xz "${WORKSPACE}/"
+                    rm *.tar.xz
+                '''
+            }
+            stage('Archive_AppImage') {
+                archiveArtifacts artifacts: "KingJamesPureBibleSearch-*-${BUILD_ARCH}-AppImage.tar.xz"
+            }
+
+            commonCleanStages(QTDIR, BUILD_ENV, BUILD_ARCH, BUILD_TARGET).call()
+        }
+    }
+}
+
+builders['ubuntu_18.04_bionic_qt_4.8.7_vnc'] = {
+    node('docker') {
+        docker.image('localhost:5000/dewtronics/ubuntu_18.04_bionic_qt_5.15.2_jenkins_workspace').inside {
+            def QTDIR='/home/jenkins/Qt/4.8.7-vnc-run'
+            def BUILD_ENV='bionic-Qt_4.8.7_vnc'
+            def BUILD_ARCH='x86_64'
+            def BUILD_TARGET="$BUILD_ENV-$BUILD_ARCH"
+
+            stage('Setup') {
+                checkout scm
+                sh '''
+                    export QTDIR='''+QTDIR+'''
+                    export BUILD_ENV='''+BUILD_ENV+'''
+                    export BUILD_ARCH='''+BUILD_ARCH+'''
+                    export BUILD_TARGET='''+BUILD_TARGET+'''
+                    cd "${WORKSPACE}"
+                    echo "`date +%y%m%d%H%M%S`-g`git describe --long --always --dirty=-dirty`-${BUILD_ENV}" > "${WORKSPACE_TMP}/VERSION-${BUILD_TARGET}.txt"
+                    cd "${WORKSPACE_TMP}"
+                    export VERSION=$(cat VERSION-${BUILD_TARGET}.txt | tr -d '[:space:]')
+                    echo "Version Descriptor: ${VERSION}"
+                '''
+            }
+            stage('GUI_Build') {
+                sh '''
+                    export QTDIR='''+QTDIR+'''
+                    export BUILD_ENV='''+BUILD_ENV+'''
+                    export BUILD_ARCH='''+BUILD_ARCH+'''
+                    export BUILD_TARGET='''+BUILD_TARGET+'''
+                    mkdir -p "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release"
+                    cd "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release"
+                    ${QTDIR}/bin/qmake -spec ${QTDIR}/mkspecs/qws/vnc-linux-x86_64-g++ CONFIG+=release -o Makefile "${WORKSPACE}/programs/KJVCanOpener/KJVCanOpener.pro"
+                    make -j 4
+                '''
+            }
+            stage('Deploy') {
+                sh '''
+                    export QTDIR='''+QTDIR+'''
+                    export BUILD_ENV='''+BUILD_ENV+'''
+                    export BUILD_ARCH='''+BUILD_ARCH+'''
+                    export BUILD_TARGET='''+BUILD_TARGET+'''
+                    mkdir -p "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/"
+                    mkdir -p "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/db"
+                    mkdir -p "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/doc"
+                    mkdir -p "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/fonts"
+                    mkdir -p "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/license"
+                    mkdir -p "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/translations"
+                    #
+                    cd "${WORKSPACE_TMP}/build-KJPBS-${BUILD_TARGET}/Release"
+                    cp KingJamesPureBibleSearch "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/"
+                    #
+                    cd "${WORKSPACE}/programs/KJVCanOpener/db/"
+                    cp bbl-*.ccdb "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/db/"
+                    cp dct-*.s3db "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/db/"
+                    #
+                    cp "${WORKSPACE}/programs/KJVCanOpener/doc/KingJamesPureBibleSearch.pdf" "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/doc/"
+                    #
+                    cd "${WORKSPACE}/programs/KJVCanOpener/fonts/"
+                    cp *.ttf "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/fonts/"
+                    cp *.TTF "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/fonts/"
+                    #
+                    cp "${WORKSPACE}/programs/KJVCanOpener/gpl-3.0.txt" "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/license/"
+                    #
+                    cd "${WORKSPACE}/programs/KJVCanOpener/translations/"
+                    cp *.qm "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/translations/"
+                '''
+            }
+            stage('Archive_Basic') {
+                sh '''
+                    export QTDIR='''+QTDIR+'''
+                    export BUILD_ENV='''+BUILD_ENV+'''
+                    export BUILD_ARCH='''+BUILD_ARCH+'''
+                    export BUILD_TARGET='''+BUILD_TARGET+'''
+                    cd "${WORKSPACE_TMP}"
+                    export VERSION=$(cat VERSION-${BUILD_TARGET}.txt | tr -d '[:space:]')
+                    cd "${WORKSPACE_TMP}/${BUILD_TARGET}"
+                    tar -Jcf "KingJamesPureBibleSearch-${VERSION}-${BUILD_ARCH}-jenkins-${BUILD_NUMBER}.tar.xz" KingJamesPureBibleSearch/
+                    cp *.tar.xz "${WORKSPACE}/"
+                    rm *.tar.xz
+                '''
+                archiveArtifacts artifacts: "KingJamesPureBibleSearch-*-${BUILD_ARCH}-jenkins-${BUILD_NUMBER}.tar.xz"
+            }
+
             commonCleanStages(QTDIR, BUILD_ENV, BUILD_ARCH, BUILD_TARGET).call()
         }
     }
