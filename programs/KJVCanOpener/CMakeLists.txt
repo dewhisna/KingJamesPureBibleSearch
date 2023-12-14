@@ -24,9 +24,9 @@
 cmake_minimum_required(VERSION 3.20...3.28)
 
 if(WIN32)
-	set(LANGUAGES CXX RC)
+	set(LANGUAGES C CXX RC)
 else()
-	set(LANGUAGES CXX)
+	set(LANGUAGES C CXX)
 endif()
 
 
@@ -50,10 +50,6 @@ set(QT_COMPONENTS
 set(QT_OPTIONAL_COMPONENTS
 	Sql
 )
-
-# -----------------------------------------------------------------------------
-
-include(qwebchannel/qwebchannel.cmake)
 
 # -----------------------------------------------------------------------------
 
@@ -118,6 +114,8 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(WEBCHANNEL)
+	include(qwebchannel/qwebchannel.cmake)
+
 	list(APPEND QT_COMPONENTS ${qwebchannel_QT_COMPONENTS})
 endif()
 
