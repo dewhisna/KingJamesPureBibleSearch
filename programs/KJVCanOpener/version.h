@@ -24,7 +24,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#include <QtGlobal>
+// Normally we need to include QtGlobal here to get Q_OS_WASM defined based on
+//	system.  However, if we do, the compiler detection fails for RC compiler on
+//	Windows.  So instead, we'll use the __EMSCRIPTEN__ define (see below) for
+//	that, since that's what QtCore/qsystemdetection.h uses.
+//#include <QtGlobal>
 
 #define VER_QT						"3.0.90"
 #define VER_FILEVERSION				3,0,90,0
@@ -33,7 +37,7 @@
 #define VER_PRODUCTVERSION			3,0,90,0
 #define VER_PRODUCTVERSION_STR		"3,0,90,0\0"
 
-#if defined (Q_OS_WASM)
+#if defined(__EMSCRIPTEN__)		// Same as Q_OS_WASM
 #define VER_SPECIALVERSION_STR		"(WebAssembly Version)\0"
 #define SPECIAL_BUILD				1
 #elif defined(EMSCRIPTEN)
