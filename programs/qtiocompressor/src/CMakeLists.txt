@@ -35,28 +35,39 @@ set(CMAKE_AUTORCC ON)
 
 # =============================================================================
 
-# Qt6 adds a WrapZLIB that isn't in Qt5.  Try it first and use it
-#	if it's available.  If not, try to implement it ourselves.  This
-#	code based on ~/Qt/6.2.2/lib/cmake/Qt6/FindWrapZLIB.cmake
-find_package(WrapZLIB)
-
-if(NOT WrapZLIB_FOUND)
-	find_package(ZLIB ${WrapZLIB_FIND_VERSION})
-
-	if(ZLIB_FOUND)
-	    set(WrapZLIB_FOUND ON)
-
-	    add_library(WrapZLIB::WrapZLIB INTERFACE IMPORTED)
-	    if(APPLE)
-    	    # On Darwin platforms FindZLIB sets IMPORTED_LOCATION to the absolute path of the library
-    	    # within the framework. This ends up as an absolute path link flag, which we don't want,
-    	    # because that makes our .prl files un-relocatable and also breaks iOS simulator_and_device
-    	    # SDK switching in Xcode.
-    	    # Just pass a linker flag instead.
-    	    target_link_libraries(WrapZLIB::WrapZLIB INTERFACE "-lz")
-	    else()
-    	    target_link_libraries(WrapZLIB::WrapZLIB INTERFACE ZLIB::ZLIB)
-		endif()
+# Qt has made a royal mess out of the zlib stuff.  Back in the Qt 4 days with
+#	qmake, you could just include zlib in the .pro file list of components and get the
+#	Qt bundled zlib as a qt component include.  Qt 5 seems to have started out
+#	like that with a the Qt5Zlib component (unless of course you are using the
+#	system zlib and didn't compile it in the Qt bundle).  But Qt 6 seems to have
+#	dropped it completely for the desktop targets.  However, they have introduced
+#	a new one, at least for the WASM targets.  And instead of Qt6Zlib, it's called
+#	Qt6BundledZLIB.  There is also a FindWrapZLIB helper, but of course it only
+#	works if the Qt build actually has it available.  In the early Qt 6 (like 6.2.2)
+#	versions, it worked OK.  But strangely, it's moved its Qt6Zlib to an internal-only
+#	Qt6ZlibPrivate package, so apps can no longer use it. However, they apparently
+#	make the Qt6BundledZLIB available for the WASM target, perhaps to minimize code
+#	size there of having multiple identical zlibs linked?
+#
+# Anyway...  to deal with this mess...  This code will look for either a Qt{ver}Zlib
+#	package or a Qt{ver}BundledZLIB package and use those if it exists, which will cover
+#	things on Qt 5 with a bundled Zlib or Qt 6 on the WASM target.  If those don't exist,
+#	we will simply build it from our own copy of the zlib source, which we snarfed out of
+#	the Qt source tree, building it as our own internal static library.
+find_package(Qt${QT_VERSION_MAJOR}Zlib QUIET)
+if(Qt${QT_VERSION_MAJOR}Zlib_FOUND)
+	# If we have a Qt Zlib, wrap it ourselves:
+	add_library(MyZLIB ALIAS Qt${QT_VERSION_MAJOR}::Zlib)
+	message(STATUS "${CMAKE_PROJECT_NAME} Found: Qt${QT_VERSION_MAJOR}Zlib")
+else()
+	find_package(Qt${QT_VERSION_MAJOR}BundledZLIB QUIET)
+	if(Qt${QT_VERSION_MAJOR}BundledZLIB_FOUND)
+		# If we have a Qt BundledZLIB, wrap it ourselves:
+		add_library(MyZLIB ALIAS Qt${QT_VERSION_MAJOR}::BundledZLIB)
+		message(STATUS "${CMAKE_PROJECT_NAME} Found: Qt${QT_VERSION_MAJOR}BundledZLIB")
+	else()
+		add_subdirectory(../../../support/zlib zlib)
+		message(STATUS "${CMAKE_PROJECT_NAME} : Building zlib from source")
 	endif()
 endif()
 
@@ -90,7 +101,7 @@ set_target_properties(QtIOCompressor PROPERTIES PUBLIC_HEADER "${QtIOCompressor_
 target_compile_options(QtIOCompressor PUBLIC ${MY_COMPILE_OPTIONS})
 target_link_libraries(QtIOCompressor
 	Qt${QT_VERSION_MAJOR}::Core
-	WrapZLIB::WrapZLIB
+	MyZLIB
 )
 
 if(DEPRECATION_ENABLE_WARNINGS)
