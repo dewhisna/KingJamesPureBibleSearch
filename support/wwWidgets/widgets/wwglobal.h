@@ -15,10 +15,20 @@
 #include <QString>
 #include <QColor>
 
+// Only on Qt 4, where we are still building this as a
+//	dynamic library and using the .pro file logic, does this
+//	need its import/export logic.  On Qt 5 and 6, we are
+//	building it as a static library CMake include.  So get
+//	the imports and exports right here, or this won't build
+//	on Windows, where that's actually used:
+#if QT_VERSION < 0x050000
 #ifdef WW_BUILD_WWWIDGETS
 #define Q_WW_EXPORT Q_DECL_EXPORT
 #else
 #define Q_WW_EXPORT Q_DECL_IMPORT
+#endif
+#else
+#define Q_WW_EXPORT
 #endif
 
 class QwwPrivate;
