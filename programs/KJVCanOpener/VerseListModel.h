@@ -692,9 +692,12 @@ public:
 
 	public:
 		QPair<int, int> GetResultsIndexes(CVerseMap::const_iterator itrVerse) const;		// Calculates the starting and ending results indexes for the specified Verse List entry index
-		QPair<int, int> GetBookIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Book number and total number of books with results
-		QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;	// Returns the Search Result Chapter and total number of chapters with results
-		QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse = CVerseMap::const_iterator()) const;		// Returns the Search Result Verse and total number of verses with results
+		QPair<int, int> GetBookIndexAndCount(CVerseMap::const_iterator itrVerse) const;		// Returns the Search Result Book number and total number of books with results
+		inline QPair<int, int> GetBookIndexAndCount() const { return GetBookIndexAndCount(m_mapVerses.constEnd()); }
+		QPair<int, int> GetChapterIndexAndCount(CVerseMap::const_iterator itrVerse) const;	// Returns the Search Result Chapter and total number of chapters with results
+		inline QPair<int, int> GetChapterIndexAndCount() const { return GetChapterIndexAndCount(m_mapVerses.constEnd()); }
+		QPair<int, int> GetVerseIndexAndCount(CVerseMap::const_iterator itrVerse) const;	// Returns the Search Result Verse and total number of verses with results
+		inline QPair<int, int> GetVerseIndexAndCount() const { return GetVerseIndexAndCount(m_mapVerses.constEnd()); }
 
 		const CSearchResultsData &searchResultsData() const { return m_searchResultsData; }
 

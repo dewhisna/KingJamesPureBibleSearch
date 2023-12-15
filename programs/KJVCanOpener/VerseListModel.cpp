@@ -2211,8 +2211,6 @@ QPair<int, int> CVerseListModel::TVerseListModelSearchResults::GetResultsIndexes
 	nResultsIndexes.first = 0;
 	nResultsIndexes.second = 0;
 
-	Q_ASSERT(itrVerse != CVerseMap::const_iterator());
-
 	for (CVerseMap::const_iterator itr = m_mapVerses.constBegin(); ((itr != itrVerse) && (itr != m_mapVerses.constEnd())); ++itr) {
 		nResultsIndexes.first += itr->phraseTags().size();
 	}
