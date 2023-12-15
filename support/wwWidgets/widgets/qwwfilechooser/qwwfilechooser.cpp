@@ -228,16 +228,16 @@ void QwwFileChooser::chooseFile() {
                 path = QFileDialog::getOpenFileName(this, tr("Choose file"), text(), filter());
             break;
         case QFileDialog::Directory:
-            path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), text(), QFileDialog::Options());
+            path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), text(), QFileDialog::ShowDirsOnly);
             break;
-#if QT_VERSION < 0x060000
-        case QFileDialog::DirectoryOnly:
-            path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), text());
-            break;
-#endif
         case QFileDialog::ExistingFiles:
+        {
             QStringList s = QFileDialog::getOpenFileNames(this, tr("Choose files"), text(), filter());
             path = s.isEmpty() ? QString() : s.at(0);
+            break;
+        }
+        // Note: QFileDialog::DirectoryOnly deprecated since Qt 4.5 and has been removed (use default to silence switch coverage warning)
+        default:
             break;
         }
     } else {
