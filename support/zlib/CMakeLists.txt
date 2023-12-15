@@ -60,10 +60,17 @@ set_property(SOURCE ${zlib_SOURCES} ${zlib_SHARED_HEADERS} ${zlib_PRIVATE_HEADER
 
 # =============================================================================
 
+# This is too noisy, besides, this is a 3rdparty dependency:
+#if(WIN32)
+#	set(MY_COMPILE_OPTIONS "/W3")
+#else()
+#	set(MY_COMPILE_OPTIONS "-Wall" "-Wextra")
+#endif()
+
 if(WIN32)
-	set(MY_COMPILE_OPTIONS "/W3")
+	set(MY_COMPILE_OPTIONS "/D_CRT_NONSTDC_NO_WARNINGS")
 else()
-	set(MY_COMPILE_OPTIONS "-Wall" "-Wextra")
+	set(MY_COMPILE_OPTIONS "-Wno-deprecated")
 endif()
 
 # -----------------------------------------------------------------------------
