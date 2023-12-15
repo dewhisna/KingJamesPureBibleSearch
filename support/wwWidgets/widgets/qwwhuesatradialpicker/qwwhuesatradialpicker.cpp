@@ -60,9 +60,11 @@ void QwwHueSatRadialPickerPrivate::buildPixmap() {
 
     // alpha gradient
     QRadialGradient rg(q->rect().center(), q->width()/2-2, q->rect().center());
+    double ngrad = 0.0;
 
-    for (float i=0;i<1;i+=0.1) {
-        rg.setColorAt(i, QColor::fromHsv(0, 0, (int)(256*i)));
+    for (int i=0;i<10;++i) {
+        rg.setColorAt(ngrad, QColor::fromHsv(0, 0, (int)(ngrad*256)));
+        ngrad += 0.1;
     }
     rg.setColorAt(1, Qt::white);
 
