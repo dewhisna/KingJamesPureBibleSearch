@@ -545,6 +545,17 @@ target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 	QtIOCompressor
 )
 
+if(WIN32)
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		UNICODE					# Windows API
+		_UNICODE				# MSVCRT
+		NOMINMAX
+		WIN32_LEAN_AND_MEAN
+		WINVER=0x0601			# 0x0601 is Win7 and higher
+		_WIN32_WINNT=0x0601		# 0x0601 is Win7 and higher
+	)
+endif()
+
 if(ENABLE_TRANSLATIONS)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		HAVE_TRANSLATIONS
