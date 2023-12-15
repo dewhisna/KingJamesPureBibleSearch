@@ -1166,7 +1166,7 @@ CRelIndex CBibleDatabase::TVersificationLayout::DenormalizeIndex(uint32_t nNorma
 
 	if (nWrd == 0) return 0;
 
-	unsigned int nBk = m_lstBooks.size();
+	uint32_t nBk = static_cast<uint32_t>(m_lstBooks.size());
 	while ((nBk > 0) && (nWrd <= m_lstBooks.at(nBk-1).m_nWrdAccum)) {
 		nBk--;
 	}
@@ -1426,7 +1426,7 @@ CRelIndex CBibleDatabase::bookIndexFromOSISAbbr(const QString &strOSISAbbr) cons
 	CRelIndex ndxBook;
 	for (TBookList::size_type ndx = 0; ndx < m_itrCurrentLayout->m_lstBooks.size(); ++ndx) {
 		if (strOSISAbbr.compare(m_itrCurrentLayout->m_lstBooks.at(ndx).m_lstBkAbbr.at(0), Qt::CaseInsensitive) == 0) {
-			ndxBook.setBook(ndx+1);
+			ndxBook.setBook(static_cast<uint32_t>(ndx+1));
 			break;
 		}
 	}
@@ -2672,7 +2672,7 @@ const CDictionaryWordEntry &CStrongsDictionaryDatabase::wordDefinitionsEntry(con
 
 int CStrongsDictionaryDatabase::wordCount() const
 {
-	return m_pBibleDatabase->strongsIndexMap().size();
+	return static_cast<int>(m_pBibleDatabase->strongsIndexMap().size());
 }
 
 QString CStrongsDictionaryDatabase::wordEntry(int ndx) const

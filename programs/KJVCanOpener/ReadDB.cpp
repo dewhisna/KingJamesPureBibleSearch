@@ -505,7 +505,7 @@ bool CReadDatabase::ReadBooksTable()
 	if (!dbParser.findTable("TOC")) return false;
 
 	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible = CBibleEntry();		// Clear out the main Bible entry, just in case we're being called a second time
-	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumTst = m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size();
+	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumTst = static_cast<decltype(m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumTst)>(m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size());
 	m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.clear();
 
 	dbParser.startQueryLoop("BkNdx, TstBkNdx, TstNdx, BkName, BkAbbr, TblName, NumChp, NumVrs, NumWrd, Cat, Desc");
@@ -1379,7 +1379,7 @@ bool CReadDatabase::ValidateData()
 		return false;
 	}
 
-	ncntTstTot = m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size();
+	ncntTstTot = static_cast<decltype(ncntTstTot)>(m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size());
 	for (unsigned int nBk=1; nBk<=m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size(); ++nBk) {		// Books
 		if ((m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nTstNdx < 1) || (m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nTstNdx > ncntTstTot)) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) References Invalid Testament %3", "ReadDB")
@@ -1457,7 +1457,7 @@ bool CReadDatabase::ValidateData()
 
 	unsigned int nWordListTot = 0;
 	for (TWordListMap::const_iterator itrWords = m_pBibleDatabase->m_mapWordList.begin(); itrWords != m_pBibleDatabase->m_mapWordList.end(); ++itrWords) {
-		nWordListTot += itrWords->second.m_ndxNormalizedMapping.size();
+		nWordListTot += static_cast<decltype(nWordListTot)>(itrWords->second.m_ndxNormalizedMapping.size());
 	}
 	if (nWordListTot != ncntWrdTot) {
 		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Word List contains %1 indexes, expected %2!", "ReadDB").arg(nWordListTot).arg(ncntWrdTot));
@@ -1568,7 +1568,7 @@ bool CReadDatabase::ReadDictionaryWords(bool bLiveDB)
 	dbParser.endQueryLoop();
 
 	m_pDictionaryDatabase->m_lstWordList.clear();
-	m_pDictionaryDatabase->m_lstWordList.reserve(m_pDictionaryDatabase->m_mapWordDefinitions.size());
+	m_pDictionaryDatabase->m_lstWordList.reserve(static_cast<decltype(m_pDictionaryDatabase->m_lstWordList)::size_type>(m_pDictionaryDatabase->m_mapWordDefinitions.size()));
 	for (TDictionaryWordListMap::const_iterator itrWordList = m_pDictionaryDatabase->m_mapWordDefinitions.begin(); itrWordList != m_pDictionaryDatabase->m_mapWordDefinitions.end(); ++itrWordList) {
 		m_pDictionaryDatabase->m_lstWordList.append(itrWordList->first);
 	}

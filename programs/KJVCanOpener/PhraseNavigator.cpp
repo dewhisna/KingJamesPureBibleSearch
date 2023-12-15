@@ -256,7 +256,7 @@ bool CSubPhrase::isCompleteMatch() const
 
 unsigned int CSubPhrase::GetNumberOfMatches() const
 {
-	return m_lstMatchMapping.size();
+	return static_cast<unsigned int>(m_lstMatchMapping.size());
 }
 
 void CSubPhrase::ClearPhase()
@@ -432,7 +432,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 	int ndxMax = 0;
 	int nReserveSize = 0;
 	for (int ndxSubPhrase = 0; ndxSubPhrase < m_lstSubPhrases.size(); ++ndxSubPhrase) {
-		int nSize = m_lstSubPhrases.at(ndxSubPhrase)->m_lstMatchMapping.size();
+		int nSize = static_cast<int>(m_lstSubPhrases.at(ndxSubPhrase)->m_lstMatchMapping.size());
 		nReserveSize += nSize;
 		if (nSize > nMaxSize) {
 			nMaxSize = nSize;
@@ -456,7 +456,7 @@ const TPhraseTagList &CParsedPhrase::GetPhraseTagSearchResults() const
 		subPhrase = m_lstSubPhrases.at(ndxSubPhrase).data();
 
 		TPhraseTagList lstSubPhraseTags;
-		lstSubPhraseTags.reserve(subPhrase->m_lstMatchMapping.size());
+		lstSubPhraseTags.reserve(static_cast<decltype(lstSubPhraseTags)::size_type>(subPhrase->m_lstMatchMapping.size()));
 		for (unsigned int ndxWord=0; ndxWord<subPhrase->m_lstMatchMapping.size(); ++ndxWord) {
 			uint32_t ndxNormal = (subPhrase->m_lstMatchMapping.at(ndxWord) - subPhrase->m_nLevel + 1);
 			if (ndxNormal > 0) lstSubPhraseTags.append(TPhraseTag(m_pBibleDatabase->DenormalizeIndex(ndxNormal), subPhrase->phraseSize()));
@@ -969,7 +969,7 @@ void CParsedPhrase::FindWords(CSubPhrase &subPhrase, bool bResume)
 					//		create a unique list that we can then turn to strings:
 					subPhrase.m_lstNextWords.clear();
 					QSet<int> setNextWords;
-					setNextWords.reserve(subPhrase.m_lstMatchMapping.size());
+					setNextWords.reserve(static_cast<decltype(setNextWords)::size_type>(subPhrase.m_lstMatchMapping.size()));
 					for (unsigned int ndxWord=0; ndxWord<subPhrase.m_lstMatchMapping.size(); ++ndxWord) {
 						if ((subPhrase.m_lstMatchMapping.at(ndxWord)+1) <= m_pBibleDatabase->bibleEntry().m_nNumWrd) {
 							int nConcordanceIndex = m_pBibleDatabase->concordanceIndexForWordAtIndex(subPhrase.m_lstMatchMapping.at(ndxWord)+1);

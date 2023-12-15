@@ -69,7 +69,7 @@ bool CReadDatabaseEx::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bS
 						 wordEntry.m_ndxNormalizedMapping.begin()+ndxOldNormalStart+wordEntry.m_lstAltWordCount.at(ndxOldWord),
 						 ndxNormal) != wordEntry.m_ndxNormalizedMapping.begin()+ndxOldNormalStart+wordEntry.m_lstAltWordCount.at(ndxOldWord));
 		// Remove Old Word Normal Entry:
-		unsigned int nSizeOld = wordEntry.m_ndxNormalizedMapping.size();
+		decltype(wordEntry.m_ndxNormalizedMapping)::size_type nSizeOld = wordEntry.m_ndxNormalizedMapping.size();
 		wordEntry.m_ndxNormalizedMapping.erase(
 			std::find(wordEntry.m_ndxNormalizedMapping.begin(), wordEntry.m_ndxNormalizedMapping.end(), ndxNormal));
 		assert(nSizeOld == wordEntry.m_ndxNormalizedMapping.size()+1);

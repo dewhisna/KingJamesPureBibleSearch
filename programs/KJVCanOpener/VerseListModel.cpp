@@ -172,7 +172,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 		return m_vlmrListHighlighters.size();
 	} else if (bSingleCrossRefNode) {
 		if (!m_crossRefsResults.m_mapCrossRefs.haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return 0;
-		return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size();
+		return static_cast<int>(m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
 	} else {
 		switch (m_private.m_nTreeMode) {
 			case VTME_LIST:
@@ -182,7 +182,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in list mode
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return static_cast<int>(m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 				}
 				return 0;
 			}
@@ -197,7 +197,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				ASSERT_MODEL_DEBUG(nLevel != 3);					// Should have no chapters in book mode
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return static_cast<int>(m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 				}
 				return 0;
 			}
@@ -210,7 +210,7 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 				if (nLevel == 3) return zResults.GetVerseCount(ndxRel.book(), ndxRel.chapter());
 				if (nLevel == 4) {
 					ASSERT_MODEL_DEBUG(m_private.m_nViewMode == VVME_CROSSREFS);
-					return m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size();
+					return static_cast<int>(m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(toVerseIndex(zParent)->m_nRelIndex).size());
 				}
 				return 0;
 			}
@@ -2006,7 +2006,7 @@ void CVerseListModel::buildUserNotesResults(const CRelIndex &ndx, bool bAdd)
 
 	const TUserNoteEntryMap *pMapNotes = m_private.m_pUserNotesDatabase->notesMap(m_private.m_pBibleDatabase.data());
 	if (pMapNotes) {
-		zResults.m_lstVerseIndexes.reserve(pMapNotes->size());
+		zResults.m_lstVerseIndexes.reserve(static_cast<decltype(zResults.m_lstVerseIndexes)::size_type>(pMapNotes->size()));
 
 		for (TUserNoteEntryMap::const_iterator itrNote = pMapNotes->cbegin(); itrNote != pMapNotes->cend(); ++itrNote) {
 			CRelIndex ndxNote = (itrNote->first);
@@ -2093,7 +2093,7 @@ void CVerseListModel::buildCrossRefsResults()
 	if (pRefMap) {
 		zResults.m_mapCrossRefs = pRefMap->createScopedMap(m_private.m_pBibleDatabase.data());
 
-		zResults.m_lstVerseIndexes.reserve(zResults.m_mapCrossRefs.size());
+		zResults.m_lstVerseIndexes.reserve(static_cast<decltype(zResults.m_lstVerseIndexes)::size_type>(zResults.m_mapCrossRefs.size()));
 		for (TCrossReferenceMap::const_iterator itrCrossRef = zResults.m_mapCrossRefs.begin(); itrCrossRef != zResults.m_mapCrossRefs.end(); ++itrCrossRef) {
 			CRelIndex ndxCrossRef = (itrCrossRef->first);
 			Q_ASSERT(ndxCrossRef.isSet());

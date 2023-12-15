@@ -118,14 +118,16 @@ class CBibleTestaments : public QObject
 	typedef QStringList TBibleTestamentNameList;
 
 public:
-	static TBibleTestamentNameList::size_type count()
+	typedef TBibleTestamentNameList::size_type size_type;
+
+	static size_type count()
 	{
 		Q_ASSERT(g_arrBibleTestamentNames.size() == NUM_TST);
 		return g_arrBibleTestamentNames.size();
 	}
-	static QString name(TBibleTestamentNameList::size_type nTst)
+	static QString name(size_type nTst)
 	{
-		if ((nTst < 1) || (nTst > static_cast<TBibleTestamentNameList::size_type>(g_arrBibleTestamentNames.size()))) return QString();
+		if ((nTst < 1) || (nTst > static_cast<size_type>(g_arrBibleTestamentNames.size()))) return QString();
 		return g_arrBibleTestamentNames.at(nTst-1);			// NOTE: Unlike Enum variants, nTst is the 1-based Testament Index!
 	}
 

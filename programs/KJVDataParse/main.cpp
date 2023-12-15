@@ -1243,7 +1243,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				// note: nBk is index into array, not book number:
 				nTst = bookIndexToTestamentIndex(bookStartingIndex(m_nCurrentBookIndex).book());
 				while (m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size() < nTst) {
-					CTestamentEntry aTestament(CBibleTestaments::name(m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size()+1));
+					CTestamentEntry aTestament(CBibleTestaments::name(static_cast<CBibleTestaments::size_type>(m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.size()+1)));
 					m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumTst++;
 					m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments.push_back(aTestament);
 					std::cerr << "Adding Testament: " << aTestament.m_strTstName.toUtf8().data() << "\n";
@@ -2879,7 +2879,7 @@ static int writeWordsFiles(const QDir &dirOutput, const CBibleDatabase *pBibleDa
 				continue;
 			}
 			wordEntryDb.m_lstAltWords.push_back(*itrAltWrd);
-			wordEntryDb.m_lstAltWordCount.push_back(itrWrd->second.m_ndxNormalizedMapping.size());
+			wordEntryDb.m_lstAltWordCount.push_back(static_cast<decltype(wordEntryDb.m_lstAltWordCount)::value_type>(itrWrd->second.m_ndxNormalizedMapping.size()));
 			wordEntryDb.m_ndxNormalizedMapping.insert(wordEntryDb.m_ndxNormalizedMapping.end(), itrWrd->second.m_ndxNormalizedMapping.begin(), itrWrd->second.m_ndxNormalizedMapping.end());
 			wordEntryDb.m_strWord = WordFromWordSet(setAltWords);
 		}
