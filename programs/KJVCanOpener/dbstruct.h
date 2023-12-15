@@ -775,10 +775,15 @@ public:
 		// usually what we want: {0,1,3} should hash differently than
 		// {1,3,0}. Except when it isn't (e.g. for QSet and
 		// QHash). Therefore, provide a commutative combiner, too.
+#if QT_VERSION < 0x060000
 		typedef uint result_type;
+#else
+		// Qt6 changes the signature of this from uint to size_t
+		typedef size_t result_type;
+#endif
 		template <typename T>
 #if QT_VERSION >= 0x050000
-		Q_DECL_CONSTEXPR result_type operator()(uint seed, const T &t) const Q_DECL_NOEXCEPT_EXPR(noexcept(qHash(t)))
+		Q_DECL_CONSTEXPR result_type operator()(result_type seed, const T &t) const Q_DECL_NOEXCEPT_EXPR(noexcept(qHash(t)))
 #else
 		// Backward compatibility for old VNC 4.8.7 build:
 		constexpr result_type operator()(uint seed, const T &t) const noexcept(noexcept(qHash(t)))
@@ -808,11 +813,8 @@ public:
 	int removeDuplicates();
 };
 
-#if QT_VERSION >= 0x060000
-// Qt6 changes the signature of this from uint to size_t
-Q_DECL_CONST_FUNCTION inline size_t qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
-#elif QT_VERSION >= 0x050000
-Q_DECL_CONST_FUNCTION inline uint qHash(const CPhraseEntry &key, uint seed = 0) Q_DECL_NOTHROW
+#if QT_VERSION >= 0x050000
+Q_DECL_CONST_FUNCTION inline CPhraseEntry::QHashCombineCommutative::result_type qHash(const CPhraseEntry &key, CPhraseEntry::QHashCombineCommutative::result_type seed = 0) Q_DECL_NOTHROW
 #else
 // Backward compatibility for old VNC 4.8.7 build:
 __attribute__((const)) inline uint qHash(const CPhraseEntry &key, uint seed = 0) noexcept
@@ -820,7 +822,7 @@ __attribute__((const)) inline uint qHash(const CPhraseEntry &key, uint seed = 0)
 {
 	// Note: Aren't hashing "disable" because it doesn't affect the main key value equality
 #if QT_VERSION >= 0x060000
-	std::vector<size_t> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };
+	std::vector<CPhraseEntry::QHashCombineCommutative::result_type> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };
 #else
 	std::vector<uint> vctHashes = { qHash(key.text()), qHash((key.caseSensitive() ? 4u : 0u) + (key.accentSensitive() ? 2u : 0u) + (key.isExcluded() ? 1u : 0u)) };
 #endif
