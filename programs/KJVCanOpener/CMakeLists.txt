@@ -64,7 +64,8 @@ cmake_dependent_option(WASM "WASM Build" OFF "NOT CONSOLE" OFF)
 cmake_dependent_option(EMSCRIPTEN "Emscripen Build" OFF "NOT CONSOLE;NOT WASM" OFF)
 cmake_dependent_option(VNC "VNC Build" OFF "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN" OFF)
 cmake_dependent_option(WEBCHANNEL "Enable WebChannel Support" ON "UNIX;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT APPLE;NOT WIN32" OFF)
-cmake_dependent_option(WEBENGINE "Use Qt WebEngine Renderer" OFF "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN;NOT VNC" OFF)
+cmake_dependent_option(LITEHTML "Use litehtml Renderer" ON "NOT CONSOLE" OFF)
+cmake_dependent_option(WEBENGINE "Use Qt WebEngine Renderer" OFF "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT LITEHTML" OFF)
 # -------------------------------------
 option(OPTION_EXCEPTIONS_OFF "Disable Exception Processing" OFF)
 cmake_dependent_option(OPTION_BUILD_BIBLE_DATABASE "Enable Bible Database Building" ON "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT ANDRIOD;NOT IOS" OFF)
@@ -175,9 +176,11 @@ endforeach()
 
 # -----------------------------------------------------------------------------
 
-if(NOT TARGET qlitehtml)
-	add_subdirectory(../qlitehtml qlitehtml EXCLUDE_FROM_ALL)
-	add_subdirectory(../qlitehtml/tests qlitehtml_tests EXCLUDE_FROM_ALL)
+if(LITEHTML)
+	if(NOT TARGET qlitehtml)
+		add_subdirectory(../qlitehtml qlitehtml EXCLUDE_FROM_ALL)
+		add_subdirectory(../qlitehtml/tests qlitehtml_tests EXCLUDE_FROM_ALL)
+	endif()
 endif()
 
 # -----------------------------------------------------------------------------
@@ -552,7 +555,6 @@ target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 	QtFindReplaceDialog
 	grantlee
 	QtIOCompressor
-	qlitehtml
 )
 
 if(WIN32)
@@ -593,6 +595,18 @@ if(ENABLE_TRANSLATIONS)
 endif()
 
 # -----------------------------------------------------------------------------
+
+if(LITEHTML AND TARGET qlitehtml)
+	target_link_libraries(${KJVCanOpener_TARGET} PRIVATE qlitehtml)
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		USING_LITEHTML
+	)
+else()
+	if(LITEHTML)
+		message(WARNING "LITEHTML selected but library not built!")
+	endif()
+endif()
+
 
 # Enable experimental WebEngine content if we have WebEngineWidgets:
 if(WEBENGINE AND Qt${QT_VERSION_MAJOR}WebEngineWidgets_FOUND)
