@@ -57,6 +57,8 @@ set(QT_OPTIONAL_COMPONENTS
 
 include(CMakeDependentOption)
 
+option(BUILD_TESTING "Enable Testing Build" OFF)
+
 option(CONSOLE "Console-Only Application Mode" OFF)
 cmake_dependent_option(WASM "WASM Build" OFF "NOT CONSOLE" OFF)
 cmake_dependent_option(EMSCRIPTEN "Emscripen Build" OFF "NOT CONSOLE;NOT WASM" OFF)
@@ -170,6 +172,13 @@ foreach(_component ${QT_OPTIONAL_COMPONENTS})
 		list(APPEND QT_LINK_LIBS Qt${QT_VERSION_MAJOR}::${_component})
 	endif()
 endforeach()
+
+# -----------------------------------------------------------------------------
+
+if(NOT TARGET qlitehtml)
+	add_subdirectory(../qlitehtml qlitehtml EXCLUDE_FROM_ALL)
+	add_subdirectory(../qlitehtml/tests qlitehtml_tests EXCLUDE_FROM_ALL)
+endif()
 
 # -----------------------------------------------------------------------------
 
@@ -543,6 +552,7 @@ target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 	QtFindReplaceDialog
 	grantlee
 	QtIOCompressor
+	qlitehtml
 )
 
 if(WIN32)
