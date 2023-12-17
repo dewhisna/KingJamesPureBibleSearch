@@ -51,6 +51,11 @@ class QStyle;
 class CScriptureWebEngineView;
 #endif
 
+#ifdef USING_LITEHTML
+// Forward Declaration
+class QLiteHtmlWidget;
+#endif
+
 // ============================================================================
 
 class CVerseListModel;			// Forward declaration
@@ -233,6 +238,9 @@ private:
 
 #ifdef USING_QT_WEBENGINE
 	CScriptureWebEngineView *m_pWebEngineView;
+#endif
+#ifdef USING_LITEHTML
+	QLiteHtmlWidget *m_pLiteHtmlWidget;
 #endif
 	BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;
 
