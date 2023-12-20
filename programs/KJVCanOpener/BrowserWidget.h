@@ -46,11 +46,6 @@
 class QStyle;
 #endif
 
-#ifdef USING_QT_WEBENGINE
-// Forward Declaration
-class CScriptureWebEngineView;
-#endif
-
 // ============================================================================
 
 class CVerseListModel;			// Forward declaration
@@ -233,9 +228,6 @@ private:
 #define end_update()					\
 	m_bDoingUpdate = bUpdateSave;
 
-#ifdef USING_QT_WEBENGINE
-	CScriptureWebEngineView *m_pWebEngineView;
-#endif
 	BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;
 
 	bool m_bDoingPassageReference;

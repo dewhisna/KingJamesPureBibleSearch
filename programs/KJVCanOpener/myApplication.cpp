@@ -84,10 +84,6 @@
 #include "DelayedExecutionTimer.h"
 #include "Translator.h"
 
-#ifdef USING_QT_WEBENGINE
-#include "ScriptureWebEngine.h"
-#endif
-
 #ifdef BUILD_BIBLE_DATABASE
 #include "BuildDB.h"
 #endif
@@ -996,16 +992,9 @@ class i_CScriptureEdit;
 template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureEdit>(const i_CScriptureEdit *) const;
 
 #ifdef USING_LITEHTML
-
 class i_CScriptureLiteHtml;
 template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<i_CScriptureLiteHtml>(const i_CScriptureLiteHtml *) const;
-
 #endif // USING_LITEHTML
-
-#ifdef USING_QT_WEBENGINE
-class CScriptureWebEngineView;
-template CKJVCanOpener *CMyApplication::findCanOpenerFromChild<CScriptureWebEngineView>(const CScriptureWebEngineView *) const;
-#endif
 
 void CMyApplication::activateCanOpener(CKJVCanOpener *pCanOpener) const
 {

@@ -46,11 +46,6 @@
 #include <QProxyStyle>
 #endif
 
-#ifdef USING_QT_WEBENGINE
-#include "ScriptureWebEngine.h"
-#include <QResizeEvent>
-#endif
-
 // ============================================================================
 
 CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
@@ -64,9 +59,6 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	m_bDoingUpdate(false),
 #if QT_VERSION >= 0x050000
 	m_pChapterScrollerStyle(nullptr),
-#endif
-#ifdef USING_QT_WEBENGINE
-	m_pWebEngineView(nullptr),
 #endif
 	m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 	m_bDoingPassageReference(false),
@@ -230,15 +222,6 @@ bool CBrowserWidget::eventFilter(QObject *obj, QEvent *ev)
 		m_ptChapterScrollerMousePos = pMouseEvent->globalPos();
 #endif
 	}
-#ifdef USING_QT_WEBENGINE
-//	if ((m_pWebEngineView != nullptr) &&
-//		(m_pScriptureBrowser != nullptr) &&
-//		(obj == m_pScriptureBrowser) &&
-//		(ev->type() == QEvent::Resize)) {
-//		QResizeEvent *pResizeEvent = static_cast<QResizeEvent*>(ev);
-//		m_pWebEngineView->resize(pResizeEvent->size());
-//	}
-#endif
 
 	return QWidget::eventFilter(obj, ev);
 }
@@ -335,25 +318,15 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 
 	switch (nBrowserDisplayMode) {
 		case BDME_BIBLE_TEXT:
-#if !defined(USING_QT_WEBENGINE) && !defined(USING_LITEHTML)
+#if !defined(USING_LITEHTML)
 		case BDME_LEMMA_MORPHOGRAPHY:
 #endif
 			m_pScriptureBrowser->setVisible(true);
 			m_pCurrentScriptureTextBase = m_pScriptureBrowser;
-#ifdef USING_QT_WEBENGINE
-			m_pWebEngineView->setVisible(false);
-#endif
 #ifdef USING_LITEHTML
 			m_pScriptureLiteHtml->setVisible(false);
 #endif
 			break;
-
-#ifdef USING_QT_WEBENGINE
-		case BDME_LEMMA_MORPHOGRAPHY:
-			m_pScriptureBrowser->setVisible(false);
-			m_pWebEngineView->setVisible(true);
-			break;
-#endif
 
 #ifdef USING_LITEHTML
 		case BDME_LEMMA_MORPHOGRAPHY:
@@ -444,21 +417,6 @@ void CBrowserWidget::initialize()
 	ui.gridLayout->addWidget(m_pScriptureBrowser, 1, nNextCol, 1, 1);
 	++nNextCol;
 
-#ifdef USING_QT_WEBENGINE
-	m_pWebEngineView = new CScriptureWebEngineView(m_pSearchResultsListModel, this);
-	m_pWebEngineView->setObjectName(QString::fromUtf8("textBrowserWebEngine"));
-	m_pWebEngineView->setMouseTracking(true);
-	if (nTextDir != Qt::LayoutDirectionAuto) {
-		m_pWebEngineView->setLayoutDirection(nTextDir);
-	}
-	ui.gridLayout->addWidget(m_pWebEngineView, 1, nNextCol, 1, 1);
-	++nNextCol;
-	m_pWebEngineView->setVisible(false);
-
-//	m_pWebEngineView->show();
-//	m_pScriptureBrowser->installEventFilter(this);
-#endif
-
 #ifdef USING_LITEHTML
 	m_pScriptureLiteHtml = new CScriptureLiteHtml(m_pBibleDatabase, this);
 	m_pScriptureLiteHtml->setObjectName(QString::fromUtf8("textBrowserLiteHtml"));
@@ -493,10 +451,7 @@ void CBrowserWidget::initialize()
 
 	// Reinsert it in the correct TabOrder:
 	QWidget::setTabOrder(ui.comboBkChp, m_pScriptureBrowser);
-#if defined(USING_QT_WEBENGINE)
-	QWidget::setTabOrder(m_pScriptureBrowser, m_pWebEngineView);
-	QWidget::setTabOrder(m_pWebEngineView, ui.comboTstBk);
-#elif defined(USING_LITEHTML)
+#if defined(USING_LITEHTML)
 	QWidget::setTabOrder(m_pScriptureBrowser, m_pScriptureLiteHtml);
 	QWidget::setTabOrder(m_pScriptureLiteHtml, ui.comboTstBk);
 #else
@@ -518,9 +473,7 @@ void CBrowserWidget::initialize()
 	QAction *pAction = pMenu->addAction(tr("Lemma/Morphography", "BrowserDisplayModes"), this, [this]()->void { this->setBrowserDisplayMode(BDME_LEMMA_MORPHOGRAPHY); } );
 	// Don't allow switching to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
-	#if defined(USING_QT_WEBENGINE)
-		pAction->setEnabled(m_pBibleDatabase->haveLemmas());
-	#elif defined(USING_LITEHTML)
+	#if defined(USING_LITEHTML)
 		pAction->setEnabled(m_pBibleDatabase->haveLemmas());
 	#else
 		pAction->setEnabled(false);
@@ -580,9 +533,6 @@ void CBrowserWidget::en_changedScrollbarsEnabled(bool bEnabled)
 void CBrowserWidget::en_changedChapterScrollbarMode()
 {
 	ui.gridLayout->removeWidget(m_pScriptureBrowser);
-#ifdef USING_QT_WEBENGINE
-	ui.gridLayout->removeWidget(m_pWebEngineView);
-#endif
 #ifdef USING_LITEHTML
 	ui.gridLayout->removeWidget(m_pScriptureLiteHtml);
 #endif
@@ -620,11 +570,6 @@ void CBrowserWidget::en_changedChapterScrollbarMode()
 
 	ui.gridLayout->addWidget(m_pScriptureBrowser, 1, nNextCol, 1, 1);
 	++nNextCol;
-
-#ifdef USING_QT_WEBENGINE
-	ui.gridLayout->addWidget(m_pWebEngineView, 1, nNextCol, 1, 1);
-	++nNextCol;
-#endif
 
 #ifdef USING_LITEHTML
 	ui.gridLayout->addWidget(m_pScriptureLiteHtml, 1, nNextCol, 1, 1);
@@ -797,10 +742,6 @@ void CBrowserWidget::en_SearchResultsVerseListAboutToChange()
 void CBrowserWidget::en_SearchResultsVerseListChanged()
 {
 	doHighlighting();					// Highlight using new tags
-
-#ifdef USING_QT_WEBENGINE
-	m_pWebEngineView->reload();
-#endif
 
 #ifdef USING_LITEHTML
 //	m_pLiteHtmlWidget->reload();
@@ -1145,9 +1086,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	if ((m_ndxCurrent.book() == 0) || ((m_ndxCurrent.chapter() == 0) && (ndx.word() == 0))) {
 		m_pScriptureBrowser->clear();
-#ifdef USING_QT_WEBENGINE
-		m_pWebEngineView->load(QString("about:blank"));
-#endif
 #ifdef USING_LITEHTML
 		m_pScriptureLiteHtml->clear();
 		m_pScriptureLiteHtml->setHtml(QString());
@@ -1159,9 +1097,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		// This can happen if the versification of the navigation reference doesn't match the active database
 		m_pScriptureBrowser->clear();
-#ifdef USING_QT_WEBENGINE
-		m_pWebEngineView->load(QString("about:blank"));
-#endif
 #ifdef USING_LITEHTML
 		m_pScriptureLiteHtml->clear();
 		m_pScriptureLiteHtml->setHtml(QString());
@@ -1176,9 +1111,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 	if (ndxVirtual.chapter() == 0) {
 		if (!book.m_bHaveColophon) {
 			m_pScriptureBrowser->clear();
-#ifdef USING_QT_WEBENGINE
-			m_pWebEngineView->load(QString("about:blank"));
-#endif
 #ifdef USING_LITEHTML
 			m_pScriptureLiteHtml->clear();
 			m_pScriptureLiteHtml->setHtml(QString());
@@ -1217,13 +1149,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	QString strBrowserHTML = m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser |
 									   ((CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
-
-#ifdef USING_QT_WEBENGINE
-	m_pWebEngineView->load(QString("kjpbs://%1/%2#%3")
-							   .arg(m_pBibleDatabase->compatibilityUUID())
-							   .arg(ndxVirtual.asAnchor())
-							   .arg(ndx.isSuperscription() ? ndxVirtual.asAnchor() : ndx.asAnchor()));
-#endif
 
 #ifdef USING_LITEHTML
 	QTextDocument docLiteHTML;
