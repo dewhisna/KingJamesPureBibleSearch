@@ -5,14 +5,14 @@
 
 #include "qlitehtml_global.h"
 
-#include <QAbstractScrollArea>
+#include <QTextEdit>
 #include <QTextDocument>
 
 #include <functional>
 
 class QLiteHtmlWidgetPrivate;
 
-class QLITEHTML_EXPORT QLiteHtmlWidget : public QAbstractScrollArea
+class QLITEHTML_EXPORT QLiteHtmlWidget : public QTextEdit
 {
     Q_OBJECT
 public:

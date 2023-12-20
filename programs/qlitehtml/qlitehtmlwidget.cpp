@@ -354,7 +354,7 @@ public:
 };
 
 QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
-    : QAbstractScrollArea(parent)
+    : QTextEdit(parent)
     , d(new QLiteHtmlWidgetPrivate)
 {
     setMouseTracking(true);
@@ -518,7 +518,7 @@ void QLiteHtmlWidget::paintEvent(QPaintEvent *event)
 void QLiteHtmlWidget::resizeEvent(QResizeEvent *event)
 {
     withFixedTextPosition([this, event] {
-        QAbstractScrollArea::resizeEvent(event);
+        QTextEdit::resizeEvent(event);
         render();
     });
 }
@@ -607,7 +607,7 @@ void QLiteHtmlWidget::keyPressEvent(QKeyEvent *event)
         }
     }
 
-    QAbstractScrollArea::keyPressEvent(event);
+    QTextEdit::keyPressEvent(event);
 }
 
 void QLiteHtmlWidget::updateHightlightedLink()

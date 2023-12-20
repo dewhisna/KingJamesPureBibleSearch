@@ -51,10 +51,6 @@
 #include <QResizeEvent>
 #endif
 
-#ifdef USING_LITEHTML
-#include <qlitehtmlwidget.h>
-#endif
-
 // ============================================================================
 
 CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent) :
@@ -72,12 +68,13 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 #ifdef USING_QT_WEBENGINE
 	m_pWebEngineView(nullptr),
 #endif
-#ifdef USING_LITEHTML
-	m_pLiteHtmlWidget(nullptr),
-#endif
 	m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 	m_bDoingPassageReference(false),
 	m_pScriptureBrowser(nullptr)
+#ifdef USING_LITEHTML
+	, m_pScriptureLiteHtml(nullptr)
+#endif // USING_LITEHTML
+	, m_pCurrentScriptureTextBase(nullptr)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
@@ -91,6 +88,9 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	initialize();
 
 	Q_ASSERT(m_pScriptureBrowser != nullptr);
+#ifdef USING_LITEHTML
+	Q_ASSERT(m_pScriptureLiteHtml != nullptr);
+#endif // USING_LITEHTML
 
 	ui.lblBibleDatabaseName->setText(m_pBibleDatabase->description());
 
@@ -118,6 +118,14 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(m_pScriptureBrowser, SIGNAL(sourceChanged(QUrl)), this, SLOT(en_sourceChanged(QUrl)));
 	connect(m_pScriptureBrowser, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
 
+#ifdef USING_LITEHTML
+	connect(m_pScriptureLiteHtml, SIGNAL(gotoIndex(TPhraseTag)), &m_dlyGotoIndex, SLOT(trigger(TPhraseTag)));
+	connect(this, SIGNAL(en_gotoIndex(TPhraseTag)), m_pScriptureLiteHtml, SLOT(en_gotoIndex(TPhraseTag)));
+// TODO : Add this when CScriptureLiteHtml supports it:
+//	connect(m_pScriptureLiteHtml, SIGNAL(sourceChanged(QUrl)), this, SLOT(en_sourceChanged(QUrl)));
+	connect(m_pScriptureLiteHtml, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
+#endif // USING_LITEHTML
+
 	connect(ui.btnHideNavigation, SIGNAL(clicked()), this, SLOT(en_clickedHideNavigationPane()));
 //	connect(ui.btnSetBrowserDisplayMode, SIGNAL(clicked()), this, SLOT(en_clickedSetBrowserDisplayMode()));
 
@@ -143,10 +151,21 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(m_pScriptureBrowser, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedScriptureText()));
 	connect(ui.widgetPassageReference, SIGNAL(activatedPassageReference()), this, SLOT(en_activatedPassageReference()));
 
+#ifdef USING_LITEHTML
+	connect(m_pScriptureLiteHtml, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedScriptureText()));
+#endif // USING_LITEHTML
+
 	// Set Outgoing Pass-Through Signals:
 	connect(m_pScriptureBrowser, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
 	connect(m_pScriptureBrowser, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
 	connect(m_pScriptureBrowser, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+
+#ifdef USING_LITEHTML
+// TODO : Add these when CScriptureLiteHtml supports them:
+//	connect(m_pScriptureLiteHtml, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+//	connect(m_pScriptureLiteHtml, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+//	connect(m_pScriptureLiteHtml, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+#endif // USING_LITEHTML
 
 	// Set Incoming Pass-Through Signals:
 	connect(this, SIGNAL(backward()), m_pScriptureBrowser, SLOT(backward()));
@@ -154,6 +173,15 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(this, SIGNAL(home()), m_pScriptureBrowser, SLOT(home()));
 	connect(this, SIGNAL(reload()), m_pScriptureBrowser, SLOT(reload()));
 	connect(this, SIGNAL(rerender()), m_pScriptureBrowser, SLOT(rerender()));
+
+#ifdef USING_LITEHTML
+// TODO : Add these when CScriptureLiteHtml supports them:
+//	connect(this, SIGNAL(backward()), m_pScriptureLiteHtml, SLOT(backward()));
+//	connect(this, SIGNAL(forward()), m_pScriptureLiteHtml, SLOT(forward()));
+//	connect(this, SIGNAL(home()), m_pScriptureLiteHtml, SLOT(home()));
+//	connect(this, SIGNAL(reload()), m_pScriptureLiteHtml, SLOT(reload()));
+//	connect(this, SIGNAL(rerender()), m_pScriptureLiteHtml, SLOT(rerender()));
+#endif // USING_LITEHTML
 
 	// Highlighting colors changing:
 	connect(CPersistentSettings::instance(), SIGNAL(changedColorSearchResults(QColor)), this, SLOT(en_SearchResultsColorChanged(QColor)));
@@ -295,6 +323,10 @@ void CBrowserWidget::en_clickedSetBrowserDisplayMode()
 
 void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
 {
+	// Force set the focus to something that's not a browser window so the
+	//	KJVCanOpener will update its menus to remove the old context menu:
+	setFocusPassageReferenceEditor();
+
 	// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
 	if (!m_pBibleDatabase->haveLemmas()) nBrowserDisplayMode = BDME_BIBLE_TEXT;
@@ -307,11 +339,12 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 		case BDME_LEMMA_MORPHOGRAPHY:
 #endif
 			m_pScriptureBrowser->setVisible(true);
+			m_pCurrentScriptureTextBase = m_pScriptureBrowser;
 #ifdef USING_QT_WEBENGINE
 			m_pWebEngineView->setVisible(false);
 #endif
 #ifdef USING_LITEHTML
-			m_pLiteHtmlWidget->setVisible(false);
+			m_pScriptureLiteHtml->setVisible(false);
 #endif
 			break;
 
@@ -325,10 +358,19 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 #ifdef USING_LITEHTML
 		case BDME_LEMMA_MORPHOGRAPHY:
 			m_pScriptureBrowser->setVisible(false);
-			m_pLiteHtmlWidget->setVisible(true);
+			m_pScriptureLiteHtml->setVisible(true);
+			m_pCurrentScriptureTextBase = m_pScriptureLiteHtml;
 			break;
 #endif
 	}
+
+	// Force set the focus to the new browser so the KJVCanOpener will
+	//	update its menus to add the new context menu.  Note: this focus
+	//	toggle is needed because objects outside of this browser can't
+	//	distinguish one browser type from another and would otherwise
+	//	think the focus is changing from the browser to the browser and
+	//	skip updating the menus, even though the menu should be changed:
+	setFocusBrowser();
 }
 
 // ----------------------------------------------------------------------------
@@ -349,7 +391,6 @@ void CBrowserWidget::initialize()
 	m_pScriptureBrowser = new CScriptureBrowser(m_pBibleDatabase, this);
 	m_pScriptureBrowser->setObjectName(QString::fromUtf8("textBrowserMainText"));
 	m_pScriptureBrowser->setMouseTracking(true);
-	en_changedScrollbarsEnabled(CPersistentSettings::instance()->scrollbarsEnabled());
 	m_pScriptureBrowser->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_pScriptureBrowser->setTabChangesFocus(false);
 	m_pScriptureBrowser->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
@@ -357,7 +398,6 @@ void CBrowserWidget::initialize()
 	if (nTextDir != Qt::LayoutDirectionAuto) {
 		m_pScriptureBrowser->setLayoutDirection(nTextDir);
 	}
-	connect(CPersistentSettings::instance(), SIGNAL(changedScrollbarsEnabled(bool)), this, SLOT(en_changedScrollbarsEnabled(bool)));
 
 	if (ui.textBrowserMainText) {
 		ui.gridLayout->removeWidget(ui.textBrowserMainText);
@@ -365,10 +405,10 @@ void CBrowserWidget::initialize()
 		ui.textBrowserMainText = nullptr;
 	}
 
-	if (ui.textBrowserWebEnginePlaceholder) {
-		ui.gridLayout->removeWidget(ui.textBrowserWebEnginePlaceholder);
-		delete ui.textBrowserWebEnginePlaceholder;
-		ui.textBrowserWebEnginePlaceholder = nullptr;
+	if (ui.textBrowserLiteHtmlPlaceholder) {
+		ui.gridLayout->removeWidget(ui.textBrowserLiteHtmlPlaceholder);
+		delete ui.textBrowserLiteHtmlPlaceholder;
+		ui.textBrowserLiteHtmlPlaceholder = nullptr;
 	}
 
 	if (ui.spacerScrollbarChapter) {
@@ -420,19 +460,23 @@ void CBrowserWidget::initialize()
 #endif
 
 #ifdef USING_LITEHTML
-	m_pLiteHtmlWidget = new QLiteHtmlWidget(this);
-	m_pLiteHtmlWidget->setObjectName(QString::fromUtf8("textBrowserLiteHtml"));
-	m_pLiteHtmlWidget->setMouseTracking(true);
+	m_pScriptureLiteHtml = new CScriptureLiteHtml(m_pBibleDatabase, this);
+	m_pScriptureLiteHtml->setObjectName(QString::fromUtf8("textBrowserLiteHtml"));
+	m_pScriptureLiteHtml->setMouseTracking(true);
+	m_pScriptureLiteHtml->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_pScriptureLiteHtml->setTabChangesFocus(false);
+	m_pScriptureLiteHtml->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
+//	m_pScriptureLiteHtml->setOpenLinks(false);
 	if (nTextDir != Qt::LayoutDirectionAuto) {
-		m_pLiteHtmlWidget->setLayoutDirection(nTextDir);
+		m_pScriptureLiteHtml->setLayoutDirection(nTextDir);
 	}
-	ui.gridLayout->addWidget(m_pLiteHtmlWidget, 1, nNextCol, 1, 1);
+	ui.gridLayout->addWidget(m_pScriptureLiteHtml, 1, nNextCol, 1, 1);
 	++nNextCol;
-	m_pLiteHtmlWidget->setVisible(false);
+	m_pScriptureLiteHtml->setVisible(false);
 
-//	m_pLiteHtmlWidget->show();
+//	m_pScriptureLiteHtml->show();
 //	m_pScriptureBrowser->installEventFilter(this);
-#endif
+#endif // USING_LITEHTML
 
 	if (((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_RIGHT) && bIsLTR) ||
 		((CPersistentSettings::instance()->chapterScrollbarMode() == CSME_LEFT) && bIsRTL)) {
@@ -453,11 +497,17 @@ void CBrowserWidget::initialize()
 	QWidget::setTabOrder(m_pScriptureBrowser, m_pWebEngineView);
 	QWidget::setTabOrder(m_pWebEngineView, ui.comboTstBk);
 #elif defined(USING_LITEHTML)
-	QWidget::setTabOrder(m_pScriptureBrowser, m_pLiteHtmlWidget);
-	QWidget::setTabOrder(m_pLiteHtmlWidget, ui.comboTstBk);
+	QWidget::setTabOrder(m_pScriptureBrowser, m_pScriptureLiteHtml);
+	QWidget::setTabOrder(m_pScriptureLiteHtml, ui.comboTstBk);
 #else
 	QWidget::setTabOrder(m_pScriptureBrowser, ui.comboTstBk);
 #endif
+
+	// --------------------------------------------------------------
+
+	// Set initial scrollbar mode -- do this AFTER all objects created above:
+	en_changedScrollbarsEnabled(CPersistentSettings::instance()->scrollbarsEnabled());
+	connect(CPersistentSettings::instance(), SIGNAL(changedScrollbarsEnabled(bool)), this, SLOT(en_changedScrollbarsEnabled(bool)));
 
 	// --------------------------------------------------------------
 
@@ -479,6 +529,8 @@ void CBrowserWidget::initialize()
 #else
 	ui.btnSetBrowserDisplayMode->setEnabled(false);
 #endif
+
+	m_pCurrentScriptureTextBase = m_pScriptureBrowser;
 
 	// --------------------------------------------------------------
 
@@ -514,6 +566,15 @@ void CBrowserWidget::en_changedScrollbarsEnabled(bool bEnabled)
 	} else {
 		m_pScriptureBrowser->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	}
+
+#ifdef USING_LITEHTML
+	Q_ASSERT(m_pScriptureLiteHtml != nullptr);
+	if (bEnabled) {
+		m_pScriptureLiteHtml->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	} else {
+		m_pScriptureLiteHtml->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	}
+#endif // USING_LITEHTML
 }
 
 void CBrowserWidget::en_changedChapterScrollbarMode()
@@ -523,7 +584,7 @@ void CBrowserWidget::en_changedChapterScrollbarMode()
 	ui.gridLayout->removeWidget(m_pWebEngineView);
 #endif
 #ifdef USING_LITEHTML
-	ui.gridLayout->removeWidget(m_pLiteHtmlWidget);
+	ui.gridLayout->removeWidget(m_pScriptureLiteHtml);
 #endif
 
 	if (ui.spacerScrollbarChapter) {
@@ -566,7 +627,7 @@ void CBrowserWidget::en_changedChapterScrollbarMode()
 #endif
 
 #ifdef USING_LITEHTML
-	ui.gridLayout->addWidget(m_pLiteHtmlWidget, 1, nNextCol, 1, 1);
+	ui.gridLayout->addWidget(m_pScriptureLiteHtml, 1, nNextCol, 1, 1);
 	++nNextCol;
 #endif
 
@@ -639,6 +700,10 @@ void CBrowserWidget::gotoIndex(const TPhraseTag &tag)
 
 	m_pScriptureBrowser->setSource(QString("#%1").arg(tagActual.relIndex().asAnchor()));
 
+#ifdef USING_LITEHTML
+	m_pScriptureLiteHtml->setUrl(QString("#%1").arg(tagActual.relIndex().asAnchor()));
+#endif // USING_LITEHTML
+
 	end_update();
 
 	gotoIndex2(tag.relIndex().isSet() ? tagActual : tag);		// Pass special-case on to gotoIndex2
@@ -684,11 +749,31 @@ void CBrowserWidget::en_sourceChanged(const QUrl &src)
 
 void CBrowserWidget::setFocusBrowser()
 {
+#ifdef USING_LITEHTML
+	switch (m_nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+			m_pScriptureBrowser->setFocus();
+			break;
+		case BDME_LEMMA_MORPHOGRAPHY:
+			m_pScriptureLiteHtml->setFocus();
+			break;
+	}
+#else
 	m_pScriptureBrowser->setFocus();
+#endif // USING_LITEHTML
 }
 
 bool CBrowserWidget::hasFocusBrowser() const
 {
+#ifdef USING_LITEHTML
+	switch (m_nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+			return m_pScriptureBrowser->hasFocus();
+		case BDME_LEMMA_MORPHOGRAPHY:
+			return m_pScriptureLiteHtml->hasFocus();
+	}
+#endif // USING_LITEHTML
+
 	return m_pScriptureBrowser->hasFocus();
 }
 
@@ -774,6 +859,14 @@ void CBrowserWidget::doHighlighting(bool bClear)
 	TPhraseTag tagSelection = m_pScriptureBrowser->navigator().getSelection().primarySelection();
 	m_pScriptureBrowser->navigator().selectWords(tagSelection);
 #endif
+
+#ifdef USING_LITEHTML
+// TODO : At present, this does nothing because QLiteHtmlWidget only inherits
+//	from QTextEdit and currently doesn't do anything with its QTextDocument.
+	m_pScriptureLiteHtml->navigator().doHighlighting(m_SearchResultsHighlighter, bClear, m_ndxCurrent);
+	if (m_bShowExcludedSearchResults)
+		m_pScriptureLiteHtml->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
+#endif // USING_LITEHTML
 }
 
 void CBrowserWidget::en_WordsOfJesusColorChanged(const QColor &color)
@@ -817,6 +910,10 @@ void CBrowserWidget::en_beginChangeBibleDatabaseSettings(const QString &strUUID,
 		//	in the Configuration dialog, where previews get blanked and not
 		//	redrawn:
 		m_pScriptureBrowser->clear();
+#ifdef USING_LITEHTML
+		m_pScriptureLiteHtml->clear();
+		m_pScriptureLiteHtml->setHtml(QString());
+#endif // USING_LITEHTML
 	}
 }
 
@@ -826,6 +923,7 @@ void CBrowserWidget::en_userNoteEvent(BIBLE_VERSIFICATION_TYPE_ENUM nVersificati
 {
 	if (nVersification != m_pBibleDatabase->versification()) return;
 	if (!selection().isSet()) return;
+	if (m_nBrowserDisplayMode != BDME_BIBLE_TEXT) return;
 	CRelIndex ndxNote = ndx;
 	TPhraseTagList tagsCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTagList(m_ndxCurrent);
 	if ((!ndx.isSet()) ||
@@ -846,6 +944,7 @@ void CBrowserWidget::en_crossRefsEvent(BIBLE_VERSIFICATION_TYPE_ENUM nVersificat
 {
 	if (nVersification != m_pBibleDatabase->versification()) return;
 	if (!selection().isSet()) return;
+	if (m_nBrowserDisplayMode != BDME_BIBLE_TEXT) return;
 	CRelIndex ndxCrossRefFirst = ndxFirst;
 	CRelIndex ndxCrossRefSecond = ndxSecond;
 	TPhraseTagList tagsCurrentDisplay = m_pScriptureBrowser->navigator().currentChapterDisplayPhraseTagList(m_ndxCurrent);
@@ -868,17 +967,50 @@ void CBrowserWidget::en_allCrossRefsChanged()
 
 void CBrowserWidget::showDetails()
 {
+#ifdef USING_LITEHTML
+	switch (m_nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+			m_pScriptureBrowser->showDetails();
+			break;
+		case BDME_LEMMA_MORPHOGRAPHY:
+			m_pScriptureLiteHtml->showDetails();
+			break;
+	}
+#else
 	m_pScriptureBrowser->showDetails();
+#endif // USING_LITEHTML
 }
 
 void CBrowserWidget::showGematria()
 {
+#ifdef USING_LITEHTML
+	switch (m_nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+			m_pScriptureBrowser->showGematria();
+			break;
+		case BDME_LEMMA_MORPHOGRAPHY:
+			m_pScriptureLiteHtml->showGematria();
+			break;
+	}
+#else
 	m_pScriptureBrowser->showGematria();
+#endif // USING_LITEHTML
 }
 
 void CBrowserWidget::showPassageNavigator()
 {
+#ifdef USING_LITEHTML
+	switch (m_nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+			m_pScriptureBrowser->showPassageNavigator();
+			break;
+		case BDME_LEMMA_MORPHOGRAPHY:
+			m_pScriptureLiteHtml->showPassageNavigator();
+			break;
+	}
+#else
 	m_pScriptureBrowser->showPassageNavigator();
+#endif // USING_LITEHTML
 }
 
 // ----------------------------------------------------------------------------
@@ -946,6 +1078,10 @@ void CBrowserWidget::setBook(const CRelIndex &ndx)
 	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		// This can happen if the versification of the navigation reference doesn't match the active database
 		m_pScriptureBrowser->clear();
+#ifdef USING_LITEHTML
+		m_pScriptureLiteHtml->clear();
+		m_pScriptureLiteHtml->setHtml(QString());
+#endif // USING_LITEHTML
 		end_update();
 		return;
 	}
@@ -1009,28 +1145,28 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	if ((m_ndxCurrent.book() == 0) || ((m_ndxCurrent.chapter() == 0) && (ndx.word() == 0))) {
 		m_pScriptureBrowser->clear();
-		end_update();
 #ifdef USING_QT_WEBENGINE
 		m_pWebEngineView->load(QString("about:blank"));
 #endif
 #ifdef USING_LITEHTML
-		m_pLiteHtmlWidget->setHtml(QString());
-//		m_pLiteHtmlWidget->load(QString("about:blank"));
-#endif
+		m_pScriptureLiteHtml->clear();
+		m_pScriptureLiteHtml->setHtml(QString());
+#endif // USING_LITEHTML
+		end_update();
 		return;
 	}
 
 	if (m_ndxCurrent.book() > m_pBibleDatabase->bibleEntry().m_nNumBk) {
 		// This can happen if the versification of the navigation reference doesn't match the active database
 		m_pScriptureBrowser->clear();
-		end_update();
 #ifdef USING_QT_WEBENGINE
 		m_pWebEngineView->load(QString("about:blank"));
 #endif
 #ifdef USING_LITEHTML
-		m_pLiteHtmlWidget->setHtml(QString());
-//		m_pLiteHtmlWidget->load(QString("about:blank"));
-#endif
+		m_pScriptureLiteHtml->clear();
+		m_pScriptureLiteHtml->setHtml(QString());
+#endif // USING_LITEHTML
+		end_update();
 		return;
 	}
 
@@ -1040,14 +1176,14 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 	if (ndxVirtual.chapter() == 0) {
 		if (!book.m_bHaveColophon) {
 			m_pScriptureBrowser->clear();
-			end_update();
 #ifdef USING_QT_WEBENGINE
 			m_pWebEngineView->load(QString("about:blank"));
 #endif
 #ifdef USING_LITEHTML
-			m_pLiteHtmlWidget->setHtml(QString());
-//			m_pLiteHtmlWidget->load(QString("about:blank"));
-#endif
+			m_pScriptureLiteHtml->clear();
+			m_pScriptureLiteHtml->setHtml(QString());
+#endif // USING_LITEHTML
+			end_update();
 			return;
 		}
 		ndxVirtual.setChapter(book.m_nNumChp);
@@ -1079,15 +1215,14 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	QString strBrowserHTML =
-	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser |
-			((CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
+	QString strBrowserHTML = m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser |
+									   ((CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
 
 #ifdef USING_QT_WEBENGINE
 	m_pWebEngineView->load(QString("kjpbs://%1/%2#%3")
-							.arg(m_pBibleDatabase->compatibilityUUID())
-							.arg(ndxVirtual.asAnchor())
-							.arg(ndx.isSuperscription() ? ndxVirtual.asAnchor() : ndx.asAnchor()));
+							   .arg(m_pBibleDatabase->compatibilityUUID())
+							   .arg(ndxVirtual.asAnchor())
+							   .arg(ndx.isSuperscription() ? ndxVirtual.asAnchor() : ndx.asAnchor()));
 #endif
 
 #ifdef USING_LITEHTML
@@ -1096,16 +1231,16 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	// Don't use defaultDocumentToChapterFlags here so we can
 	//	suppress UserNotes and CrossRefs:
-	QString strLiteHTML = navigator.setDocumentToChapter(ndxVirtual,
-													 CPhraseNavigator::TRO_Subtitles |
-														 CPhraseNavigator::TRO_SuppressPrePostChapters |
-														 CPhraseNavigator::TRO_NoWordAnchors |
-														 CPhraseNavigator::TRO_Colophons |
-														 CPhraseNavigator::TRO_Superscriptions |
-														 CPhraseNavigator::TRO_Category |
-														 CPhraseNavigator::TRO_ScriptureBrowser |
-														 CPhraseNavigator::TRO_UseLemmas |
-														 CPhraseNavigator::TRO_UseWordSpans);
+	QString strLiteHTML = /*m_pScriptureLiteHtml->navigator()*/ navigator.setDocumentToChapter(ndxVirtual,
+												 CPhraseNavigator::TRO_Subtitles |
+												 CPhraseNavigator::TRO_SuppressPrePostChapters |
+//												 CPhraseNavigator::TRO_NoWordAnchors |
+												 CPhraseNavigator::TRO_Colophons |
+												 CPhraseNavigator::TRO_Superscriptions |
+												 CPhraseNavigator::TRO_Category |
+												 CPhraseNavigator::TRO_ScriptureBrowser |
+												 CPhraseNavigator::TRO_UseLemmas |
+												 CPhraseNavigator::TRO_UseWordSpans);
 //	int nPos = strLiteHTML.indexOf("<style type=\"text/css\">\n");
 //	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
 //	nPos = strLiteHTML.indexOf("body", nPos);
@@ -1117,14 +1252,10 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 //									 .arg(CPersistentSettings::instance()->textBackgroundColor().name())
 //									 .arg(CPersistentSettings::instance()->textForegroundColor().name()));
 //	}
-	m_pLiteHtmlWidget->setHtml(strLiteHTML);
 
-//	m_pLiteHtmlWidget->setHtml(strBrowserHTML);
-//	m_pLiteHtmlWidget->load(QString("kjpbs://%1/%2#%3")
-//							   .arg(m_pBibleDatabase->compatibilityUUID())
-//							   .arg(ndxVirtual.asAnchor())
-//							   .arg(ndx.isSuperscription() ? ndxVirtual.asAnchor() : ndx.asAnchor()));
-#endif
+	m_pScriptureLiteHtml->setHtml(strLiteHTML);		// TODO : Finish reworking QLiteHtmlWidget to use QTextDocument data from above
+
+#endif	// USING_LITEHTML
 }
 
 void CBrowserWidget::setVerse(const CRelIndex &ndx)
@@ -1135,7 +1266,18 @@ void CBrowserWidget::setVerse(const CRelIndex &ndx)
 void CBrowserWidget::setWord(const TPhraseTag &tag)
 {
 	m_ndxCurrent.setIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), m_ndxCurrent.verse(), tag.relIndex().word());
+#ifdef USING_LITEHTML
+	switch (m_nBrowserDisplayMode) {
+		case BDME_BIBLE_TEXT:
+			m_pScriptureBrowser->navigator().selectWords(tag);
+			break;
+		case BDME_LEMMA_MORPHOGRAPHY:
+			m_pScriptureLiteHtml->navigator().selectWords(tag);
+			break;
+	}
+#else
 	m_pScriptureBrowser->navigator().selectWords(tag);
+#endif	// USING_LITEHTML
 }
 
 // ----------------------------------------------------------------------------

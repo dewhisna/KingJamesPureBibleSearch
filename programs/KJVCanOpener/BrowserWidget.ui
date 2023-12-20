@@ -366,7 +366,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QTextBrowser" name="textBrowserWebEnginePlaceholder">
+      <widget class="QTextBrowser" name="textBrowserLiteHtmlPlaceholder">
        <property name="mouseTracking">
         <bool>true</bool>
        </property>

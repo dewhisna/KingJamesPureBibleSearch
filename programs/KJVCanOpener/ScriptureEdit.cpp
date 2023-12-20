@@ -188,11 +188,14 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pEditMenu->addSeparator();
 	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(QObject::tr("Copy &Reference Details (Word/Phrase)", "MainMenu"), this, SLOT(en_copyReferenceDetails()));
 	m_pActionCopyReferenceDetails->setStatusTip(QObject::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard", "MainMenu"));
+	m_pActionCopyReferenceDetails->setEnabled(false);
 	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(QObject::tr("Copy Passage Stat&istics (Book/Chapter/Verse)", "MainMenu"), this, SLOT(en_copyPassageStatistics()));
 	m_pActionCopyPassageStatistics->setStatusTip(QObject::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard", "MainMenu"));
+	m_pActionCopyPassageStatistics->setEnabled(false);
 	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(QObject::tr("Copy Entire Passage Detai&ls", "MainMenu"), this, SLOT(en_copyEntirePassageDetails()));
 	m_pActionCopyEntirePassageDetails->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
 	m_pActionCopyEntirePassageDetails->setStatusTip(QObject::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard", "MainMenu"));
+	m_pActionCopyEntirePassageDetails->setEnabled(false);
 	m_pEditMenu->addSeparator();
 	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()));
 	m_pActionSelectAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
@@ -736,6 +739,16 @@ void CScriptureText<i_CScriptureBrowser, QTextBrowser>::mouseDoubleClickEvent(QM
 	QTextBrowser::mouseDoubleClickEvent(ev);
 }
 
+#ifdef USING_LITEHTML
+
+template<>
+void CScriptureText<i_CScriptureLiteHtml, QLiteHtmlWidget>::mouseDoubleClickEvent(QMouseEvent *ev)
+{
+	QLiteHtmlWidget::mouseDoubleClickEvent(ev);
+}
+
+#endif // USING_LITEHTML
+
 template<class T, class U>
 void CScriptureText<T,U>::mouseMoveEvent(QMouseEvent *ev)
 {
@@ -976,6 +989,10 @@ void CScriptureText<T,U>::updateSelection()
 #ifdef USING_QT_SPEECH
 	setSpeechActionEnables();
 #endif
+
+	m_pActionCopyReferenceDetails->setEnabled(haveSelection() || m_tagLast.isSet());
+	m_pActionCopyPassageStatistics->setEnabled(haveSelection() || m_tagLast.isSet());
+	m_pActionCopyEntirePassageDetails->setEnabled(haveSelection() || m_tagLast.isSet());
 
 	m_bDoingSelectionChange = false;
 }
@@ -1435,4 +1452,6 @@ void CScriptureText<T,U>::en_hideAllNotes()
 
 template class CScriptureText<i_CScriptureEdit, QTextEdit>;
 template class CScriptureText<i_CScriptureBrowser, QTextBrowser>;
-
+#ifdef USING_LITEHTML
+template class CScriptureText<i_CScriptureLiteHtml, QLiteHtmlWidget>;
+#endif	// USING_LITEHTML

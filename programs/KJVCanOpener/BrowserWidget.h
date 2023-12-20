@@ -51,11 +51,6 @@ class QStyle;
 class CScriptureWebEngineView;
 #endif
 
-#ifdef USING_LITEHTML
-// Forward Declaration
-class QLiteHtmlWidget;
-#endif
-
 // ============================================================================
 
 class CVerseListModel;			// Forward declaration
@@ -72,19 +67,21 @@ public:
 	explicit CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	virtual ~CBrowserWidget();
 
-	inline void savePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->savePersistentSettings(strGroup); }
-	inline void restorePersistentSettings(const QString &strGroup) { m_pScriptureBrowser->restorePersistentSettings(strGroup); }
+	inline void savePersistentSettings(const QString &strGroup) { m_pCurrentScriptureTextBase->savePersistentSettings(strGroup); }
+	inline void restorePersistentSettings(const QString &strGroup) { m_pCurrentScriptureTextBase->restorePersistentSettings(strGroup); }
 
 	bool hasFocusBrowser() const;
 	bool hasFocusPassageReferenceEditor() const;
 
-	inline QMenu *getEditMenu(bool bPassageReferenceEditor) { return (bPassageReferenceEditor ? ui.widgetPassageReference->getEditMenu() : m_pScriptureBrowser->getEditMenu()); }
+	inline QMenu *getEditMenu(bool bPassageReferenceEditor) { return (bPassageReferenceEditor ? ui.widgetPassageReference->getEditMenu() : m_pCurrentScriptureTextBase->getEditMenu()); }
 
-	inline bool haveSelection() const { return m_pScriptureBrowser->haveSelection(); }
-	inline CSelectionPhraseTagList selection() const { return m_pScriptureBrowser->selection(); }
+	inline bool haveSelection() const { return m_pCurrentScriptureTextBase->haveSelection(); }
+	inline CSelectionPhraseTagList selection() const { return m_pCurrentScriptureTextBase->selection(); }
 
-	inline bool haveDetails() const { return m_pScriptureBrowser->haveDetails(); }
-	inline bool haveGematria() const { return m_pScriptureBrowser->haveGematria(); }
+	inline bool haveDetails() const { return m_pCurrentScriptureTextBase->haveDetails(); }
+	inline bool haveGematria() const { return m_pCurrentScriptureTextBase->haveGematria(); }
+
+// TODO : Figure out how to special case these between CScriptureBrowser and CScriptureLiteHtml:
 
 	inline bool isBackwardAvailable() const { return m_pScriptureBrowser->isBackwardAvailable(); }
 	inline bool isForwardAvailable() const { return m_pScriptureBrowser->isForwardAvailable(); }
@@ -239,9 +236,6 @@ private:
 #ifdef USING_QT_WEBENGINE
 	CScriptureWebEngineView *m_pWebEngineView;
 #endif
-#ifdef USING_LITEHTML
-	QLiteHtmlWidget *m_pLiteHtmlWidget;
-#endif
 	BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;
 
 	bool m_bDoingPassageReference;
@@ -254,6 +248,10 @@ private:
 	DelayedExecutionTimer m_dlyPassageReference;
 	DelayedExecutionTimer m_dlyGotoIndex;
 	CScriptureBrowser *m_pScriptureBrowser;
+#ifdef USING_LITEHTML
+	CScriptureLiteHtml *m_pScriptureLiteHtml;
+#endif
+	CScriptureTextBase *m_pCurrentScriptureTextBase;	// Pointer to current browser type (CScriptureBrowser or CScriptureLiteHtml)
 	Ui::CBrowserWidget ui;
 };
 

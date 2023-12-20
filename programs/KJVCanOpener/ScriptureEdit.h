@@ -41,6 +41,10 @@
 #include <QActionGroup>
 #include <QUrl>
 
+#ifdef USING_LITEHTML
+#include <qlitehtmlwidget.h>
+#endif
+
 // ============================================================================
 
 // Forward declarations:
@@ -50,7 +54,36 @@ class FindDialog;
 // ============================================================================
 
 //
+// CScriptureTextBase - Non-templated base-class from which to inherit basic
+//	functionality in CScriptureText.  This is needed so that CBrowserWidget
+//	can have a pointer to an arbitrary scripture browser type object to call
+//	these functions without knowing the template types.  While this is a bit
+//	convoluted, it's better than having to have switch statements throughout
+//	CBrowserWidget every place one of these needs to be called so that it
+//	can call the function on the active object.
+//
+class CScriptureTextBase
+{
+public:
+	virtual void savePersistentSettings(const QString &strGroup) = 0;
+	virtual void restorePersistentSettings(const QString &strGroup) = 0;
+
+	virtual CPhraseNavigatorEdit &navigator() = 0;
+
+	virtual QMenu *getEditMenu() = 0;
+
+	virtual bool haveSelection() const = 0;
+	virtual CSelectionPhraseTagList selection() const = 0;
+
+	virtual bool haveDetails() const = 0;
+	virtual bool haveGematria() const = 0;
+};
+
+// ----------------------------------------------------------------------------
+
+//
 // CScriptureText - Base template class functionality for CScriptureEdit and CScriptureBrowser
+//		(and now CScriptureLiteHtml)
 //
 //
 //	It really bugged me that CScriptureEdit and CScriptureBrowser were absolutely
@@ -68,40 +101,45 @@ class FindDialog;
 //
 
 template <class T, class U>
-class CScriptureText : public T
+class CScriptureText : public T, public CScriptureTextBase
 {
 public:
 	CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	virtual ~CScriptureText();
 
-	void savePersistentSettings(const QString &strGroup);
-	void restorePersistentSettings(const QString &strGroup);
+	virtual void savePersistentSettings(const QString &strGroup) override;
+	virtual void restorePersistentSettings(const QString &strGroup) override;
 
-	CPhraseNavigatorEdit &navigator()
+	virtual CPhraseNavigatorEdit &navigator() override
 	{
 		return m_navigator;
 	}
 
-	QMenu *getEditMenu() { return m_pEditMenu; }
+	virtual QMenu *getEditMenu() override { return m_pEditMenu; }
 
-	bool haveSelection() const {
+	virtual bool haveSelection() const override {
 		return (m_lstSelectedPhrases.haveSelection());
 	}
-	CSelectionPhraseTagList selection() const {
+	virtual CSelectionPhraseTagList selection() const override {
 		if (m_lstSelectedPhrases.haveSelection()) return m_lstSelectedPhrases.selection();
 		CSelectionPhraseTagList lstSelection;
 		lstSelection.append(TPhraseTag(m_tagLast.relIndex(), 0));
 		return lstSelection;
 	}
 
-	bool haveDetails() const;
-	bool haveGematria() const;
+	virtual bool haveDetails() const override;
+	virtual bool haveGematria() const override;
 
+	// --------------------------------
+
+private:
 	CKJVCanOpener *parentCanOpener() const;
 
 	void displayCopyCompleteToolTip() const;
 
-//signals:
+	// --------------------------------
+
+//signals:  (Shown here for reference, as they are pass-thru from the 'class T')
 //	void gotoIndex(const TPhraseTag &tag);
 //	void activatedScriptureText();
 //	void copyRawAvailable(bool bAvailable);
@@ -293,6 +331,8 @@ public slots:
 	virtual void en_gotoIndex(const TPhraseTag &tag) = 0;
 };
 
+// ----------------------------------------------------------------------------
+
 class i_CScriptureBrowser : public QTextBrowser
 {
 	Q_OBJECT
@@ -356,6 +396,75 @@ public slots:
 	virtual void en_gotoIndex(const TPhraseTag &tag) = 0;
 };
 
+// ----------------------------------------------------------------------------
+
+#ifdef USING_LITEHTML
+
+class i_CScriptureLiteHtml : public QLiteHtmlWidget
+{
+	Q_OBJECT
+public:
+	explicit i_CScriptureLiteHtml(QWidget *parent = nullptr)
+		:	QLiteHtmlWidget(parent)
+	{ }
+
+	static bool useToolTipEdit() { return true; }
+	static bool useFindDialog() { return true; }
+
+signals:
+	void gotoIndex(const TPhraseTag &tag);
+	void activatedScriptureText();
+	void copyRawAvailable(bool bAvailable);
+	void copyVersesAvailable(bool bAvailable);
+
+protected slots:
+#ifdef USING_QT_SPEECH
+	virtual void en_readSelection() = 0;
+	virtual void en_readFromCursor() = 0;
+	virtual void setSpeechActionEnables() = 0;
+#endif
+
+	virtual void en_findParentCanOpener() = 0;
+	virtual void en_findDialog() = 0;
+
+	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
+	virtual void en_cursorPositionChanged() = 0;
+	virtual void en_selectionChanged() = 0;
+	virtual void clearHighlighting() = 0;
+
+	virtual void en_detailUpdate() = 0;
+
+	virtual void en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+													 const TBibleDatabaseSettings &newSettings, bool bForce) = 0;
+	virtual void en_endChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
+												   const TBibleDatabaseSettings &newSettings, bool bForce) = 0;
+
+public slots:
+	virtual void rerender() = 0;
+	virtual void setFont(const QFont& aFont) = 0;
+	virtual void setTextBrightness(bool bInvert, int nBrightness) = 0;
+	virtual void showDetails() = 0;
+	virtual void showGematria() = 0;
+	virtual void showPassageNavigator() = 0;
+	virtual void en_copy() = 0;
+	virtual void en_copyPlain() = 0;
+	virtual void en_copyRaw() = 0;
+	virtual void en_copyVeryRaw() = 0;
+	virtual void en_copyVerses() = 0;
+	virtual void en_copyVersesPlain() = 0;
+	virtual void en_copyReferenceDetails() = 0;
+	virtual void en_copyPassageStatistics() = 0;
+	virtual void en_copyEntirePassageDetails() = 0;
+	virtual void en_highlightPassage(int ndxHighlighterTool, bool bSecondaryActive) = 0;
+	virtual void en_anchorClicked(const QUrl &link) = 0;
+	virtual void en_showAllNotes() = 0;
+	virtual void en_hideAllNotes() = 0;
+
+	virtual void en_gotoIndex(const TPhraseTag &tag) = 0;
+};
+
+#endif	// USING_LITEHTML
+
 // ============================================================================
 
 // Real Exported Classes to serve as our subclassed controls:
@@ -375,6 +484,18 @@ public:
 		:	CScriptureText<i_CScriptureBrowser, QTextBrowser>(pBibleDatabase, parent)
 	{ }
 };
+
+#ifdef USING_LITEHTML
+
+class CScriptureLiteHtml : public CScriptureText<i_CScriptureLiteHtml, QLiteHtmlWidget>
+{
+public:
+	explicit CScriptureLiteHtml(CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr)
+		:	CScriptureText<i_CScriptureLiteHtml, QLiteHtmlWidget>(pBibleDatabase, parent)
+	{ }
+};
+
+#endif // USING_LITEHTML
 
 // ============================================================================
 
