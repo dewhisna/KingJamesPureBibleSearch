@@ -53,7 +53,7 @@ enum BROWSER_NAVIGATION_PANE_MODE_ENUM {
 
 enum BROWSER_DISPLAY_MODE_ENUM {
 	BDME_BIBLE_TEXT = 0,			// Normal Bible Text Display Mode (via QTextBrowser)
-	BDME_LEMMA_MORPHOGRAPHY = 1,	// Lemma and Morphography Mode (via QWebEngineView)
+	BDME_LEMMA_MORPHOGRAPHY = 1,	// Lemma and Morphography Mode (via QLiteHtmlWidget)
 };
 
 enum COPY_MIME_TYPE_ENUM {

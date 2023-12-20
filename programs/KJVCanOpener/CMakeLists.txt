@@ -65,7 +65,6 @@ cmake_dependent_option(EMSCRIPTEN "Emscripen Build" OFF "NOT CONSOLE;NOT WASM" O
 cmake_dependent_option(VNC "VNC Build" OFF "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN" OFF)
 cmake_dependent_option(WEBCHANNEL "Enable WebChannel Support" ON "UNIX;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT APPLE;NOT WIN32" OFF)
 cmake_dependent_option(LITEHTML "Use litehtml Renderer" ON "NOT CONSOLE" OFF)
-cmake_dependent_option(WEBENGINE "Use Qt WebEngine Renderer" OFF "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT LITEHTML" OFF)
 # -------------------------------------
 option(OPTION_EXCEPTIONS_OFF "Disable Exception Processing" OFF)
 cmake_dependent_option(OPTION_BUILD_BIBLE_DATABASE "Enable Bible Database Building" ON "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT ANDRIOD;NOT IOS" OFF)
@@ -127,10 +126,6 @@ if(WEBCHANNEL OR VNC OR (NOT CONSOLE AND NOT WASM AND NOT EMSCRIPTEN AND NOT VNC
 	list(APPEND QT_COMPONENTS Network)
 endif()
 
-
-if(WEBENGINE)
-	list(APPEND QT_OPTIONAL_COMPONENTS WebEngineWidgets)
-endif()
 
 if(ENABLE_TRANSLATIONS)
 	list(APPEND QT_COMPONENTS_NOLINK LinguistTools)
@@ -278,12 +273,6 @@ if(DEBUG_SIGNALSPY)
 	)
 endif()
 
-if(WEBENGINE AND Qt${QT_VERSION_MAJOR}WebEngineWidgets_FOUND)
-	list(APPEND KJVCanOpener_SOURCES
-		"ScriptureWebEngine.cpp"
-	)
-endif()
-
 if(USE_GEMATRIA)
 	list(APPEND KJVCanOpener_SOURCES
 		"Gematria.cpp"
@@ -391,12 +380,6 @@ endif()
 if(DEBUG_SIGNALSPY)
 	list(APPEND KJVCanOpener_HEADERS
 		"signalspy/Q4puGenericSignalSpy.h"
-	)
-endif()
-
-if(WEBENGINE AND Qt${QT_VERSION_MAJOR}WebEngineWidgets_FOUND)
-	list(APPEND KJVCanOpener_HEADERS
-		"ScriptureWebEngine.h"
 	)
 endif()
 
@@ -604,18 +587,6 @@ if(LITEHTML AND TARGET qlitehtml)
 else()
 	if(LITEHTML)
 		message(WARNING "LITEHTML selected but library not built!")
-	endif()
-endif()
-
-
-# Enable experimental WebEngine content if we have WebEngineWidgets:
-if(WEBENGINE AND Qt${QT_VERSION_MAJOR}WebEngineWidgets_FOUND)
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		USING_QT_WEBENGINE
-	)
-else()
-	if(WEBENGINE)
-		message(WARNING "WebEngine selected but Qt Module NOT found!")
 	endif()
 endif()
 
