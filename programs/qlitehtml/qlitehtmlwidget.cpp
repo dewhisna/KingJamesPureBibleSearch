@@ -11,6 +11,9 @@
 #include <QScrollBar>
 #include <QStyle>
 #include <QStack>
+#include <QMimeData>
+#include <QClipboard>
+#include <QGuiApplication>
 
 const int kScrollBarStep = 40;
 
@@ -357,6 +360,7 @@ public:
 	DocumentContainer documentContainer;
 	qreal zoomFactor = 1;
 	QUrl lastHighlightedLink;
+	bool haveSelection = false;
 
 	// --------------------------------
 
@@ -414,7 +418,7 @@ void QLiteHtmlWidgetPrivate::restoreHistoryEntry(const HistoryEntry &entry)
 // ============================================================================
 
 QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
-	: QTextEdit(parent)
+	: QAbstractScrollArea(parent)
 	, d(new QLiteHtmlWidgetPrivate(*this))
 {
 	setMouseTracking(true);
@@ -434,6 +438,7 @@ QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
 				 Qt::QueuedConnection);
 	});
 	d->documentContainer.setClipboardCallback([this](bool yes) {
+		d->haveSelection = yes;
 		emit copyAvailable(yes);
 		emit selectionChanged();
 	});
@@ -717,7 +722,7 @@ void QLiteHtmlWidget::paintEvent(QPaintEvent *event)
 void QLiteHtmlWidget::resizeEvent(QResizeEvent *event)
 {
 	withFixedTextPosition([this, event] {
-		QTextEdit::resizeEvent(event);
+		QAbstractScrollArea::resizeEvent(event);
 		render();
 	});
 }
@@ -809,7 +814,7 @@ void QLiteHtmlWidget::keyPressEvent(QKeyEvent *event)
 		}
 	}
 
-	QTextEdit::keyPressEvent(event);
+	QAbstractScrollArea::keyPressEvent(event);
 }
 
 void QLiteHtmlWidget::showEvent(QShowEvent *event)
@@ -819,6 +824,28 @@ void QLiteHtmlWidget::showEvent(QShowEvent *event)
 		scrollToAnchor(d->anchorToScrollToWhenVisible);
 		d->anchorToScrollToWhenVisible.clear();
 	}
+}
+
+QMimeData *QLiteHtmlWidget::createMimeDataFromSelection() const
+{
+	QMimeData *data = new QMimeData();
+	QString strSelectedText = selectedText();
+	if (!strSelectedText.isEmpty()) {
+		data->setText(strSelectedText);
+	}
+	return data;
+}
+
+void QLiteHtmlWidget::copy()
+{
+	if (d->haveSelection) {
+		QGuiApplication::clipboard()->setMimeData(createMimeDataFromSelection());
+	}
+}
+
+void QLiteHtmlWidget::clear()
+{
+	setHtml(QString());
 }
 
 void QLiteHtmlWidget::updateHightlightedLink()

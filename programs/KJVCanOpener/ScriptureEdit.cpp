@@ -94,7 +94,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pFindDialog(nullptr),
 		m_bDoingPopup(false),
 		m_bDoingSelectionChange(false),
-		m_navigator(pBibleDatabase, *this, T::useToolTipEdit()),
+		m_navigator(pBibleDatabase, (qobject_cast<QTextEdit *>(this) ? *qobject_cast<QTextEdit *>(this) : m_RubeTextEditor), T::useToolTipEdit()),
 		m_bDoPlainCopyOnly(false),
 		m_pEditMenu(nullptr),
 		m_pActionCopy(nullptr),
@@ -141,11 +141,16 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	U::connect(&m_dlyRerenderCompressor, SIGNAL(triggered()), this, SLOT(rerender()));
 
+	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+
 	// FindDialog:
 	if (T::useFindDialog()) {
 		m_pFindDialog = new FindDialog(this);
 		m_pFindDialog->setModal(false);
-		m_pFindDialog->setTextEdit(this);
+		if (pTextEdit) {
+			m_pFindDialog->setTextEdit(pTextEdit);
+			// TODO : Finish fixing FindDialog to work without needing a QTextEdit so it works with LiteHtml!
+		}
 	}
 
 	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
@@ -156,53 +161,73 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	m_pEditMenu = new QMenu(QObject::tr("&Edit", "MainMenu"), this);
 	m_pEditMenu->setStatusTip(QObject::tr("Scripture Text Edit Operations", "MainMenu"));
-	m_pActionCopy = m_pEditMenu->addAction(QObject::tr("&Copy as shown", "MainMenu"), this, SLOT(en_copy()));
+	m_pActionCopy = new QAction(QObject::tr("&Copy as shown", "MainMenu"), this);
 	m_pActionCopy->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 	m_pActionCopy->setStatusTip(QObject::tr("Copy selected passage browser text, as shown, to the clipboard", "MainMenu"));
 	m_pActionCopy->setEnabled(false);
+	m_pEditMenu->addAction(m_pActionCopy);
+	T::connect(m_pActionCopy, SIGNAL(triggered(bool)), this, SLOT(en_copy()));
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopy, SLOT(setEnabled(bool)));
-	m_pActionCopyPlain = m_pEditMenu->addAction(QObject::tr("Copy as shown (&plain)", "MainMenu"), this, SLOT(en_copyPlain()));
+	m_pActionCopyPlain = new QAction(QObject::tr("Copy as shown (&plain)", "MainMenu"), this);
 	m_pActionCopyPlain->setStatusTip(QObject::tr("Copy selected passage browser text, as shown but without colors and fonts, to the clipboard", "MainMenu"));
 	m_pActionCopyPlain->setEnabled(false);
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyPlain);
+	T::connect(m_pActionCopyPlain, SIGNAL(triggered(bool)), this, SLOT(en_copyPlain()));
 	T::connect(this, SIGNAL(copyAvailable(bool)), m_pActionCopyPlain, SLOT(setEnabled(bool)));
-	m_pEditMenu->addSeparator();
-	m_pActionCopyRaw = m_pEditMenu->addAction(QObject::tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this, SLOT(en_copyRaw()));
+	if (pTextEdit) m_pEditMenu->addSeparator();
+	m_pActionCopyRaw = new QAction(QObject::tr("Copy Raw Verse &Text (No headings)", "MainMenu"), this);
 	m_pActionCopyRaw->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
 	m_pActionCopyRaw->setStatusTip(QObject::tr("Copy selected passage browser text as raw phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyRaw->setEnabled(false);
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyRaw);
+	T::connect(m_pActionCopyRaw, SIGNAL(triggered(bool)), this, SLOT(en_copyRaw()));
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyRaw, SLOT(setEnabled(bool)));
-	m_pActionCopyVeryRaw = m_pEditMenu->addAction(QObject::tr("Copy Very Ra&w Verse Text (No punctuation)", "MainMenu"), this, SLOT(en_copyVeryRaw()));
+	m_pActionCopyVeryRaw = new QAction(QObject::tr("Copy Very Ra&w Verse Text (No punctuation)", "MainMenu"), this);
 	m_pActionCopyVeryRaw->setStatusTip(QObject::tr("Copy selected passage browser text as very raw (no punctuation) phrase words to the clipboard", "MainMenu"));
 	m_pActionCopyVeryRaw->setEnabled(false);
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyVeryRaw);
+	T::connect(m_pActionCopyVeryRaw, SIGNAL(triggered(bool)), this, SLOT(en_copyVeryRaw()));
 	T::connect(this, SIGNAL(copyRawAvailable(bool)), m_pActionCopyVeryRaw, SLOT(setEnabled(bool)));
-	m_pEditMenu->addSeparator();
-	m_pActionCopyVerses = m_pEditMenu->addAction(QObject::tr("Copy as &Verses", "MainMenu"), this, SLOT(en_copyVerses()));
+	if (pTextEdit) m_pEditMenu->addSeparator();
+	m_pActionCopyVerses = new QAction(QObject::tr("Copy as &Verses", "MainMenu"), this);
 	m_pActionCopyVerses->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_V));
 	m_pActionCopyVerses->setStatusTip(QObject::tr("Copy selected passage browser text as Formatted Verses to the clipboard", "MainMenu"));
 	m_pActionCopyVerses->setEnabled(false);
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyVerses);
+	T::connect(m_pActionCopyVerses, SIGNAL(triggered(bool)), this, SLOT(en_copyVerses()));
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVerses, SLOT(setEnabled(bool)));
-	m_pActionCopyVersesPlain = m_pEditMenu->addAction(QObject::tr("Copy as Verses (plai&n)", "MainMenu"), this, SLOT(en_copyVersesPlain()));
+	m_pActionCopyVersesPlain = new QAction(QObject::tr("Copy as Verses (plai&n)", "MainMenu"), this);
 	m_pActionCopyVersesPlain->setStatusTip(QObject::tr("Copy selected passage browser text as Formatted Verses, but without colors and fonts, to the clipboard", "MainMenu"));
 	m_pActionCopyVersesPlain->setEnabled(false);
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyVersesPlain);
+	T::connect(m_pActionCopyVersesPlain, SIGNAL(triggered(bool)), this, SLOT(en_copyVersesPlain()));
 	T::connect(this, SIGNAL(copyVersesAvailable(bool)), m_pActionCopyVersesPlain, SLOT(setEnabled(bool)));
-	m_pEditMenu->addSeparator();
-	m_pActionCopyReferenceDetails = m_pEditMenu->addAction(QObject::tr("Copy &Reference Details (Word/Phrase)", "MainMenu"), this, SLOT(en_copyReferenceDetails()));
+	if (pTextEdit) m_pEditMenu->addSeparator();
+	m_pActionCopyReferenceDetails = new QAction(QObject::tr("Copy &Reference Details (Word/Phrase)", "MainMenu"), this);
 	m_pActionCopyReferenceDetails->setStatusTip(QObject::tr("Copy the Word/Phrase Reference Details in the passage browser to the clipboard", "MainMenu"));
 	m_pActionCopyReferenceDetails->setEnabled(false);
-	m_pActionCopyPassageStatistics = m_pEditMenu->addAction(QObject::tr("Copy Passage Stat&istics (Book/Chapter/Verse)", "MainMenu"), this, SLOT(en_copyPassageStatistics()));
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyReferenceDetails);
+	T::connect(m_pActionCopyReferenceDetails, SIGNAL(triggered(bool)), this, SLOT(en_copyReferenceDetails()));
+	m_pActionCopyPassageStatistics = new QAction(QObject::tr("Copy Passage Stat&istics (Book/Chapter/Verse)", "MainMenu"), this);
 	m_pActionCopyPassageStatistics->setStatusTip(QObject::tr("Copy the Book/Chapter/Verse Passage Statistics in the passage browser to the clipboard", "MainMenu"));
 	m_pActionCopyPassageStatistics->setEnabled(false);
-	m_pActionCopyEntirePassageDetails = m_pEditMenu->addAction(QObject::tr("Copy Entire Passage Detai&ls", "MainMenu"), this, SLOT(en_copyEntirePassageDetails()));
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyPassageStatistics);
+	T::connect(m_pActionCopyPassageStatistics, SIGNAL(triggered(bool)), this, SLOT(en_copyPassageStatistics()));
+	m_pActionCopyEntirePassageDetails = new QAction(QObject::tr("Copy Entire Passage Detai&ls", "MainMenu"), this);
 	m_pActionCopyEntirePassageDetails->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_B));
 	m_pActionCopyEntirePassageDetails->setStatusTip(QObject::tr("Copy both the Word/Phrase Reference Detail and Book/Chapter/Verse Statistics in the passage browser to the clipboard", "MainMenu"));
 	m_pActionCopyEntirePassageDetails->setEnabled(false);
-	m_pEditMenu->addSeparator();
-	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()));
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionCopyEntirePassageDetails);
+	T::connect(m_pActionCopyEntirePassageDetails, SIGNAL(triggered(bool)), this, SLOT(en_copyEntirePassageDetails()));
+	if (pTextEdit) m_pEditMenu->addSeparator();
+	// TODO : If we can figure out how to make select all work with LiteHtml, add this back:
+	m_pActionSelectAll = new QAction(QObject::tr("Select &All", "MainMenu"), this);
 	m_pActionSelectAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(QObject::tr("Select all current passage browser text", "MainMenu"));
-	// TODO : Disable SelectAll on LiteHtml or figure out how to actually do it
-	m_pEditMenu->addSeparator();
+	if (pTextEdit) m_pEditMenu->addAction(m_pActionSelectAll);
+	if (pTextEdit) T::connect(m_pActionSelectAll, SIGNAL(triggered(bool)), this, SLOT(selectAll()));
 	if (m_pFindDialog != nullptr) {
+		m_pEditMenu->addSeparator();
 		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()));
 		m_pActionFind->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
 		m_pActionFind->setStatusTip(QObject::tr("Find text within the passage browser", "MainMenu"));
@@ -413,7 +438,10 @@ void CScriptureText<T,U>::en_findParentCanOpener()
 template<class T, class U>
 void CScriptureText<T,U>::setFont(const QFont& aFont)
 {
-	U::document()->setDefaultFont(aFont);
+	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+	if (pTextEdit) {
+		pTextEdit->document()->setDefaultFont(aFont);
+	}
 
 #ifdef USING_LITEHTML
 	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
@@ -698,9 +726,13 @@ bool CScriptureText<T,U>::haveDetails() const
 template<class T, class U>
 void CScriptureText<T,U>::showDetails()
 {
-	U::ensureCursorVisible();
-	if (m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
-		m_HighlightTimer.stop();
+	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+	if (pTextEdit) {
+		pTextEdit->ensureCursorVisible();
+
+		if (m_navigator.handleToolTipEvent(TETE_DETAILS, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
+			m_HighlightTimer.stop();
+	}
 }
 
 template<class T, class U>
@@ -722,9 +754,12 @@ void CScriptureText<T,U>::showGematria()
 {
 #ifdef USE_GEMATRIA
 	if (TBibleDatabaseList::useGematria()) {
-		U::ensureCursorVisible();
-		if (m_navigator.handleToolTipEvent(TETE_GEMATRIA, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
-			m_HighlightTimer.stop();
+		QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+		if (pTextEdit) {
+			pTextEdit->ensureCursorVisible();
+			if (m_navigator.handleToolTipEvent(TETE_GEMATRIA, parentCanOpener(), &m_CursorFollowHighlighter, m_tagLast, selection()))
+				m_HighlightTimer.stop();
+		}
 	}
 #endif
 }
@@ -823,26 +858,33 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 
 	begin_popup();
 
-	CRelIndex ndxLast = m_navigator.getSelection(CPhraseCursor(T::cursorForPosition(pos), m_pBibleDatabase.data(), true)).primarySelection().relIndex();
+	CRelIndex ndxLast;
+	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+	if (pTextEdit) {
+		ndxLast = m_navigator.getSelection(CPhraseCursor(pTextEdit->cursorForPosition(pos), m_pBibleDatabase.data(), true)).primarySelection().relIndex();
+	}
 	m_tagLast = TPhraseTag(ndxLast, (ndxLast.isSet() ? 1 : 0));
 	setLastActiveTag();
 	m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, TPhraseTagList(m_tagLast));
 	QMenu *menu = new QMenu(this);
 	menu->addAction(m_pActionCopy);
-	menu->addAction(m_pActionCopyPlain);
-	menu->addSeparator();
-	menu->addAction(m_pActionCopyRaw);
-	menu->addAction(m_pActionCopyVeryRaw);
-	menu->addSeparator();
-	menu->addAction(m_pActionCopyVerses);
-	menu->addAction(m_pActionCopyVersesPlain);
-	menu->addSeparator();
-	menu->addAction(m_pActionCopyReferenceDetails);
-	menu->addAction(m_pActionCopyPassageStatistics);
-	menu->addAction(m_pActionCopyEntirePassageDetails);
-	menu->addSeparator();
-	menu->addAction(m_pActionSelectAll);
-	if (T::useFindDialog()) {
+	if (pTextEdit) {
+		menu->addAction(m_pActionCopyPlain);
+		menu->addSeparator();
+		menu->addAction(m_pActionCopyRaw);
+		menu->addAction(m_pActionCopyVeryRaw);
+		menu->addSeparator();
+		menu->addAction(m_pActionCopyVerses);
+		menu->addAction(m_pActionCopyVersesPlain);
+		menu->addSeparator();
+		menu->addAction(m_pActionCopyReferenceDetails);
+		menu->addAction(m_pActionCopyPassageStatistics);
+		menu->addAction(m_pActionCopyEntirePassageDetails);
+		// TODO : If we can figure out how to make select all work with LiteHtml, add this back:
+		menu->addSeparator();
+		menu->addAction(m_pActionSelectAll);
+	}
+	if (T::useFindDialog() && (m_pFindDialog != nullptr)) {
 		menu->addSeparator();
 		menu->addAction(m_pActionFind);
 		menu->addAction(m_pActionFindNext);
@@ -867,19 +909,21 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 		pActionNavigator->setEnabled(true);
 		pActionNavigator->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
 	}
-	menu->addSeparator();
-	QAction *pActionDetails = menu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), QObject::tr("View &Details...", "MainMenu"));
-	pActionDetails->setEnabled(haveDetails());
-	pActionDetails->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
-	T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
+	if (pTextEdit) {
+		menu->addSeparator();
+		QAction *pActionDetails = menu->addAction(QIcon(":/res/Windows-View-Detail-icon-48.png"), QObject::tr("View &Details...", "MainMenu"));
+		pActionDetails->setEnabled(haveDetails());
+		pActionDetails->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_D));
+		T::connect(pActionDetails, SIGNAL(triggered()), this, SLOT(showDetails()));
 
 #ifdef USE_GEMATRIA
-	if (TBibleDatabaseList::useGematria()) {
-		QAction *pActionGematria = menu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), QObject::tr("View &Gematria...", "MainMenu"));
-		pActionGematria->setEnabled(haveGematria());
-		T::connect(pActionGematria, SIGNAL(triggered()), this, SLOT(showGematria()));
-	}
+		if (TBibleDatabaseList::useGematria()) {
+			QAction *pActionGematria = menu->addAction(QIcon(":/res/Gematria-icon-2.jpg"), QObject::tr("View &Gematria...", "MainMenu"));
+			pActionGematria->setEnabled(haveGematria());
+			T::connect(pActionGematria, SIGNAL(triggered()), this, SLOT(showGematria()));
+		}
 #endif
+	}
 
 #ifndef USE_ASYNC_DIALOGS
 	menu->exec(T::viewport()->mapToGlobal(pos));
@@ -925,14 +969,17 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 template<class T, class U>
 void CScriptureText<T,U>::en_cursorPositionChanged()
 {
-	CPhraseCursor cursor(T::textCursor(), m_pBibleDatabase.data(), true);
-	m_tagLast.relIndex() = m_navigator.getSelection(cursor).primarySelection().relIndex();
-	if (!m_tagLast.relIndex().isSet()) m_tagLast.count() = 0;
-	setLastActiveTag();
+	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+	if (pTextEdit) {
+		CPhraseCursor cursor(pTextEdit->textCursor(), m_pBibleDatabase.data(), true);
+		m_tagLast.relIndex() = m_navigator.getSelection(cursor).primarySelection().relIndex();
+		if (!m_tagLast.relIndex().isSet()) m_tagLast.count() = 0;
+		setLastActiveTag();
 
-	// Move start of selection tag so we can later simulate pseudo-selection of
-	//		single word when nothing is really selected:
-	updateSelection();
+		// Move start of selection tag so we can later simulate pseudo-selection of
+		//		single word when nothing is really selected:
+		updateSelection();
+	}
 }
 
 template<class T, class U>
@@ -1149,21 +1196,7 @@ void CScriptureText<T,U>::en_copy()
 	//		copied in the middle of our copied text
 	m_bDoingPopup = false;
 	clearHighlighting();
-#ifdef USING_LITEHTML
-	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
-	if (pLiteHtml) {
-		QString strSelectedText = pLiteHtml->selectedText();
-		if (!strSelectedText.isEmpty()) {
-			QMimeData *data = new QMimeData();
-			data->setText(strSelectedText);
-			QGuiApplication::clipboard()->setMimeData(data);
-		}
-	} else {
-		T::copy();
-	}
-#else
 	T::copy();
-#endif
 	displayCopyCompleteToolTip();
 }
 
@@ -1175,21 +1208,7 @@ void CScriptureText<T,U>::en_copyPlain()
 	m_bDoingPopup = false;
 	clearHighlighting();
 	m_bDoPlainCopyOnly = true;		// Do plaintext only so user can paste into Word without changing its format, for example
-#ifdef USING_LITEHTML
-	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
-	if (pLiteHtml) {
-		QString strSelectedText = pLiteHtml->selectedText();
-		if (!strSelectedText.isEmpty()) {
-			QMimeData *data = new QMimeData();
-			data->setText(strSelectedText);
-			QGuiApplication::clipboard()->setMimeData(data);
-		}
-	} else {
-		T::copy();
-	}
-#else
 	T::copy();
-#endif
 	m_bDoPlainCopyOnly = false;
 	displayCopyCompleteToolTip();
 }

@@ -149,7 +149,7 @@ protected:
 	virtual bool event(QEvent *ev) override;
 	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 	virtual void mouseDoubleClickEvent(QMouseEvent *ev) override;
-	virtual QMimeData *createMimeDataFromSelection () const override;
+	virtual QMimeData *createMimeDataFromSelection() const override;
 	virtual void mouseMoveEvent(QMouseEvent *ev) override;
 
 protected:
@@ -215,6 +215,7 @@ private:
 	FindDialog *m_pFindDialog;
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	bool m_bDoingSelectionChange;	// True if processing selection change to guard against reentracy
+	QTextEdit m_RubeTextEditor;		// Placeholder TextEditor if 'class T' doesn't derive from one (like LiteHtml) -- MUST create this before m_navigator below!
 	CPhraseNavigatorEdit m_navigator;
 	CCursorFollowHighlighter m_CursorFollowHighlighter;
 	QTimer m_HighlightTimer;

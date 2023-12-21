@@ -421,8 +421,8 @@ void CBrowserWidget::initialize()
 	m_pScriptureLiteHtml->setObjectName(QString::fromUtf8("textBrowserLiteHtml"));
 	m_pScriptureLiteHtml->setMouseTracking(true);
 	m_pScriptureLiteHtml->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	m_pScriptureLiteHtml->setTabChangesFocus(false);
-	m_pScriptureLiteHtml->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
+//	m_pScriptureLiteHtml->setTabChangesFocus(false);
+//	m_pScriptureLiteHtml->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse | Qt::LinksAccessibleByKeyboard);
 //	m_pScriptureLiteHtml->setOpenLinks(false);
 	if (nTextDir != Qt::LayoutDirectionAuto) {
 		m_pScriptureLiteHtml->setLayoutDirection(nTextDir);
@@ -855,7 +855,6 @@ void CBrowserWidget::en_beginChangeBibleDatabaseSettings(const QString &strUUID,
 		m_pScriptureBrowser->clear();
 #ifdef USING_LITEHTML
 		m_pScriptureLiteHtml->clear();
-		m_pScriptureLiteHtml->setHtml(QString());
 #endif // USING_LITEHTML
 	}
 }
@@ -1023,7 +1022,6 @@ void CBrowserWidget::setBook(const CRelIndex &ndx)
 		m_pScriptureBrowser->clear();
 #ifdef USING_LITEHTML
 		m_pScriptureLiteHtml->clear();
-		m_pScriptureLiteHtml->setHtml(QString());
 #endif // USING_LITEHTML
 		end_update();
 		return;
@@ -1090,7 +1088,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 		m_pScriptureBrowser->clear();
 #ifdef USING_LITEHTML
 		m_pScriptureLiteHtml->clear();
-		m_pScriptureLiteHtml->setHtml(QString());
 #endif // USING_LITEHTML
 		end_update();
 		return;
@@ -1101,7 +1098,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 		m_pScriptureBrowser->clear();
 #ifdef USING_LITEHTML
 		m_pScriptureLiteHtml->clear();
-		m_pScriptureLiteHtml->setHtml(QString());
 #endif // USING_LITEHTML
 		end_update();
 		return;
@@ -1115,7 +1111,6 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 			m_pScriptureBrowser->clear();
 #ifdef USING_LITEHTML
 			m_pScriptureLiteHtml->clear();
-			m_pScriptureLiteHtml->setHtml(QString());
 #endif // USING_LITEHTML
 			end_update();
 			return;

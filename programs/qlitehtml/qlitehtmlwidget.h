@@ -5,14 +5,15 @@
 
 #include "qlitehtml_global.h"
 
-#include <QTextEdit>
+#include <QAbstractScrollArea>
 #include <QTextDocument>
 
 #include <functional>
 
 class QLiteHtmlWidgetPrivate;
+class QMimeData;
 
-class QLITEHTML_EXPORT QLiteHtmlWidget : public QTextEdit
+class QLITEHTML_EXPORT QLiteHtmlWidget : public QAbstractScrollArea
 {
 	Q_OBJECT
 public:
@@ -64,17 +65,20 @@ public slots:
 	virtual void home();
 	virtual void reload();
 
+	void copy();
+	void clear();
+
 signals:
 	void contextMenuRequested(const QPoint &pos, const QUrl &url);
 
-// Note: These three signals are used, but they are defined in the
-//		Parent QTextEdit class and if we list them here again, the
-//		QMetaObject signal indexes get all messed up and they stop
-//		working.  Leaving these here for reference in case change
-//		the parent class type and inherit again from QAbstractScrollArea:
+// Note: this signal is used, and left here for reference, but it's
+//		from QWidget and shouldn't be redefined here, as doing so
+//		messes up the QMetaObject signal indexes.  selectionChanged
+//		and copyAvailable were in that category, if we were to
+//		inherit from QTextEdit instead of QAbstractScrollArea:
 //	void customContextMenuRequested(const QPoint &pos);
-//	void selectionChanged();
-//	void copyAvailable(bool available);
+	void selectionChanged();
+	void copyAvailable(bool available);
 
 	void backwardAvailable(bool available);
 	void forwardAvailable(bool available);
@@ -95,6 +99,8 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event) override;
 
 	virtual void showEvent(QShowEvent *event) override;
+
+	virtual QMimeData *createMimeDataFromSelection() const;
 
 private:
 	void updateHightlightedLink();
