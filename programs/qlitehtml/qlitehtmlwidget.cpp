@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QStyle>
+#include <QStack>
 
 const int kScrollBarStep = 40;
 
@@ -345,17 +346,76 @@ display: block;
 class QLiteHtmlWidgetPrivate
 {
 public:
+	QLiteHtmlWidgetPrivate(QLiteHtmlWidget &widget)
+		:	q(widget)
+	{ }
+
 	QString html;
 	DocumentContainerContext context;
-	QUrl url;
+	QUrl url;		// Current URL
+	QUrl home;		// First URL
 	DocumentContainer documentContainer;
 	qreal zoomFactor = 1;
 	QUrl lastHighlightedLink;
+
+	// --------------------------------
+
+	QString anchorToScrollToWhenVisible;
+
+	struct HistoryEntry {
+		QUrl url;
+		QString title;
+		QPoint pos;
+	};
+
+	HistoryEntry history(int i) const
+	{
+		if (i <= 0)
+			if (-i < stack.size())
+				return stack[stack.size()+i-1];
+			else
+				return HistoryEntry();
+		else
+			if (i <= forwardStack.size())
+				return forwardStack[forwardStack.size()-i];
+			else
+				return HistoryEntry();
+	}
+
+	QStack<HistoryEntry> stack;
+	QStack<HistoryEntry> forwardStack;
+
+	HistoryEntry createHistoryEntry() const;
+	void restoreHistoryEntry(const HistoryEntry &entry);
+
+private:
+	QLiteHtmlWidget &q;
 };
+
+// ----------------------------------------------------------------------------
+
+QLiteHtmlWidgetPrivate::HistoryEntry QLiteHtmlWidgetPrivate::createHistoryEntry() const
+{
+	HistoryEntry entry;
+	entry.url = url;
+	entry.title = documentContainer.caption();
+	QPoint viewportPos;
+	q.htmlPos({}, &viewportPos, &entry.pos); // top-left
+	return entry;
+}
+
+void QLiteHtmlWidgetPrivate::restoreHistoryEntry(const HistoryEntry &entry)
+{
+	q.setSource(entry.url);
+	q.verticalScrollBar()->setValue(std::min(entry.pos.y(), q.verticalScrollBar()->maximum()));
+	q.horizontalScrollBar()->setValue(std::min(entry.pos.x(), q.horizontalScrollBar()->maximum()));
+}
+
+// ============================================================================
 
 QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
 	: QTextEdit(parent)
-	, d(new QLiteHtmlWidgetPrivate)
+	, d(new QLiteHtmlWidgetPrivate(*this))
 {
 	setMouseTracking(true);
 	horizontalScrollBar()->setSingleStep(kScrollBarStep);
@@ -370,10 +430,13 @@ QLiteHtmlWidget::QLiteHtmlWidget(QWidget *parent)
 			fullUrl.setFragment(url.fragment(QUrl::FullyEncoded));
 		}
 		// delay because document may not be changed directly during this callback
-		QMetaObject::invokeMethod(this, [this, fullUrl] { emit linkClicked(fullUrl); },
+		QMetaObject::invokeMethod(this, [this, fullUrl] { emit anchorClicked(fullUrl); },
 				 Qt::QueuedConnection);
 	});
-	d->documentContainer.setClipboardCallback([this](bool yes) { emit copyAvailable(yes); });
+	d->documentContainer.setClipboardCallback([this](bool yes) {
+		emit copyAvailable(yes);
+		emit selectionChanged();
+	});
 
 	// TODO adapt mastercss to palette (default text & background color)
 	d->context.setMasterStyleSheet(mastercss);
@@ -384,8 +447,62 @@ QLiteHtmlWidget::~QLiteHtmlWidget()
 	delete d;
 }
 
-void QLiteHtmlWidget::setUrl(const QUrl &url)
+bool QLiteHtmlWidget::isBackwardAvailable() const
 {
+	return d->stack.size() > 1;
+}
+
+bool QLiteHtmlWidget::isForwardAvailable() const
+{
+	return !d->forwardStack.isEmpty();
+}
+
+void QLiteHtmlWidget::clearHistory()
+{
+	d->forwardStack.clear();
+	if (!d->stack.isEmpty()) {
+		QLiteHtmlWidgetPrivate::HistoryEntry historyEntry = d->stack.top();
+		d->stack.clear();
+		d->stack.push(historyEntry);
+		d->home = historyEntry.url;
+	}
+	emit forwardAvailable(false);
+	emit backwardAvailable(false);
+	emit historyChanged();
+}
+
+QUrl QLiteHtmlWidget::historyUrl(int i) const
+{
+	return d->history(i).url;
+}
+
+QString QLiteHtmlWidget::historyTitle(int i) const
+{
+	return d->history(i).title;
+}
+
+int QLiteHtmlWidget::forwardHistoryCount() const
+{
+	return d->forwardStack.size();
+}
+
+int QLiteHtmlWidget::backwardHistoryCount() const
+{
+	return d->stack.size()-1;
+}
+
+void QLiteHtmlWidget::reload()
+{
+	QUrl s = d->url;
+	d->url = QUrl();
+	setSource(s);
+	render();
+}
+
+void QLiteHtmlWidget::setSource(const QUrl &url)
+{
+	const QLiteHtmlWidgetPrivate::HistoryEntry historyEntry = d->createHistoryEntry();
+
 	d->url = url;
 	QUrl baseUrl = url;
 	baseUrl.setFragment({});
@@ -396,11 +513,72 @@ void QLiteHtmlWidget::setUrl(const QUrl &url)
 	d->documentContainer.setBaseUrl(baseUrl.toString(QUrl::FullyEncoded));
 	QMetaObject::invokeMethod(this, [this] { updateHightlightedLink(); },
 			 Qt::QueuedConnection);
+
+	if (!d->home.isValid()) d->home = url;
+	emit sourceChanged(url);
+
+	// the same url you are already watching?
+	if (!d->stack.isEmpty() && d->stack.top().url == url)
+			return;
+
+	if (!d->stack.isEmpty())
+			d->stack.top() = historyEntry;
+
+//	QLiteHtmlWidgetPrivate::HistoryEntry entry;
+//	entry.url = url;
+//	entry.title = d->documentContainer.caption();
+//	d->stack.push(entry);
+	d->stack.push(d->createHistoryEntry());
+
+	emit backwardAvailable(d->stack.size() > 1);
+
+	if (!d->forwardStack.isEmpty() && d->forwardStack.top().url == url) {
+			d->forwardStack.pop();
+			emit forwardAvailable(d->forwardStack.size() > 0);
+	} else {
+			d->forwardStack.clear();
+			emit forwardAvailable(false);
+	}
+
+	emit historyChanged();
 }
 
-QUrl QLiteHtmlWidget::url() const
+QUrl QLiteHtmlWidget::source() const
 {
-	return d->url;
+	return d->url;		// equiv: historyUrl(0);
+}
+
+void QLiteHtmlWidget::backward()
+{
+	if (d->stack.size() <= 1) return;
+
+	// Update the history entry
+	d->forwardStack.push(d->createHistoryEntry());
+	d->stack.pop(); // throw away the old version of the current entry
+	d->restoreHistoryEntry(d->stack.top());
+	emit backwardAvailable(d->stack.size() > 1);
+	emit forwardAvailable(true);
+	emit historyChanged();
+}
+
+void QLiteHtmlWidget::forward()
+{
+	if (d->forwardStack.isEmpty()) return;
+
+	if (!d->stack.isEmpty()) {
+			// Update the history entry
+			d->stack.top() = d->createHistoryEntry();
+	}
+	d->stack.push(d->forwardStack.pop());
+	d->restoreHistoryEntry(d->stack.top());
+	emit backwardAvailable(true);
+	emit forwardAvailable(!d->forwardStack.isEmpty());
+	emit historyChanged();
+}
+
+void QLiteHtmlWidget::home()
+{
+	if (d->home.isValid()) setSource(d->home);
 }
 
 void QLiteHtmlWidget::setHtml(const QString &content)
@@ -422,7 +600,7 @@ QString QLiteHtmlWidget::html() const
 
 QString QLiteHtmlWidget::title() const
 {
-	return d->documentContainer.caption();
+	return d->documentContainer.caption();		// equiv: historyTitle(0);
 }
 
 void QLiteHtmlWidget::setZoomFactor(qreal scale)
@@ -435,6 +613,26 @@ void QLiteHtmlWidget::setZoomFactor(qreal scale)
 qreal QLiteHtmlWidget::zoomFactor() const
 {
 	return d->zoomFactor;
+}
+
+void QLiteHtmlWidget::zoomIn(int range)
+{
+	zoomInF(range);
+}
+
+void QLiteHtmlWidget::zoomOut(int range)
+{
+	zoomInF(-range);
+}
+
+void QLiteHtmlWidget::zoomInF(float range)
+{
+	if (range == 0.f) return;
+	QFont f = defaultFont();
+	const float newSize = f.pointSizeF() + range;
+	if (newSize <= 0) return;
+	f.setPointSizeF(newSize);
+	setDefaultFont(f);
 }
 
 bool QLiteHtmlWidget::findText(const QString &text,
@@ -481,13 +679,14 @@ QFont QLiteHtmlWidget::defaultFont() const
 
 void QLiteHtmlWidget::scrollToAnchor(const QString &name)
 {
+	if (name.isEmpty()) return;
+	if (!isVisible()) {
+		d->anchorToScrollToWhenVisible = name;
+		return;
+	}
 	if (!d->documentContainer.hasDocument())
 		return;
 	horizontalScrollBar()->setValue(0);
-	if (name.isEmpty()) {
-		verticalScrollBar()->setValue(0);
-		return;
-	}
 	const int y = d->documentContainer.anchorY(name);
 	if (y >= 0)
 		verticalScrollBar()->setValue(std::min(y, verticalScrollBar()->maximum()));
@@ -581,6 +780,9 @@ void QLiteHtmlWidget::contextMenuEvent(QContextMenuEvent *event)
 	QPoint pos;
 	htmlPos(event->pos(), &viewportPos, &pos);
 	emit contextMenuRequested(event->pos(), d->documentContainer.linkAt(pos, viewportPos));
+	if (contextMenuPolicy() == Qt::CustomContextMenu) {
+		emit customContextMenuRequested(event->pos());
+	}
 }
 
 static QAbstractSlider::SliderAction getSliderAction(int key)
@@ -610,6 +812,15 @@ void QLiteHtmlWidget::keyPressEvent(QKeyEvent *event)
 	QTextEdit::keyPressEvent(event);
 }
 
+void QLiteHtmlWidget::showEvent(QShowEvent *event)
+{
+	Q_UNUSED(event)
+	if (!d->anchorToScrollToWhenVisible.isEmpty()) {
+		scrollToAnchor(d->anchorToScrollToWhenVisible);
+		d->anchorToScrollToWhenVisible.clear();
+	}
+}
+
 void QLiteHtmlWidget::updateHightlightedLink()
 {
 	QPoint viewportPos;
@@ -623,7 +834,7 @@ void QLiteHtmlWidget::setHightlightedLink(const QUrl &url)
 	if (d->lastHighlightedLink == url)
 		return;
 	d->lastHighlightedLink = url;
-	emit linkHighlighted(d->lastHighlightedLink);
+	emit highlighted(d->lastHighlightedLink);
 }
 
 void QLiteHtmlWidget::withFixedTextPosition(const std::function<void()> &action)

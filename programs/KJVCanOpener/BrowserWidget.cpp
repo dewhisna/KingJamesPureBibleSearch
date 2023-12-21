@@ -113,9 +113,9 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 #ifdef USING_LITEHTML
 	connect(m_pScriptureLiteHtml, SIGNAL(gotoIndex(TPhraseTag)), &m_dlyGotoIndex, SLOT(trigger(TPhraseTag)));
 	connect(this, SIGNAL(en_gotoIndex(TPhraseTag)), m_pScriptureLiteHtml, SLOT(en_gotoIndex(TPhraseTag)));
-// TODO : Add this when CScriptureLiteHtml supports it:
-//	connect(m_pScriptureLiteHtml, SIGNAL(sourceChanged(QUrl)), this, SLOT(en_sourceChanged(QUrl)));
-	connect(m_pScriptureLiteHtml, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
+	connect(m_pScriptureLiteHtml, SIGNAL(sourceChanged(QUrl)), this, SLOT(en_sourceChanged(QUrl)));
+// TODO : Add this when (if?) CScriptureLiteHtml supports it:
+//	connect(m_pScriptureLiteHtml, SIGNAL(cursorPositionChanged()), this, SLOT(en_selectionChanged()));
 #endif // USING_LITEHTML
 
 	connect(ui.btnHideNavigation, SIGNAL(clicked()), this, SLOT(en_clickedHideNavigationPane()));
@@ -153,10 +153,9 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(m_pScriptureBrowser, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
 
 #ifdef USING_LITEHTML
-// TODO : Add these when CScriptureLiteHtml supports them:
-//	connect(m_pScriptureLiteHtml, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
-//	connect(m_pScriptureLiteHtml, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
-//	connect(m_pScriptureLiteHtml, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+	connect(m_pScriptureLiteHtml, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+	connect(m_pScriptureLiteHtml, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+	connect(m_pScriptureLiteHtml, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
 #endif // USING_LITEHTML
 
 	// Set Incoming Pass-Through Signals:
@@ -167,11 +166,11 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(this, SIGNAL(rerender()), m_pScriptureBrowser, SLOT(rerender()));
 
 #ifdef USING_LITEHTML
-// TODO : Add these when CScriptureLiteHtml supports them:
-//	connect(this, SIGNAL(backward()), m_pScriptureLiteHtml, SLOT(backward()));
-//	connect(this, SIGNAL(forward()), m_pScriptureLiteHtml, SLOT(forward()));
-//	connect(this, SIGNAL(home()), m_pScriptureLiteHtml, SLOT(home()));
-//	connect(this, SIGNAL(reload()), m_pScriptureLiteHtml, SLOT(reload()));
+	connect(this, SIGNAL(backward()), m_pScriptureLiteHtml, SLOT(backward()));
+	connect(this, SIGNAL(forward()), m_pScriptureLiteHtml, SLOT(forward()));
+	connect(this, SIGNAL(home()), m_pScriptureLiteHtml, SLOT(home()));
+	connect(this, SIGNAL(reload()), m_pScriptureLiteHtml, SLOT(reload()));
+// TODO : Add this when (if?) CScriptureLiteHtml supports it:
 //	connect(this, SIGNAL(rerender()), m_pScriptureLiteHtml, SLOT(rerender()));
 #endif // USING_LITEHTML
 
@@ -646,7 +645,7 @@ void CBrowserWidget::gotoIndex(const TPhraseTag &tag)
 	m_pScriptureBrowser->setSource(QString("#%1").arg(tagActual.relIndex().asAnchor()));
 
 #ifdef USING_LITEHTML
-	m_pScriptureLiteHtml->setUrl(QString("#%1").arg(tagActual.relIndex().asAnchor()));
+	m_pScriptureLiteHtml->setSource(QString("#%1").arg(tagActual.relIndex().asAnchor()));
 #endif // USING_LITEHTML
 
 	end_update();
@@ -744,7 +743,10 @@ void CBrowserWidget::en_SearchResultsVerseListChanged()
 	doHighlighting();					// Highlight using new tags
 
 #ifdef USING_LITEHTML
-//	m_pLiteHtmlWidget->reload();
+// TODO : Fix highlighting:
+//	m_pScriptureLiteHtml->reload();
+// or?
+//	emit rerender();
 #endif
 }
 
@@ -804,9 +806,9 @@ void CBrowserWidget::doHighlighting(bool bClear)
 #ifdef USING_LITEHTML
 // TODO : At present, this does nothing because QLiteHtmlWidget only inherits
 //	from QTextEdit and currently doesn't do anything with its QTextDocument.
-	m_pScriptureLiteHtml->navigator().doHighlighting(m_SearchResultsHighlighter, bClear, m_ndxCurrent);
-	if (m_bShowExcludedSearchResults)
-		m_pScriptureLiteHtml->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
+//	m_pScriptureLiteHtml->navigator().doHighlighting(m_SearchResultsHighlighter, bClear, m_ndxCurrent);
+//	if (m_bShowExcludedSearchResults)
+//		m_pScriptureLiteHtml->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
 #endif // USING_LITEHTML
 }
 
@@ -1151,12 +1153,13 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 									   ((CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
 
 #ifdef USING_LITEHTML
-	QTextDocument docLiteHTML;
-	CPhraseNavigator navigator(m_pBibleDatabase, docLiteHTML);
+	QTextDocument docLiteHtml;
+	CPhraseNavigator navigator(m_pBibleDatabase, docLiteHtml);
 
-	// Don't use defaultDocumentToChapterFlags here so we can
-	//	suppress UserNotes and CrossRefs:
-	QString strLiteHTML = /*m_pScriptureLiteHtml->navigator()*/ navigator.setDocumentToChapter(ndxVirtual,
+	// Don't use defaultDocumentToChapterFlags here so we can suppress UserNotes and CrossRefs.
+//	QString strLiteHtml = m_pScriptureLiteHtml->navigator().setDocumentToChapter(ndxVirtual,
+	QString strLiteHtml = /* m_pScriptureLiteHtml->navigator() */ navigator.setDocumentToChapter(ndxVirtual,
+//												 CPhraseNavigator::TRO_InnerHTML |
 												 CPhraseNavigator::TRO_Subtitles |
 												 CPhraseNavigator::TRO_SuppressPrePostChapters |
 //												 CPhraseNavigator::TRO_NoWordAnchors |
@@ -1166,19 +1169,19 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 												 CPhraseNavigator::TRO_ScriptureBrowser |
 												 CPhraseNavigator::TRO_UseLemmas |
 												 CPhraseNavigator::TRO_UseWordSpans);
-//	int nPos = strLiteHTML.indexOf("<style type=\"text/css\">\n");
+//	int nPos = strLiteHtml.indexOf("<style type=\"text/css\">\n");
 //	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
-//	nPos = strLiteHTML.indexOf("body", nPos);
+//	nPos = strLiteHtml.indexOf("body", nPos);
 //	Q_ASSERT(nPos > -1);
-//	nPos = strLiteHTML.indexOf("{", nPos);
+//	nPos = strLiteHtml.indexOf("{", nPos);
 //	Q_ASSERT(nPos > -1);
 //	if (nPos > -1) {
-//		strLiteHTML.insert(nPos+1, QString(" background-color:%1; color: %2;\n")
+//		strLiteHtml.insert(nPos+1, QString(" background-color:%1; color: %2;\n")
 //									 .arg(CPersistentSettings::instance()->textBackgroundColor().name())
 //									 .arg(CPersistentSettings::instance()->textForegroundColor().name()));
 //	}
 
-	m_pScriptureLiteHtml->setHtml(strLiteHTML);		// TODO : Finish reworking QLiteHtmlWidget to use QTextDocument data from above
+	m_pScriptureLiteHtml->setHtml(strLiteHtml);		// TODO : Finish reworking QLiteHtmlWidget to use QTextDocument data from above
 
 #endif	// USING_LITEHTML
 }
@@ -1197,7 +1200,8 @@ void CBrowserWidget::setWord(const TPhraseTag &tag)
 			m_pScriptureBrowser->navigator().selectWords(tag);
 			break;
 		case BDME_LEMMA_MORPHOGRAPHY:
-			m_pScriptureLiteHtml->navigator().selectWords(tag);
+// TODO : Figure out how to select word anchor and/or lemma groups:
+//			m_pScriptureLiteHtml->navigator().selectWords(tag);
 			break;
 	}
 #else

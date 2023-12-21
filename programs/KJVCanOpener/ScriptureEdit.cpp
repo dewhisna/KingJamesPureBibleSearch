@@ -200,6 +200,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	m_pActionSelectAll = m_pEditMenu->addAction(QObject::tr("Select &All", "MainMenu"), this, SLOT(selectAll()));
 	m_pActionSelectAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_A));
 	m_pActionSelectAll->setStatusTip(QObject::tr("Select all current passage browser text", "MainMenu"));
+	// TODO : Disable SelectAll on LiteHtml or figure out how to actually do it
 	m_pEditMenu->addSeparator();
 	if (m_pFindDialog != nullptr) {
 		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()));
@@ -216,7 +217,11 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionFindPrev->setEnabled(T::useFindDialog());
 	}
 
-	if (qobject_cast<const QTextBrowser *>(this) != nullptr) {
+	if ((qobject_cast<const QTextBrowser *>(this) != nullptr)
+#ifdef USING_LITEHTML
+		|| (qobject_cast<const QLiteHtmlWidget *>(this) != nullptr)
+#endif
+		) {
 		T::connect(this, SIGNAL(anchorClicked(QUrl)), this, SLOT(en_anchorClicked(QUrl)));
 
 		// Trigger adding our higlighters and things are we've discovered our CKJVCanOpener parent:
@@ -409,6 +414,13 @@ template<class T, class U>
 void CScriptureText<T,U>::setFont(const QFont& aFont)
 {
 	U::document()->setDefaultFont(aFont);
+
+#ifdef USING_LITEHTML
+	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+	if (pLiteHtml != nullptr) {
+		pLiteHtml->setDefaultFont(aFont);
+	}
+#endif
 }
 
 template<class T, class U>
@@ -1137,7 +1149,21 @@ void CScriptureText<T,U>::en_copy()
 	//		copied in the middle of our copied text
 	m_bDoingPopup = false;
 	clearHighlighting();
+#ifdef USING_LITEHTML
+	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+	if (pLiteHtml) {
+		QString strSelectedText = pLiteHtml->selectedText();
+		if (!strSelectedText.isEmpty()) {
+			QMimeData *data = new QMimeData();
+			data->setText(strSelectedText);
+			QGuiApplication::clipboard()->setMimeData(data);
+		}
+	} else {
+		T::copy();
+	}
+#else
 	T::copy();
+#endif
 	displayCopyCompleteToolTip();
 }
 
@@ -1149,7 +1175,21 @@ void CScriptureText<T,U>::en_copyPlain()
 	m_bDoingPopup = false;
 	clearHighlighting();
 	m_bDoPlainCopyOnly = true;		// Do plaintext only so user can paste into Word without changing its format, for example
+#ifdef USING_LITEHTML
+	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+	if (pLiteHtml) {
+		QString strSelectedText = pLiteHtml->selectedText();
+		if (!strSelectedText.isEmpty()) {
+			QMimeData *data = new QMimeData();
+			data->setText(strSelectedText);
+			QGuiApplication::clipboard()->setMimeData(data);
+		}
+	} else {
+		T::copy();
+	}
+#else
 	T::copy();
+#endif
 	m_bDoPlainCopyOnly = false;
 	displayCopyCompleteToolTip();
 }

@@ -20,8 +20,8 @@ public:
 	~QLiteHtmlWidget() override;
 
 	// declaring the getters Q_INVOKABLE to make them Squish-testable
-	void setUrl(const QUrl &url);
-	Q_INVOKABLE QUrl url() const;
+	Q_INVOKABLE QUrl source() const;
+
 	void setHtml(const QString &content);
 	Q_INVOKABLE QString html() const;
 	Q_INVOKABLE QString title() const;
@@ -45,22 +45,56 @@ public:
 	// declaring this Q_INVOKABLE to make it Squish-testable
 	Q_INVOKABLE QString selectedText() const;
 
+
+	bool isBackwardAvailable() const;
+	bool isForwardAvailable() const;
+	void clearHistory();
+	QString historyTitle(int i) const;
+	QUrl historyUrl(int i) const;
+	int backwardHistoryCount() const;
+	int forwardHistoryCount() const;
+
+public slots:
+	void zoomIn(int range = 1);
+	void zoomOut(int range = 1);
+
+	void setSource(const QUrl &url);
+	virtual void backward();
+	virtual void forward();
+	virtual void home();
+	virtual void reload();
+
 signals:
-	void linkClicked(const QUrl &url);
-	void linkHighlighted(const QUrl &url);
-	void copyAvailable(bool available);
 	void contextMenuRequested(const QPoint &pos, const QUrl &url);
 
+// Note: These three signals are used, but they are defined in the
+//		Parent QTextEdit class and if we list them here again, the
+//		QMetaObject signal indexes get all messed up and they stop
+//		working.  Leaving these here for reference in case change
+//		the parent class type and inherit again from QAbstractScrollArea:
+//	void customContextMenuRequested(const QPoint &pos);
+//	void selectionChanged();
+//	void copyAvailable(bool available);
+
+	void backwardAvailable(bool available);
+	void forwardAvailable(bool available);
+	void historyChanged();
+	void sourceChanged(const QUrl &name);
+	void highlighted(const QUrl &url);
+	void anchorClicked(const QUrl &url);
+
 protected:
-	void paintEvent(QPaintEvent *event) override;
-	void resizeEvent(QResizeEvent *event) override;
-	void mouseMoveEvent(QMouseEvent *event) override;
-	void mousePressEvent(QMouseEvent *event) override;
-	void mouseReleaseEvent(QMouseEvent *event) override;
-	void mouseDoubleClickEvent(QMouseEvent *event) override;
-	void leaveEvent(QEvent *event) override;
-	void contextMenuEvent(QContextMenuEvent *event) override;
-	void keyPressEvent(QKeyEvent *event) override;
+	virtual void paintEvent(QPaintEvent *event) override;
+	virtual void resizeEvent(QResizeEvent *event) override;
+	virtual void mouseMoveEvent(QMouseEvent *event) override;
+	virtual void mousePressEvent(QMouseEvent *event) override;
+	virtual void mouseReleaseEvent(QMouseEvent *event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+	virtual void leaveEvent(QEvent *event) override;
+	virtual void contextMenuEvent(QContextMenuEvent *event) override;
+	virtual void keyPressEvent(QKeyEvent *event) override;
+
+	virtual void showEvent(QShowEvent *event) override;
 
 private:
 	void updateHightlightedLink();
@@ -73,6 +107,10 @@ private:
 	QSize toVirtual(const QSize &s) const;
 	QRect toVirtual(const QRect &r) const;
 	QRect fromVirtual(const QRect &r) const;
+
+	friend class QLiteHtmlWidgetPrivate;
+
+	void zoomInF(float range);
 
 	QLiteHtmlWidgetPrivate *d;
 };
