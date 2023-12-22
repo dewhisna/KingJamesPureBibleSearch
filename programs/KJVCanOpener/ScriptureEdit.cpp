@@ -149,11 +149,10 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pFindDialog->setModal(false);
 		if (pTextEdit) {
 			m_pFindDialog->setTextEdit(pTextEdit);
-			// TODO : Finish fixing FindDialog to work without needing a QTextEdit so it works with LiteHtml!
 		}
 	}
 
-	T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
+	if (pTextEdit) T::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(en_cursorPositionChanged()));
 	T::connect(this, SIGNAL(selectionChanged()), this, SLOT(en_selectionChanged()));
 	T::connect(&m_navigator, SIGNAL(changedDocumentText()), this, SLOT(clearHighlighting()));
 	T::connect(&m_HighlightTimer, SIGNAL(timeout()), this, SLOT(clearHighlighting()));
@@ -227,6 +226,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 	if (pTextEdit) m_pEditMenu->addAction(m_pActionSelectAll);
 	if (pTextEdit) T::connect(m_pActionSelectAll, SIGNAL(triggered(bool)), this, SLOT(selectAll()));
 	if (m_pFindDialog != nullptr) {
+		m_pFindDialog->enableRegExpControls(pTextEdit != nullptr);
 		m_pEditMenu->addSeparator();
 		m_pActionFind = m_pEditMenu->addAction(QObject::tr("&Find...", "MainMenu"), this, SLOT(en_findDialog()));
 		m_pActionFind->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
@@ -236,10 +236,12 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 		m_pActionFindNext->setShortcut(QKeySequence(Qt::Key_F3));
 		m_pActionFindNext->setStatusTip(QObject::tr("Find next occurrence of text within the passage browser", "MainMenu"));
 		m_pActionFindNext->setEnabled(T::useFindDialog());
+		T::connect(m_pFindDialog, SIGNAL(en_findNext()), this, SLOT(en_findNext()));
 		m_pActionFindPrev = m_pEditMenu->addAction(QObject::tr("Find &Previous", "MainMenu"), m_pFindDialog, SLOT(findPrev()));
 		m_pActionFindPrev->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F3));
 		m_pActionFindPrev->setStatusTip(QObject::tr("Find previous occurrence of text within the passage browser", "MainMenu"));
 		m_pActionFindPrev->setEnabled(T::useFindDialog());
+		T::connect(m_pFindDialog, SIGNAL(en_findPrev()), this, SLOT(en_findPrev()));
 	}
 
 	if ((qobject_cast<const QTextBrowser *>(this) != nullptr)
@@ -559,6 +561,36 @@ void CScriptureText<T,U>::en_findDialog()
 	}
 }
 
+template<class T, class U>
+void CScriptureText<T,U>::en_findNext()
+{
+#ifdef USING_LITEHTML
+	if (m_pFindDialog != nullptr) {
+		QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+		if (pLiteHtml != nullptr) {
+			// Note: Forward/Backward seems to be wrong in LiteHtml, so this swaps it:
+			pLiteHtml->findText(m_pFindDialog->textToFind(), m_pFindDialog->findFlags(false), false);
+		}
+		// Note: QTextEdit based controls will be handled in m_pFindDialog itself
+	}
+#endif
+}
+
+template<class T, class U>
+void CScriptureText<T,U>::en_findPrev()
+{
+#ifdef USING_LITEHTML
+	if (m_pFindDialog != nullptr) {
+		QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+		if (pLiteHtml != nullptr) {
+			// Note: Forward/Backward seems to be wrong in LiteHtml, so this swaps it:
+			pLiteHtml->findText(m_pFindDialog->textToFind(), m_pFindDialog->findFlags(true), false);
+		}
+		// Note: QTextEdit based controls will be handled in m_pFindDialog itself
+	}
+#endif
+}
+
 // ----------------------------------------------------------------------------
 
 template<class T, class U>
@@ -859,7 +891,7 @@ void CScriptureText<T,U>::en_customContextMenuRequested(const QPoint &pos)
 	begin_popup();
 
 	CRelIndex ndxLast;
-	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+	const QTextEdit *pTextEdit = qobject_cast<const QTextEdit *>(this);
 	if (pTextEdit) {
 		ndxLast = m_navigator.getSelection(CPhraseCursor(pTextEdit->cursorForPosition(pos), m_pBibleDatabase.data(), true)).primarySelection().relIndex();
 	}
@@ -969,7 +1001,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 template<class T, class U>
 void CScriptureText<T,U>::en_cursorPositionChanged()
 {
-	QTextEdit *pTextEdit = qobject_cast<QTextEdit *>(this);
+	const QTextEdit *pTextEdit = qobject_cast<const QTextEdit *>(this);
 	if (pTextEdit) {
 		CPhraseCursor cursor(pTextEdit->textCursor(), m_pBibleDatabase.data(), true);
 		m_tagLast.relIndex() = m_navigator.getSelection(cursor).primarySelection().relIndex();
@@ -1104,6 +1136,7 @@ void CScriptureText<T,U>::en_endChangeBibleDatabaseSettings(const QString &strUU
 				m_ndxCurrent.setVerse(0);		// Select chapter only so browser will display headings
 				m_ndxCurrent.setWord(0);
 
+				// TODO : This should include LiteHtml too:
 				i_CScriptureBrowser *pBrowser = qobject_cast<i_CScriptureBrowser*>(this);
 				if (pBrowser) {
 					// There's a race-condition between setSource and clearHistory.
@@ -1128,6 +1161,7 @@ void CScriptureText<T,U>::en_endChangeBibleDatabaseSettings(const QString &strUU
 		rerender();		// Direct call to rerender to avoid delays
 
 		if (oldSettings.versification() != newSettings.versification()) {
+			// TODO : This should include LiteHtml too:
 			i_CScriptureBrowser *pBrowser = qobject_cast<i_CScriptureBrowser*>(this);
 			if (pBrowser) {
 				// This second call to clearHistory is needed for past history

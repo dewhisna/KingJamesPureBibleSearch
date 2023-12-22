@@ -170,6 +170,8 @@ protected:
 
 	virtual void en_findParentCanOpener() override;
 	virtual void en_findDialog() override;
+	virtual void en_findNext() override;
+	virtual void en_findPrev() override;
 
 	virtual void en_customContextMenuRequested(const QPoint &pos) override;
 	virtual void en_cursorPositionChanged() override;
@@ -295,6 +297,8 @@ protected slots:
 
 	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
+	virtual void en_findNext() = 0;
+	virtual void en_findPrev() = 0;
 
 	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
 	virtual void en_cursorPositionChanged() = 0;
@@ -360,6 +364,8 @@ protected slots:
 
 	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
+	virtual void en_findNext() = 0;
+	virtual void en_findPrev() = 0;
 
 	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
 	virtual void en_cursorPositionChanged() = 0;
@@ -427,6 +433,8 @@ protected slots:
 
 	virtual void en_findParentCanOpener() = 0;
 	virtual void en_findDialog() = 0;
+	virtual void en_findNext() = 0;
+	virtual void en_findPrev() = 0;
 
 	virtual void en_customContextMenuRequested(const QPoint &pos) = 0;
 	virtual void en_cursorPositionChanged() = 0;

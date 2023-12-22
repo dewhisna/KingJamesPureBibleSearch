@@ -62,8 +62,20 @@ public:
 	explicit CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleDatabasePtr pBibleDatabase, QWidget *parent = nullptr);
 	virtual ~CBrowserWidget();
 
-	inline void savePersistentSettings(const QString &strGroup) { m_pCurrentScriptureTextBase->savePersistentSettings(strGroup); }
-	inline void restorePersistentSettings(const QString &strGroup) { m_pCurrentScriptureTextBase->restorePersistentSettings(strGroup); }
+	inline void savePersistentSettings(const QString &strGroup)
+	{
+		m_pScriptureBrowser->savePersistentSettings(strGroup);
+#ifdef USING_LITEHTML
+		m_pScriptureLiteHtml->savePersistentSettings(strGroup + "/Lemmas");
+#endif
+	}
+	inline void restorePersistentSettings(const QString &strGroup)
+	{
+		m_pScriptureBrowser->restorePersistentSettings(strGroup);
+#ifdef USING_LITEHTML
+		m_pScriptureLiteHtml->restorePersistentSettings(strGroup + "/Lemmas");
+#endif
+	}
 
 	bool hasFocusBrowser() const;
 	bool hasFocusPassageReferenceEditor() const;
