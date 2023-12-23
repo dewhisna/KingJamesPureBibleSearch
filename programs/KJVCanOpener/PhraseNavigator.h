@@ -556,6 +556,7 @@ public:
 		TRO_UseLemmas = 0x800000,					// Render Lemmas interlinearly with verses
 		TRO_UseWordSpans = 0x1000000,				// Output Word-Spans in HTML (this is implied when TRO_UseLemmas is specified)
 		TRO_InlineFootnotes = 0x2000000,			// Render inline footnotes in verses
+		TRO_NoQTextDocument = 0x4000000,			// Disable functionality requiring QTextDocument (i.e. no clear() or setHtml() calls, no indent/hanging-indent VRME modes)
 	};
 	Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 

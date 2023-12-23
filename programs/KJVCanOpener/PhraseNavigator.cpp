@@ -1426,7 +1426,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 
 	bool bTotalColophonAnchor = (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
 
-	if ((flagsTRO & TRO_InnerHTML) == 0) {
+	if (((flagsTRO & TRO_InnerHTML) == 0) &&
+		((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.clear();
 	}
 
@@ -1595,7 +1596,8 @@ QString CPhraseNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRender
 	}
 
 	QString strRawHTML = scriptureHTML.getResult();
-	if ((flagsTRO & TRO_InnerHTML) == 0) {
+	if (((flagsTRO & TRO_InnerHTML) == 0) &&
+		((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.setHtml(strRawHTML);
 		emit changedDocumentText();
 	}
@@ -1610,7 +1612,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 	bool bTotalColophonAnchor = (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoColophonAnchors));
 	bool bTotalSuperscriptionAnchor =  (!(flagsTRO & TRO_NoAnchors) && (flagsTRO & TRO_NoWordAnchors) && !(flagsTRO & TRO_NoSuperscriptAnchors));
 
-	if ((flagsTRO & TRO_InnerHTML) == 0) {
+	if (((flagsTRO & TRO_InnerHTML) == 0) &&
+		((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.clear();
 	}
 
@@ -1701,6 +1704,16 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 											CPersistentSettings::instance()->verseRenderingModeCopying() :
 											CPersistentSettings::instance()->verseRenderingMode());
 
+	// Since indent and hanging-indent modes require a QTextDocument, remap
+	//	those modes when we have no QTextDocument:
+	if (flagsTRO & TRO_NoQTextDocument) {
+		if ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_HANGING)) {
+			vrmeMode = VRME_VPL;
+		} else if ((vrmeMode == VRME_VPL_DS_INDENT) || (vrmeMode == VRME_VPL_DS_HANGING)) {
+			vrmeMode = VRME_VPL_DS;
+		}
+	}
+
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 //		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
 //											.arg(scriptureHTML.escape(m_pBibleDatabase->PassageReferenceText(ndx))));		// Document Title
@@ -1736,6 +1749,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		relPrev.setWord(0);
 		const CBookEntry &bookPrev = *m_pBibleDatabase->bookEntry(relPrev.book());
 		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
+
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
@@ -2226,6 +2240,7 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 			scriptureHTML.insertHorizontalRule();
 
 		scriptureHTML.beginParagraph(m_pBibleDatabase->direction());
+
 		if ((vrmeMode == VRME_VPL_HANGING) || (vrmeMode == VRME_VPL_DS_HANGING)) {
 			scriptureHTML.beginIndent(1, -m_TextDocument.indentWidth());
 		}
@@ -2284,7 +2299,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText("</body></html>");
 	}
 	QString strRawHTML = scriptureHTML.getResult();
-	if ((flagsTRO & TRO_InnerHTML) == 0) {
+	if (((flagsTRO & TRO_InnerHTML) == 0) &&
+		((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.setHtml(strRawHTML);
 		emit changedDocumentText();
 	}
@@ -2295,7 +2311,8 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
-	if ((flagsTRO & TRO_InnerHTML) == 0) {
+	if (((flagsTRO & TRO_InnerHTML) == 0) &&
+		((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.clear();
 	}
 
@@ -2517,7 +2534,8 @@ QString CPhraseNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhrase
 		scriptureHTML.appendRawText("</body></html>");
 	}
 	QString strRawHTML = scriptureHTML.getResult();
-	if ((flagsTRO & TRO_InnerHTML) == 0) {
+	if (((flagsTRO & TRO_InnerHTML) == 0) &&
+		((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.setHtml(strRawHTML);
 		emit changedDocumentText();
 	}

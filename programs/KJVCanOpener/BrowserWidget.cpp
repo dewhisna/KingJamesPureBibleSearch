@@ -1154,6 +1154,7 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 	// Don't use defaultDocumentToChapterFlags here so we can suppress UserNotes and CrossRefs.
 //	QString strLiteHtml = m_pScriptureLiteHtml->navigator().setDocumentToChapter(ndxVirtual,
 	QString strLiteHtml = /* m_pScriptureLiteHtml->navigator() */ navigator.setDocumentToChapter(ndxVirtual,
+												 CPhraseNavigator::TRO_NoQTextDocument |
 												 CPhraseNavigator::TRO_Subtitles |
 												 CPhraseNavigator::TRO_SuppressPrePostChapters |
 												 CPhraseNavigator::TRO_NoAnchors |
