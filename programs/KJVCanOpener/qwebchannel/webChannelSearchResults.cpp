@@ -26,6 +26,7 @@
 #include "webChannelBibleAudio.h"
 
 #include "UserNotesDatabase.h"
+#include "PhraseCursor.h"
 #include "PhraseNavigator.h"
 #include "Highlighter.h"
 

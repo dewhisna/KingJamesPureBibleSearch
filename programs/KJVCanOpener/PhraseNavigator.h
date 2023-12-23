@@ -30,7 +30,6 @@
 
 #include <QFlags>
 #include <QTextDocument>
-#include <QTextCursor>
 #include <QString>
 #include <QStringList>
 #include <QColor>
@@ -60,6 +59,8 @@ enum TIP_EDIT_TYPE_ENUM {
 
 // Forward declarations:
 class CParsedPhrase;
+class QTextCursor;
+class CPhraseCursor;
 
 // ============================================================================
 
@@ -483,36 +484,6 @@ public:
 		}
 		return lstPhrases.join(" ");
 	}
-};
-
-// ============================================================================
-
-class CPhraseCursor : public QTextCursor
-{
-public:
-	CPhraseCursor(const QTextCursor &aCursor, CBibleDatabase *pBibleDatabase, bool bUseBibleBasedHyphenSeparator);
-	CPhraseCursor(const CPhraseCursor &aCursor);
-	CPhraseCursor(QTextDocument *pDocument, CBibleDatabase *pBibleDatabase, bool bUseBibleBasedHyphenSeparator);
-	virtual ~CPhraseCursor();
-
-	bool moveCursorCharLeft(MoveMode mode = MoveAnchor);
-	bool moveCursorCharRight(MoveMode mode = MoveAnchor);
-	inline QChar charUnderCursor();
-	inline bool charUnderCursorIsSeparator();				// True if charUnderCursor isSpace() or is a '|' character (as used for our 'OR' operator)
-
-	bool moveCursorWordLeft(MoveMode mode = MoveAnchor);
-	bool moveCursorWordRight(MoveMode mode = MoveAnchor);
-	bool moveCursorWordStart(MoveMode mode = MoveAnchor);
-	bool moveCursorWordEnd(MoveMode mode = MoveAnchor);
-	QString wordUnderCursor();
-
-	void selectWordUnderCursor();
-	void selectCursorToLineStart();
-	void selectCursorToLineEnd();
-
-private:
-	CBibleDatabase *m_pBibleDatabase;
-	bool m_bUseBibleBasedHyphenSeparator;
 };
 
 // ============================================================================

@@ -25,6 +25,7 @@
 
 #include "ReportError.h"
 #include "dbstruct.h"
+#include "PhraseCursor.h"
 #include "PassageNavigatorDlg.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"

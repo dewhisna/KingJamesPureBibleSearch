@@ -23,6 +23,7 @@
 
 #include "SearchPhraseEdit.h"
 
+#include "PhraseCursor.h"
 #include "PhraseListModel.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"

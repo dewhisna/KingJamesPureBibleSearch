@@ -23,6 +23,7 @@
 
 #include "PhraseNavigatorEdit.h"
 
+#include "PhraseCursor.h"
 #include "ToolTipEdit.h"
 #include <QToolTip>
 

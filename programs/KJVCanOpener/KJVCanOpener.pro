@@ -342,6 +342,7 @@ SOURCES += \
 	PassageReferenceResolver.cpp \
 	PassageReferenceWidget.cpp \
 	PersistentSettings.cpp \
+	PhraseCursor.cpp \
 	PhraseListModel.cpp \
 	PhraseNavigator.cpp \
 	PhraseNavigatorEdit.cpp \
@@ -415,6 +416,7 @@ HEADERS += \
 	PassageReferenceResolver.h \
 	PassageReferenceWidget.h \
 	PersistentSettings.h \
+	PhraseCursor.h \
 	PhraseListModel.h \
 	PhraseNavigator.h \
 	PhraseNavigatorEdit.h \
