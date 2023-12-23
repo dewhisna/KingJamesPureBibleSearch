@@ -123,7 +123,7 @@ public:
 	virtual CSelectionPhraseTagList selection() const override {
 		if (m_lstSelectedPhrases.haveSelection()) return m_lstSelectedPhrases.selection();
 		CSelectionPhraseTagList lstSelection;
-		lstSelection.append(TPhraseTag(m_tagLast.relIndex(), 0));
+		if (m_tagLast.isSet()) lstSelection.append(TPhraseTag(m_tagLast.relIndex(), 0));
 		return lstSelection;
 	}
 
@@ -153,7 +153,7 @@ protected:
 	virtual void mouseMoveEvent(QMouseEvent *ev) override;
 
 protected:
-	virtual void updateSelection();
+	virtual void updateSelection(bool bForceDetailUpdate = false);
 	virtual void copyVersesCommon(bool bPlainOnly);
 
 #ifdef TOUCH_GESTURE_PROCESSING

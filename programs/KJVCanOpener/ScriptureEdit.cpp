@@ -535,7 +535,7 @@ void CScriptureText<T,U>::setSpeechActionEnables()
 	Q_ASSERT(!g_pMyApplication.isNull());
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
-	if ((pSpeech != nullptr) && (U::hasFocus())) {
+	if ((pSpeech != nullptr) && (U::hasFocus()) && (U::isVisible())) {
 		if (parentCanOpener()->actionSpeechPlay() != nullptr) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(pSpeech->canSpeak() && !pSpeech->isTalking() && haveSelection());
 		}
@@ -740,6 +740,9 @@ bool CScriptureText<T,U>::event(QEvent *ev)
 			if ((!m_bDoingPopup) && (!m_CursorFollowHighlighter.isEmpty())) {
 				m_HighlightTimer.start(20);
 			}
+			break;
+		case QEvent::Show:
+			updateSelection(true);
 			break;
 		default:
 			break;
@@ -1021,7 +1024,7 @@ void CScriptureText<T,U>::en_selectionChanged()
 }
 
 template<class T, class U>
-void CScriptureText<T,U>::updateSelection()
+void CScriptureText<T,U>::updateSelection(bool bForceDetailUpdate)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
@@ -1059,23 +1062,25 @@ void CScriptureText<T,U>::updateSelection()
 		}
 	}
 
-	T::setStatusTip(strStatusText);
-	m_pStatusAction->setStatusTip(strStatusText);
-	m_pStatusAction->showStatusText();
+	if (U::isVisible()) {
+		T::setStatusTip(strStatusText);
+		m_pStatusAction->setStatusTip(strStatusText);
+		m_pStatusAction->showStatusText();
 
-	if (!haveSelection()) {
-		const TPhraseTagList &lstTags(m_CursorFollowHighlighter.phraseTags());
-		TPhraseTagList nNewSel(TPhraseTag(m_tagLast.relIndex(), 1));
-		if (!lstTags.isEquivalent(m_pBibleDatabase.data(), nNewSel)) {
-			m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, nNewSel);
+		if (!haveSelection()) {
+			const TPhraseTagList &lstTags(m_CursorFollowHighlighter.phraseTags());
+			TPhraseTagList nNewSel(TPhraseTag(m_tagLast.relIndex(), 1));
+			if (!lstTags.isEquivalent(m_pBibleDatabase.data(), nNewSel)) {
+				m_navigator.highlightCursorFollowTag(m_CursorFollowHighlighter, nNewSel);
+			}
 		}
-	}
-	m_CursorFollowHighlighter.setEnabled(!haveSelection());
+		m_CursorFollowHighlighter.setEnabled(!haveSelection());
 
-	if ((CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener()) ||
-		 CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener()))
-		&& (prevSelection != m_lstSelectedPhrases))
-		m_dlyDetailUpdate.trigger();
+		if ((CTipEdit::tipEditIsPinned(TETE_DETAILS, parentCanOpener()) ||
+			 CTipEdit::tipEditIsPinned(TETE_GEMATRIA, parentCanOpener()))
+			&& ((prevSelection != m_lstSelectedPhrases) || bForceDetailUpdate))
+			m_dlyDetailUpdate.trigger();
+	}
 
 #ifdef USING_QT_SPEECH
 	setSpeechActionEnables();
