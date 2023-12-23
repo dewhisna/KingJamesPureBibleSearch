@@ -1712,8 +1712,8 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 											"body, p, li, br, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
 											".book { font-size:xx-large; font-weight:bold; }\n"
 											".chapter { font-size:x-large; font-weight:bold; }\n"
-											".verse { display: inline-block; }\n"
-											".word { float: left; padding: 0em 0.5em %4em 0em; }\n"
+											".verse { display: flex; flex-wrap: wrap; }\n"
+											".word { display: inline-block; padding: 0em 0.5em %4em 0em; }\n"
 											".ref:dir(ltr) { float: left; padding: 0em 0.5em %4em 0em; }\n"
 											".ref:dir(rtl) { float: right; padding: 0em 0em %4em 0.5em; }\n"
 											".stack { display: block; }\n"
@@ -1746,12 +1746,28 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 
 		scriptureHTML.appendRawText("<span class=\"ref\">");
+		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
+			scriptureHTML.appendRawText("<span class=\"word\">");
+		}
+		if (flagsTRO & TRO_UseLemmas) {
+			scriptureHTML.appendRawText("<span class=\"stack\">");
+		}
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(relPrev.verse()));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
+		if (flagsTRO & TRO_UseLemmas) {
+			scriptureHTML.appendRawText("</span>");	// Stack
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+		}
+		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
+			scriptureHTML.appendRawText("</span>");	// Word
+		}
 		scriptureHTML.appendRawText("</span>");	// Ref
+
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relPrev,
 																	((flagsTRO & TRO_Copying) ? m_richifierTagsCopying : m_richifierTagsDisplay),
 																	flagsRRO,
@@ -1975,12 +1991,27 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 
 		scriptureHTML.appendRawText("<span class=\"ref\">");
+		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
+			scriptureHTML.appendRawText("<span class=\"word\">");
+		}
+		if (flagsTRO & TRO_UseLemmas) {
+			scriptureHTML.appendRawText("<span class=\"stack\">");
+		}
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 		scriptureHTML.beginBold();
 		if ((bNeedLeadSpace) && (vrmeMode == VRME_FF)) scriptureHTML.appendLiteralText(" ");
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(ndxVrs+1));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
+		if (flagsTRO & TRO_UseLemmas) {
+			scriptureHTML.appendRawText("</span>");	// Stack
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+		}
+		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
+			scriptureHTML.appendRawText("</span>");	// Word
+		}
 		scriptureHTML.appendRawText("</span>");	// Ref
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(ndxVerse,
@@ -2205,11 +2236,26 @@ QString CPhraseNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderO
 		scriptureHTML.appendRawText("<span class=\"verse\">");
 
 		scriptureHTML.appendRawText("<span class=\"ref\">");
+		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
+			scriptureHTML.appendRawText("<span class=\"word\">");
+		}
+		if (flagsTRO & TRO_UseLemmas) {
+			scriptureHTML.appendRawText("<span class=\"stack\">");
+		}
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
 		scriptureHTML.beginBold();
 		scriptureHTML.appendLiteralText(QString("%1 ").arg(relNext.verse()));
 		scriptureHTML.endBold();
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
+		if (flagsTRO & TRO_UseLemmas) {
+			scriptureHTML.appendRawText("</span>");	// Stack
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+		}
+		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
+			scriptureHTML.appendRawText("</span>");	// Word
+		}
 		scriptureHTML.appendRawText("</span>");	// Ref
 
 		scriptureHTML.appendRawText(m_pBibleDatabase->richVerseText(relNext,

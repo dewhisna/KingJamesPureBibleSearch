@@ -1154,16 +1154,13 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 	// Don't use defaultDocumentToChapterFlags here so we can suppress UserNotes and CrossRefs.
 //	QString strLiteHtml = m_pScriptureLiteHtml->navigator().setDocumentToChapter(ndxVirtual,
 	QString strLiteHtml = /* m_pScriptureLiteHtml->navigator() */ navigator.setDocumentToChapter(ndxVirtual,
-//												 CPhraseNavigator::TRO_InnerHTML |
 												 CPhraseNavigator::TRO_Subtitles |
 												 CPhraseNavigator::TRO_SuppressPrePostChapters |
-//												 CPhraseNavigator::TRO_NoWordAnchors |
+												 CPhraseNavigator::TRO_NoAnchors |
 												 CPhraseNavigator::TRO_Colophons |
 												 CPhraseNavigator::TRO_Superscriptions |
 												 CPhraseNavigator::TRO_Category |
-												 CPhraseNavigator::TRO_ScriptureBrowser |
-												 CPhraseNavigator::TRO_UseLemmas |
-												 CPhraseNavigator::TRO_UseWordSpans);
+												 CPhraseNavigator::TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
 //	int nPos = strLiteHtml.indexOf("<style type=\"text/css\">\n");
 //	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
 //	nPos = strLiteHtml.indexOf("body", nPos);
