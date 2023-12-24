@@ -1057,7 +1057,7 @@ void CScriptureText<T,U>::updateSelection(bool bForceDetailUpdate)
 	}
 
 	if (CPersistentSettings::instance()->footnoteRenderingMode() & FRME_STATUS_BAR) {
-		QString strFootnote = m_navigator.getFootnote(m_pBibleDatabase, m_tagLast.relIndex(), true);
+		QString strFootnote = navigator().getFootnote(m_tagLast.relIndex(), true);
 		if (!strFootnote.isEmpty()) {
 			if (!strStatusText.isEmpty()) strStatusText += " : ";
 			strStatusText += strFootnote;

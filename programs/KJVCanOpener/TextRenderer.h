@@ -28,6 +28,25 @@
 
 // ============================================================================
 
+//
+// This enum doesn't really have anything to do with TextRenderer except
+//	that these classes generate the tooltip text in CTipEdit.  All users of
+//	TextRenderer are users that would show CTipEdit.  It was originally
+//	in ToolTipEdit.h.  However, those classes need GUI/Widgets classes,
+//	which isn't generally true of TextRenderer and its users.  We could
+//	put this in its own header file, but that seems excessive.  For now,
+//	just put it here (got to love include file loops and interdependencies):
+//
+
+enum TIP_EDIT_TYPE_ENUM {
+	TETE_DETAILS = 0,			// Normal KJPBS Detail View
+	TETE_GEMATRIA = 1,			// Gematria View
+	// ----
+	TETE_COUNT
+};
+
+// ============================================================================
+
 enum TOOLTIP_TYPE_ENUM {
 	TTE_COMPLETE = 0,
 	TTE_REFERENCE_ONLY = 1,
@@ -132,8 +151,10 @@ Q_DECLARE_FLAGS(FootnoteRenderingModeFlags, FootnoteRenderingModes)
 class CBibleDatabase;
 class CRelIndex;
 class CBasicHighlighter;
+class TPhraseTag;
 class TPhraseTagList;
 class TPassageTagList;
+class CSelectionPhraseTagList;
 
 // ============================================================================
 
@@ -161,6 +182,10 @@ public:
 												  qreal nIndentWidth,
 												  const TPassageTagList &lstPassageTags,
 												  TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateFormattedVersesTextFlags));	// Note: By definition, this one doesn't include anchors
+
+	static QString getToolTip(TIP_EDIT_TYPE_ENUM nTipType, const CBibleDatabase *pBibleDatabase, const TPhraseTag &tag, const CSelectionPhraseTagList &selection, TOOLTIP_TYPE_ENUM nToolTipType = TTE_COMPLETE, bool bPlainText = false);
+
+	static QString getFootnote(const CBibleDatabase *pBibleDatabase, const CRelIndex &ndx, bool bPlainText = false);
 };
 
 // ============================================================================
