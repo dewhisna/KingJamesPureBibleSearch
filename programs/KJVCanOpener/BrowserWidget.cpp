@@ -1161,7 +1161,7 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 												TRO_Category |
 												TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
 //	int nPos = strLiteHtml.indexOf("<style type=\"text/css\">\n");
-//	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
+//	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CTextRenderer::generateTextForChapter()
 //	nPos = strLiteHtml.indexOf("body", nPos);
 //	Q_ASSERT(nPos > -1);
 //	nPos = strLiteHtml.indexOf("{", nPos);

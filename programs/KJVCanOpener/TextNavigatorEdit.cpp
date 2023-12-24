@@ -61,7 +61,7 @@ void CTextNavigatorEdit::selectWords(const TPhraseTag &tag)
 				myCursor.moveCursorWordEnd(QTextCursor::KeepAnchor);
 			} else {
 				// Special-case for Book/Chapter tag so that it works (specially looks correctly) with the new
-				//		special U+0x200B anchor tags now used in Book-Info and Chapter rendered text in CPhraseNavigator:
+				//		special U+0x200B anchor tags now used in Book-Info and Chapter rendered text in CTextNavigator:
 				if ((ndxRel.verse() == 0) && (ndxRel.word() == 0)) myCursor.movePosition(QTextCursor::StartOfLine);
 			}
 			myCursor.endEditBlock();

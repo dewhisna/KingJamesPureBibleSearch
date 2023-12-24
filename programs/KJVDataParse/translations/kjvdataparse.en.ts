@@ -35,65 +35,65 @@
     </message>
 </context>
 <context>
-    <name>CPhraseNavigator</name>
+    <name>QObject</name>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1318"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1321"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1511"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1514"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="1318"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="1321"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="1511"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="1514"/>
         <source>Category:</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1520"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="1523"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="1520"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="1523"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2202"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="2202"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2204"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="2204"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2382"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2383"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="2497"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="2382"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="2383"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="2497"/>
         <source>Superscription</source>
         <comment>Scope</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3089"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3089"/>
         <source>Word:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3094"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3094"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3123"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3130"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3136"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3123"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3130"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3136"/>
         <source>contains:</source>
         <comment>Statistics</comment>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3124"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3124"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -101,8 +101,8 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3125"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3131"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3125"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3131"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -110,9 +110,9 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3126"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3132"/>
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3137"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3126"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3132"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3137"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation type="unfinished">
@@ -120,7 +120,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../../KJVCanOpener/PhraseEdit.cpp" line="3145"/>
+        <location filename="../../KJVCanOpener/TextRenderer.cpp" line="3145"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation type="unfinished">

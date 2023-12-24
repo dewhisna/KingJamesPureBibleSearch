@@ -60,7 +60,7 @@ QString CTextRenderer::generateTextForBookInfo(const CBibleDatabase *pBibleDatab
 	QString strCategory = QObject::tr("Category:", "Scope");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(pBibleDatabase->langID()));
 	if (!pTranslator.isNull()) {
-		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Category:", "Scope");
+		QString strTemp = pTranslator->translatorApp().translate("QObject", "Category:", "Scope");
 		if (!strTemp.isEmpty()) strCategory = strTemp;
 	}
 
@@ -251,7 +251,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	QString strCategory = QObject::tr("Category:", "Scope");
 	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(pBibleDatabase->langID()));
 	if (!pTranslator.isNull()) {
-		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Category:", "Scope");
+		QString strTemp = pTranslator->translatorApp().translate("QObject", "Category:", "Scope");
 		if (!strTemp.isEmpty()) strCategory = strTemp;
 	}
 
@@ -260,7 +260,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	QString strChapter = QObject::tr("Chapter", "Scope");
 	//TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(pBibleDatabase->langID()));
 	if (!pTranslator.isNull()) {
-		QString strTemp = pTranslator->translatorApp().translate("CPhraseNavigator", "Chapter", "Scope");
+		QString strTemp = pTranslator->translatorApp().translate("QObject", "Chapter", "Scope");
 		if (!strTemp.isEmpty()) strChapter = strTemp;
 	}
 

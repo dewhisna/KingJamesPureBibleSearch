@@ -4021,65 +4021,65 @@ Check Installation!</translation>
     </message>
 </context>
 <context>
-    <name>CPhraseNavigator</name>
+    <name>QObject</name>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="1318"/>
-        <location filename="../PhraseNavigator.cpp" line="1321"/>
-        <location filename="../PhraseNavigator.cpp" line="1511"/>
-        <location filename="../PhraseNavigator.cpp" line="1514"/>
+        <location filename="../TextRenderer.cpp" line="1318"/>
+        <location filename="../TextRenderer.cpp" line="1321"/>
+        <location filename="../TextRenderer.cpp" line="1511"/>
+        <location filename="../TextRenderer.cpp" line="1514"/>
         <source>Category:</source>
         <comment>Scope</comment>
         <translation>Category:</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="1520"/>
-        <location filename="../PhraseNavigator.cpp" line="1523"/>
+        <location filename="../TextRenderer.cpp" line="1520"/>
+        <location filename="../TextRenderer.cpp" line="1523"/>
         <source>Chapter</source>
         <comment>Scope</comment>
         <translation>Chapter</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="2202"/>
+        <location filename="../TextRenderer.cpp" line="2202"/>
         <source>Colophon</source>
         <comment>Statistics</comment>
         <translation>Colophon</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="2204"/>
+        <location filename="../TextRenderer.cpp" line="2204"/>
         <source>Superscription</source>
         <comment>Statistics</comment>
         <translation>Superscription</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="2382"/>
-        <location filename="../PhraseNavigator.cpp" line="2383"/>
-        <location filename="../PhraseNavigator.cpp" line="2497"/>
+        <location filename="../TextRenderer.cpp" line="2382"/>
+        <location filename="../TextRenderer.cpp" line="2383"/>
+        <location filename="../TextRenderer.cpp" line="2497"/>
         <source>Superscription</source>
         <comment>Scope</comment>
         <translation>Superscription</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="3089"/>
+        <location filename="../TextRenderer.cpp" line="3089"/>
         <source>Word:</source>
         <comment>Statistics</comment>
         <translation>Word:</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="3094"/>
+        <location filename="../TextRenderer.cpp" line="3094"/>
         <source>Phrase:</source>
         <comment>Statistics</comment>
         <translation>Phrase:</translation>
     </message>
     <message>
-        <location filename="../PhraseNavigator.cpp" line="3123"/>
-        <location filename="../PhraseNavigator.cpp" line="3130"/>
-        <location filename="../PhraseNavigator.cpp" line="3136"/>
+        <location filename="../TextRenderer.cpp" line="3123"/>
+        <location filename="../TextRenderer.cpp" line="3130"/>
+        <location filename="../TextRenderer.cpp" line="3136"/>
         <source>contains:</source>
         <comment>Statistics</comment>
         <translation>contains:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseNavigator.cpp" line="3124"/>
+        <location filename="../TextRenderer.cpp" line="3124"/>
         <source>%n Chapter(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -4088,8 +4088,8 @@ Check Installation!</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseNavigator.cpp" line="3125"/>
-        <location filename="../PhraseNavigator.cpp" line="3131"/>
+        <location filename="../TextRenderer.cpp" line="3125"/>
+        <location filename="../TextRenderer.cpp" line="3131"/>
         <source>%n Verse(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -4098,9 +4098,9 @@ Check Installation!</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseNavigator.cpp" line="3126"/>
-        <location filename="../PhraseNavigator.cpp" line="3132"/>
-        <location filename="../PhraseNavigator.cpp" line="3137"/>
+        <location filename="../TextRenderer.cpp" line="3126"/>
+        <location filename="../TextRenderer.cpp" line="3132"/>
+        <location filename="../TextRenderer.cpp" line="3137"/>
         <source>%n Word(s)</source>
         <comment>Statistics</comment>
         <translation>
@@ -4109,7 +4109,7 @@ Check Installation!</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="../PhraseNavigator.cpp" line="3145"/>
+        <location filename="../TextRenderer.cpp" line="3145"/>
         <source>%n Word(s) Selected</source>
         <comment>Statistics</comment>
         <translation>

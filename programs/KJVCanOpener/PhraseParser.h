@@ -162,7 +162,7 @@ public:
 
 	virtual void ParsePhrase(const QTextCursor &curInsert, bool bFindWords = true);		// Parses the phrase in the editor.  Sets m_lstWords and m_nCursorWord (Clears word cache and bFindWords determines if we FindWords() for our BibleDatabase)
 	virtual void ParsePhrase(const QString &strPhrase, bool bFindWords = false);		// Parses a fixed phrase (Clears word cache and does NOT call FindWords())
-	virtual void ParsePhrase(const QStringList &lstPhrase, bool bFindWords = false);	// Parses a fixed phrase already divided into words (like getSelectedPhrase from CPhraseNavigator) (Clears word cache and does NOT call FindWords())
+	virtual void ParsePhrase(const QStringList &lstPhrase, bool bFindWords = false);	// Parses a fixed phrase already divided into words (like getSelectedPhrases from CTextNavigator) (Clears word cache and does NOT call FindWords())
 
 	virtual bool isCaseSensitive() const { return m_bCaseSensitive; }
 	virtual void setCaseSensitive(bool bCaseSensitive) { m_bCaseSensitive = bCaseSensitive; }
