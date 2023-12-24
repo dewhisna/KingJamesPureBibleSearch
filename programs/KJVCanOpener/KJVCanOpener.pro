@@ -344,8 +344,7 @@ SOURCES += \
 	PersistentSettings.cpp \
 	PhraseCursor.cpp \
 	PhraseListModel.cpp \
-	PhraseNavigator.cpp \
-	PhraseNavigatorEdit.cpp \
+	PhraseParser.cpp \
 	ReadDB.cpp \
 	ReflowDelegate.cpp \
 	ReportError.cpp \
@@ -361,6 +360,8 @@ SOURCES += \
 	SearchSpecWidget.cpp \
 	SoundEx.cpp \
 	SubControls.cpp \
+	TextNavigator.cpp \
+	TextNavigatorEdit.cpp \
 	TextRenderer.cpp \
 	ToolTipEdit.cpp \
 	Translator.cpp \
@@ -419,8 +420,7 @@ HEADERS += \
 	PersistentSettings.h \
 	PhraseCursor.h \
 	PhraseListModel.h \
-	PhraseNavigator.h \
-	PhraseNavigatorEdit.h \
+	PhraseParser.h \
 	Qt_QStyleOption_stub.h \
 	ReadDB.h \
 	ReflowDelegate.h \
@@ -438,6 +438,8 @@ HEADERS += \
 	SearchSpecWidget.h \
 	SoundEx.h \
 	SubControls.h \
+	TextNavigator.h \
+	TextNavigatorEdit.h \
 	TextRenderer.h \
 	ThreadedSearchResults.h \
 	ToolTipEdit.h \

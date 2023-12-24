@@ -25,7 +25,7 @@
 #define SEARCH_PHRASE_EDIT_H
 
 #include "dbstruct.h"
-#include "PhraseNavigator.h"
+#include "PhraseParser.h"
 #include "DelayedExecutionTimer.h"
 #include "SubControls.h"
 #include "PersistentSettings.h"

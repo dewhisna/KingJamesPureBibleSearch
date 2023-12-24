@@ -25,12 +25,11 @@
 
 #include "dbstruct.h"
 #include "Highlighter.h"
-#include "ParseSymbols.h"
 #include "VerseRichifier.h"
 #include "ScriptureDocument.h"
 #include "PersistentSettings.h"
 #include "Translator.h"
-#include "PhraseNavigator.h"			// for CSelectionPhraseTagList -- TODO : Replace with new include once that's changed
+#include "PhraseParser.h"
 
 #include <QObject>
 

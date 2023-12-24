@@ -28,7 +28,7 @@
 #include "VerseRichifier.h"
 #include "SoundEx.h"
 #include "ParseSymbols.h"
-#include "PhraseNavigator.h"
+#include "PhraseParser.h"
 #include "ScriptureDocument.h"
 #include "ReadDB.h"
 #include "ReportError.h"

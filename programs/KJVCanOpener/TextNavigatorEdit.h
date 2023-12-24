@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012-2022 Donna Whisnant, a.k.a. Dewtronics.
+** Copyright (C) 2012-2023 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
 **
 ** This file is part of the KJVCanOpener Application as originally written
@@ -21,28 +21,29 @@
 **
 ****************************************************************************/
 
-#ifndef PHRASE_NAVIGATOR_EDIT_H
-#define PHRASE_NAVIGATOR_EDIT_H
+#ifndef TEXT_NAVIGATOR_EDIT_H
+#define TEXT_NAVIGATOR_EDIT_H
 
 #include "dbstruct.h"
-#include "Highlighter.h"
 
-#include "PhraseNavigator.h"
+#include "TextNavigator.h"
+#include "PhraseParser.h"
 
 #include <QTextEdit>
 #include <QHelpEvent>
 
 // Forward declarations:
 class CKJVCanOpener;
+class CCursorFollowHighlighter;
 
 // ============================================================================
 
-class CPhraseNavigatorEdit : public CPhraseNavigator
+class CTextNavigatorEdit : public CTextNavigator
 {
 	Q_OBJECT
 public:
-	CPhraseNavigatorEdit(CBibleDatabasePtr pBibleDatabase, QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = nullptr)
-		:	CPhraseNavigator(pBibleDatabase, *textEditor.document(), parent),
+	CTextNavigatorEdit(CBibleDatabasePtr pBibleDatabase, QTextEdit &textEditor, bool bUseToolTipEdit = true, QObject *parent = nullptr)
+		:	CTextNavigator(pBibleDatabase, *textEditor.document(), parent),
 			m_TextEditor(textEditor),
 			m_bUseToolTipEdit(bUseToolTipEdit)
 	{
@@ -51,8 +52,8 @@ public:
 
 	// Text Selection/ToolTip Functions:
 	void selectWords(const TPhraseTag &tag);
-	using CPhraseNavigator::getSelection;
-	using CPhraseNavigator::getSelectedPhrases;
+	using CTextNavigator::getSelection;
+	using CTextNavigator::getSelectedPhrases;
 	CSelectionPhraseTagList getSelection() const;		// Returns the tag for the cursor's currently selected text (less expensive than getSelectPhrase since we don't have to generate the CParsedPhrase object)
 	CSelectedPhraseList getSelectedPhrases() const;		// Returns the parsed phrase and tag for the cursor's currently selected text
 	bool handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter *pHighlighter, const CSelectionPhraseTagList &selection) const;
@@ -66,4 +67,4 @@ private:
 
 // ============================================================================
 
-#endif	// PHRASE_NAVIGATOR_EDIT_H
+#endif	// TEXT_NAVIGATOR_EDIT_H

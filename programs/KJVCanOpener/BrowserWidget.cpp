@@ -1149,20 +1149,17 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 									   ((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None));
 
 #ifdef USING_LITEHTML
-	QTextDocument docLiteHtml;
-	CPhraseNavigator navigator(m_pBibleDatabase, docLiteHtml);
-
 	// Don't use defaultGenerateChapterTextFlags here so we can suppress UserNotes and CrossRefs.
-//	QString strLiteHtml = m_pScriptureLiteHtml->navigator().setDocumentToChapter(ndxVirtual,
-	QString strLiteHtml = /* m_pScriptureLiteHtml->navigator() */ navigator.setDocumentToChapter(ndxVirtual,
-												 TRO_NoQTextDocument |
-												 TRO_Subtitles |
-												 TRO_SuppressPrePostChapters |
-												 TRO_NoAnchors |
-												 TRO_Colophons |
-												 TRO_Superscriptions |
-												 TRO_Category |
-												 TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
+	QString strLiteHtml = CTextRenderer::generateTextForChapter(m_pBibleDatabase.data(), 0.0,
+												ndxVirtual,
+												TRO_NoQTextDocument |
+												TRO_Subtitles |
+												TRO_SuppressPrePostChapters |
+												TRO_NoAnchors |
+												TRO_Colophons |
+												TRO_Superscriptions |
+												TRO_Category |
+												TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
 //	int nPos = strLiteHtml.indexOf("<style type=\"text/css\">\n");
 //	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
 //	nPos = strLiteHtml.indexOf("body", nPos);

@@ -37,6 +37,9 @@
 
 #include "Qt_QStyleOption_stub.h"
 
+// Forward declarations:
+class QTextDocument;
+
 class CVerseListDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT

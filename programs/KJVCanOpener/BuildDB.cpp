@@ -27,7 +27,6 @@
 #include "BuildDB.h"
 #include "dbstruct.h"
 #include "CSV.h"
-#include "PhraseNavigator.h"
 #include "PhraseListModel.h"
 #include "ReportError.h"
 

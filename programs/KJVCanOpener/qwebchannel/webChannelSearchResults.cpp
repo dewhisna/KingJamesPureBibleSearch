@@ -77,7 +77,7 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 
 	// If calling init again, delete current data and start over:
 	if (!m_pVerseListModel.isNull()) delete m_pVerseListModel;
-	if (!m_pPhraseNavigator.isNull()) delete m_pPhraseNavigator;
+	if (!m_pTextNavigator.isNull()) delete m_pTextNavigator;
 	if (!m_pRefResolver.isNull()) delete m_pRefResolver;
 
 	// Setup idle/dead timers.  These will be reused with future inits:
@@ -123,7 +123,7 @@ void CWebChannelSearchResults::initialize(CBibleDatabasePtr pBibleDatabase, CUse
 
 	connect(m_pVerseListModel.data(), SIGNAL(searchResultsReady()), this, SLOT(en_searchResultsReady()));
 
-	m_pPhraseNavigator = new CPhraseNavigator(pBibleDatabase, m_scriptureText, this);
+	m_pTextNavigator = new CTextNavigator(pBibleDatabase, m_scriptureText, this);
 	m_pRefResolver = new CPassageReferenceResolver(pBibleDatabase, this);
 
 	m_searchResultsData.m_SearchCriteria.setSearchWithin(pBibleDatabase);		// Initially search within entire Bible, leave scope as previously selected
@@ -564,7 +564,7 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 	//		any larger than the number of results in this chapter) and use that for doing
 	//		the highlighting so that the VerseRichifier doesn't have to search the whole
 	//		set, as doing so is slow on large searches:
-	TPhraseTagList lstChapterCurrent = m_pPhraseNavigator->currentChapterDisplayPhraseTagList(ndx);
+	TPhraseTagList lstChapterCurrent = m_pTextNavigator->currentChapterDisplayPhraseTagList(ndx);
 	TPhraseTagList lstSearchResultsSubset;
 
 	CSearchResultHighlighter srHighlighterFull(m_pVerseListModel.data(), false);
@@ -576,14 +576,14 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 	}
 
 	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
-	QString strText = m_pPhraseNavigator->setDocumentToChapter(ndxDecolophonated,
+	QString strText = m_pTextNavigator->setDocumentToChapter(ndxDecolophonated,
 							TextRenderOptionFlags(defaultGenerateChapterTextFlags |
 							TRO_InnerHTML |
 							TRO_NoWordAnchors |
 							TRO_SuppressPrePostChapters),
 							&srHighlighter);
 
-	strText += "<hr />" + m_pPhraseNavigator->getToolTip(TETE_DETAILS, TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
+	strText += "<hr />" + m_pTextNavigator->getToolTip(TETE_DETAILS, TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
 															CSelectionPhraseTagList(),
 															TTE_COMPLETE,
 															false);
@@ -598,7 +598,7 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 
 	emit setBibleAudioURLs(CWebChannelBibleAudio::instance()->urlsForChapterAudio(m_pBibleDatabase, ndx));
 
-	m_pPhraseNavigator->clearDocument();			// Free-up memory for other clients
+	m_pTextNavigator->clearDocument();			// Free-up memory for other clients
 }
 
 void CWebChannelSearchResults::gotoChapter(unsigned int nChp, const QString &strParam)

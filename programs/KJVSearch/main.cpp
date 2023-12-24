@@ -25,7 +25,7 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ReadDBEx.h"
 #include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/PhraseNavigator.h"
+#include "../KJVCanOpener/PhraseParser.h"
 #include "../KJVCanOpener/Translator.h"
 
 #include <QCoreApplication>

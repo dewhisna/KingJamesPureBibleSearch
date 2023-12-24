@@ -25,7 +25,7 @@
 #define CONFIGURATION_H
 
 #include "dbstruct.h"
-#include "PhraseNavigator.h"
+#include "PhraseParser.h"
 #include "UserNotesDatabase.h"
 #include "BibleDBListModel.h"
 #include "DictDBListModel.h"

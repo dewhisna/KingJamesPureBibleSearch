@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "PhraseCursor.h"
 #include "TextRenderer.h"
+#include "TextNavigator.h"
 #include "PassageNavigatorDlg.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
@@ -992,7 +993,7 @@ QMimeData *CScriptureText<T,U>::createMimeDataFromSelection() const
 		if (mime->hasHtml()) {
 			QTextDocument docCopy;
 			docCopy.setHtml(mime->html());
-			CPhraseNavigator navigator(m_pBibleDatabase, docCopy);
+			CTextNavigator navigator(m_pBibleDatabase, docCopy);
 			navigator.removeAnchors();
 			if (CPersistentSettings::instance()->copyMimeType() == CMTE_HTML) mime->clear();
 			mime->setHtml(docCopy.toHtml());
@@ -1352,7 +1353,7 @@ void CScriptureText<T,U>::copyVersesCommon(bool bPlainOnly)
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
 	QTextDocument docFormattedVerses;
-	CPhraseNavigator navigator(m_pBibleDatabase, docFormattedVerses);
+	CTextNavigator navigator(m_pBibleDatabase, docFormattedVerses);
 	if (haveSelection()) {
 		navigator.setDocumentToFormattedVerses(selection());
 	} else {

@@ -27,6 +27,7 @@
 #include "ScriptureDocument.h"
 #include "ParseSymbols.h"
 #include "TextRenderer.h"
+#include "TextNavigator.h"
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 #include "SearchResults.h"		// Needed for the CSearchResults class to keep the CSearchResultsSummary in the same translation context until we can revamp our translation contexts : TODO: Fix translations and Remove this
@@ -758,7 +759,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				return dataGenHTML.getResult();
 			} else {
 				QTextDocument doc;
-				CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
+				CTextNavigator navigator(m_private.m_pBibleDatabase, doc);
 
 //				if (!bDoingSizeHint) {
 					navigator.setDocumentToVerse(itrVerse->getIndex(), itrVerse->phraseTags(), defaultGenerateVerseTextFlags | TRO_SearchResults);
@@ -1466,7 +1467,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 			if (item.verseIndex().isNull()) continue;
 
 			QTextDocument docVerse;
-			CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
+			CTextNavigator navigator(m_private.m_pBibleDatabase, docVerse);
 
 //			if (!bFirst) cursorDocList.insertHtml("<hr />\n");
 			if (!bFirst) {
@@ -1695,7 +1696,7 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 		const CVerseListItem &item(data(lstVerses.at(ndx), CVerseListModel::VERSE_ENTRY_ROLE).value<CVerseListItem>());
 		if (item.verseIndex().isNull()) continue;
 		QTextDocument docVerse;
-		CPhraseNavigator navigator(m_private.m_pBibleDatabase, docVerse);
+		CTextNavigator navigator(m_private.m_pBibleDatabase, docVerse);
 
 		// Note:  Qt bug with fragments causes leading <hr /> tags
 		//		to get converted to <br /> tags.  Since this may

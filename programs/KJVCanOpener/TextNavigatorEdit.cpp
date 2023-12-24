@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2012-2022 Donna Whisnant, a.k.a. Dewtronics.
+** Copyright (C) 2012-2023 Donna Whisnant, a.k.a. Dewtronics.
 ** Contact: http://www.dewtronics.com/
 **
 ** This file is part of the KJVCanOpener Application as originally written
@@ -21,15 +21,16 @@
 **
 ****************************************************************************/
 
-#include "PhraseNavigatorEdit.h"
+#include "TextNavigatorEdit.h"
 
+#include "Highlighter.h"
 #include "PhraseCursor.h"
 #include "ToolTipEdit.h"
 #include <QToolTip>
 
 // ============================================================================
 
-void CPhraseNavigatorEdit::selectWords(const TPhraseTag &tag)
+void CTextNavigatorEdit::selectWords(const TPhraseTag &tag)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -70,17 +71,17 @@ void CPhraseNavigatorEdit::selectWords(const TPhraseTag &tag)
 	}
 }
 
-CSelectionPhraseTagList CPhraseNavigatorEdit::getSelection() const
+CSelectionPhraseTagList CTextNavigatorEdit::getSelection() const
 {
 	return getSelection(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data(), true));
 }
 
-CSelectedPhraseList CPhraseNavigatorEdit::getSelectedPhrases() const
+CSelectedPhraseList CTextNavigatorEdit::getSelectedPhrases() const
 {
 	return getSelectedPhrases(CPhraseCursor(m_TextEditor.textCursor(), m_pBibleDatabase.data(), true));
 }
 
-bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter *pHighlighter, const CSelectionPhraseTagList &selection) const
+bool CTextNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, const QHelpEvent *pHelpEvent, CCursorFollowHighlighter *pHighlighter, const CSelectionPhraseTagList &selection) const
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -115,7 +116,7 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVC
 	return true;
 }
 
-bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, CCursorFollowHighlighter *pHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const
+bool CTextNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, CCursorFollowHighlighter *pHighlighter, const TPhraseTag &tag, const CSelectionPhraseTagList &selection) const
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -147,7 +148,7 @@ bool CPhraseNavigatorEdit::handleToolTipEvent(TIP_EDIT_TYPE_ENUM nTipType, CKJVC
 	return true;
 }
 
-void CPhraseNavigatorEdit::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList) const
+void CTextNavigatorEdit::highlightCursorFollowTag(CCursorFollowHighlighter &aHighlighter, const TPhraseTagList &tagList) const
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 

@@ -34,7 +34,7 @@
 #include <QPushButton>
 #include <QSizeGrip>
 
-#include "PhraseNavigator.h"		// Needed for TIP_EDIT_TYPE_ENUM
+#include "TextRenderer.h"		// Needed for TIP_EDIT_TYPE_ENUM
 
 // ============================================================================
 

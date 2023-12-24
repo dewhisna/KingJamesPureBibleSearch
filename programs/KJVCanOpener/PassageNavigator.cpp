@@ -24,7 +24,7 @@
 #include "PassageNavigator.h"
 
 #include "dbstruct.h"
-#include "PhraseNavigatorEdit.h"
+#include "TextNavigatorEdit.h"
 #include "Highlighter.h"
 #include "BusyCursor.h"
 #include "Translator.h"
@@ -494,7 +494,7 @@ void CPassageNavigator::CalcPassage()
 
 	m_tagPassage.relIndex() = m_pBibleDatabase->calcRelIndex(m_nWord, m_nVerse, m_nChapter, m_nBook, (!m_tagStartRef.relIndex().isSet() ? m_nTestament : 0), m_tagStartRef.relIndex(), (!m_tagStartRef.relIndex().isSet() ? false : ui.chkboxReverse->isChecked()));
 	ui.editResolved->setText(m_pBibleDatabase->PassageReferenceText(passage().relIndex()));
-	CPhraseNavigatorEdit navigator(m_pBibleDatabase, *m_pEditVersePreview);
+	CTextNavigatorEdit navigator(m_pBibleDatabase, *m_pEditVersePreview);
 
 	setDirectReference(m_tagPassage.relIndex());
 

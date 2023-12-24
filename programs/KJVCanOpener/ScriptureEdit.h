@@ -26,7 +26,7 @@
 
 #include "dbstruct.h"
 #include "Highlighter.h"
-#include "PhraseNavigatorEdit.h"
+#include "TextNavigatorEdit.h"
 #include "DelayedExecutionTimer.h"
 
 #include <QWidget>
@@ -68,7 +68,7 @@ public:
 	virtual void savePersistentSettings(const QString &strGroup) = 0;
 	virtual void restorePersistentSettings(const QString &strGroup) = 0;
 
-	virtual CPhraseNavigatorEdit &navigator() = 0;
+	virtual CTextNavigatorEdit &navigator() = 0;
 
 	virtual QMenu *getEditMenu() = 0;
 
@@ -110,7 +110,7 @@ public:
 	virtual void savePersistentSettings(const QString &strGroup) override;
 	virtual void restorePersistentSettings(const QString &strGroup) override;
 
-	virtual CPhraseNavigatorEdit &navigator() override
+	virtual CTextNavigatorEdit &navigator() override
 	{
 		return m_navigator;
 	}
@@ -218,7 +218,7 @@ private:
 	bool m_bDoingPopup;				// True if popping up a menu or dialog and we don't want the highlight to disable
 	bool m_bDoingSelectionChange;	// True if processing selection change to guard against reentracy
 	QTextEdit m_RubeTextEditor;		// Placeholder TextEditor if 'class T' doesn't derive from one (like LiteHtml) -- MUST create this before m_navigator below!
-	CPhraseNavigatorEdit m_navigator;
+	CTextNavigatorEdit m_navigator;
 	CCursorFollowHighlighter m_CursorFollowHighlighter;
 	QTimer m_HighlightTimer;
 	CRelIndex m_ndxCurrent;			// Current Displayed index as captured on received en_gotoIndex()

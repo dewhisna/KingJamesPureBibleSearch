@@ -31,6 +31,7 @@
 #include "PersistentSettings.h"
 #include "Highlighter.h"
 #include "TextRenderer.h"
+#include "TextNavigator.h"
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
 #include "myApplication.h"
@@ -615,7 +616,7 @@ void CConfigTextFormat::saveSettings()
 {
 	CPersistentSettings::instance()->setFontScriptureBrowser(m_fntScriptureBrowser);
 	// Updating of the SearchResults font needs to be done down in the individual change
-	//		notifications.  Without that, the PhraseNavigator::setDocumentToVerse can't
+	//		notifications.  Without that, the TextNavigator::setDocumentToVerse can't
 	//		get the correct font to set our preview.  The downside is that having the
 	//		change there, it sends an update notification to all of the app and changes
 	//		it everywhere.  But without it, the preview doesn't work correctly.  In
@@ -3009,7 +3010,7 @@ void CConfigCopyOptions::setVerseCopyPreview()
 
 	QString strHtml;
 	QTextDocument doc;
-	CPhraseNavigator navigator(m_pBibleDatabase, doc);
+	CTextNavigator navigator(m_pBibleDatabase, doc);
 	if (!navigator.setDocumentToFormattedVerses(TPassageTagList(TPassageTag(CRelIndex(1, 1, 1, 0), 3))).isEmpty()) {
 		strHtml += doc.toHtml();
 		strHtml += "<hr>\n";

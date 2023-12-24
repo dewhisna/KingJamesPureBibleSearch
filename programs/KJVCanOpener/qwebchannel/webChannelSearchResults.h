@@ -29,6 +29,7 @@
 #include "VerseListModel.h"
 #include "PassageReferenceResolver.h"
 #include "DelayedExecutionTimer.h"
+#include "TextNavigator.h"
 
 #include <QPointer>
 #include <QString>
@@ -38,7 +39,6 @@
 #include <QThread>
 
 // Forward declarations:
-class CPhraseNavigator;
 class CWebChannelObjects;
 class CWebChannelThreadController;
 
@@ -105,10 +105,10 @@ private slots:
 private:
 	void internal_setSearchPhrases(const QString &strPhrases, const QString &strSearchWithin, int nSearchScope);
 
-	CPhraseNavigator &phraseNavigator() const
+	CTextNavigator &textNavigator() const
 	{
-		Q_ASSERT(!m_pPhraseNavigator.isNull());
-		return *m_pPhraseNavigator.data();
+		Q_ASSERT(!m_pTextNavigator.isNull());
+		return *m_pTextNavigator.data();
 	}
 
 	bool setIdle(bool bIsIdle);								// Returns True if Idle State Changed
@@ -122,7 +122,7 @@ private:
 	// QObject derived:
 	CBibleDatabasePtr m_pBibleDatabase;
 	QPointer<CVerseListModel> m_pVerseListModel;
-	QPointer<CPhraseNavigator> m_pPhraseNavigator;
+	QPointer<CTextNavigator> m_pTextNavigator;
 	QTextDocument m_scriptureText;
 	QPointer<CPassageReferenceResolver> m_pRefResolver;
 	QPointer<DelayedExecutionTimer> m_pIdleTimer;

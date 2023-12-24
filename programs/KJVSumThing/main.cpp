@@ -26,7 +26,7 @@
 #include "../KJVCanOpener/ReadDBEx.h"
 #include "../KJVCanOpener/VerseRichifier.h"
 #include "../KJVCanOpener/PassageReferenceResolver.h"
-#include "../KJVCanOpener/PhraseNavigator.h"
+#include "../KJVCanOpener/PhraseParser.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/SearchCriteria.h"
 #include "../KJVCanOpener/BibleLayout.h"

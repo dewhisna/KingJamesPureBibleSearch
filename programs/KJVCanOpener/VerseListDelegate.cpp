@@ -22,7 +22,6 @@
 ****************************************************************************/
 
 #include "VerseListDelegate.h"
-#include "PhraseNavigator.h"
 #include "Highlighter.h"
 #include "ToolTipEdit.h"
 #include "KJVCanOpener.h"

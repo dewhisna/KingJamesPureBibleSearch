@@ -25,7 +25,6 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ReadDBEx.h"
 #include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/PhraseNavigator.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/PassageReferenceResolver.h"
 

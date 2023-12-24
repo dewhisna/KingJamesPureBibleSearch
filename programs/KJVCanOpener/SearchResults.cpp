@@ -35,7 +35,7 @@
 #include "NoteKeywordWidget.h"
 #include "BusyCursor.h"
 #include "NotificationToolTip.h"
-#include "PhraseNavigator.h"
+#include "PhraseParser.h"
 #include "ParseSymbols.h"
 
 #include "myApplication.h"
