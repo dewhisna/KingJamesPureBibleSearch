@@ -41,7 +41,6 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <iterator>
-#include <list>
 #include <QTextDocument>
 #include <QTextDocumentFragment>
 #include <QAtomicInt>

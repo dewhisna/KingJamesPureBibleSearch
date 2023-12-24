@@ -252,7 +252,7 @@ public:
 	void addData(const char *data) { m_stream.addData(data); }
 	void clear() { m_stream.clear(); }
 
-	void setXmlHandler(CXmlHandler *pHandler) { m_pHandler = pHandler; };
+	void setXmlHandler(CXmlHandler *pHandler) { m_pHandler = pHandler; }
 	CXmlHandler *xmlHandler() const { return m_pHandler; }
 
 	bool separateWhitespace() const { return m_bSeparateWhitespace; }

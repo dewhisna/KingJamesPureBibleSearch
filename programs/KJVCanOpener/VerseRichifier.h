@@ -95,7 +95,7 @@ public:
 
 	}
 
-	virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const { Q_UNUSED(strWord); Q_UNUSED(nWordTypes); };
+	virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const { Q_UNUSED(strWord); Q_UNUSED(nWordTypes); }
 
 	bool usesHTML() const { return m_bUsesHTML; }
 

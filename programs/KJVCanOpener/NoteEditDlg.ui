@@ -315,7 +315,7 @@
   <customwidget>
    <class>CNoteKeywordWidget</class>
    <extends>QWidget</extends>
-   <header location="global">NoteKeywordWidget.h</header>
+   <header>NoteKeywordWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
