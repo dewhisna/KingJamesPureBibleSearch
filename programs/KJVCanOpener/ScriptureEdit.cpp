@@ -26,6 +26,7 @@
 #include "ReportError.h"
 #include "dbstruct.h"
 #include "PhraseCursor.h"
+#include "TextRenderer.h"
 #include "PassageNavigatorDlg.h"
 #include "MimeHelper.h"
 #include "PersistentSettings.h"
@@ -133,7 +134,7 @@ CScriptureText<T,U>::CScriptureText(CBibleDatabasePtr pBibleDatabase, QWidget *p
 
 	U::connect(CPersistentSettings::instance(), SIGNAL(fontChangedScriptureBrowser(QFont)), this, SLOT(setFont(QFont)));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(setTextBrightness(bool,int)));
-	U::connect(CPersistentSettings::instance(), SIGNAL(changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM)), &m_dlyRerenderCompressor, SLOT(trigger()));
+	U::connect(CPersistentSettings::instance(), SIGNAL(changedVerseRenderingMode(VERSE_RENDERING_MODE_ENUM)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedShowPilcrowMarkers(bool)), &m_dlyRerenderCompressor, SLOT(trigger()));
 	U::connect(CPersistentSettings::instance(), SIGNAL(changedScriptureBrowserLineHeight(qreal)), &m_dlyRerenderCompressor, SLOT(trigger()));
 
@@ -1055,7 +1056,7 @@ void CScriptureText<T,U>::updateSelection(bool bForceDetailUpdate)
 		strStatusText += QObject::tr("%n Word(s) Selected", "Statistics", nWordCount);
 	}
 
-	if (CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_STATUS_BAR) {
+	if (CPersistentSettings::instance()->footnoteRenderingMode() & FRME_STATUS_BAR) {
 		QString strFootnote = m_navigator.getFootnote(m_pBibleDatabase, m_tagLast.relIndex(), true);
 		if (!strFootnote.isEmpty()) {
 			if (!strStatusText.isEmpty()) strStatusText += " : ";
@@ -1297,11 +1298,11 @@ void CScriptureText<T,U>::en_copyReferenceDetails()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, true));
+		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), TTE_REFERENCE_ONLY, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_REFERENCE_ONLY, false));
+		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), TTE_REFERENCE_ONLY, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -1315,11 +1316,11 @@ void CScriptureText<T,U>::en_copyPassageStatistics()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, true));
+		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), TTE_STATISTICS_ONLY, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_STATISTICS_ONLY, false));
+		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), TTE_STATISTICS_ONLY, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());
@@ -1333,11 +1334,11 @@ void CScriptureText<T,U>::en_copyEntirePassageDetails()
 	QMimeData *mime = new QMimeData();
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_TEXT)) {
-		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, true));
+		mime->setText(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), TTE_COMPLETE, true));
 	}
 	if ((CPersistentSettings::instance()->copyMimeType() == CMTE_ALL) ||
 		(CPersistentSettings::instance()->copyMimeType() == CMTE_HTML)) {
-		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), CPhraseNavigator::TTE_COMPLETE, false));
+		mime->setHtml(m_navigator.getToolTip(TETE_DETAILS, m_tagLast, selection(), TTE_COMPLETE, false));
 	}
 	// TODO : Copy list of tags for multi-selection?
 	CMimeHelper::addPhraseTagToMimeData(mime, selection().primarySelection());

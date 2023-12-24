@@ -26,7 +26,7 @@
 #include "ParseSymbols.h"
 
 #include "PersistentSettings.h"
-#include "PhraseNavigator.h"
+#include "TextRenderer.h"
 #include "Highlighter.h"
 
 #include "BibleLayout.h"
@@ -673,13 +673,13 @@ void CVerseTextRichifierTags::setFromPersistentSettings(const CPersistentSetting
 
 	if (bCopyOptions) {
 		switch (aPersistentSettings.transChangeAddWordMode()) {
-			case CPhraseNavigator::TCAWME_NO_MARKING:
+			case TCAWME_NO_MARKING:
 				setTransChangeAddedTags(QString(), QString());
 				break;
-			case CPhraseNavigator::TCAWME_ITALICS:
+			case TCAWME_ITALICS:
 				setTransChangeAddedTags(QString("<i>"), QString("</i>"));
 				break;
-			case CPhraseNavigator::TCAWME_BRACKETS:
+			case TCAWME_BRACKETS:
 				setTransChangeAddedTags(QString("["), QString("]"));
 				break;
 			default:

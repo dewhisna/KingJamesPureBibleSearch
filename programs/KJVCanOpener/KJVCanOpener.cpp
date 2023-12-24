@@ -42,7 +42,7 @@
 #include "SaveLoadFileDialog.h"
 #endif
 #endif
-#include "PhraseNavigator.h"
+#include "TextRenderer.h"
 #include "PhraseListModel.h"
 
 #ifdef USE_GEOMAP
@@ -1721,13 +1721,13 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 			CPersistentSettings::instance()->setPassageReferenceActivationDelay(settings.value(constrPassageReferenceActivationDelayKey, CPersistentSettings::instance()->passageReferenceActivationDelay()).toInt());
 			CPersistentSettings::instance()->setShowExcludedSearchResultsInBrowser(settings.value(constrShowExcludedSearchResultsKey, CPersistentSettings::instance()->showExcludedSearchResultsInBrowser()).toBool());
 			CPersistentSettings::instance()->setChapterScrollbarMode(static_cast<CHAPTER_SCROLLBAR_MODE_ENUM>(settings.value(constrChapterScrollbarModeKey, CPersistentSettings::instance()->chapterScrollbarMode()).toUInt()));
-			CPersistentSettings::instance()->setVerseRenderingMode(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode()).toUInt()));
+			CPersistentSettings::instance()->setVerseRenderingMode(static_cast<VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingMode()).toUInt()));
 			CPersistentSettings::instance()->setShowPilcrowMarkers(settings.value(constrShowPilcrowMarkersKey, CPersistentSettings::instance()->showPilcrowMarkers()).toBool());
 			CPersistentSettings::instance()->setScriptureBrowserLineHeight(settings.value(constrLineHeightKey, CPersistentSettings::instance()->scriptureBrowserLineHeight()).toDouble());
 			CPersistentSettings::instance()->setBrowserNavigationPaneMode(static_cast<BROWSER_NAVIGATION_PANE_MODE_ENUM>(settings.value(constrBrowserNavigationPaneModeKey, CPersistentSettings::instance()->browserNavigationPaneMode()).toInt()));
 			CPersistentSettings::instance()->setBrowserDisplayMode(static_cast<BROWSER_DISPLAY_MODE_ENUM>(settings.value(constrBrowserDisplayModeKey, CPersistentSettings::instance()->browserDisplayMode()).toInt()));
 			CPersistentSettings::instance()->setRandomPassageWeightMode(static_cast<RANDOM_PASSAGE_WEIGHT_ENUM>(settings.value(constrRandomPassageWeightModeKey, CPersistentSettings::instance()->randomPassageWeightMode()).toInt()));
-			CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FootnoteRenderingModeFlags>(settings.value(constrFootnoteRenderingModeKey, static_cast<int>(CPersistentSettings::instance()->footnoteRenderingMode())).toInt()));
+			CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<FootnoteRenderingModeFlags>(settings.value(constrFootnoteRenderingModeKey, static_cast<int>(CPersistentSettings::instance()->footnoteRenderingMode())).toInt()));
 
 #if QT_VERSION >= 0x050400
 			QTimer::singleShot(1, this, [this]() { m_pBrowserWidget->setBrowserDisplayMode(CPersistentSettings::instance()->browserDisplayMode()); } );
@@ -1757,20 +1757,20 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 		// Copy Options:
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrCopyOptionsGroup);
-			CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
+			CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrReferenceDelimiterModeKey, CPersistentSettings::instance()->referenceDelimiterMode()).toUInt()));
 			CPersistentSettings::instance()->setReferencesUseAbbreviatedBookNames(settings.value(constrReferencesAbbreviatedBookNamesKey, CPersistentSettings::instance()->referencesUseAbbreviatedBookNames()).toBool());
 			CPersistentSettings::instance()->setReferencesInBold(settings.value(constrReferencesInBoldKey, CPersistentSettings::instance()->referencesInBold()).toBool());
 			CPersistentSettings::instance()->setReferencesAtEnd(settings.value(constrReferencesAtEndKey, CPersistentSettings::instance()->referencesAtEnd()).toBool());
-			CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
+			CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<REFERENCE_DELIMITER_MODE_ENUM>(settings.value(constrVerseNumberDelimiterModeKey, CPersistentSettings::instance()->verseNumberDelimiterMode()).toUInt()));
 			CPersistentSettings::instance()->setVerseNumbersUseAbbreviatedBookNames(settings.value(constrVerseNumbersAbbreviatedBookNamesKey, CPersistentSettings::instance()->verseNumbersUseAbbreviatedBookNames()).toBool());
 			CPersistentSettings::instance()->setVerseNumbersInBold(settings.value(constrVerseNumbersInBoldKey, CPersistentSettings::instance()->verseNumbersInBold()).toBool());
 			CPersistentSettings::instance()->setAddQuotesAroundVerse(settings.value(constrAddQuotesAroundVerseKey, CPersistentSettings::instance()->addQuotesAroundVerse()).toBool());
-			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
-			CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying()).toUInt()));
+			CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<TRANS_CHANGE_ADD_WORD_MODE_ENUM>(settings.value(constrTransChangeAddWordModeKey, CPersistentSettings::instance()->transChangeAddWordMode()).toUInt()));
+			CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<VERSE_RENDERING_MODE_ENUM>(settings.value(constrVerseRenderingModeKey, CPersistentSettings::instance()->verseRenderingModeCopying()).toUInt()));
 			CPersistentSettings::instance()->setCopyPilcrowMarkers(settings.value(constrCopyPilcrowMarkersKey, CPersistentSettings::instance()->copyPilcrowMarkers()).toBool());
 			CPersistentSettings::instance()->setCopyColophons(settings.value(constrCopyColophonsKey, CPersistentSettings::instance()->copyColophons()).toBool());
 			CPersistentSettings::instance()->setCopySuperscriptions(settings.value(constrCopySuperscriptionsKey, CPersistentSettings::instance()->copySuperscriptions()).toBool());
-			CPersistentSettings::instance()->setCopyFontSelection(static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(settings.value(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection()).toUInt()));
+			CPersistentSettings::instance()->setCopyFontSelection(static_cast<COPY_FONT_SELECTION_ENUM>(settings.value(constrCopyFontSelectionKey, CPersistentSettings::instance()->copyFontSelection()).toUInt()));
 
 			QString strFontName = settings.value(constrCopyFontNameKey, CPersistentSettings::instance()->fontCopyFont().family()).toString();
 			int nFontSize = settings.value(constrCopyFontSizeKey, CPersistentSettings::instance()->fontCopyFont().pointSize()).toInt();

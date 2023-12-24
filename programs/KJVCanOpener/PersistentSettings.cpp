@@ -138,13 +138,13 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nPassageReferenceActivationDelay(2000),
 		m_bShowExcludedSearchResultsInBrowser(true),
 		m_nChapterScrollbarMode(CSME_NONE),
-		m_nVerseRenderingMode(CPhraseNavigator::VRME_VPL),
+		m_nVerseRenderingMode(VRME_VPL),
 		m_bShowPilcrowMarkers(true),
 		m_nScriptureBrowserLineHeight(1.0),
 		m_nBrowserNavigationPaneMode(BNPME_COMPLETE),
 		m_nBrowserDisplayMode(BDME_BIBLE_TEXT),
 		m_nRandomPassageWeightMode(RPWE_EVEN_WEIGHT),
-		m_nFootnoteRenderingMode(CPhraseNavigator::FRME_NONE),
+		m_nFootnoteRenderingMode(FRME_NONE),
 		// Default Dictionary Options:
 		m_nDictionaryCompleterFilterMode(SCFME_NORMAL),
 #ifndef EMSCRIPTEN
@@ -157,20 +157,20 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_nDictionaryActivationDelay(QApplication::doubleClickInterval() * 2),
 #endif
 		// Default Copy Options:
-		m_nReferenceDelimiterMode(CPhraseNavigator::RDME_PARENTHESES),
+		m_nReferenceDelimiterMode(RDME_PARENTHESES),
 		m_bReferencesUseAbbreviatedBookNames(false),
 		m_bReferencesInBold(true),
 		m_bReferencesAtEnd(false),
-		m_nVerseNumberDelimiterMode(CPhraseNavigator::RDME_CURLY_BRACES),
+		m_nVerseNumberDelimiterMode(RDME_CURLY_BRACES),
 		m_bVerseNumbersUseAbbreviatedBookNames(true),
 		m_bVerseNumbersInBold(true),
 		m_bAddQuotesAroundVerse(true),
-		m_nTransChangeAddWordMode(CPhraseNavigator::TCAWME_ITALICS),
-		m_nVerseRenderingModeCopying(CPhraseNavigator::VRME_FF),
+		m_nTransChangeAddWordMode(TCAWME_ITALICS),
+		m_nVerseRenderingModeCopying(VRME_FF),
 		m_bCopyPilcrowMarkers(true),
 		m_bCopyColophons(false),
 		m_bCopySuperscriptions(false),
-		m_nCopyFontSelection(CPhraseNavigator::CFSE_NONE),
+		m_nCopyFontSelection(CFSE_NONE),
 		m_fntCopyFont(m_fntScriptureBrowser),
 #ifndef EMSCRIPTEN
 		m_nCopyMimeType(CMTE_ALL),
@@ -621,7 +621,7 @@ void CPersistentSettings::setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nM
 	}
 }
 
-void CPersistentSettings::setVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode)
+void CPersistentSettings::setVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nVerseRenderingMode != nMode) {
 		m_pPersistentSettingData->m_nVerseRenderingMode = nMode;
@@ -669,7 +669,7 @@ void CPersistentSettings::setRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM 
 	}
 }
 
-void CPersistentSettings::setFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags nMode)
+void CPersistentSettings::setFootnoteRenderingMode(FootnoteRenderingModeFlags nMode)
 {
 	if (m_pPersistentSettingData->m_nFootnoteRenderingMode != nMode) {
 		m_pPersistentSettingData->m_nFootnoteRenderingMode = nMode;
@@ -693,7 +693,7 @@ void CPersistentSettings::setDictionaryActivationDelay(int nDelay)
 	}
 }
 
-void CPersistentSettings::setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
+void CPersistentSettings::setReferenceDelimiterMode(REFERENCE_DELIMITER_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nReferenceDelimiterMode != nMode) {
 		m_pPersistentSettingData->m_nReferenceDelimiterMode = nMode;
@@ -725,7 +725,7 @@ void CPersistentSettings::setReferencesAtEnd(bool bAtEnd)
 	}
 }
 
-void CPersistentSettings::setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode)
+void CPersistentSettings::setVerseNumberDelimiterMode(REFERENCE_DELIMITER_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nVerseNumberDelimiterMode != nMode) {
 		m_pPersistentSettingData->m_nVerseNumberDelimiterMode = nMode;
@@ -757,7 +757,7 @@ void CPersistentSettings::setAddQuotesAroundVerse(bool bAddQuotes)
 	}
 }
 
-void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode)
+void CPersistentSettings::setTransChangeAddWordMode(TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nTransChangeAddWordMode != nMode) {
 		m_pPersistentSettingData->m_nTransChangeAddWordMode = nMode;
@@ -765,7 +765,7 @@ void CPersistentSettings::setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHAN
 	}
 }
 
-void CPersistentSettings::setVerseRenderingModeCopying(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode)
+void CPersistentSettings::setVerseRenderingModeCopying(VERSE_RENDERING_MODE_ENUM nMode)
 {
 	if (m_pPersistentSettingData->m_nVerseRenderingModeCopying != nMode) {
 		m_pPersistentSettingData->m_nVerseRenderingModeCopying = nMode;
@@ -797,7 +797,7 @@ void CPersistentSettings::setCopySuperscriptions(bool bCopySuperscriptions)
 	}
 }
 
-void CPersistentSettings::setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection)
+void CPersistentSettings::setCopyFontSelection(COPY_FONT_SELECTION_ENUM nCopyFontSelection)
 {
 	if (m_pPersistentSettingData->m_nCopyFontSelection != nCopyFontSelection) {
 		m_pPersistentSettingData->m_nCopyFontSelection = nCopyFontSelection;

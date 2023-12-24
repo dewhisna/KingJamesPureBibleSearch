@@ -26,6 +26,7 @@
 #include "ReportError.h"
 #include "ScriptureDocument.h"
 #include "ParseSymbols.h"
+#include "TextRenderer.h"
 #include "myApplication.h"
 #include "KJVCanOpener.h"
 #include "SearchResults.h"		// Needed for the CSearchResults class to keep the CSearchResultsSummary in the same translation context until we can revamp our translation contexts : TODO: Fix translations and Remove this
@@ -760,7 +761,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				CPhraseNavigator navigator(m_private.m_pBibleDatabase, doc);
 
 //				if (!bDoingSizeHint) {
-					navigator.setDocumentToVerse(itrVerse->getIndex(), itrVerse->phraseTags(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_SearchResults);
+					navigator.setDocumentToVerse(itrVerse->getIndex(), itrVerse->phraseTags(), defaultGenerateVerseTextFlags | TRO_SearchResults);
 					if ((m_private.m_nViewMode == CVerseListModel::VVME_SEARCH_RESULTS) ||
 						(m_private.m_nViewMode == CVerseListModel::VVME_SEARCH_RESULTS_EXCLUDED)) {
 						CSearchResultHighlighter srHighlighter(itrVerse->phraseTags(), (m_private.m_nViewMode != CVerseListModel::VVME_SEARCH_RESULTS));
@@ -782,7 +783,7 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						navigator.doHighlighting(userHighlighter);
 					}
 //				} else {
-//					navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_SearchResults);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
+//					navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), TRO_NoAnchors | TRO_SearchResults);		// If not doing highlighting, no need to add anchors (improves search results rendering for size hints)
 //				}
 				return doc.toHtml();
 			}
@@ -1432,15 +1433,15 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 	if (bUsingData) {
 		QString strCopyFont= "font-size:medium;";
 		switch (CPersistentSettings::instance()->copyFontSelection()) {
-			case CPhraseNavigator::CFSE_NONE:
+			case CFSE_NONE:
 				break;
-			case CPhraseNavigator::CFSE_COPY_FONT:
+			case CFSE_COPY_FONT:
 				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
 				break;
-			case CPhraseNavigator::CFSE_SCRIPTURE_BROWSER:
+			case CFSE_SCRIPTURE_BROWSER:
 				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
 				break;
-			case CPhraseNavigator::CFSE_SEARCH_RESULTS:
+			case CFSE_SEARCH_RESULTS:
 				strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
 				break;
 			default:
@@ -1478,8 +1479,8 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 			//		change on us if/when they get it fixed, we'll pass
 			//		TRO_None here and set our <hr /> or <br /> below as
 			//		desired:
-			CPhraseNavigator::TextRenderOptionFlags troCopy = defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults;
-			if ((!bVerseTextOnly) && (m_private.m_nViewMode == VVME_USERNOTES)) troCopy |= CPhraseNavigator::TRO_UserNotes | CPhraseNavigator::TRO_UserNotesForceVisible;
+			TextRenderOptionFlags troCopy = defaultGenerateVerseTextFlags | TRO_Copying | TRO_SearchResults;
+			if ((!bVerseTextOnly) && (m_private.m_nViewMode == VVME_USERNOTES)) troCopy |= TRO_UserNotes | TRO_UserNotesForceVisible;
 			navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), troCopy);
 			if (!bVerseTextOnly) {
 				if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
@@ -1568,15 +1569,15 @@ QMimeData *CVerseListModel::mimeDataFromVerseHeadings(const QModelIndexList &lst
 
 	QString strCopyFont= "font-size:medium;";
 	switch (CPersistentSettings::instance()->copyFontSelection()) {
-		case CPhraseNavigator::CFSE_NONE:
+		case CFSE_NONE:
 			break;
-		case CPhraseNavigator::CFSE_COPY_FONT:
+		case CFSE_COPY_FONT:
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontCopyFont().family()).arg(CPersistentSettings::instance()->fontCopyFont().pointSize());
 			break;
-		case CPhraseNavigator::CFSE_SCRIPTURE_BROWSER:
+		case CFSE_SCRIPTURE_BROWSER:
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontScriptureBrowser().family()).arg(CPersistentSettings::instance()->fontScriptureBrowser().pointSize());
 			break;
-		case CPhraseNavigator::CFSE_SEARCH_RESULTS:
+		case CFSE_SEARCH_RESULTS:
 			strCopyFont = QString("font-family:'%1'; font-size:%2pt;").arg(CPersistentSettings::instance()->fontSearchResults().family()).arg(CPersistentSettings::instance()->fontSearchResults().pointSize());
 			break;
 		default:
@@ -1701,7 +1702,7 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 		//		change on us if/when they get it fixed, we'll pass
 		//		TRO_None here and set our <hr /> or <br /> below as
 		//		desired:
-		navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), defaultDocumentToVerseFlags | CPhraseNavigator::TRO_Copying | CPhraseNavigator::TRO_SearchResults);
+		navigator.setDocumentToVerse(item.getIndex(), item.phraseTags(), defaultGenerateVerseTextFlags | TRO_Copying | TRO_SearchResults);
 		if ((m_private.m_nViewMode == VVME_SEARCH_RESULTS) ||
 			(m_private.m_nViewMode == VVME_SEARCH_RESULTS_EXCLUDED)) {
 			CSearchResultHighlighter highlighter(item.phraseTags(), (m_private.m_nViewMode != VVME_SEARCH_RESULTS));

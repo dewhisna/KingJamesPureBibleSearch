@@ -29,7 +29,7 @@
 
 #include "SearchResults.h"
 #include "ScriptureEdit.h"
-#include "PhraseNavigator.h"
+#include "TextRenderer.h"
 #include "PassageNavigatorDlg.h"
 
 #include <QMessageBox>
@@ -193,15 +193,15 @@ void CCrossRefEditDlg::setSourcePassage(const TPassageTag &tag)
 	ui.editSourceRefDesc->setText(m_pBibleDatabase->PassageReferenceText(ndxRel));
 
 	if (ndxRel.verse()) {
-		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, tagList, CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_ScriptureBrowser);
+		m_pEditSourcePassage->navigator().setDocumentToVerse(ndxRel, tagList, TRO_NoAnchors | TRO_AllUserNotesVisible | TRO_ScriptureBrowser);
 	} else if (ndxRel.chapter()) {
-		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, (defaultDocumentToChapterFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_SuppressPrePostChapters | CPhraseNavigator::TRO_ScriptureBrowser) & ~CPhraseNavigator::TRO_UserNoteExpandAnchors);
+		m_pEditSourcePassage->navigator().setDocumentToChapter(ndxRel, (defaultGenerateChapterTextFlags | TRO_NoAnchors | TRO_AllUserNotesVisible | TRO_SuppressPrePostChapters | TRO_ScriptureBrowser) & ~TRO_UserNoteExpandAnchors);
 		QTextCursor txtCursor;
 		txtCursor = m_pEditSourcePassage->textCursor();
 		txtCursor.movePosition(QTextCursor::Start);
 		m_pEditSourcePassage->setTextCursor(txtCursor);
 	} else {
-		m_pEditSourcePassage->navigator().setDocumentToBookInfo(ndxRel, defaultDocumentToBookInfoFlags | CPhraseNavigator::TRO_NoAnchors | CPhraseNavigator::TRO_AllUserNotesVisible | CPhraseNavigator::TRO_ScriptureBrowser);
+		m_pEditSourcePassage->navigator().setDocumentToBookInfo(ndxRel, defaultGenerateBookInfoTextFlags | TRO_NoAnchors | TRO_AllUserNotesVisible | TRO_ScriptureBrowser);
 	}
 
 	// Update working database from source database:

@@ -26,7 +26,6 @@
 
 #include "dbstruct.h"
 #include "Highlighter.h"
-#include "PhraseNavigator.h"
 #include "ScriptureEdit.h"
 #include "DelayedExecutionTimer.h"
 #include "PersistentSettings.h"

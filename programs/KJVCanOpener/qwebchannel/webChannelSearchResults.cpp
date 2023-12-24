@@ -27,7 +27,7 @@
 
 #include "UserNotesDatabase.h"
 #include "PhraseCursor.h"
-#include "PhraseNavigator.h"
+#include "TextRenderer.h"
 #include "Highlighter.h"
 
 #include "CSV.h"
@@ -577,15 +577,15 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 
 	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
 	QString strText = m_pPhraseNavigator->setDocumentToChapter(ndxDecolophonated,
-							CPhraseNavigator::TextRenderOptionFlags(defaultDocumentToChapterFlags |
-							CPhraseNavigator::TRO_InnerHTML |
-							CPhraseNavigator::TRO_NoWordAnchors |
-							CPhraseNavigator::TRO_SuppressPrePostChapters),
+							TextRenderOptionFlags(defaultGenerateChapterTextFlags |
+							TRO_InnerHTML |
+							TRO_NoWordAnchors |
+							TRO_SuppressPrePostChapters),
 							&srHighlighter);
 
 	strText += "<hr />" + m_pPhraseNavigator->getToolTip(TETE_DETAILS, TPhraseTag(CRelIndex(ndxDecolophonated.book(), ndxDecolophonated.chapter(), 0, 0)),
 															CSelectionPhraseTagList(),
-															CPhraseNavigator::TTE_COMPLETE,
+															TTE_COMPLETE,
 															false);
 
 	ndx.setWord((ndx.isColophon() || ndx.isSuperscription()) ? 1 : 0);				// Use 1st word anchor on colophons & superscriptions, but verse number only anchors otherwise since we aren't outputting word anchors

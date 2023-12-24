@@ -25,6 +25,7 @@
 #include "VerseListModel.h"
 #include "UserNotesDatabase.h"
 #include "BibleLayout.h"
+#include "TextRenderer.h"
 
 #include "BusyCursor.h"
 
@@ -95,7 +96,7 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(CPersistentSettings::instance(), SIGNAL(changedPassageReferenceActivationDelay(int)), this, SLOT(setPassageReferenceActivationDelay(int)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM)), this, SLOT(en_changedChapterScrollbarMode()));
 	connect(CPersistentSettings::instance(), SIGNAL(changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)), this, SLOT(setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM)));
-	connect(CPersistentSettings::instance(), SIGNAL(changedFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags)), this, SIGNAL(rerender()));
+	connect(CPersistentSettings::instance(), SIGNAL(changedFootnoteRenderingMode(FootnoteRenderingModeFlags)), this, SIGNAL(rerender()));
 
 	connect(TBibleDatabaseList::instance(), SIGNAL(beginChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)), this, SLOT(en_beginChangeBibleDatabaseSettings(QString,TBibleDatabaseSettings,TBibleDatabaseSettings,bool)));
 
@@ -1144,24 +1145,24 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	QString strBrowserHTML = m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser |
-									   ((CPersistentSettings::instance()->footnoteRenderingMode() & CPhraseNavigator::FRME_INLINE) ? CPhraseNavigator::TRO_InlineFootnotes : CPhraseNavigator::TRO_None));
+	QString strBrowserHTML = m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultGenerateChapterTextFlags | TRO_ScriptureBrowser |
+									   ((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None));
 
 #ifdef USING_LITEHTML
 	QTextDocument docLiteHtml;
 	CPhraseNavigator navigator(m_pBibleDatabase, docLiteHtml);
 
-	// Don't use defaultDocumentToChapterFlags here so we can suppress UserNotes and CrossRefs.
+	// Don't use defaultGenerateChapterTextFlags here so we can suppress UserNotes and CrossRefs.
 //	QString strLiteHtml = m_pScriptureLiteHtml->navigator().setDocumentToChapter(ndxVirtual,
 	QString strLiteHtml = /* m_pScriptureLiteHtml->navigator() */ navigator.setDocumentToChapter(ndxVirtual,
-												 CPhraseNavigator::TRO_NoQTextDocument |
-												 CPhraseNavigator::TRO_Subtitles |
-												 CPhraseNavigator::TRO_SuppressPrePostChapters |
-												 CPhraseNavigator::TRO_NoAnchors |
-												 CPhraseNavigator::TRO_Colophons |
-												 CPhraseNavigator::TRO_Superscriptions |
-												 CPhraseNavigator::TRO_Category |
-												 CPhraseNavigator::TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
+												 TRO_NoQTextDocument |
+												 TRO_Subtitles |
+												 TRO_SuppressPrePostChapters |
+												 TRO_NoAnchors |
+												 TRO_Colophons |
+												 TRO_Superscriptions |
+												 TRO_Category |
+												 TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
 //	int nPos = strLiteHtml.indexOf("<style type=\"text/css\">\n");
 //	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CPhraseNavigator::setDocumentToChapter()
 //	nPos = strLiteHtml.indexOf("body", nPos);

@@ -30,7 +30,7 @@
 #include "DictionaryWidget.h"
 #include "PersistentSettings.h"
 #include "Highlighter.h"
-#include "PhraseNavigator.h"
+#include "TextRenderer.h"
 #include "RenameHighlighterDlg.h"
 #include "BusyCursor.h"
 #include "myApplication.h"
@@ -1093,7 +1093,7 @@ void CConfigTextFormat::navigateToDemoText()
 		ndxPreview = CRelIndex(1, 12, 1, 1);
 		ndxPreview2 = CRelIndex(1, 12, 3, 1);
 	}
-	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxPreview, defaultDocumentToChapterFlags | CPhraseNavigator::TRO_ScriptureBrowser);
+	m_pScriptureBrowser->navigator().setDocumentToChapter(ndxPreview, defaultGenerateChapterTextFlags | TRO_ScriptureBrowser);
 	m_pScriptureBrowser->navigator().selectWords(TPhraseTag(ndxPreview));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview, 5)));
 	m_pScriptureBrowser->navigator().doHighlighting(CSearchResultHighlighter(TPhraseTag(ndxPreview2, 32)));
@@ -2119,18 +2119,18 @@ CConfigBrowserOptions::CConfigBrowserOptions(QWidget *parent)
 	ui.comboBoxRandomPassageWeightMode->setToolTip(tr("Verse: by verses (books with more verses picked more often)\n"
 														"Even: by book/chapter/verse (pick book, then chapter, then verse)", "RandomPassageWeightModes"));
 
-	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_INDENT);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_HANGING);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_INDENT);
-	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Hanging Indent", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS_HANGING);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), VRME_FF);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), VRME_VPL);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), VRME_VPL_DS);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Indent", "VerseRenderingModes"), VRME_VPL_INDENT);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line with Hanging Indent", "VerseRenderingModes"), VRME_VPL_HANGING);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Indent", "VerseRenderingModes"), VRME_VPL_DS_INDENT);
+	ui.comboBoxVerseRenderingMode->addItem(tr("Verse-Per-Line Double-Spaced with Hanging Indent", "VerseRenderingModes"), VRME_VPL_DS_HANGING);
 
-	ui.comboBoxFootnoteRenderingMode->addItem(tr("None", "FootnoteRenderingModes"), CPhraseNavigator::FRME_NONE);
-	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline", "FootnoteRenderingModes"), CPhraseNavigator::FRME_INLINE);
-	ui.comboBoxFootnoteRenderingMode->addItem(tr("Status Bar", "FootnoteRenderingModes"), CPhraseNavigator::FRME_STATUS_BAR);
-	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline/Status Bar", "FootnoteRenderingModes"), CPhraseNavigator::FRME_INLINE | CPhraseNavigator::FRME_STATUS_BAR);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("None", "FootnoteRenderingModes"), FRME_NONE);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline", "FootnoteRenderingModes"), FRME_INLINE);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("Status Bar", "FootnoteRenderingModes"), FRME_STATUS_BAR);
+	ui.comboBoxFootnoteRenderingMode->addItem(tr("Inline/Status Bar", "FootnoteRenderingModes"), FRME_INLINE | FRME_STATUS_BAR);
 
 	connect(ui.spinBrowserNavigationActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedNavigationActivationDelay(int)));
 	connect(ui.spinBrowserPassageReferenceActivationDelay, SIGNAL(valueChanged(int)), this, SLOT(en_changedPassageReferenceActivationDelay(int)));
@@ -2239,7 +2239,7 @@ void CConfigBrowserOptions::saveSettings()
 	}
 	nIndex = ui.comboBoxVerseRenderingMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setVerseRenderingMode(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingMode->itemData(nIndex).toUInt()));
 	} else {
 		bKeepDirty = true;
 		Q_ASSERT(false);
@@ -2248,7 +2248,7 @@ void CConfigBrowserOptions::saveSettings()
 	CPersistentSettings::instance()->setShowPilcrowMarkers(ui.checkBoxShowPilcrowMarkers->isChecked());
 	nIndex = ui.comboBoxFootnoteRenderingMode->currentIndex();
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<CPhraseNavigator::FootnoteRenderingModeFlags>(ui.comboBoxFootnoteRenderingMode->itemData(nIndex).toInt()));
+		CPersistentSettings::instance()->setFootnoteRenderingMode(static_cast<FootnoteRenderingModeFlags>(ui.comboBoxFootnoteRenderingMode->itemData(nIndex).toInt()));
 	} else {
 		bKeepDirty = true;
 		Q_ASSERT(false);
@@ -2442,10 +2442,10 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboReferenceDelimiterMode->addItem(tr("No Delimiters", "Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
-	ui.comboReferenceDelimiterMode->addItem(tr("Square Brackets", "Delimiters"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
-	ui.comboReferenceDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), CPhraseNavigator::RDME_CURLY_BRACES);
-	ui.comboReferenceDelimiterMode->addItem(tr("Parentheses", "Delimiters"), CPhraseNavigator::RDME_PARENTHESES);
+	ui.comboReferenceDelimiterMode->addItem(tr("No Delimiters", "Delimiters"), RDME_NO_DELIMITER);
+	ui.comboReferenceDelimiterMode->addItem(tr("Square Brackets", "Delimiters"), RDME_SQUARE_BRACKETS);
+	ui.comboReferenceDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), RDME_CURLY_BRACES);
+	ui.comboReferenceDelimiterMode->addItem(tr("Parentheses", "Delimiters"), RDME_PARENTHESES);
 
 	connect(ui.comboReferenceDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedReferenceDelimiterMode(int)));
 
@@ -2463,13 +2463,13 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboVerseNumberDelimiterMode->addItem(tr("No Numbers", "Delimiters"), CPhraseNavigator::RDME_NO_NUMBER);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("No Delimiters", "Delimiters"), CPhraseNavigator::RDME_NO_DELIMITER);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Square Brackets", "Delimiters"), CPhraseNavigator::RDME_SQUARE_BRACKETS);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), CPhraseNavigator::RDME_CURLY_BRACES);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Parentheses", "Delimiters"), CPhraseNavigator::RDME_PARENTHESES);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Superscript", "Delimiters"), CPhraseNavigator::RDME_SUPERSCRIPT);
-	ui.comboVerseNumberDelimiterMode->addItem(tr("Complete Reference", "Delimiters"), CPhraseNavigator::RDME_COMPLETE_REFERENCE);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("No Numbers", "Delimiters"), RDME_NO_NUMBER);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("No Delimiters", "Delimiters"), RDME_NO_DELIMITER);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Square Brackets", "Delimiters"), RDME_SQUARE_BRACKETS);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Curly Braces", "Delimiters"), RDME_CURLY_BRACES);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Parentheses", "Delimiters"), RDME_PARENTHESES);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Superscript", "Delimiters"), RDME_SUPERSCRIPT);
+	ui.comboVerseNumberDelimiterMode->addItem(tr("Complete Reference", "Delimiters"), RDME_COMPLETE_REFERENCE);
 
 	connect(ui.comboVerseNumberDelimiterMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseNumberDelimiterMode(int)));
 
@@ -2487,17 +2487,17 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboTransChangeAddedMode->addItem(tr("No Marking", "Delimiters"), CPhraseNavigator::TCAWME_NO_MARKING);
-	ui.comboTransChangeAddedMode->addItem(tr("Italics", "Delimiters"), CPhraseNavigator::TCAWME_ITALICS);
-	ui.comboTransChangeAddedMode->addItem(tr("Brackets", "Delimiters"), CPhraseNavigator::TCAWME_BRACKETS);
+	ui.comboTransChangeAddedMode->addItem(tr("No Marking", "Delimiters"), TCAWME_NO_MARKING);
+	ui.comboTransChangeAddedMode->addItem(tr("Italics", "Delimiters"), TCAWME_ITALICS);
+	ui.comboTransChangeAddedMode->addItem(tr("Brackets", "Delimiters"), TCAWME_BRACKETS);
 
 	connect(ui.comboTransChangeAddedMode, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedTransChangeAddWordMode(int)));
 
 	// ----------
 
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), CPhraseNavigator::VRME_FF);
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL);
-	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), CPhraseNavigator::VRME_VPL_DS);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Free-Flow/Paragraph", "VerseRenderingModes"), VRME_FF);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line", "VerseRenderingModes"), VRME_VPL);
+	ui.comboBoxVerseRenderingModeCopying->addItem(tr("Verse-Per-Line Double-Spaced", "VerseRenderingModes"), VRME_VPL_DS);
 
 	connect(ui.comboBoxVerseRenderingModeCopying, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedVerseRenderingModeCopying(int)));
 
@@ -2512,10 +2512,10 @@ CConfigCopyOptions::CConfigCopyOptions(CBibleDatabasePtr pBibleDatabase, QWidget
 
 	// ----------
 
-	ui.comboBoxCopyFontSelection->addItem(tr("No Font Hint", "CopyFontModes"), CPhraseNavigator::CFSE_NONE);
-	ui.comboBoxCopyFontSelection->addItem(tr("Copy Font", "CopyFontModes"), CPhraseNavigator::CFSE_COPY_FONT);
-	ui.comboBoxCopyFontSelection->addItem(tr("Scripture Browser Font", "CopyFontModes"), CPhraseNavigator::CFSE_SCRIPTURE_BROWSER);
-	ui.comboBoxCopyFontSelection->addItem(tr("Search Results Font", "CopyFontModes"), CPhraseNavigator::CFSE_SEARCH_RESULTS);
+	ui.comboBoxCopyFontSelection->addItem(tr("No Font Hint", "CopyFontModes"), CFSE_NONE);
+	ui.comboBoxCopyFontSelection->addItem(tr("Copy Font", "CopyFontModes"), CFSE_COPY_FONT);
+	ui.comboBoxCopyFontSelection->addItem(tr("Scripture Browser Font", "CopyFontModes"), CFSE_SCRIPTURE_BROWSER);
+	ui.comboBoxCopyFontSelection->addItem(tr("Search Results Font", "CopyFontModes"), CFSE_SEARCH_RESULTS);
 
 	connect(ui.comboBoxCopyFontSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedCopyFontSelection(int)));
 
@@ -2606,7 +2606,7 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		bKeepDirty = true;
 		ui.comboReferenceDelimiterMode->setCurrentIndex(0);
-		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(0).toUInt()));
+		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(0).toUInt()));
 		setVerseCopyPreview();
 	}
 
@@ -2630,7 +2630,7 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		bKeepDirty = true;
 		ui.comboVerseNumberDelimiterMode->setCurrentIndex(0);
-		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(0).toUInt()));
+		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(0).toUInt()));
 		setVerseCopyPreview();
 	}
 
@@ -2654,7 +2654,7 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		bKeepDirty = true;
 		ui.comboTransChangeAddedMode->setCurrentIndex(0);
-		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(0).toUInt()));
+		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(0).toUInt()));
 		setVerseCopyPreview();
 	}
 
@@ -2666,7 +2666,7 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		bKeepDirty = true;
 		ui.comboBoxVerseRenderingModeCopying->setCurrentIndex(0);
-		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(0).toUInt()));
+		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(0).toUInt()));
 		setVerseCopyPreview();
 	}
 
@@ -2687,10 +2687,10 @@ void CConfigCopyOptions::loadSettings()
 	} else {
 		bKeepDirty = true;
 		ui.comboBoxCopyFontSelection->setCurrentIndex(0);
-		CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCFSE = static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(ui.comboBoxCopyFontSelection->itemData(0).toUInt());
+		COPY_FONT_SELECTION_ENUM nCFSE = static_cast<COPY_FONT_SELECTION_ENUM>(ui.comboBoxCopyFontSelection->itemData(0).toUInt());
 		CPersistentSettings::instance()->setCopyFontSelection(nCFSE);
-		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
-		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
+		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CFSE_COPY_FONT);
+		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CFSE_COPY_FONT);
 		setVerseCopyPreview();
 	}
 
@@ -2698,8 +2698,8 @@ void CConfigCopyOptions::loadSettings()
 	ui.fontComboBoxCopyFont->setCurrentFont(m_fntCopyFont);
 	ui.dblSpinBoxCopyFontSize->setValue(m_fntCopyFont.pointSizeF());
 
-	ui.fontComboBoxCopyFont->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
-	ui.dblSpinBoxCopyFontSize->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT);
+	ui.fontComboBoxCopyFont->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CFSE_COPY_FONT);
+	ui.dblSpinBoxCopyFontSize->setEnabled(CPersistentSettings::instance()->copyFontSelection() == CFSE_COPY_FONT);
 
 	// ----------
 
@@ -2748,7 +2748,7 @@ void CConfigCopyOptions::en_changedReferenceDelimiterMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setReferenceDelimiterMode(static_cast<REFERENCE_DELIMITER_MODE_ENUM>(ui.comboReferenceDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
 		Q_ASSERT(false);
 	}
@@ -2792,7 +2792,7 @@ void CConfigCopyOptions::en_changedVerseNumberDelimiterMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setVerseNumberDelimiterMode(static_cast<REFERENCE_DELIMITER_MODE_ENUM>(ui.comboVerseNumberDelimiterMode->itemData(nIndex).toUInt()));
 	} else {
 		Q_ASSERT(false);
 	}
@@ -2836,7 +2836,7 @@ void CConfigCopyOptions::en_changedTransChangeAddWordMode(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setTransChangeAddWordMode(static_cast<TRANS_CHANGE_ADD_WORD_MODE_ENUM>(ui.comboTransChangeAddedMode->itemData(nIndex).toUInt()));
 	} else {
 		Q_ASSERT(false);
 	}
@@ -2850,7 +2850,7 @@ void CConfigCopyOptions::en_changedVerseRenderingModeCopying(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<CPhraseNavigator::VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(nIndex).toUInt()));
+		CPersistentSettings::instance()->setVerseRenderingModeCopying(static_cast<VERSE_RENDERING_MODE_ENUM>(ui.comboBoxVerseRenderingModeCopying->itemData(nIndex).toUInt()));
 	} else {
 		Q_ASSERT(false);
 	}
@@ -2892,10 +2892,10 @@ void CConfigCopyOptions::en_changedCopyFontSelection(int nIndex)
 	if (m_bLoadingData) return;
 
 	if (nIndex != -1) {
-		CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCFSE = static_cast<CPhraseNavigator::COPY_FONT_SELECTION_ENUM>(ui.comboBoxCopyFontSelection->itemData(nIndex).toUInt());
+		COPY_FONT_SELECTION_ENUM nCFSE = static_cast<COPY_FONT_SELECTION_ENUM>(ui.comboBoxCopyFontSelection->itemData(nIndex).toUInt());
 		CPersistentSettings::instance()->setCopyFontSelection(nCFSE);
-		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
-		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CPhraseNavigator::CFSE_COPY_FONT);
+		ui.fontComboBoxCopyFont->setEnabled(nCFSE == CFSE_COPY_FONT);
+		ui.dblSpinBoxCopyFontSize->setEnabled(nCFSE == CFSE_COPY_FONT);
 	} else {
 		Q_ASSERT(false);
 	}
@@ -2912,7 +2912,7 @@ void CConfigCopyOptions::en_changedFontCopyFont(const QFont &aFont)
 	CPersistentSettings::instance()->setFontCopyFont(m_fntCopyFont);
 	m_bIsDirty = true;
 	emit dataChanged(false);
-	if (CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT) setVerseCopyPreview();
+	if (CPersistentSettings::instance()->copyFontSelection() == CFSE_COPY_FONT) setVerseCopyPreview();
 }
 
 void CConfigCopyOptions::en_changedFontCopyFontSize(double nFontSize)
@@ -2923,7 +2923,7 @@ void CConfigCopyOptions::en_changedFontCopyFontSize(double nFontSize)
 	CPersistentSettings::instance()->setFontCopyFont(m_fntCopyFont);
 	m_bIsDirty = true;
 	emit dataChanged(false);
-	if (CPersistentSettings::instance()->copyFontSelection() == CPhraseNavigator::CFSE_COPY_FONT) setVerseCopyPreview();
+	if (CPersistentSettings::instance()->copyFontSelection() == CFSE_COPY_FONT) setVerseCopyPreview();
 }
 
 void CConfigCopyOptions::en_changedCopyMimeType(int nIndex)

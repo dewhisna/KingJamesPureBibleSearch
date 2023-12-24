@@ -361,6 +361,7 @@ SOURCES += \
 	SearchSpecWidget.cpp \
 	SoundEx.cpp \
 	SubControls.cpp \
+	TextRenderer.cpp \
 	ToolTipEdit.cpp \
 	Translator.cpp \
 	UserNotesDatabase.cpp \
@@ -437,6 +438,7 @@ HEADERS += \
 	SearchSpecWidget.h \
 	SoundEx.h \
 	SubControls.h \
+	TextRenderer.h \
 	ThreadedSearchResults.h \
 	ToolTipEdit.h \
 	Translator.h \

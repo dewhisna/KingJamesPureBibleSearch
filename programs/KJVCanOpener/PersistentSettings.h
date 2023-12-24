@@ -33,7 +33,7 @@
 #include <QMap>
 
 #include "dbstruct.h"
-#include "PhraseNavigator.h"
+#include "TextRenderer.h"
 
 // ============================================================================
 
@@ -134,31 +134,31 @@ public:
 	int passageReferenceActivationDelay() const { return m_pPersistentSettingData->m_nPassageReferenceActivationDelay; }
 	bool showExcludedSearchResultsInBrowser() const { return m_pPersistentSettingData->m_bShowExcludedSearchResultsInBrowser; }
 	CHAPTER_SCROLLBAR_MODE_ENUM chapterScrollbarMode() const { return m_pPersistentSettingData->m_nChapterScrollbarMode; }
-	CPhraseNavigator::VERSE_RENDERING_MODE_ENUM verseRenderingMode() const { return m_pPersistentSettingData->m_nVerseRenderingMode; }
+	VERSE_RENDERING_MODE_ENUM verseRenderingMode() const { return m_pPersistentSettingData->m_nVerseRenderingMode; }
 	bool showPilcrowMarkers() const { return m_pPersistentSettingData->m_bShowPilcrowMarkers; }
 	qreal scriptureBrowserLineHeight() const { return m_pPersistentSettingData->m_nScriptureBrowserLineHeight; }
 	BROWSER_NAVIGATION_PANE_MODE_ENUM browserNavigationPaneMode() const { return m_pPersistentSettingData->m_nBrowserNavigationPaneMode; }
 	BROWSER_DISPLAY_MODE_ENUM browserDisplayMode() const { return m_pPersistentSettingData->m_nBrowserDisplayMode; }
 	RANDOM_PASSAGE_WEIGHT_ENUM randomPassageWeightMode() const { return m_pPersistentSettingData->m_nRandomPassageWeightMode; }
-	CPhraseNavigator::FootnoteRenderingModeFlags footnoteRenderingMode() const { return m_pPersistentSettingData->m_nFootnoteRenderingMode; }
+	FootnoteRenderingModeFlags footnoteRenderingMode() const { return m_pPersistentSettingData->m_nFootnoteRenderingMode; }
 
 	SEARCH_COMPLETION_FILTER_MODE_ENUM dictionaryCompleterFilterMode() const { return m_pPersistentSettingData->m_nDictionaryCompleterFilterMode; }
 	int dictionaryActivationDelay() const { return m_pPersistentSettingData->m_nDictionaryActivationDelay; }
 
-	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
+	REFERENCE_DELIMITER_MODE_ENUM referenceDelimiterMode() const { return m_pPersistentSettingData->m_nReferenceDelimiterMode; }
 	bool referencesUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bReferencesUseAbbreviatedBookNames; }
 	bool referencesInBold() const { return m_pPersistentSettingData->m_bReferencesInBold; }
 	bool referencesAtEnd() const { return m_pPersistentSettingData->m_bReferencesAtEnd; }
-	CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM verseNumberDelimiterMode() const { return m_pPersistentSettingData->m_nVerseNumberDelimiterMode; }
+	REFERENCE_DELIMITER_MODE_ENUM verseNumberDelimiterMode() const { return m_pPersistentSettingData->m_nVerseNumberDelimiterMode; }
 	bool verseNumbersUseAbbreviatedBookNames() const { return m_pPersistentSettingData->m_bVerseNumbersUseAbbreviatedBookNames; }
 	bool verseNumbersInBold() const { return m_pPersistentSettingData->m_bVerseNumbersInBold; }
 	bool addQuotesAroundVerse() const { return m_pPersistentSettingData->m_bAddQuotesAroundVerse; }
-	CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
-	CPhraseNavigator::VERSE_RENDERING_MODE_ENUM verseRenderingModeCopying() const { return m_pPersistentSettingData->m_nVerseRenderingModeCopying; }
+	TRANS_CHANGE_ADD_WORD_MODE_ENUM transChangeAddWordMode() const { return m_pPersistentSettingData->m_nTransChangeAddWordMode; }
+	VERSE_RENDERING_MODE_ENUM verseRenderingModeCopying() const { return m_pPersistentSettingData->m_nVerseRenderingModeCopying; }
 	bool copyPilcrowMarkers() const { return m_pPersistentSettingData->m_bCopyPilcrowMarkers; }
 	bool copyColophons() const { return m_pPersistentSettingData->m_bCopyColophons; }
 	bool copySuperscriptions() const { return m_pPersistentSettingData->m_bCopySuperscriptions; }
-	CPhraseNavigator::COPY_FONT_SELECTION_ENUM copyFontSelection() const { return m_pPersistentSettingData->m_nCopyFontSelection; }
+	COPY_FONT_SELECTION_ENUM copyFontSelection() const { return m_pPersistentSettingData->m_nCopyFontSelection; }
 	QFont fontCopyFont() const { return m_pPersistentSettingData->m_fntCopyFont; }
 	COPY_MIME_TYPE_ENUM copyMimeType() const { return m_pPersistentSettingData->m_nCopyMimeType; }
 
@@ -244,13 +244,13 @@ signals:
 	void changedPassageReferenceActivationDelay(int nDelay);
 	void changedShowExcludedSearchResultsInBrowser(bool bShowExcludedSearchResults);
 	void changedChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode);
-	void changedVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
+	void changedVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode);
 	void changedShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void changedScriptureBrowserLineHeight(qreal nLineHeight);
 	void changedBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 	void changedBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
 	void changedRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM nRandomPassageWeightMode);
-	void changedFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags nMode);
+	void changedFootnoteRenderingMode(FootnoteRenderingModeFlags nMode);
 
 	void changedDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM);
 	void changedDictionaryActivationDelay(int nDelay);
@@ -306,31 +306,31 @@ public slots:
 	void setPassageReferenceActivationDelay(int nDelay);
 	void setShowExcludedSearchResultsInBrowser(bool bShowExcludedSearchResults);
 	void setChapterScrollbarMode(CHAPTER_SCROLLBAR_MODE_ENUM nMode);
-	void setVerseRenderingMode(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
+	void setVerseRenderingMode(VERSE_RENDERING_MODE_ENUM nMode);
 	void setShowPilcrowMarkers(bool bShowPilcrowMarkers);
 	void setScriptureBrowserLineHeight(qreal nLineHeight);
 	void setBrowserNavigationPaneMode(BROWSER_NAVIGATION_PANE_MODE_ENUM nBrowserNavigationPaneMode);
 	void setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode);
 	void setRandomPassageWeightMode(RANDOM_PASSAGE_WEIGHT_ENUM nRandomPassageWeightMode);
-	void setFootnoteRenderingMode(CPhraseNavigator::FootnoteRenderingModeFlags nMode);
+	void setFootnoteRenderingMode(FootnoteRenderingModeFlags nMode);
 
 	void setDictionaryCompleterFilterMode(SEARCH_COMPLETION_FILTER_MODE_ENUM nMode);
 	void setDictionaryActivationDelay(int nDelay);
 
-	void setReferenceDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
+	void setReferenceDelimiterMode(REFERENCE_DELIMITER_MODE_ENUM nMode);
 	void setReferencesUseAbbreviatedBookNames(bool bUseAbbrBookNames);
 	void setReferencesInBold(bool bInBold);
 	void setReferencesAtEnd(bool bAtEnd);
-	void setVerseNumberDelimiterMode(CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM nMode);
+	void setVerseNumberDelimiterMode(REFERENCE_DELIMITER_MODE_ENUM nMode);
 	void setVerseNumbersUseAbbreviatedBookNames(bool bUseAbbrBookNames);
 	void setVerseNumbersInBold(bool bInBold);
 	void setAddQuotesAroundVerse(bool bAddQuotes);
-	void setTransChangeAddWordMode(CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
-	void setVerseRenderingModeCopying(CPhraseNavigator::VERSE_RENDERING_MODE_ENUM nMode);
+	void setTransChangeAddWordMode(TRANS_CHANGE_ADD_WORD_MODE_ENUM nMode);
+	void setVerseRenderingModeCopying(VERSE_RENDERING_MODE_ENUM nMode);
 	void setCopyPilcrowMarkers(bool bCopyPilcrowMarkers);
 	void setCopyColophons(bool bCopyColophons);
 	void setCopySuperscriptions(bool bCopySuperscriptions);
-	void setCopyFontSelection(CPhraseNavigator::COPY_FONT_SELECTION_ENUM nCopyFontSelection);
+	void setCopyFontSelection(COPY_FONT_SELECTION_ENUM nCopyFontSelection);
 	void setFontCopyFont(const QFont &aFont);
 	void setCopyMimeType(COPY_MIME_TYPE_ENUM nCopyMimeType);
 
@@ -396,31 +396,31 @@ private:
 		int m_nPassageReferenceActivationDelay;			// Manually Typed Passage Reference Activation Delay to set on Scripture Browser controls
 		bool m_bShowExcludedSearchResultsInBrowser;		// True if Excluded Search Results will be Highlighted in the Scripture Browser
 		CHAPTER_SCROLLBAR_MODE_ENUM m_nChapterScrollbarMode;	// Location of Chapter Scrollbar relative to the Scripture Browser
-		CPhraseNavigator::VERSE_RENDERING_MODE_ENUM m_nVerseRenderingMode;	// How to display verses within the Scripture Browser
+		VERSE_RENDERING_MODE_ENUM m_nVerseRenderingMode;	// How to display verses within the Scripture Browser
 		bool m_bShowPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be rendered
 		qreal m_nScriptureBrowserLineHeight;			// Line-height to use in the Scripture Browser display (1.00 to 2.00 for 100% to 200% or single to double spaced)
 		BROWSER_NAVIGATION_PANE_MODE_ENUM m_nBrowserNavigationPaneMode;			// Controls what part of the book/chapter/verse navigation pane is visible above the Scripture Browser
 		BROWSER_DISPLAY_MODE_ENUM m_nBrowserDisplayMode;	// Controls which browser mode is in use
 		RANDOM_PASSAGE_WEIGHT_ENUM m_nRandomPassageWeightMode;	// Controls how random passage selection is weighted
-		CPhraseNavigator::FootnoteRenderingModeFlags m_nFootnoteRenderingMode;	// How Bible footnotes are rendered
+		FootnoteRenderingModeFlags m_nFootnoteRenderingMode;	// How Bible footnotes are rendered
 		// ----
 		SEARCH_COMPLETION_FILTER_MODE_ENUM m_nDictionaryCompleterFilterMode;
 		int m_nDictionaryActivationDelay;				// Delay for Dictionary word change until activation
 		// ----
-		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
+		REFERENCE_DELIMITER_MODE_ENUM m_nReferenceDelimiterMode;
 		bool m_bReferencesUseAbbreviatedBookNames;
 		bool m_bReferencesInBold;
 		bool m_bReferencesAtEnd;
-		CPhraseNavigator::REFERENCE_DELIMITER_MODE_ENUM m_nVerseNumberDelimiterMode;
+		REFERENCE_DELIMITER_MODE_ENUM m_nVerseNumberDelimiterMode;
 		bool m_bVerseNumbersUseAbbreviatedBookNames;
 		bool m_bVerseNumbersInBold;
 		bool m_bAddQuotesAroundVerse;
-		CPhraseNavigator::TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
-		CPhraseNavigator::VERSE_RENDERING_MODE_ENUM m_nVerseRenderingModeCopying;	// How to copy verses from Scripture Browser (VPL, FF, etc)
+		TRANS_CHANGE_ADD_WORD_MODE_ENUM m_nTransChangeAddWordMode;
+		VERSE_RENDERING_MODE_ENUM m_nVerseRenderingModeCopying;	// How to copy verses from Scripture Browser (VPL, FF, etc)
 		bool m_bCopyPilcrowMarkers;						// If enabled, the pilcrow symbols (¶) will be copied
 		bool m_bCopyColophons;							// If enabled, colophons are copied as if they are verses
 		bool m_bCopySuperscriptions;					// If enabled, superscriptions are copied as if they are verses
-		CPhraseNavigator::COPY_FONT_SELECTION_ENUM m_nCopyFontSelection;	// Font to use for the copy font hint in the generated HTML
+		COPY_FONT_SELECTION_ENUM m_nCopyFontSelection;	// Font to use for the copy font hint in the generated HTML
 		QFont m_fntCopyFont;							// Font to use for the Copy Font for CFSE_COPY_FONT mode
 		COPY_MIME_TYPE_ENUM m_nCopyMimeType;			// Selection of MIME type to use in copying and drag-n-drop
 		// ----
