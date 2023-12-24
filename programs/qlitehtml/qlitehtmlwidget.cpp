@@ -679,6 +679,18 @@ void QLiteHtmlWidget::setDefaultFont(const QFont &font)
 		d->documentContainer.setDefaultFont(font);
 		render();
 	});
+	// For some reason, the render() above loses the color markup
+	//	of text, so we need to reload() the page.  However, we
+	//	need to do this outside of the position capture above
+	//	so that it rerenders the font, etc., to the correct new
+	//	position first.  If we use reload above, the element object
+	//	in the withFixedTextPosition in its withFixedElementPosition
+	//	call changes objects (i.e. invalidates the pointer and
+	//	the position shifts.  The only workaround I could find
+	//	was to render it in the new position above in the capture
+	//	without redrawing things, then redraw everything without
+	//	shifting X/Y via reload, which keeps X/Y scroll position:
+	reload();
 }
 
 QFont QLiteHtmlWidget::defaultFont() const
