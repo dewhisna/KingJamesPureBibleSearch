@@ -161,24 +161,24 @@ class CSelectionPhraseTagList;
 class CTextRenderer
 {
 public:
-	static QString generateTextForBookInfo(CBibleDatabase *pBibleDatabase,
+	static QString generateTextForBookInfo(const CBibleDatabase *pBibleDatabase,
 										   const CRelIndex &ndx,
 										   TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateBookInfoTextFlags));
-	static QString generateTextForChapter(CBibleDatabase *pBibleDatabase,
+	static QString generateTextForChapter(const CBibleDatabase *pBibleDatabase,
 										  qreal nIndentWidth,
 										  const CRelIndex &ndx,
 										  TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateChapterTextFlags),
 										  const CBasicHighlighter *pHighlighter = nullptr);
-	static QString generateTextForVerse(CBibleDatabase *pBibleDatabase,
+	static QString generateTextForVerse(const CBibleDatabase *pBibleDatabase,
 										const CRelIndex &ndx,
 										const TPhraseTagList &tagsToInclude,
 										TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateVerseTextFlags),
 										const CBasicHighlighter *pHighlighter = nullptr);
-	static QString generateTextForFormattedVerses(CBibleDatabase *pBibleDatabase,
+	static QString generateTextForFormattedVerses(const CBibleDatabase *pBibleDatabase,
 												  qreal nIndentWidth,
 												  const TPhraseTagList &lstPhraseTags,
 												  TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateFormattedVersesTextFlags));	// Note: By definition, this one doesn't include anchors
-	static QString generateTextForFormattedVerses(CBibleDatabase *pBibleDatabase,
+	static QString generateTextForFormattedVerses(const CBibleDatabase *pBibleDatabase,
 												  qreal nIndentWidth,
 												  const TPassageTagList &lstPassageTags,
 												  TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateFormattedVersesTextFlags));	// Note: By definition, this one doesn't include anchors

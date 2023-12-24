@@ -36,7 +36,7 @@
 
 // ============================================================================
 
-QString CTextRenderer::generateTextForBookInfo(CBibleDatabase *pBibleDatabase,
+QString CTextRenderer::generateTextForBookInfo(const CBibleDatabase *pBibleDatabase,
 											   const CRelIndex &ndx,
 											   TextRenderOptionFlags flagsTRO)
 {
@@ -211,7 +211,7 @@ QString CTextRenderer::generateTextForBookInfo(CBibleDatabase *pBibleDatabase,
 
 // ============================================================================
 
-QString CTextRenderer::generateTextForChapter(CBibleDatabase *pBibleDatabase,
+QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDatabase,
 											  qreal nIndentWidth,
 											  const CRelIndex &ndx,
 											  TextRenderOptionFlags flagsTRO,
@@ -901,7 +901,7 @@ QString CTextRenderer::generateTextForChapter(CBibleDatabase *pBibleDatabase,
 
 // ============================================================================
 
-QString CTextRenderer::generateTextForVerse(CBibleDatabase *pBibleDatabase,
+QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase,
 											const CRelIndex &ndx,
 											const TPhraseTagList &tagsToInclude,
 											TextRenderOptionFlags flagsTRO,
@@ -1120,7 +1120,7 @@ QString CTextRenderer::generateTextForVerse(CBibleDatabase *pBibleDatabase,
 
 // ============================================================================
 
-QString CTextRenderer::generateTextForFormattedVerses(CBibleDatabase *pBibleDatabase,
+QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBibleDatabase,
 													  qreal nIndentWidth,
 													  const TPhraseTagList &lstPhraseTags,
 													  TextRenderOptionFlags flagsTRO)
@@ -1164,7 +1164,7 @@ static QString referenceEndingDelimiter()
 	return QString();
 }
 
-QString CTextRenderer::generateTextForFormattedVerses(CBibleDatabase *pBibleDatabase,
+QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBibleDatabase,
 													  qreal nIndentWidth,
 													  const TPassageTagList &lstPassageTags,
 													  TextRenderOptionFlags flagsTRO)
