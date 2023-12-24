@@ -38,6 +38,8 @@ public:
 	void setDefaultFont(const QFont &font);
 	QFont defaultFont() const;
 
+	void setCSSExt(const QString &extcss);
+
 	void scrollToAnchor(const QString &name);
 
 	using ResourceHandler = std::function<QByteArray(QUrl)>;

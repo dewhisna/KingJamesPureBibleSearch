@@ -459,9 +459,19 @@ void CScriptureText<T,U>::setFont(const QFont& aFont)
 template<class T, class U>
 void CScriptureText<T,U>::setTextBrightness(bool bInvert, int nBrightness)
 {
-	U::setStyleSheet(QString("i_CScriptureBrowser, i_CScriptureEdit { background-color:%1; color:%2; }")
+	U::setStyleSheet(QString("i_CScriptureBrowser, i_CScriptureEdit, i_CScriptureLiteHtml { background-color:%1; color:%2; }")
 								   .arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
 								   .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name()));
+
+#ifdef USING_LITEHTML
+	QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+	if (pLiteHtml != nullptr) {
+		QString cssExt = QString("body { background-color:%1; color:%2; }")
+								   .arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
+								   .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name());
+		pLiteHtml->setCSSExt(cssExt);
+	}
+#endif
 }
 
 // ----------------------------------------------------------------------------

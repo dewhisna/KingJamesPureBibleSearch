@@ -500,8 +500,12 @@ void QLiteHtmlWidget::reload()
 {
 	QUrl s = d->url;
 	d->url = QUrl();
+	int X = horizontalScrollBar()->value();
+	int Y = verticalScrollBar()->value();
 	setSource(s);
 	render();
+	horizontalScrollBar()->setValue(X);
+	verticalScrollBar()->setValue(Y);
 }
 
 void QLiteHtmlWidget::setSource(const QUrl &url)
@@ -680,6 +684,14 @@ void QLiteHtmlWidget::setDefaultFont(const QFont &font)
 QFont QLiteHtmlWidget::defaultFont() const
 {
 	return d->documentContainer.defaultFont();
+}
+
+void QLiteHtmlWidget::setCSSExt(const QString &extcss)
+{
+	QString css = mastercss;
+	css += "\n" + extcss;
+	d->context.setMasterStyleSheet(css);
+	reload();
 }
 
 void QLiteHtmlWidget::scrollToAnchor(const QString &name)
