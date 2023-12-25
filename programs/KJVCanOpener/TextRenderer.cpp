@@ -298,6 +298,18 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
 
+#ifdef WORKAROUND_LITEHTML_81
+	// Very kludgy hack for LiteHtml missing support for "dir" property on paragraphs.
+	//	This implements the RTL logic by reversing the template.  It's a hack because
+	//	this code really doesn't know if it's outputting text for the LiteHtml or not.
+	//	We just assume we are if we are outputting Lemmas and Anchors together.  Otherwise,
+	//	we assume we are either in the QTextDocument of ScriptureBrowser (which doesn't
+	//	use the lemmas) or on WebChannel (which won't have anchors).  This code is
+	//	horrible and needs to be deleted as soon as LiteHtml gets support for "dir":
+	bool bKludge81 = ((pBibleDatabase->direction() == Qt::RightToLeft) &&
+					  ((flagsRRO & (RRO_AddAnchors | RRO_UseLemmas)) == (RRO_AddAnchors | RRO_UseLemmas)));
+#endif
+
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
 											  CPersistentSettings::instance()->verseRenderingModeCopying() :
 											  CPersistentSettings::instance()->verseRenderingMode());
@@ -309,6 +321,19 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			vrmeMode = VRME_VPL_DS;
 		}
 	}
+
+	QString strRefCSS = QString(
+			".ref:dir(ltr) { float: left; padding: 0em 0.5em %1em 0em; }\n"
+			".ref:dir(rtl) { float: right; padding: 0em 0em %1em 0.5em; }\n"
+		).arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0));		// .word/.ref padding bottom in em's
+
+#ifdef WORKAROUND_LITEHTML_81
+	if (bKludge81) {
+		strRefCSS = QString(
+				".ref { float: right; padding: 0em 0em %1em 0.5em; }\n"
+			).arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0));		// .word/.ref padding bottom in em's
+	}
+#endif
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
@@ -323,8 +348,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 											".chapter { font-size:x-large; font-weight:bold; }\n"
 											".verse { display: flex; flex-wrap: wrap; }\n"
 											".word { display: inline-block; padding: 0em 0.5em %4em 0em; }\n"
-											".ref:dir(ltr) { float: left; padding: 0em 0.5em %4em 0em; }\n"
-											".ref:dir(rtl) { float: right; padding: 0em 0em %4em 0.5em; }\n"
+											"%5"
 											".stack { display: block; }\n"
 											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 											".category { font-size:medium; font-weight:normal; }\n"
@@ -334,7 +358,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 										.arg(scriptureHTML.escape(pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
 										.arg(strCopyFont)																// Copy Font
 										.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? 125.0 : nLineHeight*100, 0, 'f', 0) + "%")		// Line-Height
-										.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0)));			// .word/.ref padding bottom in em's
+										.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0))			// .word/.ref padding bottom in em's
+										.arg(strRefCSS));																// Ref CSS for Kludge
 	}
 
 	CRelIndex relPrev = pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, CRelIndex(ndx.book(), ndx.chapter(), 1, 1), true);	// Calculate one verse prior to the first verse of this book/chapter

@@ -594,6 +594,13 @@ if(LITEHTML AND TARGET qlitehtml)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		USING_LITEHTML
 	)
+
+	# Enable workarounds for some LiteHtml Bugs (or incompleteness):
+	# --------------------------------------------------------------
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		WORKAROUND_LITEHTML_81			# Missing Support for CSS "direction" property
+	)
+
 else()
 	if(LITEHTML)
 		message(WARNING "LITEHTML selected but library not built!")
