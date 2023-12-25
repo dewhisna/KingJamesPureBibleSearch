@@ -1170,19 +1170,8 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 												TRO_Superscriptions |
 												TRO_Category |
 												TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
-//	int nPos = strLiteHtml.indexOf("<style type=\"text/css\">\n");
-//	Q_ASSERT(nPos > -1);		// If these assert, update this search to match CTextRenderer::generateTextForChapter()
-//	nPos = strLiteHtml.indexOf("body", nPos);
-//	Q_ASSERT(nPos > -1);
-//	nPos = strLiteHtml.indexOf("{", nPos);
-//	Q_ASSERT(nPos > -1);
-//	if (nPos > -1) {
-//		strLiteHtml.insert(nPos+1, QString(" background-color:%1; color: %2;\n")
-//									 .arg(CPersistentSettings::instance()->textBackgroundColor().name())
-//									 .arg(CPersistentSettings::instance()->textForegroundColor().name()));
-//	}
 
-	m_pScriptureLiteHtml->setHtml(strLiteHtml);		// TODO : Finish reworking QLiteHtmlWidget to use QTextDocument data from above
+	m_pScriptureLiteHtml->setHtml(strLiteHtml);
 
 #endif	// USING_LITEHTML
 }
