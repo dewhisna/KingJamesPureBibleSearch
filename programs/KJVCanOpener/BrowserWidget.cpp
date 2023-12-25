@@ -152,11 +152,13 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 	connect(m_pScriptureBrowser, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
 	connect(m_pScriptureBrowser, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
 	connect(m_pScriptureBrowser, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+	connect(m_pScriptureBrowser, SIGNAL(dictionaryAnchorClicked(QUrl)), this, SIGNAL(dictionaryAnchorClicked(QUrl)));
 
 #ifdef USING_LITEHTML
 	connect(m_pScriptureLiteHtml, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
 	connect(m_pScriptureLiteHtml, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
 	connect(m_pScriptureLiteHtml, SIGNAL(historyChanged()), this, SIGNAL(historyChanged()));
+	connect(m_pScriptureLiteHtml, SIGNAL(dictionaryAnchorClicked(QUrl)), this, SIGNAL(dictionaryAnchorClicked(QUrl)));
 #endif // USING_LITEHTML
 
 	// Set Incoming Pass-Through Signals:
@@ -1157,7 +1159,13 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 												TRO_NoQTextDocument |
 												TRO_Subtitles |
 												TRO_SuppressPrePostChapters |
-												TRO_NoAnchors |
+												TRO_NoVerseAnchors |
+												TRO_NoChapterAnchors |
+												TRO_NoBookAnchors |
+												TRO_NoCrossRefAnchors |
+												TRO_NoFootnoteAnchors |
+												TRO_NoColophonAnchors |
+												TRO_NoSuperscriptAnchors |
 												TRO_Colophons |
 												TRO_Superscriptions |
 												TRO_Category |

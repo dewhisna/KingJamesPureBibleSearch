@@ -144,6 +144,7 @@ private:
 //	void activatedScriptureText();
 //	void copyRawAvailable(bool bAvailable);
 //	void copyVersesAvailable(bool bAvailable);
+//	void dictionaryAnchorClicked(const QUrl &link);
 
 protected:
 	virtual bool event(QEvent *ev) override;
@@ -287,6 +288,7 @@ signals:
 	void activatedScriptureText();
 	void copyRawAvailable(bool bAvailable);
 	void copyVersesAvailable(bool bAvailable);
+	void dictionaryAnchorClicked(const QUrl &link);
 
 protected slots:
 #ifdef USING_QT_SPEECH
@@ -354,6 +356,7 @@ signals:
 	void activatedScriptureText();
 	void copyRawAvailable(bool bAvailable);
 	void copyVersesAvailable(bool bAvailable);
+	void dictionaryAnchorClicked(const QUrl &link);
 
 protected slots:
 #ifdef USING_QT_SPEECH
@@ -423,6 +426,7 @@ signals:
 	void activatedScriptureText();
 	void copyRawAvailable(bool bAvailable);
 	void copyVersesAvailable(bool bAvailable);
+	void dictionaryAnchorClicked(const QUrl &link);
 
 protected slots:
 #ifdef USING_QT_SPEECH

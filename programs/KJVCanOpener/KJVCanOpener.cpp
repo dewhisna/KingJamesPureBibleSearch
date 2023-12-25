@@ -1024,6 +1024,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	if (m_pDictionaryWidget != nullptr) {
 		connect(m_pBrowserWidget, SIGNAL(wordUnderCursorChanged(CBibleDatabasePtr,TPhraseTag)), m_pDictionaryWidget, SLOT(setWord(CBibleDatabasePtr,TPhraseTag)));
 		connect(m_pDictionaryWidget, SIGNAL(gotoPassageReference(QString)), m_pBrowserWidget, SLOT(gotoPassageReference(QString)));
+		connect(m_pBrowserWidget, SIGNAL(dictionaryAnchorClicked(QUrl)), m_pDictionaryWidget, SLOT(gotoDictionaryReference(QUrl)));
 	}
 #endif
 

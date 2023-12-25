@@ -1518,6 +1518,18 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 #endif
 		}
 #endif
+
+		// Convert "dict/Web-1828" or "dict/Web-1913" to:  dict://Word
+		int ndxColon = strAnchor.indexOf(':');
+		if (ndxColon == -1) return;
+		int ndxSlash = strAnchor.left(ndxColon).indexOf('/');
+		if (ndxSlash != -1) strAnchor.remove(ndxSlash, ndxColon-ndxSlash);
+		QUrl urlResolved(strAnchor);
+
+		if ((urlResolved.scheme().compare("dict", Qt::CaseInsensitive) == 0) ||
+			(urlResolved.scheme().compare("strong", Qt::CaseInsensitive) == 0)) {
+			emit T::dictionaryAnchorClicked(link);
+		}
 	}
 }
 

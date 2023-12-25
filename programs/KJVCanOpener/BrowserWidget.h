@@ -145,6 +145,7 @@ signals:			// Outgoing Pass-Through:
 	void backwardAvailable(bool available);
 	void forwardAvailable(bool available);
 	void historyChanged();
+	void dictionaryAnchorClicked(const QUrl &link);
 
 signals:			// Incoming Pass-Through:
 	void backward();

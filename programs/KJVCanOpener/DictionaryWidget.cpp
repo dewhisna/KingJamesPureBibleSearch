@@ -503,6 +503,11 @@ void CDictionaryWidget::en_anchorClicked(const QUrl &link)
 	}
 }
 
+void CDictionaryWidget::gotoDictionaryReference(const QUrl &link)
+{
+	en_anchorClicked(link);
+}
+
 void CDictionaryWidget::en_definitionBrowserContextMenuRequested(const QPoint &pos)
 {
 	bool bPopupSave = m_bDoingPopup;
