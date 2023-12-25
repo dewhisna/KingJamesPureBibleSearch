@@ -465,6 +465,35 @@ if(QT_VERSION_MAJOR EQUAL 5)
 else()
 	qt_add_lrelease(wwWidgets TS_FILES ${TRANSLATIONS_WWWIDGETS}
 			QM_FILES_OUTPUT_VARIABLE TRANSLATION_QM_FILES)
+
+	qt_add_lupdate(wwWidgets TS_FILES ${TRANSLATIONS_WWWIDGETS}
+					SOURCES ${wwWidgets_SOURCES}
+					INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwbreadcrumb
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwbuttonlineedit
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwclearlineedit
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwcolorbutton
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwcolorcombobox
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwconfigwidget
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwfilechooser
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwhuesatpicker
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwhuesatradialpicker
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwled
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwlistnavigator
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwlistwidget
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwloginbox
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwlongspinbox
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwnavigationbar
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwnumpad
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwresetlineedit
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwrichtextbutton
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwrichtextedit
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwtaskpanel
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwtextspinbox
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwtipwidget
+					${CMAKE_CURRENT_SOURCE_DIR}/widgets/qwwtwocolorindicator
+	)
 endif()
 
 install(TARGETS wwWidgets
