@@ -671,10 +671,12 @@ void CBrowserWidget::gotoIndex2(const TPhraseTag &tag)
 
 void CBrowserWidget::en_selectionChanged()
 {
-	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
+	if (m_pScriptureBrowser->isVisible()) {
+		TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
 
-	if (tagSelection.isSet()) {
-		emit wordUnderCursorChanged(m_pBibleDatabase, tagSelection);
+		if (tagSelection.isSet()) {
+			emit wordUnderCursorChanged(m_pBibleDatabase, tagSelection);
+		}
 	}
 }
 
