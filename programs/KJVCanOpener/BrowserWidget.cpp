@@ -748,10 +748,7 @@ void CBrowserWidget::en_SearchResultsVerseListChanged()
 	doHighlighting();					// Highlight using new tags
 
 #ifdef USING_LITEHTML
-// TODO : Fix highlighting:
-//	m_pScriptureLiteHtml->reload();
-// or?
-//	emit rerender();
+	m_pScriptureLiteHtml->reload();
 #endif
 }
 
@@ -809,9 +806,9 @@ void CBrowserWidget::doHighlighting(bool bClear)
 #endif
 
 #ifdef USING_LITEHTML
-// TODO : At present, this does nothing because QLiteHtmlWidget only inherits
-//	from QTextEdit and currently doesn't do anything with its QTextDocument.
-//	m_pScriptureLiteHtml->navigator().doHighlighting(m_SearchResultsHighlighter, bClear, m_ndxCurrent);
+	// TODO : Add support to CTextRenderer::generateTextForChapter to allow for
+	//	multiple highlighter objects instead of only one and extend this to allow
+	//	for excluded search results mode plus the user highlighters too:
 //	if (m_bShowExcludedSearchResults)
 //		m_pScriptureLiteHtml->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
 #endif // USING_LITEHTML
@@ -1169,7 +1166,9 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 												TRO_Colophons |
 												TRO_Superscriptions |
 												TRO_Category |
-												TRO_UseLemmas);	// Note: UseLemmas implies UseWordSpans
+												TRO_UseLemmas |	// Note: UseLemmas implies UseWordSpans
+												((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None),
+												&m_SearchResultsHighlighter);
 
 	m_pScriptureLiteHtml->setHtml(strLiteHtml);
 
