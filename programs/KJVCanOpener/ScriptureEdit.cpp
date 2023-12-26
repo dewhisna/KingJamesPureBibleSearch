@@ -1463,6 +1463,7 @@ template<class T, class U>
 void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 {
 	QString strAnchor = link.toString();
+	while (strAnchor.startsWith('/')) strAnchor = strAnchor.mid(1);
 	QString strScheme = link.scheme();
 	if (strScheme.isEmpty()) {
 		if (strAnchor.startsWith(QChar('N'))) {
@@ -1490,13 +1491,33 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 			userNote.setIsVisible(!userNote.isVisible());
 			g_pUserNotesDatabase->setNoteFor(m_pBibleDatabase.data(), ndxLink, userNote);
 
-			// Note: The Note change above will automatically trigger a rerender()
+			// Note: The Note change above will automatically trigger a rerender() in QTextBrowser
+			//	but we have to do it manually for QLiteHtmlWidget:
+#ifdef USING_LITEHTML
+			QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+			if (pLiteHtml != nullptr) {
+				pLiteHtml->reload();
+			}
+#endif
 		} else if (strAnchor.startsWith(QChar('R'))) {
 			CRelIndex ndxLink(strAnchor.mid(1));
 			Q_ASSERT(ndxLink.isSet());
 			if (!ndxLink.isSet()) return;
 
+#ifdef USING_LITEHTML
+			QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
+			if ((pLiteHtml != nullptr) &&
+				(ndxLink.book() == m_ndxCurrent.book()) && (ndxLink.chapter() == m_ndxCurrent.chapter())) {
+				// Try just the verse first in case the word isn't anchored for some reason.
+				//	Then try the full link for any minor adjustment on wrapped lines:
+				pLiteHtml->scrollToAnchor(CRelIndex(ndxLink.book(), ndxLink.chapter(), ndxLink.verse(), 0).asAnchor());
+				pLiteHtml->scrollToAnchor(link.toString());
+			} else {
+				emit T::gotoIndex(TPhraseTag(ndxLink));
+			}
+#else
 			emit T::gotoIndex(TPhraseTag(ndxLink));
+#endif
 		}
 	} else {
 #ifndef VNCSERVER

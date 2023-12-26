@@ -1146,29 +1146,22 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 
 	end_update();
 
-	QString strBrowserHTML = m_pScriptureBrowser->navigator().setDocumentToChapter(ndxVirtual, defaultGenerateChapterTextFlags | TRO_ScriptureBrowser |
-									   ((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None));
+	QString strBrowserHTML = m_pScriptureBrowser->navigator().setDocumentToChapter(
+								ndxVirtual,
+								defaultGenerateChapterTextFlags |
+								TRO_ScriptureBrowser |
+								((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None));
 
 #ifdef USING_LITEHTML
-	// Don't use defaultGenerateChapterTextFlags here so we can suppress UserNotes and CrossRefs.
 	QString strLiteHtml = CTextRenderer::generateTextForChapter(m_pBibleDatabase.data(), 0.0,
-												ndxVirtual,
-												TRO_NoQTextDocument |
-												TRO_Subtitles |
-												TRO_SuppressPrePostChapters |
-												TRO_NoVerseAnchors |
-												TRO_NoChapterAnchors |
-												TRO_NoBookAnchors |
-												TRO_NoCrossRefAnchors |
-												TRO_NoFootnoteAnchors |
-												TRO_NoColophonAnchors |
-												TRO_NoSuperscriptAnchors |
-												TRO_Colophons |
-												TRO_Superscriptions |
-												TRO_Category |
-												TRO_UseLemmas |	// Note: UseLemmas implies UseWordSpans
-												((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None),
-												&m_SearchResultsHighlighter);
+								ndxVirtual,
+								defaultGenerateChapterTextFlags |
+								TRO_NoQTextDocument |
+								TRO_SuppressPrePostChapters |
+								TRO_NoFootnoteAnchors |
+								TRO_UseLemmas |	// Note: UseLemmas implies UseWordSpans
+								((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None),
+								&m_SearchResultsHighlighter);
 
 	m_pScriptureLiteHtml->setHtml(strLiteHtml);
 
@@ -1189,8 +1182,7 @@ void CBrowserWidget::setWord(const TPhraseTag &tag)
 			m_pScriptureBrowser->navigator().selectWords(tag);
 			break;
 		case BDME_LEMMA_MORPHOGRAPHY:
-// TODO : Figure out how to select word anchor and/or lemma groups:
-//			m_pScriptureLiteHtml->navigator().selectWords(tag);
+			m_pScriptureLiteHtml->en_anchorClicked(QString("R%1").arg(m_ndxCurrent.asAnchor()));;
 			break;
 	}
 #else
