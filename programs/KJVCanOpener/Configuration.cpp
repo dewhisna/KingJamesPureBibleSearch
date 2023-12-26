@@ -372,7 +372,7 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 	if (ndx == -1) return;
 
 	if (!pDictionary.isNull()) {
-		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, pBibleDatabase->language(), this);
+		m_pDictionaryWidget = new CDictionaryWidget(pDictionary, QString(), this);
 		m_pDictionaryWidget->setObjectName(QString::fromUtf8("widgetDictionary"));
 		QSizePolicy aSizePolicyDictionary(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		aSizePolicyDictionary.setHorizontalStretch(20);
@@ -1153,11 +1153,7 @@ void CConfigTextFormat::setPreview()
 
 void CConfigTextFormat::en_selectionChangedBrowser()
 {
-	TPhraseTag tagSelection = m_pScriptureBrowser->selection().primarySelection();
-
-	if ((tagSelection.isSet()) && (tagSelection.count() < 2) && (m_pDictionaryWidget != nullptr)) {
-		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->wordAtIndex(m_pSearchResultsTreeView->vlmodel()->bibleDatabase()->NormalizeIndex(tagSelection.relIndex()), WTE_RENDERED), false);
-	}
+	m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase(), m_pScriptureBrowser->selection().primarySelection(), false);
 }
 
 void CConfigTextFormat::en_userNotesChanged()

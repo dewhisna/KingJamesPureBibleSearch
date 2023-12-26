@@ -504,6 +504,47 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 	const QList<TDictionaryDescriptor> &lstAvailableDictDescs = TDictionaryDatabaseList::availableDictionaryDatabases();
 
 	// Loaded dictionaries have precedence:
+	// First check to see if we have one of the specific language:
+	if (!strLanguage.isEmpty()) {
+		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+			pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
+			if (!pDictDatabase.isNull()) {
+				if ((pDictDatabase->langID() == toLanguageID(strLanguage)) &&
+					((pDictDatabase->flags() & DTO_IgnoreLang) == 0)) return pDictDatabase;
+			}
+		}
+		// Try to find one that isn't loaded if we're allowed to:
+#ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+		for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+			if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID).isNull()) continue;
+			if ((toLanguageID(lstAvailableDictDescs.at(ndx).m_strLanguage) == toLanguageID(strLanguage)) &&
+				((lstAvailableDictDescs.at(ndx).m_dtoFlags & DTO_IgnoreLang) == 0)) {
+				pDictDatabase = TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableDictDescs.at(ndx).m_strUUID, false, pParentWidget);
+				if (!pDictDatabase.isNull()) return pDictDatabase;
+			}
+		}
+#endif
+	}
+
+	// Then see if we have a generic Strongs database (since we couldn't find one for this language):
+	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
+		if (!pDictDatabase.isNull()) {
+			if (pDictDatabase->flags() & DTO_Strongs) return pDictDatabase;
+		}
+	}
+	// Try a generic Strongs database that isn't loaded if we're allowed to:
+#ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
+	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
+		if (!TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID).isNull()) continue;
+		if (lstAvailableDictDescs.at(ndx).m_dtoFlags & DTO_Strongs) {
+			pDictDatabase = TDictionaryDatabaseList::loadDictionaryDatabase(lstAvailableDictDescs.at(ndx).m_strUUID, false, pParentWidget);
+			if (!pDictDatabase.isNull()) return pDictDatabase;
+		}
+	}
+#endif
+
+	// Then see if we have anything that doesn't require specific language match, like a topic dictionary
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {
 		pDictDatabase = TDictionaryDatabaseList::instance()->atUUID(lstAvailableDictDescs.at(ndx).m_strUUID);
 		if (!pDictDatabase.isNull()) {
@@ -511,7 +552,6 @@ CDictionaryDatabasePtr TDictionaryDatabaseList::locateAndLoadDictionary(const QS
 				(pDictDatabase->flags() & DTO_IgnoreLang)) return pDictDatabase;
 		}
 	}
-
 	// Try to find one that isn't loaded if we're allowed to:
 #ifndef ENABLE_ONLY_LOADED_DICTIONARY_DATABASES
 	for (int ndx = 0; ndx < lstAvailableDictDescs.size(); ++ndx) {

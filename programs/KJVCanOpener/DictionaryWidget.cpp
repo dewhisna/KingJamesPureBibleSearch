@@ -383,8 +383,14 @@ void CDictionaryWidget::setWord(CBibleDatabasePtr pBibleDatabase, const TPhraseT
 		}
 		en_wordChanged();		// Trigger immediately so we don't have the m_dlyTextChanged time delay
 	} else {
-		// TODO : Should we use WTE_SEARCH here instead of deCantillated rendered??
-		setWord(StringParse::deCantillate(pBibleDatabase->wordAtIndex(tag.relIndex(), WTE_RENDERED)), bIsTracking);
+		// Only set the word from the Bible database if it matches our dictionary
+		//	language or this dictionary is tagged to ignore languages.  Note that
+		//	the other setWord() function handles the tracking check:
+		if ((m_pDictionaryDatabase->flags() & DTO_IgnoreLang) ||
+			(m_pDictionaryDatabase->langID() == pBibleDatabase->langID())) {
+			// TODO : Should we use WTE_SEARCH here instead of deCantillated rendered??
+			setWord(StringParse::deCantillate(pBibleDatabase->wordAtIndex(tag.relIndex(), WTE_RENDERED)), bIsTracking);
+		}
 	}
 }
 
