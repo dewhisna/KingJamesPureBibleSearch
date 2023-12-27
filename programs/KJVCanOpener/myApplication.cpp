@@ -1489,11 +1489,24 @@ int CMyApplication::execute(bool bBuildDB)
 			QString strAppDBPath = TBibleDatabaseList::bibleDatabasePath();
 			TBibleDatabaseList::instance()->setBibleDatabasePath(true);			// Switch to build path
 			if (strAppDBPath == TBibleDatabaseList::bibleDatabasePath()) {
-				int nResult =  displayWarning(m_pSplash, g_constrInitialization,
+				int nResult = displayWarning(m_pSplash, g_constrInitialization,
 										tr("Warning: BuildDB Environment variable is not set or is "
 											"identical to AppDB Path.  If you continue, you'll potentially "
 											"overwrite existing Bible Database Files.  Continue??", "Errors"),
-										(QMessageBox::Yes  | QMessageBox::No), QMessageBox::No);
+										(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+				if (nResult != QMessageBox::Yes) return -2;
+			}
+
+			// Switch current directory to the build folder so that the loadBibleDatabase
+			//	call below will work correctly:
+			if (!QDir::setCurrent(TBibleDatabaseList::bibleDatabasePath())) {
+				int nResult = displayWarning(m_pSplash, g_constrInitialization,
+										tr("Warning: BuildDB unable to change current working directory "
+											"to build database directory.  If you continue, the database "
+											"should be built, but we may not be able to load it during "
+											"this run of KJPBS and require an app restart after moving "
+											"the database files to the correct location.  Continue??", "Errors"),
+										(QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 				if (nResult != QMessageBox::Yes) return -2;
 			}
 
