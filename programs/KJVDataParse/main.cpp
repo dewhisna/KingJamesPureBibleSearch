@@ -1140,7 +1140,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				// Ignore Chapter titles (as it just has things like "Chapter 1", etc), and is somewhat useless...
 				// Ignore verse acrostics on new-format OSIS files (old formats get ignored via foreign language tags below)
 			} else {
-				std::cerr << QString("\n*** Encountered unknown Title tag inside chapter and/or verse body : %1\n").arg(m_ndxCurrent.index()).toUtf8().data();
+				std::cerr << QString("\n*** Encountered unknown \"Title\" tag inside chapter and/or verse body : %1\n").arg(m_pBibleDatabase->PassageReferenceText(m_ndxCurrent)).toUtf8().data();
 			}
 		}
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (localName.compare("foreign", Qt::CaseInsensitive) == 0)) {
