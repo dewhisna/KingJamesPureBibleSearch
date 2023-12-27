@@ -391,7 +391,7 @@ bool CReadDatabase::ReadDBInfoTable()
 				QStringList lstV2Fields;
 				if (!queryFieldsToStringList(m_pParent, lstV2Fields, queryData, 1)) return false;
 				// Convert to: KJPBSDB, version, $uuid, $Language, $Name, $Description, $Direction, $Info
-				lstV2Fields.insert(6, lstV2Fields.at(0));
+				lstFields.insert(6, lstV2Fields.at(0));
 			}
 
 			queryData.finish();
