@@ -2179,7 +2179,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				// Don't count words that are only a hyphen or apostrophe:
 				verse.m_strTemplate += strRichWord;
 	#if QT_VERSION >= 0x050F00
-			} else if (m_bNoArabicNumeralWords && (QRegularExpression("\\d*").match(strWord).hasMatch())) {
+			} else if (m_bNoArabicNumeralWords && (QRegularExpression(QRegularExpression::anchoredPattern("\\d*")).match(strWord).hasMatch())) {
 	#else
 			} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
 	#endif
