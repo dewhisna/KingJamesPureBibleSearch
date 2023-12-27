@@ -727,7 +727,8 @@ public:
 			m_bUseBracketFootnotes(false),
 			m_bUseBracketFootnotesExcluded(false),
 			m_bExcludeDeuterocanonical(false),
-			m_bFoundSegVariant(false)
+			m_bFoundSegVariant(false),
+			m_bUseInternalBibleDesc(false)
 	{
 		m_pBibleDatabase = QSharedPointer<CBibleDatabase>(new CBibleDatabase(bblDesc));		// Note: We'll set the name and description later in the reading of the data
 	}
@@ -765,6 +766,8 @@ public:
 	bool foundSegVariant() const { return m_bFoundSegVariant; }
 	void setStrongsImpFilepath(const QString &strFilepath) { m_strStrongsImpFilepath = strFilepath; }
 	QString strongsImpFilepath() const { return m_strStrongsImpFilepath; }
+	void setUseInternalBibleDesc(bool bUseInternalBibleDesc) { m_bUseInternalBibleDesc = bUseInternalBibleDesc; }
+	bool useInternalBibleDesc() const { return m_bUseInternalBibleDesc; }
 
 	// Parsing:
 	QStringList elementNames() const { return m_lstElementNames; }
@@ -855,6 +858,7 @@ private:
 	QString m_strCurrentSegVariant;		// Current OSIS <seg> tag variant we are in (or empty if not in a seg)
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
 	QString m_strStrongsImpFilepath;	// Strongs Imp Database to parse (if empty, no Strongs Database will be used)
+	bool m_bUseInternalBibleDesc;		// True if we keep the internal Bible Description instead of using the Title from the OSIS for it
 };
 
 // osisAbbrFromBookIndex -- returns the OSIS abbreviation
@@ -1616,8 +1620,15 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 			if (m_strTitle.compare(m_pBibleDatabase->description(), Qt::CaseInsensitive) != 0) {
 				std::cerr << "    *** Warning: Original Bible Description doesn't match database:\n        \""
 							<< m_pBibleDatabase->description().toUtf8().data() << "\"\n";
+				if (m_bUseInternalBibleDesc) {
+					std::cerr << "    Keeping: \"" << m_pBibleDatabase->description().toUtf8().data() << "\"\n";
+				} else {
+					std::cerr << "    Using: \"" << m_strTitle.toUtf8().data() << "\"\n";
+				}
 			}
-			m_pBibleDatabase->m_descriptor.m_strDBDesc = m_strTitle;
+			if (!m_bUseInternalBibleDesc) {
+				m_pBibleDatabase->m_descriptor.m_strDBDesc = m_strTitle;
+			}
 		}
 		m_bCaptureTitle = false;
 		if ((m_bInSuperscription) && (!m_bOpenEndedSuperscription)) {
@@ -3444,6 +3455,7 @@ int main(int argc, char *argv[])
 	bool bUseBracketFootnotesExcluded = false;
 	bool bExcludeDeuterocanonical = false;
 	bool bMissingOK = false;		// Missing OR Extra Chapters/Verses are OK, (i.e. don't enforce KJV Versification)
+	bool bUseInternalBibleDesc = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilename;
@@ -3519,6 +3531,8 @@ int main(int argc, char *argv[])
 			bLookingForVersification = true;
 		} else if (strArg.compare("-v11nadd") == 0) {
 			bLookingForVersificationAdd = true;
+		} else if (strArg.compare("-t") == 0) {
+			bUseInternalBibleDesc = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -3562,6 +3576,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("           (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
 		std::cerr << QString("    -v11nadd <index> = Write only the additional specified versification file\n").toUtf8().data();
 		std::cerr << QString("           (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
+		std::cerr << QString("    -t  =  Use internal Bible Description instead of OSIS Title for Bible Description\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -3638,6 +3653,7 @@ int main(int argc, char *argv[])
 	xmlHandler.setExcludeDeuterocanonical(bExcludeDeuterocanonical);
 	xmlHandler.setSegVariant(strSegVariant);
 	xmlHandler.setStrongsImpFilepath(strStrongsImpPath);
+	xmlHandler.setUseInternalBibleDesc(bUseInternalBibleDesc);
 
 	xmlReader.setXmlHandler(&xmlHandler);
 //	xmlReader.setFeature("http://www.bibletechnologies.net/2003/OSIS/namespace", true);
