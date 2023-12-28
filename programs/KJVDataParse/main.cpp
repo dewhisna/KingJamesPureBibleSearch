@@ -2135,7 +2135,7 @@ void COSISXmlHandler::charactersVerseEntry(const CRelIndex &relIndex, const QStr
 	}
 
 	//	verse.m_strText += strText;
-	verse.m_strText += (m_bInDivineName ? strTempText.toUpper() : strTempText);
+	verse.m_strText += (m_bInDivineName ? strTempText.toUpper().trimmed() : strTempText);
 }
 
 void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
