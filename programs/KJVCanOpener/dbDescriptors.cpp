@@ -81,6 +81,7 @@ namespace {
 	// ----
 	const char * const constUUID_OSHB =					"565612E0-8A24-11EC-B1E5-0800200C9A66";
 	// ----
+	const char * const constUUID_ENGKJV1769EB =			"B80E5D10-A4E1-11EE-9EC1-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -182,6 +183,8 @@ namespace {
 		// Open Scriptures Hebrew Bible:
 		{ BibleTypeOptionsFlags(BTO_AllowVersification), Qt::RightToLeft, "OSHB", "hbo" /* "he" */ /* "iw" */, QString::fromUtf8("Open Scriptures Hebrew"), QString::fromUtf8("Open Scriptures Hebrew Bible"), constUUID_OSHB, "bbl-oshb.s3db", "bbl-oshb.ccdb", constUUID_OSHB, BVTE_HEBREW_MASORETIC },
 		// ----
+		// ENGKJV1769EB (http://ebible.org/kjv/) : King James Version + Apocrypha
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "ENGKJV1769EB", "en", QString::fromUtf8("King James Version + Apocrypha (ENGKJV1769EB)"), QString::fromUtf8("eBible King James Version + Apocrypha (ENGKJV1769EB, 2023-11-07)"), constUUID_ENGKJV1769EB, "bbl-engkjv1769eb.s3db", "bbl-engkjv1769eb.ccdb", constUUID_KJV },
 	};
 
 	//////////////////////////////////////////////////////////////////////

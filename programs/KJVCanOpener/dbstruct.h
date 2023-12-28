@@ -1097,7 +1097,7 @@ struct TPassageTagListSortPredicate {
 
 enum MORPH_SOURCE_ENUM {		// Enum of source data tags
 	MSE_OSHM = 0,				// Open Scriptures Hebrew Morphology
-	MSE_THAYERS = 1,			// Thayer's (Hebrew)
+	MSE_THAYERS = 1,			// Thayer's (Hebrew/Greek)
 	MSE_ROBINSON = 2,			// Robinson (Greek)
 	MSE_PACKARD = 3,			// Packard (Greek)
 };
