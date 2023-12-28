@@ -164,6 +164,98 @@ static QString passageReference(CBibleDatabasePtr pBibleDatabase, bool bAbbrev, 
 
 // ============================================================================
 
+QString normalizeTemplate(const QString &strTemplateIn)
+{
+	// Convert WordsOfJesus, TransChangeAdded, and DivineName to per-word entities
+	//	so that comparison works per-word without regard to surrounding punctuation
+	//	and whether it is or isn't included.  This is the same logic that the
+	//	CVerseTextRichifier uses for its lemma-stack:
+
+	QString strTemplate = strTemplateIn;
+
+	while (strTemplate.indexOf("  ") > -1) {
+		// Must call it repeatedly since the operation isn't recursive.
+		//	That is, replacing 3 spaces results 2 spaces instead of 1.
+		strTemplate.replace("  ", " ");
+	}
+
+	QStringList lstWords = strTemplate.split('w');
+	QList<int> lstWordsOfJesus;			// Counts at this point to convert to flags
+	QList<int> lstTransChangeAdded;
+	QList<int> lstDivineName;			// Note: Divine name processed here specifically for anchor tag pairing of per-word entity
+	int nInWordsOfJesus = 0;
+	int nInTransChangeAdded = 0;
+	int nInDivineName = 0;
+	for (int ndxWord = 0; ndxWord < lstWords.size(); ++ndxWord) {
+		for (int nChar = 0; nChar < lstWords.at(ndxWord).size(); ++nChar) {
+			if (lstWords.at(ndxWord).at(nChar) == 'J') {
+				++nInWordsOfJesus;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'j') {
+				--nInWordsOfJesus;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'T') {
+				++nInTransChangeAdded;
+			} else if (lstWords.at(ndxWord).at(nChar) == 't') {
+				--nInTransChangeAdded;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'D') {
+				++nInDivineName;
+			} else if (lstWords.at(ndxWord).at(nChar) == 'd') {
+				--nInDivineName;
+			}
+		}
+		lstWordsOfJesus.append(nInWordsOfJesus);
+		lstTransChangeAdded.append(nInTransChangeAdded);
+		lstDivineName.append(nInDivineName);
+
+// Remove the symbols we've parsed out:
+#if QT_VERSION >= 0x050000
+		lstWords[ndxWord].remove(QRegularExpression("[JjTtDd]"));
+#else
+		lstWords[ndxWord].remove(QRegExp("[JjTtDd]"));
+#endif
+	}
+
+	strTemplate.clear();
+
+	for (int ndxWord = 1; ndxWord < lstWords.size(); ++ndxWord) {
+		if (ndxWord == 1) {
+			strTemplate.append(lstWords.at(0));
+		}
+		if (lstWordsOfJesus.at(ndxWord-1)) {
+			strTemplate.append('J');
+		}
+		if (lstTransChangeAdded.at(ndxWord-1)) {
+			strTemplate.append('T');
+		}
+		if (lstDivineName.at(ndxWord-1)) {
+			strTemplate.append('D');
+		}
+
+		strTemplate.append('w');
+
+		if (lstDivineName.at(ndxWord-1)) {
+			strTemplate.append('d');
+		}
+		if (lstTransChangeAdded.at(ndxWord-1)) {
+			strTemplate.append('t');
+		}
+		if (lstWordsOfJesus.at(ndxWord-1)) {
+			strTemplate.append('j');
+		}
+
+		strTemplate.append(lstWords.at(ndxWord));
+	}
+
+	while (strTemplate.indexOf("  ") > -1) {
+		// Must call it repeatedly since the operation isn't recursive.
+		//	That is, replacing 3 spaces results 2 spaces instead of 1.
+		strTemplate.replace("  ", " ");
+	}
+
+	return strTemplate.trimmed();
+}
+
+// ============================================================================
+
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
@@ -188,6 +280,7 @@ int main(int argc, char *argv[])
 	TBibleDescriptor bblDescriptor1;
 	TBibleDescriptor bblDescriptor2;
 	bool bUnknownOption = false;
+	bool bNormalizeMarkup = false;
 	bool bIgnoreWordsOfJesus = false;
 	bool bIgnoreDivineNames = false;
 	bool bIgnoreTransChange = false;
@@ -220,6 +313,8 @@ int main(int argc, char *argv[])
 				nDescriptor2 = strArg.toInt();
 				strFilePathname2 = strArg;
 			}
+		} else if (strArg.compare("-z") == 0) {
+			bNormalizeMarkup = true;
 		} else if (strArg.compare("-j") == 0) {
 			bIgnoreWordsOfJesus = true;
 		} else if (strArg.compare("-d") == 0) {
@@ -275,6 +370,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("------------\n").toUtf8().data();
+		std::cerr << QString("  -z  =  Normalize J/D/T markup to per-word tags\n").toUtf8().data();
 		std::cerr << QString("  -j  =  Ignore Words of Jesus\n").toUtf8().data();
 		std::cerr << QString("  -d  =  Ignore Divine Names Markup\n").toUtf8().data();
 		std::cerr << QString("  -t  =  Ignore Translation Change/Added Markup\n").toUtf8().data();
@@ -476,6 +572,10 @@ int main(int argc, char *argv[])
 						strTemplate1.remove(QRegExp("[Jj]"));
 						strTemplate2.remove(QRegExp("[Jj]"));
 #endif
+					}
+					if (bNormalizeMarkup) {
+						strTemplate1 = normalizeTemplate(strTemplate1);
+						strTemplate2 = normalizeTemplate(strTemplate2);
 					}
 					if (bIgnoreLemmas) {
 #if QT_VERSION >= 0x050000
