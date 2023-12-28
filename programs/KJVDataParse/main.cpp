@@ -706,6 +706,8 @@ public:
 			m_bInLemma(false),
 			m_bInTransChangeAdded(false),
 			m_bInNotes(false),
+			m_bInVerseTitle(false),
+			m_bInVerseTitleNote(false),
 			m_bInBracketNotes(false),
 			m_bInColophon(false),
 			m_bOpenEndedColophon(false),
@@ -829,6 +831,8 @@ private:
 	bool m_bInLemma;
 	bool m_bInTransChangeAdded;
 	bool m_bInNotes;
+	bool m_bInVerseTitle;					// True if inside a title embedded in verse (non-canonical pretext title) that should be removed
+	bool m_bInVerseTitleNote;				// True if inside a title embedded in verse to turn into an inline note
 	bool m_bInBracketNotes;
 	bool m_bInColophon;
 	bool m_bOpenEndedColophon;				// Open-ended colophons use sID/eID attributes in <div /> tags to start stop them rather than enclosing the whole colophon in a single specific <div></div> section
@@ -842,6 +846,7 @@ private:
 
 	CBibleDatabasePtr m_pBibleDatabase;
 	QString m_strTitle;					// Used only for capture of title from XML -- after that it will be stored in the Bible Database Descriptor
+	QString m_strVerseTitle;			// Non-canonical title embedded in verse that should be discarded.  The variable is used to print content in warning message.
 	QString m_strLanguage;				// Used only for capture of language from XML -- after that it will be stored in the Bible Database Descriptor
 	bool m_bNoColophonVerses;			// Note: This is colophons as "pseudo-verses" only not colophons in general, which are also written as footnotes
 	bool m_bUseBracketColophons;		// Treat "[" and "]" as a colophon marker
@@ -1128,6 +1133,10 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 			//		<title type="psalm" canonical="true">A Psalm of David, when he fled from Absalom his son.</title>
 			//
 			//		<verse osisID="Ps.119.1" sID="Ps.119.1"/><title type="acrostic" canonical="true"><foreign n="א">ALEPH.</foreign></title>
+			//
+			//		<verse osisID="Ps.119.1"><div type="x-milestone" subType="x-preverse" sID="pv4017"/>
+			//		<div sID="gen4917" type="section"/><title canonical="false" type="sub"><foreign> א ALEPH.</foreign> </title>
+			//		<lg sID="gen4918"/><l level="1" sID="gen4919"/> <div type="x-milestone" subType="x-preverse" eID="pv4017"/> <w lemma="strong:H0835">Blessed</w> <transChange type="added">are</transChange> the <w lemma="strong:H8549">undefiled</w> in the <w lemma="strong:H1870">way</w>, who <w lemma="strong:H1980">walk</w> in the <w lemma="strong:H8451">law</w> of the <seg><divineName> <w lemma="strong:H3068">LORD</w></divineName></seg>.<note osisID="Ps.119.1!note.1" osisRef="Ps.119.1" placement="foot" type="translation"> <reference osisRef="Ps.119.1" type="source">119.1 </reference>undefiled: or, perfect, or, sincere</note> <l eID="gen4919" level="1"/></verse>
 			ndx = atts.index("type", Qt::CaseInsensitive);
 			if ((ndx != -1) &&
 				((atts.value(ndx).compare("section", Qt::CaseInsensitive) == 0) ||
@@ -1136,11 +1145,25 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 				startVerseEntry(m_ndxSuperscription, false);
 			} else if ((ndx != -1) &&
 					   ((atts.value(ndx).compare("chapter", Qt::CaseInsensitive) == 0) ||
-						(atts.value(ndx).compare("acrostic", Qt::CaseInsensitive) == 0))) {
+						(atts.value(ndx).compare("acrostic", Qt::CaseInsensitive) == 0) ||
+						(atts.value(ndx).compare("sub", Qt::CaseInsensitive) == 0))) {
 				// Ignore Chapter titles (as it just has things like "Chapter 1", etc), and is somewhat useless...
 				// Ignore verse acrostics on new-format OSIS files (old formats get ignored via foreign language tags below)
+				if (m_bInVerse &&
+					((m_ndxCurrent.book() != PSALMS_BOOK_NUM) ||
+					 ((m_ndxCurrent.book() == PSALMS_BOOK_NUM) && (m_ndxCurrent.chapter() != 119)))) {
+					// Turn "Titles" inside verses that aren't the acrostic Psalm into inline notes
+					m_bInVerseTitleNote = true;
+					CVerseEntry &verse = activeVerseEntry();
+					verse.m_strText += g_chrParseTag;
+					verse.m_lstParseStack.push_back("N:");
+				}
 			} else {
 				std::cerr << QString("\n*** Encountered unknown \"Title\" tag inside chapter and/or verse body : %1\n").arg(m_pBibleDatabase->PassageReferenceText(m_ndxCurrent)).toUtf8().data();
+				if (m_bInVerse) {
+					m_bInVerseTitle = true;
+					m_strVerseTitle.clear();
+				}
 			}
 		}
 	} else if ((m_xfteFormatType == XFTE_OSIS) && (localName.compare("foreign", Qt::CaseInsensitive) == 0)) {
@@ -1464,7 +1487,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
-			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
+			   (!m_bInNotes) && (!m_bInVerseTitleNote) && (!m_bInBracketNotes) && (localName.compare("milestone", Qt::CaseInsensitive) == 0)) {
 		//	Note: If we already have text on this verse, then set a flag to put the pilcrow on the next verse
 		//			so we can handle the strange <CM> markers used on the German Schlachter text
 		//
@@ -1495,7 +1518,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
-			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
+			   (!m_bInNotes) && (!m_bInVerseTitleNote) && (!m_bInBracketNotes) && (localName.compare("seg", Qt::CaseInsensitive) == 0)) {
 		// <seg subType="x-1" type="x-variant">
 		ndx = atts.index("type", Qt::CaseInsensitive);		// TODO : In addition to 'x-variant', add support for full OSIS 'variant', which is currently a work-in-progress
 		if ((ndx != -1) && (atts.value(ndx).compare("x-variant", Qt::CaseInsensitive) == 0)) {
@@ -1510,7 +1533,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
-			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
+			   (!m_bInNotes) && (!m_bInVerseTitleNote) && (!m_bInBracketNotes) && (localName.compare("w", Qt::CaseInsensitive) == 0)) {
 		m_bInLemma = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
@@ -1518,7 +1541,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
-			   (!m_bInNotes) &&	// Note: Allow transChangeAdded inside of inline bracketed notes
+			   (!m_bInNotes) && (!m_bInVerseTitleNote) &&	// Note: Allow transChangeAdded inside of inline bracketed notes
 			   ((localName.compare("transChange", Qt::CaseInsensitive) == 0) ||
 				(localName.compare("hi", Qt::CaseInsensitive) == 0))) {
 		ndx = atts.index("type", Qt::CaseInsensitive);
@@ -1535,7 +1558,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
-			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
+			   (!m_bInNotes) && (!m_bInVerseTitleNote) && (!m_bInBracketNotes) && (localName.compare("q", Qt::CaseInsensitive) == 0)) {
 		ndx = atts.index("who", Qt::CaseInsensitive);
 		if ((ndx != -1) && (atts.value(ndx).compare("Jesus", Qt::CaseInsensitive) == 0)) {
 			m_bInWordsOfJesus = true;
@@ -1546,7 +1569,7 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	} else if ((m_xfteFormatType == XFTE_OSIS) && ((m_bInVerse) ||
 												   (m_bInColophon && !m_bNoColophonVerses && !m_bDisableColophons) ||
 												   (m_bInSuperscription && !m_bNoSuperscriptionVerses && !m_bDisableSuperscriptions)) &&
-			   (!m_bInNotes) && (!m_bInBracketNotes) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
+			   (!m_bInNotes) && (!m_bInVerseTitleNote) && (!m_bInBracketNotes) && (localName.compare("divineName", Qt::CaseInsensitive) == 0)) {
 		m_bInDivineName = true;
 		CVerseEntry &verse = activeVerseEntry();
 		verse.m_strText += g_chrParseTag;
@@ -1634,6 +1657,16 @@ bool COSISXmlHandler::endElement(const QString &namespaceURI, const QString &loc
 		if ((m_bInSuperscription) && (!m_bOpenEndedSuperscription)) {
 			endVerseEntry(m_ndxSuperscription);
 		}
+		if (m_bInVerseTitle) {
+			std::cerr << "    Discarded inner Verse Title: \"" << m_strVerseTitle.toUtf8().data() << "\"\n";
+			m_bInVerseTitle = false;
+		}
+		if (m_bInVerseTitleNote) {
+			m_bInVerseTitleNote = false;
+			CVerseEntry &verse = activeVerseEntry();
+			verse.m_strText += g_chrParseTag;
+			verse.m_lstParseStack.push_back("n:");
+		}
 	} else if (localName.compare("foreign", Qt::CaseInsensitive) == 0) {
 		m_bInForeignText = false;
 	} else if ((m_bInColophon) && (!m_bOpenEndedColophon) && (!m_bUseBracketColophons) && (localName.compare("div", Qt::CaseInsensitive) == 0)) {
@@ -1707,6 +1740,8 @@ bool COSISXmlHandler::characters(const QString &ch)
 
 	if (m_bCaptureTitle) {
 		m_strTitle += strTemp;
+	} else if (m_bInVerseTitle) {
+		m_strVerseTitle += strTemp;
 	} else if (m_bCaptureLang) {
 		m_strLanguage += strTemp;
 	} else if ((!m_strCurrentSegVariant.isEmpty()) && (!m_strSegVariant.isEmpty()) && (m_strCurrentSegVariant.compare(m_strSegVariant, Qt::CaseInsensitive) != 0)) {
@@ -1722,11 +1757,14 @@ bool COSISXmlHandler::characters(const QString &ch)
 			Q_ASSERT(m_ndxSuperscription.isSet());
 			charactersVerseEntry(m_ndxSuperscription, strTemp);
 		}
-	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInForeignText)) {
+	} else if ((m_bInVerse) && (!m_bInNotes) && (!m_bInVerseTitleNote) && (!m_bInForeignText)) {
 		Q_ASSERT((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
 		charactersVerseEntry(m_ndxCurrent, strTemp);
 //		std::cout << strTemp.toUtf8().data();
-	} else if (((m_bInVerse) || (m_bInColophon && !m_bDisableColophons) || (m_bInSuperscription && !m_bDisableSuperscriptions)) && (m_bInNotes)) {
+	} else if (((m_bInVerse) ||
+				(m_bInColophon && !m_bDisableColophons) ||
+				(m_bInSuperscription && !m_bDisableSuperscriptions)) &&
+			   (m_bInNotes || m_bInVerseTitleNote)) {
 		if (m_bInVerse || (m_bInColophon && !m_bNoColophonVerses) || (m_bInSuperscription && !m_bNoSuperscriptionVerses)) {
 			Q_ASSERT((m_ndxCurrent.book() != 0) && (m_ndxCurrent.chapter() != 0) && (m_ndxCurrent.verse() != 0));
 			charactersVerseEntry(m_ndxCurrent, strTemp);
@@ -1834,6 +1872,8 @@ void COSISXmlHandler::startVerseEntry(const CRelIndex &relIndex, bool bOpenEnded
 	m_bInTransChangeAdded = false;
 	if (m_bInNotes) std::cerr << "\n*** Error: Missing end of Notes\n";
 	m_bInNotes = false;
+	if (m_bInVerseTitleNote) std::cerr << "\n*** Error: Missing end of VerseTitleNote\n";
+	m_bInVerseTitleNote = false;
 	if (m_bInForeignText) std::cerr << "\n*** Error: Missing end of Foreign text\n";
 	m_bInForeignText = false;
 	if (m_bInDivineName) std::cerr << "\n*** Error: Missing end of Divine Name\n";
