@@ -1508,10 +1508,17 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 			QLiteHtmlWidget *pLiteHtml = qobject_cast<QLiteHtmlWidget *>(this);
 			if ((pLiteHtml != nullptr) &&
 				(ndxLink.book() == m_ndxCurrent.book()) && (ndxLink.chapter() == m_ndxCurrent.chapter())) {
-				// Try just the verse first in case the word isn't anchored for some reason.
-				//	Then try the full link for any minor adjustment on wrapped lines:
-				pLiteHtml->scrollToAnchor(CRelIndex(ndxLink.book(), ndxLink.chapter(), ndxLink.verse(), 0).asAnchor());
-				pLiteHtml->scrollToAnchor(link.toString());
+				if (m_pBibleDatabase->NormalizeIndex(CRelIndex(m_ndxCurrent.book(), m_ndxCurrent.chapter(), 2, 1)) >=
+					m_pBibleDatabase->NormalizeIndex(CRelIndex(ndxLink.book(), ndxLink.chapter(), ndxLink.verse(), 0))) {
+					// If the top of the page is sufficient for this reference, go to that instead of the
+					//	specific verse so that the book and chapter title are visible in the view:
+					pLiteHtml->scrollToAnchor(CRelIndex(ndxLink.book(), ndxLink.chapter(), 0, 0).asAnchor());
+				} else {
+					// Try just the verse first in case the word isn't anchored for some reason.
+					//	Then try the full link for any minor adjustment on wrapped lines:
+					pLiteHtml->scrollToAnchor(CRelIndex(ndxLink.book(), ndxLink.chapter(), ndxLink.verse(), 0).asAnchor());
+					pLiteHtml->scrollToAnchor(link.toString());
+				}
 			} else {
 				emit T::gotoIndex(TPhraseTag(ndxLink));
 			}
