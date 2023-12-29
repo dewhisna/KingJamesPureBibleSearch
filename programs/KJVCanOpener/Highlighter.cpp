@@ -299,6 +299,38 @@ void CCursorFollowHighlighter::clearPhraseTags()
 
 // ============================================================================
 
+CUserDefinedHighlighter::CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags, QObject *parent)
+	:	CBasicHighlighter(parent),
+		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
+{
+	m_myPhraseTags.setPhraseTags(lstPhraseTags);
+
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
+	setEnabled(highlighterDefinition.isValid() && highlighterDefinition.m_bEnabled);
+}
+
+CUserDefinedHighlighter::CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent)
+	:	CBasicHighlighter(parent),
+		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
+{
+	TPhraseTagList lstTags;
+	lstTags.append(aTag);
+	m_myPhraseTags.setPhraseTags(lstTags);
+
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
+	setEnabled(highlighterDefinition.isValid() && highlighterDefinition.m_bEnabled);
+}
+
+CUserDefinedHighlighter::CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter)
+	:	CBasicHighlighter(aUserDefinedHighlighter.parent())
+{
+	setEnabled(aUserDefinedHighlighter.enabled());
+	m_myPhraseTags.setPhraseTags(aUserDefinedHighlighter.m_myPhraseTags.phraseTags());
+	m_strUserDefinedHighlighterName = aUserDefinedHighlighter.m_strUserDefinedHighlighterName;
+}
+
 QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
@@ -307,8 +339,7 @@ QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &a
 	QTextCharFormat fmtNew;
 
 	if ((!bClear) && (enabled()) &&
-		(highlighterDefinition.isValid()) &&
-		(highlighterDefinition.m_bEnabled)) {
+		(highlighterDefinition.isValid())) {
 		if (!aFormat.hasProperty(USERPROP_BACKGROUND_BRUSH)) {
 			fmtNew.setProperty(USERPROP_BACKGROUND_BRUSH, QVariant(aFormat.background()));
 		}
@@ -341,8 +372,7 @@ QString CUserDefinedHighlighter::htmlBegin() const
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
 
-	if ((highlighterDefinition.isValid()) &&
-		(highlighterDefinition.m_bEnabled)) {
+	if (enabled() && highlighterDefinition.isValid()) {
 		return QString("<span style=\"background-color: %1\">").arg(highlighterDefinition.m_color.name());
 	}
 	return QString();
@@ -353,8 +383,7 @@ QString CUserDefinedHighlighter::htmlEnd() const
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
 
-	if ((highlighterDefinition.isValid()) &&
-		(highlighterDefinition.m_bEnabled)) {
+	if (enabled() && highlighterDefinition.isValid()) {
 		return QString("</span>");
 	}
 	return QString();

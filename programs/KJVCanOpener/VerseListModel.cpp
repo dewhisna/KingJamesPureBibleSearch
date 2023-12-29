@@ -546,14 +546,17 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 				dataGenHTML.beginParagraph();
 				dataGenHTML.beginBold();
 				dataGenHTML.beginBackground(udcHighlighter.m_color);
-				dataGenHTML.appendLiteralText(zResults.resultsName());
+				dataGenHTML.appendLiteralText(zResults.resultsName() +
+									(udcHighlighter.m_bEnabled ? QString() : QString("  [%1]").arg(tr("Disabled"))));
 				dataGenHTML.endBackground();
 				dataGenHTML.endBold();
 				dataGenHTML.endParagraph();
 			} else {
 				dataGenHTML.beginParagraph();
 				dataGenHTML.beginBold();
-				dataGenHTML.appendLiteralText(zResults.resultsName());
+				dataGenHTML.appendLiteralText(zResults.resultsName() +
+									(udcHighlighter.m_bEnabled ? QString() : QString("  [%1]").arg(tr("Disabled"))) +
+									QString("  [%1]").arg(tr("Invalid")));
 				dataGenHTML.endBold();
 				dataGenHTML.endParagraph();
 			}
@@ -780,6 +783,9 @@ QVariant CVerseListModel::data(const QModelIndex &index, int role) const
 						}
 					} else {
 						CUserDefinedHighlighter userHighlighter(zResults.resultsName(), itrVerse->phraseTags());
+						if (m_private.m_nViewMode == CVerseListModel::VVME_HIGHLIGHTERS) {
+							userHighlighter.setEnabled(true);		// Force enabled for highlighter view so user can see what's highlighted
+						}
 						navigator.doHighlighting(userHighlighter);
 					}
 //				} else {
@@ -1489,6 +1495,7 @@ QMimeData *CVerseListModel::mimeDataFromVerseText(const QModelIndexList &lstVers
 					navigator.doHighlighting(highlighter);
 				} else if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 					CUserDefinedHighlighter highlighter(results(*item.verseIndex()).resultsName(), item.phraseTags());
+					highlighter.setEnabled(true);		// Force enabled for highlighter view so user can see what's highlighted
 					navigator.doHighlighting(highlighter);
 				}
 			}
@@ -1709,6 +1716,7 @@ QMimeData *CVerseListModel::mimeDataFromCompleteVerseDetails(const QModelIndexLi
 			navigator.doHighlighting(highlighter);
 		} else if (m_private.m_nViewMode == VVME_HIGHLIGHTERS) {
 			CUserDefinedHighlighter highlighter(results(*item.verseIndex()).resultsName(), item.phraseTags());
+			highlighter.setEnabled(true);		// Force enabled for highlighter view so user can see what's highlighted
 			navigator.doHighlighting(highlighter);
 		}
 		navigator.removeAnchors();

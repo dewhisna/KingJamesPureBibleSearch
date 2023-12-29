@@ -204,27 +204,9 @@ class CUserDefinedHighlighter : public CBasicHighlighter
 {
 	Q_OBJECT
 public:
-	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = nullptr)
-		:	CBasicHighlighter(parent),
-			m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
-	{
-		m_myPhraseTags.setPhraseTags(lstPhraseTags);
-	}
-	CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent = nullptr)
-		:	CBasicHighlighter(parent),
-			m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
-	{
-		TPhraseTagList lstTags;
-		lstTags.append(aTag);
-		m_myPhraseTags.setPhraseTags(lstTags);
-	}
-	CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter)
-		:	CBasicHighlighter(aUserDefinedHighlighter.parent())
-	{
-		setEnabled(aUserDefinedHighlighter.enabled());
-		m_myPhraseTags.setPhraseTags(aUserDefinedHighlighter.m_myPhraseTags.phraseTags());
-		m_strUserDefinedHighlighterName = aUserDefinedHighlighter.m_strUserDefinedHighlighterName;
-	}
+	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = nullptr);
+	CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent = nullptr);
+	CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter);
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
 	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;

@@ -95,6 +95,8 @@ void CTextNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool 
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
+	if (!aHighlighter.enabled()) return;		// Nothing to do if this highlighter isn't enabled
+
 	CPhraseCursor myCursor(&m_TextDocument, m_pBibleDatabase.data(), true);
 
 	myCursor.beginEditBlock();
