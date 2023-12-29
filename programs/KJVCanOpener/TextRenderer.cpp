@@ -95,6 +95,7 @@ QString CTextRenderer::generateTextForBookInfo(const CBibleDatabase *pBibleDatab
 	RichifierRenderOptionFlags flagsRRO = RRO_None;
 	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
+	if (flagsTRO & TRO_EnableUserHighlighters) flagsRRO |= RRO_EnableUserHighlighters;
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n.subtitle { font-size:12pt; font-weight:normal; }\n.category { font-size:12pt; font-weight:normal; }\n</style></head><body>\n")
@@ -297,6 +298,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
+	if (flagsTRO & TRO_EnableUserHighlighters) flagsRRO |= RRO_EnableUserHighlighters;
 
 #ifdef WORKAROUND_LITEHTML_81
 	// Very kludgy hack for LiteHtml missing support for "dir" property on paragraphs.
@@ -995,6 +997,7 @@ QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
+	if (flagsTRO & TRO_EnableUserHighlighters) flagsRRO |= RRO_EnableUserHighlighters;
 
 	if ((flagsTRO & TRO_InnerHTML) == 0) {
 		//		scriptureHTML.appendRawText(QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n<html><head><title>%1</title><style type=\"text/css\">\nbody, p, li { white-space: pre-wrap; font-family:\"Times New Roman\", Times, serif; font-size:12pt; }\n.book { font-size:24pt; font-weight:bold; }\n.chapter { font-size:18pt; font-weight:bold; }\n</style></head><body>\n")
@@ -1265,6 +1268,7 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
+	if (flagsTRO & TRO_EnableUserHighlighters) flagsRRO |= RRO_EnableUserHighlighters;
 
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
 											  CPersistentSettings::instance()->verseRenderingModeCopying() :

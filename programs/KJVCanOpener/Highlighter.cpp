@@ -227,6 +227,17 @@ bool CSearchResultHighlighter::isEmpty() const
 	}
 }
 
+QString CSearchResultHighlighter::htmlBegin() const
+{
+	return enabled() ? QString("<font color=\"%1\">").arg(CPersistentSettings::instance()->colorSearchResults().name())
+					 : QString();
+}
+
+QString CSearchResultHighlighter::htmlEnd() const
+{
+	return enabled () ? QString("</font>") : QString();
+}
+
 // ============================================================================
 
 Q_DECLARE_METATYPE(QTextCharFormat::UnderlineStyle)
@@ -323,6 +334,30 @@ CHighlighterPhraseTagFwdItr CUserDefinedHighlighter::getForwardIterator() const
 bool CUserDefinedHighlighter::isEmpty() const
 {
 	return m_myPhraseTags.phraseTags().isEmpty();
+}
+
+QString CUserDefinedHighlighter::htmlBegin() const
+{
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
+
+	if ((highlighterDefinition.isValid()) &&
+		(highlighterDefinition.m_bEnabled)) {
+		return QString("<span style=\"background-color: %1\">").arg(highlighterDefinition.m_color.name());
+	}
+	return QString();
+}
+
+QString CUserDefinedHighlighter::htmlEnd() const
+{
+	Q_ASSERT(!g_pUserNotesDatabase.isNull());
+	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
+
+	if ((highlighterDefinition.isValid()) &&
+		(highlighterDefinition.m_bEnabled)) {
+		return QString("</span>");
+	}
+	return QString();
 }
 
 const TPhraseTagList &CUserDefinedHighlighter::phraseTags() const

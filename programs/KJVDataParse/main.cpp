@@ -1588,6 +1588,8 @@ bool COSISXmlHandler::startElement(const QString &namespaceURI, const QString &l
 	//			R:				-- Search Result Start (reserved placeholder, see VerseRichifier)
 	//			r:				-- Search Result End (reserved placeholder, see VerseRichifier)
 	//			A:				-- Anchor Start (reserved placeholder, see VerseRichifier)
+	//			H:				-- User Highlighter Start (reserved placeholder, see VerseRichifier)
+	//			h:				-- User Highlighter End (reserved placeholder, see VerseRichifier)
 	//			a:				-- Anchor End (reserved placeholder, see VerseRichifier)
 	//			M:				-- Hebrew Psalm 119 Marker
 	//			N:				-- Inline Parenthetical Note Start (inline footnote, not counted as verse text proper)

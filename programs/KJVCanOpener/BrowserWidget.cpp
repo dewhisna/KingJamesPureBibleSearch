@@ -768,6 +768,10 @@ void CBrowserWidget::en_highlighterTagsChanged(const CBibleDatabase *pBibleDatab
 		(pBibleDatabase->highlighterUUID().compare(m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
 		doHighlighting();					// Highlight using new tags
 	}
+
+#ifdef USING_LITEHTML
+	m_pScriptureLiteHtml->reload();
+#endif
 }
 
 void CBrowserWidget::en_highlightersAboutToChange()
@@ -778,6 +782,10 @@ void CBrowserWidget::en_highlightersAboutToChange()
 void CBrowserWidget::en_highlightersChanged()
 {
 	doHighlighting();					// Highlight using new tags
+
+#ifdef USING_LITEHTML
+	m_pScriptureLiteHtml->reload();
+#endif
 }
 
 void CBrowserWidget::doHighlighting(bool bClear)
@@ -1160,6 +1168,7 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 								TRO_SuppressPrePostChapters |
 								TRO_NoFootnoteAnchors |
 								TRO_UseLemmas |	// Note: UseLemmas implies UseWordSpans
+								TRO_EnableUserHighlighters |
 								((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None),
 								&m_SearchResultsHighlighter);
 

@@ -91,6 +91,9 @@ public:
 
 	virtual bool isContinuous() const { return false; }			// Continuous = no word breaks in highlighting.  Default is false
 
+	virtual QString htmlBegin() const { return QString(); }
+	virtual QString htmlEnd() const { return QString(); }
+
 public slots:
 	virtual void setEnabled(bool bEnabled = true) { m_bEnabled = bEnabled; }
 
@@ -119,6 +122,9 @@ public:
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
 	virtual bool isEmpty() const override;
+
+	virtual QString htmlBegin() const override;
+	virtual QString htmlEnd() const override;
 
 	bool isExcludedResults() const { return m_bExcludedResults; }
 
@@ -227,6 +233,9 @@ public:
 	virtual bool isEmpty() const override;
 
 	virtual bool isContinuous() const override { return true; }
+
+	virtual QString htmlBegin() const override;
+	virtual QString htmlEnd() const override;
 
 	const TPhraseTagList &phraseTags() const;
 	void setPhraseTags(const TPhraseTagList &lstPhraseTags);

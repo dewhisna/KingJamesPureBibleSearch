@@ -84,6 +84,7 @@ enum TextRenderOptions {
 	TRO_InlineFootnotes = 0x2000000,			// Render inline footnotes in verses
 	TRO_NoQTextDocument = 0x4000000,			// Disable functionality requiring QTextDocument (i.e. no clear() or setHtml() calls, no indent/hanging-indent VRME modes)
 	TRO_NoIndent = 0x8000000,					// Disable Indent and Hanging-Indent VRME modes
+	TRO_EnableUserHighlighters = 0x10000000,	// Enable User Highlighters
 };
 Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(TextRenderOptionFlags)

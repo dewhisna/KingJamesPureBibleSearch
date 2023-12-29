@@ -29,6 +29,7 @@
 #include <QColor>
 
 #include "dbstruct.h"
+#include "UserNotesDatabase.h"
 
 // Forward declarations
 class CPersistentSettings;
@@ -54,6 +55,8 @@ public:
 		VTTE_n,			// Inline Note End
 		VTTE_R,			// Search Results Begin
 		VTTE_r,			// Search Results End
+		VTTE_H,			// User Highlighter Begin
+		VTTE_h,			// User Highlighter End
 		VTTE_L,			// Lemma Begin (for completeness -- not used in richifier, see KJVDataParse)
 		VTTE_l,			// Lemma End (for completeness -- not used in richifier, see KJVDataParse)
 		// ----
@@ -238,6 +241,7 @@ enum RichifierRenderOptions : uint32_t {
 	RRO_UseLemmas = 0x2,				// Render Lemmas interlinearly with verses
 	RRO_UseWordSpans = 0x4,				// Output Word-Spans in HTML (this is implied when RRO_UseLemmas is specified)
 	RRO_InlineFootnotes = 0x8,			// Render inline footnotes in verses even when the verse templates exclude inline notes
+	RRO_EnableUserHighlighters = 0x10,	// Render user highlighters from user notes database
 };
 Q_DECLARE_FLAGS(RichifierRenderOptionFlags, RichifierRenderOptions)
 
@@ -247,9 +251,14 @@ private:
 	class CRichifierBaton
 	{
 	public:
-		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase, const CRelIndex &ndxRelative, const QString &strTemplate, RichifierRenderOptionFlags flagsRRO, int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr)
+		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase,
+						const CRelIndex &ndxRelative, const TPhraseTag &tagVerse, const QString &strTemplate,
+						RichifierRenderOptionFlags flagsRRO, int *pWordCount = nullptr,
+						const CBasicHighlighter *pHighlighter = nullptr,
+						const THighlighterTagMap *pUserHighlighters = nullptr)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
+				m_tagVerse(tagVerse),
 				m_strTemplate(strTemplate),
 				m_flagsRRO(flagsRRO),
 				// ----
@@ -262,6 +271,8 @@ private:
 				m_bInSearchResult(false),
 				m_pCurrentLemma(nullptr),
 				// ----
+				m_pUserHighlighters(pUserHighlighters),
+				// ----
 				m_tags(tags)
 		{
 			Q_ASSERT(pBibleDatabase != nullptr);
@@ -269,13 +280,21 @@ private:
 			m_ndxCurrent.setWord(0);						// Set ndxCurrent to be whole verse start, but nStartWord=Target First Word (set above)
 			if (m_nStartWord == 1) m_nStartWord = 0;		// Starting at first word includes pretext prior to word
 			if (m_nStartWord == 0) m_bOutput = true;
+
+			// Setup "in highlighter" flags:
+			if (m_pUserHighlighters) {
+				for (THighlighterTagMap::const_iterator itrHighlighters = m_pUserHighlighters->cbegin(); itrHighlighters != m_pUserHighlighters->cend(); ++itrHighlighters) {
+					m_mapInHighlighter[itrHighlighters->first] = false;
+				}
+			}
 		}
 
 		bool usesHTML() const { return m_tags.usesHTML(); }
 		bool renderOption(RichifierRenderOptionFlags flagsRRO) const { return ((m_flagsRRO & flagsRRO) != 0); }
 
 		const CBibleDatabase *m_pBibleDatabase;
-		CRelIndex m_ndxCurrent;
+		CRelIndex m_ndxCurrent;								// Current RelIndex within verse (updates in parser with verse pointer)
+		TPhraseTag m_tagVerse;								// Span of verse being parsed/richified
 		QString m_strTemplate;								// Verse Template being parsed -- will be identical to the one from CVerseEntry if not doing SearchResults, or modified if we are
 		RichifierRenderOptionFlags m_flagsRRO;				// Rendering Flags
 		// ----
@@ -284,20 +303,26 @@ private:
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		uint32_t m_nStartWord;								// Set to the word to start parse on from ndxRelative on initial call (0 and 1 are both start of verse)
 		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
-		const CBasicHighlighter *m_pHighlighter;			// Search Results (or other) word highligher if set
+		const CBasicHighlighter *m_pHighlighter;			// Search Results word highligher if set
 		bool m_bOutput;										// True when outputting text
 		bool m_bInTransChangeAdded;							// True when we are inside translation change addition text (i.e. italics)
 		bool m_bInWordsOfJesus;								// True when we are inside Words of Jesus text
-		bool m_bInSearchResult;								// True when we are inside intersection of m_lstTagsSearchResults, f->t triggers writing the begin tag, t->f triggers writing the end tag
+		bool m_bInSearchResult;								// True when we are inside intersection of m_pHighlighter, f->t triggers writing the begin tag, t->f triggers writing the end tag
 		const CLemmaEntry *m_pCurrentLemma;					// Pointer to the Lemma currently being processed or null if no Lemma exists for the current word/tag
+		// ----
+		const THighlighterTagMap *m_pUserHighlighters;		// Collection of user highlighters to process
+		typedef std::map<QString, bool> THighlighterTagMapFlags;
+		THighlighterTagMapFlags m_mapInHighlighter;			// InHighlighting flags for each user highlighter processed
 		// ----
 		const CVerseTextRichifierTags &m_tags;				// Tags from the caller used for parsing and callback
 	};
 
 	typedef QString (*FXlateText)(const CRichifierBaton &parseBaton);
 
-	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseTextRichifier *pRichNext = nullptr);
-	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar, const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr);
+	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar,
+						const CVerseTextRichifier *pRichNext = nullptr);
+	CVerseTextRichifier(CRichifierBaton &parseBaton, CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM nMatchChar,
+						const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext = nullptr);
 
 	~CVerseTextRichifier();
 
@@ -310,7 +335,8 @@ protected:
 
 public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
-							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(), RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
+							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(),
+							RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
 							int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr);
 
 private:
