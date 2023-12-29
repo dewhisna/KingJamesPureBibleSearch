@@ -110,6 +110,7 @@ private:
 	void withFixedTextPosition(const std::function<void()> &action);
 	void render();
 	QPoint scrollPosition() const;
+	void setScrollPosition(const QPoint &point);
 	void htmlPos(const QPoint &pos, QPoint *viewportPos, QPoint *htmlPos) const;
 	QPoint toVirtual(const QPoint &p) const;
 	QSize toVirtual(const QSize &s) const;

@@ -500,12 +500,10 @@ void QLiteHtmlWidget::reload()
 {
 	QUrl s = d->url;
 	d->url = QUrl();
-	int X = horizontalScrollBar()->value();
-	int Y = verticalScrollBar()->value();
+	QPoint pos = scrollPosition();
 	setSource(s);
 	render();
-	horizontalScrollBar()->setValue(X);
-	verticalScrollBar()->setValue(Y);
+	setScrollPosition(pos);
 }
 
 void QLiteHtmlWidget::setSource(const QUrl &url)
@@ -920,6 +918,12 @@ void QLiteHtmlWidget::render()
 QPoint QLiteHtmlWidget::scrollPosition() const
 {
 	return {horizontalScrollBar()->value(), verticalScrollBar()->value()};
+}
+
+void QLiteHtmlWidget::setScrollPosition(const QPoint &point)
+{
+	horizontalScrollBar()->setValue(point.x());
+	verticalScrollBar()->setValue(point.y());
 }
 
 void QLiteHtmlWidget::htmlPos(const QPoint &pos, QPoint *viewportPos, QPoint *htmlPos) const
