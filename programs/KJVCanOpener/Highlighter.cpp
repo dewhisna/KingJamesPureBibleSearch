@@ -301,19 +301,6 @@ CUserDefinedHighlighter::CUserDefinedHighlighter(const QString &strUserDefinedHi
 	setEnabled(highlighterDefinition.isValid() && highlighterDefinition.m_bEnabled);
 }
 
-CUserDefinedHighlighter::CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent)
-	:	CBasicHighlighter(parent),
-		m_strUserDefinedHighlighterName(strUserDefinedHighlighterName)
-{
-	TPhraseTagList lstTags;
-	lstTags.append(aTag);
-	m_myPhraseTags.setPhraseTags(lstTags);
-
-	Q_ASSERT(!g_pUserNotesDatabase.isNull());
-	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
-	setEnabled(highlighterDefinition.isValid() && highlighterDefinition.m_bEnabled);
-}
-
 CUserDefinedHighlighter::CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter)
 	:	CBasicHighlighter(aUserDefinedHighlighter.parent())
 {

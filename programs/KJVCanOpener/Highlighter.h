@@ -180,13 +180,6 @@ public:
 	{
 		m_myPhraseTags.setPhraseTags(lstPhraseTags);
 	}
-	CCursorFollowHighlighter(const TPhraseTag &aTag, QObject *parent = nullptr)
-		:	CBasicHighlighter(parent)
-	{
-		TPhraseTagList lstTags;
-		lstTags.append(aTag);
-		m_myPhraseTags.setPhraseTags(lstTags);
-	}
 	CCursorFollowHighlighter(const CCursorFollowHighlighter &aCursorFollowHighlighter)
 		:	CBasicHighlighter(aCursorFollowHighlighter.parent())
 	{
@@ -226,7 +219,6 @@ class CUserDefinedHighlighter : public CBasicHighlighter
 	Q_OBJECT
 public:
 	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = nullptr);
-	CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTag &aTag, QObject *parent = nullptr);
 	CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter);
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
