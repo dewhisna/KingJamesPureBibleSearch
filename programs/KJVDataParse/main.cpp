@@ -2374,11 +2374,13 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 			(bIsApostrophe)) {
 
 			if (nVT == VT_COLOPHON) {
-				// Special footnote version of colophon
-				CRelIndex ndxColophon = relIndex;
-				ndxColophon.setWord(0);
-				CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxColophon];
-				footnote.setText(footnote.text() + strTemp.at(0));
+				if (!m_bUseBracketColophons) {		// Don't push colophon text into footnotes if this is a bracket colophon
+					// Special footnote version of colophon
+					CRelIndex ndxColophon = relIndex;
+					ndxColophon.setWord(0);
+					CFootnoteEntry &footnote = m_pBibleDatabase->m_mapFootnotes[ndxColophon];
+					footnote.setText(footnote.text() + strTemp.at(0));
+				}
 			} else if (nVT == VT_SUPERSCRIPTION) {
 				// Special footnote version of superscription
 				CRelIndex ndxSuperscription = relIndex;
