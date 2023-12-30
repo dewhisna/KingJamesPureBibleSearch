@@ -177,7 +177,7 @@ void CTextNavigator::doHighlighting(const CBasicHighlighter &aHighlighter, bool 
 
 			if (nStartPos < nWordEndPos) {
 				if (myCursor.moveCursorCharRight(QTextCursor::KeepAnchor)) {
-					QTextCharFormat fmtNew = aHighlighter.doHighlighting(myCursor.charFormat(), bClear);
+					QTextCharFormat fmtNew = aHighlighter.textCharFormat(myCursor.charFormat(), bClear);
 					myCursor.setPosition(nWordEndPos, QTextCursor::KeepAnchor);
 					myCursor.mergeCharFormat(fmtNew);
 					myCursor.clearSelection();

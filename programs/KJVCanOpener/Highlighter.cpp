@@ -134,7 +134,7 @@ CSearchResultHighlighter::~CSearchResultHighlighter()
 	}
 }
 
-QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
+QTextCharFormat CSearchResultHighlighter::textCharFormat(const QTextCharFormat &aFormat, bool bClear) const
 {
 	QTextCharFormat fmtNew;
 
@@ -159,6 +159,18 @@ QTextCharFormat CSearchResultHighlighter::doHighlighting(const QTextCharFormat &
 	}
 
 	return fmtNew;
+}
+
+QString CSearchResultHighlighter::htmlBegin() const
+{
+	return enabled() ? QString("<font color=\"%1\"%2>").arg(CPersistentSettings::instance()->colorSearchResults().name())
+						   .arg(m_bExcludedResults ? QString(" style=\"text-decoration: line-through;\"") : QString())
+					 : QString();
+}
+
+QString CSearchResultHighlighter::htmlEnd() const
+{
+	return enabled () ? QString("</font>") : QString();
 }
 
 bool CSearchResultHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
@@ -217,23 +229,11 @@ bool CSearchResultHighlighter::isEmpty() const
 	}
 }
 
-QString CSearchResultHighlighter::htmlBegin() const
-{
-	return enabled() ? QString("<font color=\"%1\"%2>").arg(CPersistentSettings::instance()->colorSearchResults().name())
-														.arg(m_bExcludedResults ? QString(" style=\"text-decoration: line-through;\"") : QString())
-					 : QString();
-}
-
-QString CSearchResultHighlighter::htmlEnd() const
-{
-	return enabled () ? QString("</font>") : QString();
-}
-
 // ============================================================================
 
 Q_DECLARE_METATYPE(QTextCharFormat::UnderlineStyle)
 
-QTextCharFormat CCursorFollowHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
+QTextCharFormat CCursorFollowHighlighter::textCharFormat(const QTextCharFormat &aFormat, bool bClear) const
 {
 	QTextCharFormat fmtNew;
 
@@ -309,7 +309,7 @@ CUserDefinedHighlighter::CUserDefinedHighlighter(const CUserDefinedHighlighter &
 	m_strUserDefinedHighlighterName = aUserDefinedHighlighter.m_strUserDefinedHighlighterName;
 }
 
-QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &aFormat, bool bClear) const
+QTextCharFormat CUserDefinedHighlighter::textCharFormat(const QTextCharFormat &aFormat, bool bClear) const
 {
 	Q_ASSERT(!g_pUserNotesDatabase.isNull());
 	const TUserDefinedColor highlighterDefinition = g_pUserNotesDatabase->highlighterDefinition(m_strUserDefinedHighlighterName);
@@ -328,21 +328,6 @@ QTextCharFormat CUserDefinedHighlighter::doHighlighting(const QTextCharFormat &a
 	}
 
 	return fmtNew;
-}
-
-bool CUserDefinedHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
-{
-	return m_myPhraseTags.phraseTags().intersects(pBibleDatabase, aTag);
-}
-
-CHighlighterPhraseTagFwdItr CUserDefinedHighlighter::getForwardIterator() const
-{
-	return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
-}
-
-bool CUserDefinedHighlighter::isEmpty() const
-{
-	return m_myPhraseTags.phraseTags().isEmpty();
 }
 
 QString CUserDefinedHighlighter::htmlBegin() const
@@ -365,6 +350,21 @@ QString CUserDefinedHighlighter::htmlEnd() const
 		return QString("</span>");
 	}
 	return QString();
+}
+
+bool CUserDefinedHighlighter::intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const
+{
+	return m_myPhraseTags.phraseTags().intersects(pBibleDatabase, aTag);
+}
+
+CHighlighterPhraseTagFwdItr CUserDefinedHighlighter::getForwardIterator() const
+{
+	return CHighlighterPhraseTagFwdItr(m_myPhraseTags.phraseTags());
+}
+
+bool CUserDefinedHighlighter::isEmpty() const
+{
+	return m_myPhraseTags.phraseTags().isEmpty();
 }
 
 const TPhraseTagList &CUserDefinedHighlighter::phraseTags() const

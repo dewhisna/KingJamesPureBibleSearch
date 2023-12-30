@@ -104,7 +104,10 @@ public:
 	{
 	}
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const = 0;
+	virtual QTextCharFormat textCharFormat(const QTextCharFormat &aFormat, bool bClear) const = 0;
+	virtual QString htmlBegin() const { return QString(); }
+	virtual QString htmlEnd() const { return QString(); }
+
 	virtual bool enabled() const { return m_bEnabled; }
 	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const = 0;
 
@@ -112,9 +115,6 @@ public:
 	virtual bool isEmpty() const = 0;
 
 	virtual bool isContinuous() const { return false; }			// Continuous = no word breaks in highlighting.  Default is false
-
-	virtual QString htmlBegin() const { return QString(); }
-	virtual QString htmlEnd() const { return QString(); }
 
 public slots:
 	virtual void setEnabled(bool bEnabled = true) { m_bEnabled = bEnabled; }
@@ -138,14 +138,14 @@ public:
 	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults = false, QObject *parent = nullptr);
 	virtual ~CSearchResultHighlighter();
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual QTextCharFormat textCharFormat(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual QString htmlBegin() const override;
+	virtual QString htmlEnd() const override;
+
 	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
 	virtual bool isEmpty() const override;
-
-	virtual QString htmlBegin() const override;
-	virtual QString htmlEnd() const override;
 
 	bool isExcludedResults() const { return m_bExcludedResults; }
 
@@ -187,7 +187,8 @@ public:
 		m_myPhraseTags.setPhraseTags(aCursorFollowHighlighter.m_myPhraseTags.phraseTags());
 	}
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual QTextCharFormat textCharFormat(const QTextCharFormat &aFormat, bool bClear) const override;
+
 	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
@@ -221,16 +222,16 @@ public:
 	explicit CUserDefinedHighlighter(const QString &strUserDefinedHighlighterName, const TPhraseTagList &lstPhraseTags = TPhraseTagList(), QObject *parent = nullptr);
 	CUserDefinedHighlighter(const CUserDefinedHighlighter &aUserDefinedHighlighter);
 
-	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual QTextCharFormat textCharFormat(const QTextCharFormat &aFormat, bool bClear) const override;
+	virtual QString htmlBegin() const override;
+	virtual QString htmlEnd() const override;
+
 	virtual bool intersects(const CBibleDatabase *pBibleDatabase, const TPhraseTag &aTag) const override;
 
 	virtual CHighlighterPhraseTagFwdItr getForwardIterator() const override;
 	virtual bool isEmpty() const override;
 
 	virtual bool isContinuous() const override { return true; }
-
-	virtual QString htmlBegin() const override;
-	virtual QString htmlEnd() const override;
 
 	const TPhraseTagList &phraseTags() const;
 	void setPhraseTags(const TPhraseTagList &lstPhraseTags);
