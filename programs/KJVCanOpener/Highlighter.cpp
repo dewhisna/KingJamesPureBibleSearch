@@ -378,11 +378,5 @@ void CUserDefinedHighlighter::setPhraseTags(const TPhraseTagList &lstPhraseTags)
 	emit phraseTagsChanged();
 }
 
-void CUserDefinedHighlighter::clearPhraseTags()
-{
-	m_myPhraseTags.setPhraseTags(TPhraseTagList());
-	emit phraseTagsChanged();
-}
-
 // ============================================================================
 

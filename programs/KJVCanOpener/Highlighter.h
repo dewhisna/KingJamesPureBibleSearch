@@ -95,7 +95,8 @@ private:
 
 // ============================================================================
 
-class CBasicHighlighter : public QObject {
+class CBasicHighlighter : public QObject
+{
 	Q_OBJECT
 public:
 	explicit CBasicHighlighter(QObject *parent = nullptr)
@@ -235,9 +236,6 @@ public:
 
 	const TPhraseTagList &phraseTags() const;
 	void setPhraseTags(const TPhraseTagList &lstPhraseTags);
-
-public slots:
-	void clearPhraseTags();
 
 private:
 	// Guard class to keep me from accidentally accessing non-const functions and
