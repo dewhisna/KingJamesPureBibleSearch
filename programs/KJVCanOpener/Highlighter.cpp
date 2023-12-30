@@ -229,13 +229,15 @@ bool CSearchResultHighlighter::isEmpty() const
 
 QString CSearchResultHighlighter::htmlBegin() const
 {
-	return enabled() ? QString("<font color=\"%1\">").arg(CPersistentSettings::instance()->colorSearchResults().name())
+	return enabled() ? QString("<font color=\"%1\">%2").arg(CPersistentSettings::instance()->colorSearchResults().name())
+														.arg(m_bExcludedResults ? QString("<s>") : QString())
 					 : QString();
 }
 
 QString CSearchResultHighlighter::htmlEnd() const
 {
-	return enabled () ? QString("</font>") : QString();
+	return enabled () ? QString("%1</font>").arg(m_bExcludedResults ? QString("</s>") : QString())
+					 : QString();
 }
 
 // ============================================================================
