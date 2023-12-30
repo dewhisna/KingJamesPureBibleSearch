@@ -27,6 +27,7 @@
 #include "dbstruct.h"
 #include "PersistentSettings.h"
 #include "XML.h"
+#include "Highlighter.h"
 
 #include <map>
 #include <QSharedPointer>
@@ -114,26 +115,6 @@ typedef std::map<QString, TUserNoteEntryMap> TVersificationUserNoteEntryMap;				
 
 
 // ============================================================================
-
-//
-// User highlighter data is stored as:
-//			Map of BibleDatabaseUUID (Highlighter) -> Map of Versifications -> Map of HighlighterName -> TPhraseTagList
-//
-//	This way we can find all of the highlightations that are for the specific
-//		database being rendered, and then find the highlighter name for which
-//		to apply it...
-//
-
-struct HighlighterNameSortPredicate {
-	bool operator() (const QString &v1, const QString &v2) const;
-};
-
-// PhraseTag Highlighter Mapping Types:
-typedef std::map<QString, TPhraseTagList, HighlighterNameSortPredicate> THighlighterTagMap;		// Map of HighlighterName to TPhraseTagList (Highlighters are kept in sorted decomposed alphabetical order for overlay order)
-typedef std::map<QString, THighlighterTagMap> TVersificationHighlighterTagMap;					// Map of Versification UUID to THighlighterTagMap
-typedef std::map<QString, TVersificationHighlighterTagMap> TBibleDBHighlighterTagMap;			// Map of Bible Database UUID to TVersificationHighlighterTagMap
-
-// ----------------------------------------------------------------------------
 
 class TUserDefinedColor
 {

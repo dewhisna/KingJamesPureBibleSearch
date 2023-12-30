@@ -29,7 +29,7 @@
 #include <QColor>
 
 #include "dbstruct.h"
-#include "UserNotesDatabase.h"
+#include "Highlighter.h"
 
 // Forward declarations
 class CPersistentSettings;

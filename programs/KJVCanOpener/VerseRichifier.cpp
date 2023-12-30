@@ -27,7 +27,7 @@
 
 #include "PersistentSettings.h"
 #include "TextRenderer.h"
-#include "Highlighter.h"
+#include "UserNotesDatabase.h"
 
 #include "BibleLayout.h"
 
