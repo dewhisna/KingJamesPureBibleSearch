@@ -2549,41 +2549,8 @@ QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextR
 	const CVerseEntry *pVerse = verseEntry(ndx);
 	Q_ASSERT(pVerse != nullptr);
 
-#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-	if ((flagsRRO & RRO_EnableUserHighlighters) == 0) {
-		TVerseCacheMap &cache = ((flagsRRO & RRO_AddAnchors) ? m_mapVerseCacheWithAnchors[tags.hash()] : m_mapVerseCacheNoAnchors[tags.hash()]);
-		TVerseCacheMap::iterator itr = cache.find(ndx);
-		if (itr != cache.end()) return (itr->second);
-		cache[ndx] = CVerseTextRichifier::parse(ndx, this, pVerse, tags, flagsRRO, nullptr, aSRHighlighter, aSRExclHighlighter);
-		return cache[ndx];
-	} else {
-		return CVerseTextRichifier::parse(ndx, this, pVerse, tags, flagsRRO, nullptr, aSRHighlighter, aSRExclHighlighter);
-	}
-#else
 	return CVerseTextRichifier::parse(ndx, this, pVerse, tags, flagsRRO, nullptr, aSRHighlighter, aSRExclHighlighter);
-#endif
 }
-
-#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-void CBibleDatabase::dumpRichVerseTextCache(uint nTextRichifierTagHash)
-{
-	if (nTextRichifierTagHash == 0) {
-		m_mapVerseCacheWithAnchors.clear();
-		m_mapVerseCacheNoAnchors.clear();
-		return;
-	}
-
-	TSpecVerseCacheMap::iterator itr;
-
-	itr = m_mapVerseCacheWithAnchors.find(nTextRichifierTagHash);
-	if (itr != m_mapVerseCacheWithAnchors.end())
-		(itr->second).clear();
-
-	itr = m_mapVerseCacheNoAnchors.find(nTextRichifierTagHash);
-	if (itr != m_mapVerseCacheNoAnchors.end())
-		(itr->second).clear();
-}
-#endif
 
 QString CBibleDatabase::soundEx(const QString &strDecomposedConcordanceWord, bool bCache) const
 {

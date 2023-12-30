@@ -503,11 +503,6 @@ typedef std::map<CRelIndex, CVerseEntry, RelativeIndexSortPredicate> TVerseEntry
 
 typedef std::vector<TVerseEntryMap> TBookVerseList;		// Index by nBk-1
 
-#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-typedef std::map<CRelIndex, QString, RelativeIndexSortPredicate> TVerseCacheMap;			// Index by [nBk|nChp|nVrs|0]
-typedef std::map<uint, TVerseCacheMap> TSpecVerseCacheMap;							// Specific TVerseCacheMap -- Index by CVerseTextRichifierTags hash
-#endif
-
 // ============================================================================
 
 // Words -- Word List and Mapping
@@ -1529,9 +1524,6 @@ public:
 							RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
 							const CBasicHighlighter *aSRHighlighter = nullptr,
 							const CBasicHighlighter *aSRExclHighlighter = nullptr) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
-#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
-#endif
 
 private:
 	// CReadDatabase needed to load the database.  After that everything
@@ -1578,12 +1570,6 @@ private:
 	QString m_strInfo;						// Information about this database (copyright details, etc)
 
 	CKJPBSWordScriptureObject *m_pKJPBSWordScriptureObject;		// Object used to render the words from this database in the Scripture Editor/Browser
-
-// Cache:
-#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-	mutable TSpecVerseCacheMap m_mapVerseCacheWithAnchors;		// Map of Verse Cache Maps to store rendered rich text if g_nRichTextCachingMode is as RTCME_FULL
-	mutable TSpecVerseCacheMap m_mapVerseCacheNoAnchors;		//  "(ditto)" (but without anchors)
-#endif
 };
 
 Q_DECLARE_METATYPE(CBibleDatabase *)

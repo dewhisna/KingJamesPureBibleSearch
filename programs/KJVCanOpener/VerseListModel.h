@@ -381,13 +381,7 @@ public:
 
 	QString getVerseVeryPlainText() const		// Very Plain has no punctuation!
 	{
-#ifdef VERSE_LIST_PLAIN_TEXT_CACHE
-		if (!m_strVeryPlainTextCache.isEmpty()) return m_strVeryPlainTextCache;
-		m_strVeryPlainTextCache = getVerseAsWordList().join(" ");
-		return m_strVeryPlainTextCache;
-#else
 		return getVerseAsWordList().join(" ");
-#endif
 	}
 	static QString getVerseVeryPlainText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase)
 	{
@@ -405,10 +399,6 @@ public:
 								const CBasicHighlighter *pSRHighlighter = nullptr,
 								const CBasicHighlighter *pSRExclHighlighter = nullptr) const
 	{
-#ifdef VERSE_LIST_RICH_TEXT_CACHE
-		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
-#endif
-
 		QString strVerseRichText;
 		CRelIndex ndxCurrent = getIndex();
 		bool bExtended = false;			// True if result extends to multiple verses
@@ -438,12 +428,7 @@ public:
 			bExtended = true;
 		} while (m_lstTags.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCurrent)));
 
-#ifdef VERSE_LIST_RICH_TEXT_CACHE
-		m_strRichTextCache = strVerseRichText
-		return m_strRichTextCache;
-#else
 		return strVerseRichText;
-#endif
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
 									const CVerseTextRichifierTags &richifierTags,
@@ -466,14 +451,6 @@ private:
 	TPhraseTagList m_lstTags;		// Phrase Tags to highlight in this object
 
 	TVerseIndexPtr m_pVerseIndex;	// Used for QModelIndex Internal object
-
-// Caches filled in during first fetch:
-#ifdef VERSE_LIST_RICH_TEXT_CACHE
-	mutable QString m_strRichTextCache;
-#endif
-#ifdef VERSE_LIST_PLAIN_TEXT_CACHE
-	mutable QString m_strVeryPlainTextCache;
-#endif
 };
 
 Q_DECLARE_METATYPE(CVerseListItem)

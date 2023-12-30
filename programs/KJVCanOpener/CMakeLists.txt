@@ -76,10 +76,6 @@ option(OPTION_USE_MDI_MAIN_WINDOW "Use MDI Main Windows" OFF)
 option(DEPRECATION_ENABLE_WARNINGS "Enable Qt Deprecation Warnings" ON)
 option(DEPRECATION_DISABLE_APIS "Disable Deprecated Qt APIs" OFF)
 # -------------------------------------
-option(CACHE_VERSE_LIST_PLAIN_TEXT "Enable Verse List Plain Text Cache" OFF)
-option(CACHE_VERSE_LIST_RICH_TEXT "Enable Verse List Rich Text Cache" OFF)
-option(CACHE_BIBLE_DATABASE_RICH_TEXT "Enable Bible Database Rich Text Cache" OFF)
-# -------------------------------------
 option(DEBUG_SEARCH_PHRASE_RESULTS_SPY "Enable Search Phrase/Results Spy" OFF)
 option(DEBUG_SHOW_SEARCH_COMPLETER_OUTPUT "Enable Search Completer Debug Output" OFF)
 option(DEBUG_CURSOR_SELECTION "Enable Cursor Selection Debugging" OFF)
@@ -795,32 +791,6 @@ endif()
 if(DEPRECATION_DISABLE_APIS)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		QT_DISABLE_DEPRECATED_BEFORE=0x060000			# disables all the APIs deprecated before Qt 6.0.0
-	)
-endif()
-
-
-# -----------------------------------
-
-# Miscellaneous Cache modes that can be enabled:
-# ----------------------------------------------
-
-if(CACHE_VERSE_LIST_PLAIN_TEXT)
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		VERSE_LIST_PLAIN_TEXT_CACHE
-	)
-endif()
-
-
-if(CACHE_VERSE_LIST_RICH_TEXT)
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		VERSE_LIST_RICH_TEXT_CACHE
-	)
-endif()
-
-
-if(CACHE_BIBLE_DATABASE_RICH_TEXT)
-	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
-		BIBLE_DATABASE_RICH_TEXT_CACHE
 	)
 endif()
 

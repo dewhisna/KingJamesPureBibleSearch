@@ -200,12 +200,6 @@ bool CReadDatabaseEx::ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bS
 
 	bibleDatabase()->setRenderedWords();		// Need to update new word changes
 
-// Dumping cache isn't needed for this app, but if we use this in the main
-//	GUI, it might be:
-#ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
-	bibleDatabase()->dumpRichVerseTextCache();
-#endif
-
 	return true;
 }
 

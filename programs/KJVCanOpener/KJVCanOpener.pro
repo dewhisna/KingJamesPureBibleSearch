@@ -145,10 +145,7 @@ DEFINES *= QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES *= QT_DISABLE_DEPRECATED_BEFORE=0x060000               # disables all the APIs deprecated before Qt 6.0.0
 
-# Miscellaneous Special-Testing and Cache modes that can be enabled:
-#DEFINES += VERSE_LIST_PLAIN_TEXT_CACHE
-#DEFINES += VERSE_LIST_RICH_TEXT_CACHE
-#DEFINES += BIBLE_DATABASE_RICH_TEXT_CACHE
+# Miscellaneous Special-Testing modes that can be enabled:
 #DEFINES += SEARCH_PHRASE_SPY SEARCH_RESULTS_SPY
 #DEFINES += SEARCH_COMPLETER_DEBUG_OUTPUT
 !emscripten:!vnc:declarative_debug:CONFIG *= signalspy
