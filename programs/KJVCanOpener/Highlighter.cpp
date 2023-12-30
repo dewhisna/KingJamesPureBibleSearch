@@ -126,16 +126,6 @@ CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTagList &lstPhra
 	m_myPhraseTags.setPhraseTags(lstPhraseTags);
 }
 
-CSearchResultHighlighter::CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults, QObject *parent)
-	:	CBasicHighlighter(parent),
-		m_pVerseListModel(nullptr),
-		m_bExcludedResults(bExcludedResults)
-{
-	TPhraseTagList lstTags;
-	lstTags.append(aTag);
-	m_myPhraseTags.setPhraseTags(lstTags);
-}
-
 CSearchResultHighlighter::~CSearchResultHighlighter()
 {
 	if (m_pVerseListModel) {
@@ -229,15 +219,14 @@ bool CSearchResultHighlighter::isEmpty() const
 
 QString CSearchResultHighlighter::htmlBegin() const
 {
-	return enabled() ? QString("<font color=\"%1\">%2").arg(CPersistentSettings::instance()->colorSearchResults().name())
-														.arg(m_bExcludedResults ? QString("<s>") : QString())
+	return enabled() ? QString("<font color=\"%1\"%2>").arg(CPersistentSettings::instance()->colorSearchResults().name())
+														.arg(m_bExcludedResults ? QString(" style=\"text-decoration: line-through;\"") : QString())
 					 : QString();
 }
 
 QString CSearchResultHighlighter::htmlEnd() const
 {
-	return enabled () ? QString("%1</font>").arg(m_bExcludedResults ? QString("</s>") : QString())
-					 : QString();
+	return enabled () ? QString("</font>") : QString();
 }
 
 // ============================================================================

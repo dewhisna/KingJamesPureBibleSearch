@@ -328,6 +328,7 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 	if (m_parseBaton.m_bInTransChangeAdded) nWordTypes |= CVerseTextRichifierTags::VWT_TransChangeAdded;
 	if (m_parseBaton.m_bInWordsOfJesus) nWordTypes |= CVerseTextRichifierTags::VWT_WordsOfJesus;
 	if (m_parseBaton.m_bInSearchResult) nWordTypes |= CVerseTextRichifierTags::VWT_SearchResult;
+	if (m_parseBaton.m_bInSearchResultExcl) nWordTypes |= CVerseTextRichifierTags::VWT_SearchResultExcluded;
 
 	StringParse::TFirstCharSize fcs = StringParse::firstCharSize(strWord);
 
@@ -501,7 +502,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 				if (m_chrMatchChar == QChar('D')) {
 					m_parseBaton.m_strDivineNameFirstLetterParseText = m_fncXlateText(m_parseBaton);
 				} else if (m_chrMatchChar == QChar('R')) {
-					Q_ASSERT(m_parseBaton.m_pHighlighter != nullptr);
+					Q_ASSERT(m_parseBaton.m_pSRHighlighter != nullptr);
 					// Note: for searchResult, we always have to check the intersection and handle
 					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
@@ -513,12 +514,12 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 #endif
 					if ((m_parseBaton.m_bOutput) &&
 						(!m_parseBaton.m_bInSearchResult) &&
-						(m_parseBaton.m_pHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						(m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
 						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
 						m_parseBaton.m_bInSearchResult = true;
 					}
 				} else if (m_chrMatchChar == QChar('r')) {
-					Q_ASSERT(m_parseBaton.m_pHighlighter != nullptr);
+					Q_ASSERT(m_parseBaton.m_pSRHighlighter != nullptr);
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
 #ifdef WORKAROUND_LITEHTML_81
@@ -526,15 +527,48 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 #endif
 					if ((m_parseBaton.m_bOutput) &&
 						(m_parseBaton.m_bInSearchResult) &&
-						((!m_parseBaton.m_pHighlighter->isContinuous()) ||
+						((!m_parseBaton.m_pSRHighlighter->isContinuous()) ||
 						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))) ||	// Continuous highlighters can't span past end of verse
 						 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
 						 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-						 (!m_parseBaton.m_pHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+						 (!m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
 						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
 						m_parseBaton.m_bInSearchResult = false;
 					}
-
+				} else if (m_chrMatchChar == QChar('E')) {
+					Q_ASSERT(m_parseBaton.m_pSRExclHighlighter != nullptr);
+					// Note: for searchResultExcl, we always have to check the intersection and handle
+					//		enter/exit of m_bInSearchResultExcl since we are called to parse twice -- once
+					//		for the begin tags and once for the end tags.  Otherwise we don't know when
+					//		to start/stop and which to output:
+					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
+					ndxWord.setWord(ndxWord.word()+1);
+#ifdef WORKAROUND_LITEHTML_81
+					if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
+#endif
+					if ((m_parseBaton.m_bOutput) &&
+						(!m_parseBaton.m_bInSearchResultExcl) &&
+						(m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
+						m_parseBaton.m_bInSearchResultExcl = true;
+					}
+				} else if (m_chrMatchChar == QChar('e')) {
+					Q_ASSERT(m_parseBaton.m_pSRExclHighlighter != nullptr);
+					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
+					ndxWord.setWord(ndxWord.word()+1);
+#ifdef WORKAROUND_LITEHTML_81
+					if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
+#endif
+					if ((m_parseBaton.m_bOutput) &&
+						(m_parseBaton.m_bInSearchResultExcl) &&
+						((!m_parseBaton.m_pSRExclHighlighter->isContinuous()) ||
+						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))) ||	// Continuous highlighters can't span past end of verse
+						 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
+						 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
+						 (!m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
+						m_parseBaton.m_bInSearchResultExcl = false;
+					}
 				} else if (m_chrMatchChar == QChar('H')) {
 					Q_ASSERT(m_parseBaton.m_pUserHighlighters != nullptr);		// Main parse() function shouldn't add "H" tags if this is null
 
@@ -543,7 +577,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 									itrHighlighters != m_parseBaton.m_pUserHighlighters->cend(); ++itrHighlighters) {
 						CUserDefinedHighlighter highlighter(itrHighlighters->first, itrHighlighters->second);
 
-						// Note: for searchResult, we always have to check the intersection and handle
+						// Note: for highlighters, we always have to check the intersection and handle
 						//		enter/exit of InHighlighter since we are called to parse twice -- once
 						//		for the begin tags and once for the end tags.  Otherwise we don't know when
 						//		to start/stop and which to output:
@@ -653,7 +687,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase,
 									const CVerseEntry *pVerse, const CVerseTextRichifierTags &tags,
 									RichifierRenderOptionFlags flagsRRO, int *pWordCount,
-									const CBasicHighlighter *pHighlighter)
+									const CBasicHighlighter *pSRHighlighter, const CBasicHighlighter *pSRExclHighlighter)
 {
 	Q_ASSERT(pBibleDatabase != nullptr);
 	Q_ASSERT(pVerse != nullptr);
@@ -792,11 +826,17 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	// --------------------------------
 
-	// Highlighter after other tags above so that its color takes
-	//	precedence over Words of Jesus color, etc:
-	if ((pHighlighter != nullptr) &&
-		(pHighlighter->enabled())) {
+	// Search Results Highlighter after other tags above so that its
+	//	color takes precedence over Words of Jesus color, etc:
+	if ((pSRHighlighter != nullptr) &&
+		(pSRHighlighter->enabled())) {
 		strTemplate.replace(QChar('w'), "Rwr");
+	}
+
+	// Similar for Search Results Excluded Highlighter:
+	if ((pSRExclHighlighter != nullptr) &&
+		(pSRExclHighlighter->enabled())) {
+		strTemplate.replace(QChar('w'), "Ewe");
 	}
 
 	// UserHighlighters last so paint order is correct:
@@ -817,7 +857,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	ndxRelVerse.setWord(1);
 	CRichifierBaton baton(tags, pBibleDatabase, ndxRelative, TPhraseTag(ndxRelVerse, pVerse->m_nNumWrd),
-							strTemplate, flagsRRO, pWordCount, pHighlighter, pUserHighlighters);
+							strTemplate, flagsRRO, pWordCount, pSRHighlighter, pSRExclHighlighter, pUserHighlighters);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {
@@ -832,7 +872,9 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	//		no longer know where we are in the list.
 	CVerseTextRichifier rich_h(baton, CVerseTextRichifierTags::VTTE_h);
 	CVerseTextRichifier rich_H(baton, CVerseTextRichifierTags::VTTE_H, &rich_h);
-	CVerseTextRichifier rich_r(baton, CVerseTextRichifierTags::VTTE_r, &rich_H);
+	CVerseTextRichifier rich_e(baton, CVerseTextRichifierTags::VTTE_e, &rich_H);
+	CVerseTextRichifier rich_E(baton, CVerseTextRichifierTags::VTTE_E, &rich_e);
+	CVerseTextRichifier rich_r(baton, CVerseTextRichifierTags::VTTE_r, &rich_E);
 	CVerseTextRichifier rich_R(baton, CVerseTextRichifierTags::VTTE_R, &rich_r);
 	CVerseTextRichifier rich_n(baton, CVerseTextRichifierTags::VTTE_n, &rich_R);
 	CVerseTextRichifier rich_N(baton, CVerseTextRichifierTags::VTTE_N, &rich_n);
@@ -859,6 +901,7 @@ void CVerseTextRichifierTags::setFromPersistentSettings(const CPersistentSetting
 {
 	setWordsOfJesusTagsByColor(aPersistentSettings.colorWordsOfJesus());
 	setSearchResultsTagsByColor(aPersistentSettings.colorSearchResults());
+	setSearchResultsExcludedTagsByColor(aPersistentSettings.colorSearchResults());
 
 	if (bCopyOptions) {
 		switch (aPersistentSettings.transChangeAddWordMode()) {

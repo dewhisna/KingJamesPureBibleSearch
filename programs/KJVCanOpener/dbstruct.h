@@ -1527,7 +1527,8 @@ public:
 	QString richVerseText(const CRelIndex &ndxRel,
 							const CVerseTextRichifierTags &tags,
 							RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
-							const CBasicHighlighter *aHighlighter = nullptr) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
+							const CBasicHighlighter *aSRHighlighter = nullptr,
+							const CBasicHighlighter *aSRExclHighlighter = nullptr) const;	// Generate and return verse text for specified index: [Book | Chapter | Verse | 0]
 #ifdef BIBLE_DATABASE_RICH_TEXT_CACHE
 	void dumpRichVerseTextCache(uint nTextRichifierTagHash = 0);		// Dump the cache for a specific CVerseTextRichifierTags object (pass its hash) or all data (pass 0)
 #endif

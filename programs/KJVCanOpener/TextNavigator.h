@@ -75,10 +75,12 @@ public:
 	QString setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateBookInfoTextFlags));
 	QString setDocumentToChapter(const CRelIndex &ndx,
 								 TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateChapterTextFlags),
-								 const CBasicHighlighter *pHighlighter = nullptr);
+								 const CBasicHighlighter *pSRHighlighter = nullptr,
+								 const CBasicHighlighter *pSRExclHighlighter = nullptr);
 	QString setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude,
 							   TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateVerseTextFlags),
-							   const CBasicHighlighter *pHighlighter = nullptr);
+							   const CBasicHighlighter *pSRHighlighter = nullptr,
+							   const CBasicHighlighter *pSRExclHighlighter = nullptr);
 	QString setDocumentToFormattedVerses(const TPhraseTagList &lstPhraseTags, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateFormattedVersesTextFlags));		// Note: By definition, this one doesn't include anchors
 	QString setDocumentToFormattedVerses(const TPassageTagList &lstPassageTags, TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateFormattedVersesTextFlags));	// Note: By definition, this one doesn't include anchors
 

@@ -402,7 +402,8 @@ public:
 
 	QString getVerseRichText(const CVerseTextRichifierTags &richifierTags,
 								bool bSuppressHeadings,
-								const CBasicHighlighter *pHighlighter = nullptr) const
+								const CBasicHighlighter *pSRHighlighter = nullptr,
+								const CBasicHighlighter *pSRExclHighlighter = nullptr) const
 	{
 #ifdef VERSE_LIST_RICH_TEXT_CACHE
 		if (!m_strRichTextCache.isEmpty()) return m_strRichTextCache;
@@ -432,7 +433,7 @@ public:
 					}
 				}
 			}
-			strVerseRichText += getVerseRichText(ndxCurrent, m_pBibleDatabase, richifierTags, pHighlighter);
+			strVerseRichText += getVerseRichText(ndxCurrent, m_pBibleDatabase, richifierTags, pSRHighlighter, pSRExclHighlighter);
 			ndxCurrent = m_pBibleDatabase->calcRelIndex(0, 1, 0, 0, 0, ndxCurrent, false);		// See if next verse intersects our results of this verse (i.e. spills to next verse)
 			bExtended = true;
 		} while (m_lstTags.intersects(m_pBibleDatabase.data(), TPhraseTag(ndxCurrent)));
@@ -446,12 +447,13 @@ public:
 	}
 	static QString getVerseRichText(const CRelIndex &ndx, CBibleDatabasePtr pBibleDatabase,
 									const CVerseTextRichifierTags &richifierTags,
-									const CBasicHighlighter *pHighlighter = nullptr)
+									const CBasicHighlighter *pSRHighlighter = nullptr,
+									const CBasicHighlighter *pSRExclHighlighter = nullptr)
 	{
 		Q_ASSERT(!pBibleDatabase.isNull());
 		if (pBibleDatabase.isNull()) return QString();
 		if (!ndx.isSet()) return QString();
-		return pBibleDatabase->richVerseText(ndx, richifierTags, RichifierRenderOptionFlags(), pHighlighter);
+		return pBibleDatabase->richVerseText(ndx, richifierTags, RichifierRenderOptionFlags(), pSRHighlighter, pSRExclHighlighter);
 	}
 
 	void sortPhraseTags()

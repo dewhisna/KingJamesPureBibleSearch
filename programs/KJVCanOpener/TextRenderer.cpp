@@ -215,7 +215,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 											  qreal nIndentWidth,
 											  const CRelIndex &ndx,
 											  TextRenderOptionFlags flagsTRO,
-											  const CBasicHighlighter *pHighlighter)
+											  const CBasicHighlighter *pSRHighlighter,
+											  const CBasicHighlighter *pSRExclHighlighter)
 {
 	Q_ASSERT(pBibleDatabase != nullptr);
 
@@ -408,7 +409,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		scriptureHTML.appendRawText(pBibleDatabase->richVerseText(relPrev,
 																	richifierTags,
 																	flagsRRO,
-																	pHighlighter));
+																	pSRHighlighter,
+																	pSRExclHighlighter));
 		scriptureHTML.appendRawText("</span>");	// Verse
 
 		// Add CrossRefs:
@@ -441,7 +443,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 				scriptureHTML.appendRawText(pBibleDatabase->richVerseText(CRelIndex(relPrev.book(), 0, 0, 0),
 																			richifierTags,
 																			flagsRRO,
-																			pHighlighter));
+																			pSRHighlighter,
+																			pSRExclHighlighter));
 				if (bTotalColophonAnchor) {
 					scriptureHTML.appendRawText("</a>");
 				}
@@ -543,7 +546,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		scriptureHTML.appendRawText(pBibleDatabase->richVerseText(ndxBookChap,
 																	richifierTags,
 																	flagsRRO,
-																	pHighlighter));
+																	pSRHighlighter,
+																	pSRExclHighlighter));
 		if (bTotalSuperscriptionAnchor) {
 			scriptureHTML.appendRawText("</a>");
 		}
@@ -654,7 +658,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		scriptureHTML.appendRawText(pBibleDatabase->richVerseText(ndxVerse,
 																	richifierTags,
 																	flagsRRO,
-																	pHighlighter));
+																	pSRHighlighter,
+																	pSRExclHighlighter));
 		scriptureHTML.appendRawText("</span>");	// Verse
 
 		bStartedText = true;
@@ -727,7 +732,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.appendRawText(pBibleDatabase->richVerseText(ndxBook,
 																		richifierTags,
 																		flagsRRO,
-																		pHighlighter));
+																		pSRHighlighter,
+																		pSRExclHighlighter));
 			if (bTotalColophonAnchor) {
 				scriptureHTML.appendRawText("</a>");
 			}
@@ -832,7 +838,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.appendRawText(pBibleDatabase->richVerseText(ndxBookChapNext,
 																		richifierTags,
 																		flagsRRO,
-																		pHighlighter));
+																		pSRHighlighter,
+																		pSRExclHighlighter));
 			if (bTotalSuperscriptionAnchor) {
 				scriptureHTML.appendRawText("</a>");
 			}
@@ -899,7 +906,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		scriptureHTML.appendRawText(pBibleDatabase->richVerseText(relNext,
 																	richifierTags,
 																	flagsRRO,
-																	pHighlighter));
+																	pSRHighlighter,
+																	pSRExclHighlighter));
 		scriptureHTML.appendRawText("</span>");	// Verse
 
 		// Add CrossRefs:
@@ -931,7 +939,8 @@ QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase
 											const CRelIndex &ndx,
 											const TPhraseTagList &tagsToInclude,
 											TextRenderOptionFlags flagsTRO,
-											const CBasicHighlighter *pHighlighter)
+											const CBasicHighlighter *pSRHighlighter,
+											const CBasicHighlighter *pSRExclHighlighter)
 {
 	Q_ASSERT(pBibleDatabase != nullptr);
 
@@ -1111,7 +1120,8 @@ QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase
 		scriptureHTML.appendRawText(pBibleDatabase->richVerseText(ndxVerse,
 																	richifierTags,
 																	flagsRRO,
-																	pHighlighter));
+																	pSRHighlighter,
+																	pSRExclHighlighter));
 		if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
 			scriptureHTML.appendRawText("</a>");
 		}

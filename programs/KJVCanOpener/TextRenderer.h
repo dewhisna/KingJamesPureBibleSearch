@@ -169,12 +169,14 @@ public:
 										  qreal nIndentWidth,
 										  const CRelIndex &ndx,
 										  TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateChapterTextFlags),
-										  const CBasicHighlighter *pHighlighter = nullptr);
+										  const CBasicHighlighter *pSRHighlighter = nullptr,
+										  const CBasicHighlighter *pSRExclHighlighter = nullptr);
 	static QString generateTextForVerse(const CBibleDatabase *pBibleDatabase,
 										const CRelIndex &ndx,
 										const TPhraseTagList &tagsToInclude,
 										TextRenderOptionFlags flagsTRO = TextRenderOptionFlags(defaultGenerateVerseTextFlags),
-										const CBasicHighlighter *pHighlighter = nullptr);
+										const CBasicHighlighter *pSRHighlighter = nullptr,
+										const CBasicHighlighter *pSRExclHighlighter = nullptr);
 	static QString generateTextForFormattedVerses(const CBibleDatabase *pBibleDatabase,
 												  qreal nIndentWidth,
 												  const TPhraseTagList &lstPhraseTags,

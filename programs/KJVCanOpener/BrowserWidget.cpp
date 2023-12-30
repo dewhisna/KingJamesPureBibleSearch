@@ -781,7 +781,10 @@ void CBrowserWidget::en_highlighterTagsChanged(const CBibleDatabase *pBibleDatab
 	}
 
 #ifdef USING_LITEHTML
-	m_pScriptureLiteHtml->reload();
+	if ((pBibleDatabase == nullptr) ||
+		(pBibleDatabase->highlighterUUID().compare(m_pBibleDatabase->highlighterUUID(), Qt::CaseInsensitive) == 0)) {
+		m_pScriptureLiteHtml->reload();
+	}
 #endif
 }
 
@@ -823,14 +826,6 @@ void CBrowserWidget::doHighlighting(bool bClear)
 	TPhraseTag tagSelection = m_pScriptureBrowser->navigator().getSelection().primarySelection();
 	m_pScriptureBrowser->navigator().selectWords(tagSelection);
 #endif
-
-#ifdef USING_LITEHTML
-	// TODO : Add support to CTextRenderer::generateTextForChapter to allow for
-	//	multiple highlighter objects instead of only one and extend this to allow
-	//	for excluded search results mode plus the user highlighters too:
-//	if (m_bShowExcludedSearchResults)
-//		m_pScriptureLiteHtml->navigator().doHighlighting(m_ExcludedSearchResultsHighlighter, bClear, m_ndxCurrent);
-#endif // USING_LITEHTML
 }
 
 void CBrowserWidget::en_WordsOfJesusColorChanged(const QColor &color)
@@ -847,6 +842,10 @@ void CBrowserWidget::en_SearchResultsColorChanged(const QColor &color)
 	// Simply redo the highlighting again to change the highlight color:
 	Q_UNUSED(color);
 	doHighlighting();
+
+#ifdef USING_LITEHTML
+	m_pScriptureLiteHtml->reload();
+#endif
 }
 
 void CBrowserWidget::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearchResults)
@@ -857,6 +856,10 @@ void CBrowserWidget::en_ShowExcludedSearchResultsChanged(bool bShowExcludedSearc
 	doHighlighting(true);
 	m_bShowExcludedSearchResults = bShowExcludedSearchResults;
 	doHighlighting(false);
+
+#ifdef USING_LITEHTML
+	m_pScriptureLiteHtml->reload();
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -1181,7 +1184,8 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 								TRO_UseLemmas |	// Note: UseLemmas implies UseWordSpans
 								TRO_EnableUserHighlighters |
 								((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None),
-								&m_SearchResultsHighlighter);
+								&m_SearchResultsHighlighter,
+								m_bShowExcludedSearchResults ? &m_ExcludedSearchResultsHighlighter : nullptr);
 
 	m_pScriptureLiteHtml->setHtml(strLiteHtml);
 

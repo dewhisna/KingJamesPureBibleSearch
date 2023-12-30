@@ -71,6 +71,7 @@ public:
 		VWT_WordsOfJesus = 0x02,				// Inside Word of Jesus tag
 		VWT_DivineName = 0x04,					// Inside Divine Name tag
 		VWT_SearchResult = 0x08,				// Inside Search Results tag
+		VWT_SearchResultExcluded = 0x10,		// Inside Search Results Excluded tag
 	};
 	Q_DECLARE_FLAGS(VerseWordTypeFlags, VerseWordTypes)
 
@@ -90,8 +91,8 @@ public:
 			m_strInlineNoteEnd(")"),
 			m_strSearchResultsBegin("<font color=\"blue\">"),
 			m_strSearchResultsEnd("</font>"),
-			m_strSearchResultsExcludedBegin("<font color=\"blue\"><s>"),
-			m_strSearchResultsExcludedEnd("</s></font>"),
+			m_strSearchResultsExcludedBegin("<font color=\"blue\" style=\"text-decoration: line-through;\">"),
+			m_strSearchResultsExcludedEnd("</font>"),
 			m_bShowPilcrowMarkers(true)
 	{
 		calcHash();
@@ -187,7 +188,7 @@ public:
 	void setSearchResultsExcludedTagsByColor(const QColor &color)
 	{
 		if (color.isValid()) {
-			setSearchResultsExcludedTags(QString("<font color=\"%1\"><s>").arg(color.name()), "</s></font>");
+			setSearchResultsExcludedTags(QString("<font color=\"%1\" style=\"text-decoration: line-through;\">").arg(color.name()), "</font>");
 		} else {
 			setSearchResultsExcludedTags(QString(), QString());
 		}
@@ -280,7 +281,8 @@ private:
 		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase,
 						const CRelIndex &ndxRelative, const TPhraseTag &tagVerse, const QString &strTemplate,
 						RichifierRenderOptionFlags flagsRRO, int *pWordCount = nullptr,
-						const CBasicHighlighter *pHighlighter = nullptr,
+						const CBasicHighlighter *pSRHighlighter = nullptr,
+						const CBasicHighlighter *pSRExclHighlighter = nullptr,
 						const THighlighterTagMap *pUserHighlighters = nullptr)
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
@@ -290,11 +292,13 @@ private:
 				// ----
 				m_nStartWord(ndxRelative.word()),
 				m_pWordCount(pWordCount),
-				m_pHighlighter(pHighlighter),
+				m_pSRHighlighter(pSRHighlighter),
+				m_pSRExclHighlighter(pSRExclHighlighter),
 				m_bOutput(false),
 				m_bInTransChangeAdded(false),
 				m_bInWordsOfJesus(false),
 				m_bInSearchResult(false),
+				m_bInSearchResultExcl(false),
 				m_pCurrentLemma(nullptr),
 				// ----
 				m_pUserHighlighters(pUserHighlighters),
@@ -329,11 +333,13 @@ private:
 		QString m_strDivineNameFirstLetterParseText;		// Special First-Letter Markup Text for Divine Name
 		uint32_t m_nStartWord;								// Set to the word to start parse on from ndxRelative on initial call (0 and 1 are both start of verse)
 		int *m_pWordCount;									// Pointer to Number of words of verse to output.  We output while the integer pointed to by this is >0.
-		const CBasicHighlighter *m_pHighlighter;			// Search Results word highligher if set
+		const CBasicHighlighter *m_pSRHighlighter;			// Search Results word highligher if set
+		const CBasicHighlighter *m_pSRExclHighlighter;		// Excluded Search Results word highlighter if set
 		bool m_bOutput;										// True when outputting text
 		bool m_bInTransChangeAdded;							// True when we are inside translation change addition text (i.e. italics)
 		bool m_bInWordsOfJesus;								// True when we are inside Words of Jesus text
-		bool m_bInSearchResult;								// True when we are inside intersection of m_pHighlighter, f->t triggers writing the begin tag, t->f triggers writing the end tag
+		bool m_bInSearchResult;								// True when we are inside intersection of m_pSRHighlighter, f->t triggers writing the begin tag, t->f triggers writing the end tag
+		bool m_bInSearchResultExcl;							// True when we are inside intersection of m_pSRExclHighlighter, f->t triggers writing the begin tag, t->f triggers writing the end tag
 		const CLemmaEntry *m_pCurrentLemma;					// Pointer to the Lemma currently being processed or null if no Lemma exists for the current word/tag
 		// ----
 		const THighlighterTagMap *m_pUserHighlighters;		// Collection of user highlighters to process
@@ -363,7 +369,8 @@ public:
 	static QString parse(const CRelIndex &ndxRelative, const CBibleDatabase *pBibleDatabase, const CVerseEntry *pVerse,
 							const CVerseTextRichifierTags &tags = CVerseTextRichifierTags(),
 							RichifierRenderOptionFlags flagsRRO = RichifierRenderOptionFlags(),
-							int *pWordCount = nullptr, const CBasicHighlighter *pHighlighter = nullptr);
+							int *pWordCount = nullptr, const CBasicHighlighter *pSRHighlighter = nullptr,
+							const CBasicHighlighter *pSRExclHighlighter = nullptr);
 
 private:
 	CRichifierBaton &m_parseBaton;

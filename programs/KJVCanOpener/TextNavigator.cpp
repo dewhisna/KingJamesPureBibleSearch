@@ -275,7 +275,9 @@ QString CTextNavigator::setDocumentToBookInfo(const CRelIndex &ndx, TextRenderOp
 	return strHtml;
 }
 
-QString CTextNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
+QString CTextNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOptionFlags flagsTRO,
+											 const CBasicHighlighter *pSRHighlighter,
+											 const CBasicHighlighter *pSRExclHighlighter)
 {
 	if (((flagsTRO & TRO_InnerHTML) == 0) &&
 		((flagsTRO & TRO_NoQTextDocument) == 0)) {
@@ -285,7 +287,8 @@ QString CTextNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpt
 		flagsTRO |= TRO_NoIndent;
 	}
 
-	QString strHtml = CTextRenderer::generateTextForChapter(m_pBibleDatabase.data(), m_TextDocument.indentWidth(), ndx, flagsTRO, pHighlighter);
+	QString strHtml = CTextRenderer::generateTextForChapter(m_pBibleDatabase.data(), m_TextDocument.indentWidth(), ndx,
+															flagsTRO, pSRHighlighter, pSRExclHighlighter);
 
 	if (!strHtml.isEmpty() && ((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.setHtml(strHtml);
@@ -298,7 +301,9 @@ QString CTextNavigator::setDocumentToChapter(const CRelIndex &ndx, TextRenderOpt
 	return strHtml;
 }
 
-QString CTextNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude, TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pHighlighter)
+QString CTextNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhraseTagList &tagsToInclude,
+										   TextRenderOptionFlags flagsTRO, const CBasicHighlighter *pSRHighlighter,
+										   const CBasicHighlighter *pSRExclHighlighter)
 {
 	if (((flagsTRO & TRO_InnerHTML) == 0) &&
 		((flagsTRO & TRO_NoQTextDocument) == 0)) {
@@ -308,7 +313,8 @@ QString CTextNavigator::setDocumentToVerse(const CRelIndex &ndx, const TPhraseTa
 		flagsTRO |= TRO_NoIndent;
 	}
 
-	QString strHtml = CTextRenderer::generateTextForVerse(m_pBibleDatabase.data(), ndx, tagsToInclude, flagsTRO, pHighlighter);
+	QString strHtml = CTextRenderer::generateTextForVerse(m_pBibleDatabase.data(), ndx, tagsToInclude, flagsTRO,
+															pSRHighlighter, pSRExclHighlighter);
 
 	if (!strHtml.isEmpty() && ((flagsTRO & TRO_NoQTextDocument) == 0)) {
 		m_TextDocument.setHtml(strHtml);

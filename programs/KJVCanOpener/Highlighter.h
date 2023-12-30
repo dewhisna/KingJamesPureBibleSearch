@@ -114,7 +114,6 @@ class CSearchResultHighlighter : public CBasicHighlighter
 public:
 	explicit CSearchResultHighlighter(const CVerseListModel *pVerseListModel, bool bExcludedResults = false, QObject *parent = nullptr);
 	CSearchResultHighlighter(const TPhraseTagList &lstPhraseTags, bool bExcludedResults = false, QObject *parent = nullptr);
-	CSearchResultHighlighter(const TPhraseTag &aTag, bool bExcludedResults = false, QObject *parent = nullptr);
 	virtual ~CSearchResultHighlighter();
 
 	virtual QTextCharFormat doHighlighting(const QTextCharFormat &aFormat, bool bClear) const override;
