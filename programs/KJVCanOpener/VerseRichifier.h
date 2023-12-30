@@ -55,6 +55,8 @@ public:
 		VTTE_n,			// Inline Note End
 		VTTE_R,			// Search Results Begin
 		VTTE_r,			// Search Results End
+		VTTE_E,			// Search Results Excluded Begin
+		VTTE_e,			// Search Results Excluded End
 		VTTE_H,			// User Highlighter Begin
 		VTTE_h,			// User Highlighter End
 		VTTE_L,			// Lemma Begin (for completeness -- not used in richifier, see KJVDataParse)
@@ -88,6 +90,8 @@ public:
 			m_strInlineNoteEnd(")"),
 			m_strSearchResultsBegin("<font color=\"blue\">"),
 			m_strSearchResultsEnd("</font>"),
+			m_strSearchResultsExcludedBegin("<font color=\"blue\"><s>"),
+			m_strSearchResultsExcludedEnd("</s></font>"),
 			m_bShowPilcrowMarkers(true)
 	{
 		calcHash();
@@ -172,6 +176,23 @@ public:
 		}
 	}
 
+	inline QString searchResultsExcludedBegin() const { return m_strSearchResultsExcludedBegin; }
+	inline QString searchResultsExcludedEnd() const { return m_strSearchResultsExcludedEnd; }
+	void setSearchResultsExcludedTags(const QString &strTagBegin, const QString &strTagEnd)
+	{
+		m_strSearchResultsExcludedBegin = strTagBegin;
+		m_strSearchResultsExcludedEnd = strTagEnd;
+		calcHash();
+	}
+	void setSearchResultsExcludedTagsByColor(const QColor &color)
+	{
+		if (color.isValid()) {
+			setSearchResultsExcludedTags(QString("<font color=\"%1\"><s>").arg(color.name()), "</s></font>");
+		} else {
+			setSearchResultsExcludedTags(QString(), QString());
+		}
+	}
+
 	inline bool showPilcrowMarkers() const { return m_bShowPilcrowMarkers; }
 	void setShowPilcrowMarkers(bool bShowPilcrowMarkers)
 	{
@@ -197,6 +218,8 @@ protected:
 						'n' + m_strInlineNoteEnd +
 						'R' + m_strSearchResultsBegin +
 						'r' + m_strSearchResultsEnd +
+						'E' + m_strSearchResultsExcludedBegin +
+						'e' + m_strSearchResultsExcludedEnd +
 						(m_bShowPilcrowMarkers ? 'P' : 'p'));
 	}
 
@@ -214,6 +237,8 @@ private:
 	QString m_strInlineNoteEnd;
 	QString m_strSearchResultsBegin;
 	QString m_strSearchResultsEnd;
+	QString m_strSearchResultsExcludedBegin;
+	QString m_strSearchResultsExcludedEnd;
 	bool m_bShowPilcrowMarkers;
 };
 
@@ -229,6 +254,7 @@ public:
 		setWordsOfJesusTags(QString(), QString());
 		setDivineNameTags(QString(), QString());
 		setSearchResultsTags(QString(), QString());
+		setSearchResultsExcludedTags(QString(), QString());
 		setShowPilcrowMarkers(false);
 	}
 };

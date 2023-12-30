@@ -264,6 +264,8 @@ CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton,
 		{ 'n', [](const CRichifierBaton &baton)->QString { return baton.m_tags.inlineNoteEnd(); } },			// VTTE_n - Inline Note End
 		{ 'R', [](const CRichifierBaton &baton)->QString { return baton.m_tags.searchResultsBegin(); } },		// VTTE_R - Search Results Begin
 		{ 'r', [](const CRichifierBaton &baton)->QString { return baton.m_tags.searchResultsEnd(); } },			// VTTE_r - Search Results End
+		{ 'E', [](const CRichifierBaton &baton)->QString { return baton.m_tags.searchResultsExcludedBegin(); } },	// VTTE_E - Search Results Excluded Begin
+		{ 'e', [](const CRichifierBaton &baton)->QString { return baton.m_tags.searchResultsExcludedEnd(); } },		// VTTE_e - Search Results Excluded End
 		{ 'H', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_H - User Highlighter Begin (for completeness -- but is processed by parse)
 		{ 'h', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_h - User Highlighter End (for completeness -- but is processed by parse)
 		{ 'L', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_L - Lemma Begin (for completeness -- not used in richifier, see KJVDataParse)
