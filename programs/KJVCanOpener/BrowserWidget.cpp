@@ -308,6 +308,8 @@ void CBrowserWidget::en_clickedSetBrowserDisplayMode()
 
 void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
 {
+	TPhraseTag tagCurrentLocation = m_pCurrentScriptureTextBase->selection().primarySelection();
+
 	// Force set the focus to something that's not a browser window so the
 	//	KJVCanOpener will update its menus to remove the old context menu:
 	setFocusPassageReferenceEditor();
@@ -328,6 +330,12 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 #ifdef USING_LITEHTML
 			m_pScriptureLiteHtml->setVisible(false);
 #endif
+			// Note: Since LiteHtml has no cursor and selection tracking and
+			//	since there aren't any functions to get the top-most visible
+			//	anchor even, there is no good way to auto-scroll the ScriptureBrowser
+			//	view like we are doing the ScriptureLiteHtml view below.
+			//	TODO : If this ever changes with LiteHtml, update this...
+			Q_UNUSED(tagCurrentLocation);
 			break;
 
 #ifdef USING_LITEHTML
@@ -335,6 +343,9 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 			m_pScriptureBrowser->setVisible(false);
 			m_pScriptureLiteHtml->setVisible(true);
 			m_pCurrentScriptureTextBase = m_pScriptureLiteHtml;
+			if (tagCurrentLocation.isSet()) {
+				m_pScriptureLiteHtml->en_anchorClicked(QString("R%1").arg(tagCurrentLocation.relIndex().asAnchor()));;
+			}
 			break;
 #endif
 	}
