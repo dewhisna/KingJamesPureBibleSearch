@@ -317,6 +317,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 											  CPersistentSettings::instance()->verseRenderingModeCopying() :
 											  CPersistentSettings::instance()->verseRenderingMode());
 
+	if ((flagsTRO & TRO_VPL_Only) && (vrmeMode == VRME_FF)) vrmeMode = VRME_VPL;
+
 	if (flagsTRO & TRO_NoIndent) {
 		if ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_HANGING)) {
 			vrmeMode = VRME_VPL;
@@ -1294,6 +1296,8 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
 											  CPersistentSettings::instance()->verseRenderingModeCopying() :
 											  CPersistentSettings::instance()->verseRenderingMode());
+
+	if ((flagsTRO & TRO_VPL_Only) && (vrmeMode == VRME_FF)) vrmeMode = VRME_VPL;
 
 	if (flagsTRO & TRO_NoIndent) {
 		if ((vrmeMode == VRME_VPL_INDENT) || (vrmeMode == VRME_VPL_HANGING)) {

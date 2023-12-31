@@ -591,6 +591,7 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 							TRO_UserNotesForceVisible |
 							TRO_CrossRefs |
 							TRO_NoCrossRefAnchors |
+							TRO_VPL_Only |
 							TRO_InnerHTML |
 							TRO_NoWordAnchors |
 							TRO_SuppressPrePostChapters),
