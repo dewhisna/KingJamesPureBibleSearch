@@ -353,6 +353,10 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 											".word { display: inline-block; padding: 0em 0.5em %4em 0em; }\n"
 											"%5"
 											".stack { display: block; }\n"
+											".main { font-size:large; }\n"
+											".interlinear { font-size:large; }\n"
+											".strongs { font-size:medium; }\n"
+											".morph { font-size:medium; }\n"
 											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 											".category { font-size:medium; font-weight:normal; }\n"
 											".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
@@ -388,7 +392,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.appendRawText("<span class=\"word\">");
 		}
 		if (flagsTRO & TRO_UseLemmas) {
-			scriptureHTML.appendRawText("<span class=\"stack\">");
+			scriptureHTML.appendRawText("<span class=\"stack main\">");
 		}
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(relPrev.asAnchor());
 		scriptureHTML.beginBold();
@@ -397,9 +401,9 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
 		if (flagsTRO & TRO_UseLemmas) {
 			scriptureHTML.appendRawText("</span>");	// Stack
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack interlinear\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack strongs\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack morph\">&nbsp;</span>");
 		}
 		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
 			scriptureHTML.appendRawText("</span>");	// Word
@@ -636,7 +640,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.appendRawText("<span class=\"word\">");
 		}
 		if (flagsTRO & TRO_UseLemmas) {
-			scriptureHTML.appendRawText("<span class=\"stack\">");
+			scriptureHTML.appendRawText("<span class=\"stack main\">");
 		}
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(ndxVerse.asAnchor());
 		scriptureHTML.beginBold();
@@ -646,9 +650,9 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
 		if (flagsTRO & TRO_UseLemmas) {
 			scriptureHTML.appendRawText("</span>");	// Stack
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack interlinear\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack strongs\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack morph\">&nbsp;</span>");
 		}
 		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
 			scriptureHTML.appendRawText("</span>");	// Word
@@ -885,7 +889,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.appendRawText("<span class=\"word\">");
 		}
 		if (flagsTRO & TRO_UseLemmas) {
-			scriptureHTML.appendRawText("<span class=\"stack\">");
+			scriptureHTML.appendRawText("<span class=\"stack main\">");
 		}
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.beginAnchorID(relNext.asAnchor());
 		scriptureHTML.beginBold();
@@ -894,9 +898,9 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoVerseAnchors)) scriptureHTML.endAnchor();
 		if (flagsTRO & TRO_UseLemmas) {
 			scriptureHTML.appendRawText("</span>");	// Stack
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
-			scriptureHTML.appendRawText("<span class=\"stack\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack interlinear\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack strongs\">&nbsp;</span>");
+			scriptureHTML.appendRawText("<span class=\"stack morph\">&nbsp;</span>");
 		}
 		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
 			scriptureHTML.appendRawText("</span>");	// Word

@@ -309,7 +309,7 @@ void CVerseTextRichifier::writeLemma() const
 					lstStrongLinks.append(QString("<a href=\"strong://%1\">%1</a>").arg(entry));
 				}
 			}
-			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">%1&nbsp;</span><span class=\"stack\">%2&nbsp;</span><span class=\"stack\">%3&nbsp;</span>")
+			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
 												.arg(m_parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
 												.arg(m_parseBaton.renderOption(RRO_AddAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
 // TODO : Fix the morphology output once we decide how we want to render things:
@@ -317,7 +317,7 @@ void CVerseTextRichifier::writeLemma() const
 												.arg("")
 												);
 		} else {
-			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span><span class=\"stack\">&nbsp;</span>"));
+			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">&nbsp;</span><span class=\"stack strongs\">&nbsp;</span><span class=\"stack morph\">&nbsp;</span>"));
 		}
 	}
 }
@@ -452,7 +452,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 								m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
 							}
 							if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack main\">"));
 							}
 						}
 						if (m_parseBaton.renderOption(RRO_UseLemmas)) {
@@ -472,7 +472,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 								m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
 							}
 							if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack\">"));
+								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack main\">"));
 							}
 						}
 					}	// Otherwise, we are still in a Lemma and need to continue to output it...
