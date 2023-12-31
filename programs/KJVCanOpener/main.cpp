@@ -133,6 +133,7 @@ int main(int argc, char *argv[])
 	QString strKJSFile;
 	bool bShowHelp = false;
 	bool bBuildDB = false;
+	int nBuildVer = KJPBS_CCDB_VERSION;
 	bool bStealthMode = false;
 #ifdef USE_MULTITHREADED_SEARCH_RESULTS
 #ifdef INVERT_MULTITHREADED_LOGIC
@@ -190,6 +191,7 @@ int main(int argc, char *argv[])
 	if (strKJSFile.isEmpty() && !pApp->fileToLoad().isEmpty()) strKJSFile = pApp->fileToLoad();
 
 	bool bLookingForSettings = false;
+	bool bLookingForBuildVer = false;
 	bool bLookingForBibleDB = false;
 	bool bLookingForBibleDBUUID = false;
 	bool bLookingForDictDB = false;
@@ -202,6 +204,9 @@ int main(int argc, char *argv[])
 			if (bLookingForSettings) {
 				strStealthSettingsFilename = strArg;
 				bLookingForSettings = false;
+			} else if (bLookingForBuildVer) {
+				bLookingForBuildVer = false;
+				nBuildVer = strArg.toInt();
 			} else if (bLookingForBibleDB) {
 				bLookingForBibleDB = false;
 				if (strArg.toUInt() < bibleDescriptorCount()) {
@@ -249,6 +254,8 @@ int main(int argc, char *argv[])
 				bShowHelp = true;
 			} else if (strArg.compare("-builddb", Qt::CaseInsensitive) == 0) {
 				bBuildDB = true;
+			} else if (strArg.compare("-buildver", Qt::CaseInsensitive) == 0) {
+				bLookingForBuildVer = true;
 			} else if (strArg.compare("-bbl", Qt::CaseInsensitive) == 0) {
 				bLookingForBibleDB = true;
 			} else if (strArg.compare("-bbluuid", Qt::CaseInsensitive) == 0) {
@@ -282,6 +289,10 @@ int main(int argc, char *argv[])
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForSettings = false;
 			}
+			if (bLookingForBuildVer) {
+				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Database Build Version, but received: \"%1\" instead", "Errors").arg(strArg));
+				bLookingForBuildVer = false;
+			}
 			if (bLookingForBibleDB) {
 				displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Bible Descriptor Index, but received: \"%1\" instead", "Errors").arg(strArg));
 				bLookingForBibleDB = false;
@@ -312,6 +323,10 @@ int main(int argc, char *argv[])
 	bool bBadArgs = false;
 	if (bLookingForSettings) {
 		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Settings Filename, but none was specified.", "Errors"));
+		bBadArgs = true;
+	}
+	if (bLookingForBuildVer) {
+		displayWarning(pSplash, g_constrInitialization, QObject::tr("Was expecting Database Build Version, but none was specified.", "Errors"));
 		bBadArgs = true;
 	}
 	if (bLookingForBibleDB) {
@@ -352,6 +367,7 @@ int main(int argc, char *argv[])
 		std::cout << "Options\n";
 		std::cout << "-h, --help   = Show this usage information\n\n";
 		std::cout << "-builddb     = Build Bible Database (Requires /data from KJVDataParse)\n\n";
+		std::cout << "-buildver <ver> = Database Version to Build (Default is " << KJPBS_CCDB_VERSION << ")\n\n";
 		std::cout << "-bbluuid <uuid> = Bible Database UUID to use\n";
 		std::cout << "               (for building or initial search window)\n";
 		std::cout << "-bbl <index> = Bible Database Index to use\n";
@@ -482,12 +498,12 @@ int main(int argc, char *argv[])
 	if (pSplash == nullptr) {
 		// If we don't have a splash screen already, we will terminate unless we
 		//		go ahead and launch our app:
-		nRetVal = pApp->execute(bBuildDB);
+		nRetVal = pApp->execute(bBuildDB, nBuildVer);
 	} else {
 		if (!bBuildDB) {
 			QTimer::singleShot(100, pApp, SLOT(executeEvent()));
 		} else {
-			nRetVal = pApp->execute(bBuildDB);
+			nRetVal = pApp->execute(bBuildDB, nBuildVer);
 		}
 	}
 
@@ -550,7 +566,7 @@ int main(int argc, char *argv[])
 		QTimer::singleShot(2000, pApp, SLOT(executeEvent()));
 		nRetVal = pApp->exec();
 	} else {
-		nRetVal = pApp->execute(bBuildDB);
+		nRetVal = pApp->execute(bBuildDB, nBuildVer);
 		if (nRetVal == 0) pApp->exec();
 	}
 

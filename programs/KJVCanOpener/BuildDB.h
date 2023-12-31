@@ -48,10 +48,10 @@ public:
 	CBuildDatabase(QWidget *pParent = nullptr);
 	~CBuildDatabase();
 
-	bool BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename);
+	bool BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename, int nVersion = KJPBS_CCDB_VERSION);
 
 protected:
-	bool BuildDBInfoTable();
+	bool BuildDBInfoTable(int nVersion);
 	bool BuildTestamentTable();
 	bool BuildBooksTable();
 	bool BuildChaptersTable();

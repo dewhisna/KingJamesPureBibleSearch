@@ -109,7 +109,7 @@ static QByteArray convertCSVStringToIndexBlob(const QString &str)
 
 // ============================================================================
 
-bool CBuildDatabase::BuildDBInfoTable()
+bool CBuildDatabase::BuildDBInfoTable(int nVersion)
 {
 	// Build Database Information Table:
 
@@ -134,8 +134,13 @@ bool CBuildDatabase::BuildDBInfoTable()
 			}
 
 			// Create the table in the database:
-			strCmd = QString("create table DBInfo "
-							"(ndx INTEGER PRIMARY KEY, uuid TEXT, Language TEXT, Name TEXT, Description TEXT, Direction TEXT, Info BLOB)");
+			if (nVersion == 1) {
+				strCmd = QString("create table DBInfo "
+								"(ndx INTEGER PRIMARY KEY, uuid TEXT, Language TEXT, Name TEXT, Description TEXT, Info BLOB)");
+			} else {
+				strCmd = QString("create table DBInfo "
+								"(ndx INTEGER PRIMARY KEY, uuid TEXT, Language TEXT, Name TEXT, Description TEXT, Direction TEXT, Info BLOB)");
+			}
 
 			if (!queryCreate.exec(strCmd)) {
 				if (displayWarning(m_pParent, g_constrBuildDatabase,
@@ -183,16 +188,24 @@ bool CBuildDatabase::BuildDBInfoTable()
 
 		// Note: We have redefined 'ndx' to be version number to keep in sync with
 		//	the CCDB, etc.
-		strCmd = QString("INSERT INTO DBInfo "
-							"(ndx, uuid, Language, Name, Description, Direction, Info) "
-							"VALUES (:ndx, :uuid, :Language, :Name, :Description, :Direction, :Info)");
+		if (nVersion == 1) {
+			strCmd = QString("INSERT INTO DBInfo "
+								"(ndx, uuid, Language, Name, Description, Info) "
+								"VALUES (:ndx, :uuid, :Language, :Name, :Description, :Info)");
+		} else {
+			strCmd = QString("INSERT INTO DBInfo "
+								"(ndx, uuid, Language, Name, Description, Direction, Info) "
+								"VALUES (:ndx, :uuid, :Language, :Name, :Description, :Direction, :Info)");
+		}
 		queryInsert.prepare(strCmd);
-		queryInsert.bindValue(":ndx", KJPBS_CCDB_VERSION);
+		queryInsert.bindValue(":ndx", nVersion);
 		queryInsert.bindValue(":uuid", strDBUUID);
 		queryInsert.bindValue(":Language", strDBLang);
 		queryInsert.bindValue(":Name", strDBName);
 		queryInsert.bindValue(":Description", strDBDesc);
-		queryInsert.bindValue(":Direction", strDBDirection);
+		if (nVersion > 1) {
+			queryInsert.bindValue(":Direction", strDBDirection);
+		}
 		queryInsert.bindValue(":Info", arrDBInfo, QSql::In | QSql::Binary);
 
 		if (!queryInsert.exec()) {
@@ -213,12 +226,14 @@ bool CBuildDatabase::BuildDBInfoTable()
 		//		Format:  KJPBSDB, version, $uuid, $Language, $Name, $Description, $Direction, $Info
 		QStringList arrCCData;
 		arrCCData.append("KJPBSDB");
-		arrCCData.append(QString("%1").arg(KJPBS_CCDB_VERSION));
+		arrCCData.append(QString("%1").arg(nVersion));
 		arrCCData.append(strDBUUID);
 		arrCCData.append(strDBLang);
 		arrCCData.append(strDBName);
 		arrCCData.append(strDBDesc);
-		arrCCData.append(strDBDirection);
+		if (nVersion > 1) {
+			arrCCData.append(strDBDirection);
+		}
 		arrCCData.append(QString(arrDBInfo));
 		(*m_pCCDatabase) << arrCCData;
 	}
@@ -1526,8 +1541,13 @@ bool CBuildDatabase::BuildVersificationTables()
 	return true;
 }
 
-bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename)
+bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const QString &strCCDatabaseFilename, int nVersion)
 {
+	if ((nVersion < 1) || (nVersion > KJPBS_CCDB_VERSION)) {
+		displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Error: Invalid Database version (%1) specified", "BuildDB").arg(nVersion));
+		return false;
+	}
+
 #ifndef NOT_USING_SQL
 	m_myDatabase = QSqlDatabase::addDatabase(g_constrDatabaseType, g_constrMainBuildConnection);
 	m_myDatabase.setDatabaseName(strSQLDatabaseFilename);
@@ -1567,17 +1587,18 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 	CScopedCSVStream ccdb(m_pCCDatabase, ((bSuccess && compCCDB.isOpen()) ? new CCSVStream(&compCCDB) : nullptr));
 
 	if (bSuccess) {
-		if ((!BuildDBInfoTable()) ||
+		if ((!BuildDBInfoTable(nVersion)) ||
 			(!BuildTestamentTable()) ||
 			(!BuildBooksTable()) ||
 			(!BuildChaptersTable()) ||
 			(!BuildVerseTables()) ||
 			(!BuildWordsTable()) ||
 			(!BuildFootnotesTables()) ||
-			(!BuildPhrasesTable()) ||
-			(!BuildLemmasTable()) ||
-			(!BuildStrongsTable()) ||
-			(!BuildVersificationTables())) bSuccess = false;
+			(!BuildPhrasesTable())) bSuccess = false;
+		if (bSuccess && (nVersion >= 2) &&
+			((!BuildLemmasTable()) ||
+			 (!BuildStrongsTable()) ||
+			 (!BuildVersificationTables()))) bSuccess = false;
 	}
 
 #ifndef NOT_USING_SQL

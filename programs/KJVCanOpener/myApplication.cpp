@@ -1311,7 +1311,7 @@ void CMyApplication::receivedKJPBSMessage(const QString &strMessage)
 
 // ============================================================================
 
-int CMyApplication::execute(bool bBuildDB)
+int CMyApplication::execute(bool bBuildDB, int nVersion)
 {
 	// Restore Locale Language Setting (and save for next time):
 	restoreApplicationLanguage();
@@ -1526,7 +1526,7 @@ int CMyApplication::execute(bool bBuildDB)
 			QString strCCDatabasePath = QFileInfo(TBibleDatabaseList::bibleDatabasePath(),
 														bblDesc.m_strCCDBFilename).absoluteFilePath();
 
-			if (!bdb.BuildDatabase(strSQLDatabasePath, strCCDatabasePath)) {
+			if (!bdb.BuildDatabase(strSQLDatabasePath, strCCDatabasePath, nVersion)) {
 				displayWarning(m_pSplash, g_constrInitialization, tr("Failed to Build Bible Database!\nAborting...", "Errors"));
 				return -2;
 			}
@@ -1710,9 +1710,9 @@ int CMyApplication::execute(bool bBuildDB)
 
 // executeEvent is a wrapper for execute() to handle the QTimer::singleShot() calls to
 //		post an quit/exit to the application if execute() returns an error (non-zero) value
-void CMyApplication::executeEvent(bool bBuildDB)
+void CMyApplication::executeEvent(bool bBuildDB, int nVersion)
 {
-	int nRetVal = execute(bBuildDB);
+	int nRetVal = execute(bBuildDB, nVersion);
 	if (nRetVal != 0) {
 		exit(nRetVal);			// If KJPBS fails to start, exit with an error code
 	}
