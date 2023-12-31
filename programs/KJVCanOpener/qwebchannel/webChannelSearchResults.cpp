@@ -576,8 +576,21 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 	}
 
 	CSearchResultHighlighter srHighlighter(lstSearchResultsSubset, false);
+	// Note: Don't use defaultGenerateChapterTextFlags here since UserNotesExpandAnchors
+	//	and CrossRefAnchors don't work over WebChannel.  While it doesn't make much
+	//	sense to show UserNotes or CrossRefs here, since on a public WebChannel server
+	//	there wouldn't be a User Notes file for an individual user, it doesn't hurt
+	//	to enable them here and if we are running the WebChannel server locally, it
+	//	might be nice to be able to display them:
 	QString strText = m_pTextNavigator->setDocumentToChapter(ndxDecolophonated,
-							TextRenderOptionFlags(defaultGenerateChapterTextFlags |
+							TextRenderOptionFlags(TRO_Subtitles |
+							TRO_Colophons |
+							TRO_Superscriptions |
+							TRO_Category |
+							TRO_UserNotes |
+							TRO_UserNotesForceVisible |
+							TRO_CrossRefs |
+							TRO_NoCrossRefAnchors |
 							TRO_InnerHTML |
 							TRO_NoWordAnchors |
 							TRO_SuppressPrePostChapters),
