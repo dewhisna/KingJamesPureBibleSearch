@@ -349,7 +349,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 											"body, p, li, br, .bodyIndent { white-space: pre-line; line-height:%3; %2 }\n"
 											".book { font-size:xx-large; font-weight:bold; }\n"
 											".chapter { font-size:x-large; font-weight:bold; }\n"
-											".verse { display: flex; flex-wrap: wrap; }\n"
+											".verse { display: inline-block; }\n"
+											".verselemma { display: flex; flex-wrap: wrap; }\n"
 											".word { display: inline-block; padding: 0em 0.5em %4em 0em; }\n"
 											"%5"
 											".stack { display: block; }\n"
@@ -385,7 +386,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.beginIndent(0, nIndentWidth);
 		}
 
-		scriptureHTML.appendRawText("<span class=\"verse\">");
+		scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 
 		scriptureHTML.appendRawText("<span class=\"ref\">");
 		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
@@ -439,7 +440,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 				// Try pseudo-verse (searchable) style first:
 				scriptureHTML.beginDiv(pBibleDatabase->direction(), "colophon");
 				scriptureHTML.beginParagraph(pBibleDatabase->direction());
-				scriptureHTML.appendRawText("<span class=\"verse\">");
+				scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 				if (bTotalColophonAnchor) {
 					CRelIndex ndxColophon(relPrev.book(), 0, 0, 1);
 					scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxColophon.asAnchor()));
@@ -541,7 +542,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		// Try pseudo-verse (searchable) style first:
 		scriptureHTML.beginDiv(pBibleDatabase->direction(), "superscription");
 		scriptureHTML.beginParagraph(pBibleDatabase->direction());
-		scriptureHTML.appendRawText("<span class=\"verse\">");
+		scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 		if (bTotalSuperscriptionAnchor) {
 			CRelIndex ndxSuperscription(ndxBookChap);
 			ndxSuperscription.setWord(1);
@@ -633,7 +634,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 		//			scriptureHTML.addLineBreak();
 		//		}
 
-		scriptureHTML.appendRawText("<span class=\"verse\">");
+		scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 
 		scriptureHTML.appendRawText("<span class=\"ref\">");
 		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
@@ -727,7 +728,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv(pBibleDatabase->direction(), "colophon");
 			scriptureHTML.beginParagraph(pBibleDatabase->direction());
-			scriptureHTML.appendRawText("<span class=\"verse\">");
+			scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 			if (bTotalColophonAnchor) {
 				CRelIndex ndxColophon(ndxBook);
 				ndxColophon.setWord(1);
@@ -833,7 +834,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			// Try pseudo-verse (searchable) style first:
 			scriptureHTML.beginDiv(pBibleDatabase->direction(), "superscription");
 			scriptureHTML.beginParagraph(pBibleDatabase->direction());
-			scriptureHTML.appendRawText("<span class=\"verse\">");
+			scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 			if (bTotalSuperscriptionAnchor) {
 				CRelIndex ndxSuperscription(ndxBookChapNext);
 				ndxSuperscription.setWord(1);
@@ -882,7 +883,7 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 			scriptureHTML.beginIndent(0, nIndentWidth);
 		}
 
-		scriptureHTML.appendRawText("<span class=\"verse\">");
+		scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 
 		scriptureHTML.appendRawText("<span class=\"ref\">");
 		if ((flagsTRO & TRO_UseLemmas) || (flagsTRO & TRO_UseWordSpans)) {
@@ -1024,7 +1025,13 @@ QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase
 											".book { font-size:xx-large; font-weight:bold; }\n"
 											".chapter { font-size:x-large; font-weight:bold; }\n"
 											".verse { }\n"
+											".verselemma { }\n"
 											".word { }\n"
+											".stack { }\n"
+											".main { }\n"
+											".interlinear { }\n"
+											".strongs { }\n"
+											".morph { }\n"
 											".subtitle { font-size:medium; font-weight:normal; font-style:italic; }\n"
 											".category { font-size:medium; font-weight:normal; }\n"
 											".superscription { font-size:medium; font-weight:normal; font-style:italic; }\n"
@@ -1117,7 +1124,7 @@ QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase
 		//				scriptureHTML.beginDiv(pBibleDatabase->direction(), "superscription");
 		//			}
 		//		}
-		scriptureHTML.appendRawText("<span class=\"verse\">");
+		scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 		if (bTotalColophonAnchor || bTotalSuperscriptionAnchor) {
 			scriptureHTML.appendRawText(QString("<a id=\"%1\">").arg(ndxSuperColo.asAnchor()));
 		}
@@ -1302,7 +1309,13 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 	//								".book { font-size:24pt; font-weight:bold; }\n"
 	//								".chapter { font-size:18pt; font-weight:bold; }\n"
 	//								".verse { }\n"
+	//								".verselemma { }\n"
 	//								".word { }\n"
+	//								".stack { }\n"
+	//								".main { }\n"
+	//								".interlinear { }\n"
+	//								".strongs { }\n"
+	//								".morph { }\n"
 	//								"</style></head><body>\n")
 	//						.arg(scriptureHTML.escape(strPassageReferenceRange));										// Document Title
 
@@ -1312,7 +1325,13 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 	//								".book { font-size:xx-large; font-weight:bold; }\n"
 	//								".chapter { font-size:x-large; font-weight:bold; }\n"
 	//								".verse { }\n"
+	//								".verselemma { }\n"
 	//								".word { }\n"
+	//								".stack { }\n"
+	//								".main { }\n"
+	//								".interlinear { }\n"
+	//								".strongs { }\n"
+	//								".morph { }\n"
 	//								"</style></head><body>\n")
 	//						.arg(scriptureHTML.escape(strPassageReferenceRange));										// Document Title
 
@@ -1323,7 +1342,13 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 										".book { font-size:xx-large; font-weight:bold; }\n"
 										".chapter { font-size:x-large; font-weight:bold; }\n"
 										".verse { }\n"
+										".verselemma { }\n"
 										".word { }\n"
+										".stack { }\n"
+										".main { }\n"
+										".interlinear { }\n"
+										".strongs { }\n"
+										".morph { }\n"
 										"</style></head><body>\n")
 									.arg(scriptureHTML.escape(strPassageReferenceRange))								// Document Title
 									.arg(strCopyFont));																	// Copy Font
@@ -1519,7 +1544,7 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 				scriptureHTML.appendLiteralText(QString("%1").arg(CPersistentSettings::instance()->addQuotesAroundVerse() ? "\"" : ""));
 			}
 
-			scriptureHTML.appendRawText("<span class=\"verse\">");
+			scriptureHTML.appendRawText(QString("<span class=\"verse%1\">").arg((flagsTRO & TRO_UseLemmas) ? "lemma" : ""));
 			scriptureHTML.appendRawText(pBibleDatabase->richVerseText(ndx, richifierTags, flagsRRO));
 			scriptureHTML.appendRawText("</span>");
 
