@@ -48,7 +48,9 @@ CMakeLists.txt.user*
 /programs/KJVCanOpener/db/bbl-kjf2006.ccdb
 /programs/KJVCanOpener/db/bbl-kjf2015-workinprogress.ccdb
 /programs/KJVCanOpener/db/bbl-isv2001-20100807.ccdb
-/programs/KJVCanOpener/db/bbl-isv2001-20100807.s3db
+/programs/KJVCanOpener/db/bbl-engkjv1769eb.ccdb
+
+/programs/KJVCanOpener/db/bbl-*.s3db
 
 # GeoIP database files (as these are updated dynamically):
 /programs/KJVCanOpener/geoip/*.dat
