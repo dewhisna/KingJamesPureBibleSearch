@@ -41,6 +41,10 @@
 #endif
 //#include <QtPlugin>
 
+#if ((QT_VERSION == 0x060503) && defined(Q_OS_LINUX))
+#include <QClipboard>
+#endif
+
 #include "version.h"
 #include "PersistentSettings.h"
 
@@ -544,6 +548,44 @@ int main(int argc, char *argv[])
 	if (pWebChannelServer) {
 		pWebChannelServer->close();
 	}
+#endif
+
+	// The following clipboard clear is to workaround a bug in QXcbClipboard
+	//	and its interaction with QTextEdit's clipboard on Linux.  If the
+	//	user has copied text in a QTextEdit widget, the QXcbClipboard platform
+	//	wrapper destructor calls a waitForClipbardEvent, which calls QXcbMime,
+	//	to QInternalMimeData, to QMimeData, to QMimeDataPrivate, to
+	//	QTextEditMimeData, to QTextDocumentFragment (which is the object
+	//	holding the text of the selection that was copied).  It then tries
+	//	to do a QTextDocument::toMarkdown to put the markdown content in the
+	//	clipboard.  But, QTextMarkdownWriter crashes in a call to QFontInfo,
+	//	which calls QFontDatabasePrivate which attempts to find the QFont
+	//	in use in the QFontDatabase.  However, the QFontDatabasePrivate::
+	//	ensureFontDatabase() function fails with a QMessageLogger::fatal
+	//	because it can't locate the QFontDatabase manager.  The failure is here:
+	//
+	//	QFontDatabasePrivate *QFontDatabasePrivate::ensureFontDatabase()
+	//	{
+	//		...
+	//
+	//		if (Q_UNLIKELY(qGuiApp == nullptr || QGuiApplicationPrivate::platformIntegration() == nullptr))
+	//			qFatal("QFontDatabase: Must construct a QGuiApplication before accessing QFontDatabase");
+	//
+	//	The problem is that the QApplication object is in the process of being
+	//	torn down.  The QXcbClipboard object should have already been destructed
+	//	before this (and finished any copying), but it isn't.  And it goes down
+	//	in flames here because it can't find the font database to render the data
+	//	on the clipboard.
+	//
+	//	This seems to only be a problem on Linux with the XCB platform manager
+	//	and on Qt 6.5.3 (or 6.x in general?).  I couldn't replicate it on 5.15.2.
+	//	Clearing the clipboard before deleting the application object fixes the
+	//	crash.  That loses the content of the clipboard beyond app exit, but
+	//	it's lost either way.
+	//
+	//	I'm limiting this fix to Qt 6.5.3 on Linux, unless we see it elsewhere:
+#if ((QT_VERSION == 0x060503) && defined(Q_OS_LINUX))
+	pApp->clipboard()->clear();
 #endif
 
 	delete pApp;
