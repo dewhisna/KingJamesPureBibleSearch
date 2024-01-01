@@ -759,6 +759,7 @@ void QLiteHtmlWidget::mouseMoveEvent(QMouseEvent *event)
 		viewport()->update(fromVirtual(r.translated(-scrollPosition())));
 
 	updateHightlightedLink();
+	handleTitlePopup();
 }
 
 void QLiteHtmlWidget::mousePressEvent(QMouseEvent *event)
@@ -868,6 +869,16 @@ void QLiteHtmlWidget::copy()
 void QLiteHtmlWidget::clear()
 {
 	setHtml(QString());
+}
+
+void QLiteHtmlWidget::handleTitlePopup()
+{
+	QPoint viewportPos;
+	QPoint pos;
+	QPoint posGlobal = QCursor::pos();
+	htmlPos(mapFromGlobal(posGlobal), &viewportPos, &pos);
+	QString strTitle = d->documentContainer.titleAt(pos, viewportPos);
+	emit titleHover(mapFromGlobal(posGlobal), strTitle);
 }
 
 void QLiteHtmlWidget::updateHightlightedLink()

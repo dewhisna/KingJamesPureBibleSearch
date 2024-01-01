@@ -202,6 +202,8 @@ private slots:
 	void en_beginChangeBibleDatabaseSettings(const QString &strUUID, const TBibleDatabaseSettings &oldSettings,
 												const TBibleDatabaseSettings &newSettings, bool bForce);
 
+	void en_titleHover(const QPoint &pos, const QString &title);
+
 private:
 	void setupChapterScrollbar();
 

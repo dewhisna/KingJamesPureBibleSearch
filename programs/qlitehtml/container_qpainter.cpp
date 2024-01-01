@@ -1114,6 +1114,20 @@ QUrl DocumentContainer::linkAt(const QPoint &documentPos, const QPoint &viewport
     return {};
 }
 
+QString DocumentContainer::titleAt(const QPoint &documentPos, const QPoint &viewportPos)
+{
+    if (!d->m_document)
+        return {};
+    const litehtml::element::ptr element = d->m_document->root()->get_element_by_point(
+        documentPos.x(), documentPos.y(), viewportPos.x(), viewportPos.y());
+    if (!element)
+        return {};
+    const char *title = element->get_attr("title");
+    if (title)
+        return QString::fromUtf8(title);
+    return {};
+}
+
 QString DocumentContainer::caption() const
 {
     return d->m_caption;

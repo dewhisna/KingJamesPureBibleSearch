@@ -89,6 +89,8 @@ signals:
 	void highlighted(const QUrl &url);
 	void anchorClicked(const QUrl &url);
 
+	void titleHover(const QPoint &pos, const QString &title);
+
 protected:
 	virtual void paintEvent(QPaintEvent *event) override;
 	virtual void resizeEvent(QResizeEvent *event) override;
@@ -105,6 +107,7 @@ protected:
 	virtual QMimeData *createMimeDataFromSelection() const;
 
 private:
+	void handleTitlePopup();
 	void updateHightlightedLink();
 	void setHightlightedLink(const QUrl &url);
 	void withFixedTextPosition(const std::function<void()> &action);

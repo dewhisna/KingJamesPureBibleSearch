@@ -146,6 +146,7 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 
 #ifdef USING_LITEHTML
 	connect(m_pScriptureLiteHtml, SIGNAL(activatedScriptureText()), this, SLOT(en_activatedScriptureText()));
+	connect(m_pScriptureLiteHtml, SIGNAL(titleHover(QPoint,QString)), this, SLOT(en_titleHover(QPoint,QString)));
 #endif // USING_LITEHTML
 
 	// Set Outgoing Pass-Through Signals:
@@ -1424,6 +1425,18 @@ void CBrowserWidget::delayPassageReference(const TPhraseTag &tag)
 {
 	if (m_bDoingUpdate) return;
 	m_dlyPassageReference.trigger(tag);
+}
+
+// ----------------------------------------------------------------------------
+
+void CBrowserWidget::en_titleHover(const QPoint &pos, const QString &title)
+{
+#ifdef USING_LITEHTML
+	QToolTip::showText(m_pScriptureLiteHtml->mapToGlobal(pos), title, this);
+#else
+	Q_UNUSED(pos);
+	Q_UNUSED(title);
+#endif
 }
 
 // ----------------------------------------------------------------------------
