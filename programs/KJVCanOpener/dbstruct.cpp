@@ -1019,50 +1019,27 @@ CLemmaEntry::CLemmaEntry(const TPhraseTag &tag, const QString &strLemmaAttrs)
 					m_lstText.append(lstValues.at(1));
 				}
 			} else if (lstMembers.at(0).compare("morph", Qt::CaseInsensitive) == 0) {
+				TMorphTag tagMorph;
 				if (lstValues.at(0).compare("robinson", Qt::CaseInsensitive) == 0) {
-					m_mapMorphology[MSE_ROBINSON].append(lstValues.at(1));
+					tagMorph = { MSE_ROBINSON, lstValues.at(1) };
 				} else if (lstValues.at(0).compare("oshm", Qt::CaseInsensitive) == 0) {
-					m_mapMorphology[MSE_OSHM].append(lstValues.at(1));
+					tagMorph = { MSE_OSHM, lstValues.at(1) };
 				} else if (lstValues.at(0).compare("strongMorph", Qt::CaseInsensitive) == 0) {
 					// According to: https://www.mail-archive.com/sword-devel@crosswire.org/msg35282.html
 					// These "THxxxx" numbers are Thayer's Numbers, which have no
 					//	corresponding module to pull from
-					m_mapMorphology[MSE_THAYERS].append(lstValues.at(1));
+					tagMorph = { MSE_THAYERS, lstValues.at(1) };
 				}
+				m_lstMorphology.append(tagMorph);
 			}
 		}
 	}
-	int nCorrectedCount = std::max(m_lstStrongs.size(), m_lstText.size());
+	int nCorrectedCount = std::max(std::max(m_lstStrongs.size(), m_lstText.size()), m_lstMorphology.size());
 	// ? for (int ndx = m_lstStrongs.size(); ndx < nCorrectedCount; ++ndx) m_lstStrongs.append(QString());
 	for (int ndx = m_lstText.size(); ndx < nCorrectedCount; ++ndx) m_lstText.append(QString());
+	for (int ndx = m_lstMorphology.size(); ndx < nCorrectedCount; ++ndx) m_lstMorphology.append(TMorphTag());
 	m_lstText = m_lstText.mid(0, m_lstStrongs.size());
-}
-
-QString CLemmaEntry::strongs(int nIndex) const
-{
-	if ((nIndex < 0) || (nIndex >= count())) {
-		Q_ASSERT(false);
-		return QString();
-	}
-
-	return m_lstStrongs.at(nIndex);
-}
-
-QString CLemmaEntry::text(int nIndex) const
-{
-	if ((nIndex < 0) || (nIndex >= count())) {
-		Q_ASSERT(false);
-		return QString();
-	}
-
-	return m_lstText.at(nIndex);
-}
-
-QStringList CLemmaEntry::morph(MORPH_SOURCE_ENUM nSource) const
-{
-	TMorphMap::const_iterator itrMorph = m_mapMorphology.find(nSource);
-	if (itrMorph != m_mapMorphology.cend()) return itrMorph->second;
-	return QStringList();
+	m_lstMorphology = m_lstMorphology.mid(0, m_lstMorphology.size());
 }
 
 // ============================================================================

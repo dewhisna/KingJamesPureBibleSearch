@@ -377,7 +377,7 @@ void CDictionaryWidget::setWord(CBibleDatabasePtr pBibleDatabase, const TPhraseT
 		//		selections of multiple words resolve!
 		const CLemmaEntry *pLemma = pBibleDatabase->lemmaEntry(tag.relIndex());
 		if ((pLemma != nullptr) && (pLemma->count())) {
-			setWord(pLemma->strongs(0), bIsTracking);		// TODO : Fix this for multiple Strong's Entries
+			setWord(pLemma->strongs().at(0), bIsTracking);		// TODO : Fix this for multiple Strong's Entries
 		} else {
 			ui.editDictionaryWord->clear();
 		}

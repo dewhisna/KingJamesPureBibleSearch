@@ -1091,13 +1091,20 @@ struct TPassageTagListSortPredicate {
 // ============================================================================
 
 enum MORPH_SOURCE_ENUM {		// Enum of source data tags
-	MSE_OSHM = 0,				// Open Scriptures Hebrew Morphology
-	MSE_THAYERS = 1,			// Thayer's (Hebrew/Greek)
-	MSE_ROBINSON = 2,			// Robinson (Greek)
-	MSE_PACKARD = 3,			// Packard (Greek)
+	MSE_NONE = 0,				// None or Unknown
+	MSE_OSHM = 1,				// Open Scriptures Hebrew Morphology
+	MSE_THAYERS = 2,			// Thayer's (Hebrew/Greek)
+	MSE_ROBINSON = 3,			// Robinson (Greek)
+	MSE_PACKARD = 4,			// Packard (Greek)
 };
 
-typedef std::map<MORPH_SOURCE_ENUM, QStringList> TMorphMap;		// Morphology mapping of source to code list where each list corresponds to one LemmaEntry (below)
+struct TMorphTag
+{
+	MORPH_SOURCE_ENUM m_nSource = MSE_NONE;		// Source Database Type
+	QString m_strEntryKey;						// Entry Key in Database
+};
+
+typedef QList<TMorphTag> TMorphTagList;		// List of Morph Tags in CLemmaEntry
 
 class CLemmaEntry
 {
@@ -1115,15 +1122,13 @@ public:
 	inline bool isValid() const
 	{
 		return ((m_lstStrongs.size() == m_lstText.size()) &&
-				(!m_lstStrongs.isEmpty() || !m_mapMorphology.empty()));
+				(m_lstStrongs.size() == m_lstMorphology.size()) &&
+				!m_lstStrongs.isEmpty());
 	}
 
-	QString strongs(int nIndex) const;
 	const QStringList &strongs() const { return m_lstStrongs; }
-	QString text(int nIndex) const;
 	const QStringList &text() const { return m_lstText; }
-	// ----
-	QStringList morph(MORPH_SOURCE_ENUM nSource) const;
+	const TMorphTagList &morph() const { return m_lstMorphology; }
 
 private:
 	TPhraseTag m_tagEntry;			// Phrase of words corresponding to this entry
@@ -1133,7 +1138,7 @@ private:
 	// ----
 	QStringList m_lstStrongs;		// Array of Strongs Indexes -- count of this is the Lemma count
 	QStringList m_lstText;			// Masoretic or Textus-Receptus Words (paired with Strongs Indexes) -- count of this is the Lemma count
-	TMorphMap m_mapMorphology;		// Mapping of source to morph codes for this phrase -- count of this is independent of Strongs
+	TMorphTagList m_lstMorphology;	// Array of morph codes for this phrase -- count of this is the Lemma count
 };
 
 typedef std::map<CRelIndex, CLemmaEntry, RelativeIndexSortPredicate> TLemmaEntryMap;	// Index by [nBk|nChp|nVrs|nWrd]
@@ -1195,6 +1200,26 @@ struct StrongsIndexSortPredicate {
 
 typedef std::map<QString, CStrongsEntry, StrongsIndexSortPredicate> TStrongsIndexMap;		// Mapping of StrongsMapIndex to StrongsEntry
 typedef QMultiMap<QString, QString> TStrongsOrthographyMap;		// Mapping of Orthography word(s) to StrongsMapIndex -- NOTE: This is a MultiMap, as multiple Strongs Indexes can be mapped to one orthography
+
+// ============================================================================
+
+class CMorphEntry
+{
+public:
+	CMorphEntry() { }
+	CMorphEntry(const QString &strKey, const QString &strDescription);
+	~CMorphEntry() { }
+
+	const QString &key() const { return m_strKey; }
+	const QString &description() const { return m_strDescription; }
+
+private:
+	QString m_strKey;				// Plain text key value from database
+	QString m_strDescription;		// HTML rendered description to display
+};
+
+typedef QMap<QString, CMorphEntry> TMorphEntryMap;					// Map of Morph Key values to Entry
+typedef QMap<MORPH_SOURCE_ENUM, TMorphEntryMap> TMorphDatabaseMap;	// Map of Morph Database type to MorphEntryMap
 
 // ============================================================================
 
@@ -1563,6 +1588,7 @@ private:
 	TLemmaEntryMap m_mapLemmaEntries;		// Lemmas (typed by index - See notes above with TLemmaEntryMap)
 	TStrongsIndexMap m_mapStrongsEntries;	// Strongs Entries mapped by StrongsMapIndex
 	TStrongsOrthographyMap m_mapStrongsOrthographyMap;		// Map of Strongs Orthography word(s) to StrongsMapIndex
+	TMorphDatabaseMap m_mapMorphDatabaseMap;	// Mapping of Morphography database type to data
 	mutable TSoundExMap m_mapSoundEx;		// SoundEx map of Decomposed words (from m_lstConcordanceWords) to SoundEx equivalent, used to minimize calculations
 
 // Local Data:

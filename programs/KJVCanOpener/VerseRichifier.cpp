@@ -309,12 +309,17 @@ void CVerseTextRichifier::writeLemma() const
 					lstStrongLinks.append(QString("<a href=\"strong://%1\">%1</a>").arg(entry));
 				}
 			}
+			QStringList lstMorphLinks;
+			lstMorphLinks.reserve(m_parseBaton.m_pCurrentLemma->count());
+			for (auto const &entry : m_parseBaton.m_pCurrentLemma->morph()) {
+				// TODO : Turn these to links if RRO_AddAnchors is set, once we decide what to link it to:
+				lstMorphLinks.append(entry.m_strEntryKey);
+			}
+
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
 												.arg(m_parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
 												.arg(m_parseBaton.renderOption(RRO_AddAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
-// TODO : Fix the morphology output once we decide how we want to render things:
-//												.arg(m_parseBaton.m_pCurrentLemma->morph().join(QChar(' ')))
-												.arg("")
+												.arg(lstMorphLinks.join(QChar(' ')))
 												);
 		} else {
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">&nbsp;</span><span class=\"stack strongs\">&nbsp;</span><span class=\"stack morph\">&nbsp;</span>"));

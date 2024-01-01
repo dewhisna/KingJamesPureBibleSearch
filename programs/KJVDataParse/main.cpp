@@ -234,7 +234,10 @@ static bool isProperWord(const CBibleDatabase *pBibleDatabase, const CWordEntry 
 			CRelIndex ndxRel = pBibleDatabase->DenormalizeIndex(ndxNormal);
 			const CLemmaEntry *pLemma = pBibleDatabase->lemmaEntry(ndxRel);
 			if (pLemma) {
-				QStringList slMorph = pLemma->morph(MSE_OSHM);
+				QStringList slMorph;
+				for (auto const &entry : pLemma->morph()) {
+					if (entry.m_nSource == MSE_OSHM) slMorph.append(entry.m_strEntryKey);
+				}
 				for (auto const & morph : slMorph) {
 					// According to the OSHM dictionary, the following is supposed
 					//	to be an exhaustive list of proper noun types:
