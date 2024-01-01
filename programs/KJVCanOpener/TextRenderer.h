@@ -39,8 +39,9 @@
 //
 
 enum TIP_EDIT_TYPE_ENUM {
-	TETE_DETAILS = 0,			// Normal KJPBS Detail View
-	TETE_GEMATRIA = 1,			// Gematria View
+	TETE_BASIC_TOOLTIP = 0,		// Basic/Generic Tooltip, such as used on LiteHtml Title Hover popups
+	TETE_DETAILS = 1,			// Normal KJPBS Detail View
+	TETE_GEMATRIA = 2,			// Gematria View
 	// ----
 	TETE_COUNT
 };

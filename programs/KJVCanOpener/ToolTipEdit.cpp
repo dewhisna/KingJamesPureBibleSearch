@@ -134,9 +134,12 @@ CTipEdit::CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidg
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	setContextMenuPolicy(Qt::DefaultContextMenu /* Qt::NoContextMenu */);
 	setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard /* Qt::NoTextInteraction */);
-	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+	setHorizontalScrollBarPolicy((nTipType != TETE_BASIC_TOOLTIP) ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy((nTipType != TETE_BASIC_TOOLTIP) ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAlwaysOff);
 	switch (m_nTipEditType) {
+		case TETE_BASIC_TOOLTIP:
+			// No title to set here since these don't have a title bar and isn't pinable
+			break;
 		case TETE_DETAILS:
 			setWindowTitle(tr("Details : King James Pure Bible Search", "MainMenu"));
 			break;
@@ -150,22 +153,26 @@ CTipEdit::CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidg
 
 	Q_ASSERT(m_pParentCanOpener != nullptr);
 
-	m_pPushButton = new QPushButton(this);
-	m_pPushButton->setFlat(true);
-	setPushPinIcon();
-	m_pPushButton->setIconSize(QSize(32, 32));
-	QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
-	connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
-
-	m_pResizer = new QSizeGrip(this);
-	m_pResizer->resize(m_pResizer->sizeHint());
-	if (isRightToLeft()) {
-		m_pResizer->move(window()->rect().bottomLeft()-m_pResizer->rect().bottomLeft());
-	} else {
-		m_pResizer->move(window()->rect().bottomRight()-m_pResizer->rect().bottomRight());
+	if (nTipType != TETE_BASIC_TOOLTIP) {		// No push-pin on basic tooltips -- they aren't pinable
+		m_pPushButton = new QPushButton(this);
+		m_pPushButton->setFlat(true);
+		setPushPinIcon();
+		m_pPushButton->setIconSize(QSize(32, 32));
+		QTimer::singleShot(1, this, SLOT(setPushPinPosition()));
+		connect(m_pPushButton, SIGNAL(clicked()), this, SLOT(en_pushPinPressed()));
 	}
-	m_pResizer->raise();
-	m_pResizer->show();
+
+	if (nTipType != TETE_BASIC_TOOLTIP) {		// Since basic tooltips aren't pinable or resizable, they need no size gripper
+		m_pResizer = new QSizeGrip(this);
+		m_pResizer->resize(m_pResizer->sizeHint());
+		if (isRightToLeft()) {
+			m_pResizer->move(window()->rect().bottomLeft()-m_pResizer->rect().bottomLeft());
+		} else {
+			m_pResizer->move(window()->rect().bottomRight()-m_pResizer->rect().bottomRight());
+		}
+		m_pResizer->raise();
+		m_pResizer->show();
+	}
 
 	if (instance(m_nTipEditType, m_pParentCanOpener)) instance(m_nTipEditType, m_pParentCanOpener)->deleteLater();
 	setInstance(this);
@@ -259,6 +266,7 @@ void CTipEdit::adjustToolTipSize()
 {
 	QFontMetrics fm(font());
 	QSize extra(1 + verticalScrollBar()->sizeHint().width() + frameWidth()*2, 1 + horizontalScrollBar()->sizeHint().height() + frameWidth()*2);
+	if (m_nTipEditType == TETE_BASIC_TOOLTIP) extra = QSize(0, 0);		// No extra space needed since basic tooltips have no scrollbars
 
 	// Make it look good with the default ToolTip font on Mac, which has a small descent.
 	if (fm.descent() == 2 && fm.ascent() >= 11)
@@ -324,13 +332,17 @@ void CTipEdit::resizeEvent(QResizeEvent *e)
 
 void CTipEdit::setPushPinPosition()
 {
-	QSize szViewPort = viewport()->size();
-	m_pPushButton->move(szViewPort.width() - m_pPushButton->size().width(), 0);
+	if (m_pPushButton) {
+		QSize szViewPort = viewport()->size();
+		m_pPushButton->move(szViewPort.width() - m_pPushButton->size().width(), 0);
+	}
 }
 
 void CTipEdit::setPushPinIcon()
 {
-	m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_nTipEditType, m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	if (m_pPushButton) {
+		m_pPushButton->setIcon(QIcon(tipEditIsPinned(m_nTipEditType, m_pParentCanOpener) ? ":/res/Map-Marker-Push-Pin-2-Left-Chartreuse-icon-128.png" : ":/res/Map-Marker-Push-Pin-1-Chartreuse-icon-r-128.png"));
+	}
 }
 
 void CTipEdit::en_pushPinPressed()

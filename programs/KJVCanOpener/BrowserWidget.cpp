@@ -26,6 +26,8 @@
 #include "UserNotesDatabase.h"
 #include "BibleLayout.h"
 #include "TextRenderer.h"
+#include "ToolTipEdit.h"
+#include "myApplication.h"
 
 #include "BusyCursor.h"
 
@@ -1432,7 +1434,17 @@ void CBrowserWidget::delayPassageReference(const TPhraseTag &tag)
 void CBrowserWidget::en_titleHover(const QPoint &pos, const QString &title)
 {
 #ifdef USING_LITEHTML
-	QToolTip::showText(m_pScriptureLiteHtml->mapToGlobal(pos), title, this);
+	CKJVCanOpener *pParentCanOpener = g_pMyApplication->findCanOpenerFromChild<i_CScriptureLiteHtml>(m_pScriptureLiteHtml);
+	Q_ASSERT(pParentCanOpener != nullptr);
+	if (pParentCanOpener == nullptr) return;
+
+	// Use CToolTipEdit both so that it's still visible even when the
+	//	user has disabled normal tooltips in the Configuration settings
+	//	and so that it's a QTextEdit object, which allows the user to
+	//	copy-paste text out of the popup (if they are fast enough to
+	//	catch it):
+	QToolTip::hideText();
+	CToolTipEdit::showText(TETE_BASIC_TOOLTIP, pParentCanOpener, m_pScriptureLiteHtml->mapToGlobal(pos), title, m_pScriptureLiteHtml->viewport());
 #else
 	Q_UNUSED(pos);
 	Q_UNUSED(title);
