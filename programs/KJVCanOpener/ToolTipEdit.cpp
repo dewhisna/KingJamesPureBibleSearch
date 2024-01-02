@@ -139,6 +139,7 @@ CTipEdit::CTipEdit(TIP_EDIT_TYPE_ENUM nTipType, CKJVCanOpener *pCanOpener, QWidg
 	switch (m_nTipEditType) {
 		case TETE_BASIC_TOOLTIP:
 			// No title to set here since these don't have a title bar and isn't pinable
+			setWindowFlags(windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
 			break;
 		case TETE_DETAILS:
 			setWindowTitle(tr("Details : King James Pure Bible Search", "MainMenu"));
@@ -277,12 +278,18 @@ void CTipEdit::adjustToolTipSize()
 
 	Q_ASSERT(!g_pMyApplication.isNull());
 	CKJVCanOpener *pCanOpener = g_pMyApplication->activeCanOpener();
+	QSize newSize;
 	if (widget) {
-		resize(QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra);
+		newSize = QSize(qMin(widget->width(),docSize.width()), qMin(widget->height(), docSize.height())) + extra;
 	} else if (pCanOpener) {
-		resize(QSize(qMin(pCanOpener->width()/2, docSize.width()), qMin(pCanOpener->height(), docSize.height())) + extra);
+		newSize= QSize(qMin(pCanOpener->width()/2, docSize.width()), qMin(pCanOpener->height(), docSize.height())) + extra;
 	} else {
-		resize(docSize + extra);
+		newSize = docSize + extra;
+	}
+	resize(newSize);
+	if (m_nTipEditType == TETE_BASIC_TOOLTIP) {
+		setMaximumSize(newSize);
+		setMinimumSize(newSize);
 	}
 }
 
