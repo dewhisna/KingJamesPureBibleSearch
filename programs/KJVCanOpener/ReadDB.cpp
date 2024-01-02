@@ -1136,6 +1136,56 @@ bool CReadDatabase::ReadSTRONGSTable()
 	return true;
 }
 
+bool CReadDatabase::ReadMORPHOLOGYTable()
+{
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+
+// Read the Morphology table:
+
+#ifndef NOT_USING_SQL
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data(), m_myDatabase);
+#else
+	CDBTableParser dbParser(m_pParent, m_pCCDatabase.data());
+#endif
+
+	if (dbParser.atEnd()) return true;		// Morphology is optional and old databases won't have it
+	if (!dbParser.findTable("MORPHOLOGY") || !dbParser.haveData()) return true;		// Morphology is optional, old databases won't have it at all, and new databases may have zero entries
+
+	m_pBibleDatabase->m_mapMorphDatabaseMap.clear();
+
+	dbParser.startQueryLoop("MorphNdx, MorphSrc, Key, Desc");
+
+	while (dbParser.haveData()) {
+		QStringList lstFields;
+		if (!dbParser.readNextRecord(lstFields, 4)) return false;
+
+		MORPH_SOURCE_ENUM nMorphSrc = MSE_NONE;
+		if (lstFields.at(1).compare("oshm", Qt::CaseInsensitive) == 0) {
+			nMorphSrc = MSE_OSHM;
+		} else if (lstFields.at(1).compare("robinson", Qt::CaseInsensitive) == 0) {
+			nMorphSrc = MSE_ROBINSON;
+		} else if (lstFields.at(1).compare("packard", Qt::CaseInsensitive) == 0) {
+			nMorphSrc = MSE_PACKARD;
+		} else if (lstFields.at(1).compare("thayers", Qt::CaseInsensitive) == 0) {
+			nMorphSrc = MSE_THAYERS;
+		} else {
+			// TODO : Add additional types here as needed.
+			//	Note: Not throwing on unknown types for backward compatibility
+			//		purposes, so we can introduce new databases with new types
+			//		and they still read on older app versions, only without the
+			//		new data types.
+			continue;
+		}
+		CMorphEntry morph(lstFields.at(2), lstFields.at(3));
+
+		m_pBibleDatabase->m_mapMorphDatabaseMap[nMorphSrc][lstFields.at(2).toUpper()] = morph;
+	}
+
+	dbParser.endQueryLoop();
+
+	return true;
+}
+
 bool CReadDatabase::ReadVersificationTables()
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
@@ -1654,6 +1704,7 @@ bool CReadDatabase::readBibleStub()
 		(!ReadPHRASESTable()) ||
 		(!ReadLEMMASTable()) ||
 		(!ReadSTRONGSTable()) ||
+		(!ReadMORPHOLOGYTable()) ||
 		(!ReadVersificationTables()) ||
 		(!ValidateData())) return false;
 #ifdef USE_EXTENDED_INDEXES
@@ -1777,6 +1828,12 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
 	}
 
+	// If this Bible contained a Morphology Database, set the flag in its descriptor.
+	//	Do this before adding the BibleDatabase so our descriptors will get updated:
+	if (m_pBibleDatabase->m_mapMorphDatabaseMap.size()) {
+		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasMorphology;
+	}
+
 	if (bSuccess) {
 		TBibleDatabaseList::instance()->addBibleDatabase(m_pBibleDatabase, bSetAsMain);
 
@@ -1868,6 +1925,12 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 	//	before adding the BibleDatabase so our descriptors will get updated:
 	if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
 		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
+	}
+
+	// If this Bible contained a Morphology Database, set the flag in its descriptor.
+	//	Do this before adding the BibleDatabase so our descriptors will get updated:
+	if (m_pBibleDatabase->m_mapMorphDatabaseMap.size()) {
+		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasMorphology;
 	}
 
 	if (bSuccess) {

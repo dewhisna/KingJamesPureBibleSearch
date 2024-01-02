@@ -1478,7 +1478,7 @@ bool CBuildDatabase::BuildStrongsTable()
 			queryInsert.bindValue(":Def", sl.at(4));
 
 			if (!queryInsert.exec()) {
-				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for STRONGS!\n%1\n%2\n%3\n%4\n%5\n%6", "BuildDB").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)).arg(sl.at(2)).arg(sl.at(3)).arg(sl.at(4)).arg(sl.at(5)),
+				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for STRONGS!\n%1\n%2\n%3\n%4\n%5\n%6", "BuildDB").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)).arg(sl.at(2)).arg(sl.at(3)).arg(sl.at(4)),
 										(QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) break;
 			}
 		}
@@ -1504,6 +1504,140 @@ bool CBuildDatabase::BuildStrongsTable()
 	}
 
 	fileStrongs.close();
+
+	return true;
+}
+
+bool CBuildDatabase::BuildMorphologyTable()
+{
+	// Build the Morphology table:
+
+#ifndef NOT_USING_SQL
+	QString strCmd;
+	if (m_myDatabase.isOpen()) {
+		QSqlQuery queryCreate(m_myDatabase);
+
+		// Check to see if the table exists already:
+		if (!queryCreate.exec("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='MORPHOLOGY'")) {
+			displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Table Lookup for \"MORPHOLOGY\" Failed!\n%1", "BuildDB").arg(queryCreate.lastError().text()));
+			return false;
+		} else {
+			queryCreate.next();
+			if (queryCreate.value(0).toInt()) {
+				// If we found it, drop it so we can recreate it:
+				if (!queryCreate.exec("DROP TABLE MORPHOLOGY")) {
+					displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Failed to drop old \"MORPHOLOGY\" table from database!\n%1", "BuildDB").arg(queryCreate.lastError().text()));
+					return false;
+				}
+			}
+
+			// Note: Since the MorphSrc isn't unique, we have to create an extra
+			//	MorphNdx field that increments and is unique for database indexing.
+			//	The incoming MORPHOLOGY.csv file data does not have this field,
+			//	but the outgoing CCDB will so that the S3DB and CCDB will be congruent.
+
+			// Create the table in the database:
+			strCmd = QString("create table MORPHOLOGY "
+							 "(MorphNdx INTEGER PRIMARY KEY, MorphSrc TEXT, Key TEXT, Desc TEXT)");
+
+			if (!queryCreate.exec(strCmd)) {
+				if (displayWarning(m_pParent, g_constrBuildDatabase,
+								   QObject::tr("Failed to create table for MORPHOLOGY\n%1", "BuildDB").arg(queryCreate.lastError().text()),
+								   (QMessageBox::Ignore | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) return false;
+			}
+		}
+	}
+#endif	// !NOT_USING_SQL
+
+	// Open the table data file:
+	QFile fileMorphology(QFileInfo(QDir(TBibleDatabaseList::bibleDatabasePath()), QString("data/MORPHOLOGY.csv")).absoluteFilePath());
+	if (!fileMorphology.open(QIODevice::ReadOnly)) {
+		displayInformation(m_pParent, g_constrBuildDatabase,
+						   QObject::tr("Failed to open %1 for reading.  Skipping Morphology Generation.", "BuildDB").arg(fileMorphology.fileName()));
+		return true;
+	}
+
+	// Read file and populate table:
+	CCSVStream csv(&fileMorphology);
+
+	QStringList slHeaders;
+	csv >> slHeaders;              // Read Headers (verify and discard)
+
+	if ((slHeaders.size()!=3) ||
+		(slHeaders.at(0).compare("MorphSrc") != 0) ||
+		(slHeaders.at(1).compare("Key") != 0) ||
+		(slHeaders.at(2).compare("Desc") != 0)) {
+		if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Unexpected Header Layout for MORPHOLOGY data file!", "BuildDB"),
+						   (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
+			fileMorphology.close();
+			return false;
+		}
+	}
+
+#ifndef NOT_USING_SQL
+	QSqlQuery queryInsert(m_myDatabase);
+	if (m_myDatabase.isOpen()) {
+		queryInsert.exec("BEGIN TRANSACTION");
+	}
+#endif	// !NOT_USING_SQL
+
+	QList<QStringList> lstArrCCData;
+
+	int ndx = 0;
+	while (!csv.atEnd()) {
+		QStringList sl;
+		csv >> sl;
+
+		if (sl.count() != 3) {
+			if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Bad table data in MORPHOLOGY data file!", "BuildDB"),
+							   (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) {
+				fileMorphology.close();
+				return false;
+			}
+			continue;
+		}
+
+		sl.insert(0, QString("%1").arg(++ndx));
+
+#ifndef NOT_USING_SQL
+		if (m_myDatabase.isOpen()) {
+			strCmd = QString("INSERT INTO MORPHOLOGY "
+							 "(MorphNdx, MorphSrc, Key, Desc) "
+							 "VALUES (:MorphNdx, :MorphSrc, :Key, :Desc)");
+
+			queryInsert.prepare(strCmd);
+			queryInsert.bindValue(":MorphNdx", ndx);
+			queryInsert.bindValue(":MorphSrc", sl.at(1));
+			queryInsert.bindValue(":Key", sl.at(2));
+			queryInsert.bindValue(":Desc", sl.at(3));
+
+			if (!queryInsert.exec()) {
+				if (displayWarning(m_pParent, g_constrBuildDatabase, QObject::tr("Insert Failed for MORPHOLOGY!\n%1\n%2\n%3\n%4", "BuildDB").arg(queryInsert.lastError().text()).arg(sl.at(0)).arg(sl.at(1)).arg(sl.at(2)),
+								   (QMessageBox::Ok | QMessageBox::Cancel), QMessageBox::Cancel) == QMessageBox::Cancel) break;
+			}
+		}
+#endif	// !NOT_USING_SQL
+
+		// Format:  MorphNdx,MorphSrc,Key,Desc
+		lstArrCCData.append(sl);
+	}
+
+#ifndef NOT_USING_SQL
+	if (m_myDatabase.isOpen()) {
+		queryInsert.exec("COMMIT");
+	}
+#endif	// !NOT_USING_SQL
+
+	if (!m_pCCDatabase.isNull()) {
+		// Format:  MORPHOLOGY,count
+		QStringList arrCCData;
+		arrCCData.append("MORPHOLOGY");
+		arrCCData.append(QString("%1").arg(lstArrCCData.size()));
+		(*m_pCCDatabase) << arrCCData;
+		m_pCCDatabase->writeAll(lstArrCCData);
+	}
+
+	fileMorphology.close();
 
 	return true;
 }
@@ -1598,6 +1732,7 @@ bool CBuildDatabase::BuildDatabase(const QString &strSQLDatabaseFilename, const 
 		if (bSuccess && (nVersion >= 2) &&
 			((!BuildLemmasTable()) ||
 			 (!BuildStrongsTable()) ||
+			 (!BuildMorphologyTable()) ||
 			 (!BuildVersificationTables()))) bSuccess = false;
 	}
 

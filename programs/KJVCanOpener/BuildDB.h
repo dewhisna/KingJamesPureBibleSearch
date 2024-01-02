@@ -61,6 +61,7 @@ protected:
 	bool BuildPhrasesTable();
 	bool BuildLemmasTable();
 	bool BuildStrongsTable();
+	bool BuildMorphologyTable();
 	bool BuildVersificationTables();
 
 private:
