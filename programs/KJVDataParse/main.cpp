@@ -688,6 +688,199 @@ bool CStrongsImpXmlHandler::endDocument()
 // ============================================================================
 // ============================================================================
 
+class CMorphologyImpXmlHandler : public CXmlDefaultHandler
+{
+	enum MORPH_IMP_PARSER_STATE {
+		MIPSE_ENTRYFREE = 0,
+		MIPSE_RENDER = 1,
+	};
+
+public:
+	CMorphologyImpXmlHandler(const QString &strKey)
+		:	m_morphEntry(strKey)
+	{ }
+
+	virtual ~CMorphologyImpXmlHandler()
+	{ }
+
+	virtual bool startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &atts) override;
+	virtual bool endElement(const QString &namespaceURI, const QString &localName, const QString &qName) override;
+	virtual bool characters(const QString &ch) override;
+	virtual bool error(const CXmlParseException &exception) override;
+	virtual QString errorString() const override
+	{
+		return (!m_strErrorString.isEmpty() ? m_strErrorString : CXmlDefaultHandler::errorString());
+	}
+	virtual bool endDocument() override;
+
+	const CMorphEntry &morphEntry() const { return m_morphEntry; }
+
+private:
+	void beginRenderElement(const QString &strRendType);
+	void endRenderElement();
+
+private:
+	CMorphEntry m_morphEntry;
+	bool m_bInMorph = false;
+
+	QVector<MORPH_IMP_PARSER_STATE> m_vctParseState;	// Parse State Stack
+	QString m_strErrorString;
+
+	QStringList m_lstRenderElementStack;		// Corresponding Render Element to output when we hit endRenderElement(), pushed in beginRenderElement()
+};
+
+void CMorphologyImpXmlHandler::beginRenderElement(const QString &strRendType)
+{
+	if (strRendType.compare("bold", Qt::CaseInsensitive) == 0) {
+		characters("<b>");
+		m_lstRenderElementStack.push_back("</b>");
+	} else if (strRendType.compare("italic", Qt::CaseInsensitive) == 0) {
+		characters("<i>");
+		m_lstRenderElementStack.push_back("</i>");
+	} else if (strRendType.compare("super", Qt::CaseInsensitive) == 0) {
+		characters("<sup>");
+		m_lstRenderElementStack.push_back("</sup>");
+	} else if (strRendType.compare("sub", Qt::CaseInsensitive) == 0) {
+		characters("<sub>");
+		m_lstRenderElementStack.push_back("</sub>");
+	} else {
+		// Unknown rendering types placeholder:
+		m_lstRenderElementStack.push_back(QString());		// Keep stack balanced
+	}
+	m_vctParseState.push_back(MIPSE_RENDER);
+}
+
+void CMorphologyImpXmlHandler::endRenderElement()
+{
+	Q_ASSERT(!m_vctParseState.isEmpty());
+	Q_ASSERT(m_vctParseState.back() == MIPSE_RENDER);
+	m_vctParseState.pop_back();
+	Q_ASSERT(!m_lstRenderElementStack.isEmpty());
+	characters(m_lstRenderElementStack.back());
+	m_lstRenderElementStack.pop_back();
+}
+
+bool CMorphologyImpXmlHandler::startElement(const QString &namespaceURI, const QString &localName, const QString &qName, const CXmlAttributes &atts)
+{
+	Q_UNUSED(namespaceURI);
+	Q_UNUSED(qName);
+
+/*
+
+	Morphology IMP Format:
+	----------------------
+	$$$A-APF
+	<hi type="italic">Part of Speech</hi>: Adjective<lb/><hi type="italic">Case</hi>: Accusative<lb/>
+	<hi type="italic">Number</hi>: Plural<lb/><hi type="italic">Gender</hi>: Feminine
+	$$$A-APF-C
+	<hi type="italic">Part of Speech</hi>: Adjective<lb/><hi type="italic">Case</hi>: Accusative<lb/>
+	<hi type="italic">Number</hi>: Plural<lb/><hi type="italic">Gender</hi>: Feminine<lb/>
+	<hi type="italic">Degree</hi>: Comparative
+
+	$$$AAABSA
+	<entryFree n="AAabsa"> Aramaic: Adjective adjective both singular absolute</entryFree>
+	$$$AAAFPA
+	<entryFree n="AAafpa"> Aramaic: Adjective adjective feminine plural absolute</entryFree>
+
+*/
+
+	int ndx = -1;
+
+	if (localName.compare("morph", Qt::CaseInsensitive) == 0) {
+		if (!m_vctParseState.isEmpty()) {
+			std::cerr << QString("*** Error: Morphology Imp Parse State not empty at morph start for %1\n").arg(m_morphEntry.key()).toUtf8().data();
+			m_vctParseState.clear();
+		}
+		// Don't really do anything here as it's an overall placeholder
+		//	except set a flag to check in the endElement
+		m_bInMorph = true;
+	} else if (localName.compare("entryFree", Qt::CaseInsensitive) == 0) {
+		if (!m_vctParseState.isEmpty()) {
+			std::cerr << QString("*** Error: Morphology Imp Parse State not empty at entryFree start for %1\n").arg(m_morphEntry.key()).toUtf8().data();
+			m_vctParseState.clear();
+		}
+
+		m_vctParseState.push_back(MIPSE_ENTRYFREE);
+
+		ndx = atts.index("n", Qt::CaseInsensitive);
+		if (ndx != -1) {
+			QStringList lstIndex = atts.value(ndx).split('|');
+			Q_ASSERT(lstIndex.size() >= 1);
+			if (m_morphEntry.key().compare(lstIndex.at(0), Qt::CaseInsensitive) != 0) {
+				std::cerr << QString("*** Warning: Entry %1 has %2 key name (mismatch!)\n").arg(m_morphEntry.key()).arg(lstIndex.at(0)).toUtf8().data();
+			}
+			m_morphEntry = CMorphEntry(lstIndex.at(0));
+		}
+	} else if (localName.compare("hi", Qt::CaseInsensitive) == 0) {
+		ndx = atts.index("rend", Qt::CaseInsensitive);
+		if (ndx != -1) beginRenderElement(atts.value(ndx));
+		ndx = atts.index("type", Qt::CaseInsensitive);			// Note: Robinson database uses "type" element on <hi> tags instead of "rend" for italics
+		if (ndx != -1) beginRenderElement(atts.value(ndx));
+	}
+	// Ignore other elements, like 'lb' (lb will get converted in the endElement)
+
+	return true;
+}
+
+bool CMorphologyImpXmlHandler::endElement(const QString &namespaceURI, const QString &localName, const QString &qName)
+{
+	Q_UNUSED(namespaceURI);
+	Q_UNUSED(qName);
+
+	if (m_bInMorph) {
+		if (localName.compare("morph", Qt::CaseInsensitive) == 0) {
+			m_bInMorph = false;
+		} else if (localName.compare("entryFree", Qt::CaseInsensitive) == 0) {
+			Q_ASSERT(!m_vctParseState.isEmpty());
+			if (m_vctParseState.back() == MIPSE_ENTRYFREE) {
+				m_vctParseState.pop_back();
+			} else {
+				m_strErrorString = "Expected entryFree endElement";
+				return false;
+			}
+		} else if (localName.compare("hi", Qt::CaseInsensitive) == 0) {
+			Q_ASSERT(!m_vctParseState.isEmpty());
+			if (m_vctParseState.back() == MIPSE_RENDER) {
+				endRenderElement();
+			}
+		} else if ((localName.compare("lb", Qt::CaseInsensitive) == 0) ||
+				   (localName.compare("br", Qt::CaseInsensitive) == 0)) {
+			characters("<br/>");
+		} else {
+			// Ignore other elements except log warning:
+			std::cerr << "*** Unknown/unexpected element type \"" << localName.toUtf8().data() << "\" found.\n";
+		}
+	} else {
+		m_strErrorString = "Found an endElement outside of morph!";
+		return false;
+	}
+
+	return true;
+}
+
+bool CMorphologyImpXmlHandler::characters(const QString &ch)
+{
+	m_morphEntry.setDescription(m_morphEntry.description() + ch);
+	return true;
+}
+
+bool CMorphologyImpXmlHandler::error(const CXmlParseException &exception)
+{
+	std::cerr << QString("\n\n*** %1\n").arg(exception.message()).toUtf8().data();
+	std::cerr << QString("Line: %1  Column: %2\nErrorCode: %3\n")
+					 .arg(exception.lineNumber()).arg(exception.columnNumber())
+					 .arg(exception.error()).toUtf8().data();
+	return true;
+}
+
+bool CMorphologyImpXmlHandler::endDocument()
+{
+	return true;
+}
+
+// ============================================================================
+// ============================================================================
+
 class COSISXmlHandler : public CXmlDefaultHandler
 {
 public:
@@ -773,6 +966,8 @@ public:
 	QString strongsImpFilepath() const { return m_strStrongsImpFilepath; }
 	void setUseInternalBibleDesc(bool bUseInternalBibleDesc) { m_bUseInternalBibleDesc = bUseInternalBibleDesc; }
 	bool useInternalBibleDesc() const { return m_bUseInternalBibleDesc; }
+	void setMorphologyImpList(const TMorphTagList &lstMorphologyFiles) { m_lstMorphologyFiles = lstMorphologyFiles; }
+	const TMorphTagList &morphologyImpList() const { return m_lstMorphologyFiles; }
 
 	// Parsing:
 	QStringList elementNames() const { return m_lstElementNames; }
@@ -867,6 +1062,7 @@ private:
 	bool m_bFoundSegVariant;			// Set to true if any <seg> tag variant found when no SegVariant was specifed.  Otherwise, set to true when the specified Seg Variant was found.
 	QString m_strStrongsImpFilepath;	// Strongs Imp Database to parse (if empty, no Strongs Database will be used)
 	bool m_bUseInternalBibleDesc;		// True if we keep the internal Bible Description instead of using the Title from the OSIS for it
+	TMorphTagList m_lstMorphologyFiles;	// Abusing TMorphTag to hold source and filename instead of source and database entry key
 };
 
 // osisAbbrFromBookIndex -- returns the OSIS abbreviation
@@ -1797,6 +1993,11 @@ bool COSISXmlHandler::error(const CXmlParseException &exception)
 
 bool COSISXmlHandler::endDocument()
 {
+	int nProgress = 0;
+	QString strIndexLine;
+	QByteArray baDataLine;
+	int nLineNumber = 0;
+
 	// Nothing else needs to be done here for the main database XML,
 	//	but now that that's complete, we'll parse any given Strongs
 	//	Database here to go with it:
@@ -1812,19 +2013,20 @@ bool COSISXmlHandler::endDocument()
 
 	std::cerr << "Strongs: ";
 
-	int nProgress = 0;
-	QString strIndexLine;
-	QByteArray baDataLine;
+	nProgress = 0;
+	nLineNumber = 0;
 	while (!fileStrongsImp.atEnd()) {
 		if ((nProgress % 100) == 0) std::cerr << ".";
 		++nProgress;
 
 		strIndexLine = QString(fileStrongsImp.readLine()).trimmed();
+		++nLineNumber;
 		baDataLine = fileStrongsImp.readLine();
+		++nLineNumber;
 		if (strIndexLine.isEmpty()) continue;		// Handle extra newline at end of file
 
 		if (strIndexLine.left(3) != "$$$") {
-			std::cerr << QString("\n\n*** Malformed Strongs Index: %1\n").arg(strIndexLine).toUtf8().data();
+			std::cerr << QString("\n\n*** Malformed Strongs Index: %1\n   on Line: %2\n").arg(strIndexLine).arg(nLineNumber).toUtf8().data();
 			continue;
 		} else {
 			strIndexLine = strIndexLine.mid(3);
@@ -1855,6 +2057,105 @@ bool COSISXmlHandler::endDocument()
 		}
 	}
 	std::cerr << "\n";
+
+	// ------------------------------------------------------------------------
+	// Next, parse any Morphology database files specified to go with it:
+
+	if (m_lstMorphologyFiles.isEmpty()) return true;
+
+	for (auto const &morph : m_lstMorphologyFiles) {
+		QFile fileMorphImp;
+		fileMorphImp.setFileName(morph.m_strEntryKey);
+
+		QFileInfo fiMorphImp(fileMorphImp);
+		if (!fileMorphImp.open(QIODevice::ReadOnly)) {
+			m_strErrorString = QString("*** Failed to open Morphology Imp Database \"%1\"\n").arg(morph.m_strEntryKey).toUtf8().data();
+			return false;
+		}
+
+		std::cerr << QString("Morphology: %1: ").arg(fiMorphImp.fileName()).toUtf8().data();
+
+		bool bHaveData = false;
+		nProgress = 0;
+		nLineNumber = 0;
+		while (!fileMorphImp.atEnd()) {
+			if ((nProgress % 10) == 0) std::cerr << ".";
+			++nProgress;
+
+			strIndexLine = QString(fileMorphImp.readLine()).trimmed();
+			++nLineNumber;
+			// Add <morph> tags around line so that files like Robinson will parse with the
+			//	XML parser, which requires everything to be inside of tags.  Some databases,
+			//	such as OSHM, use <entryFree> and don't need this, but our parser can just
+			//	remove it if not needed:
+			QString strDataLine = fileMorphImp.readLine().trimmed();
+			// Handle escaping -- as the Packard database has "&" symbols.
+			// Note that we can't just use the QString escape functions because
+			//	they escape the < and > symbols of our actual tag.  The problem
+			//	is that these random Bible databases have all sorts of junk in
+			//	them, not really conforming to standards.  At least all "&"
+			//	symbols should be escaped (I think).
+			//
+			//	TODO:  Add other escaping here as needed
+			strDataLine.replace("&", "&amp;");
+			strDataLine = QString("<morph>") + strDataLine + QString("</morph>");
+			baDataLine = strDataLine.toUtf8();
+			++nLineNumber;
+			if (strIndexLine.isEmpty()) continue;		// Handle extra newline at end of file
+
+			if (strIndexLine.left(3) != "$$$") {
+				std::cerr << QString("\n\n*** Malformed Morphology Index: %1\n   on Line: %2\n").arg(strIndexLine).arg(nLineNumber).toUtf8().data();
+				continue;
+			} else {
+				strIndexLine = strIndexLine.mid(3);
+			}
+			CMorphologyImpXmlHandler xmlHandler(strIndexLine);
+
+			QBuffer xmlBuffer(&baDataLine);
+			xmlBuffer.open(QIODevice::ReadOnly);
+			CXmlReader xmlReader(&xmlBuffer);
+
+			xmlReader.setXmlHandler(&xmlHandler);
+			if (xmlReader.parse()) {
+				TMorphEntryMap::const_iterator itrMorph = m_pBibleDatabase->m_mapMorphDatabaseMap[morph.m_nSource].find(xmlHandler.morphEntry().key().toUpper());
+				if (itrMorph != m_pBibleDatabase->m_mapMorphDatabaseMap[morph.m_nSource].cend()) {
+					std::cerr << QString("\n*** Duplicate Morphology Keys: %1 (combining)\n").arg(strIndexLine).toUtf8().data();
+					CMorphEntry entry = itrMorph->second;
+					entry.setDescription(entry.description() + "<br/>" + xmlHandler.morphEntry().description());
+					m_pBibleDatabase->m_mapMorphDatabaseMap[morph.m_nSource][xmlHandler.morphEntry().key().toUpper()] = entry;
+				} else {
+					m_pBibleDatabase->m_mapMorphDatabaseMap[morph.m_nSource][xmlHandler.morphEntry().key().toUpper()] = xmlHandler.morphEntry();
+				}
+				bHaveData = true;
+			} else {
+				std::cerr << QString("\n\n*** Failed to parse Morphology Index: %1\n").arg(strIndexLine).toUtf8().data();
+			}
+		}
+
+		std::cerr << "Resolving Links";
+
+		if (bHaveData) {
+			TMorphDatabaseMap::iterator itrMorphDB = m_pBibleDatabase->m_mapMorphDatabaseMap.find(morph.m_nSource);
+			Q_ASSERT(itrMorphDB != m_pBibleDatabase->m_mapMorphDatabaseMap.cend());
+
+			nProgress = 0;
+			for (auto &entry : itrMorphDB->second) {
+				if (entry.second.description().startsWith("@LINK")) {
+					QString strLink = entry.second.description().mid(5).trimmed().toUpper();
+					TMorphEntryMap::const_iterator itrLink = itrMorphDB->second.find(strLink);
+					if (itrLink != itrMorphDB->second.cend()) {
+						entry.second.setDescription(itrLink->second.description() + "<br/>From: " + strLink);
+						if ((nProgress % 10) == 0) std::cerr << ".";
+						++nProgress;
+					} else {
+						std::cerr << "\n    *** Couldn't find link " << strLink.toUtf8().data() << "\n";
+					}
+				}
+			}
+		}
+
+		std::cerr << "\n";
+	}
 
 	return true;
 }
@@ -2495,7 +2796,8 @@ enum OUTPUT_ERROR_CODES_ENUM {
 	ERR_CODE_PHRASES_FILE_WRITE_FAILED = -14,		// Phrases File Write Failed
 	ERR_CODE_LEMMAS_FILE_WRITE_FAILED = -15,		// Lemmas File Write Failed
 	ERR_CODE_STRONGS_FILE_WRITE_FAILED = -16,		// Strongs File Write Failed
-	ERR_CODE_VERSIFICATION_FILE_WRITE_FAILED = -17,	// Versification File Write Failed
+	ERR_CODE_MORPHOLOGY_FILE_WRITE_FAILED = -17,	// Morphology File Write Failed
+	ERR_CODE_VERSIFICATION_FILE_WRITE_FAILED = -18,	// Versification File Write Failed
 };
 
 // ============================================================================
@@ -3244,6 +3546,59 @@ static int writeStrongs(const QDir &dirOutput, const CBibleDatabase *pBibleDatab
 
 // ----------------------------------------------------------------------------
 
+static int writeMorphology(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase)
+{
+	QFile fileMorphology;		// Morphology database list being written
+
+	// Write Morphology Database:
+	fileMorphology.setFileName(dirOutput.absoluteFilePath("MORPHOLOGY.csv"));
+	if (!fileMorphology.open(QIODevice::WriteOnly)) {
+		std::cerr << QString("\n\n*** Failed to open Morphology Output File \"%1\"\n").arg(fileMorphology.fileName()).toUtf8().data();
+		return ERR_CODE_MORPHOLOGY_FILE_WRITE_FAILED;
+	}
+	std::cerr << QFileInfo(fileMorphology).fileName().toUtf8().data();
+
+	fileMorphology.write(QString(QChar(0xFEFF)).toUtf8());		// UTF-8 BOM
+
+	CCSVStream csvFileMorphology(&fileMorphology);
+	csvFileMorphology << QStringList({ "MorphSrc", "Key", "Desc" });
+
+	int nMorphologyProgress = 0;
+	for (auto const &morphDB : pBibleDatabase->morphologyDatabaseMap()) {
+		for (auto const &morph : morphDB.second) {
+			QString strMorphSrc;
+			switch (morphDB.first) {
+				case MSE_OSHM:
+					strMorphSrc = "oshm";
+					break;
+				case MSE_THAYERS:
+					strMorphSrc = "thayers";
+					break;
+				case MSE_ROBINSON:
+					strMorphSrc = "robinson";
+					break;
+				case MSE_PACKARD:
+					strMorphSrc = "packard";
+					break;
+				default:
+					Q_ASSERT(false);
+					break;
+			}
+			csvFileMorphology << QStringList({ strMorphSrc, morph.second.key(), morph.second.description() });
+
+			if ((nMorphologyProgress % 100) == 0) std::cerr << ".";
+			++nMorphologyProgress;
+		}
+	}
+
+	fileMorphology.close();
+	std::cerr << "\n";
+
+	return ERR_CODE_NONE;
+}
+
+// ----------------------------------------------------------------------------
+
 static int writeVersification(const QDir &dirOutput, const CBibleDatabase *pBibleDatabase, BIBLE_VERSIFICATION_TYPE_ENUM nV11nType)
 {
 	QFile fileVersification;	// Versification CSV being written (Will be appended to allow multiple passes)
@@ -3505,7 +3860,6 @@ int main(int argc, char *argv[])
 	bool bUseBracketFootnotesExcluded = false;
 	bool bExcludeDeuterocanonical = false;
 	bool bMissingOK = false;		// Missing OR Extra Chapters/Verses are OK, (i.e. don't enforce KJV Versification)
-	bool bUseInternalBibleDesc = false;
 	int nDescriptor = -1;
 	QString strOSISFilename;
 	QString strInfoFilename;
@@ -3520,6 +3874,11 @@ int main(int argc, char *argv[])
 	QString strV11n;
 	bool bLookingForVersificationAdd = false;
 	QString strV11nAdd;
+	bool bUseInternalBibleDesc = false;
+	TMorphTagList lstMorphologyFiles;	// Abusing TMorphTag to hold source and filename instead of source and database entry key
+	MORPH_SOURCE_ENUM nMorphSource = MSE_NONE;
+	bool bLookingForMorphSource = false;
+	bool bLookingForMorphFilename = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -3536,6 +3895,17 @@ int main(int argc, char *argv[])
 			} else if (bLookingForVersificationAdd) {
 				strV11nAdd = strArg;
 				bLookingForVersificationAdd = false;
+			} else if (bLookingForMorphSource) {
+				nMorphSource = static_cast<MORPH_SOURCE_ENUM>(strArg.toInt());
+				if ((nMorphSource <= MSE_NONE) || (nMorphSource >= MSE_COUNT)) {
+					std::cerr << "Invalid Morphology Index specified\n";
+					bUnknownOption = true;
+				}
+				bLookingForMorphSource = false;
+				bLookingForMorphFilename = true;
+			} else if (bLookingForMorphFilename) {
+				lstMorphologyFiles.append(TMorphTag({ nMorphSource, strArg }));
+				bLookingForMorphFilename = false;
 			} else {
 				++nArgsFound;
 				if (nArgsFound == 1) {
@@ -3583,6 +3953,8 @@ int main(int argc, char *argv[])
 			bLookingForVersificationAdd = true;
 		} else if (strArg.compare("-t") == 0) {
 			bUseInternalBibleDesc = true;
+		} else if (strArg.compare("-lm") == 0) {
+			bLookingForMorphSource = true;
 		} else {
 			bUnknownOption = true;
 		}
@@ -3593,6 +3965,8 @@ int main(int argc, char *argv[])
 	if (bLookingForSegVariant) bUnknownOption = true;		// Still looking for SegVariant
 	if (bLookingForVersification) bUnknownOption = true;	// Still looking for versification index
 	if (bLookingForVersificationAdd) bUnknownOption = true;	// Still looking for versification add index
+	if (bLookingForMorphSource) bUnknownOption = true;		// Still looking for morphology source index
+	if (bLookingForMorphFilename) bUnknownOption = true;	// Still looking for morphology filename
 
 	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
@@ -3627,6 +4001,10 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    -v11nadd <index> = Write only the additional specified versification file\n").toUtf8().data();
 		std::cerr << QString("           (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
 		std::cerr << QString("    -t  =  Use internal Bible Description instead of OSIS Title for Bible Description\n").toUtf8().data();
+		std::cerr << QString("    -lm <index> <filename> = Write Lemma Morphology data from database file specified\n").toUtf8().data();
+		std::cerr << QString("           under the specified morphology index, as listed below.  Note: this option\n").toUtf8().data();
+		std::cerr << QString("           can be used multiple times with either the same or different indexes to add\n").toUtf8().data();
+		std::cerr << QString("           data from multiple sources.\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -3638,6 +4016,12 @@ int main(int argc, char *argv[])
 		for (int ndx = 0; ndx < CBibleVersifications::count(); ++ndx) {
 			std::cerr << QString("    %1 = %2\n").arg(ndx).arg(CBibleVersifications::name(static_cast<BIBLE_VERSIFICATION_TYPE_ENUM>(ndx))).toUtf8().data();
 		}
+		std::cerr << "\n";
+		std::cerr << QString("Morphology Index:\n").toUtf8().data();
+		std::cerr << QString("    %1 = %2\n").arg(MSE_OSHM).arg("OSHM").toUtf8().data();
+		std::cerr << QString("    %1 = %2\n").arg(MSE_THAYERS).arg("Thayers").toUtf8().data();
+		std::cerr << QString("    %1 = %2\n").arg(MSE_ROBINSON).arg("Robinson").toUtf8().data();
+		std::cerr << QString("    %1 = %2\n").arg(MSE_PACKARD).arg("Packard").toUtf8().data();
 		std::cerr << "\n";
 		return ERR_CODE_USAGE;
 	}
@@ -3704,6 +4088,7 @@ int main(int argc, char *argv[])
 	xmlHandler.setSegVariant(strSegVariant);
 	xmlHandler.setStrongsImpFilepath(strStrongsImpPath);
 	xmlHandler.setUseInternalBibleDesc(bUseInternalBibleDesc);
+	xmlHandler.setMorphologyImpList(lstMorphologyFiles);
 
 	xmlReader.setXmlHandler(&xmlHandler);
 //	xmlReader.setFeature("http://www.bibletechnologies.net/2003/OSIS/namespace", true);
@@ -3735,6 +4120,7 @@ int main(int argc, char *argv[])
 	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writePhrasesFile(dirOutput, pBibleDatabase);
 	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeLemmasFile(dirOutput, pBibleDatabase);
 	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeStrongs(dirOutput, pBibleDatabase);
+	nRetVal = (nRetVal || !strV11nAdd.isEmpty()) ? nRetVal : writeMorphology(dirOutput, pBibleDatabase);
 
 	if (!strV11nAdd.isEmpty()) {
 		std::cerr << "\nWriting Files:\n";

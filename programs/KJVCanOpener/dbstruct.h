@@ -1096,6 +1096,8 @@ enum MORPH_SOURCE_ENUM {		// Enum of source data tags
 	MSE_THAYERS = 2,			// Thayer's (Hebrew/Greek)
 	MSE_ROBINSON = 3,			// Robinson (Greek)
 	MSE_PACKARD = 4,			// Packard (Greek)
+	// ----
+	MSE_COUNT
 };
 
 struct TMorphTag
@@ -1207,19 +1209,23 @@ class CMorphEntry
 {
 public:
 	CMorphEntry() { }
-	CMorphEntry(const QString &strKey, const QString &strDescription);
+	CMorphEntry(const QString &strKey, const QString &strDescription = QString())
+		:	m_strKey(strKey),
+			m_strDescription(strDescription)
+	{ }
 	~CMorphEntry() { }
 
 	const QString &key() const { return m_strKey; }
 	const QString &description() const { return m_strDescription; }
+	void setDescription(const QString &strDescription) { m_strDescription = strDescription; }
 
 private:
-	QString m_strKey;				// Plain text key value from database
+	QString m_strKey;				// Plain text key value from database (mixed case)
 	QString m_strDescription;		// HTML rendered description to display
 };
 
-typedef QMap<QString, CMorphEntry> TMorphEntryMap;					// Map of Morph Key values to Entry
-typedef QMap<MORPH_SOURCE_ENUM, TMorphEntryMap> TMorphDatabaseMap;	// Map of Morph Database type to MorphEntryMap
+typedef std::map<QString, CMorphEntry> TMorphEntryMap;					// Map of Morph Uppercase Key values to Entry
+typedef std::map<MORPH_SOURCE_ENUM, TMorphEntryMap> TMorphDatabaseMap;	// Map of Morph Database type to MorphEntryMap
 
 // ============================================================================
 
@@ -1541,6 +1547,10 @@ public:
 	inline const TStrongsOrthographyMap &strongsOrthographyMap() const
 	{
 		return m_mapStrongsOrthographyMap;
+	}
+	inline const TMorphDatabaseMap &morphologyDatabaseMap() const
+	{
+		return m_mapMorphDatabaseMap;
 	}
 	QString soundEx(const QString &strDecomposedConcordanceWord, bool bCache = true) const;		// Return and/or calculate soundEx for the specified Concordance Word (calculations done based on this Bible Database language)
 
