@@ -1548,6 +1548,7 @@ public:
 	{
 		return m_mapStrongsOrthographyMap;
 	}
+	CMorphEntry lookupMorphology(MORPH_SOURCE_ENUM nSource, const QString &strKey) const;
 	inline const TMorphDatabaseMap &morphologyDatabaseMap() const
 	{
 		return m_mapMorphDatabaseMap;

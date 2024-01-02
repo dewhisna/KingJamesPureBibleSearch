@@ -309,17 +309,21 @@ void CVerseTextRichifier::writeLemma() const
 					lstStrongLinks.append(QString("<a href=\"strong://%1\">%1</a>").arg(entry));
 				}
 			}
-			QStringList lstMorphLinks;
-			lstMorphLinks.reserve(m_parseBaton.m_pCurrentLemma->count());
+			QStringList lstMorphology;
+			lstMorphology.reserve(m_parseBaton.m_pCurrentLemma->count());
 			for (auto const &entry : m_parseBaton.m_pCurrentLemma->morph()) {
-				// TODO : Turn these to links if RRO_AddAnchors is set, once we decide what to link it to:
-				lstMorphLinks.append(entry.m_strEntryKey);
+				CMorphEntry morph = m_parseBaton.m_pBibleDatabase->lookupMorphology(entry.m_nSource, entry.m_strEntryKey);
+				if (!morph.description().isEmpty()) {
+					lstMorphology.append(QString("<span title=\"%1\">%2</span>").arg(morph.description()).arg(entry.m_strEntryKey));
+				} else {
+					lstMorphology.append(entry.m_strEntryKey);
+				}
 			}
 
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
 												.arg(m_parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
 												.arg(m_parseBaton.renderOption(RRO_AddAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
-												.arg(lstMorphLinks.join(QChar(' ')))
+												.arg(lstMorphology.join(QChar(' ')))
 												);
 		} else {
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">&nbsp;</span><span class=\"stack strongs\">&nbsp;</span><span class=\"stack morph\">&nbsp;</span>"));

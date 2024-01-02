@@ -2517,6 +2517,15 @@ QStringList CBibleDatabase::strongsIndexesFromOrthograph(const QString &strOrth)
 	return m_mapStrongsOrthographyMap.values(strOrth);
 }
 
+CMorphEntry CBibleDatabase::lookupMorphology(MORPH_SOURCE_ENUM nSource, const QString &strKey) const
+{
+	TMorphDatabaseMap::const_iterator itrMorphDB = m_mapMorphDatabaseMap.find(nSource);
+	if (itrMorphDB == m_mapMorphDatabaseMap.cend()) return CMorphEntry();
+	TMorphEntryMap::const_iterator itrMorphEntry = itrMorphDB->second.find(strKey.toUpper());
+	if (itrMorphEntry == itrMorphDB->second.cend()) return CMorphEntry();
+	return itrMorphEntry->second;
+}
+
 QString CBibleDatabase::richVerseText(const CRelIndex &ndxRel, const CVerseTextRichifierTags &tags,
 										RichifierRenderOptionFlags flagsRRO, const CBasicHighlighter *aSRHighlighter,
 										const CBasicHighlighter *aSRExclHighlighter) const
