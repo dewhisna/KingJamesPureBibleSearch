@@ -2519,8 +2519,17 @@ QStringList CBibleDatabase::strongsIndexesFromOrthograph(const QString &strOrth)
 
 CMorphEntry CBibleDatabase::lookupMorphology(MORPH_SOURCE_ENUM nSource, const QString &strKey) const
 {
-	TMorphDatabaseMap::const_iterator itrMorphDB = m_mapMorphDatabaseMap.find(nSource);
-	if (itrMorphDB == m_mapMorphDatabaseMap.cend()) return CMorphEntry();
+	const CBibleDatabase *pDatabase = this;
+
+	if ((pDatabase->flags() & BTO_HasMorphology) == 0) {
+		// If this database has no morphology, try the "main database":
+		pDatabase = TBibleDatabaseList::instance()->mainBibleDatabase().data();
+		if (pDatabase && ((pDatabase->flags() & BTO_HasMorphology) == 0)) pDatabase = nullptr;
+	}
+	if (pDatabase == nullptr) return CMorphEntry();
+
+	TMorphDatabaseMap::const_iterator itrMorphDB = pDatabase->m_mapMorphDatabaseMap.find(nSource);
+	if (itrMorphDB == pDatabase->m_mapMorphDatabaseMap.cend()) return CMorphEntry();
 	TMorphEntryMap::const_iterator itrMorphEntry = itrMorphDB->second.find(strKey.toUpper());
 	if (itrMorphEntry == itrMorphDB->second.cend()) return CMorphEntry();
 	return itrMorphEntry->second;
