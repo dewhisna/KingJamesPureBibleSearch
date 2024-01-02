@@ -316,15 +316,31 @@ void CVerseTextRichifier::writeLemma() const
 				if (!morph.description().isEmpty()) {
 					lstMorphology.append(QString("<span title=\"%1\">%2</span>").arg(morph.description()).arg(entry.m_strEntryKey));
 				} else {
-					lstMorphology.append(entry.m_strEntryKey);
+					if (!entry.m_strEntryKey.isEmpty()) {
+						lstMorphology.append(entry.m_strEntryKey);
+					} else {
+						lstMorphology.append("&nbsp;");
+					}
 				}
 			}
 
-			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
-												.arg(m_parseBaton.m_pCurrentLemma->text().join(QChar(' ')))
-												.arg(m_parseBaton.renderOption(RRO_AddAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' ')))
-												.arg(lstMorphology.join(QChar(' ')))
-												);
+			QString strInterlinear = m_parseBaton.m_pCurrentLemma->text().join(QChar(' '));
+			QString strStrongs = m_parseBaton.renderOption(RRO_AddAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' '));
+			QString strMorphology = lstMorphology.join(QChar(' '));
+
+			if (!strInterlinear.isEmpty()) {
+				m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
+													   .arg(strInterlinear)
+													   .arg(strStrongs)
+													   .arg(strMorphology)
+												   );
+			} else {
+				m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack strongs\">%1&nbsp;</span><span class=\"stack morph\">%2&nbsp;</span><span class=\"stack interlinear\">&nbsp;</span>")
+													   .arg(strStrongs)
+													   .arg(strMorphology)
+												   );
+			}
+
 		} else {
 			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">&nbsp;</span><span class=\"stack strongs\">&nbsp;</span><span class=\"stack morph\">&nbsp;</span>"));
 		}
