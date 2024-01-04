@@ -3,4 +3,4 @@
 	url = https://github.com/dewhisna/QtFindReplaceDialog.git
 [submodule "programs/qlitehtml/litehtml"]
 	path = programs/qlitehtml/litehtml
-	url = https://github.com/litehtml/litehtml.git
+	url = https://github.com/dewhisna/litehtml.git
