@@ -2955,6 +2955,9 @@ static int doBooksChaptersVerses(const QDir &dirOutput, const CBibleDatabase *pB
 				case BVTE_SYNODAL:
 					lstChapterVerseCounts.push_back(CSynodalBibleChapterVerseCounts::instance()->at(nBk-1));
 					break;
+				case BVTE_LUTHER:
+					lstChapterVerseCounts.push_back(CLutherBibleChapterVerseCounts::instance()->at(nBk-1));
+					break;
 				case BVTE_COUNT:
 				default:
 					Q_ASSERT(false);		// Invalid Versification Index

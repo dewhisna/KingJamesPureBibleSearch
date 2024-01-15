@@ -82,6 +82,8 @@ namespace {
 	const char * const constUUID_OSHB =					"565612E0-8A24-11EC-B1E5-0800200C9A66";
 	// ----
 	const char * const constUUID_ENGKJV1769EB =			"B80E5D10-A4E1-11EE-9EC1-0800200C9A66";
+	// ----
+	const char * const constrUUID_GERBOLUT =			"D8A846E0-B016-11EE-9EC1-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -160,6 +162,7 @@ namespace {
 		// ----
 		// KJV Full database (with Strongs Lemma/Morph):
 		{ BibleTypeOptionsFlags(BTO_AutoLoad | BTO_Preferred | BTO_HasStrongs), Qt::LeftToRight, "KJV", "en", QString::fromUtf8("King James"), QString::fromUtf8("King James Bible (1769) w/Strongs"), constUUID_KJV, "bbl-kjv1769-full.s3db", "bbl-kjv1769-full.ccdb", constUUID_KJV },
+		// ----
 		// RUSSYNODAL_20201221 (1876 Russian Synodal Bible):
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "RUSSYNODAL_20201221", "ru", QString::fromUtf8("1876 Russian Synodal Bible"), QString::fromUtf8("1876 Russian Synodal Bible (20201221)"),  constUUID_RUSSYNODAL_20201221, "bbl-russynodal20201221.s3db", "bbl-russynodal20201221.ccdb", constUUID_RUSSYNODAL },
 		// ----
@@ -185,6 +188,9 @@ namespace {
 		// ----
 		// ENGKJV1769EB (http://ebible.org/kjv/) : King James Version + Apocrypha
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "ENGKJV1769EB", "en", QString::fromUtf8("King James Version + Apocrypha (ENGKJV1769EB)"), QString::fromUtf8("eBible King James Version + Apocrypha (ENGKJV1769EB, 2023-11-07)"), constUUID_ENGKJV1769EB, "bbl-engkjv1769eb.s3db", "bbl-engkjv1769eb.ccdb", constUUID_KJV },
+		// ----
+		// German Bolsingerߴs Luther 1545:
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "GerBoLut", "de", QString::fromUtf8("Deutsch Bolsinger's Luther 1545 Bibel"), QString::fromUtf8("Deutsch Bolsingerߴs Luther 1545 Bibel (moderne Rechtschreibung)"), constrUUID_GERBOLUT, "bbl-gerbolut.s3db", "bbl-gerbolut.ccdb", constrUUID_GERBOLUT, BVTE_LUTHER },
 	};
 
 	//////////////////////////////////////////////////////////////////////

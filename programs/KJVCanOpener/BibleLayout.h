@@ -64,6 +64,7 @@ enum BIBLE_VERSIFICATION_TYPE_ENUM {		// Note: This list cannot change without b
 	BVTE_KJV = 0,							// KJV Standard Versification (KJV, techincally KJVA)
 	BVTE_HEBREW_MASORETIC = 1,				// Hebrew Masoretic Standard (MT)
 	BVTE_SYNODAL = 2,						// Russian Synodal Versification (Synodal)
+	BVTE_LUTHER = 3,						// Luther/German Versification
 	// ----
 	BVTE_COUNT
 };
@@ -300,6 +301,18 @@ private:
 
 public:
 	static const CSynodalBibleChapterVerseCounts *instance();
+};
+
+// ----------------------------------------------------------------------------
+
+// BVTE_LUTHER Versification (Luther/German) :
+class CLutherBibleChapterVerseCounts : public TBibleChapterVerseCounts
+{
+private:
+	CLutherBibleChapterVerseCounts();
+
+public:
+	static const CLutherBibleChapterVerseCounts *instance();
 };
 
 // ============================================================================
