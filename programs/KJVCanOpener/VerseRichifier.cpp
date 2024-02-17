@@ -420,11 +420,11 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 		}
 		if (i > 0) {
 			if (m_pVerse != nullptr) {
-				// If this is the first word, move any preword template text into this word
-				//		span so they are rendered correct the lemma stacks (see below):
-				QString strPrewordText;
+				// If this is the first word, move any preword template text into the
+				//		PrewordStack for this word span so they are rendered correctly
+				//		in the lemma stacks (see below):
 				if ((i == 1) && m_parseBaton.m_bOutput) {
-					strPrewordText = m_parseBaton.m_strVerseText;
+					m_parseBaton.m_strPrewordStack.append(m_parseBaton.m_strVerseText);
 					m_parseBaton.m_strVerseText.clear();
 				}
 				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i, WTE_RENDERED);
@@ -480,12 +480,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 
 					m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
 					m_parseBaton.m_strPrewordStack.clear();
-				}
-
-				// If this is the first word, move any preword template text into this word
-				//		span so that they are rendered correct the lemma stacks (see above):
-				if (i == 1) {
-					m_parseBaton.m_strVerseText.append(strPrewordText);
 				}
 
 				pushWordToVerseText(strWord);
