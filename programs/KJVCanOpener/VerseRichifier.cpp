@@ -234,6 +234,7 @@ CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton,
 											const CVerseTextRichifier *pRichNext)
 	:	m_parseBaton(parseBaton),
 		m_pRichNext(pRichNext),
+		m_vtteMatch(nMatchChar),
 		m_pVerse(nullptr)
 {
 	static const struct {
@@ -280,6 +281,7 @@ CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton,
 											const CVerseEntry *pVerse, const CVerseTextRichifier *pRichNext)
 	:	m_parseBaton(parseBaton),
 		m_pRichNext(pRichNext),
+		m_vtteMatch(nMatchChar),
 		m_chrMatchChar('w'),
 		m_pVerse(pVerse)
 {
@@ -408,6 +410,34 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 	m_parseBaton.m_tags.wordCallback(strWord, nWordTypes);
 }
 
+void CVerseTextRichifier::startHighlighter(const CBasicHighlighter &highlighter, bool &bInHighlighterFlag) const
+{
+	// Note: We always have to check verse intersection and handle enter/exit of
+	//		bInHighlighterFlag since we are called to parse twice -- once for the
+	//		begin tags and once for the end tags.  Otherwise we don't know when
+	//		to start/stop and which to output:
+	if ((m_parseBaton.m_bOutput) &&
+		(!bInHighlighterFlag) &&
+		(highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
+		m_parseBaton.m_strPrewordStack.append((m_vtteMatch == CVerseTextRichifierTags::VTTE_H) ? highlighter.htmlBegin() : m_fncXlateText(m_parseBaton));
+		bInHighlighterFlag = true;
+	}
+}
+
+void CVerseTextRichifier::finishHighlighter(const CBasicHighlighter &highlighter, bool &bInHighlighterFlag) const
+{
+	if ((m_parseBaton.m_bOutput) &&
+		(bInHighlighterFlag) &&
+		((!highlighter.isContinuous()) ||
+		 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
+		 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
+		 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
+		 (!highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
+		m_parseBaton.m_strVerseText.append((m_vtteMatch == CVerseTextRichifierTags::VTTE_h) ? highlighter.htmlEnd() : m_fncXlateText(m_parseBaton));
+		bInHighlighterFlag = false;
+	}
+}
+
 void CVerseTextRichifier::parse(const QString &strNodeIn) const
 {
 	if (m_chrMatchChar.isNull()) {
@@ -498,92 +528,33 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					m_parseBaton.m_strDivineNameFirstLetterParseText = m_fncXlateText(m_parseBaton);
 				} else if (m_chrMatchChar == QChar('R')) {
 					Q_ASSERT(m_parseBaton.m_pSRHighlighter != nullptr);
-					// Note: for searchResult, we always have to check the intersection and handle
-					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
-					//		for the begin tags and once for the end tags.  Otherwise we don't know when
-					//		to start/stop and which to output:
-					if ((m_parseBaton.m_bOutput) &&
-						(!m_parseBaton.m_bInSearchResult) &&
-						(m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
-						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
-						m_parseBaton.m_bInSearchResult = true;
-					}
+					startHighlighter(*m_parseBaton.m_pSRHighlighter, m_parseBaton.m_bInSearchResult);
 				} else if (m_chrMatchChar == QChar('r')) {
 					Q_ASSERT(m_parseBaton.m_pSRHighlighter != nullptr);
-					if ((m_parseBaton.m_bOutput) &&
-						(m_parseBaton.m_bInSearchResult) &&
-						((!m_parseBaton.m_pSRHighlighter->isContinuous()) ||
-						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
-						 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
-						 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-						 (!m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
-						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
-						m_parseBaton.m_bInSearchResult = false;
-					}
+					finishHighlighter(*m_parseBaton.m_pSRHighlighter, m_parseBaton.m_bInSearchResult);
 				} else if (m_chrMatchChar == QChar('E')) {
 					Q_ASSERT(m_parseBaton.m_pSRExclHighlighter != nullptr);
-					// Note: for searchResultExcl, we always have to check the intersection and handle
-					//		enter/exit of m_bInSearchResultExcl since we are called to parse twice -- once
-					//		for the begin tags and once for the end tags.  Otherwise we don't know when
-					//		to start/stop and which to output:
-					if ((m_parseBaton.m_bOutput) &&
-						(!m_parseBaton.m_bInSearchResultExcl) &&
-						(m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
-						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
-						m_parseBaton.m_bInSearchResultExcl = true;
-					}
+					startHighlighter(*m_parseBaton.m_pSRExclHighlighter, m_parseBaton.m_bInSearchResultExcl);
 				} else if (m_chrMatchChar == QChar('e')) {
 					Q_ASSERT(m_parseBaton.m_pSRExclHighlighter != nullptr);
-					if ((m_parseBaton.m_bOutput) &&
-						(m_parseBaton.m_bInSearchResultExcl) &&
-						((!m_parseBaton.m_pSRExclHighlighter->isContinuous()) ||
-						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
-						 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
-						 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-						 (!m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
-						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
-						m_parseBaton.m_bInSearchResultExcl = false;
-					}
+					finishHighlighter(*m_parseBaton.m_pSRExclHighlighter, m_parseBaton.m_bInSearchResultExcl);
 				} else if (m_chrMatchChar == QChar('H')) {
 					Q_ASSERT(m_parseBaton.m_pUserHighlighters != nullptr);		// Main parse() function shouldn't add "H" tags if this is null
-
 					// Process start tags forward:
 					for (THighlighterTagMap::const_iterator itrHighlighters = m_parseBaton.m_pUserHighlighters->cbegin();
 									itrHighlighters != m_parseBaton.m_pUserHighlighters->cend(); ++itrHighlighters) {
 						CUserDefinedHighlighter highlighter(itrHighlighters->first, itrHighlighters->second);
-
-						// Note: for highlighters, we always have to check the intersection and handle
-						//		enter/exit of InHighlighter since we are called to parse twice -- once
-						//		for the begin tags and once for the end tags.  Otherwise we don't know when
-						//		to start/stop and which to output:
-						if ((m_parseBaton.m_bOutput) &&
-							(!m_parseBaton.m_mapInHighlighter[itrHighlighters->first]) &&
-							(highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
-							m_parseBaton.m_strPrewordStack.append(highlighter.htmlBegin());
-							m_parseBaton.m_mapInHighlighter[itrHighlighters->first] = true;
-						}
+						startHighlighter(highlighter, m_parseBaton.m_mapInHighlighter[itrHighlighters->first]);
 					}
 				} else if (m_chrMatchChar == QChar('h')) {
 					Q_ASSERT(m_parseBaton.m_pUserHighlighters != nullptr);		// Main parse() function shouldn't add "H" tags if this is null
-
 					// Process end tags reverse:
 					THighlighterTagMap::const_iterator itrHighlighters = m_parseBaton.m_pUserHighlighters->cend();
 					do {
 						--itrHighlighters;
 						CUserDefinedHighlighter highlighter(itrHighlighters->first, itrHighlighters->second);
-
-						if ((m_parseBaton.m_bOutput) &&
-							(m_parseBaton.m_mapInHighlighter[itrHighlighters->first]) &&
-							((!highlighter.isContinuous()) ||
-							 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
-							 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
-							 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-							 (!highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
-							m_parseBaton.m_strVerseText.append(highlighter.htmlEnd());
-							m_parseBaton.m_mapInHighlighter[itrHighlighters->first] = false;
-						}
+						finishHighlighter(highlighter, m_parseBaton.m_mapInHighlighter[itrHighlighters->first]);
 					} while(itrHighlighters != m_parseBaton.m_pUserHighlighters->cbegin());
-
 				} else if (m_chrMatchChar == QChar('N')) {
 					if (m_parseBaton.m_ndxCurrent.word() > 1) m_parseBaton.m_strPrewordStack.append(' ');
 					m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));		// Opening '('

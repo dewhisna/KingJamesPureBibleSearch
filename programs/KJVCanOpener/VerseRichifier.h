@@ -364,6 +364,8 @@ private:
 	void finishLemma() const;			// Finishes off the main span of the lemma and writes the rest of the lemma too (i.e. strongs, morph, interlinear, etc)
 	void startWordSpan() const;			// Starts a word span for a specific word or a lemma word group
 	void finishWordSpan() const;		// Finishes off a word span for a specific word or a lemma word group
+	void startHighlighter(const CBasicHighlighter &highlighter, bool &bInHighlighterFlag) const;		// Starts a highlighter output
+	void finishHighlighter(const CBasicHighlighter &highlighter, bool &bInHighlighterFlag) const;	// Finishes highlighter output
 	bool isStartOperator() const { return m_chrMatchChar.isUpper(); }
 
 protected:
@@ -380,6 +382,7 @@ private:
 	CRichifierBaton &m_parseBaton;
 	// ----
 	const CVerseTextRichifier *m_pRichNext;
+	CVerseTextRichifierTags::VERSE_TEMPLATE_TAGS_ENUM m_vtteMatch;
 	QChar m_chrMatchChar;
 	const CVerseEntry *m_pVerse;		// This will only be set on CVerseTextRichifier objects doing 'w' or word parsing
 	FXlateText m_fncXlateText;
