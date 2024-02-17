@@ -360,7 +360,10 @@ private:
 	~CVerseTextRichifier();
 
 	void parse(const QString &strNodeIn = QString()) const;
-	void writeLemma() const;
+	void startLemma() const;			// Starts the lemma main span output for a lemma
+	void finishLemma() const;			// Finishes off the main span of the lemma and writes the rest of the lemma too (i.e. strongs, morph, interlinear, etc)
+	void startWordSpan() const;			// Starts a word span for a specific word or a lemma word group
+	void finishWordSpan() const;		// Finishes off a word span for a specific word or a lemma word group
 	bool isStartOperator() const { return m_chrMatchChar.isUpper(); }
 
 protected:
@@ -378,7 +381,7 @@ private:
 	// ----
 	const CVerseTextRichifier *m_pRichNext;
 	QChar m_chrMatchChar;
-	const CVerseEntry *m_pVerse;
+	const CVerseEntry *m_pVerse;		// This will only be set on CVerseTextRichifier objects doing 'w' or word parsing
 	FXlateText m_fncXlateText;
 };
 

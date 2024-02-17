@@ -294,57 +294,85 @@ CVerseTextRichifier::~CVerseTextRichifier()
 
 }
 
-void CVerseTextRichifier::writeLemma() const
+void CVerseTextRichifier::startLemma() const
 {
+	if (!m_parseBaton.m_bOutput) return;
 	if (!m_parseBaton.renderOption(RRO_UseLemmas)) return;
 	if (!m_parseBaton.usesHTML()) return;
 
-	// Note: This finishes off the word itself too:
-	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML()) {
-		if (m_parseBaton.m_pCurrentLemma) {
-			QStringList lstStrongLinks;
-			if (m_parseBaton.renderOption(RRO_AddLinkAnchors)) {
-				lstStrongLinks.reserve(m_parseBaton.m_pCurrentLemma->strongs().size());
-				for (auto const &entry : m_parseBaton.m_pCurrentLemma->strongs()) {
-					lstStrongLinks.append(QString("<a href=\"strong://%1\">%1</a>").arg(entry));
-				}
-			}
-			QStringList lstMorphology;
-			lstMorphology.reserve(m_parseBaton.m_pCurrentLemma->count());
-			for (auto const &entry : m_parseBaton.m_pCurrentLemma->morph()) {
-				CMorphEntry morph = m_parseBaton.m_pBibleDatabase->lookupMorphology(entry.m_nSource, entry.m_strEntryKey);
-				if (!morph.description().isEmpty()) {
-					lstMorphology.append(QString("<span title=\"%1\">%2</span>").arg(morph.description()).arg(entry.m_strEntryKey));
-				} else {
-					if (!entry.m_strEntryKey.isEmpty()) {
-						lstMorphology.append(entry.m_strEntryKey);
-					} else {
-						lstMorphology.append("&nbsp;");
-					}
-				}
-			}
+	m_parseBaton.m_strVerseText.append(QString("<span class=\"stack main\">"));
+	m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(m_parseBaton.m_ndxCurrent);
+}
 
-			QString strInterlinear = m_parseBaton.m_pCurrentLemma->text().join(QChar(' '));
-			QString strStrongs = m_parseBaton.renderOption(RRO_AddLinkAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' '));
-			QString strMorphology = lstMorphology.join(QChar(' '));
+void CVerseTextRichifier::finishLemma() const
+{
+	if (!m_parseBaton.m_bOutput) return;
+	if (!m_parseBaton.renderOption(RRO_UseLemmas)) return;
+	if (!m_parseBaton.usesHTML()) return;
 
-			if (!strInterlinear.isEmpty()) {
-				m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
-													   .arg(strInterlinear)
-													   .arg(strStrongs)
-													   .arg(strMorphology)
-												   );
-			} else {
-				m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack strongs\">%1&nbsp;</span><span class=\"stack morph\">%2&nbsp;</span><span class=\"stack interlinear\">&nbsp;</span>")
-													   .arg(strStrongs)
-													   .arg(strMorphology)
-												   );
+	// Note: This finishes off the main span too:
+	if (m_parseBaton.m_pCurrentLemma) {
+		QStringList lstStrongLinks;
+		if (m_parseBaton.renderOption(RRO_AddLinkAnchors)) {
+			lstStrongLinks.reserve(m_parseBaton.m_pCurrentLemma->strongs().size());
+			for (auto const &entry : m_parseBaton.m_pCurrentLemma->strongs()) {
+				lstStrongLinks.append(QString("<a href=\"strong://%1\">%1</a>").arg(entry));
 			}
-
-		} else {
-			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">&nbsp;</span><span class=\"stack strongs\">&nbsp;</span><span class=\"stack morph\">&nbsp;</span>"));
 		}
+		QStringList lstMorphology;
+		lstMorphology.reserve(m_parseBaton.m_pCurrentLemma->count());
+		for (auto const &entry : m_parseBaton.m_pCurrentLemma->morph()) {
+			CMorphEntry morph = m_parseBaton.m_pBibleDatabase->lookupMorphology(entry.m_nSource, entry.m_strEntryKey);
+			if (!morph.description().isEmpty()) {
+				lstMorphology.append(QString("<span title=\"%1\">%2</span>").arg(morph.description()).arg(entry.m_strEntryKey));
+			} else {
+				if (!entry.m_strEntryKey.isEmpty()) {
+					lstMorphology.append(entry.m_strEntryKey);
+				} else {
+					lstMorphology.append("&nbsp;");
+				}
+			}
+		}
+
+		QString strInterlinear = m_parseBaton.m_pCurrentLemma->text().join(QChar(' '));
+		QString strStrongs = m_parseBaton.renderOption(RRO_AddLinkAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' '));
+		QString strMorphology = lstMorphology.join(QChar(' '));
+
+		if (!strInterlinear.isEmpty()) {
+			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">%1&nbsp;</span><span class=\"stack strongs\">%2&nbsp;</span><span class=\"stack morph\">%3&nbsp;</span>")
+												   .arg(strInterlinear)
+												   .arg(strStrongs)
+												   .arg(strMorphology)
+											   );
+		} else {
+			m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack strongs\">%1&nbsp;</span><span class=\"stack morph\">%2&nbsp;</span><span class=\"stack interlinear\">&nbsp;</span>")
+												   .arg(strStrongs)
+												   .arg(strMorphology)
+											   );
+		}
+
+		m_parseBaton.m_pCurrentLemma = nullptr;
+	} else {
+		m_parseBaton.m_strVerseText.append(QString("</span><span class=\"stack interlinear\">&nbsp;</span><span class=\"stack strongs\">&nbsp;</span><span class=\"stack morph\">&nbsp;</span>"));
 	}
+}
+
+void CVerseTextRichifier::startWordSpan() const
+{
+	if (!m_parseBaton.m_bOutput) return;
+	if (!m_parseBaton.renderOption(RRO_UseLemmas) && !m_parseBaton.renderOption(RRO_UseWordSpans)) return;
+	if (!m_parseBaton.usesHTML()) return;
+
+	m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
+}
+
+void CVerseTextRichifier::finishWordSpan() const
+{
+	if (!m_parseBaton.m_bOutput) return;
+	if (!m_parseBaton.renderOption(RRO_UseLemmas) && !m_parseBaton.renderOption(RRO_UseWordSpans)) return;
+	if (!m_parseBaton.usesHTML()) return;
+
+	m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
 }
 
 void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
@@ -407,16 +435,21 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 	for (int i=0; i<lstSplit.size(); ++i) {
 		if (m_pVerse != nullptr) {
 			bool bOldOutputStatus = m_parseBaton.m_bOutput;
-			m_parseBaton.m_bOutput = (static_cast<unsigned int>(i) >= m_parseBaton.m_nStartWord);
-			if ((m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) == 0)) m_parseBaton.m_bOutput = false;
+			bool bNewOutputStatus = (static_cast<unsigned int>(i) >= m_parseBaton.m_nStartWord);
+			if ((m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) == 0)) bNewOutputStatus = false;
 			m_parseBaton.m_ndxCurrent.setWord(i);
 
-			if (bOldOutputStatus && !m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_UseLemmas) && (m_parseBaton.m_pCurrentLemma != nullptr)) {
+			if (bOldOutputStatus && !bNewOutputStatus) {
 				// If we transitioned out of output and lemma, finish writing
-				//	the lemma and close it out:
-				writeLemma();
-				m_parseBaton.m_pCurrentLemma = nullptr;
+				//	the lemma and close it out.  This special case is needed
+				//	because these functions check for m_parseBaton.m_bOutput,
+				//	so we can't transition that until writing is complete:
+				finishLemma();
+				finishWordSpan();
+				bStartedVerseOutput = false;
 			}
+
+			m_parseBaton.m_bOutput = bNewOutputStatus;
 		}
 		if (i > 0) {
 			if (m_pVerse != nullptr) {
@@ -431,56 +464,35 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 				m_parseBaton.m_ndxCurrent.setWord(i);
 
 				bool bWasInLemma = (m_parseBaton.m_pCurrentLemma != nullptr);
-				if (m_parseBaton.m_bOutput) {
-					if (!bWasInLemma || !m_parseBaton.renderOption(RRO_UseLemmas)) {
-						if (bStartedVerseOutput && m_parseBaton.usesHTML()) {
-							// If not in a Lemma, we need to end this word:
-							if (m_parseBaton.m_pCurrentLemma == nullptr) {
-								if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-									writeLemma();		// Write empty lemma
-								}
-								if (m_parseBaton.renderOption(RRO_UseLemmas) || m_parseBaton.renderOption(RRO_UseWordSpans)) {
-									m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
-								}
-							}
-						}
+				if (!bWasInLemma || !bStartedVerseOutput) {
+					if (bStartedVerseOutput) {
+						finishLemma();		// Write empty lemma if needed
+						finishWordSpan();	// Finish word span if needed
+					}
+
+					if (m_parseBaton.m_bOutput) {		// Transition to start of verse output only if we are outputting:
 						bStartedVerseOutput = true;
 
 						// If not currently in a Lemma or not even processing Lemmas, we
-						//	need to write the word span:
-						if (m_parseBaton.usesHTML()) {
-							if (m_parseBaton.renderOption(RRO_UseLemmas) || m_parseBaton.renderOption(RRO_UseWordSpans)) {
-								m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
-							}
-							if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack main\">"));
-							}
-						}
-						if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-							m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(m_parseBaton.m_ndxCurrent);
-						}
-					} else if (bWasInLemma && (!m_parseBaton.m_pCurrentLemma->tag().intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
-						// If we were in a lemma but no longer are, we need to write the
-						//	end of the current lemma:
-						writeLemma();
-						// Check for next lemma:
-						m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(m_parseBaton.m_ndxCurrent);
-						if (m_parseBaton.usesHTML()) {
-							if (m_parseBaton.renderOption(RRO_UseLemmas) || m_parseBaton.renderOption(RRO_UseWordSpans)) {
-								// End word span:
-								m_parseBaton.m_strVerseText.append(QString("</span>"));
-								// Start next word segment, regardless of whether or not we are in a Lemma:
-								m_parseBaton.m_strVerseText.append(QString("<span class=\"word\">"));
-							}
-							if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-								m_parseBaton.m_strVerseText.append(QString("<span class=\"stack main\">"));
-							}
-						}
-					}	// Otherwise, we are still in a Lemma and need to continue to output it...
+						//	need to write the word span (if doing spans):
+						startWordSpan();
+						startLemma();
+					}
+				} else if (bWasInLemma && (!m_parseBaton.m_pCurrentLemma->tag().intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
+					Q_ASSERT(bStartedVerseOutput);		// We must be outputting verse text or bWasInLemma shouldn't be set
 
-					m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
-					m_parseBaton.m_strPrewordStack.clear();
-				}
+					// If we were in a lemma but no longer are, we need to write the
+					//	end of the current lemma:
+					finishLemma();
+					finishWordSpan();
+
+					// Start next word segment and lemma (if there is one or empty lemma if not):
+					startWordSpan();
+					startLemma();
+				}	// Otherwise, we are still in a Lemma and need to continue to output it...
+
+				if (m_parseBaton.m_bOutput) m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
+				m_parseBaton.m_strPrewordStack.clear();
 
 				pushWordToVerseText(strWord);
 
@@ -591,14 +603,14 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 				} else if (m_chrMatchChar == QChar('N')) {
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-					if (ndxWord.word() > 1) m_parseBaton.m_strVerseText.append(' ');
-					m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));		// Opening '('
+					if (ndxWord.word() > 1) m_parseBaton.m_strPrewordStack.append(' ');
+					m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));		// Opening '('
 					const CFootnoteEntry *pFootnote = m_parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
 					Q_ASSERT(pFootnote != nullptr);
-					m_parseBaton.m_strVerseText.append(pFootnote->text());
+					m_parseBaton.m_strPrewordStack.append(pFootnote->text());
 				} else if (m_chrMatchChar == QChar('n')) {
-					m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));		// Closing ')'
-					m_parseBaton.m_strVerseText.append(' ');			// Add separator.  Note that we will trim baton whitespace at the end anyway
+					m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));		// Closing ')'
+					m_parseBaton.m_strPrewordStack.append(' ');			// Add separator.  Note that we will trim baton whitespace at the end anyway
 				} else {
 					if (m_chrMatchChar == QChar('T')) {
 						m_parseBaton.m_bInTransChangeAdded = true;
@@ -627,25 +639,15 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 		}
 	}
 	if (m_pVerse != nullptr) {
-		// Push any remaining stack:
-		m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
-		m_parseBaton.m_strPrewordStack.clear();
-
-		if (m_parseBaton.m_pCurrentLemma) {
-			writeLemma();
-			m_parseBaton.m_pCurrentLemma = nullptr;
-			if (m_parseBaton.renderOption(RRO_UseLemmas) || m_parseBaton.renderOption(RRO_UseWordSpans)) {		// We track lemmas even when not outputting them, so much check flag here
-				if (m_parseBaton.usesHTML()) m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
-			}
-		} else if (bStartedVerseOutput && m_parseBaton.usesHTML()) {
-			// If not in a Lemma, we need to end this word:
-			if (m_parseBaton.renderOption(RRO_UseLemmas)) {
-				writeLemma();		// Write empty lemma
-			}
-			if (m_parseBaton.renderOption(RRO_UseLemmas) || m_parseBaton.renderOption(RRO_UseWordSpans)) {
-				m_parseBaton.m_strVerseText.append(QString("</span>"));		// End word span
-			}
+		if (bStartedVerseOutput) {
+			// Finish any lemma or word span
+			finishLemma();
+			finishWordSpan();
 		}
+
+		// Push any remaining stack:
+		if (m_parseBaton.m_bOutput) m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
+		m_parseBaton.m_strPrewordStack.clear();
 	}
 }
 
