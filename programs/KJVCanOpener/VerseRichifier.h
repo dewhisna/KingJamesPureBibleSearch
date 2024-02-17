@@ -360,7 +360,7 @@ private:
 	~CVerseTextRichifier();
 
 	void parse(const QString &strNodeIn = QString()) const;
-	void startLemma() const;			// Starts the lemma main span output for a lemma
+	void startLemma(const CRelIndex &ndxWord) const;	// Starts the lemma main span output for a lemma
 	void finishLemma() const;			// Finishes off the main span of the lemma and writes the rest of the lemma too (i.e. strongs, morph, interlinear, etc)
 	void startWordSpan() const;			// Starts a word span for a specific word or a lemma word group
 	void finishWordSpan() const;		// Finishes off a word span for a specific word or a lemma word group

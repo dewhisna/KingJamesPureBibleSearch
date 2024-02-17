@@ -254,9 +254,7 @@ CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton,
 		{ 'd', [](const CRichifierBaton &baton)->QString { return baton.m_tags.divineNameEnd(); } },			// VTTE_d - Divine Name End
 		{ 'A', [](const CRichifierBaton &baton)->QString {														// VTTE_A - Anchor Begin
 			if (baton.usesHTML()) {
-				CRelIndex ndxWord = baton.m_ndxCurrent;
-				ndxWord.setWord(ndxWord.word()+1);
-				return QString("<a id=\"%1\">").arg(ndxWord.asAnchor());
+				return QString("<a id=\"%1\">").arg(baton.m_ndxCurrent.asAnchor());
 			} else return QString();
 		} },
 		{ 'a', [](const CRichifierBaton &baton)->QString { return QString(baton.usesHTML() ? "</a>" : ""); } },	// VTTE_a - Anchor End
@@ -294,14 +292,14 @@ CVerseTextRichifier::~CVerseTextRichifier()
 
 }
 
-void CVerseTextRichifier::startLemma() const
+void CVerseTextRichifier::startLemma(const CRelIndex &ndxWord) const
 {
 	if (!m_parseBaton.m_bOutput) return;
 	if (!m_parseBaton.renderOption(RRO_UseLemmas)) return;
 	if (!m_parseBaton.usesHTML()) return;
 
 	m_parseBaton.m_strVerseText.append(QString("<span class=\"stack main\">"));
-	m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(m_parseBaton.m_ndxCurrent);
+	m_parseBaton.m_pCurrentLemma = m_parseBaton.m_pBibleDatabase->lemmaEntry(ndxWord);
 }
 
 void CVerseTextRichifier::finishLemma() const
@@ -433,12 +431,19 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 	bool bStartedVerseOutput = false;		// Set to true when we first start writing output on this verse
 
 	for (int i=0; i<lstSplit.size(); ++i) {
+		CRelIndex ndxPreviousWord = m_parseBaton.m_ndxCurrent;		// Used for checking the intersection of current lemma with previous word/lemma
 		if (m_pVerse != nullptr) {
+			// Use +1 here for word because during the first word being processed,
+			//	i will be 0 and all calls to other parse stages will be expecting
+			//	to parse the first word -- this avoids adding 1 to the index everywhere.
+			//	For word output, however, it will actually be for the next word
+			//	and ndxPreviousWord will be the current word (since word output
+			//	actually starts for i>0):
+			m_parseBaton.m_ndxCurrent.setWord(i+1);
+
 			bool bOldOutputStatus = m_parseBaton.m_bOutput;
 			bool bNewOutputStatus = (static_cast<unsigned int>(i) >= m_parseBaton.m_nStartWord);
 			if ((m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) == 0)) bNewOutputStatus = false;
-			m_parseBaton.m_ndxCurrent.setWord(i);
-
 			if (bOldOutputStatus && !bNewOutputStatus) {
 				// If we transitioned out of output and lemma, finish writing
 				//	the lemma and close it out.  This special case is needed
@@ -461,35 +466,26 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					m_parseBaton.m_strVerseText.clear();
 				}
 				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i, WTE_RENDERED);
-				m_parseBaton.m_ndxCurrent.setWord(i);
 
 				bool bWasInLemma = (m_parseBaton.m_pCurrentLemma != nullptr);
-				if (!bWasInLemma || !bStartedVerseOutput) {
+				if (!bStartedVerseOutput ||
+					!bWasInLemma ||
+					(bWasInLemma && !m_parseBaton.m_pCurrentLemma->tag().intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxPreviousWord)))) {
+					// If we are currently in a lemma that is ending or if we are
+					//	in an empty lemma group, then end it:
 					if (bStartedVerseOutput) {
-						finishLemma();		// Write empty lemma if needed
+						finishLemma();		// Finish current lemma (write empty lemma if needed)
 						finishWordSpan();	// Finish word span if needed
 					}
 
-					if (m_parseBaton.m_bOutput) {		// Transition to start of verse output only if we are outputting:
+					// Transition to verse output if needed and/or start next lemma group:
+					if (m_parseBaton.m_bOutput) {
 						bStartedVerseOutput = true;
 
-						// If not currently in a Lemma or not even processing Lemmas, we
-						//	need to write the word span (if doing spans):
 						startWordSpan();
-						startLemma();
+						startLemma(ndxPreviousWord);		// See note above regarding ndxPreviousWord and ndxCurrent
 					}
-				} else if (bWasInLemma && (!m_parseBaton.m_pCurrentLemma->tag().intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
-					Q_ASSERT(bStartedVerseOutput);		// We must be outputting verse text or bWasInLemma shouldn't be set
-
-					// If we were in a lemma but no longer are, we need to write the
-					//	end of the current lemma:
-					finishLemma();
-					finishWordSpan();
-
-					// Start next word segment and lemma (if there is one or empty lemma if not):
-					startWordSpan();
-					startLemma();
-				}	// Otherwise, we are still in a Lemma and need to continue to output it...
+				}	// Otherwise, we are still in a Lemma continuation and need to continue to output it...
 
 				if (m_parseBaton.m_bOutput) m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
 				m_parseBaton.m_strPrewordStack.clear();
@@ -506,25 +502,21 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					//		enter/exit of m_bInSearchResult since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
 					//		to start/stop and which to output:
-					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-					ndxWord.setWord(ndxWord.word()+1);
 					if ((m_parseBaton.m_bOutput) &&
 						(!m_parseBaton.m_bInSearchResult) &&
-						(m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						(m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
 						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
 						m_parseBaton.m_bInSearchResult = true;
 					}
 				} else if (m_chrMatchChar == QChar('r')) {
 					Q_ASSERT(m_parseBaton.m_pSRHighlighter != nullptr);
-					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-					ndxWord.setWord(ndxWord.word()+1);
 					if ((m_parseBaton.m_bOutput) &&
 						(m_parseBaton.m_bInSearchResult) &&
 						((!m_parseBaton.m_pSRHighlighter->isContinuous()) ||
-						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))) ||	// Continuous highlighters can't span past end of verse
+						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
 						 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
 						 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-						 (!m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+						 (!m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
 						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
 						m_parseBaton.m_bInSearchResult = false;
 					}
@@ -534,25 +526,21 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					//		enter/exit of m_bInSearchResultExcl since we are called to parse twice -- once
 					//		for the begin tags and once for the end tags.  Otherwise we don't know when
 					//		to start/stop and which to output:
-					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-					ndxWord.setWord(ndxWord.word()+1);
 					if ((m_parseBaton.m_bOutput) &&
 						(!m_parseBaton.m_bInSearchResultExcl) &&
-						(m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+						(m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
 						m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));
 						m_parseBaton.m_bInSearchResultExcl = true;
 					}
 				} else if (m_chrMatchChar == QChar('e')) {
 					Q_ASSERT(m_parseBaton.m_pSRExclHighlighter != nullptr);
-					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-					ndxWord.setWord(ndxWord.word()+1);
 					if ((m_parseBaton.m_bOutput) &&
 						(m_parseBaton.m_bInSearchResultExcl) &&
 						((!m_parseBaton.m_pSRExclHighlighter->isContinuous()) ||
-						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))) ||	// Continuous highlighters can't span past end of verse
+						 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
 						 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
 						 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-						 (!m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+						 (!m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
 						m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));
 						m_parseBaton.m_bInSearchResultExcl = false;
 					}
@@ -568,11 +556,9 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 						//		enter/exit of InHighlighter since we are called to parse twice -- once
 						//		for the begin tags and once for the end tags.  Otherwise we don't know when
 						//		to start/stop and which to output:
-						CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-						ndxWord.setWord(ndxWord.word()+1);
 						if ((m_parseBaton.m_bOutput) &&
 							(!m_parseBaton.m_mapInHighlighter[itrHighlighters->first]) &&
-							(highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
+							(highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent)))) {
 							m_parseBaton.m_strPrewordStack.append(highlighter.htmlBegin());
 							m_parseBaton.m_mapInHighlighter[itrHighlighters->first] = true;
 						}
@@ -586,26 +572,22 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 						--itrHighlighters;
 						CUserDefinedHighlighter highlighter(itrHighlighters->first, itrHighlighters->second);
 
-						CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-						ndxWord.setWord(ndxWord.word()+1);
 						if ((m_parseBaton.m_bOutput) &&
 							(m_parseBaton.m_mapInHighlighter[itrHighlighters->first]) &&
 							((!highlighter.isContinuous()) ||
-							 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))) ||	// Continuous highlighters can't span past end of verse
+							 (!m_parseBaton.m_tagVerse.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))) ||	// Continuous highlighters can't span past end of verse
 							 (m_parseBaton.renderOption(RRO_UseLemmas)) ||
 							 (m_parseBaton.renderOption(RRO_UseWordSpans)) ||
-							 (!highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord))))) {
+							 (!highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(m_parseBaton.m_ndxCurrent))))) {
 							m_parseBaton.m_strVerseText.append(highlighter.htmlEnd());
 							m_parseBaton.m_mapInHighlighter[itrHighlighters->first] = false;
 						}
 					} while(itrHighlighters != m_parseBaton.m_pUserHighlighters->cbegin());
 
 				} else if (m_chrMatchChar == QChar('N')) {
-					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-					ndxWord.setWord(ndxWord.word()+1);
-					if (ndxWord.word() > 1) m_parseBaton.m_strPrewordStack.append(' ');
+					if (m_parseBaton.m_ndxCurrent.word() > 1) m_parseBaton.m_strPrewordStack.append(' ');
 					m_parseBaton.m_strPrewordStack.append(m_fncXlateText(m_parseBaton));		// Opening '('
-					const CFootnoteEntry *pFootnote = m_parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
+					const CFootnoteEntry *pFootnote = m_parseBaton.m_pBibleDatabase->footnoteEntry(m_parseBaton.m_ndxCurrent);
 					Q_ASSERT(pFootnote != nullptr);
 					m_parseBaton.m_strPrewordStack.append(pFootnote->text());
 				} else if (m_chrMatchChar == QChar('n')) {
