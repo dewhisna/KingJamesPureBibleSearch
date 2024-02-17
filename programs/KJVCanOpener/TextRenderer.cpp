@@ -624,7 +624,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 				scriptureHTML.endParagraph();
 				bParagraph=false;
 			}
-			bVPLNeedsLineBreak = false;
+			if (flagsTRO & TRO_UseLemmas) scriptureHTML.addLineBreak();		// Force extra break on lemmas when there's a paragraph marker
+			bVPLNeedsLineBreak = (flagsTRO & TRO_UseLemmas);				// And still require a break on lemmas for paragraphs, since the LiteHtml lemma markup doesn't add space like QTextBrowser does here
 		}
 		if (!bParagraph) {
 			scriptureHTML.beginParagraph(pBibleDatabase->direction());
