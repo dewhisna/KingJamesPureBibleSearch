@@ -385,6 +385,7 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 void CVerseTextRichifier::parse(const QString &strNodeIn) const
 {
 	if (m_chrMatchChar.isNull()) {
+		Q_ASSERT(false);			// This state should never happen
 		m_parseBaton.m_strVerseText.append(strNodeIn);
 		return;
 	}
@@ -403,30 +404,12 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 
 	bool bStartedVerseOutput = false;		// Set to true when we first start writing output on this verse
 
-#ifdef WORKAROUND_LITEHTML_81
-	// Very kludgy hack for LiteHtml missing support for "dir" property on paragraphs.
-	//	This implements the RTL logic by reversing the template word order.  It's a hack
-	//	because this code really doesn't know if it's outputting text for the LiteHtml or not.
-	//	We just assume we are if we are outputting Lemmas and Anchors together.  Otherwise,
-	//	we assume we are either in the QTextDocument of ScriptureBrowser (which doesn't
-	//	use the lemmas) or on WebChannel (which won't have anchors).  This code is
-	//	horrible and needs to be deleted as soon as LiteHtml gets support for "dir":
-	bool bKludge81 = ((m_parseBaton.m_pBibleDatabase->direction() == Qt::RightToLeft) &&
-					  m_parseBaton.renderOption(RRO_AddAnchors) && m_parseBaton.renderOption(RRO_UseLemmas));
-#endif
-
 	for (int i=0; i<lstSplit.size(); ++i) {
 		if (m_pVerse != nullptr) {
 			bool bOldOutputStatus = m_parseBaton.m_bOutput;
 			m_parseBaton.m_bOutput = (static_cast<unsigned int>(i) >= m_parseBaton.m_nStartWord);
-#ifdef WORKAROUND_LITEHTML_81
-			m_parseBaton.m_bOutput = (static_cast<unsigned int>(lstSplit.size() - i) >= m_parseBaton.m_nStartWord);
-#endif
 			if ((m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) == 0)) m_parseBaton.m_bOutput = false;
 			m_parseBaton.m_ndxCurrent.setWord(i);
-#ifdef WORKAROUND_LITEHTML_81
-			if (bKludge81) m_parseBaton.m_ndxCurrent.setWord(lstSplit.size() - i);
-#endif
 
 			if (bOldOutputStatus && !m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_UseLemmas) && (m_parseBaton.m_pCurrentLemma != nullptr)) {
 				// If we transitioned out of output and lemma, finish writing
@@ -446,13 +429,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 				}
 				QString strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + i, WTE_RENDERED);
 				m_parseBaton.m_ndxCurrent.setWord(i);
-
-#ifdef WORKAROUND_LITEHTML_81
-				if (bKludge81) {
-					strWord = m_parseBaton.m_pBibleDatabase->wordAtIndex(m_pVerse->m_nWrdAccum + (lstSplit.size() - i), WTE_RENDERED);
-					m_parseBaton.m_ndxCurrent.setWord(lstSplit.size() - i);
-				}
-#endif
 
 				bool bWasInLemma = (m_parseBaton.m_pCurrentLemma != nullptr);
 				if (m_parseBaton.m_bOutput) {
@@ -505,23 +481,15 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					m_parseBaton.m_strVerseText.append(m_parseBaton.m_strPrewordStack);
 					m_parseBaton.m_strPrewordStack.clear();
 				}
-#ifdef WORKAROUND_LITEHTML_81
-				if (!bKludge81) {
-#endif
+
 				// If this is the first word, move any preword template text into this word
 				//		span so that they are rendered correct the lemma stacks (see above):
 				if (i == 1) {
 					m_parseBaton.m_strVerseText.append(strPrewordText);
 				}
-#ifdef WORKAROUND_LITEHTML_81
-				}
-#endif
+
 				pushWordToVerseText(strWord);
-#ifdef WORKAROUND_LITEHTML_81
-				if ((bKludge81) && (i == 1)) {
-					m_parseBaton.m_strVerseText.append(strPrewordText);
-				}
-#endif
+
 				if ((m_parseBaton.m_bOutput) && (m_parseBaton.m_pWordCount != nullptr) && ((*m_parseBaton.m_pWordCount) > 0)) --(*m_parseBaton.m_pWordCount);
 			} else {
 				if (m_chrMatchChar == QChar('D')) {
@@ -534,9 +502,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					//		to start/stop and which to output:
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-#ifdef WORKAROUND_LITEHTML_81
-					if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
-#endif
 					if ((m_parseBaton.m_bOutput) &&
 						(!m_parseBaton.m_bInSearchResult) &&
 						(m_parseBaton.m_pSRHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
@@ -547,9 +512,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					Q_ASSERT(m_parseBaton.m_pSRHighlighter != nullptr);
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-#ifdef WORKAROUND_LITEHTML_81
-					if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
-#endif
 					if ((m_parseBaton.m_bOutput) &&
 						(m_parseBaton.m_bInSearchResult) &&
 						((!m_parseBaton.m_pSRHighlighter->isContinuous()) ||
@@ -568,9 +530,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					//		to start/stop and which to output:
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-#ifdef WORKAROUND_LITEHTML_81
-					if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
-#endif
 					if ((m_parseBaton.m_bOutput) &&
 						(!m_parseBaton.m_bInSearchResultExcl) &&
 						(m_parseBaton.m_pSRExclHighlighter->intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
@@ -581,9 +540,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 					Q_ASSERT(m_parseBaton.m_pSRExclHighlighter != nullptr);
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 					ndxWord.setWord(ndxWord.word()+1);
-#ifdef WORKAROUND_LITEHTML_81
-					if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
-#endif
 					if ((m_parseBaton.m_bOutput) &&
 						(m_parseBaton.m_bInSearchResultExcl) &&
 						((!m_parseBaton.m_pSRExclHighlighter->isContinuous()) ||
@@ -608,9 +564,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 						//		to start/stop and which to output:
 						CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 						ndxWord.setWord(ndxWord.word()+1);
-#ifdef WORKAROUND_LITEHTML_81
-						if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
-#endif
 						if ((m_parseBaton.m_bOutput) &&
 							(!m_parseBaton.m_mapInHighlighter[itrHighlighters->first]) &&
 							(highlighter.intersects(m_parseBaton.m_pBibleDatabase, TPhraseTag(ndxWord)))) {
@@ -629,9 +582,6 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 
 						CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
 						ndxWord.setWord(ndxWord.word()+1);
-#ifdef WORKAROUND_LITEHTML_81
-						if (bKludge81) ndxWord.setWord(ndxWord.word()-2);
-#endif
 						if ((m_parseBaton.m_bOutput) &&
 							(m_parseBaton.m_mapInHighlighter[itrHighlighters->first]) &&
 							((!highlighter.isContinuous()) ||
@@ -646,11 +596,7 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 
 				} else if (m_chrMatchChar == QChar('N')) {
 					CRelIndex ndxWord = m_parseBaton.m_ndxCurrent;
-#ifdef WORKAROUND_LITEHTML_81
-					if (!bKludge81) ndxWord.setWord(ndxWord.word()+1);
-#else
 					ndxWord.setWord(ndxWord.word()+1);
-#endif
 					if (ndxWord.word() > 1) m_parseBaton.m_strVerseText.append(' ');
 					m_parseBaton.m_strVerseText.append(m_fncXlateText(m_parseBaton));		// Opening '('
 					const CFootnoteEntry *pFootnote = m_parseBaton.m_pBibleDatabase->footnoteEntry(ndxWord);
@@ -721,36 +667,6 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	QString strTemplate = pVerse->m_strTemplate;
 
-#ifdef WORKAROUND_LITEHTML_81
-	// Very kludgy hack for LiteHtml missing support for "dir" property on paragraphs.
-	//	This implements the RTL logic by reversing the template.  It's a hack because
-	//	this code really doesn't know if it's outputting text for the LiteHtml or not.
-	//	We just assume we are if we are outputting Lemmas and Anchors together.  Otherwise,
-	//	we assume we are either in the QTextDocument of ScriptureBrowser (which doesn't
-	//	use the lemmas) or on WebChannel (which won't have anchors).  This code is
-	//	horrible and needs to be deleted as soon as LiteHtml gets support for "dir":
-	bool bKludge81 = ((pBibleDatabase->direction() == Qt::RightToLeft) &&
-					  ((flagsRRO & (RRO_AddAnchors | RRO_UseLemmas)) == (RRO_AddAnchors | RRO_UseLemmas)));
-	if (bKludge81) {
-		QString strNewTemplate;
-		for (int pos = strTemplate.size()-1; pos >= 0; --pos) {
-			if ((strTemplate.at(pos) != QChar('w')) &&
-				(strTemplate.at(pos) != QChar('M'))) {
-				if (strTemplate.at(pos).isLower()) {		// Toggle Start/End operators
-					strNewTemplate += strTemplate.at(pos).toUpper();
-				} else if (strTemplate.at(pos).isUpper()) {
-					strNewTemplate += strTemplate.at(pos).toLower();
-				} else {
-					strNewTemplate += strTemplate.at(pos);
-				}
-			} else {
-				strNewTemplate += strTemplate.at(pos);
-			}
-		}
-		strTemplate = strNewTemplate;
-	}
-#endif
-
 	// --------------------------------
 
 	// If the template is already inserting inline footnotes for verses, don't
@@ -799,9 +715,6 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	strTemplate.clear();
 
 	ndxRelVerse.setWord(1);
-#ifdef WORKAROUND_LITEHTML_81
-	if (bKludge81) ndxRelVerse.setWord(lstWords.size() - 1);
-#endif
 	if ((flagsRRO & RRO_InlineFootnotes) && (pBibleDatabase->footnoteEntry(ndxRelVerse))) {
 		strTemplate.append("Nn ");
 	}
@@ -841,9 +754,6 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		}
 
 		ndxRelVerse.setWord(ndxWord+1);
-#ifdef WORKAROUND_LITEHTML_81
-		if (bKludge81) ndxRelVerse.setWord(lstWords.size() - ndxWord);
-#endif
 		if ((flagsRRO & RRO_InlineFootnotes) && (pBibleDatabase->footnoteEntry(ndxRelVerse))) {
 			strTemplate.append(" Nn");
 		}

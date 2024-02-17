@@ -303,14 +303,16 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 
 #ifdef WORKAROUND_LITEHTML_81
 	// Very kludgy hack for LiteHtml missing support for "dir" property on paragraphs.
-	//	This implements the RTL logic by reversing the template.  It's a hack because
+	//	This implements the LTR/RTL logic using a flex wrapping section.  It's a hack because
 	//	this code really doesn't know if it's outputting text for the LiteHtml or not.
 	//	We just assume we are if we are outputting Lemmas and Anchors together.  Otherwise,
 	//	we assume we are either in the QTextDocument of ScriptureBrowser (which doesn't
-	//	use the lemmas) or on WebChannel (which won't have anchors).  This code is
-	//	horrible and needs to be deleted as soon as LiteHtml gets support for "dir":
-	bool bKludge81 = ((pBibleDatabase->direction() == Qt::RightToLeft) &&
-					  ((flagsRRO & (RRO_AddAnchors | RRO_UseLemmas)) == (RRO_AddAnchors | RRO_UseLemmas)));
+	//	use the lemmas) or on WebChannel (which won't have word anchors).  This code nearly
+	//	works correctly, but since the paragraph text itself doesn't switch to RTL mode,
+	//	then verse punctuation outside of a word doesn't render on the correct side of the
+	//	word due to the anchor tags on the words.
+	//	This code is horrible and needs to be deleted as soon as LiteHtml gets support for "dir":
+	bool bKludge81 = ((flagsRRO & (RRO_AddAnchors | RRO_UseLemmas)) == (RRO_AddAnchors | RRO_UseLemmas));
 #endif
 
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
@@ -330,13 +332,24 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	QString strRefCSS = QString(
 			".ref:dir(ltr) { float: left; padding: 0em 0.5em %1em 0em; }\n"
 			".ref:dir(rtl) { float: right; padding: 0em 0em %1em 0.5em; }\n"
-		).arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0));		// .word/.ref padding bottom in em's
+		).arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 2));		// .word/.ref padding bottom in em's
+
+	QString strVerseLemma = QString(".verselemma { display: flex; flex-wrap: wrap; flex-direction: %1; }\n")
+								.arg((pBibleDatabase->direction() == Qt::RightToLeft) ? "row-reverse" : "row");
 
 #ifdef WORKAROUND_LITEHTML_81
 	if (bKludge81) {
-		strRefCSS = QString(
-				".ref { float: right; padding: 0em 0em %1em 0.5em; }\n"
-			).arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0));		// .word/.ref padding bottom in em's
+		if (pBibleDatabase->direction() == Qt::LeftToRight) {
+			strRefCSS = QString(
+					".ref { float: left; padding: 0em 0.5em %1em 0em; }\n"
+				).arg(QString("%1").arg((nLineHeight-0.5), 0, 'f', 2));		// .word/.ref padding bottom in em's
+		} else {
+			strRefCSS = QString(
+					".ref { float: right; padding: 0em 0em %1em 0.5em; }\n"
+				).arg(QString("%1").arg((nLineHeight-0.5), 0, 'f', 2));		// .word/.ref padding bottom in em's
+		}
+
+		strCopyFont += " margin: 0px;";		// Remove margin from <body> to workaround litehtml document size computation issue (not really part of Issue #81, but...)
 	}
 #endif
 
@@ -352,9 +365,9 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 											".book { font-size:xx-large; font-weight:bold; }\n"
 											".chapter { font-size:x-large; font-weight:bold; }\n"
 											".verse { display: inline-block; }\n"
-											".verselemma { display: flex; flex-wrap: wrap; }\n"
-											".word { display: inline-block; padding: 0em 0.5em %4em 0em; }\n"
-											"%5"
+											"%4"
+											".word { display: inline-block; padding: 0em 0.5em %5em 0em; }\n"
+											"%6"
 											".stack { display: block; }\n"
 											".main { font-size:large; }\n"
 											".interlinear { font-size:large; }\n"
@@ -368,7 +381,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 										.arg(scriptureHTML.escape(pBibleDatabase->PassageReferenceText(ndx)))			// Document Title
 										.arg(strCopyFont)																// Copy Font
 										.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? 125.0 : nLineHeight*100, 0, 'f', 0) + "%")		// Line-Height
-										.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 0))			// .word/.ref padding bottom in em's
+										.arg(strVerseLemma)
+										.arg(QString("%1").arg((flagsTRO & TRO_UseLemmas) ? (nLineHeight-0.5) : 0.25, 0, 'f', 2))			// .word/.ref padding bottom in em's
 										.arg(strRefCSS));																// Ref CSS for Kludge
 	}
 
