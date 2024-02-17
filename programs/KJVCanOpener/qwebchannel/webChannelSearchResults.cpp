@@ -594,6 +594,7 @@ void CWebChannelSearchResults::gotoIndex(uint32_t ndxRel, int nMoveMode, const Q
 							TRO_VPL_Only |
 							TRO_InnerHTML |
 							TRO_NoWordAnchors |
+							TRO_NoLinkAnchors |
 							TRO_SuppressPrePostChapters),
 							&srHighlighter);
 

@@ -264,11 +264,12 @@ public:
 
 enum RichifierRenderOptions : uint32_t {
 	RRO_None = 0x0,						// Default for no options
-	RRO_AddAnchors = 0x1,				// Parsed text will have <a> anchor tags added
-	RRO_UseLemmas = 0x2,				// Render Lemmas interlinearly with verses
-	RRO_UseWordSpans = 0x4,				// Output Word-Spans in HTML (this is implied when RRO_UseLemmas is specified)
-	RRO_InlineFootnotes = 0x8,			// Render inline footnotes in verses even when the verse templates exclude inline notes
-	RRO_EnableUserHighlighters = 0x10,	// Render user highlighters from user notes database
+	RRO_AddWordAnchors = 0x1,			// Parsed text will have <a> word anchor tags added (words in template itself for tracking purposes)
+	RRO_AddLinkAnchors = 0x2,			// Allows generation of text with external reference anchors, like Strong's references, etc.
+	RRO_UseLemmas = 0x4,				// Render Lemmas interlinearly with verses
+	RRO_UseWordSpans = 0x8,				// Output Word-Spans in HTML (this is implied when RRO_UseLemmas is specified)
+	RRO_InlineFootnotes = 0x10,			// Render inline footnotes in verses even when the verse templates exclude inline notes
+	RRO_EnableUserHighlighters = 0x20,	// Render user highlighters from user notes database
 };
 Q_DECLARE_FLAGS(RichifierRenderOptionFlags, RichifierRenderOptions)
 

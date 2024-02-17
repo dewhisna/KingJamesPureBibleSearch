@@ -93,7 +93,8 @@ QString CTextRenderer::generateTextForBookInfo(const CBibleDatabase *pBibleDatab
 	}
 
 	RichifierRenderOptionFlags flagsRRO = RRO_None;
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddWordAnchors;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoLinkAnchors)) flagsRRO |= RRO_AddLinkAnchors;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
 	if (flagsTRO & TRO_EnableUserHighlighters) flagsRRO |= RRO_EnableUserHighlighters;
 
@@ -295,7 +296,8 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	}
 
 	RichifierRenderOptionFlags flagsRRO = RRO_None;
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddWordAnchors;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoLinkAnchors)) flagsRRO |= RRO_AddLinkAnchors;
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
@@ -307,12 +309,12 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 	//	this code really doesn't know if it's outputting text for the LiteHtml or not.
 	//	We just assume we are if we are outputting Lemmas and Anchors together.  Otherwise,
 	//	we assume we are either in the QTextDocument of ScriptureBrowser (which doesn't
-	//	use the lemmas) or on WebChannel (which won't have word anchors).  This code nearly
+	//	use the lemmas) or on WebChannel (which won't have link anchors).  This code nearly
 	//	works correctly, but since the paragraph text itself doesn't switch to RTL mode,
 	//	then verse punctuation outside of a word doesn't render on the correct side of the
 	//	word due to the anchor tags on the words.
 	//	This code is horrible and needs to be deleted as soon as LiteHtml gets support for "dir":
-	bool bKludge81 = ((flagsRRO & (RRO_AddAnchors | RRO_UseLemmas)) == (RRO_AddAnchors | RRO_UseLemmas));
+	bool bKludge81 = ((flagsRRO & (RRO_AddLinkAnchors | RRO_UseLemmas)) == (RRO_AddLinkAnchors | RRO_UseLemmas));
 #endif
 
 	VERSE_RENDERING_MODE_ENUM vrmeMode = ((flagsTRO & TRO_Copying) ?
@@ -1023,7 +1025,8 @@ QString CTextRenderer::generateTextForVerse(const CBibleDatabase *pBibleDatabase
 	}
 
 	RichifierRenderOptionFlags flagsRRO = RRO_None;
-	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddWordAnchors;
+	if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoLinkAnchors)) flagsRRO |= RRO_AddLinkAnchors;
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;
@@ -1301,7 +1304,8 @@ QString CTextRenderer::generateTextForFormattedVerses(const CBibleDatabase *pBib
 	}
 
 	RichifierRenderOptionFlags flagsRRO = RRO_None;
-	//if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddAnchors;	-- NoAnchors here, regardless of options
+	//if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoWordAnchors)) flagsRRO |= RRO_AddWordAnchors;	-- NoAnchors here, regardless of options
+	//if (!(flagsTRO & TRO_NoAnchors) && !(flagsTRO & TRO_NoLinkAnchors)) flagsRRO |= RRO_AddLinkAnchors;	-- NoAnchors here, regardless of options
 	if (flagsTRO & TRO_UseLemmas) flagsRRO |= RRO_UseLemmas;
 	if (flagsTRO & TRO_UseWordSpans) flagsRRO |= RRO_UseWordSpans;
 	if (flagsTRO & TRO_InlineFootnotes) flagsRRO |= RRO_InlineFootnotes;

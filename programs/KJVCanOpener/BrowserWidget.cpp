@@ -1178,12 +1178,18 @@ void CBrowserWidget::setChapter(const CRelIndex &ndx)
 								((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None));
 
 #ifdef USING_LITEHTML
+	// Note: While LiteHtml doesn't need WordAnchors, the disabling of WordAnchors
+	//	here is also part of the kludge to work around LiteHtml not correctly
+	//	handling LTR/RTL direction flags on paragraphs!  Specifically, punctuation
+	//	from the template and its direction relative to the word text depends on
+	//	whether the punctuation is inside the link tags or not:
 	QString strLiteHtml = CTextRenderer::generateTextForChapter(m_pBibleDatabase.data(), 0.0,
 								ndxVirtual,
 								defaultGenerateChapterTextFlags |
 								TRO_NoQTextDocument |
 								TRO_SuppressPrePostChapters |
 								TRO_NoFootnoteAnchors |
+								TRO_NoWordAnchors |
 								TRO_UseLemmas |	// Note: UseLemmas implies UseWordSpans
 								TRO_EnableUserHighlighters |
 								((CPersistentSettings::instance()->footnoteRenderingMode() & FRME_INLINE) ? TRO_InlineFootnotes : TRO_None),

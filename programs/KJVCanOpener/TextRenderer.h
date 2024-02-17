@@ -80,13 +80,14 @@ enum TextRenderOptions {
 	TRO_NoFootnoteAnchors = 0x100000,			// Disables outputting anchors for Footnotes (superceded by TRO_NoAnchors)
 	TRO_NoColophonAnchors = 0x200000,			// If TRO_NoWordAnchors is used, the entire Colophon will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
 	TRO_NoSuperscriptAnchors = 0x400000,		// If TRO_NoWordAnchors is used, the entire Superscription will be anchored, unless this flag is set (superceded if TRO_NoAnchors is set)
-	TRO_UseLemmas = 0x800000,					// Render Lemmas interlinearly with verses
-	TRO_UseWordSpans = 0x1000000,				// Output Word-Spans in HTML (this is implied when TRO_UseLemmas is specified)
-	TRO_InlineFootnotes = 0x2000000,			// Render inline footnotes in verses
-	TRO_NoQTextDocument = 0x4000000,			// Disable functionality requiring QTextDocument (i.e. no clear() or setHtml() calls, no indent/hanging-indent VRME modes)
-	TRO_NoIndent = 0x8000000,					// Disable Indent and Hanging-Indent VRME modes
-	TRO_VPL_Only = 0x10000000,					// Use VPL modes only (no free flow)
-	TRO_EnableUserHighlighters = 0x20000000,	// Enable User Highlighters
+	TRO_NoLinkAnchors = 0x800000,				// Disables link navigation anchors, like Strong's references (superceded if TRO_NoAnchors is set)
+	TRO_UseLemmas = 0x1000000,					// Render Lemmas interlinearly with verses
+	TRO_UseWordSpans = 0x2000000,				// Output Word-Spans in HTML (this is implied when TRO_UseLemmas is specified)
+	TRO_InlineFootnotes = 0x4000000,			// Render inline footnotes in verses
+	TRO_NoQTextDocument = 0x8000000,			// Disable functionality requiring QTextDocument (i.e. no clear() or setHtml() calls, no indent/hanging-indent VRME modes)
+	TRO_NoIndent = 0x10000000,					// Disable Indent and Hanging-Indent VRME modes
+	TRO_VPL_Only = 0x20000000,					// Use VPL modes only (no free flow)
+	TRO_EnableUserHighlighters = 0x40000000,	// Enable User Highlighters
 };
 Q_DECLARE_FLAGS(TextRenderOptionFlags, TextRenderOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(TextRenderOptionFlags)

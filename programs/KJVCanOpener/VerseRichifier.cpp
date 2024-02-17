@@ -243,7 +243,7 @@ CVerseTextRichifier::CVerseTextRichifier(CRichifierBaton &parseBaton,
 		{ 'w', [](const CRichifierBaton &)->QString { Q_ASSERT(false); return QString(); } },					// VTTE_w - Word
 		{ 'M', [](const CRichifierBaton &baton)->QString {														// VTTE_M - Ps119 Hebrew Prefix
 			return ((baton.m_tags.addRichPs119HebrewPrefix() && (baton.m_pBibleDatabase->langID() != LIDE_HEBREW))
-						? psalm119HebrewPrefix(baton.m_ndxCurrent, baton.renderOption(RRO_AddAnchors) && baton.usesHTML())
+						? psalm119HebrewPrefix(baton.m_ndxCurrent, baton.renderOption(RRO_AddWordAnchors) && baton.usesHTML())
 						: "");
 		} },
 		{ 'J', [](const CRichifierBaton &baton)->QString { return baton.m_tags.wordsOfJesusBegin(); } },		// VTTE_J - Words of Jesus Begin
@@ -303,7 +303,7 @@ void CVerseTextRichifier::writeLemma() const
 	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML()) {
 		if (m_parseBaton.m_pCurrentLemma) {
 			QStringList lstStrongLinks;
-			if (m_parseBaton.renderOption(RRO_AddAnchors)) {
+			if (m_parseBaton.renderOption(RRO_AddLinkAnchors)) {
 				lstStrongLinks.reserve(m_parseBaton.m_pCurrentLemma->strongs().size());
 				for (auto const &entry : m_parseBaton.m_pCurrentLemma->strongs()) {
 					lstStrongLinks.append(QString("<a href=\"strong://%1\">%1</a>").arg(entry));
@@ -325,7 +325,7 @@ void CVerseTextRichifier::writeLemma() const
 			}
 
 			QString strInterlinear = m_parseBaton.m_pCurrentLemma->text().join(QChar(' '));
-			QString strStrongs = m_parseBaton.renderOption(RRO_AddAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' '));
+			QString strStrongs = m_parseBaton.renderOption(RRO_AddLinkAnchors) ? lstStrongLinks.join(QChar(' ')) : m_parseBaton.m_pCurrentLemma->strongs().join(QChar(' '));
 			QString strMorphology = lstMorphology.join(QChar(' '));
 
 			if (!strInterlinear.isEmpty()) {
@@ -362,7 +362,7 @@ void CVerseTextRichifier::pushWordToVerseText(const QString &strWord) const
 	//	doesn't render correctly.  But it does if there's a ZWSP (zero
 	//	width space).  Therefore, if the next character is composed with
 	//	marks and we are rendering anchors, output a "&#x200B;":
-	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_AddAnchors) && fcs.m_bHasMarks) {
+	if (m_parseBaton.m_bOutput && m_parseBaton.usesHTML() && m_parseBaton.renderOption(RRO_AddWordAnchors) && fcs.m_bHasMarks) {
 		m_parseBaton.m_strVerseText.append(QChar(0x200B));
 	}
 #endif
@@ -725,7 +725,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		if (ndxWord == 1) {
 			strTemplate.append(lstWords.at(0));
 		}
-		if (flagsRRO & RRO_AddAnchors) {
+		if (flagsRRO & RRO_AddWordAnchors) {
 			strTemplate.append('A');
 		}
 		if (lstTransChangeAdded.at(ndxWord-1)) {
@@ -743,7 +743,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 		if (lstTransChangeAdded.at(ndxWord-1)) {
 			strTemplate.append('t');
 		}
-		if (flagsRRO & RRO_AddAnchors) {
+		if (flagsRRO & RRO_AddWordAnchors) {
 			strTemplate.append('a');
 		}
 
