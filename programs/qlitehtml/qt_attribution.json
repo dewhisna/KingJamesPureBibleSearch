@@ -5,7 +5,7 @@
         "QDocModule": "qtassistant",
         "QtParts": ["tools"],
         "QtUsage": "Used in Qt Assistant.",
-
+        "Path": "litehtml/src/gumbo",
         "Description": "Gumbo is an implementation of the HTML5 parsing algorithm implemented as a pure C99 library with no outside dependencies.",
         "Homepage": "https://github.com/google/gumbo-parser",
         "Version": "0.10.1",
@@ -19,10 +19,10 @@
         "QDocModule": "qtassistant",
         "QtParts": ["tools"],
         "QtUsage": "Used in Qt Assistant.",
-
+        "Path": "litehtml",
         "Description": "litehtml is the lightweight HTML rendering engine with CSS2/CSS3 support.",
         "Homepage": "https://github.com/litehtml/litehtml",
-        "Version": "v0.6",
+        "Version": "v0.9",
         "LicenseId": "BSD-3-Clause",
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "litehtml/LICENSE",

@@ -37,6 +37,7 @@ public:
 
 	void setDefaultFont(const QFont &font);
 	QFont defaultFont() const;
+	void setAntialias(bool on);
 
 	void setCSSExt(const QString &extcss);
 

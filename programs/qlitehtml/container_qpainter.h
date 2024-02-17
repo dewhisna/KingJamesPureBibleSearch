@@ -83,6 +83,8 @@ public: // outside API
 
     void setDefaultFont(const QFont &font);
     QFont defaultFont() const;
+    void setAntialias(bool on);
+    bool antialias() const;
 
     using DataCallback = std::function<QByteArray(QUrl)>;
     void setDataCallback(const DataCallback &callback);
