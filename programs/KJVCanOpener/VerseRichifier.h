@@ -366,6 +366,7 @@ private:
 	void finishWordSpan() const;		// Finishes off a word span for a specific word or a lemma word group
 	void startHighlighter(const CBasicHighlighter &highlighter, bool &bInHighlighterFlag) const;		// Starts a highlighter output
 	void finishHighlighter(const CBasicHighlighter &highlighter, bool &bInHighlighterFlag) const;	// Finishes highlighter output
+	void writeXlateText() const;		// Writes fncXlateText generated output
 	bool isStartOperator() const { return m_chrMatchChar.isUpper(); }
 
 protected:
