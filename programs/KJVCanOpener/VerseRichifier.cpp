@@ -458,16 +458,10 @@ void CVerseTextRichifier::parse(const QString &strNodeIn) const
 	}
 
 	QStringList lstSplit;
-
-	if (m_pVerse != nullptr) {
-		lstSplit.reserve(m_pVerse->m_nNumWrd + 1);
-		lstSplit = m_parseBaton.m_strTemplate.split(m_chrMatchChar);
-		Q_ASSERT(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
-		Q_ASSERT(strNodeIn.isNull());
-	} else {
-		lstSplit = strNodeIn.split(m_chrMatchChar);
-	}
+	if (m_pVerse != nullptr) lstSplit.reserve(m_pVerse->m_nNumWrd + 1);
+	lstSplit = strNodeIn.split(m_chrMatchChar);
 	Q_ASSERT(lstSplit.size() != 0);
+	if (m_pVerse != nullptr) Q_ASSERT(static_cast<unsigned int>(lstSplit.size()) == (m_pVerse->m_nNumWrd + 1));
 
 	bool bStartedVerseOutput = false;		// Set to true when we first start writing output on this verse
 
@@ -796,7 +790,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 
 	ndxRelVerse.setWord(1);
 	CRichifierBaton baton(tags, pBibleDatabase, ndxRelative, TPhraseTag(ndxRelVerse, pVerse->m_nNumWrd),
-							strTemplate, flagsRRO, pWordCount, pSRHighlighter, pSRExclHighlighter, pUserHighlighters);
+							flagsRRO, pWordCount, pSRHighlighter, pSRExclHighlighter, pUserHighlighters);
 	if (((pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER) || (pVerse->m_nPilcrow == CVerseEntry::PTE_MARKER_ADDED)) &&
 		(ndxRelative.word() <= 1) &&
 		(tags.showPilcrowMarkers())) {
@@ -828,7 +822,7 @@ QString CVerseTextRichifier::parse(const CRelIndex &ndxRelative, const CBibleDat
 	CVerseTextRichifier rich_M(baton, CVerseTextRichifierTags::VTTE_M, &rich_J);
 	CVerseTextRichifier richVerseText(baton, CVerseTextRichifierTags::VTTE_w, pVerse, &rich_M);
 
-	richVerseText.parse();
+	richVerseText.parse(strTemplate);
 
 	return baton.m_strVerseText.trimmed();
 }

@@ -280,7 +280,7 @@ private:
 	{
 	public:
 		CRichifierBaton(const CVerseTextRichifierTags &tags, const CBibleDatabase *pBibleDatabase,
-						const CRelIndex &ndxRelative, const TPhraseTag &tagVerse, const QString &strTemplate,
+						const CRelIndex &ndxRelative, const TPhraseTag &tagVerse,
 						RichifierRenderOptionFlags flagsRRO, int *pWordCount = nullptr,
 						const CBasicHighlighter *pSRHighlighter = nullptr,
 						const CBasicHighlighter *pSRExclHighlighter = nullptr,
@@ -288,7 +288,6 @@ private:
 			:	m_pBibleDatabase(pBibleDatabase),
 				m_ndxCurrent(ndxRelative),
 				m_tagVerse(tagVerse),
-				m_strTemplate(strTemplate),
 				m_flagsRRO(flagsRRO),
 				// ----
 				m_nStartWord(ndxRelative.word()),
@@ -326,7 +325,6 @@ private:
 		const CBibleDatabase *m_pBibleDatabase;
 		CRelIndex m_ndxCurrent;								// Current RelIndex within verse (updates in parser with verse pointer)
 		TPhraseTag m_tagVerse;								// Span of verse being parsed/richified
-		QString m_strTemplate;								// Verse Template being parsed -- will be identical to the one from CVerseEntry if not doing SearchResults, or modified if we are
 		RichifierRenderOptionFlags m_flagsRRO;				// Rendering Flags
 		// ----
 		QString m_strVerseText;								// Verse Text being built
@@ -359,7 +357,7 @@ private:
 
 	~CVerseTextRichifier();
 
-	void parse(const QString &strNodeIn = QString()) const;
+	void parse(const QString &strNodeIn) const;
 	void startLemma(const CRelIndex &ndxWord) const;	// Starts the lemma main span output for a lemma
 	void finishLemma() const;			// Finishes off the main span of the lemma and writes the rest of the lemma too (i.e. strongs, morph, interlinear, etc)
 	void startWordSpan() const;			// Starts a word span for a specific word or a lemma word group
