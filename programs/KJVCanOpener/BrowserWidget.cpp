@@ -645,10 +645,10 @@ void CBrowserWidget::gotoIndex(const TPhraseTag &tag)
 {
 	unsigned int nWordCount = ((tag.relIndex().word() != 0) ? tag.count() : 0);
 
-	// Note: Special case !tag->relIndex().isSet() means reload current index
+	// Note: Special case !tag.isSet() means reload current index
 	// Note: Denormalize/Normalize allows us to automagically skip empty chapters (such as in the Additions to Esther in the Apocrypha)
-	TPhraseTag tagActual = (tag.relIndex().isSet() ? TPhraseTag(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex())), nWordCount)
-												   : TPhraseTag(m_ndxCurrent, tag.count()));
+	TPhraseTag tagActual = (tag.isSet() ? TPhraseTag(m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(tag.relIndex())), nWordCount)
+										: TPhraseTag(m_ndxCurrent, selection().primarySelection().count()));
 
 	begin_update();
 
@@ -667,13 +667,13 @@ void CBrowserWidget::gotoIndex(const TPhraseTag &tag)
 
 	end_update();
 
-	gotoIndex2(tag.relIndex().isSet() ? tagActual : tag);		// Pass special-case on to gotoIndex2
+	gotoIndex2(tag.isSet() ? tagActual : tag);		// Pass special-case on to gotoIndex2
 }
 
 void CBrowserWidget::gotoIndex2(const TPhraseTag &tag)
 {
-	// Note: Special case !tag->relIndex().isSet() means reload current index
-	TPhraseTag tagActual = (tag.relIndex().isSet() ? tag : TPhraseTag(m_ndxCurrent, tag.count()));
+	// Note: Special case !tag.isSet() means reload current index
+	TPhraseTag tagActual = (tag.isSet() ? tag : TPhraseTag(m_ndxCurrent, selection().primarySelection().count()));
 
 	setBook(tagActual.relIndex());
 	setChapter(tagActual.relIndex());
