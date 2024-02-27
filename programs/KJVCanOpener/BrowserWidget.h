@@ -84,6 +84,8 @@ public:
 	inline bool haveSelection() const { return m_pCurrentScriptureTextBase->haveSelection(); }
 	inline CSelectionPhraseTagList selection() const { return m_pCurrentScriptureTextBase->selection(); }
 
+	inline const CRelIndex &currentIndex() const { return m_ndxCurrent; }
+
 	inline bool haveDetails() const { return m_pCurrentScriptureTextBase->haveDetails(); }
 	inline bool haveGematria() const { return m_pCurrentScriptureTextBase->haveGematria(); }
 

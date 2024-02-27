@@ -181,6 +181,7 @@ namespace {
 	// Browser View:
 	const QString constrBrowserViewGroup("Browser");
 	const QString constrLastReferenceKey("LastReference");
+	const QString constrLastSelectionKey("Selection");
 	const QString constrLastSelectionSizeKey("SelectionSize");
 	//const QString constrHasFocusKey("HasFocus");
 	//const QString constrFontKey("Font");				// Deprecated entry name -- here only for old value deletion (replaced by FontName and FontSize)
@@ -1129,10 +1130,26 @@ void CKJVCanOpener::initialize()
 		settings.beginGroup(constrBrowserViewGroup);
 		// Read last location : Default initial location is Genesis 1
 		CRelIndex ndxLastRef = CRelIndex(settings.value(constrLastReferenceKey, tag.relIndex().asAnchor()).toString());
-		unsigned int nCount = settings.value(constrLastSelectionSizeKey, 0).toUInt();
 		if ((ndxLastRef.isSet()) &&
 			(m_pBibleDatabase->NormalizeIndex(ndxLastRef) != 0)) {			// Make sure the reference is part of our database's versification/content
-			tag = TPhraseTag(ndxLastRef, nCount);
+			tag.setRelIndex(ndxLastRef);
+		}
+		CRelIndex ndxLastSelection = CRelIndex(settings.value(constrLastSelectionKey, tag.relIndex().asAnchor()).toString());
+		unsigned int nCount = settings.value(constrLastSelectionSizeKey, 0).toUInt();
+		if (ndxLastSelection.isSet() && (m_pBibleDatabase->NormalizeIndex(ndxLastSelection) != 0) &&
+			(ndxLastSelection.book() == ndxLastRef.book()) && (ndxLastSelection.chapter() == ndxLastRef.chapter())) {
+			if (nCount) {
+				// If the last selection was within the last reference, select the same text:
+				tag = TPhraseTag(ndxLastSelection, nCount);
+			} else {
+				// If last index was tracking cursor position, use the last selection
+				//	change if it was set and in the same passage instead, as it will
+				//	reflect the last cursor position change in that passage instead of
+				//	the last navigated location:
+				if (tag.relIndex().verse() || tag.relIndex().word()) {
+					tag.setRelIndex(ndxLastSelection);
+				}
+			}
 		}
 		settings.endGroup();
 
@@ -1147,7 +1164,7 @@ void CKJVCanOpener::initialize()
 	// If there is no selection to highlight, default to the first sub-entity
 	//		of the index specified:
 	if (tag.count() == 0) {
-		tag.relIndex() = CRelIndex::navigationIndexFromLogicalIndex(tag.relIndex());
+		tag.setRelIndex(CRelIndex::navigationIndexFromLogicalIndex(tag.relIndex()));
 	}
 
 	m_pBrowserWidget->gotoIndex(tag);
@@ -1311,7 +1328,8 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 		// Current Browser Reference and Browser Settings:
 		settings.beginGroup(constrBrowserViewGroup);
 		TPhraseTag tag = m_pBrowserWidget->selection().primarySelection();
-		settings.setValue(constrLastReferenceKey, tag.relIndex().asAnchor());
+		settings.setValue(constrLastReferenceKey, m_pBrowserWidget->currentIndex().asAnchor());
+		settings.setValue(constrLastSelectionKey, tag.relIndex().asAnchor());
 		settings.setValue(constrLastSelectionSizeKey, tag.count());
 		settings.setValue(constrHasFocusKey, m_pBrowserWidget->hasFocusBrowser());
 		settings.remove(constrFontKey);		// Remove deprecated font value
@@ -1707,8 +1725,8 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 		settings.beginGroup(constrBrowserViewGroup);
 		bFocusBrowser = settings.value(constrHasFocusKey, false).toBool();
 		if (!bLastSet) {
-			CRelIndex ndxLastBrowsed = CRelIndex(settings.value(constrLastReferenceKey, CRelIndex().asAnchor()).toString());
-			if (ndxLastBrowsed.isSet()) m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastBrowsed, strHighlighterName), false);
+			CRelIndex ndxLastSelection = CRelIndex(settings.value(constrLastSelectionKey, CRelIndex().asAnchor()).toString());
+			if (ndxLastSelection.isSet()) m_pSearchResultWidget->setCurrentIndex(m_pSearchResultWidget->vlmodel()->resolveVerseIndex(ndxLastSelection, strHighlighterName), false);
 		}
 		if (bIsFirstCanOpener) {
 			QString strFontName = settings.value(constrFontNameKey, CPersistentSettings::instance()->fontScriptureBrowser().family()).toString();
