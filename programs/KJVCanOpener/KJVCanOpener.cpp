@@ -1845,12 +1845,12 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 		//	the browser was focus last time, focus it again.  Otherwise, leave
 		//	the phrase editor focus:
 		if (bFocusSearchResults) {
-			QTimer::singleShot(1, m_pSearchResultWidget, SLOT(setFocusSearchResult()));
+			QTimer::singleShot(10, m_pSearchResultWidget, SLOT(setFocusSearchResult()));
 		} else if (bFocusBrowser) {
-			QTimer::singleShot(1, m_pBrowserWidget, SLOT(setFocusBrowser()));
+			QTimer::singleShot(10, m_pBrowserWidget, SLOT(setFocusBrowser()));
 		}
 
-		if (bLaunchNotesSetupConfig) QTimer::singleShot(10, this, SLOT(en_LaunchNotesFileSettingsConfig()));
+		if (bLaunchNotesSetupConfig) QTimer::singleShot(20, this, SLOT(en_LaunchNotesFileSettingsConfig()));
 	} else {
 		// For secondary search windows, activate the search window:
 		if (m_lstpQuickActivate.size() >= 2) m_lstpQuickActivate.at(1)->trigger();

@@ -840,14 +840,14 @@ void CSearchPhraseEdit::en_phraseAdd()
 {
 	CPersistentSettings::instance()->addUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
-	ui.editPhrase->setFocus();
+	focusEditor();
 }
 
 void CSearchPhraseEdit::en_phraseDel()
 {
 	CPersistentSettings::instance()->removeUserPhrase(m_pBibleDatabase->compatibilityUUID(), m_phraseEntry);
 //	setPhraseButtonEnables();
-	ui.editPhrase->setFocus();
+	focusEditor();
 }
 
 void CSearchPhraseEdit::en_phraseClear()
@@ -859,7 +859,7 @@ void CSearchPhraseEdit::en_phraseClear()
 	en_AccentSensitiveChanged(false);
 	en_ExcludeChanged(false);
 	setDisabled(false);
-	ui.editPhrase->setFocus();
+	focusEditor();
 }
 
 void CSearchPhraseEdit::setPhraseButtonEnables(const QString &strUUID)
@@ -883,7 +883,7 @@ void CSearchPhraseEdit::resizeEvent(QResizeEvent *event)
 void CSearchPhraseEdit::en_showMatchingPhrases(bool bShow)
 {
 	setShowMatchingPhrases(bShow, false);
-	ui.editPhrase->setFocus();
+	focusEditor();
 }
 
 void CSearchPhraseEdit::setShowMatchingPhrases(bool bShow, bool bClearMatchingPhraseList)

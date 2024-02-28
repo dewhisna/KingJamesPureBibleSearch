@@ -313,9 +313,11 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 {
 	TPhraseTag tagCurrentLocation = m_pCurrentScriptureTextBase->selection().primarySelection();
 
+	bool bHadFocus = hasFocusBrowser();
+
 	// Force set the focus to something that's not a browser window so the
 	//	KJVCanOpener will update its menus to remove the old context menu:
-	setFocusPassageReferenceEditor();
+	if (bHadFocus) setFocusPassageReferenceEditor();
 
 	// Don't switch to Lemma/Morphography mode if the Bible Database doesn't have
 	//	them or else we'll confuse the user:
@@ -359,7 +361,7 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 	//	distinguish one browser type from another and would otherwise
 	//	think the focus is changing from the browser to the browser and
 	//	skip updating the menus, even though the menu should be changed:
-	setFocusBrowser();
+	if (bHadFocus) setFocusBrowser();
 }
 
 // ----------------------------------------------------------------------------
