@@ -3226,6 +3226,29 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 #else
 	Q_UNUSED(nBrowserDisplayMode);
 #endif
+
+#if QT_VERSION >= 0x050400
+	if (pNewCanOpener->m_pBibleDatabase->compatibilityUUID().compare(m_pBibleDatabase->compatibilityUUID(), Qt::CaseInsensitive) == 0) {
+		QTimer::singleShot(15, this, [pNewCanOpener, this]() {
+			CRelIndex ndxLastRef = m_pBrowserWidget->currentIndex();
+			CRelIndex ndxLastSelection = m_pBrowserWidget->selection().primarySelection().relIndex();
+			unsigned int nCount = m_pBrowserWidget->selection().primarySelection().count();
+			TPhraseTag tag(ndxLastRef, 0);
+			if (ndxLastSelection.isSet() &&
+				(ndxLastSelection.book() == ndxLastRef.book()) && (ndxLastSelection.chapter() == ndxLastRef.chapter())) {
+				if (nCount || ndxLastRef.verse() || ndxLastRef.word()) {
+					// If last index was tracking cursor position, use the last selection
+					//	change if it was set and in the same passage instead, as it will
+					//	reflect the last cursor position change in that passage instead of
+					//	the last navigated location:
+					tag.setRelIndex(ndxLastSelection);
+				}
+			}
+			tag.setRelIndex(CRelIndex::navigationIndexFromLogicalIndex(tag.relIndex()));
+			pNewCanOpener->m_pBrowserWidget->gotoIndex(tag);
+		} );
+	}
+#endif
 }
 
 #ifdef USING_QT_SPEECH
