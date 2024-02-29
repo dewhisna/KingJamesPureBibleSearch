@@ -311,7 +311,27 @@ void CBrowserWidget::en_clickedSetBrowserDisplayMode()
 
 void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDisplayMode)
 {
-	TPhraseTag tagCurrentLocation = m_pCurrentScriptureTextBase->selection().primarySelection();
+	Q_ASSERT(!m_pBibleDatabase.isNull());
+
+	bool bSwitchingModes = (nBrowserDisplayMode != m_nBrowserDisplayMode);
+	CRelIndex ndxSelection = m_pCurrentScriptureTextBase->selection().primarySelection().relIndex();
+	if (!ndxSelection.isSet()) ndxSelection = m_ndxCurrent;
+
+	// Limit current location to the actual chapter being displayed so that the
+	//	user cursor being in the previous/next verse area of the current view
+	//	doesn't cause the chapter to change when switching display modes:
+	if (m_ndxCurrent.isSet() && (m_ndxCurrent.chapter() != 0)) {	// Note: already tested ndxSelection above
+		if ((m_ndxCurrent.book() != ndxSelection.book()) ||
+			(m_ndxCurrent.chapter() != ndxSelection.chapter())) {
+			if (ndxSelection <  m_ndxCurrent) {
+				// If selection is previous verse, use the current as-is:
+				ndxSelection = m_ndxCurrent;
+			} else {
+				// If selection is next verse, use last verse of current chapter:
+				ndxSelection = m_pBibleDatabase->calcRelIndex(m_ndxCurrent, CBibleDatabase::RIME_EndOfChapter);
+			}
+		}
+	}
 
 	bool bHadFocus = hasFocusBrowser();
 
@@ -340,7 +360,10 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 			//	anchor even, there is no good way to auto-scroll the ScriptureBrowser
 			//	view like we are doing the ScriptureLiteHtml view below.
 			//	TODO : If this ever changes with LiteHtml, update this...
-			Q_UNUSED(tagCurrentLocation);
+			Q_UNUSED(ndxSelection);
+			if (bSwitchingModes && m_ndxCurrent.isSet()) {
+				m_pScriptureBrowser->navigator().selectWords(TPhraseTag(m_ndxCurrent));
+			}
 			break;
 
 #ifdef USING_LITEHTML
@@ -348,8 +371,8 @@ void CBrowserWidget::setBrowserDisplayMode(BROWSER_DISPLAY_MODE_ENUM nBrowserDis
 			m_pScriptureBrowser->setVisible(false);
 			m_pScriptureLiteHtml->setVisible(true);
 			m_pCurrentScriptureTextBase = m_pScriptureLiteHtml;
-			if (tagCurrentLocation.isSet()) {
-				m_pScriptureLiteHtml->en_anchorClicked(QString("R%1").arg(tagCurrentLocation.relIndex().asAnchor()));;
+			if (bSwitchingModes && ndxSelection.isSet()) {
+				m_pScriptureLiteHtml->en_anchorClicked(QString("R%1").arg(ndxSelection.asAnchor()));;
 			}
 			break;
 #endif
