@@ -1229,7 +1229,10 @@ void DocumentContainer::findText(const QString &text,
         std::string ttext;
         e.element->get_text(ttext);
         const QString text = QString::fromStdString(ttext);
-        const QFont &font = toQFont(e.element->css().get_font());
+        const auto fontPtr = e.element->css().get_font();
+        if (!fontPtr)
+            return e;
+        const QFont &font = toQFont(fontPtr);
         const QFontMetrics fm(font);
         return Selection::Element{e.element, e.index, fm.size(0, text.left(e.index)).width()};
     };

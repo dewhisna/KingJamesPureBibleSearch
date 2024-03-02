@@ -350,8 +350,6 @@ QString CTextRenderer::generateTextForChapter(const CBibleDatabase *pBibleDataba
 					".ref { float: right; padding: 0em 0em %1em 0.5em; }\n"
 				).arg(QString("%1").arg((nLineHeight-0.5), 0, 'f', 2));		// .word/.ref padding bottom in em's
 		}
-
-		strCopyFont += " margin: 0px;";		// Remove margin from <body> to workaround litehtml document size computation issue (not really part of Issue #81, but...)
 	}
 #endif
 

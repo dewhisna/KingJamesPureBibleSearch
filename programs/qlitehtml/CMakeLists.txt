@@ -48,7 +48,12 @@ set(QLITEHTML_VERSION ${PROJECT_VERSION})
 set(QLITEHTML_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(QLITEHTML_VERSION_COMPAT ${QLITEHTML_VERSION} CACHE STRING "qlitehtml compat version number.")
 
+option(QLITEHTML_USE_SYSTEM_LITEHTML "Uses litehtml from the system if available" OFF)
+if(QLITEHTML_USE_SYSTEM_LITEHTML)
+  find_package(litehtml QUIET)
+endif()
 if(NOT TARGET litehtml)
+	set(CMAKE_POLICY_DEFAULT_CMP0077 NEW) # make it possible to override LITEHTML_BUILD_TESTING
 	set(ORIG_FPIC ${CMAKE_POSITION_INDEPENDENT_CODE})
 	set(ORIG_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 	if (WIN32)
@@ -71,6 +76,11 @@ if(NOT TARGET litehtml)
 		PROPERTIES
 			QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
 	)
+
+	# suppress compiler warnings from litehtml headers by making them "system"
+	# include directories
+	get_target_property(litehtml_includedirs litehtml INTERFACE_INCLUDE_DIRECTORIES)
+	target_include_directories(litehtml SYSTEM INTERFACE ${litehtml_includedirs})
 
 	set(CMAKE_POSITION_INDEPENDENT_CODE "${ORIG_FPIC}")
 	set(BUILD_SHARED_LIBS ${ORIG_BUILD_SHARED_LIBS})
