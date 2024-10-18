@@ -42,4 +42,5 @@ add_subdirectory(KJVSearch)
 add_subdirectory(KJVSumThing)
 # -------------------------------------
 add_subdirectory(MyBibleParse)
-
+# -------------------------------------
+add_subdirectory(eSwordParse)
