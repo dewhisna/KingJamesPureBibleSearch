@@ -83,7 +83,10 @@ namespace {
 	// ----
 	const char * const constUUID_ENGKJV1769EB =			"B80E5D10-A4E1-11EE-9EC1-0800200C9A66";
 	// ----
-	const char * const constrUUID_GERBOLUT =			"D8A846E0-B016-11EE-9EC1-0800200C9A66";
+	const char * const constUUID_GERBOLUT =				"D8A846E0-B016-11EE-9EC1-0800200C9A66";
+	// ----
+	const char * const constUUID_GENEVA_1560 =			"E849A170-8B0D-11EF-9726-0800200C9A66";
+	const char * const constUUID_GENEVA_1599 =			"ED864490-8B0D-11EF-9726-0800200C9A66";
 
 	// Use the RVG2010-201401026 UUID for the highlighter tag for RVG2010 in general.  Even
 	//		though they technically aren't compatible, since we've already released the
@@ -190,7 +193,12 @@ namespace {
 		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "ENGKJV1769EB", "en", QString::fromUtf8("King James Version + Apocrypha (ENGKJV1769EB)"), QString::fromUtf8("eBible King James Version + Apocrypha (ENGKJV1769EB, 2023-11-07)"), constUUID_ENGKJV1769EB, "bbl-engkjv1769eb.s3db", "bbl-engkjv1769eb.ccdb", constUUID_KJV },
 		// ----
 		// German Bolsingerߴs Luther 1545:
-		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "GerBoLut", "de", QString::fromUtf8("Deutsch Bolsinger's Luther 1545 Bibel"), QString::fromUtf8("Deutsch Bolsingerߴs Luther 1545 Bibel (moderne Rechtschreibung)"), constrUUID_GERBOLUT, "bbl-gerbolut.s3db", "bbl-gerbolut.ccdb", constrUUID_GERBOLUT, BVTE_LUTHER },
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "GerBoLut", "de", QString::fromUtf8("Deutsch Bolsinger's Luther 1545 Bibel"), QString::fromUtf8("Deutsch Bolsingerߴs Luther 1545 Bibel (moderne Rechtschreibung)"), constUUID_GERBOLUT, "bbl-gerbolut.s3db", "bbl-gerbolut.ccdb", constUUID_GERBOLUT, BVTE_LUTHER },
+		// ----
+		// Geneva Bible (1560) v1.0.1 from https://www.mysword.info/download-mysword/bibles
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "Geneva1560", "en", QString::fromUtf8("Geneva Bible (1560)"), QString::fromUtf8("Geneva Bible (1560) v1.0.1"), constUUID_GENEVA_1560, "bbl-geneva1560.s3db", "bbl-geneva1560.ccdb", constUUID_GENEVA_1560 },
+		// Geneva Bible (1599) v2.0 (2012-08-30) from https://www.crosswire.org/sword/modules/ModInfo.jsp?modName=Geneva1599
+		{ BibleTypeOptionsFlags(defaultBibleTypeFlags), Qt::LeftToRight, "Geneva1599", "en", QString::fromUtf8("Geneva Bible (1599)"), QString::fromUtf8("Geneva Bible (1599) v2.0 (20120830)"), constUUID_GENEVA_1599, "bbl-geneva1599.s3db", "bbl-geneva1599.ccdb", constUUID_GENEVA_1599 },
 	};
 
 	//////////////////////////////////////////////////////////////////////
