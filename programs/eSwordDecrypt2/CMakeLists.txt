@@ -196,6 +196,7 @@ endif()
 
 target_compile_definitions(${eSwordDecrypt_TARGET} PRIVATE
 	NO_PERSISTENT_SETTINGS
+	_CRT_SECURE_NO_WARNINGS
 )
 
 # -----------------------------------------------------------------------------

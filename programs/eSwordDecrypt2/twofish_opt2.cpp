@@ -427,6 +427,7 @@ void Itest(int n)
 	}
 }
 
+#if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 #include <sys/time.h>
 #include <unistd.h>
 #include <time.h>
@@ -477,6 +478,7 @@ void bench()
 	printf("MB/sec = %f\n", NUMTIMES/(diff*65536));
 	printf("approx clocks/enc (for 233Mhz) = %f\n", 233333333/(NUMTIMES/diff));
 }
+#endif
 
 int testTwoFish()
 {
@@ -518,7 +520,9 @@ int testTwoFish()
 
 	/*Itest(128);*/
 
+#if defined(__linux__) || defined(__APPLE__) || defined(__unix__)
 	bench();
+#endif
 	return 0;
 }
 
@@ -553,7 +557,7 @@ int inf(std::stringstream &source, std::stringstream &dest)
 
 	/* decompress until deflate stream ends or end of file */
 	do {
-		strm.avail_in = source.readsome((char*)in, CHUNK);
+		strm.avail_in = (z_uInt)source.readsome((char*)in, CHUNK);
 //        strm.avail_in = fread(in, 1, CHUNK, source);
 //        if (ferror(source)) {
 //        if (source.fail()) {
