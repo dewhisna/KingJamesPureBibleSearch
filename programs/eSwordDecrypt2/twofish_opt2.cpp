@@ -45,6 +45,10 @@ typedef uint8_t BYTE;
 #define CHUNK 16384
 #define DEBUG_SQLITEPLUS 0			// Enable for debugging SQLitePlus Decrypt and Decompress operations
 
+#ifndef UNUSED
+#define UNUSED(x) ((void)(x))
+#endif
+
 /*
    gcc is smart enough to convert these to roll instructions.  If you want
    to see for yourself, either do gcc -O3 -S, or change the |'s to +'s and
@@ -159,11 +163,13 @@ u32 h(u32 X, u32 L[4], int k)
 			y1 = Q0[y1] ^ b1(L[3]);
 			y2 = Q0[y2] ^ b2(L[3]);
 			y3 = Q1[y3] ^ b3(L[3]);
+			[[fallthrough]];
 		case 3:
 			y0 = Q1[y0] ^ b0(L[2]);
 			y1 = Q1[y1] ^ b1(L[2]);
 			y2 = Q0[y2] ^ b2(L[2]);
 			y3 = Q0[y3] ^ b3(L[2]);
+			[[fallthrough]];
 		case 2:
 			y0 = Q1[  Q0 [ Q0[y0] ^ b0(L[1]) ] ^ b0(L[0]) ];
 			y1 = Q0[  Q0 [ Q1[y1] ^ b1(L[1]) ] ^ b1(L[0]) ];
@@ -199,11 +205,13 @@ void fullKey(u32 L[4], int k, u32 QF[4][256])
 			y1 = Q0[y1] ^ b1(L[3]);
 			y2 = Q0[y2] ^ b2(L[3]);
 			y3 = Q1[y3] ^ b3(L[3]);
+			[[fallthrough]];
 			case 3:
 			y0 = Q1[y0] ^ b0(L[2]);
 			y1 = Q1[y1] ^ b1(L[2]);
 			y2 = Q0[y2] ^ b2(L[2]);
 			y3 = Q0[y3] ^ b3(L[2]);
+			[[fallthrough]];
 			case 2:
 			y0 = Q1[  Q0 [ Q0[y0] ^ b0(L[1]) ] ^ b0(L[0]) ];
 			y1 = Q0[  Q0 [ Q1[y1] ^ b1(L[1]) ] ^ b1(L[0]) ];
@@ -233,6 +241,8 @@ void fullKey(u32 L[4], int k, u32 QF[4][256])
 
 void printRound(int round, u32 R0, u32 R1, u32 R2, u32 R3, u32 K1, u32 K2)
 {
+	UNUSED(K1);
+	UNUSED(K2);
 	printf("round[%d] ['0x%08XL', '0x%08XL', '0x%08XL', '0x%08XL']\n",
 	   round, R0, R1, R2, R3);
 }
@@ -565,6 +575,7 @@ int inf(std::stringstream &source, std::stringstream &dest)
 			switch (ret) {
 				case Z_NEED_DICT:
 					ret = Z_DATA_ERROR;     /* and fall through */
+					[[fallthrough]];
 				case Z_DATA_ERROR:
 				case Z_MEM_ERROR:
 					(void)inflateEnd(&strm);
