@@ -44,3 +44,4 @@ add_subdirectory(KJVSumThing)
 add_subdirectory(MyBibleParse)
 # -------------------------------------
 add_subdirectory(eSwordParse)
+add_subdirectory(eSwordDecrypt2)
