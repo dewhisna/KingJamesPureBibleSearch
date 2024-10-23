@@ -574,7 +574,7 @@ int inf(std::stringstream &source, std::stringstream &dest)
 		do {
 			strm.avail_out = CHUNK;
 			strm.next_out = out;
-			ret = inflate(&strm, Z_NO_FLUSH);
+			ret = inflate(&strm, Z_SYNC_FLUSH);
 			assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
 			switch (ret) {
 				case Z_NEED_DICT:
@@ -619,7 +619,7 @@ int decompressSQLitePlus(std::stringstream &ssDecrypted, std::string &strPlain)
 
 	if ((ssDecrypted.get() != 0x00) || (ssDecrypted.get() != 0x1F)) {
 		std::cerr << "*** Decryption Failed -- missing 0x1F00 header\n";
-		return -1;
+		return Z_DATA_ERROR;
 	}
 	std::size_t nExpectedDecompressedSize = ssDecrypted.get() + (ssDecrypted.get() << 8) + (ssDecrypted.get() << 16) + (ssDecrypted.get() << 24);
 #if DEBUG_SQLITEPLUS
@@ -631,6 +631,7 @@ int decompressSQLitePlus(std::stringstream &ssDecrypted, std::string &strPlain)
 	while (nCompressedSize--) {
 		ssCompressed << (BYTE)ssDecrypted.get();
 	}
+	nCompressedSize = (int)ssCompressed.str().size();
 
 	int nInfRes = inf(ssCompressed, ssPlain);
 	if (nInfRes != Z_OK) {
@@ -643,12 +644,17 @@ int decompressSQLitePlus(std::stringstream &ssDecrypted, std::string &strPlain)
 #endif
 	if (nExpectedDecompressedSize != ssPlain.str().size()) {
 		std::cerr << "*** Decompressed Size Mismatch!\n";
-		return -1;
+		std::cerr << "Expected Decompressed Size: " << (int)nExpectedDecompressedSize << "\n"
+				  << "Actual Decompressed Size: " << (int)ssPlain.str().size() << "\n"
+				  << "Compressed Size: " << nCompressedSize << "\n"
+				  << "Plain text: \"" << ssPlain.str() << "\"\n";
+		strPlain = ssPlain.str();
+		return Z_STREAM_END;			// Return Z_STREAM_END (1) if we were short of data
 	}
 
 	strPlain = ssPlain.str();
 
-	return 0;
+	return Z_OK;
 }
 
 // ----------------------------------------------------------------------------
@@ -691,7 +697,7 @@ int CSQLitePlusDecryptor::decrypt(std::stringstream &ssSource, std::string &strP
 
 	int nRetVal = decompressSQLitePlus(ssDecrypted, strPlain);
 
-	if (nRetVal != Z_OK) {
+	if ((nRetVal != Z_OK) && (nRetVal != Z_STREAM_END)) {
 		std::cerr << "\nSource Data:\n";
 		std::cerr << ssSourceDump.str() << "\n";
 		std::cerr << "Decrypt Data:\n";
