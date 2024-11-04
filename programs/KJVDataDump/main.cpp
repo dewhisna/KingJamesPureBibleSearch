@@ -25,6 +25,7 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/VerseRichifier.h"
+#include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/Translator.h"
 #include "../KJVCanOpener/PersistentSettings.h"
 #ifdef USE_GEMATRIA
@@ -93,6 +94,9 @@ int main(int argc, char *argv[])
 	bool bOutputVerseText = false;
 	bool bOutputTransChangeAdded = false;
 	bool bOutputVPL = false;
+	bool bOutputWordsOnly = false;
+	bool bOutputWordsAllUppercase = false;
+	bool bOutputWordsAllLowercase = false;
 	bool bOutputWebChannelBibleAudioURLs = false;
 	bool bLookingForVersification = false;
 #ifdef USE_GEMATRIA
@@ -135,6 +139,13 @@ int main(int argc, char *argv[])
 			bPrintReference = true;
 			bPrintPilcrowMarkers = true;
 			bOutputVerseText = true;
+		} else if (strArg.compare("-w") == 0) {
+			bOutputWordsOnly = true;
+			bOutputVerseText = true;
+		} else if (strArg.compare("-u") == 0) {
+			bOutputWordsAllUppercase = true;
+		} else if (strArg.compare("-l") == 0) {
+			bOutputWordsAllLowercase = true;
 		} else if (strArg.compare("-wba") == 0) {
 			bOutputWebChannelBibleAudioURLs = true;
 		} else if (strArg.compare("-v11n") == 0) {
@@ -149,6 +160,12 @@ int main(int argc, char *argv[])
 	}
 
 	if (bLookingForVersification) bUnknownOption = true;	// Still looking for versification index
+	if (bOutputWordsAllUppercase && bOutputWordsAllLowercase) bUnknownOption = true;	// Can't have both all upper and lower
+	if (bOutputWordsOnly && bOutputTemplates) bUnknownOption = true;		// Can't have words only with templates
+	if (bOutputWordsOnly && bPrintPilcrowMarkers) bUnknownOption = true;	// Can't have words only with pilcrows (note: this also excludes -vpl)
+	if (bOutputTransChangeAdded && bOutputTemplates) bUnknownOption = true;	// Can't have transchange only text with templates
+	if (bOutputTransChangeAdded && bPrintPilcrowMarkers) bUnknownOption = true;	// Can't have transchange only text with pilcrows (note: this also excludes -vpl)
+	if (bOutputWordsOnly && bOutputTransChangeAdded) bUnknownOption = true;	// Can't have transchange only and words only as both are types of words-only modes
 
 	if ((nArgsFound != 1) || (bUnknownOption)) {
 		std::cerr << QString("KJVDataDump Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
@@ -162,8 +179,11 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -p  =  Print Pilcrow Markers (when outputting text with -x)\n").toUtf8().data();
 		std::cerr << QString("  -t  =  Print Verse Templates\n").toUtf8().data();
 		std::cerr << QString("  -x  =  Print Verse Text\n").toUtf8().data();
-		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x)\n").toUtf8().data();
+		std::cerr << QString("  -a  =  Print Only TransChangeAdded Text (implies -x) (exclusive with -t, -p, -vpl, and -w)\n").toUtf8().data();
 		std::cerr << QString("  -vpl = Print Verse Per Line format (implies -x, -r, and -p)\n").toUtf8().data();
+		std::cerr << QString("  -w  =  Print Words only (implies -x) (exclusive with -t, -p, -vpl, and -a)\n").toUtf8().data();
+		std::cerr << QString("  -u  =  Print Words in all uppercase (only with -a or -w) (exclusive with -l)\n").toUtf8().data();
+		std::cerr << QString("  -l  =  Print Words in all uppercase (only with -a or -w) (exclusive with -u)\n").toUtf8().data();
 		std::cerr << QString("  -wba = Print WebChannel Bible Audio URLs (supersedes other output modes)\n").toUtf8().data();
 		std::cerr << QString("  -v11n <index> = Use versification <index> if the database supports it\n").toUtf8().data();
 		std::cerr << QString("         (where <index> is one of the v11n indexes listed below\n").toUtf8().data();
@@ -246,24 +266,46 @@ int main(int argc, char *argv[])
 	class CMyVerseTextRichifierTags : public CVerseTextPlainRichifierTags
 	{
 	public:
-		CMyVerseTextRichifierTags(bool bOutputText, bool bOutputTransChangeAdded, bool bOutputPilcrowMarkers)
+		CMyVerseTextRichifierTags(bool bOutputText, bool bOutputTransChangeAdded, bool bOutputPilcrowMarkers,
+									bool bOutputWordsOnly, bool bOutputWordsAllUppercase, bool bOutputWordsAllLowercase)
 			:	m_bOutputText(bOutputText),
-				m_bOutputTransChangeAdded(bOutputTransChangeAdded)
+				m_bOutputTransChangeAdded(bOutputTransChangeAdded),
+				m_bOutputWordsOnly(bOutputWordsOnly),
+				m_bOutputWordsAllUppercase(bOutputWordsAllUppercase),
+				m_bOutputWordsAllLowercase(bOutputWordsAllLowercase)
 		{
 			setShowPilcrowMarkers(bOutputPilcrowMarkers);
 		}
 	protected:
 		virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const override
 		{
-			if ((m_bOutputText && !m_bOutputTransChangeAdded) ||
+			if (m_bOutputText && m_bOutputWordsOnly) {
+				QString strOutputWord = StringParse::decompose(StringParse::deApostrophe(strWord, true), true);
+				if (m_bOutputWordsAllUppercase) {
+					lstVerseWords.append(strOutputWord.toUpper());
+				} else if (m_bOutputWordsAllLowercase) {
+					lstVerseWords.append(strOutputWord.toLower());
+				} else {
+					lstVerseWords.append(strOutputWord);
+				}
+			} else if ((m_bOutputText && !m_bOutputTransChangeAdded) ||
 				(m_bOutputText && m_bOutputTransChangeAdded && (nWordTypes & VWT_TransChangeAdded))) {
-				lstVerseWords.append(strWord);
+				if (m_bOutputWordsAllUppercase) {
+					lstVerseWords.append(strWord.toUpper());
+				} else if (m_bOutputWordsAllLowercase) {
+					lstVerseWords.append(strWord.toLower());
+				} else {
+					lstVerseWords.append(strWord);
+				}
 			}
 		}
 	private:
 		bool m_bOutputText;
 		bool m_bOutputTransChangeAdded;
-	} vtrt(bOutputVerseText, bOutputTransChangeAdded, bPrintPilcrowMarkers);
+		bool m_bOutputWordsOnly;
+		bool m_bOutputWordsAllUppercase;
+		bool m_bOutputWordsAllLowercase;
+	} vtrt(bOutputVerseText, bOutputTransChangeAdded, bPrintPilcrowMarkers, bOutputWordsOnly, bOutputWordsAllUppercase, bOutputWordsAllLowercase);
 
 #ifdef USE_GEMATRIA
 	struct TGematriaVerseValues {
@@ -372,7 +414,7 @@ int main(int argc, char *argv[])
 						}
 						if (bOutputVerseText) {
 							if (bOutputTemplates) std::cout << strSpacer.toUtf8().data();
-							if (bOutputTransChangeAdded) {
+							if (bOutputTransChangeAdded || bOutputWordsOnly) {
 								std::cout << lstVerseWords.join(QChar(' ')).toUtf8().data();
 							} else {
 								std::cout << strParsedVerse.toUtf8().data();
