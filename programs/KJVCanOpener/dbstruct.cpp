@@ -1222,7 +1222,7 @@ CRelIndex CBibleDatabase::TVersificationLayout::DenormalizeIndex(uint32_t nNorma
 }
 
 #ifdef USE_EXTENDED_INDEXES
-uint32_t CBibleDatabase::NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const
+uint64_t CBibleDatabase::NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const
 {
 	unsigned int nBk = ndxRelIndex.book();
 	unsigned int nChp = ndxRelIndex.chapter();
@@ -1269,9 +1269,9 @@ NormalizeIndexEx_completter:
 	return (nLetterNormal + nLtr);
 }
 
-CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint32_t nNormalIndex) const
+CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint64_t nNormalIndexEx) const
 {
-	uint32_t nLtr = nNormalIndex;
+	uint64_t nLtr = nNormalIndexEx;
 
 	if (nLtr == 0) return 0;
 
@@ -2478,6 +2478,20 @@ QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nW
 	if (!relIndex.isSet()) return QString();
 	return wordAtIndex(NormalizeIndex(relIndex), nWordType);
 }
+
+#ifdef USE_EXTENDED_INDEXES
+QChar CBibleDatabase::letterAtIndex(uint64_t ndxNormalEx) const
+{
+	CRelIndexEx relExIndex = DenormalizeIndexEx(ndxNormalEx);
+	const CConcordanceEntry *pConcordanceEntry = concordanceEntryForWordAtIndex(relExIndex);
+	if (pConcordanceEntry) {
+		uint32_t nLtr = relExIndex.letter();
+		if (nLtr) --nLtr;		// Make zero-originated, but let 0 be equivalent to 1
+		if (nLtr < pConcordanceEntry->rawWord().size()) return pConcordanceEntry->rawWord().at(nLtr);
+	}
+	return QChar(' ');
+}
+#endif
 
 const CFootnoteEntry *CBibleDatabase::footnoteEntry(const CRelIndex &ndx) const
 {

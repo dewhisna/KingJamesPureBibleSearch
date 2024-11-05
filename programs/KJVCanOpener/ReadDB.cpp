@@ -810,6 +810,7 @@ bool CReadDatabase::ReadWordsTable()
 				QString strSearchWord = StringParse::deCantillate(strTemp);
 				entryWord.m_lstAltWords.push_back(strTemp);
 				entryWord.m_lstSearchWords.push_back(strSearchWord);
+				entryWord.m_lstRawAltWords.push_back(StringParse::decompose(StringParse::deApostrophe(strWord, true), true).toLower());
 				entryWord.m_lstDecomposedAltWords.push_back(StringParse::decompose(strTemp, true));
 				entryWord.m_lstDecomposedHyphenAltWords.push_back(StringParse::decompose(strTemp, false));
 				entryWord.m_lstDeApostrAltWords.push_back(StringParse::deApostrHyphen(strSearchWord, true));

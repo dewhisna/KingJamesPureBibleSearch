@@ -213,9 +213,10 @@ Q_DECLARE_METATYPE(uint32_t)
 #ifdef USE_EXTENDED_INDEXES
 class CRelIndexEx : public CRelIndex {
 public:
-	CRelIndexEx(const CRelIndexEx &ndx)
-		:	CRelIndex(ndx.index()),
-			m_ndxEx(ndx.m_ndxEx)
+	CRelIndexEx(const CRelIndexEx &ndx) = default;
+	CRelIndexEx(const CRelIndex &ndx, uint32_t nLtr = 1)
+		:	CRelIndex(ndx),
+			m_ndxEx(nLtr)
 	{
 	}
 	CRelIndexEx(uint64_t ndxEx = 0)
@@ -244,7 +245,7 @@ public:
 
 	inline uint64_t indexEx() const
 	{
-		return ((static_cast<uint64_t>(index()) << 32) || static_cast<uint64_t>(m_ndxEx));
+		return ((static_cast<uint64_t>(index()) << 32) | static_cast<uint64_t>(m_ndxEx));
 	}
 	inline void setIndexEx(uint32_t nBk, uint32_t nChp, uint32_t nVrs, uint32_t nWrd, uint32_t nLtr)
 	{
@@ -256,6 +257,8 @@ public:
 		setIndex(static_cast<uint32_t>(ndx >> 32));
 		m_ndxEx = static_cast<uint32_t>(ndx & 0xFFFFFFFF);
 	}
+
+	inline CRelIndexEx & operator =(const CRelIndexEx &other) = default;
 
 private:
 	uint32_t m_ndxEx;				// Extended portion of index
@@ -521,6 +524,7 @@ public:
 	bool m_bIsProperWord;				// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
 	QStringList m_lstAltWords;			// Complete exact word of the Bible Database, are related variations of the base root (such as hyphenated and non-hyphenated or capital vs lowercase), these are the exact words of the text
 	QStringList m_lstSearchWords;		// Search word reduced from the complete list, for example without cantillation marks
+	QStringList m_lstRawAltWords;				// Decomposed Words, without hyphens, without apostrophies, in lowercase -- used for ELS and places where letters-only need to be used
 	QStringList m_lstDecomposedAltWords;		// Decomposed Words (used for matching), without hyphens
 	QStringList m_lstDecomposedHyphenAltWords;	// Decomposed Words (used for matching), with hyphens
 	QStringList m_lstDeApostrAltWords;			// Decomposed Words (used for matching), with apostrophies decomposed without hyphens
@@ -554,6 +558,7 @@ class CBasicWordEntry
 public:
 	virtual const QString &word() const = 0;
 	virtual const QString &searchWord() const = 0;
+	virtual const QString &rawWord() const = 0;
 	virtual const QString &decomposedWord() const = 0;
 	virtual const QString &decomposedHyphenWord() const = 0;
 	virtual const QString &deApostrWord() const = 0;
@@ -584,6 +589,7 @@ public:
 
 	virtual const QString &word() const override { return m_itrEntryWord->second.m_lstAltWords.at(m_nAltWordIndex); }
 	virtual const QString &searchWord() const override { return m_itrEntryWord->second.m_lstSearchWords.at(m_nAltWordIndex); }
+	virtual const QString &rawWord() const override { return m_itrEntryWord->second.m_lstRawAltWords.at(m_nAltWordIndex); }
 	virtual const QString &decomposedWord() const override { return m_itrEntryWord->second.m_lstDecomposedAltWords.at(m_nAltWordIndex); }
 	virtual const QString &decomposedHyphenWord() const override { return m_itrEntryWord->second.m_lstDecomposedHyphenAltWords.at(m_nAltWordIndex); }
 	virtual const QString &deApostrWord() const override { return m_itrEntryWord->second.m_lstDeApostrAltWords.at(m_nAltWordIndex); }
@@ -599,30 +605,15 @@ public:
 #ifdef USE_EXTENDED_INDEXES
 	uint32_t letterCount() const
 	{
-		const QString &strWord = word();
-		uint32_t nCount = 0;
-		for (int i=0; i<strWord.size(); ++i) {
-			if (strWord.at(i).isLetter()) ++nCount;
-		}
-
-		return nCount;
+		return rawWord().size();
 	}
 	QChar letter(uint32_t nLtr) const		// one-originated nLtr lookup of letter (to follow pattern of CRelIndex)
 	{
 		// Note: This function returns the decomposed base-form for the letter,
-		//	as generally needed by search/analysis consumers.  However, an
-		//	alternate variation for future consideration would be to return
-		//	a QString instead containing the full-form entity.  Currently,
-		//	this is only used in BibleDNA:
-		QString strWord = word().normalized(QString::NormalizationForm_D);
+		//	as generally needed by search/analysis consumers.
 		if (nLtr == 0) return QChar();
 		--nLtr;					// one-originated
-		for (int i=0; i<strWord.size(); ++i) {
-			if (strWord.at(i).isLetter()) {
-				if (nLtr == 0) return strWord.at(i);
-				--nLtr;
-			}
-		}
+		if (nLtr < rawWord().size()) return rawWord().at(nLtr);
 		return QChar();
 	}
 #endif
@@ -1416,8 +1407,8 @@ public:
 		return m_itrCurrentLayout->DenormalizeIndex(nNormalIndex);
 	}
 #ifdef USE_EXTENDED_INDEXES
-	uint32_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const;
-	CRelIndexEx DenormalizeIndexEx(uint32_t nNormalIndex) const;
+	uint64_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const;
+	CRelIndexEx DenormalizeIndexEx(uint64_t nNormalIndexEx) const;
 #endif
 
 	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
@@ -1503,6 +1494,9 @@ public:
 	const CConcordanceEntry *concordanceEntryForWordAtIndex(const CRelIndex &relIndex) const;	// Returns the CConcordanceEntry object for the word at the specified index -- like concordanceIndexForWordAtIndex, but returns underlying CConcordanceEntry
 	QString wordAtIndex(uint32_t ndxNormal, WORD_TYPE_ENUM nWordType) const;			// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	QString wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nWordType) const;		// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above) -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
+#ifdef USE_EXTENDED_INDEXES
+	QChar letterAtIndex(uint64_t ndxNormalEx) const;
+#endif
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
 	bool haveFootnotes() const
 	{
@@ -1716,6 +1710,7 @@ public:
 
 	virtual const QString &word() const override { return m_strWord; }
 	virtual const QString &searchWord() const override { return m_strWord; }
+	virtual const QString &rawWord() const override { return m_strDecomposedWord; }
 	virtual const QString &decomposedWord() const override { return m_strDecomposedWord; }
 	virtual const QString &decomposedHyphenWord() const override { return m_strDecomposedWord; }
 	virtual const QString &deApostrWord() const override { return m_strDecomposedWord; }
