@@ -1275,7 +1275,7 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint64_t nNormalIndexEx) const
 
 	if (nLtr == 0) return 0;
 
-	unsigned int nBk = m_itrCurrentLayout->m_lstBooks.size();
+	uint32_t nBk = static_cast<uint32_t>(m_itrCurrentLayout->m_lstBooks.size());
 	while ((nBk > 0) && (nLtr <= m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nLtrAccum)) {
 		nBk--;
 	}
