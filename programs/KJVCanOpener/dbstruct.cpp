@@ -1663,6 +1663,45 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndex &nRelIndex, boo
 	return QString("%1%2:%3 [%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse()).arg(nRelIndex.word());
 }
 
+#ifdef USE_EXTENDED_INDEXES
+QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool bSuppressWordOnPseudoVerse) const
+{
+	CRelIndex relBase(nRelIndex.index());
+	uint32_t nWord = relBase.word();
+	relBase.setWord(0);
+	QString strRef = PassageReferenceText(relBase, true);
+	if (nWord) {
+		if (((relBase.chapter() != 0) || ((relBase.chapter() == 0) && !bSuppressWordOnPseudoVerse)) &&
+			((relBase.verse() != 0) || ((relBase.verse() == 0) && !bSuppressWordOnPseudoVerse))) {
+		}
+		if (nRelIndex.letter()) {
+			strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
+		} else {
+			strRef += QString(" [%1]").arg(nWord);
+		}
+	}
+	return strRef;
+}
+
+QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndexEx &nRelIndex, bool bSuppressWordOnPseudoVerse) const
+{
+	CRelIndex relBase(nRelIndex.index());
+	uint32_t nWord = relBase.word();
+	relBase.setWord(0);
+	QString strRef = PassageReferenceAbbrText(relBase, true);
+	if (nWord) {
+		if (((relBase.chapter() != 0) || ((relBase.chapter() == 0) && !bSuppressWordOnPseudoVerse)) &&
+			((relBase.verse() != 0) || ((relBase.verse() == 0) && !bSuppressWordOnPseudoVerse))) {
+		}
+		if (nRelIndex.letter()) {
+			strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
+		} else {
+			strRef += QString(" [%1]").arg(nWord);
+		}
+	}
+	return strRef;
+}
+#endif
 
 // ============================================================================
 

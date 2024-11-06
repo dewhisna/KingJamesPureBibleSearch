@@ -77,13 +77,14 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 {
 	std::cout << "----------------------------------------\n";
 	std::cout << QString("Word: \"%1\"\n").arg(bUpperCase ? result.m_strWord.toUpper() : result.m_strWord).toUtf8().data();
-	std::cout << QString("Start Location: %1\n").arg(pBibleDatabase->PassageReferenceText(result.m_ndxStart.index(), true)).toUtf8().data();
+	std::cout << QString("Start Location: %1\n").arg(pBibleDatabase->PassageReferenceText(result.m_ndxStart, false)).toUtf8().data();
 	std::cout << QString("Skip: %1\n").arg(result.m_nSkip).toUtf8().data();
 	std::cout << QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse").toUtf8().data();
 	CRelIndex relPassageStart = CRelIndex(result.m_ndxStart.index());
 	uint64_t normalIndexResult = pBibleDatabase->NormalizeIndexEx(result.m_ndxStart);
 	uint64_t normalIndexStart = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
 	uint64_t normalIndexEnd = normalIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
+	normalIndexEnd += (result.m_nSkip+1) - ((normalIndexEnd - normalIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
 	int nChar = 0;
 	for (uint64_t normalIndex = normalIndexStart; normalIndex <= normalIndexEnd; ++normalIndex) {
 		if (normalIndex == normalIndexStart) {
