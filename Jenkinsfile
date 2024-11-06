@@ -64,6 +64,7 @@ def commonBuildStages(QTDIR, BUILD_ENV, BUILD_ARCH, BUILD_TARGET) {
                 cp KJVPhraseSearch/KJVPhraseSearch "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/"
                 cp KJVSearch/KJVSearch "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/"
                 cp KJVSumThing/KJVSumThing "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/"
+                cp ELSSearch/ELSSearch "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/"
                 #
                 cd "${WORKSPACE}/programs/KJVCanOpener/db/"
                 cp bbl-*.ccdb "${WORKSPACE_TMP}/${BUILD_TARGET}/KingJamesPureBibleSearch/db/"
@@ -177,7 +178,7 @@ builders['ubuntu_18.04_bionic_qt_5.15.2'] = {
                     #
                     cp "${WORKSPACE}/programs/KJVCanOpener/KingJamesPureBibleSearch.desktop" ./
                     cp "${WORKSPACE}/programs/KJVCanOpener/res/bible_256.png" KingJamesPureBibleSearch.png
-                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -no-copy-copyright-files -qmake=${QTDIR}/bin/qmake -executable=KJVDataDump -executable=KJVDataParse -executable=KJVDictWord -executable=KJVDiff -executable=KJVLookup -executable=KJVPhraseDump -executable=KJVPhraseSearch -executable=KJVSearch -executable=KJVSumThing
+                    linuxdeployqt KingJamesPureBibleSearch.desktop -appimage -no-copy-copyright-files -qmake=${QTDIR}/bin/qmake -executable=KJVDataDump -executable=KJVDataParse -executable=KJVDictWord -executable=KJVDiff -executable=KJVLookup -executable=KJVPhraseDump -executable=KJVPhraseSearch -executable=KJVSearch -executable=KJVSumThing -executable=ELSSearch
                     cp *.AppImage "${WORKSPACE}/"
                     rm *.AppImage
                 '''
