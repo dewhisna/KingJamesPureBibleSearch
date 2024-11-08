@@ -613,7 +613,7 @@ public:
 		//	as generally needed by search/analysis consumers.
 		if (nLtr == 0) return QChar();
 		--nLtr;					// one-originated
-		if (nLtr < rawWord().size()) return rawWord().at(nLtr);
+		if (nLtr < static_cast<uint32_t>(rawWord().size())) return rawWord().at(nLtr);
 		return QChar();
 	}
 #endif

@@ -2526,7 +2526,7 @@ QChar CBibleDatabase::letterAtIndex(uint64_t ndxNormalEx) const
 	if (pConcordanceEntry) {
 		uint32_t nLtr = relExIndex.letter();
 		if (nLtr) --nLtr;		// Make zero-originated, but let 0 be equivalent to 1
-		if (nLtr < pConcordanceEntry->rawWord().size()) return pConcordanceEntry->rawWord().at(nLtr);
+		if (nLtr < static_cast<uint32_t>(pConcordanceEntry->rawWord().size())) return pConcordanceEntry->rawWord().at(nLtr);
 	}
 	return QChar(' ');
 }
