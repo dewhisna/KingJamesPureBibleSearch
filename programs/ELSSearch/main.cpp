@@ -38,15 +38,23 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QMap>
 #include <QtGlobal>
 #if QT_VERSION < 0x050000
 #include <QTextCodec>
 #endif
 #include <QElapsedTimer>
+#include <QFuture>
+#include <QFutureSynchronizer>
+#include <QtConcurrent>
 
 #include <iostream>
 #include <set>
 #include <algorithm>
+#include <numeric>
+#if QT_VERSION < 0x060000
+#include <functional>		// Needed for std::bind on Qt5 path
+#endif
 
 #include "../KJVCanOpener/PathConsts.h"
 
@@ -106,10 +114,77 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 
 // ----------------------------------------------------------------------------
 
+// Concurrent Threading function to locate the ELS entries for a single skip distance:
+auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase, const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev) {
+	// Results storage (for this skip):
+	QList<CELSResult> lstResults;
+
+	// Get maximum search word lengths to know bounds of search:
+	int nMaxLength = lstSearchWords.last().size();
+
+	// Compute starting index for the first letter in the Bible:
+	CRelIndexEx ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
+	uint64_t normalCurrent = pBibleDatabase->NormalizeIndexEx(ndxCurrent);
+
+	// Compute ending index for the last letter in the Bible:
+	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
+	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
+	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+	uint64_t normalLast = pBibleDatabase->NormalizeIndexEx(ndxLast);
+	Q_ASSERT((normalLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
+
+	while (normalCurrent <= normalLast) {
+		int ndxSearchWord = 0;				// Index to current search word being tested
+		for (int nLen = lstSearchWords.at(ndxSearchWord).size(); nLen <= nMaxLength; ++nLen) {
+			if (ndxSearchWord >= lstSearchWords.size()) break;
+			while ((ndxSearchWord < lstSearchWords.size()) &&					// Find next word in list at least nLen long
+				   (lstSearchWords.at(ndxSearchWord).size() < nLen)) {
+				++ndxSearchWord;
+			}
+			if (lstSearchWords.at(ndxSearchWord).size() > nLen) continue;		// Find length of next longest word in the list
+			uint64_t normalRequired = normalCurrent + (nSkip*(nLen-1)) + nLen - 1;
+			if (normalRequired > normalLast) continue;		// Stop if the search would run off the end of the text
+
+			QString strWord;
+			uint64_t normalLetter = normalCurrent;		// Normal for the current letter being extracted
+			for (int i = 0; i < nLen; ++i) {
+				// strWord += pBibleDatabase->letterAtIndex(normalLetter);
+				strWord += g_lstLetterMatrix.at(normalLetter);
+				normalLetter += nSkip + 1;
+			}
+
+			for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
+				if (lstSearchWords.at(ndxWord).size() != nLen) break;				// Check all words of this length only and exit when we hit a longer word
+				if (strWord.compare(lstSearchWords.at(ndxWord)) == 0) {				// Check forward direction
+					CELSResult result;
+					result.m_strWord = strWord;
+					result.m_nSkip = nSkip;
+					result.m_ndxStart = pBibleDatabase->DenormalizeIndexEx(normalCurrent);
+					result.m_nDirection = Qt::LeftToRight;
+					lstResults.append(result);
+				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
+					CELSResult result;
+					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
+					result.m_nSkip = nSkip;
+					result.m_ndxStart = pBibleDatabase->DenormalizeIndexEx(normalCurrent);
+					result.m_nDirection = Qt::RightToLeft;
+					lstResults.append(result);
+				}
+			}
+		}
+
+		++normalCurrent;
+	}
+
+	return lstResults;
+};
+
+// ----------------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
-	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	QCoreApplication app(argc, argv);
+	app.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -129,6 +204,7 @@ int main(int argc, char *argv[])
 	TBibleDescriptor bblDescriptor;
 	bool bUnknownOption = false;
 	// ----
+	bool bRunMultithreaded = false;
 	bool bSkipColophons = false;
 	bool bSkipSuperscriptions = false;
 	bool bOutputWordsAllUppercase = false;
@@ -148,6 +224,8 @@ int main(int argc, char *argv[])
 			} else {
 				bUnknownOption = true;
 			}
+		} else if (strArg.compare("-mt") == 0) {
+			bRunMultithreaded = true;
 		} else if (strArg.compare("-sc") == 0) {
 			bSkipColophons = true;
 		} else if (strArg.compare("-ss") == 0) {
@@ -163,12 +241,13 @@ int main(int argc, char *argv[])
 	if (lstSearchWords.isEmpty()) bUnknownOption = true;		// Must have at least one search word
 
 	if ((nArgsFound != 4) || (bUnknownOption)) {
-		std::cerr << QString("ELSSearch Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Min-Letter-Skip> <Max-Letter-Skip> <Words>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database and searches for the specified <Words> at ELS\n").toUtf8().data();
 		std::cerr << QString("    skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>\n\n").toUtf8().data();
 		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
+		std::cerr << QString("  -mt =  Run Multi-Threaded\n").toUtf8().data();
 // TODO : Figure out how to skip colophons and superscriptions and how to properly define their search order:
 //		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
 //		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
@@ -227,16 +306,8 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-	// Results counts:
-	QList<int> lstResultsWordCountForward;
-	QList<int> lstResultsWordCountReverse;
-
 	// Make all search words lower case and sort by ascending word length:
-	for (auto &strSearchWord : lstSearchWords) {
-		strSearchWord = strSearchWord.toLower();
-		lstResultsWordCountForward.append(0);
-		lstResultsWordCountReverse.append(0);
-	}
+	for (auto &strSearchWord : lstSearchWords) strSearchWord = strSearchWord.toLower();
 	std::sort(lstSearchWords.begin(), lstSearchWords.end(), [](const QString &s1, const QString &s2)->bool {
 		return (s1.size() < s2.size());
 	});
@@ -245,79 +316,95 @@ int main(int argc, char *argv[])
 	QStringList lstSearchWordsRev = lstSearchWords;
 	for (auto &strSearchWord : lstSearchWordsRev) std::reverse(strSearchWord.begin(), strSearchWord.end());
 
-	// Get maximum search word lengths to know bounds of search:
-	int nMaxLength = lstSearchWords.last().size();
-
-	// Results storage:
+	// Results storage (for all skips):
 	QList<CELSResult> lstResults;
 
 	// Perform the Search:
 	QElapsedTimer elapsedTime;
 	elapsedTime.start();
-	for (int nSkip = nMinSkip; nSkip <= nMaxSkip; ++nSkip) {
-		std::cerr << QString("Search Skip: %1").arg(nSkip).toUtf8().data();
+	std::cerr << "Searching";
 
-		CRelIndexEx ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
-		uint64_t normalCurrent = pBibleDatabase->NormalizeIndexEx(ndxCurrent);
+	// Build list of skips to search:
+#if QT_VERSION < 0x060000
+	// NOTE: Unlike Qt6, Qt 5 has no constructor to prepopulate the list:
+	QList<int> lstSkips;
+	lstSkips.reserve(nMaxSkip - nMinSkip + 1);
+	for (int nSkip = nMinSkip; nSkip <= nMaxSkip; ++nSkip) lstSkips.append(0);
+#else
+	QList<int> lstSkips(nMaxSkip - nMinSkip + 1);
+#endif
+	std::iota(lstSkips.begin(), lstSkips.end(), nMinSkip);
 
-		CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
-		const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
-		if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-		uint64_t normalLast = pBibleDatabase->NormalizeIndexEx(ndxLast);
-		Q_ASSERT((normalLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
+	if (bRunMultithreaded) {
 
-		uint64_t progressRate = (normalLast - normalCurrent + 1) / 100;
-		int nResultCount = 0;
-
-		while (normalCurrent <= normalLast) {
-			if ((normalCurrent % progressRate) == 0) std::cerr << ".";
-			int ndxSearchWord = 0;				// Index to current search word being tested
-			for (int nLen = lstSearchWords.at(ndxSearchWord).size(); nLen <= nMaxLength; ++nLen) {
-				if (ndxSearchWord >= lstSearchWords.size()) break;
-				while ((ndxSearchWord < lstSearchWords.size()) &&					// Find next word in list at least nLen long
-					   (lstSearchWords.at(ndxSearchWord).size() < nLen)) {
-					++ndxSearchWord;
-				}
-				if (lstSearchWords.at(ndxSearchWord).size() > nLen) continue;		// Find length of next longest word in the list
-				uint64_t normalRequired = normalCurrent + (nSkip*(nLen-1)) + nLen - 1;
-				if (normalRequired > normalLast) continue;		// Stop if the search would run off the end of the text
-
-				QString strWord;
-				uint64_t normalLetter = normalCurrent;		// Normal for the current letter being extracted
-				for (int i = 0; i < nLen; ++i) {
-					// strWord += pBibleDatabase->letterAtIndex(normalLetter);
-					strWord += g_lstLetterMatrix.at(normalLetter);
-					normalLetter += nSkip + 1;
-				}
-
-				for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
-					if (lstSearchWords.at(ndxWord).size() != nLen) break;				// Check all words of this length only and exit when we hit a longer word
-					if (strWord.compare(lstSearchWords.at(ndxWord)) == 0) {				// Check forward direction
-						CELSResult result;
-						result.m_strWord = strWord;
-						result.m_nSkip = nSkip;
-						result.m_ndxStart = pBibleDatabase->DenormalizeIndexEx(normalCurrent);
-						result.m_nDirection = Qt::LeftToRight;
-						lstResults.append(result);
-						lstResultsWordCountForward[ndxWord]++;
-						++nResultCount;
-					} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
-						CELSResult result;
-						result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
-						result.m_nSkip = nSkip;
-						result.m_ndxStart = pBibleDatabase->DenormalizeIndexEx(normalCurrent);
-						result.m_nDirection = Qt::RightToLeft;
-						lstResults.append(result);
-						lstResultsWordCountReverse[ndxWord]++;
-						++nResultCount;
-					}
-				}
+#if QT_VERSION < 0x060000
+		// NOTE: Qt 5 can't use lambdas for the functors in the mappedReduced() call.
+		//	So this dance works around that by having normal functions for it:
+		class FutureRunner {
+		public:
+			FutureRunner(const CBibleDatabase *pBibleDatabase, const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev)
+				:	m_pBibleDatabase(pBibleDatabase),
+					m_lstSearchWords(lstSearchWords),
+					m_lstSearchWordsRev(lstSearchWordsRev)
+			{ }
+			QList<CELSResult> run(int nSkip)
+			{
+				return findELS(nSkip, m_pBibleDatabase, m_lstSearchWords, m_lstSearchWordsRev);
+			}
+			static void reduce(QList<CELSResult> &lstResults, const QList<CELSResult> &result)
+			{
+				lstResults.append(result);
+				std::cerr << ".";
 			}
 
-			++normalCurrent;
-		}
+		private:
+			const CBibleDatabase *m_pBibleDatabase;
+			const QStringList &m_lstSearchWords;
+			const QStringList &m_lstSearchWordsRev;
+		} runner(pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev);
+#endif
 
-		std::cerr << QString("%1\n").arg(nResultCount).toUtf8().data();
+		QFutureSynchronizer< QList<CELSResult> > synchronizer;
+#if QT_VERSION < 0x060000
+		synchronizer.setFuture(
+			QtConcurrent::mappedReduced(lstSkips,
+										std::bind(&FutureRunner::run, &runner, std::placeholders::_1),
+										&FutureRunner::reduce)
+		);
+#else
+		synchronizer.setFuture(
+			QtConcurrent::mappedReduced(lstSkips,
+				[&](int nSkip)->QList<CELSResult>
+				{
+					return findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev);
+				},
+				[](QList<CELSResult> &lstResults, const QList<CELSResult> &result)
+				{
+					lstResults.append(result);
+					std::cerr << ".";
+				}
+			)
+		);
+#endif
+		synchronizer.waitForFinished();
+		lstResults = synchronizer.futures().at(0).result();
+	} else {
+		for (auto const & nSkip : lstSkips) {
+			lstResults.append(findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev));
+			std::cerr << ".";
+		}
+	}
+
+	// Results counts:
+	QMap<QString, int> mapResultsWordCountForward;
+	QMap<QString, int> mapResultsWordCountReverse;
+
+	for (auto const & result : lstResults) {
+		if (result.m_nDirection == Qt::LeftToRight) {
+			mapResultsWordCountForward[result.m_strWord]++;
+		} else {
+			mapResultsWordCountReverse[result.m_strWord]++;
+		}
 	}
 
 	std::cerr << "\n";
@@ -327,9 +414,9 @@ int main(int argc, char *argv[])
 	// Print Summary:
 	std::cout << "Word Occurrence Count:\n";
 	for (int i = 0; i < lstSearchWords.size(); ++i) {
-		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(lstSearchWords.at(i))
-						 .arg(lstResultsWordCountForward.at(i))
-						 .arg(lstResultsWordCountReverse.at(i)).toUtf8().data();
+		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(bOutputWordsAllUppercase ? lstSearchWords.at(i).toUpper() : lstSearchWords.at(i))
+						 .arg(mapResultsWordCountForward[lstSearchWords.at(i)])
+						 .arg(mapResultsWordCountReverse[lstSearchWords.at(i)]).toUtf8().data();
 	}
 	std::cout << "\n";
 
@@ -353,7 +440,6 @@ int main(int argc, char *argv[])
 
 	// ------------------------------------------------------------------------
 
-//	return a.exec();
 	return 0;
 }
 
