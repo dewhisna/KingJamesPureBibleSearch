@@ -33,7 +33,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # =============================================================================
@@ -79,6 +79,27 @@ endforeach()
 
 # -----------------------------------------------------------------------------
 
+
+# =============================================================================
+
+# The MyZLIB library in QtIOCompressor is an ALIAS when it's bundled from
+#   Qt and isn't globally visible to parent.  So, if it would be the Qt
+#   Bundled version, we need to realias it here.  For the other cases
+#   we will already have built MyZLIB from source.  See comments in
+#	QtIOCompressor.
+find_package(Qt${QT_VERSION_MAJOR}Zlib QUIET)
+if(Qt${QT_VERSION_MAJOR}Zlib_FOUND)
+	# If we have a Qt Zlib, wrap it ourselves:
+	add_library(MyZLIB ALIAS Qt${QT_VERSION_MAJOR}::Zlib)
+	message(STATUS "${CMAKE_PROJECT_NAME} Found: Qt${QT_VERSION_MAJOR}Zlib")
+else()
+	find_package(Qt${QT_VERSION_MAJOR}BundledZLIB QUIET)
+	if(Qt${QT_VERSION_MAJOR}BundledZLIB_FOUND)
+		# If we have a Qt BundledZLIB, wrap it ourselves:
+		add_library(MyZLIB ALIAS Qt${QT_VERSION_MAJOR}::BundledZLIB)
+		message(STATUS "${CMAKE_PROJECT_NAME} Found: Qt${QT_VERSION_MAJOR}BundledZLIB")
+	endif()
+endif()
 
 # =============================================================================
 
