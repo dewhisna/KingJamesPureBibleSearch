@@ -81,6 +81,18 @@ public:
 	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
 };
 
+uint64_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRelIndexEx nRelIndexEx)
+{
+	return pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
+}
+
+CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint64_t nMatrixIndex)
+{
+	return pBibleDatabase->DenormalizeIndexEx(nMatrixIndex);
+}
+
+// ----------------------------------------------------------------------------
+
 void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result, bool bUpperCase)
 {
 	std::cout << "----------------------------------------\n";
@@ -89,25 +101,25 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 	std::cout << QString("Skip: %1\n").arg(result.m_nSkip).toUtf8().data();
 	std::cout << QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse").toUtf8().data();
 	CRelIndex relPassageStart = CRelIndex(result.m_ndxStart.index());
-	uint64_t normalIndexResult = pBibleDatabase->NormalizeIndexEx(result.m_ndxStart);
-	uint64_t normalIndexStart = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
-	uint64_t normalIndexEnd = normalIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
-	normalIndexEnd += (result.m_nSkip+1) - ((normalIndexEnd - normalIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
+	uint64_t matrixIndexResult = matrixIndexFromRelIndex(pBibleDatabase, result.m_ndxStart);
+	uint64_t matrixIndexStart = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
+	uint64_t martixIndexEnd = matrixIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
+	martixIndexEnd += (result.m_nSkip+1) - ((martixIndexEnd - matrixIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
 	int nChar = 0;
-	for (uint64_t normalIndex = normalIndexStart; normalIndex <= normalIndexEnd; ++normalIndex) {
-		if (normalIndex == normalIndexStart) {
+	for (uint64_t normalIndex = matrixIndexStart; normalIndex <= martixIndexEnd; ++normalIndex) {
+		if (normalIndex == matrixIndexStart) {
 			std::cout << "\n";
-			normalIndexStart += result.m_nSkip+1;
+			matrixIndexStart += result.m_nSkip+1;
 		}
 		if (normalIndex >= static_cast<uint64_t>(g_lstLetterMatrix.size())) break;
-		std::cout << ((normalIndex == normalIndexResult) ? "[" : " ");
+		std::cout << ((normalIndex == matrixIndexResult) ? "[" : " ");
 		if (bUpperCase) {
 			std::cout << QString(g_lstLetterMatrix.at(normalIndex).toUpper()).toUtf8().data();
 		} else {
 			std::cout << QString(g_lstLetterMatrix.at(normalIndex)).toUtf8().data();
 		}
-		std::cout << ((normalIndex == normalIndexResult) ? "]" : " ");
-		if ((normalIndex == normalIndexResult) && (++nChar < result.m_strWord.size())) normalIndexResult += result.m_nSkip+1;
+		std::cout << ((normalIndex == matrixIndexResult) ? "]" : " ");
+		if ((normalIndex == matrixIndexResult) && (++nChar < result.m_strWord.size())) matrixIndexResult += result.m_nSkip+1;
 	}
 	std::cout << "\n";
 }
@@ -124,16 +136,16 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase, const QString
 
 	// Compute starting index for the first letter in the Bible:
 	CRelIndexEx ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
-	uint64_t normalCurrent = pBibleDatabase->NormalizeIndexEx(ndxCurrent);
+	uint64_t matrixIndexCurrent = matrixIndexFromRelIndex(pBibleDatabase, ndxCurrent);
 
 	// Compute ending index for the last letter in the Bible:
 	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
 	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint64_t normalLast = pBibleDatabase->NormalizeIndexEx(ndxLast);
-	Q_ASSERT((normalLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
+	uint64_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase, ndxLast);
+	Q_ASSERT((matrixIndexLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
 
-	while (normalCurrent <= normalLast) {
+	while (matrixIndexCurrent <= matrixIndexLast) {
 		int ndxSearchWord = 0;				// Index to current search word being tested
 		for (int nLen = lstSearchWords.at(ndxSearchWord).size(); nLen <= nMaxLength; ++nLen) {
 			if (ndxSearchWord >= lstSearchWords.size()) break;
@@ -142,15 +154,14 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase, const QString
 				++ndxSearchWord;
 			}
 			if (lstSearchWords.at(ndxSearchWord).size() > nLen) continue;		// Find length of next longest word in the list
-			uint64_t normalRequired = normalCurrent + (nSkip*(nLen-1)) + nLen - 1;
-			if (normalRequired > normalLast) continue;		// Stop if the search would run off the end of the text
+			uint64_t matrixIndexNext = matrixIndexCurrent + (nSkip*(nLen-1)) + nLen - 1;
+			if (matrixIndexNext > matrixIndexLast) continue;		// Stop if the search would run off the end of the text
 
 			QString strWord;
-			uint64_t normalLetter = normalCurrent;		// Normal for the current letter being extracted
+			uint64_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
 			for (int i = 0; i < nLen; ++i) {
-				// strWord += pBibleDatabase->letterAtIndex(normalLetter);
-				strWord += g_lstLetterMatrix.at(normalLetter);
-				normalLetter += nSkip + 1;
+				strWord += g_lstLetterMatrix.at(matrixIndexLetter);
+				matrixIndexLetter += nSkip + 1;
 			}
 
 			for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
@@ -159,21 +170,21 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase, const QString
 					CELSResult result;
 					result.m_strWord = strWord;
 					result.m_nSkip = nSkip;
-					result.m_ndxStart = pBibleDatabase->DenormalizeIndexEx(normalCurrent);
+					result.m_ndxStart = relIndexFromMatrixIndex(pBibleDatabase, matrixIndexCurrent);
 					result.m_nDirection = Qt::LeftToRight;
 					lstResults.append(result);
 				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
 					CELSResult result;
 					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
 					result.m_nSkip = nSkip;
-					result.m_ndxStart = pBibleDatabase->DenormalizeIndexEx(normalCurrent);
+					result.m_ndxStart = relIndexFromMatrixIndex(pBibleDatabase, matrixIndexCurrent);
 					result.m_nDirection = Qt::RightToLeft;
 					lstResults.append(result);
 				}
 			}
 		}
 
-		++normalCurrent;
+		++matrixIndexCurrent;
 	}
 
 	return lstResults;
