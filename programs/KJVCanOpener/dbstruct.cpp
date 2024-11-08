@@ -1222,61 +1222,65 @@ CRelIndex CBibleDatabase::TVersificationLayout::DenormalizeIndex(uint32_t nNorma
 }
 
 #ifdef USE_EXTENDED_INDEXES
-uint64_t CBibleDatabase::NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const
+uint64_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const
 {
-	unsigned int nBk = ndxRelIndex.book();
-	unsigned int nChp = ndxRelIndex.chapter();
-	unsigned int nVrs = ndxRelIndex.verse();;
-	unsigned int nWrd = ndxRelIndex.word();
-	uint32_t nLtr = ndxRelIndex.letter();
+	Q_ASSERT(m_pParentBibleDatabase != nullptr);
+
+	unsigned int nBk = ndxRelIndexEx.book();
+	unsigned int nChp = ndxRelIndexEx.chapter();
+	unsigned int nVrs = ndxRelIndexEx.verse();;
+	unsigned int nWrd = ndxRelIndexEx.word();
+	uint32_t nLtr = ndxRelIndexEx.letter();
 	uint32_t nWordNormal = 0;
 
-	if (!ndxRelIndex.isSet()) return 0;
+	if (!ndxRelIndexEx.isSet()) return 0;
 
 	if (nBk == 0) return 0;
-	if (nBk > m_itrCurrentLayout->m_lstBooks.size()) return 0;
-	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
-	if (nChp > m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp) return 0;
-	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
+	if (nBk > m_lstBooks.size()) return 0;
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
+	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nWrd == 0) nWrd = 1;
 	if (nLtr == 0) nLtr = 1;
 	if (nChp > 0) {
 		// Note: Allow "first verse" to be equivalent to the "zeroth verse" to correctly handle chapters that are empty:
 		// Note: Allow "first word" to be equivalent to the "zeroth word" to correctly handle verses that are empty:
 		if ((nVrs == 1) && (nWrd == 1)) {
-			if (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
-				nWordNormal = (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
-						(m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
+			if (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription) {
+				nWordNormal = (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd +
+						(m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,0,0)).m_nNumWrd);
 				goto NormalizeIndexEx_completter;
 			}
-			nWordNormal = (m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
+			nWordNormal = (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nWrdAccum + nWrd);
 			goto NormalizeIndexEx_completter;
 		}
-		if (nVrs > m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
+		if (nVrs > m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs) return 0;
 	} else {
 		if (nVrs != 0) return 0;
 	}
-	if (nWrd > (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
+	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 
-	nWordNormal = ((m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
+	nWordNormal = ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
 
 NormalizeIndexEx_completter:
-	if (nLtr > concordanceEntryForWordAtIndex(nWordNormal)->letterCount()) return 0;
-	uint64_t nLetterNormal = (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	if (nLtr > m_pParentBibleDatabase->concordanceEntryForWordAtIndex(nWordNormal)->letterCount()) return 0;
+	uint64_t nLetterNormal = (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
 	while (--nWrd) {		// Add letters of previous words (order is reversed)
-		nLetterNormal += concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
+		nLetterNormal += m_pParentBibleDatabase->concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
 	}
 	return (nLetterNormal + nLtr);
 }
 
-CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint64_t nNormalIndexEx) const
+CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint64_t nNormalIndexEx) const
 {
+	Q_ASSERT(m_pParentBibleDatabase != nullptr);
+
 	uint64_t nLtr = nNormalIndexEx;
 
 	if (nLtr == 0) return 0;
 
-	uint32_t nBk = static_cast<uint32_t>(m_itrCurrentLayout->m_lstBooks.size());
-	while ((nBk > 0) && (nLtr <= m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nLtrAccum)) {
+	uint32_t nBk = static_cast<uint32_t>(m_lstBooks.size());
+	while ((nBk > 0) && (nLtr <= m_lstBooks.at(nBk-1).m_nLtrAccum)) {
 		nBk--;
 	}
 	if (nBk == 0) {
@@ -1284,33 +1288,33 @@ CRelIndexEx CBibleDatabase::DenormalizeIndexEx(uint64_t nNormalIndexEx) const
 		return 0;
 	}
 
-	unsigned int nChp = m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_nNumChp;
-	while ((nChp > 0) && (nLtr <= m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum)) {
+	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;
+	while ((nChp > 0) && (nLtr <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum)) {
 		nChp--;
 	}
-	if ((nChp == 0) && (!m_itrCurrentLayout->m_lstBooks.at(nBk-1).m_bHaveColophon)) {
+	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
 		Q_ASSERT(false);
 		return 0;
 	}
 
-	unsigned int nVrs = ((nChp != 0) ? m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
-	while ((nVrs > 0) && (nLtr <= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum)) {
+	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
+	while ((nVrs > 0) && (nLtr <= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum)) {
 		nVrs--;
 	}
-	if ((nVrs == 0) && (nChp != 0) && (!m_itrCurrentLayout->m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
+	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) {
 		Q_ASSERT(false);
 		return 0;
 	}
 
-	nLtr -= (m_itrCurrentLayout->m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	nLtr -= (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
 	unsigned int nWrd = 1;
-	while (nWrd <= m_itrCurrentLayout->m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
-		uint32_t nWrdLtrCount = concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
+	while (nWrd <= m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+		uint32_t nWrdLtrCount = m_pParentBibleDatabase->concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
 		if (nLtr <= nWrdLtrCount) break;
 		nLtr -= nWrdLtrCount;
 		++nWrd;
 	}
-	if (nWrd > m_itrCurrentLayout->m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
+	if (nWrd > m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) {
 		// We can get here if the caller is addressing one word beyond the end-of-the-text, for example,
 		//		and this has always been defined as "0" (out-of-bounds or not-set), just like the "0"
 		//		at the beginning of the text. (so don't assert here)
@@ -2284,8 +2288,9 @@ CBibleDatabase::CBibleDatabase(const TBibleDescriptor &bblDesc)
 		m_pKJPBSWordScriptureObject(new CKJPBSWordScriptureObject(this))
 {
 	Q_ASSERT((bblDesc.m_nMainVersification >= 0) && (bblDesc.m_nMainVersification < BVTE_COUNT));
-	m_mapVersificationLayouts[bblDesc.m_nMainVersification] = TVersificationLayout();		// All databases will have a Main Versification
+	m_mapVersificationLayouts.insert(bblDesc.m_nMainVersification, TVersificationLayout(this));		// All databases will have a Main Versification
 	m_itrMainLayout = m_mapVersificationLayouts.find(bblDesc.m_nMainVersification);
+	Q_ASSERT(m_itrMainLayout->isValid());
 	m_itrCurrentLayout = m_itrMainLayout;
 	// Note: It doesn't do any good to set the m_itrCurrentLayout here
 	//	to the BibleDatabaseSettings value because this database object
@@ -2326,6 +2331,7 @@ bool CBibleDatabase::setVersificationType()
 	if (!hasVersificationType(nVersification)) return false;
 	m_itrCurrentLayout = m_mapVersificationLayouts.find(nVersification);
 	Q_ASSERT(m_itrCurrentLayout != m_mapVersificationLayouts.end());
+	Q_ASSERT(m_itrCurrentLayout->isValid());
 	return true;
 }
 

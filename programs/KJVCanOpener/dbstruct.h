@@ -1411,8 +1411,14 @@ public:
 		return m_itrCurrentLayout->DenormalizeIndex(nNormalIndex);
 	}
 #ifdef USE_EXTENDED_INDEXES
-	uint64_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndex) const;
-	CRelIndexEx DenormalizeIndexEx(uint64_t nNormalIndexEx) const;
+	uint64_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const
+	{
+		return m_itrCurrentLayout->NormalizeIndexEx(ndxRelIndexEx);
+	}
+	CRelIndexEx DenormalizeIndexEx(uint64_t nNormalIndexEx) const
+	{
+		return m_itrCurrentLayout->DenormalizeIndexEx(nNormalIndexEx);
+	}
 #endif
 
 	// calcRelIndex - Calculates a relative index from counts.  For example, starting from (0,0,0,0):
@@ -1569,18 +1575,28 @@ private:
 
 // Main Database Data:
 	struct TVersificationLayout {
+		TVersificationLayout(CBibleDatabase *pBibleDatabase = nullptr)
+			:	m_pParentBibleDatabase(pBibleDatabase)
+		{ }
+		bool isValid() const { return m_pParentBibleDatabase != nullptr; }
 #ifdef OSIS_PARSER_BUILD
 		uint32_t NormalizeIndexNoAccum(const CRelIndex &ndxRelIndex) const;
 		CRelIndex DenormalizeIndexNoAccum(uint32_t nNormalIndex) const;
 #endif
 		uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const;
 		CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
+#ifdef USE_EXTENDED_INDEXES
+		uint64_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const;
+		CRelIndexEx DenormalizeIndexEx(uint64_t nNormalIndexEx) const;
+#endif
 		// ----
 		CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
 		TTestamentList m_lstTestaments;			// Testament List: List(nTst-1)
 		TBookList m_lstBooks;					// Books (Table of Contents): List(nBk-1)
 		TChapterMap m_mapChapters;				// Chapter Entries Map: Map(CRelIndex[nBk | nChp | 0 | 0])
 		TBookVerseList m_lstBookVerses;			// Book Verse Entries List: List(nBk-1) -> Map(CRelIndex[nBk | nChp | nVrs | 0])
+	private:
+		CBibleDatabase *m_pParentBibleDatabase;	// Parent Bible Database to which this versification layout belongs
 	};
 	typedef QMap<BIBLE_VERSIFICATION_TYPE_ENUM, TVersificationLayout> TVersificationLayoutMap;
 	TVersificationLayoutMap m_mapVersificationLayouts;		// We will always have a Main Versification.  Others are optional and dependent on specific Bible database

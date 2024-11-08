@@ -1225,7 +1225,7 @@ bool CReadDatabase::ReadVersificationTables()
 		//	of books, etc., which must match across versifications:
 		CBibleDatabase::TVersificationLayoutMap::const_iterator itrMain = static_cast<CBibleDatabase::TVersificationLayoutMap::const_iterator>(m_pBibleDatabase->m_itrMainLayout);
 
-		m_pBibleDatabase->m_mapVersificationLayouts[nVersificationType] = CBibleDatabase::TVersificationLayout();
+		m_pBibleDatabase->m_mapVersificationLayouts.insert(nVersificationType, CBibleDatabase::TVersificationLayout(m_pBibleDatabase.data()));
 		CBibleDatabase::TVersificationLayoutMap::iterator itrNewV11n = m_pBibleDatabase->m_mapVersificationLayouts.find(nVersificationType);
 
 		// Setup the Testament List with things common from Main:
