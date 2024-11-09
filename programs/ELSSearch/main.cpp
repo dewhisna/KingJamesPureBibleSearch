@@ -81,13 +81,49 @@ public:
 	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
 };
 
+// ----------------------------------------------------------------------------
+
 uint64_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRelIndexEx nRelIndexEx)
 {
-	return pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
+	CRelIndex relIndex{nRelIndexEx.index()};
+	const CBookEntry *pBook = pBibleDatabase->bookEntry(relIndex);
+	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return 0;
+	uint64_t nMatrixIndex = pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
+	if (nRelIndexEx.isColophon()) {
+		Q_ASSERT(pBook->m_bHaveColophon);
+		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(relIndex);
+		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+		nMatrixIndex += (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon to end of book
+	} else {
+		if (pBook->m_bHaveColophon) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
+			const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+			nMatrixIndex -= pColophonVerse->m_nNumLtr;
+		}
+	}
+	return nMatrixIndex;
 }
 
 CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint64_t nMatrixIndex)
 {
+	// Since we are only shifting the colophons from the beginning of each book
+	//	to the end of each book, the number of letters in each book should be
+	//	the same.  Therefore, the standard Denormalize call should give the same
+	//	book:
+	CRelIndex relIndex{pBibleDatabase->DenormalizeIndexEx(nMatrixIndex)};
+	const CBookEntry *pBook = pBibleDatabase->bookEntry(relIndex);
+	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return CRelIndexEx();
+	if (pBook->m_bHaveColophon) {
+		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+		uint64_t nMatrixColophonNdx = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
+									  (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
+		if (nMatrixIndex >= nMatrixColophonNdx) {
+			nMatrixIndex -= (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon back to start of book
+		} else {
+			nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon
+		}
+	}
 	return pBibleDatabase->DenormalizeIndexEx(nMatrixIndex);
 }
 
@@ -302,16 +338,35 @@ int main(int argc, char *argv[])
 	// Create giant array of all letters from the Bible text for speed:
 	g_lstLetterMatrix.reserve(pBibleDatabase->bibleEntry().m_nNumLtr + 1);		// +1 since we reserve the 0 entry
 	g_lstLetterMatrix.append(QChar());
-	CRelIndex ndxMatrixStart = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
-	uint32_t normalMatrixStart = pBibleDatabase->NormalizeIndex(ndxMatrixStart);
+	CRelIndex ndxMatrixCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
+	CRelIndex ndxMatrixLastColophon;
 	CRelIndex ndxMatrixEnd = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
 	uint32_t normalMatrixEnd = pBibleDatabase->NormalizeIndex(ndxMatrixEnd);
-	for (uint32_t ndx = normalMatrixStart; ndx <= normalMatrixEnd; ++ndx) {
-		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndx);
+	QList<QChar> lstColophon;
+	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
+					normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
+		ndxMatrixCurrent = pBibleDatabase->DenormalizeIndex(normalMatrixCurrent);
+
+		// Transfer any pending colophon if book changes:
+		if (!lstColophon.isEmpty() && (ndxMatrixLastColophon.book() != ndxMatrixCurrent.book())) {
+			g_lstLetterMatrix.append(lstColophon);
+			lstColophon.clear();
+			ndxMatrixLastColophon.clear();
+		}
+
+		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
 		Q_ASSERT(pWordEntry != nullptr);
 		if (pWordEntry) {
 			const QString &strWord = pWordEntry->rawWord();
-			for (auto const &chrLetter : strWord) g_lstLetterMatrix.append(chrLetter);
+
+			if (!ndxMatrixCurrent.isColophon()) {
+				// Output the book as-is without shuffling:
+				for (auto const &chrLetter : strWord) g_lstLetterMatrix.append(chrLetter);
+			} else {
+				// Output colophon to temp buff:
+				for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
+				ndxMatrixLastColophon = ndxMatrixCurrent;
+			}
 		}
 	}
 
