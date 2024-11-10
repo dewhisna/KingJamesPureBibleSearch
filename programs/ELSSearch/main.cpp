@@ -214,23 +214,23 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 // ----------------------------------------------------------------------------
 
 // Concurrent Threading function to locate the ELS entries for a single skip distance:
-auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase, const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev) {
+auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
+					const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
+					unsigned int nBookStart, unsigned int nBookEnd) {
 	// Results storage (for this skip):
 	QList<CELSResult> lstResults;
 
 	// Get maximum search word lengths to know bounds of search:
 	int nMaxLength = lstSearchWords.last().size();
 
-	// Compute starting index for the first letter in the Bible:
-	CRelIndexEx ndxCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
-	uint64_t matrixIndexCurrent = matrixIndexFromRelIndex(pBibleDatabase, ndxCurrent);
+	// Compute starting index for first letter in the search range:
+	uint64_t matrixIndexCurrent = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(nBookStart, 1, 0, 1, 1));
 
-	// Compute ending index for the last letter in the Bible:
-	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
+	// Compute ending index for the last letter in the search range:
+	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
 	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
 	uint64_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase, ndxLast);
-	Q_ASSERT((matrixIndexLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
 
 	while (matrixIndexCurrent <= matrixIndexLast) {
 		int ndxSearchWord = 0;				// Index to current search word being tested
@@ -304,6 +304,8 @@ int main(int argc, char *argv[])
 	// ----
 	bool bRunMultithreaded = false;
 	bool bOutputWordsAllUppercase = false;
+	unsigned int nBookStart = 0;
+	unsigned int nBookEnd = 0;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -328,6 +330,10 @@ int main(int argc, char *argv[])
 			g_bSkipSuperscriptions = true;
 		} else if (strArg.compare("-u") == 0) {
 			bOutputWordsAllUppercase = true;
+		} else if (strArg.startsWith("-bb")) {
+			nBookStart = strArg.mid(3).toUInt();
+		} else if (strArg.startsWith("-be")) {
+			nBookEnd = strArg.mid(3).toUInt();
 		} else {
 			bUnknownOption = true;
 		}
@@ -335,6 +341,11 @@ int main(int argc, char *argv[])
 
 	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bUnknownOption = true;	// Each word must have at least two characters
 	if (lstSearchWords.isEmpty()) bUnknownOption = true;		// Must have at least one search word
+	if ((nBookStart > nBookEnd) && (nBookEnd != 0)) {			// Put starting/ending book indexes in order
+		unsigned int nTemp = nBookEnd;
+		nBookEnd = nBookStart;
+		nBookStart = nTemp;
+	}
 
 	if ((nArgsFound != 4) || (bUnknownOption)) {
 		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
@@ -343,10 +354,12 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>\n\n").toUtf8().data();
 		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
-		std::cerr << QString("  -mt =  Run Multi-Threaded\n").toUtf8().data();
-		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
-		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
-		std::cerr << QString("  -u  =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
+		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
+		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
+		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
+		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
+		std::cerr << QString("  -bb<N> =  Begin Searching in Book <N> (defaults to first)\n").toUtf8().data();
+		std::cerr << QString("  -be<N> =  End Searching in Book <N>   (defaults to last)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -383,7 +396,20 @@ int main(int argc, char *argv[])
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
+	// Set book search span:
+	if (nBookStart && (nBookStart > pBibleDatabase->bibleEntry().m_nNumBk)) {
+		std::cerr << QString("\n*** ERROR: Book %1 specified as starting book, but database only has %2 books!\n")
+						.arg(nBookStart).arg(pBibleDatabase->bibleEntry().m_nNumBk).toUtf8().data();
+		return -4;
+	}
+	if (nBookStart == 0) nBookStart = 1;
+	if ((nBookEnd == 0) || (nBookEnd > pBibleDatabase->bibleEntry().m_nNumBk)) nBookEnd = pBibleDatabase->bibleEntry().m_nNumBk;
+
 	// Create giant array of all letters from the Bible text for speed:
+	//	NOTE: This is with the entire Bible content (sans colophons/
+	//	superscriptions when they are skipped) and not the search span
+	//	so that we don't have to convert the matrix index based on the
+	//	search span.
 	g_lstLetterMatrix.reserve(pBibleDatabase->bibleEntry().m_nNumLtr + 1);		// +1 since we reserve the 0 entry
 	g_lstLetterMatrix.append(QChar());
 	CRelIndex ndxMatrixCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
@@ -443,6 +469,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Verify the matrix size as a sanity check for code bugs:
+	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
+	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
+	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+	uint64_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase.data(), ndxLast);
+	Q_ASSERT((matrixIndexLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
+
 	// ------------------------------------------------------------------------
 
 	// Make all search words lower case and sort by ascending word length:
@@ -481,14 +514,18 @@ int main(int argc, char *argv[])
 		//	So this dance works around that by having normal functions for it:
 		class FutureRunner {
 		public:
-			FutureRunner(const CBibleDatabase *pBibleDatabase, const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev)
+			FutureRunner(const CBibleDatabase *pBibleDatabase,
+						 const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
+						 unsigned int nBookStart, unsigned int nBookEnd)
 				:	m_pBibleDatabase(pBibleDatabase),
 					m_lstSearchWords(lstSearchWords),
-					m_lstSearchWordsRev(lstSearchWordsRev)
+					m_lstSearchWordsRev(lstSearchWordsRev),
+					m_nBookStart(nBookStart),
+					m_nBookEnd(nBookEnd)
 			{ }
 			QList<CELSResult> run(int nSkip)
 			{
-				return findELS(nSkip, m_pBibleDatabase, m_lstSearchWords, m_lstSearchWordsRev);
+				return findELS(nSkip, m_pBibleDatabase, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
 			}
 			static void reduce(QList<CELSResult> &lstResults, const QList<CELSResult> &result)
 			{
@@ -500,7 +537,9 @@ int main(int argc, char *argv[])
 			const CBibleDatabase *m_pBibleDatabase;
 			const QStringList &m_lstSearchWords;
 			const QStringList &m_lstSearchWordsRev;
-		} runner(pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev);
+			unsigned int m_nBookStart;
+			unsigned int m_nBookEnd;
+		} runner(pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
 #endif
 
 		QFutureSynchronizer< QList<CELSResult> > synchronizer;
@@ -515,7 +554,7 @@ int main(int argc, char *argv[])
 			QtConcurrent::mappedReduced(lstSkips,
 				[&](int nSkip)->QList<CELSResult>
 				{
-					return findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev);
+					return findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
 				},
 				[](QList<CELSResult> &lstResults, const QList<CELSResult> &result)
 				{
@@ -529,7 +568,7 @@ int main(int argc, char *argv[])
 		lstResults = synchronizer.futures().at(0).result();
 	} else {
 		for (auto const & nSkip : lstSkips) {
-			lstResults.append(findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev));
+			lstResults.append(findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd));
 			std::cerr << ".";
 		}
 	}
@@ -551,7 +590,16 @@ int main(int argc, char *argv[])
 	std::cerr << QString("Search Time: %1 secs\n\n").arg(elapsedTime.elapsed() / 1000.0).toUtf8().data();
 
 	// Print Search Spec:
-	std::cout << "Searching for ELS skips from " << nMinSkip << " to " << nMaxSkip << " in Entire Bible\n";
+	QString strBookRange;
+	if ((nBookStart == 1) && (nBookEnd == pBibleDatabase->bibleEntry().m_nNumBk)) {
+		strBookRange = "Entire Bible";
+	} else {
+		strBookRange = QString("%1 through %2")
+								.arg(pBibleDatabase->bookName(CRelIndex(nBookStart, 0, 0, 0)))
+								.arg(pBibleDatabase->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
+	}
+	std::cout << "Searching for ELS skips from " << nMinSkip << " to " << nMaxSkip;
+	std::cout << " in " << strBookRange.toUtf8().data() << "\n";
 	if (g_bSkipColophons) std::cout << "Skipping Colophons\n";
 	if (g_bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
 
