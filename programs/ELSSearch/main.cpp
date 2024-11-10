@@ -73,6 +73,20 @@ namespace {
 // Create giant array of all letters from the Bible text for speed:
 QList<QChar> g_lstLetterMatrix;
 
+bool g_bSkipColophons = false;
+bool g_bSkipSuperscriptions = false;
+
+// Matrix index to letter count shift for normalize/denormalize computations:
+//	When we are skipping colophons and/or superscriptions, the matrix index
+//	of what would be the colophon/superscription is set here with the number
+//	of letters to skip for it.  When transforming to/from matrix index and
+//	database normal/rel index, this map will be scanned for all values of
+//	matrix index less than or equal to the one being transformed and the
+//	corresponding letter count added or subtracted (depending on direction
+//	of the transformation):
+typedef QMap<uint64_t, uint32_t> TMapMatrixIndexToLetterShift;	// MatrixIndex -> LetterCount
+TMapMatrixIndexToLetterShift g_mapMatrixIndexToLetterShift;
+
 class CELSResult {
 public:
 	QString m_strWord;
@@ -101,11 +115,45 @@ uint64_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRe
 			nMatrixIndex -= pColophonVerse->m_nNumLtr;
 		}
 	}
+
+	// Note: Since the colophon transform mapping is inserted at the
+	//	point where the colophon would be (after moving) in the matrix, then
+	//	we must do this index transform after the other colophon transforms:
+	// Note: These must be subtracted as we go as these shifts must be cumulative
+	//	(unlike the other direction):
+	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = g_mapMatrixIndexToLetterShift.cbegin();
+		 itrXformMatrix != g_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
+		if (itrXformMatrix.key() <= nMatrixIndex) {
+			nMatrixIndex -= itrXformMatrix.value();
+		} else {
+			break;
+		}
+	}
+
 	return nMatrixIndex;
 }
 
 CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint64_t nMatrixIndex)
 {
+	// Note: Since the colophon transform mapping is inserted at the
+	//	point where the colophon would be (after moving) in the matrix, then
+	//	we must do this index transform prior to other colophon transforms.
+	//	This is also needed for the logic below where we do a denormalization
+	//	of MatrixIndex and it needs to have the correct number of letters prior
+	//	to this point:
+	// Note: These must be added after we've accumulated the total as these
+	//	shouldn't be cumulative (unlike the other direction):
+	uint32_t nLetterShift = 0;
+	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = g_mapMatrixIndexToLetterShift.cbegin();
+		 itrXformMatrix != g_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
+		if (itrXformMatrix.key() <= nMatrixIndex) {
+			nLetterShift += itrXformMatrix.value();
+		} else {
+			break;
+		}
+	}
+	nMatrixIndex += nLetterShift;
+
 	// Since we are only shifting the colophons from the beginning of each book
 	//	to the end of each book, the number of letters in each book should be
 	//	the same.  Therefore, the standard Denormalize call should give the same
@@ -113,13 +161,16 @@ CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint64
 	CRelIndex relIndex{pBibleDatabase->DenormalizeIndexEx(nMatrixIndex)};
 	const CBookEntry *pBook = pBibleDatabase->bookEntry(relIndex);
 	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return CRelIndexEx();
-	if (pBook->m_bHaveColophon) {
+
+	if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
 		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
 		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
 		uint64_t nMatrixColophonNdx = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
 									  (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
 		if (nMatrixIndex >= nMatrixColophonNdx) {
-			nMatrixIndex -= (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon back to start of book
+			if (!g_bSkipColophons) {	// Don't adjust for the colophon here if we skipped it
+				nMatrixIndex -= (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon back to start of book
+			}
 		} else {
 			nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon
 		}
@@ -252,8 +303,6 @@ int main(int argc, char *argv[])
 	bool bUnknownOption = false;
 	// ----
 	bool bRunMultithreaded = false;
-	bool bSkipColophons = false;
-	bool bSkipSuperscriptions = false;
 	bool bOutputWordsAllUppercase = false;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
@@ -274,9 +323,9 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-mt") == 0) {
 			bRunMultithreaded = true;
 		} else if (strArg.compare("-sc") == 0) {
-			bSkipColophons = true;
+			g_bSkipColophons = true;
 		} else if (strArg.compare("-ss") == 0) {
-			bSkipSuperscriptions = true;
+			g_bSkipSuperscriptions = true;
 		} else if (strArg.compare("-u") == 0) {
 			bOutputWordsAllUppercase = true;
 		} else {
@@ -295,9 +344,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -mt =  Run Multi-Threaded\n").toUtf8().data();
-// TODO : Figure out how to skip colophons and superscriptions and how to properly define their search order:
-//		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
-//		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
+		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
+		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -u  =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
@@ -339,19 +387,33 @@ int main(int argc, char *argv[])
 	g_lstLetterMatrix.reserve(pBibleDatabase->bibleEntry().m_nNumLtr + 1);		// +1 since we reserve the 0 entry
 	g_lstLetterMatrix.append(QChar());
 	CRelIndex ndxMatrixCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
-	CRelIndex ndxMatrixLastColophon;
 	CRelIndex ndxMatrixEnd = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
 	uint32_t normalMatrixEnd = pBibleDatabase->NormalizeIndex(ndxMatrixEnd);
 	QList<QChar> lstColophon;
+	CRelIndex ndxMatrixLastColophon;
+	QList<QChar> lstSuperscription;
+	CRelIndex ndxMatrixLastSuperscription;
 	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
 					normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
 		ndxMatrixCurrent = pBibleDatabase->DenormalizeIndex(normalMatrixCurrent);
 
 		// Transfer any pending colophon if book changes:
 		if (!lstColophon.isEmpty() && (ndxMatrixLastColophon.book() != ndxMatrixCurrent.book())) {
-			g_lstLetterMatrix.append(lstColophon);
+			if (!g_bSkipColophons) {
+				g_lstLetterMatrix.append(lstColophon);
+			} else {
+				g_mapMatrixIndexToLetterShift[g_lstLetterMatrix.size()] = lstColophon.size();
+			}
 			lstColophon.clear();
 			ndxMatrixLastColophon.clear();
+		}
+
+		// Check for skipped superscription to map:
+		if (!lstSuperscription.isEmpty() && (ndxMatrixLastSuperscription.verse() != ndxMatrixCurrent.verse())) {
+			Q_ASSERT(g_bSkipSuperscriptions);		// Should only be here if actually skipping the superscriptions
+			g_mapMatrixIndexToLetterShift[g_lstLetterMatrix.size()] = lstSuperscription.size();
+			lstSuperscription.clear();
+			ndxMatrixLastSuperscription.clear();
 		}
 
 		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
@@ -360,8 +422,19 @@ int main(int argc, char *argv[])
 			const QString &strWord = pWordEntry->rawWord();
 
 			if (!ndxMatrixCurrent.isColophon()) {
-				// Output the book as-is without shuffling:
-				for (auto const &chrLetter : strWord) g_lstLetterMatrix.append(chrLetter);
+				if (!ndxMatrixCurrent.isSuperscription() || !g_bSkipSuperscriptions) {
+					// Output the book as-is without shuffling:
+					for (auto const &chrLetter : strWord) g_lstLetterMatrix.append(chrLetter);
+				} else {
+					// If skipping superscriptions, put them on a local buffer like
+					//	we did with colophons so that when we hit the next "verse"
+					//	(i.e. exit the superscription), we can insert a MatrixIndex
+					//	to LetterShift mapping.  Note that unlike colophons, since
+					//	we aren't moving the superscription itself, this buffer is
+					//	never transferred to the matrix:
+					for (auto const &chrLetter : strWord) lstSuperscription.append(chrLetter);
+					ndxMatrixLastSuperscription = ndxMatrixCurrent;
+				}
 			} else {
 				// Output colophon to temp buff:
 				for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
@@ -477,8 +550,13 @@ int main(int argc, char *argv[])
 
 	std::cerr << QString("Search Time: %1 secs\n\n").arg(elapsedTime.elapsed() / 1000.0).toUtf8().data();
 
+	// Print Search Spec:
+	std::cout << "Searching for ELS skips from " << nMinSkip << " to " << nMaxSkip << " in Entire Bible\n";
+	if (g_bSkipColophons) std::cout << "Skipping Colophons\n";
+	if (g_bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
+
 	// Print Summary:
-	std::cout << "Word Occurrence Count:\n";
+	std::cout << "\nWord Occurrence Count:\n";
 	for (int i = 0; i < lstSearchWords.size(); ++i) {
 		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(bOutputWordsAllUppercase ? lstSearchWords.at(i).toUpper() : lstSearchWords.at(i))
 						 .arg(mapResultsWordCountForward[lstSearchWords.at(i)])
