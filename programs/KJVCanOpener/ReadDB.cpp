@@ -1416,13 +1416,22 @@ bool CReadDatabase::ValidateData()
 	unsigned int ncntChpTot = 0;	// Total number of Chapters (all Books)
 	unsigned int ncntVrsTot = 0;	// Total number of Verses (all Chapters)
 	unsigned int ncntWrdTot = 0;	// Total number of Words (all verses)
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t ncntLtrTot = 0;		// Total number of Letters (all verses)
+#endif
 
 	unsigned int ncntChp_Bk = 0;	// Chapter count in current Book
 	unsigned int ncntVrs_Bk = 0;	// Verse count in current Book
 	unsigned int ncntWrd_Bk = 0;	// Word count in current Book
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t ncntLtr_Bk = 0;		// Letter count in current Book
+#endif
 
 	unsigned int ncntVrs_Chp = 0;	// Verse count in current Chapter
 	unsigned int ncntWrd_Chp = 0;	// Word count in current Chapter
+#ifdef USE_EXTENDED_INDEXES
+	uint32_t ncntLtr_Chp = 0;		// Letter count in current Chapter
+#endif
 
 	if (m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses.size() != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks.size()) {
 		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book List and Table of Contents have different sizes!\nCheck the database!", "ReadDB"));
@@ -1439,6 +1448,9 @@ bool CReadDatabase::ValidateData()
 		ncntChp_Bk = 0;
 		ncntVrs_Bk = 0;
 		ncntWrd_Bk = 0;
+#ifdef USE_EXTENDED_INDEXES
+		ncntLtr_Bk = 0;
+#endif
 		ncntBkTot++;
 		// Colophons are part of the book's words, but not part of the chapter's:
 		if (m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_bHaveColophon) {
@@ -1447,11 +1459,18 @@ bool CReadDatabase::ValidateData()
 			if (itrVerses != aBookVerses.end()) {
 				ncntWrdTot += itrVerses->second.m_nNumWrd;
 				ncntWrd_Bk += itrVerses->second.m_nNumWrd;
+#ifdef USE_EXTENDED_INDEXES
+				ncntLtrTot += itrVerses->second.m_nNumLtr;
+				ncntLtr_Bk += itrVerses->second.m_nNumLtr;
+#endif
 			} // Should we assert on the else??
 		}
 		for (unsigned int nChp=1; nChp<=m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp; ++nChp) {	// Chapters
 			ncntVrs_Chp = 0;
 			ncntWrd_Chp = 0;
+#ifdef USE_EXTENDED_INDEXES
+			ncntLtr_Chp = 0;
+#endif
 			TChapterMap::const_iterator itrChapters = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.find(CRelIndex(nBk,nChp,0,0));
 			if (itrChapters == m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end()) continue;
 			ncntChpTot++;
@@ -1460,7 +1479,7 @@ bool CReadDatabase::ValidateData()
 				const TVerseEntryMap &aBookVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 				TVerseEntryMap::const_iterator itrVerses = aBookVerses.find(CRelIndex(nBk,nChp,nVrs,0));
 				if (itrVerses == aBookVerses.end()) continue;
-				if (nVrs != 0) {
+				if (nVrs != 0) {		// Superscription, while a pseudo-verse and part of the nVrs loop, isn't counted as a verse in the verse counts
 					ncntVrsTot++;
 					ncntVrs_Chp++;
 					ncntVrs_Bk++;
@@ -1468,6 +1487,11 @@ bool CReadDatabase::ValidateData()
 				ncntWrdTot += itrVerses->second.m_nNumWrd;			// Words
 				ncntWrd_Chp += itrVerses->second.m_nNumWrd;
 				ncntWrd_Bk += itrVerses->second.m_nNumWrd;
+#ifdef USE_EXTENDED_INDEXES
+				ncntLtrTot += itrVerses->second.m_nNumLtr;
+				ncntLtr_Chp += itrVerses->second.m_nNumLtr;
+				ncntLtr_Bk += itrVerses->second.m_nNumLtr;
+#endif
 #if TEST_WORD_COUNTS_IN_VALIDATION
 				QStringList lstWordTemplate = itrVerses->second.m_strTemplate.split('w');
 				if (itrVerses->second.m_nNumWrd != (lstWordTemplate.size()-1)) {
@@ -1487,6 +1511,13 @@ bool CReadDatabase::ValidateData()
 								.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(ncntWrd_Chp).arg(itrChapters->second.m_nNumWrd));
 				return false;
 			}
+#ifdef USE_EXTENDED_INDEXES
+			if (ncntLtr_Chp != itrChapters->second.m_nNumLtr) {
+				displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) Chapter %3 contains %4 Letters, expected %5 Letters!", "ReadDB")
+								.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(nChp).arg(ncntLtr_Chp).arg(itrChapters->second.m_nNumLtr));
+				return false;
+			}
+#endif
 		}
 		if (ncntChp_Bk != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumChp) {
 			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Chapters, expected %4 Chapters!", "ReadDB")
@@ -1503,6 +1534,13 @@ bool CReadDatabase::ValidateData()
 							.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntWrd_Bk).arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumWrd));
 			return false;
 		}
+#ifdef USE_EXTENDED_INDEXES
+		if (ncntLtr_Bk != m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumLtr) {
+			displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Book \"%1\" (%2) contains %3 Letters, expected %4 Letters!", "ReadDB")
+							.arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strBkName).arg(nBk).arg(ncntLtr_Bk).arg(m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_nNumLtr));
+			return false;
+		}
+#endif
 	}
 
 	unsigned int nWordListTot = 0;
@@ -1525,7 +1563,11 @@ bool CReadDatabase::ValidateData()
 		(ncntBkTot != m_pBibleDatabase->bibleEntry().m_nNumBk) ||
 		(ncntChpTot != m_pBibleDatabase->bibleEntry().m_nNumChp) ||
 		(ncntVrsTot != m_pBibleDatabase->bibleEntry().m_nNumVrs) ||
-		(ncntWrdTot != m_pBibleDatabase->bibleEntry().m_nNumWrd)) {
+		(ncntWrdTot != m_pBibleDatabase->bibleEntry().m_nNumWrd)
+#ifdef USE_EXTENDED_INDEXES
+		|| (ncntLtrTot != m_pBibleDatabase->bibleEntry().m_nNumLtr)
+#endif
+		) {
 		displayWarning(m_pParent, g_constrReadDatabase, QObject::tr("Error: Overall Bible Entry Data Counts are inconsistent!  Check database!", "ReadDB"));
 		return false;
 	}
@@ -1762,6 +1804,8 @@ bool CReadDatabase::readBibleStub()
 		m_pBibleDatabase->m_itrCurrentLayout->m_lstTestaments[theBook.m_nTstNdx-1].m_nNumLtr += theBook.m_nNumLtr;
 	}
 	m_pBibleDatabase->m_itrCurrentLayout->m_EntireBible.m_nNumLtr = nLtrCount;
+
+	if (!ValidateData()) return false;			// Revalidate with letter counts that aren't all zeros
 #endif
 	return true;
 }
