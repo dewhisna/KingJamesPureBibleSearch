@@ -52,6 +52,7 @@
 #include <set>
 #include <algorithm>
 #include <numeric>
+#include <utility>			// for std::pair
 #if QT_VERSION < 0x060000
 #include <functional>		// Needed for std::bind on Qt5 path
 #endif
@@ -306,6 +307,15 @@ int main(int argc, char *argv[])
 	bool bOutputWordsAllUppercase = false;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
+	// ----
+	enum OUTPUT_SORT_ORDER_ENUM {
+		OSO_WSR,
+		OSO_WRS,
+		OSO_RWS,
+		OSO_RSW,
+		OSO_SRW,
+		OSO_SWR,
+	} nSortOrder = OSO_WSR;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -334,6 +344,18 @@ int main(int argc, char *argv[])
 			nBookStart = strArg.mid(3).toUInt();
 		} else if (strArg.startsWith("-be")) {
 			nBookEnd = strArg.mid(3).toUInt();
+		} else if (strArg.compare("-owsr") == 0) {
+			nSortOrder = OSO_WSR;
+		} else if (strArg.compare("-owrs") == 0) {
+			nSortOrder = OSO_WRS;
+		} else if (strArg.compare("-orws") == 0) {
+			nSortOrder = OSO_RWS;
+		} else if (strArg.compare("-orsw") == 0) {
+			nSortOrder = OSO_RSW;
+		} else if (strArg.compare("-osrw") == 0) {
+			nSortOrder = OSO_SRW;
+		} else if (strArg.compare("-oswr") == 0) {
+			nSortOrder = OSO_SWR;
 		} else {
 			bUnknownOption = true;
 		}
@@ -360,6 +382,12 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -bb<N> =  Begin Searching in Book <N> (defaults to first)\n").toUtf8().data();
 		std::cerr << QString("  -be<N> =  End Searching in Book <N>   (defaults to last)\n").toUtf8().data();
+		std::cerr << QString("  -owsr  =  Order output by word, skip, then reference (this is the default)\n").toUtf8().data();
+		std::cerr << QString("  -owrs  =  Order output by word, reference, then skip\n").toUtf8().data();
+		std::cerr << QString("  -orws  =  Order output by reference, word, then skip\n").toUtf8().data();
+		std::cerr << QString("  -orsw  =  Order output by reference, skip, then word\n").toUtf8().data();
+		std::cerr << QString("  -osrw  =  Order output by skip, reference, then word\n").toUtf8().data();
+		std::cerr << QString("  -oswr  =  Order output by skip, word, then reference\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -604,7 +632,7 @@ int main(int argc, char *argv[])
 	if (g_bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
 
 	// Print Summary:
-	std::cout << "\nWord Occurrence Count:\n";
+	std::cout << "\nWord Occurrence Counts:\n";
 	for (int i = 0; i < lstSearchWords.size(); ++i) {
 		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(bOutputWordsAllUppercase ? lstSearchWords.at(i).toUpper() : lstSearchWords.at(i))
 						 .arg(mapResultsWordCountForward[lstSearchWords.at(i)])
@@ -612,14 +640,64 @@ int main(int argc, char *argv[])
 	}
 	std::cout << "\n";
 
-	// Sort results based on word, then skip, then Bible passage reference:
+	std::cout << "Sort Order: ";
+	switch (nSortOrder) {
+		case OSO_WSR:
+			std::cout << "Word, Skip, Ref\n";
+			break;
+		case OSO_WRS:
+			std::cout << "Word, Ref, Skip\n";
+			break;
+		case OSO_RWS:
+			std::cout << "Ref, Word, Skip\n";
+			break;
+		case OSO_RSW:
+			std::cout << "Ref, Skip, Word\n";
+			break;
+		case OSO_SRW:
+			std::cout << "Skip, Ref, Word\n";
+			break;
+		case OSO_SWR:
+			std::cout << "Skip, Word, Ref\n";
+			break;
+	}
+	std::cout << "\n";
+
+	// Sort results based on sort order:
 	std::sort(lstResults.begin(), lstResults.end(),
-			[](const CELSResult &r1, const CELSResult &r2)->bool {
-				int nRetVal = r1.m_strWord.compare(r2.m_strWord);
-				if (nRetVal < 0) return true;
-				if (nRetVal == 0) {
-					if (r1.m_nSkip < r2.m_nSkip) return true;
-					if (r1.m_nSkip == r2.m_nSkip) return (r1.m_ndxStart.indexEx() < r2.m_ndxStart.indexEx());
+			[nSortOrder](const CELSResult &r1, const CELSResult &r2)->bool {
+				auto fnWord = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
+					int nComp = r1.m_strWord.compare(r2.m_strWord);
+					return std::pair<bool,bool>(nComp < 0, nComp == 0);
+				};
+				auto fnSkip = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
+					return std::pair<bool,bool>(r1.m_nSkip < r2.m_nSkip, r1.m_nSkip == r2.m_nSkip);
+				};
+				auto fnRef = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
+					return std::pair<bool,bool>(r1.m_ndxStart.indexEx() < r2.m_ndxStart.indexEx(),
+												r1.m_ndxStart.indexEx() == r2.m_ndxStart.indexEx());
+				};
+				struct TFuncs {
+					std::pair<bool,bool> (*m_first)(const CELSResult &, const CELSResult &);
+					std::pair<bool,bool> (*m_second)(const CELSResult &, const CELSResult &);
+					std::pair<bool,bool> (*m_third)(const CELSResult &, const CELSResult &);
+				} sortFuncs[] = {			// Order must match OUTPUT_SORT_ORDER_ENUM
+					{ fnWord, fnSkip, fnRef },	// OSO_WSR
+					{ fnWord, fnRef, fnSkip },	// OSO_WRS
+					{ fnRef, fnWord, fnSkip },	// OSO_RWS
+					{ fnRef, fnSkip, fnWord },	// OSO_RSW
+					{ fnSkip, fnRef, fnWord },	// OSO_SRW
+					{ fnSkip, fnWord, fnRef },	// OSO_SWR
+				};
+				std::pair<bool,bool> cmpFirst = sortFuncs[nSortOrder].m_first(r1, r2);
+				if (cmpFirst.first) return true;
+				if (cmpFirst.second) {
+					std::pair<bool,bool> cmpSecond = sortFuncs[nSortOrder].m_second(r1, r2);
+					if (cmpSecond.first) return true;
+					if (cmpSecond.second) {
+						std::pair<bool,bool> cmpThird = sortFuncs[nSortOrder].m_third(r1, r2);
+						if (cmpThird.first) return true;
+					}
 				}
 				return false;
 			});
