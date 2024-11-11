@@ -24,25 +24,15 @@
 #include "../KJVCanOpener/dbstruct.h"
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/ReadDB.h"
-#include "../KJVCanOpener/VerseRichifier.h"
-#include "../KJVCanOpener/ParseSymbols.h"
 #include "../KJVCanOpener/Translator.h"
-#include "../KJVCanOpener/PersistentSettings.h"
 
 #include <QCoreApplication>
-#include <QLibraryInfo>
 #include <QObject>
-#include <QDir>
-#include <QFile>
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
 #include <QList>
 #include <QMap>
-#include <QtGlobal>
-#if QT_VERSION < 0x050000
-#include <QTextCodec>
-#endif
 #include <QElapsedTimer>
 #include <QFuture>
 #include <QFutureSynchronizer>
@@ -284,10 +274,6 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication app(argc, argv);
 	app.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
-
-#if QT_VERSION < 0x050000
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
 
 	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
