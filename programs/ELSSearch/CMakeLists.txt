@@ -88,6 +88,7 @@ endforeach()
 set(ELSSearch_SOURCES
 	"main.cpp"
 	"LetterMatrix.cpp"
+	"FindELS.cpp"
 	# ----
 	"../KJVCanOpener/BibleLayout.cpp"
 	"../KJVCanOpener/CSV.cpp"
@@ -118,6 +119,7 @@ set(ELSSearch_SOURCES
 
 set(ELSSearch_HEADERS
 	"LetterMatrix.h"
+	"FindELS.h"
 	# ----
 	"../KJVCanOpener/PathConsts.h"
 	"../KJVCanOpener/BibleLayout.h"

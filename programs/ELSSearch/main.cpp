@@ -27,6 +27,7 @@
 #include "../KJVCanOpener/Translator.h"
 
 #include "LetterMatrix.h"
+#include "FindELS.h"
 
 #include <QCoreApplication>
 #include <QObject>
@@ -63,14 +64,6 @@ namespace {
 
 // ============================================================================
 
-class CELSResult {
-public:
-	QString m_strWord;
-	int m_nSkip = 0;
-	CRelIndexEx m_ndxStart;
-	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
-};
-
 // ----------------------------------------------------------------------------
 
 void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bool bUpperCase)
@@ -106,69 +99,6 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 
 // ----------------------------------------------------------------------------
 
-// Concurrent Threading function to locate the ELS entries for a single skip distance:
-auto findELS = [](int nSkip, const CLetterMatrix &letterMatrix,
-					const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
-					unsigned int nBookStart, unsigned int nBookEnd) {
-	// Results storage (for this skip):
-	QList<CELSResult> lstResults;
-
-	// Get maximum search word lengths to know bounds of search:
-	int nMaxLength = lstSearchWords.last().size();
-
-	// Compute starting index for first letter in the search range:
-	uint32_t matrixIndexCurrent = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(nBookStart, 1, 0, 1, 1));
-
-	// Compute ending index for the last letter in the search range:
-	CRelIndexEx ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
-	const CConcordanceEntry *pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
-	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint32_t matrixIndexLast = letterMatrix.matrixIndexFromRelIndex(ndxLast);
-
-	while (matrixIndexCurrent <= matrixIndexLast) {
-		int ndxSearchWord = 0;				// Index to current search word being tested
-		for (int nLen = lstSearchWords.at(ndxSearchWord).size(); nLen <= nMaxLength; ++nLen) {
-			if (ndxSearchWord >= lstSearchWords.size()) break;
-			while ((ndxSearchWord < lstSearchWords.size()) &&					// Find next word in list at least nLen long
-				   (lstSearchWords.at(ndxSearchWord).size() < nLen)) {
-				++ndxSearchWord;
-			}
-			if (lstSearchWords.at(ndxSearchWord).size() > nLen) continue;		// Find length of next longest word in the list
-			uint32_t matrixIndexNext = matrixIndexCurrent + (nSkip*(nLen-1)) + nLen - 1;
-			if (matrixIndexNext > matrixIndexLast) continue;		// Stop if the search would run off the end of the text
-
-			QString strWord;
-			uint32_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
-			for (int i = 0; i < nLen; ++i) {
-				strWord += letterMatrix.at(matrixIndexLetter);
-				matrixIndexLetter += nSkip + 1;
-			}
-
-			for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
-				if (lstSearchWords.at(ndxWord).size() != nLen) break;				// Check all words of this length only and exit when we hit a longer word
-				if (strWord.compare(lstSearchWords.at(ndxWord)) == 0) {				// Check forward direction
-					CELSResult result;
-					result.m_strWord = strWord;
-					result.m_nSkip = nSkip;
-					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
-					result.m_nDirection = Qt::LeftToRight;
-					lstResults.append(result);
-				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
-					CELSResult result;
-					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
-					result.m_nSkip = nSkip;
-					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
-					result.m_nDirection = Qt::RightToLeft;
-					lstResults.append(result);
-				}
-			}
-		}
-
-		++matrixIndexCurrent;
-	}
-
-	return lstResults;
-};
 
 // ----------------------------------------------------------------------------
 
@@ -339,7 +269,7 @@ int main(int argc, char *argv[])
 	for (auto &strSearchWord : lstSearchWordsRev) std::reverse(strSearchWord.begin(), strSearchWord.end());
 
 	// Results storage (for all skips):
-	QList<CELSResult> lstResults;
+	CELSResultList lstResults;
 
 	// Perform the Search:
 	QElapsedTimer elapsedTime;
@@ -373,11 +303,11 @@ int main(int argc, char *argv[])
 					m_nBookStart(nBookStart),
 					m_nBookEnd(nBookEnd)
 			{ }
-			QList<CELSResult> run(int nSkip)
+			CELSResultList run(int nSkip)
 			{
 				return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
 			}
-			static void reduce(QList<CELSResult> &lstResults, const QList<CELSResult> &result)
+			static void reduce(CELSResultList &lstResults, const CELSResultList &result)
 			{
 				lstResults.append(result);
 				std::cerr << ".";
@@ -392,7 +322,7 @@ int main(int argc, char *argv[])
 		} runner(letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
 #endif
 
-		QFutureSynchronizer< QList<CELSResult> > synchronizer;
+		QFutureSynchronizer<CELSResultList> synchronizer;
 #if QT_VERSION < 0x060000
 		synchronizer.setFuture(
 			QtConcurrent::mappedReduced(lstSkips,
@@ -402,11 +332,11 @@ int main(int argc, char *argv[])
 #else
 		synchronizer.setFuture(
 			QtConcurrent::mappedReduced(lstSkips,
-				[&](int nSkip)->QList<CELSResult>
+				[&](int nSkip)->CELSResultList
 				{
 					return findELS(nSkip, letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
 				},
-				[](QList<CELSResult> &lstResults, const QList<CELSResult> &result)
+				[](CELSResultList &lstResults, const CELSResultList &result)
 				{
 					lstResults.append(result);
 					std::cerr << ".";
