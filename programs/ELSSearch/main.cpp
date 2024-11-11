@@ -26,6 +26,8 @@
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/Translator.h"
 
+#include "LetterMatrix.h"
+
 #include <QCoreApplication>
 #include <QObject>
 #include <QFileInfo>
@@ -61,23 +63,6 @@ namespace {
 
 // ============================================================================
 
-// Create giant array of all letters from the Bible text for speed:
-QList<QChar> g_lstLetterMatrix;
-
-bool g_bSkipColophons = false;
-bool g_bSkipSuperscriptions = false;
-
-// Matrix index to letter count shift for normalize/denormalize computations:
-//	When we are skipping colophons and/or superscriptions, the matrix index
-//	of what would be the colophon/superscription is set here with the number
-//	of letters to skip for it.  When transforming to/from matrix index and
-//	database normal/rel index, this map will be scanned for all values of
-//	matrix index less than or equal to the one being transformed and the
-//	corresponding letter count added or subtracted (depending on direction
-//	of the transformation):
-typedef QMap<uint32_t, uint32_t> TMapMatrixIndexToLetterShift;	// MatrixIndex -> LetterCount
-TMapMatrixIndexToLetterShift g_mapMatrixIndexToLetterShift;
-
 class CELSResult {
 public:
 	QString m_strWord;
@@ -88,99 +73,16 @@ public:
 
 // ----------------------------------------------------------------------------
 
-uint32_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRelIndexEx nRelIndexEx)
-{
-	CRelIndex relIndex{nRelIndexEx.index()};
-	const CBookEntry *pBook = pBibleDatabase->bookEntry(relIndex);
-	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return 0;
-	uint32_t nMatrixIndex = pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
-	if (nRelIndexEx.isColophon()) {
-		Q_ASSERT(pBook->m_bHaveColophon);
-		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(relIndex);
-		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-		nMatrixIndex += (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon to end of book
-	} else {
-		if (pBook->m_bHaveColophon) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
-			const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
-			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-			nMatrixIndex -= pColophonVerse->m_nNumLtr;
-		}
-	}
-
-	// Note: Since the colophon transform mapping is inserted at the
-	//	point where the colophon would be (after moving) in the matrix, then
-	//	we must do this index transform after the other colophon transforms:
-	// Note: These must be subtracted as we go as these shifts must be cumulative
-	//	(unlike the other direction):
-	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = g_mapMatrixIndexToLetterShift.cbegin();
-		 itrXformMatrix != g_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
-		if (itrXformMatrix.key() <= nMatrixIndex) {
-			nMatrixIndex -= itrXformMatrix.value();
-		} else {
-			break;
-		}
-	}
-
-	return nMatrixIndex;
-}
-
-CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint32_t nMatrixIndex)
-{
-	// Note: Since the colophon transform mapping is inserted at the
-	//	point where the colophon would be (after moving) in the matrix, then
-	//	we must do this index transform prior to other colophon transforms.
-	//	This is also needed for the logic below where we do a denormalization
-	//	of MatrixIndex and it needs to have the correct number of letters prior
-	//	to this point:
-	// Note: These must be added after we've accumulated the total as these
-	//	shouldn't be cumulative (unlike the other direction):
-	uint32_t nLetterShift = 0;
-	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = g_mapMatrixIndexToLetterShift.cbegin();
-		 itrXformMatrix != g_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
-		if (itrXformMatrix.key() <= nMatrixIndex) {
-			nLetterShift += itrXformMatrix.value();
-		} else {
-			break;
-		}
-	}
-	nMatrixIndex += nLetterShift;
-
-	// Since we are only shifting the colophons from the beginning of each book
-	//	to the end of each book, the number of letters in each book should be
-	//	the same.  Therefore, the standard Denormalize call should give the same
-	//	book:
-	CRelIndex relIndex{pBibleDatabase->DenormalizeIndexEx(nMatrixIndex)};
-	const CBookEntry *pBook = pBibleDatabase->bookEntry(relIndex);
-	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return CRelIndexEx();
-
-	if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
-		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
-		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-		uint32_t nMatrixColophonNdx = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
-									  (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
-		if (nMatrixIndex >= nMatrixColophonNdx) {
-			if (!g_bSkipColophons) {	// Don't adjust for the colophon here if we skipped it
-				nMatrixIndex -= (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon back to start of book
-			}
-		} else {
-			nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon
-		}
-	}
-	return pBibleDatabase->DenormalizeIndexEx(nMatrixIndex);
-}
-
-// ----------------------------------------------------------------------------
-
-void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result, bool bUpperCase)
+void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bool bUpperCase)
 {
 	std::cout << "----------------------------------------\n";
 	std::cout << QString("Word: \"%1\"\n").arg(bUpperCase ? result.m_strWord.toUpper() : result.m_strWord).toUtf8().data();
-	std::cout << QString("Start Location: %1\n").arg(pBibleDatabase->PassageReferenceText(result.m_ndxStart, false)).toUtf8().data();
+	std::cout << QString("Start Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false)).toUtf8().data();
 	std::cout << QString("Skip: %1\n").arg(result.m_nSkip).toUtf8().data();
 	std::cout << QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse").toUtf8().data();
 	CRelIndex relPassageStart = CRelIndex(result.m_ndxStart.index());
-	uint32_t matrixIndexResult = matrixIndexFromRelIndex(pBibleDatabase, result.m_ndxStart);
-	uint32_t matrixIndexStart = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
+	uint32_t matrixIndexResult = letterMatrix.matrixIndexFromRelIndex(result.m_ndxStart);
+	uint32_t matrixIndexStart = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
 	uint32_t martixIndexEnd = matrixIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
 	martixIndexEnd += (result.m_nSkip+1) - ((martixIndexEnd - matrixIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
 	int nChar = 0;
@@ -189,12 +91,12 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 			std::cout << "\n";
 			matrixIndexStart += result.m_nSkip+1;
 		}
-		if (normalIndex >= static_cast<uint32_t>(g_lstLetterMatrix.size())) break;
+		if (normalIndex >= static_cast<uint32_t>(letterMatrix.size())) break;
 		std::cout << ((normalIndex == matrixIndexResult) ? "[" : " ");
 		if (bUpperCase) {
-			std::cout << QString(g_lstLetterMatrix.at(normalIndex).toUpper()).toUtf8().data();
+			std::cout << QString(letterMatrix.at(normalIndex).toUpper()).toUtf8().data();
 		} else {
-			std::cout << QString(g_lstLetterMatrix.at(normalIndex)).toUtf8().data();
+			std::cout << QString(letterMatrix.at(normalIndex)).toUtf8().data();
 		}
 		std::cout << ((normalIndex == matrixIndexResult) ? "]" : " ");
 		if ((normalIndex == matrixIndexResult) && (++nChar < result.m_strWord.size())) matrixIndexResult += result.m_nSkip+1;
@@ -205,7 +107,7 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 // ----------------------------------------------------------------------------
 
 // Concurrent Threading function to locate the ELS entries for a single skip distance:
-auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
+auto findELS = [](int nSkip, const CLetterMatrix &letterMatrix,
 					const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
 					unsigned int nBookStart, unsigned int nBookEnd) {
 	// Results storage (for this skip):
@@ -215,13 +117,13 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
 	int nMaxLength = lstSearchWords.last().size();
 
 	// Compute starting index for first letter in the search range:
-	uint32_t matrixIndexCurrent = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(nBookStart, 1, 0, 1, 1));
+	uint32_t matrixIndexCurrent = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(nBookStart, 1, 0, 1, 1));
 
 	// Compute ending index for the last letter in the search range:
-	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
-	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
+	CRelIndexEx ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
+	const CConcordanceEntry *pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint32_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase, ndxLast);
+	uint32_t matrixIndexLast = letterMatrix.matrixIndexFromRelIndex(ndxLast);
 
 	while (matrixIndexCurrent <= matrixIndexLast) {
 		int ndxSearchWord = 0;				// Index to current search word being tested
@@ -238,7 +140,7 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
 			QString strWord;
 			uint32_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
 			for (int i = 0; i < nLen; ++i) {
-				strWord += g_lstLetterMatrix.at(matrixIndexLetter);
+				strWord += letterMatrix.at(matrixIndexLetter);
 				matrixIndexLetter += nSkip + 1;
 			}
 
@@ -248,14 +150,14 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
 					CELSResult result;
 					result.m_strWord = strWord;
 					result.m_nSkip = nSkip;
-					result.m_ndxStart = relIndexFromMatrixIndex(pBibleDatabase, matrixIndexCurrent);
+					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
 					result.m_nDirection = Qt::LeftToRight;
 					lstResults.append(result);
 				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
 					CELSResult result;
 					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
 					result.m_nSkip = nSkip;
-					result.m_ndxStart = relIndexFromMatrixIndex(pBibleDatabase, matrixIndexCurrent);
+					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
 					result.m_nDirection = Qt::RightToLeft;
 					lstResults.append(result);
 				}
@@ -290,6 +192,8 @@ int main(int argc, char *argv[])
 	bool bUnknownOption = false;
 	// ----
 	bool bRunMultithreaded = false;
+	bool bSkipColophons = false;
+	bool bSkipSuperscriptions = false;
 	bool bOutputWordsAllUppercase = false;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
@@ -321,9 +225,9 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-mt") == 0) {
 			bRunMultithreaded = true;
 		} else if (strArg.compare("-sc") == 0) {
-			g_bSkipColophons = true;
+			bSkipColophons = true;
 		} else if (strArg.compare("-ss") == 0) {
-			g_bSkipSuperscriptions = true;
+			bSkipSuperscriptions = true;
 		} else if (strArg.compare("-u") == 0) {
 			bOutputWordsAllUppercase = true;
 		} else if (strArg.startsWith("-bb")) {
@@ -419,76 +323,8 @@ int main(int argc, char *argv[])
 	if (nBookStart == 0) nBookStart = 1;
 	if ((nBookEnd == 0) || (nBookEnd > pBibleDatabase->bibleEntry().m_nNumBk)) nBookEnd = pBibleDatabase->bibleEntry().m_nNumBk;
 
-	// Create giant array of all letters from the Bible text for speed:
-	//	NOTE: This is with the entire Bible content (sans colophons/
-	//	superscriptions when they are skipped) and not the search span
-	//	so that we don't have to convert the matrix index based on the
-	//	search span.
-	g_lstLetterMatrix.reserve(pBibleDatabase->bibleEntry().m_nNumLtr + 1);		// +1 since we reserve the 0 entry
-	g_lstLetterMatrix.append(QChar());
-	CRelIndex ndxMatrixCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
-	CRelIndex ndxMatrixEnd = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
-	uint32_t normalMatrixEnd = pBibleDatabase->NormalizeIndex(ndxMatrixEnd);
-	QList<QChar> lstColophon;
-	CRelIndex ndxMatrixLastColophon;
-	QList<QChar> lstSuperscription;
-	CRelIndex ndxMatrixLastSuperscription;
-	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
-					normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
-		ndxMatrixCurrent = pBibleDatabase->DenormalizeIndex(normalMatrixCurrent);
+	CLetterMatrix letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions);
 
-		// Transfer any pending colophon if book changes:
-		if (!lstColophon.isEmpty() && (ndxMatrixLastColophon.book() != ndxMatrixCurrent.book())) {
-			if (!g_bSkipColophons) {
-				g_lstLetterMatrix.append(lstColophon);
-			} else {
-				g_mapMatrixIndexToLetterShift[g_lstLetterMatrix.size()] = lstColophon.size();
-			}
-			lstColophon.clear();
-			ndxMatrixLastColophon.clear();
-		}
-
-		// Check for skipped superscription to map:
-		if (!lstSuperscription.isEmpty() && (ndxMatrixLastSuperscription.verse() != ndxMatrixCurrent.verse())) {
-			Q_ASSERT(g_bSkipSuperscriptions);		// Should only be here if actually skipping the superscriptions
-			g_mapMatrixIndexToLetterShift[g_lstLetterMatrix.size()] = lstSuperscription.size();
-			lstSuperscription.clear();
-			ndxMatrixLastSuperscription.clear();
-		}
-
-		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
-		Q_ASSERT(pWordEntry != nullptr);
-		if (pWordEntry) {
-			const QString &strWord = pWordEntry->rawWord();
-
-			if (!ndxMatrixCurrent.isColophon()) {
-				if (!ndxMatrixCurrent.isSuperscription() || !g_bSkipSuperscriptions) {
-					// Output the book as-is without shuffling:
-					for (auto const &chrLetter : strWord) g_lstLetterMatrix.append(chrLetter);
-				} else {
-					// If skipping superscriptions, put them on a local buffer like
-					//	we did with colophons so that when we hit the next "verse"
-					//	(i.e. exit the superscription), we can insert a MatrixIndex
-					//	to LetterShift mapping.  Note that unlike colophons, since
-					//	we aren't moving the superscription itself, this buffer is
-					//	never transferred to the matrix:
-					for (auto const &chrLetter : strWord) lstSuperscription.append(chrLetter);
-					ndxMatrixLastSuperscription = ndxMatrixCurrent;
-				}
-			} else {
-				// Output colophon to temp buff:
-				for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
-				ndxMatrixLastColophon = ndxMatrixCurrent;
-			}
-		}
-	}
-
-	// Verify the matrix size as a sanity check for code bugs:
-	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
-	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
-	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint32_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase.data(), ndxLast);
-	Q_ASSERT((matrixIndexLast+1) == static_cast<uint32_t>(g_lstLetterMatrix.size()));
 
 	// ------------------------------------------------------------------------
 
@@ -528,10 +364,10 @@ int main(int argc, char *argv[])
 		//	So this dance works around that by having normal functions for it:
 		class FutureRunner {
 		public:
-			FutureRunner(const CBibleDatabase *pBibleDatabase,
+			FutureRunner(const CLetterMatrix &letterMatrix,
 						 const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
 						 unsigned int nBookStart, unsigned int nBookEnd)
-				:	m_pBibleDatabase(pBibleDatabase),
+				:	m_letterMatrix(letterMatrix),
 					m_lstSearchWords(lstSearchWords),
 					m_lstSearchWordsRev(lstSearchWordsRev),
 					m_nBookStart(nBookStart),
@@ -539,7 +375,7 @@ int main(int argc, char *argv[])
 			{ }
 			QList<CELSResult> run(int nSkip)
 			{
-				return findELS(nSkip, m_pBibleDatabase, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
+				return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
 			}
 			static void reduce(QList<CELSResult> &lstResults, const QList<CELSResult> &result)
 			{
@@ -548,12 +384,12 @@ int main(int argc, char *argv[])
 			}
 
 		private:
-			const CBibleDatabase *m_pBibleDatabase;
+			const CLetterMatrix &m_letterMatrix;
 			const QStringList &m_lstSearchWords;
 			const QStringList &m_lstSearchWordsRev;
 			unsigned int m_nBookStart;
 			unsigned int m_nBookEnd;
-		} runner(pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
+		} runner(letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
 #endif
 
 		QFutureSynchronizer< QList<CELSResult> > synchronizer;
@@ -568,7 +404,7 @@ int main(int argc, char *argv[])
 			QtConcurrent::mappedReduced(lstSkips,
 				[&](int nSkip)->QList<CELSResult>
 				{
-					return findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
+					return findELS(nSkip, letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
 				},
 				[](QList<CELSResult> &lstResults, const QList<CELSResult> &result)
 				{
@@ -582,7 +418,7 @@ int main(int argc, char *argv[])
 		lstResults = synchronizer.futures().at(0).result();
 	} else {
 		for (auto const & nSkip : lstSkips) {
-			lstResults.append(findELS(nSkip, pBibleDatabase.data(), lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd));
+			lstResults.append(findELS(nSkip, letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd));
 			std::cerr << ".";
 		}
 	}
@@ -614,8 +450,8 @@ int main(int argc, char *argv[])
 	}
 	std::cout << "Searching for ELS skips from " << nMinSkip << " to " << nMaxSkip;
 	std::cout << " in " << strBookRange.toUtf8().data() << "\n";
-	if (g_bSkipColophons) std::cout << "Skipping Colophons\n";
-	if (g_bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
+	if (bSkipColophons) std::cout << "Skipping Colophons\n";
+	if (bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
 
 	// Print Summary:
 	std::cout << "\nWord Occurrence Counts:\n";
@@ -691,7 +527,7 @@ int main(int argc, char *argv[])
 	// Print Results:
 	std::cout << QString("Found %1 Results:\n").arg(lstResults.size()).toUtf8().data();
 	for (auto const & result : lstResults) {
-		printResult(pBibleDatabase.data(), result, bOutputWordsAllUppercase);
+		printResult(letterMatrix, result, bOutputWordsAllUppercase);
 	}
 
 	// ------------------------------------------------------------------------
