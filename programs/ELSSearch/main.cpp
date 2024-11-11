@@ -85,7 +85,7 @@ bool g_bSkipSuperscriptions = false;
 //	matrix index less than or equal to the one being transformed and the
 //	corresponding letter count added or subtracted (depending on direction
 //	of the transformation):
-typedef QMap<uint64_t, uint32_t> TMapMatrixIndexToLetterShift;	// MatrixIndex -> LetterCount
+typedef QMap<uint32_t, uint32_t> TMapMatrixIndexToLetterShift;	// MatrixIndex -> LetterCount
 TMapMatrixIndexToLetterShift g_mapMatrixIndexToLetterShift;
 
 class CELSResult {
@@ -98,12 +98,12 @@ public:
 
 // ----------------------------------------------------------------------------
 
-uint64_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRelIndexEx nRelIndexEx)
+uint32_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRelIndexEx nRelIndexEx)
 {
 	CRelIndex relIndex{nRelIndexEx.index()};
 	const CBookEntry *pBook = pBibleDatabase->bookEntry(relIndex);
 	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return 0;
-	uint64_t nMatrixIndex = pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
+	uint32_t nMatrixIndex = pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
 	if (nRelIndexEx.isColophon()) {
 		Q_ASSERT(pBook->m_bHaveColophon);
 		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(relIndex);
@@ -134,7 +134,7 @@ uint64_t matrixIndexFromRelIndex(const CBibleDatabase *pBibleDatabase, const CRe
 	return nMatrixIndex;
 }
 
-CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint64_t nMatrixIndex)
+CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint32_t nMatrixIndex)
 {
 	// Note: Since the colophon transform mapping is inserted at the
 	//	point where the colophon would be (after moving) in the matrix, then
@@ -166,7 +166,7 @@ CRelIndexEx relIndexFromMatrixIndex(const CBibleDatabase *pBibleDatabase, uint64
 	if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
 		const CVerseEntry *pColophonVerse = pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
 		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-		uint64_t nMatrixColophonNdx = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
+		uint32_t nMatrixColophonNdx = pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
 									  (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
 		if (nMatrixIndex >= nMatrixColophonNdx) {
 			if (!g_bSkipColophons) {	// Don't adjust for the colophon here if we skipped it
@@ -189,17 +189,17 @@ void printResult(const CBibleDatabase *pBibleDatabase, const CELSResult &result,
 	std::cout << QString("Skip: %1\n").arg(result.m_nSkip).toUtf8().data();
 	std::cout << QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse").toUtf8().data();
 	CRelIndex relPassageStart = CRelIndex(result.m_ndxStart.index());
-	uint64_t matrixIndexResult = matrixIndexFromRelIndex(pBibleDatabase, result.m_ndxStart);
-	uint64_t matrixIndexStart = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
-	uint64_t martixIndexEnd = matrixIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
+	uint32_t matrixIndexResult = matrixIndexFromRelIndex(pBibleDatabase, result.m_ndxStart);
+	uint32_t matrixIndexStart = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
+	uint32_t martixIndexEnd = matrixIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
 	martixIndexEnd += (result.m_nSkip+1) - ((martixIndexEnd - matrixIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
 	int nChar = 0;
-	for (uint64_t normalIndex = matrixIndexStart; normalIndex <= martixIndexEnd; ++normalIndex) {
+	for (uint32_t normalIndex = matrixIndexStart; normalIndex <= martixIndexEnd; ++normalIndex) {
 		if (normalIndex == matrixIndexStart) {
 			std::cout << "\n";
 			matrixIndexStart += result.m_nSkip+1;
 		}
-		if (normalIndex >= static_cast<uint64_t>(g_lstLetterMatrix.size())) break;
+		if (normalIndex >= static_cast<uint32_t>(g_lstLetterMatrix.size())) break;
 		std::cout << ((normalIndex == matrixIndexResult) ? "[" : " ");
 		if (bUpperCase) {
 			std::cout << QString(g_lstLetterMatrix.at(normalIndex).toUpper()).toUtf8().data();
@@ -225,13 +225,13 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
 	int nMaxLength = lstSearchWords.last().size();
 
 	// Compute starting index for first letter in the search range:
-	uint64_t matrixIndexCurrent = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(nBookStart, 1, 0, 1, 1));
+	uint32_t matrixIndexCurrent = matrixIndexFromRelIndex(pBibleDatabase, CRelIndexEx(nBookStart, 1, 0, 1, 1));
 
 	// Compute ending index for the last letter in the search range:
 	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
 	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint64_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase, ndxLast);
+	uint32_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase, ndxLast);
 
 	while (matrixIndexCurrent <= matrixIndexLast) {
 		int ndxSearchWord = 0;				// Index to current search word being tested
@@ -242,11 +242,11 @@ auto findELS = [](int nSkip, const CBibleDatabase *pBibleDatabase,
 				++ndxSearchWord;
 			}
 			if (lstSearchWords.at(ndxSearchWord).size() > nLen) continue;		// Find length of next longest word in the list
-			uint64_t matrixIndexNext = matrixIndexCurrent + (nSkip*(nLen-1)) + nLen - 1;
+			uint32_t matrixIndexNext = matrixIndexCurrent + (nSkip*(nLen-1)) + nLen - 1;
 			if (matrixIndexNext > matrixIndexLast) continue;		// Stop if the search would run off the end of the text
 
 			QString strWord;
-			uint64_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
+			uint32_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
 			for (int i = 0; i < nLen; ++i) {
 				strWord += g_lstLetterMatrix.at(matrixIndexLetter);
 				matrixIndexLetter += nSkip + 1;
@@ -501,8 +501,8 @@ int main(int argc, char *argv[])
 	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
 	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint64_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase.data(), ndxLast);
-	Q_ASSERT((matrixIndexLast+1) == static_cast<uint64_t>(g_lstLetterMatrix.size()));
+	uint32_t matrixIndexLast = matrixIndexFromRelIndex(pBibleDatabase.data(), ndxLast);
+	Q_ASSERT((matrixIndexLast+1) == static_cast<uint32_t>(g_lstLetterMatrix.size()));
 
 	// ------------------------------------------------------------------------
 
