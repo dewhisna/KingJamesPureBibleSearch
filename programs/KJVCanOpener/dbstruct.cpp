@@ -1222,7 +1222,7 @@ CRelIndex CBibleDatabase::TVersificationLayout::DenormalizeIndex(uint32_t nNorma
 }
 
 #ifdef USE_EXTENDED_INDEXES
-uint64_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const
+uint32_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const
 {
 	Q_ASSERT(m_pParentBibleDatabase != nullptr);
 
@@ -1264,18 +1264,18 @@ uint64_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexE
 
 NormalizeIndexEx_completter:
 	if (nLtr > m_pParentBibleDatabase->concordanceEntryForWordAtIndex(nWordNormal)->letterCount()) return 0;
-	uint64_t nLetterNormal = (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
+	uint32_t nLetterNormal = (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum;
 	while (--nWrd) {		// Add letters of previous words (order is reversed)
 		nLetterNormal += m_pParentBibleDatabase->concordanceEntryForWordAtIndex(CRelIndex(nBk,nChp,nVrs,nWrd))->letterCount();
 	}
 	return (nLetterNormal + nLtr);
 }
 
-CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint64_t nNormalIndexEx) const
+CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint32_t nNormalIndexEx) const
 {
 	Q_ASSERT(m_pParentBibleDatabase != nullptr);
 
-	uint64_t nLtr = nNormalIndexEx;
+	uint32_t nLtr = nNormalIndexEx;
 
 	if (nLtr == 0) return 0;
 
@@ -2525,7 +2525,7 @@ QString CBibleDatabase::wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nW
 }
 
 #ifdef USE_EXTENDED_INDEXES
-QChar CBibleDatabase::letterAtIndex(uint64_t ndxNormalEx) const
+QChar CBibleDatabase::letterAtIndex(uint32_t ndxNormalEx) const
 {
 	CRelIndexEx relExIndex = DenormalizeIndexEx(ndxNormalEx);
 	const CConcordanceEntry *pConcordanceEntry = concordanceEntryForWordAtIndex(relExIndex);

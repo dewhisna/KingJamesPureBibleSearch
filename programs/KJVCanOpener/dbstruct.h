@@ -1411,11 +1411,11 @@ public:
 		return m_itrCurrentLayout->DenormalizeIndex(nNormalIndex);
 	}
 #ifdef USE_EXTENDED_INDEXES
-	uint64_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const
+	uint32_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const
 	{
 		return m_itrCurrentLayout->NormalizeIndexEx(ndxRelIndexEx);
 	}
-	CRelIndexEx DenormalizeIndexEx(uint64_t nNormalIndexEx) const
+	CRelIndexEx DenormalizeIndexEx(uint32_t nNormalIndexEx) const
 	{
 		return m_itrCurrentLayout->DenormalizeIndexEx(nNormalIndexEx);
 	}
@@ -1505,7 +1505,7 @@ public:
 	QString wordAtIndex(uint32_t ndxNormal, WORD_TYPE_ENUM nWordType) const;			// Returns word of the Bible based on Normalized Index (1 to Max) -- Automatically does ConcordanceMapping Lookups -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 	QString wordAtIndex(const CRelIndex &relIndex, WORD_TYPE_ENUM nWordType) const;		// Returns word of the Bible based on Relative Index (Denormalizes and calls wordAtIndex() for normal above) -- If bAsRendered=true, applies dehyphen to remove hyphens based on settings
 #ifdef USE_EXTENDED_INDEXES
-	QChar letterAtIndex(uint64_t ndxNormalEx) const;
+	QChar letterAtIndex(uint32_t ndxNormalEx) const;
 #endif
 	const CFootnoteEntry *footnoteEntry(const CRelIndex &ndx) const;	// Footnote Data Entry, Used CRelIndex:[Book | Chapter | Verse | Word], for unused, set to 0, example: [1 | 1 | 0 | 0] for Genesis 1 (See TFootnoteEntryMap above)
 	bool haveFootnotes() const
@@ -1586,8 +1586,8 @@ private:
 		uint32_t NormalizeIndex(const CRelIndex &ndxRelIndex) const;
 		CRelIndex DenormalizeIndex(uint32_t nNormalIndex) const;
 #ifdef USE_EXTENDED_INDEXES
-		uint64_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const;
-		CRelIndexEx DenormalizeIndexEx(uint64_t nNormalIndexEx) const;
+		uint32_t NormalizeIndexEx(const CRelIndexEx &ndxRelIndexEx) const;
+		CRelIndexEx DenormalizeIndexEx(uint32_t nNormalIndexEx) const;
 #endif
 		// ----
 		CBibleEntry m_EntireBible;				// Entire Bible stats, calculated from testament stats in ReadDB.
