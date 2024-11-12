@@ -26,16 +26,22 @@
 
 #include "../KJVCanOpener/dbstruct.h"
 
+#include <QObject>
+#include <QFuture>
 #include <QList>
 #include <QString>
 #include <QStringList>
+#include <QtConcurrent>
+
+#include <numeric>			// for std::iota
 
 // Forward Declarations
 class CLetterMatrix;
 
 // ============================================================================
 
-class CELSResult {
+class CELSResult
+{
 public:
 	QString m_strWord;
 	int m_nSkip = 0;
@@ -47,11 +53,51 @@ typedef QList<CELSResult> CELSResultList;
 
 // ============================================================================
 
-extern CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
-					   const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
-					   unsigned int nBookStart, unsigned int nBookEnd);
+class CFindELS
+{
+public:
+	CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords);
 
+	bool setBookEnds(unsigned int nBookStart = 0, unsigned int nBookEnd = 0);
+	unsigned int bookStart() const { return m_nBookStart; }
+	unsigned int bookEnd() const { return m_nBookEnd; }
 
+	template<typename ReduceFunctor>
+	QFuture<CELSResultList> future(int nMinSkip, int nMaxSkip, ReduceFunctor &&fnReduce)		// Multithread runner to compute ELS
+	{
+		// Build list of skips to search:
+#if QT_VERSION < 0x060000
+		// NOTE: Unlike Qt6, Qt 5 has no constructor to prepopulate the list:
+		m_lstSkips.clear();
+		m_lstSkips.reserve(nMaxSkip - nMinSkip + 1);
+		for (int nSkip = nMinSkip; nSkip <= nMaxSkip; ++nSkip) m_lstSkips.append(0);
+#else
+		m_lstSkips = QList<int>(nMaxSkip - nMinSkip + 1);
+#endif
+		std::iota(m_lstSkips.begin(), m_lstSkips.end(), nMinSkip);
+
+		// NOTE: Qt 5 can't use lambdas for the functors in the mappedReduced() call.
+		//	So this dance works around that by having normal functions for it:
+		return QtConcurrent::mappedReduced(m_lstSkips,
+										   std::bind(&CFindELS::run, this, std::placeholders::_1),
+										   fnReduce);
+	}
+
+	CELSResultList run(int nSkip) const;
+
+	static void reduce(CELSResultList &lstResults, const CELSResultList &result)		// Helper function if caller doesn't need to override
+	{
+		lstResults.append(result);
+	}
+
+private:
+	QList<int> m_lstSkips;
+	const CLetterMatrix &m_letterMatrix;
+	QStringList m_lstSearchWords;
+	QStringList m_lstSearchWordsRev;
+	unsigned int m_nBookStart = 0;
+	unsigned int m_nBookEnd = 0;
+};
 
 // ============================================================================
 

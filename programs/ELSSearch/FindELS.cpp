@@ -24,10 +24,13 @@
 #include "FindELS.h"
 #include "LetterMatrix.h"
 
+#include <algorithm>		// for std::sort
+#include <functional>		// for std::bind
+
 // ============================================================================
 
 // Concurrent Threading function to locate the ELS entries for a single skip distance:
-CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
+static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 				  const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
 				  unsigned int nBookStart, unsigned int nBookEnd)
 {
@@ -39,12 +42,14 @@ CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 	// Compute starting index for first letter in the search range:
 	uint32_t matrixIndexCurrent = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(nBookStart, 1, 0, 1, 1));
+	if (matrixIndexCurrent == 0) return CELSResultList();
 
 	// Compute ending index for the last letter in the search range:
 	CRelIndexEx ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
 	const CConcordanceEntry *pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
 	uint32_t matrixIndexLast = letterMatrix.matrixIndexFromRelIndex(ndxLast);
+	if (matrixIndexCurrent == 0) return CELSResultList();
 
 	while (matrixIndexCurrent <= matrixIndexLast) {
 		int ndxSearchWord = 0;				// Index to current search word being tested
@@ -89,6 +94,54 @@ CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 	}
 
 	return lstResults;
+}
+
+// ============================================================================
+
+CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords)
+	:	m_letterMatrix(letterMatrix),
+		m_lstSearchWords(lstSearchWords),
+		m_lstSearchWordsRev(lstSearchWords)
+{
+	// Make all search words lower case and sort by ascending word length:
+	for (auto &strSearchWord : m_lstSearchWords) strSearchWord = strSearchWord.toLower();
+	std::sort(m_lstSearchWords.begin(), m_lstSearchWords.end(), [](const QString &s1, const QString &s2)->bool {
+		return (s1.size() < s2.size());
+	});
+
+	// Create reversed word list so we can also search for ELS occurrences in both directions:
+	for (auto &strSearchWord : m_lstSearchWordsRev) std::reverse(strSearchWord.begin(), strSearchWord.end());
+
+	// Set default bookends to full Bible:
+	setBookEnds();
+}
+
+// ----------------------------------------------------------------------------
+
+bool CFindELS::setBookEnds(unsigned int nBookStart, unsigned int nBookEnd)
+{
+	if (nBookStart > m_letterMatrix.bibleDatabase()->bibleEntry().m_nNumBk) return false;
+
+	if ((nBookStart > nBookEnd) && (nBookEnd != 0)) {			// Put starting/ending book indexes in order
+		unsigned int nTemp = nBookEnd;
+		nBookEnd = nBookStart;
+		nBookStart = nTemp;
+	}
+
+	if (nBookStart == 0) nBookStart = 1;
+	if ((nBookEnd == 0) || (nBookEnd > m_letterMatrix.bibleDatabase()->bibleEntry().m_nNumBk)) nBookEnd = m_letterMatrix.bibleDatabase()->bibleEntry().m_nNumBk;
+
+	m_nBookStart = nBookStart;
+	m_nBookEnd = nBookEnd;
+
+	return true;
+}
+
+// ----------------------------------------------------------------------------
+
+CELSResultList CFindELS::run(int nSkip) const
+{
+	return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
 }
 
 // ============================================================================

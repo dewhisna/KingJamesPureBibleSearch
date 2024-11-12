@@ -110,7 +110,7 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 {
 	CRelIndex relIndex{nRelIndexEx.index()};
 	const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
-	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return 0;
+	if (pBook == nullptr) return 0;
 	uint32_t nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
 	if (nRelIndexEx.isColophon()) {
 		Q_ASSERT(pBook->m_bHaveColophon);

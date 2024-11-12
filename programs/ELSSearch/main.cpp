@@ -31,24 +31,18 @@
 
 #include <QCoreApplication>
 #include <QObject>
+#include <QDir>				// Needed for call to QFileInfo
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
 #include <QList>
 #include <QMap>
 #include <QElapsedTimer>
-#include <QFuture>
 #include <QFutureSynchronizer>
-#include <QtConcurrent>
 
 #include <iostream>
-#include <set>
-#include <algorithm>
-#include <numeric>
+#include <algorithm>		// for std::sort
 #include <utility>			// for std::pair
-#if QT_VERSION < 0x060000
-#include <functional>		// Needed for std::bind on Qt5 path
-#endif
 
 #include "../KJVCanOpener/PathConsts.h"
 
@@ -63,8 +57,6 @@ namespace {
 
 
 // ============================================================================
-
-// ----------------------------------------------------------------------------
 
 void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bool bUpperCase)
 {
@@ -99,6 +91,13 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 
 // ----------------------------------------------------------------------------
 
+// NOTE: Qt 5 can't use lambdas for the functors in the mappedReduced() call.
+//	So this dance works around that by having normal functions for it:
+static void reduce(CELSResultList &lstResults, const CELSResultList &result)
+{
+	lstResults.append(result);
+	std::cerr << ".";
+}
 
 // ----------------------------------------------------------------------------
 
@@ -183,11 +182,6 @@ int main(int argc, char *argv[])
 
 	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bUnknownOption = true;	// Each word must have at least two characters
 	if (lstSearchWords.isEmpty()) bUnknownOption = true;		// Must have at least one search word
-	if ((nBookStart > nBookEnd) && (nBookEnd != 0)) {			// Put starting/ending book indexes in order
-		unsigned int nTemp = nBookEnd;
-		nBookEnd = nBookStart;
-		nBookStart = nTemp;
-	}
 
 	if ((nArgsFound != 4) || (bUnknownOption)) {
 		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
@@ -244,29 +238,9 @@ int main(int argc, char *argv[])
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
-	// Set book search span:
-	if (nBookStart && (nBookStart > pBibleDatabase->bibleEntry().m_nNumBk)) {
-		std::cerr << QString("\n*** ERROR: Book %1 specified as starting book, but database only has %2 books!\n")
-						.arg(nBookStart).arg(pBibleDatabase->bibleEntry().m_nNumBk).toUtf8().data();
-		return -4;
-	}
-	if (nBookStart == 0) nBookStart = 1;
-	if ((nBookEnd == 0) || (nBookEnd > pBibleDatabase->bibleEntry().m_nNumBk)) nBookEnd = pBibleDatabase->bibleEntry().m_nNumBk;
-
 	CLetterMatrix letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions);
 
-
 	// ------------------------------------------------------------------------
-
-	// Make all search words lower case and sort by ascending word length:
-	for (auto &strSearchWord : lstSearchWords) strSearchWord = strSearchWord.toLower();
-	std::sort(lstSearchWords.begin(), lstSearchWords.end(), [](const QString &s1, const QString &s2)->bool {
-		return (s1.size() < s2.size());
-	});
-
-	// Create reversed word list so we can also search for ELS occurrences in both directions:
-	QStringList lstSearchWordsRev = lstSearchWords;
-	for (auto &strSearchWord : lstSearchWordsRev) std::reverse(strSearchWord.begin(), strSearchWord.end());
 
 	// Results storage (for all skips):
 	CELSResultList lstResults;
@@ -276,80 +250,23 @@ int main(int argc, char *argv[])
 	elapsedTime.start();
 	std::cerr << "Searching";
 
-	// Build list of skips to search:
-#if QT_VERSION < 0x060000
-	// NOTE: Unlike Qt6, Qt 5 has no constructor to prepopulate the list:
-	QList<int> lstSkips;
-	lstSkips.reserve(nMaxSkip - nMinSkip + 1);
-	for (int nSkip = nMinSkip; nSkip <= nMaxSkip; ++nSkip) lstSkips.append(0);
-#else
-	QList<int> lstSkips(nMaxSkip - nMinSkip + 1);
-#endif
-	std::iota(lstSkips.begin(), lstSkips.end(), nMinSkip);
+	CFindELS elsFinder(letterMatrix, lstSearchWords);
+	if (!elsFinder.setBookEnds(nBookStart, nBookEnd)) {
+		std::cerr << QString("\n*** ERROR: Invalid Book Begin/End specified.  Database has books 1 through %1!\n")
+						 .arg(pBibleDatabase->bibleEntry().m_nNumBk).toUtf8().data();
+		return -4;
+	}
+	nBookStart = elsFinder.bookStart();		// Set local variables to resolved start/end locations for reporting later
+	nBookEnd = elsFinder.bookEnd();
 
 	if (bRunMultithreaded) {
-
-#if QT_VERSION < 0x060000
-		// NOTE: Qt 5 can't use lambdas for the functors in the mappedReduced() call.
-		//	So this dance works around that by having normal functions for it:
-		class FutureRunner {
-		public:
-			FutureRunner(const CLetterMatrix &letterMatrix,
-						 const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
-						 unsigned int nBookStart, unsigned int nBookEnd)
-				:	m_letterMatrix(letterMatrix),
-					m_lstSearchWords(lstSearchWords),
-					m_lstSearchWordsRev(lstSearchWordsRev),
-					m_nBookStart(nBookStart),
-					m_nBookEnd(nBookEnd)
-			{ }
-			CELSResultList run(int nSkip)
-			{
-				return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
-			}
-			static void reduce(CELSResultList &lstResults, const CELSResultList &result)
-			{
-				lstResults.append(result);
-				std::cerr << ".";
-			}
-
-		private:
-			const CLetterMatrix &m_letterMatrix;
-			const QStringList &m_lstSearchWords;
-			const QStringList &m_lstSearchWordsRev;
-			unsigned int m_nBookStart;
-			unsigned int m_nBookEnd;
-		} runner(letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
-#endif
-
 		QFutureSynchronizer<CELSResultList> synchronizer;
-#if QT_VERSION < 0x060000
-		synchronizer.setFuture(
-			QtConcurrent::mappedReduced(lstSkips,
-										std::bind(&FutureRunner::run, &runner, std::placeholders::_1),
-										&FutureRunner::reduce)
-		);
-#else
-		synchronizer.setFuture(
-			QtConcurrent::mappedReduced(lstSkips,
-				[&](int nSkip)->CELSResultList
-				{
-					return findELS(nSkip, letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd);
-				},
-				[](CELSResultList &lstResults, const CELSResultList &result)
-				{
-					lstResults.append(result);
-					std::cerr << ".";
-				}
-			)
-		);
-#endif
+		synchronizer.setFuture(elsFinder.future(nMinSkip, nMaxSkip, &reduce));
 		synchronizer.waitForFinished();
 		lstResults = synchronizer.futures().at(0).result();
 	} else {
-		for (auto const & nSkip : lstSkips) {
-			lstResults.append(findELS(nSkip, letterMatrix, lstSearchWords, lstSearchWordsRev, nBookStart, nBookEnd));
-			std::cerr << ".";
+		for (int nSkip = nMinSkip; nSkip <= nMaxSkip; ++nSkip) {
+			reduce(lstResults, elsFinder.run(nSkip));
 		}
 	}
 
