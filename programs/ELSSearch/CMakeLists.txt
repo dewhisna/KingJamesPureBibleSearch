@@ -59,9 +59,26 @@ if(ENABLE_TRANSLATIONS)
 	)
 endif()
 
-set(GUI_TYPE)
 
-set(CONSOLE ON)
+set(CONSOLE OFF)
+
+
+set(GUI_TYPE)
+if(NOT CONSOLE)
+	list(APPEND QT_COMPONENTS Widgets)
+
+	if(WIN32)
+		set(GUI_TYPE WIN32)
+	endif()
+	if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+		set(GUI_TYPE MACOSX_BUNDLE)
+#		set(MACOSX_BUNDLE_ICON_FILE bible.icns)
+#
+#		set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/res/bible.icns")
+#		set_source_files_properties(${app_icon_macos} PROPERTIES
+#			   MACOSX_PACKAGE_LOCATION "Resources")
+	endif()
+endif()
 
 # -----------------------------------------------------------------------------
 
@@ -88,6 +105,7 @@ endforeach()
 set(ELSSearch_SOURCES
 	"main.cpp"
 	"LetterMatrix.cpp"
+	"ELSResult.cpp"
 	"FindELS.cpp"
 	# ----
 	"../KJVCanOpener/BibleLayout.cpp"
@@ -112,6 +130,13 @@ set(ELSSearch_SOURCES
 	"../KJVCanOpener/XML.cpp"
 )
 
+if(NOT CONSOLE)
+	list(APPEND ELSSearch_SOURCES
+		"ELSSearchMainWindow.cpp"
+		"LetterMatrixTableModel.cpp"
+	)
+endif()
+
 # -------------------------------------
 
 # Headers Files:
@@ -119,6 +144,7 @@ set(ELSSearch_SOURCES
 
 set(ELSSearch_HEADERS
 	"LetterMatrix.h"
+	"ELSResult.h"
 	"FindELS.h"
 	# ----
 	"../KJVCanOpener/PathConsts.h"
@@ -145,6 +171,15 @@ set(ELSSearch_HEADERS
 	"../KJVCanOpener/XML.h"
 )
 
+if(NOT CONSOLE)
+	list(APPEND ELSSearch_HEADERS
+		"ELSSearchMainWindow.h"
+		"LetterMatrixTableModel.h"
+		# ----
+		"../KJVCanOpener/BusyCursor.h"
+	)
+endif()
+
 # -------------------------------------
 
 # Forms Files:
@@ -152,6 +187,12 @@ set(ELSSearch_HEADERS
 
 set(ELSSearch_FORMS
 )
+
+if(NOT CONSOLE)
+	list(APPEND ELSSearch_FORMS
+		"ELSSearchMainWindow.ui"
+	)
+endif()
 
 # -------------------------------------
 
@@ -161,6 +202,10 @@ set(ELSSearch_FORMS
 set(ELSSearch_RESOURCES
 )
 
+#if(NOT CONSOLE)
+#	list(APPEND ELSSearch_RESOURCES
+#	)
+#endif()
 
 # =============================================================================
 

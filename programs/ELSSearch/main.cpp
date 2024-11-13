@@ -26,10 +26,16 @@
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/Translator.h"
 
+#include "ELSSearchMainWindow.h"
+
 #include "LetterMatrix.h"
 #include "FindELS.h"
 
+#ifndef IS_CONSOLE_APP
+#include <QApplication>
+#else
 #include <QCoreApplication>
+#endif
 #include <QObject>
 #include <QDir>				// Needed for call to QFileInfo
 #include <QFileInfo>
@@ -103,7 +109,11 @@ static void reduce(CELSResultList &lstResults, const CELSResultList &result)
 
 int main(int argc, char *argv[])
 {
+#ifndef IS_CONSOLE_APP
+	QApplication app(argc, argv);
+#else
 	QCoreApplication app(argc, argv);
+#endif
 	app.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
 
 	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
@@ -238,6 +248,19 @@ int main(int argc, char *argv[])
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
+#ifndef IS_CONSOLE_APP
+
+	CELSSearchMainWindow *pMainWindow = new CELSSearchMainWindow(pBibleDatabase, bSkipColophons, bSkipSuperscriptions);
+
+	pMainWindow->show();
+
+	int nRetVal = app.exec();
+
+	delete pMainWindow;
+
+	return nRetVal;
+
+#else
 	CLetterMatrix letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions);
 
 	// ------------------------------------------------------------------------
@@ -380,5 +403,6 @@ int main(int argc, char *argv[])
 	// ------------------------------------------------------------------------
 
 	return 0;
+#endif
 }
 

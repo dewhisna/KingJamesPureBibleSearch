@@ -24,12 +24,11 @@
 #ifndef FIND_ELS_H
 #define FIND_ELS_H
 
-#include "../KJVCanOpener/dbstruct.h"
+#include "ELSResult.h"
 
 #include <QObject>
 #include <QFuture>
 #include <QList>
-#include <QString>
 #include <QStringList>
 #include <QtConcurrent>
 
@@ -37,19 +36,6 @@
 
 // Forward Declarations
 class CLetterMatrix;
-
-// ============================================================================
-
-class CELSResult
-{
-public:
-	QString m_strWord;
-	int m_nSkip = 0;
-	CRelIndexEx m_ndxStart;
-	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
-};
-
-typedef QList<CELSResult> CELSResultList;
 
 // ============================================================================
 
