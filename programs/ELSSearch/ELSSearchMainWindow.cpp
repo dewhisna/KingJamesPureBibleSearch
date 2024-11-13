@@ -32,7 +32,8 @@
 
 #include <QStringList>
 #include <QRegularExpression>
-#include <QFutureSynchronizer>
+#include <QFutureWatcher>
+#include <QProgressDialog>
 #include <QTextCursor>
 #include <QElapsedTimer>
 
@@ -117,8 +118,6 @@ void CELSSearchMainWindow::clearSearchLogText()
 
 void CELSSearchMainWindow::search()
 {
-	// TODO : Switch to QFutureWatcher and add progress dialog
-
 	// TODO : Add book search range
 
 	QStringList lstSearchWords = ui->editWords->text().split(QRegularExpression("[\\s,]+"), Qt::SkipEmptyParts);
@@ -132,44 +131,56 @@ void CELSSearchMainWindow::search()
 //	nBookStart = elsFinder.bookStart();
 //	nBookEnd = elsFinder.bookEnd();
 
-	CBusyCursor busy(this);
+	QProgressDialog dlgProgress;
+	dlgProgress.setLabelText(tr("Searching for: ") + lstSearchWords.join(','));
+
+	insertSearchLogText(tr("Searching for: ") + lstSearchWords.join(','));
 
 	QElapsedTimer elapsedTime;
 	elapsedTime.start();
 
-	insertSearchLogText("Searching for: " + lstSearchWords.join(','));
+	QFutureWatcher<CELSResultList> watcher;
+	connect(&watcher, &QFutureWatcher<CELSResultList>::finished, &dlgProgress, &QProgressDialog::reset);
+	connect(&dlgProgress, &QProgressDialog::canceled, &watcher, &QFutureWatcher<CELSResultList>::cancel);
+	connect(&watcher, &QFutureWatcher<CELSResultList>::progressRangeChanged, &dlgProgress, &QProgressDialog::setRange);
+	connect(&watcher, &QFutureWatcher<CELSResultList>::progressValueChanged, &dlgProgress, &QProgressDialog::setValue);
 
-	QFutureSynchronizer<CELSResultList> synchronizer;
-	synchronizer.setFuture(elsFinder.future(ui->spinMinSkip->value(), ui->spanMaxSkip->value(), &CFindELS::reduce));
-	synchronizer.waitForFinished();
-	CELSResultList lstResults = synchronizer.futures().at(0).result();
-	m_pLetterMatrixTableModel->setSearchResults(lstResults);
-	m_pELSResultListModel->setSearchResults(lstResults);
+	watcher.setFuture(elsFinder.future(ui->spinMinSkip->value(), ui->spanMaxSkip->value(), &CFindELS::reduce));
+	dlgProgress.exec();
+	watcher.waitForFinished();
 
-	insertSearchLogText(QString("Search Time: %1 secs").arg(elapsedTime.elapsed() / 1000.0));
+	if (!watcher.future().isCanceled()) {
+		CELSResultList lstResults = watcher.result();
+		m_pLetterMatrixTableModel->setSearchResults(lstResults);
+		m_pELSResultListModel->setSearchResults(lstResults);
 
-	QString strBookRange;
-	unsigned int nBookStart = elsFinder.bookStart();
-	unsigned int nBookEnd = elsFinder.bookEnd();
-	if ((nBookStart == 1) && (nBookEnd == m_letterMatrix.bibleDatabase()->bibleEntry().m_nNumBk)) {
-		strBookRange = "Entire Bible";
+		insertSearchLogText(tr("Search Time: %1 secs").arg(elapsedTime.elapsed() / 1000.0));
+
+		QString strBookRange;
+		unsigned int nBookStart = elsFinder.bookStart();
+		unsigned int nBookEnd = elsFinder.bookEnd();
+		if ((nBookStart == 1) && (nBookEnd == m_letterMatrix.bibleDatabase()->bibleEntry().m_nNumBk)) {
+			strBookRange = "Entire Bible";
+		} else {
+			strBookRange = tr("%1 through %2")
+							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookStart, 0, 0, 0)))
+							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
+		}
+		insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")
+										.arg(ui->spinMinSkip->value())
+										.arg(ui->spanMaxSkip->value())
+										.arg(strBookRange));
+
+		insertSearchLogText(tr("Found %1 Results\n").arg(lstResults.size()));
+
+		ui->tvELSResults->resizeColumnsToContents();
+
+		// Should we clear editWords here?
 	} else {
-		strBookRange = QString("%1 through %2")
-						   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookStart, 0, 0, 0)))
-						   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
+		insertSearchLogText(tr("Search was cancelled by user\n"));
 	}
-	insertSearchLogText(QString("Searching for ELS skips from %1 to %2 in %3")
-									.arg(ui->spinMinSkip->value())
-									.arg(ui->spanMaxSkip->value())
-									.arg(strBookRange));
-
-	insertSearchLogText(QString("Found %1 Results\n").arg(lstResults.size()));
 
 	insertSearchLogText("----------------------------------------");
-
-	ui->tvELSResults->resizeColumnsToContents();
-
-	// Should we clear editWords here?
 }
 
 void CELSSearchMainWindow::clear()
