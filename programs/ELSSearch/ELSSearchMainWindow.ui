@@ -64,10 +64,13 @@
          </sizepolicy>
         </property>
         <property name="minimum">
-         <number>1</number>
+         <number>0</number>
         </property>
         <property name="maximum">
          <number>1000000</number>
+        </property>
+        <property name="value">
+         <number>1</number>
         </property>
        </widget>
       </item>
@@ -77,12 +80,12 @@
          <string>Ma&amp;xSkip:</string>
         </property>
         <property name="buddy">
-         <cstring>spanMaxSkip</cstring>
+         <cstring>spinMaxSkip</cstring>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spanMaxSkip">
+       <widget class="QSpinBox" name="spinMaxSkip">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -90,12 +93,21 @@
          </sizepolicy>
         </property>
         <property name="minimum">
-         <number>1</number>
+         <number>0</number>
         </property>
         <property name="maximum">
          <number>1000000</number>
         </property>
+        <property name="value">
+         <number>100</number>
+        </property>
        </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmbBookStart"/>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmbBookEnd"/>
       </item>
       <item>
        <widget class="QToolButton" name="btnSearch">
@@ -129,7 +141,7 @@
          <number>1000000</number>
         </property>
         <property name="value">
-         <number>10</number>
+         <number>50</number>
         </property>
        </widget>
       </item>
@@ -167,19 +179,6 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QToolButton" name="btnClear">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>&amp;Clear</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
      <widget class="QTableView" name="tvELSResults">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -190,6 +189,19 @@
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QToolButton" name="btnClear">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>&amp;Clear</string>
+      </property>
      </widget>
     </item>
     <item row="3" column="0" colspan="2">
@@ -230,10 +242,12 @@
  <tabstops>
   <tabstop>editWords</tabstop>
   <tabstop>spinMinSkip</tabstop>
-  <tabstop>spanMaxSkip</tabstop>
+  <tabstop>spinMaxSkip</tabstop>
+  <tabstop>cmbBookStart</tabstop>
+  <tabstop>cmbBookEnd</tabstop>
   <tabstop>btnSearch</tabstop>
-  <tabstop>tvLetterMatrix</tabstop>
   <tabstop>spinWidth</tabstop>
+  <tabstop>tvLetterMatrix</tabstop>
   <tabstop>tvELSResults</tabstop>
   <tabstop>btnClear</tabstop>
   <tabstop>editSearchLog</tabstop>

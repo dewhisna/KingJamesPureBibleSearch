@@ -95,6 +95,11 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 
 		case Qt::TextAlignmentRole:
 			return Qt::AlignCenter;
+
+		case Qt::ToolTipRole:
+			if (nMatrixIndex) return m_letterMatrix.bibleDatabase()->PassageReferenceText(
+										m_letterMatrix.relIndexFromMatrixIndex(nMatrixIndex), false);
+			break;
 	}
 
 	return QVariant();

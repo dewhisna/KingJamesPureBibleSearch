@@ -37,6 +37,7 @@
 #include <QTextCursor>
 #include <QElapsedTimer>
 #include <QApplication>
+#include <QMessageBox>
 
 // ============================================================================
 
@@ -47,7 +48,25 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 		m_letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions),
 		ui(new Ui::CELSSearchMainWindow)
 {
+	Q_ASSERT(!pBibleDatabase.isNull());
+
 	ui->setupUi(this);
+
+	// --------------------------------
+
+	ui->spinMinSkip->setMaximum(m_letterMatrix.size()/2);
+	ui->spinMaxSkip->setMaximum(m_letterMatrix.size()/2);
+	ui->spinWidth->setMaximum(m_letterMatrix.size()/2);
+
+	// --------------------------------
+
+	// Set BookNames in drop lists:
+	for (unsigned int nBk = 1; nBk <= pBibleDatabase->bibleEntry().m_nNumBk; ++nBk) {
+		ui->cmbBookStart->addItem(pBibleDatabase->bookName(CRelIndex(nBk, 0, 0, 0)), nBk);
+		ui->cmbBookEnd->addItem(pBibleDatabase->bookName(CRelIndex(nBk, 0, 0, 0)), nBk);
+	}
+	ui->cmbBookStart->setCurrentIndex(0);
+	ui->cmbBookEnd->setCurrentIndex(pBibleDatabase->bibleEntry().m_nNumBk-1);
 
 	// --------------------------------
 
@@ -86,6 +105,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	connect(ui->btnSearch, &QToolButton::clicked, this, &CELSSearchMainWindow::search);
 	connect(ui->btnClear, &QToolButton::clicked, this, &CELSSearchMainWindow::clear);
+	connect(ui->editWords, &QLineEdit::returnPressed, this, &CELSSearchMainWindow::search);
 
 	connect(ui->tvELSResults, &QTableView::doubleClicked, this, &CELSSearchMainWindow::en_searchResultClicked);
 }
@@ -126,18 +146,16 @@ void CELSSearchMainWindow::clearSearchLogText()
 
 void CELSSearchMainWindow::search()
 {
-	// TODO : Add book search range
-
 	QStringList lstSearchWords = ui->editWords->text().split(QRegularExpression("[\\s,]+"), Qt::SkipEmptyParts);
 
 	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords);
-//	if (!elsFinder.setBookEnds(nBookStart, nBookEnd)) {
-//		std::cerr << QString("\n*** ERROR: Invalid Book Begin/End specified.  Database has books 1 through %1!\n")
-//						 .arg(pBibleDatabase->bibleEntry().m_nNumBk).toUtf8().data();
-//		return -4;
-//	}
-//	nBookStart = elsFinder.bookStart();
-//	nBookEnd = elsFinder.bookEnd();
+	if (!elsFinder.setBookEnds(ui->cmbBookStart->currentData().toUInt(), ui->cmbBookEnd->currentData().toUInt())) {
+		Q_ASSERT(false);
+		QMessageBox::critical(this, QApplication::applicationName(), tr("Failed to set Book Range!"));
+		return;
+	}
+	unsigned int nBookStart = elsFinder.bookStart();
+	unsigned int nBookEnd = elsFinder.bookEnd();
 
 	QProgressDialog dlgProgress;
 	dlgProgress.setLabelText(tr("Searching for: ") + lstSearchWords.join(','));
@@ -153,7 +171,7 @@ void CELSSearchMainWindow::search()
 	connect(&watcher, &QFutureWatcher<CELSResultList>::progressRangeChanged, &dlgProgress, &QProgressDialog::setRange);
 	connect(&watcher, &QFutureWatcher<CELSResultList>::progressValueChanged, &dlgProgress, &QProgressDialog::setValue);
 
-	watcher.setFuture(elsFinder.future(ui->spinMinSkip->value(), ui->spanMaxSkip->value(), &CFindELS::reduce));
+	watcher.setFuture(elsFinder.future(ui->spinMinSkip->value(), ui->spinMaxSkip->value(), &CFindELS::reduce));
 	dlgProgress.exec();
 	watcher.waitForFinished();
 
@@ -161,12 +179,11 @@ void CELSSearchMainWindow::search()
 		CELSResultList lstResults = watcher.result();
 		m_pLetterMatrixTableModel->setSearchResults(lstResults);
 		m_pELSResultListModel->setSearchResults(lstResults);
+		// TODO : Add sort order support in model and tie to GUI
 
 		insertSearchLogText(tr("Search Time: %1 secs").arg(elapsedTime.elapsed() / 1000.0));
 
 		QString strBookRange;
-		unsigned int nBookStart = elsFinder.bookStart();
-		unsigned int nBookEnd = elsFinder.bookEnd();
 		if ((nBookStart == 1) && (nBookEnd == m_letterMatrix.bibleDatabase()->bibleEntry().m_nNumBk)) {
 			strBookRange = "Entire Bible";
 		} else {
@@ -176,7 +193,7 @@ void CELSSearchMainWindow::search()
 		}
 		insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")
 										.arg(ui->spinMinSkip->value())
-										.arg(ui->spanMaxSkip->value())
+										.arg(ui->spinMaxSkip->value())
 										.arg(strBookRange));
 
 		insertSearchLogText(tr("Found %1 Results\n").arg(lstResults.size()));
