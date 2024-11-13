@@ -263,6 +263,7 @@ public:
 private:
 	uint32_t m_ndxEx;				// Extended portion of index
 };
+Q_DECLARE_METATYPE(CRelIndexEx)
 #endif
 
 // ============================================================================
