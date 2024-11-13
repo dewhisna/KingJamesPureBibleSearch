@@ -86,7 +86,8 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			return m_fontMatrix;
 
 		case Qt::BackgroundRole:
-			if (m_lstCharacterFound.at(nMatrixIndex)) return QColor("yellow");
+			if (m_lstCharacterFound.at(nMatrixIndex))
+				return ((m_lstCharacterFound.at(nMatrixIndex) > 1) ? QColor("lightgreen") :  QColor("yellow"));
 			break;
 
 		case Qt::SizeHintRole:
