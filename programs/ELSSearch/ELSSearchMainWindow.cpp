@@ -36,6 +36,7 @@
 #include <QProgressDialog>
 #include <QTextCursor>
 #include <QElapsedTimer>
+#include <QApplication>
 
 // ============================================================================
 
@@ -70,6 +71,13 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvELSResults->resizeColumnsToContents();
 	ui->tvELSResults->horizontalHeader()->setStretchLastSection(false);
+
+	// --------------------------------
+
+	m_pQuitAction = ui->toolBar->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
+	m_pQuitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+	m_pQuitAction->setStatusTip(tr("Exit the KJPBS ELS Search Application", "MainMenu"));
+	m_pQuitAction->setToolTip(tr("Exit Application", "MainMenu"));
 
 	// --------------------------------
 

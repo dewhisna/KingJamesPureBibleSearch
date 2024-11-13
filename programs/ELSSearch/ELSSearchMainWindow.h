@@ -32,6 +32,7 @@
 // Forward Declarations
 class CLetterMatrixTableModel;
 class CELSResultListModel;
+class QAction;
 
 // ============================================================================
 
@@ -65,6 +66,7 @@ private:
 	QPointer<CLetterMatrixTableModel> m_pLetterMatrixTableModel;
 	QPointer<CELSResultListModel> m_pELSResultListModel;
 	// ----
+	QPointer<QAction> m_pQuitAction;
 	Ui::CELSSearchMainWindow *ui;
 };
 
