@@ -73,7 +73,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	QItemSelectionModel *pOldSelModel = ui->tvLetterMatrix->selectionModel();
 	QAbstractItemModel *pOldModel = ui->tvLetterMatrix->model();
-	m_pLetterMatrixTableModel = new CLetterMatrixTableModel(m_letterMatrix, ui->spinWidth->value(), this);
+	m_pLetterMatrixTableModel = new CLetterMatrixTableModel(m_letterMatrix, ui->spinWidth->value(), ui->chkUppercase->isChecked(), this);
 	ui->tvLetterMatrix->setModel(m_pLetterMatrixTableModel);
 	if (pOldModel) delete pOldModel;
 	if (pOldSelModel) delete pOldSelModel;
@@ -89,7 +89,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	pOldSelModel = ui->tvELSResults->selectionModel();
 	pOldModel = ui->tvELSResults->model();
-	m_pELSResultListModel = new CELSResultListModel(pBibleDatabase, this);
+	m_pELSResultListModel = new CELSResultListModel(pBibleDatabase, ui->chkUppercase->isChecked(), this);
 	ui->tvELSResults->setModel(m_pELSResultListModel);
 	if (pOldModel) delete pOldModel;
 	if (pOldSelModel) delete pOldSelModel;
@@ -117,6 +117,8 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --------------------------------
 
 	connect(ui->spinWidth, SIGNAL(valueChanged(int)), m_pLetterMatrixTableModel, SLOT(setWidth(int)));
+	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pLetterMatrixTableModel, SLOT(setUppercase(bool)));
+	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pELSResultListModel, SLOT(setUppercase(bool)));
 
 	connect(ui->btnSearch, &QToolButton::clicked, this, &CELSSearchMainWindow::search);
 	connect(ui->btnClear, &QToolButton::clicked, this, &CELSSearchMainWindow::clear);

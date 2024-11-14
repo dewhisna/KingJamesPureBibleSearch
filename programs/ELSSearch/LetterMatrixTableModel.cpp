@@ -32,11 +32,12 @@
 // ============================================================================
 
 CLetterMatrixTableModel::CLetterMatrixTableModel(const CLetterMatrix &letterMatrix,
-												 int nWidth,
+												 int nWidth, bool bUppercase,
 												 QObject *parent)
 	:	QAbstractTableModel(parent),
 		m_letterMatrix(letterMatrix),
 		m_nWidth(nWidth),
+		m_bUppercase(bUppercase),
 		m_fontMatrix("Courier", 14),
 		m_fontMatrixMetrics(m_fontMatrix)
 {
@@ -79,7 +80,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 
 	switch (role) {
 		case Qt::DisplayRole:
-			return m_letterMatrix.at(nMatrixIndex);
+			return m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
 
 		case Qt::UserRole:					// Returns the Matrix Index for the data cell
 			return nMatrixIndex;
@@ -111,9 +112,19 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 
 void CLetterMatrixTableModel::setWidth(int nWidth)
 {
-	emit layoutAboutToBeChanged();
-	m_nWidth = nWidth;
-	emit layoutChanged();
+	if (m_nWidth != nWidth) {
+		emit layoutAboutToBeChanged();
+		m_nWidth = nWidth;
+		emit layoutChanged();
+	}
+}
+
+void CLetterMatrixTableModel::setUppercase(bool bUppercase)
+{
+	if (m_bUppercase != bUppercase) {
+		m_bUppercase = bUppercase;
+		emit dataChanged(createIndex(0, 0), createIndex(rowCount()-1, columnCount()-1), { Qt::DisplayRole });
+	}
 }
 
 // ----------------------------------------------------------------------------

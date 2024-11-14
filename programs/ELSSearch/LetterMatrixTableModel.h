@@ -43,6 +43,7 @@ class CLetterMatrixTableModel : public QAbstractTableModel
 public:
 	explicit CLetterMatrixTableModel(const CLetterMatrix &letterMatrix,
 									 int nWidth,
+									 bool bUppercase,
 									 QObject *parent = nullptr);
 
 	// Basic functionality:
@@ -54,6 +55,7 @@ public:
 	const CLetterMatrix &matrix() const { return m_letterMatrix; }
 
 	int width() const { return m_nWidth; }
+	bool uppercase() const { return m_bUppercase; }
 
 	QModelIndex modelIndexFromMatrixIndex(uint32_t nMatrixIndex);
 
@@ -61,6 +63,7 @@ public:
 
 public slots:
 	void setWidth(int nWidth);
+	void setUppercase(bool bUppercase);
 
 	void setSearchResults(const CELSResultList &results);
 	void clearSearchResults();
@@ -68,6 +71,7 @@ public slots:
 private:
 	const CLetterMatrix &m_letterMatrix;
 	int m_nWidth = 10;					// Width of Matrix for displaying
+	bool m_bUppercase = false;
 	// ----
 	QList<int> m_lstCharacterFound;		// Number of times a character is found in search result data (used for highlighting)
 	// ----

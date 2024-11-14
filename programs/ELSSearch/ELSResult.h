@@ -75,7 +75,7 @@ class CELSResultListModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	explicit CELSResultListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent = nullptr);
+	explicit CELSResultListModel(CBibleDatabasePtr pBibleDatabase, bool bUppercase, QObject *parent = nullptr);
 	virtual ~CELSResultListModel();
 
 	// Header:
@@ -107,16 +107,21 @@ public:
 
 	ELSRESULT_SORT_ORDER_ENUM sortOrder() const { return m_nSortOrder; }
 
+	bool uppercase() const { return m_bUppercase; }
+
 public slots:
 	void setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 	void setSearchResults(const CELSResultList &lstResults);
 	void clearSearchResults();
+
+	void setUppercase(bool bUppercase);
 
 protected:
 	void sortResults();
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
+	bool m_bUppercase;
 	// ----
 	CELSResultList m_lstResults;
 	// ----

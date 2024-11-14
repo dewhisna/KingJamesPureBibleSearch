@@ -33,9 +33,10 @@
 
 // ============================================================================
 
-CELSResultListModel::CELSResultListModel(CBibleDatabasePtr pBibleDatabase, QObject *parent)
+CELSResultListModel::CELSResultListModel(CBibleDatabasePtr pBibleDatabase, bool bUppercase, QObject *parent)
 	:	QAbstractListModel(parent),
-		m_pBibleDatabase(pBibleDatabase)
+		m_pBibleDatabase(pBibleDatabase),
+		m_bUppercase(bUppercase)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 }
@@ -93,7 +94,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 
 		switch (index.column()) {
 			case 0:
-				return result.m_strWord;
+				return m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord;
 			case 1:
 				return result.m_nSkip;
 			case 2:
@@ -107,7 +108,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 	} else if (role == Qt::UserRole+1) {	// Mime Data for Drag
 		const CELSResult & result = m_lstResults.at(index.row());
 		QString strMimeData;
-		strMimeData += QString("Word: \"%1\"\n").arg(result.m_strWord);
+		strMimeData += QString("Word: \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
 		strMimeData += QString("Start Location: %1\n").arg(m_pBibleDatabase->PassageReferenceText(result.m_ndxStart, false));
 		strMimeData += QString("Skip: %1\n").arg(result.m_nSkip);
 		strMimeData == QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
@@ -216,6 +217,14 @@ void CELSResultListModel::clearSearchResults()
 	beginResetModel();
 	m_lstResults.clear();
 	endResetModel();
+}
+
+void CELSResultListModel::setUppercase(bool bUppercase)
+{
+	if (m_bUppercase != bUppercase) {
+		m_bUppercase = bUppercase;
+		emit dataChanged(createIndex(0, 0), createIndex(m_lstResults.size()-1, columnCount()-1), { Qt::DisplayRole });
+	}
 }
 
 void CELSResultListModel::sortResults()

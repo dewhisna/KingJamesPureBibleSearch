@@ -30,7 +30,7 @@
     <property name="spacing">
      <number>3</number>
     </property>
-    <item row="0" column="0" colspan="3">
+    <item row="0" column="0" colspan="4">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="lblWords">
@@ -198,7 +198,14 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1" colspan="2">
+    <item row="1" column="3">
+     <widget class="QCheckBox" name="chkUppercase">
+      <property name="text">
+       <string>&amp;Uppercase</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1" colspan="3">
      <widget class="QTableView" name="tvELSResults">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -211,7 +218,7 @@
       </attribute>
      </widget>
     </item>
-    <item row="3" column="1" colspan="2">
+    <item row="3" column="1" colspan="3">
      <widget class="QToolButton" name="btnClear">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -224,7 +231,7 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0" colspan="3">
+    <item row="4" column="0" colspan="4">
      <widget class="QPlainTextEdit" name="editSearchLog">
       <property name="readOnly">
        <bool>true</bool>
@@ -267,6 +274,8 @@
   <tabstop>cmbBookEnd</tabstop>
   <tabstop>btnSearch</tabstop>
   <tabstop>spinWidth</tabstop>
+  <tabstop>cmbSortOrder</tabstop>
+  <tabstop>chkUppercase</tabstop>
   <tabstop>tvLetterMatrix</tabstop>
   <tabstop>tvELSResults</tabstop>
   <tabstop>btnClear</tabstop>
