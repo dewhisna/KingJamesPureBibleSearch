@@ -104,6 +104,10 @@ public:
 
 	BROWSER_DISPLAY_MODE_ENUM browserDisplayMode() const { return m_nBrowserDisplayMode; }
 
+protected:
+	virtual void dragEnterEvent(QDragEnterEvent *ev) override;
+	virtual void dropEvent(QDropEvent *ev) override;
+
 public slots:
 	void showDetails();
 	void showGematria();

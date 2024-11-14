@@ -28,6 +28,7 @@
 #include "TextRenderer.h"
 #include "ToolTipEdit.h"
 #include "myApplication.h"
+#include "MimeHelper.h"
 
 #include "BusyCursor.h"
 
@@ -42,6 +43,8 @@
 #include <QToolTip>
 #include <QMouseEvent>
 #include <QStyleOptionSlider>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 #if QT_VERSION >= 0x050000
 #include <QStyle>
@@ -88,6 +91,12 @@ CBrowserWidget::CBrowserWidget(CVerseListModel *pSearchResultsListModel, CBibleD
 #endif // USING_LITEHTML
 
 	ui.lblBibleDatabaseName->setText(m_pBibleDatabase->description());
+
+	m_pScriptureBrowser->viewport()->setAcceptDrops(false);
+#ifdef USING_LITEHTML
+	m_pScriptureLiteHtml->viewport()->setAcceptDrops(false);
+#endif
+	setAcceptDrops(true);
 
 	setNavigationActivationDelay(CPersistentSettings::instance()->navigationActivationDelay());
 	setPassageReferenceActivationDelay(CPersistentSettings::instance()->passageReferenceActivationDelay());
@@ -229,6 +238,26 @@ bool CBrowserWidget::eventFilter(QObject *obj, QEvent *ev)
 	}
 
 	return QWidget::eventFilter(obj, ev);
+}
+
+// ----------------------------------------------------------------------------
+
+void CBrowserWidget::dragEnterEvent(QDragEnterEvent *ev)
+{
+	if (ev->mimeData()->hasFormat(g_constrPhraseTagMimeType)) {
+		ev->acceptProposedAction();
+	} else {
+		ev->ignore();
+	}
+}
+
+void CBrowserWidget::dropEvent(QDropEvent *ev)
+{
+	if (ev->mimeData()->hasFormat(g_constrPhraseTagMimeType)) {
+		TPhraseTag tag = CMimeHelper::getPhraseTagFromMimeData(ev->mimeData());
+		if (tag.isSet()) gotoIndex(tag);
+		ev->acceptProposedAction();
+	}
 }
 
 // ----------------------------------------------------------------------------
