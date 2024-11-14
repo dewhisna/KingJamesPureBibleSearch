@@ -94,6 +94,14 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
+	// Set sortOrder descriptions:
+	for (int i = ESO_FIRST; i < ESO_COUNT; ++i) {
+		ui->cmbSortOrder->addItem(elsresultSortOrderDescription(static_cast<ELSRESULT_SORT_ORDER_ENUM>(i)), i);
+	}
+	ui->cmbSortOrder->setCurrentIndex(m_pELSResultListModel->sortOrder());
+
+	// --------------------------------
+
 	m_pQuitAction = ui->toolBar->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
 	m_pQuitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 	m_pQuitAction->setStatusTip(tr("Exit the KJPBS ELS Search Application", "MainMenu"));
@@ -109,6 +117,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->editWords, &QLineEdit::returnPressed, this, &CELSSearchMainWindow::search);
 
 	connect(ui->tvELSResults, &QTableView::doubleClicked, this, &CELSSearchMainWindow::en_searchResultClicked);
+	connect(ui->cmbSortOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSortOrder(int)));
 }
 
 CELSSearchMainWindow::~CELSSearchMainWindow()
@@ -128,6 +137,11 @@ void CELSSearchMainWindow::en_searchResultClicked(const QModelIndex &index)
 	CRelIndexEx ndx =  m_pELSResultListModel->data(index, Qt::UserRole).value<CRelIndexEx>();
 	uint32_t matrixIndex = m_letterMatrix.matrixIndexFromRelIndex(ndx);
 	if (matrixIndex) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(matrixIndex), QAbstractItemView::PositionAtTop);
+}
+
+void CELSSearchMainWindow::en_changedSortOrder(int nIndex)
+{
+	m_pELSResultListModel->setSortOrder(static_cast<ELSRESULT_SORT_ORDER_ENUM>(ui->cmbSortOrder->itemData(nIndex).toInt()));
 }
 
 // ----------------------------------------------------------------------------

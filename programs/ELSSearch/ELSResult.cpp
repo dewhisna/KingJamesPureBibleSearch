@@ -170,10 +170,40 @@ Qt::ItemFlags CELSResultListModel::flags(const QModelIndex &index) const
 
 // ----------------------------------------------------------------------------
 
+QString elsresultSortOrderDescription(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
+{
+	switch (nSortOrder) {
+		case ESO_WSR:
+			return "Word, Skip, Ref";
+		case ESO_WRS:
+			return "Word, Ref, Skip";
+		case ESO_RWS:
+			return "Ref, Word, Skip";
+		case ESO_RSW:
+			return "Ref, Skip, Word";
+		case ESO_SRW:
+			return "Skip, Ref, Word";
+		case ESO_SWR:
+			return "Skip, Word, Ref";
+		default:
+			break;
+	}
+	return QString();
+}
+
+void CELSResultListModel::setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
+{
+	m_nSortOrder = nSortOrder;
+	beginResetModel();
+	sortResults();
+	endResetModel();
+}
+
 void CELSResultListModel::setSearchResults(const CELSResultList &lstResults)
 {
 	beginResetModel();
 	m_lstResults.append(lstResults);
+	sortResults();
 	endResetModel();
 }
 
@@ -182,6 +212,52 @@ void CELSResultListModel::clearSearchResults()
 	beginResetModel();
 	m_lstResults.clear();
 	endResetModel();
+}
+
+void CELSResultListModel::sortResults()
+{
+	sortELSResultList(m_nSortOrder, m_lstResults);
+}
+
+void sortELSResultList(ELSRESULT_SORT_ORDER_ENUM nSortOrder, CELSResultList &lstResults)
+{
+	std::sort(lstResults.begin(), lstResults.end(),
+			  [nSortOrder](const CELSResult &r1, const CELSResult &r2)->bool {
+				  auto fnWord = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
+					  int nComp = r1.m_strWord.compare(r2.m_strWord);
+					  return std::pair<bool,bool>(nComp < 0, nComp == 0);
+				  };
+				  auto fnSkip = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
+					  return std::pair<bool,bool>(r1.m_nSkip < r2.m_nSkip, r1.m_nSkip == r2.m_nSkip);
+				  };
+				  auto fnRef = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
+					  return std::pair<bool,bool>(r1.m_ndxStart.indexEx() < r2.m_ndxStart.indexEx(),
+												   r1.m_ndxStart.indexEx() == r2.m_ndxStart.indexEx());
+				  };
+				  struct TFuncs {
+					  std::pair<bool,bool> (*m_first)(const CELSResult &, const CELSResult &);
+					  std::pair<bool,bool> (*m_second)(const CELSResult &, const CELSResult &);
+					  std::pair<bool,bool> (*m_third)(const CELSResult &, const CELSResult &);
+				  } sortFuncs[] = {			// Order must match ELSRESULT_SORT_ORDER_ENUM
+					  { fnWord, fnSkip, fnRef },	// ESO_WSR
+					  { fnWord, fnRef, fnSkip },	// ESO_WRS
+					  { fnRef, fnWord, fnSkip },	// ESO_RWS
+					  { fnRef, fnSkip, fnWord },	// ESO_RSW
+					  { fnSkip, fnRef, fnWord },	// ESO_SRW
+					  { fnSkip, fnWord, fnRef },	// ESO_SWR
+				  };
+				  std::pair<bool,bool> cmpFirst = sortFuncs[nSortOrder].m_first(r1, r2);
+				  if (cmpFirst.first) return true;
+				  if (cmpFirst.second) {
+					  std::pair<bool,bool> cmpSecond = sortFuncs[nSortOrder].m_second(r1, r2);
+					  if (cmpSecond.first) return true;
+					  if (cmpSecond.second) {
+						  std::pair<bool,bool> cmpThird = sortFuncs[nSortOrder].m_third(r1, r2);
+						  if (cmpThird.first) return true;
+					  }
+				  }
+				  return false;
+			  });
 }
 
 // ============================================================================

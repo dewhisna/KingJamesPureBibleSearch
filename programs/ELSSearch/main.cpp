@@ -137,14 +137,7 @@ int main(int argc, char *argv[])
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
 	// ----
-	enum OUTPUT_SORT_ORDER_ENUM {
-		OSO_WSR,
-		OSO_WRS,
-		OSO_RWS,
-		OSO_RSW,
-		OSO_SRW,
-		OSO_SWR,
-	} nSortOrder = OSO_WSR;
+	ELSRESULT_SORT_ORDER_ENUM nSortOrder = ESO_WSR;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -174,17 +167,17 @@ int main(int argc, char *argv[])
 		} else if (strArg.startsWith("-be")) {
 			nBookEnd = strArg.mid(3).toUInt();
 		} else if (strArg.compare("-owsr") == 0) {
-			nSortOrder = OSO_WSR;
+			nSortOrder = ESO_WSR;
 		} else if (strArg.compare("-owrs") == 0) {
-			nSortOrder = OSO_WRS;
+			nSortOrder = ESO_WRS;
 		} else if (strArg.compare("-orws") == 0) {
-			nSortOrder = OSO_RWS;
+			nSortOrder = ESO_RWS;
 		} else if (strArg.compare("-orsw") == 0) {
-			nSortOrder = OSO_RSW;
+			nSortOrder = ESO_RSW;
 		} else if (strArg.compare("-osrw") == 0) {
-			nSortOrder = OSO_SRW;
+			nSortOrder = ESO_SRW;
 		} else if (strArg.compare("-oswr") == 0) {
-			nSortOrder = OSO_SWR;
+			nSortOrder = ESO_SWR;
 		} else {
 			bUnknownOption = true;
 		}
@@ -333,66 +326,11 @@ int main(int argc, char *argv[])
 	std::cout << "\n";
 
 	std::cout << "Sort Order: ";
-	switch (nSortOrder) {
-		case OSO_WSR:
-			std::cout << "Word, Skip, Ref\n";
-			break;
-		case OSO_WRS:
-			std::cout << "Word, Ref, Skip\n";
-			break;
-		case OSO_RWS:
-			std::cout << "Ref, Word, Skip\n";
-			break;
-		case OSO_RSW:
-			std::cout << "Ref, Skip, Word\n";
-			break;
-		case OSO_SRW:
-			std::cout << "Skip, Ref, Word\n";
-			break;
-		case OSO_SWR:
-			std::cout << "Skip, Word, Ref\n";
-			break;
-	}
+	std::cout << elsresultSortOrderDescription(nSortOrder).toUtf8().data() << "\n";
 	std::cout << "\n";
 
 	// Sort results based on sort order:
-	std::sort(lstResults.begin(), lstResults.end(),
-			[nSortOrder](const CELSResult &r1, const CELSResult &r2)->bool {
-				auto fnWord = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
-					int nComp = r1.m_strWord.compare(r2.m_strWord);
-					return std::pair<bool,bool>(nComp < 0, nComp == 0);
-				};
-				auto fnSkip = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
-					return std::pair<bool,bool>(r1.m_nSkip < r2.m_nSkip, r1.m_nSkip == r2.m_nSkip);
-				};
-				auto fnRef = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
-					return std::pair<bool,bool>(r1.m_ndxStart.indexEx() < r2.m_ndxStart.indexEx(),
-												r1.m_ndxStart.indexEx() == r2.m_ndxStart.indexEx());
-				};
-				struct TFuncs {
-					std::pair<bool,bool> (*m_first)(const CELSResult &, const CELSResult &);
-					std::pair<bool,bool> (*m_second)(const CELSResult &, const CELSResult &);
-					std::pair<bool,bool> (*m_third)(const CELSResult &, const CELSResult &);
-				} sortFuncs[] = {			// Order must match OUTPUT_SORT_ORDER_ENUM
-					{ fnWord, fnSkip, fnRef },	// OSO_WSR
-					{ fnWord, fnRef, fnSkip },	// OSO_WRS
-					{ fnRef, fnWord, fnSkip },	// OSO_RWS
-					{ fnRef, fnSkip, fnWord },	// OSO_RSW
-					{ fnSkip, fnRef, fnWord },	// OSO_SRW
-					{ fnSkip, fnWord, fnRef },	// OSO_SWR
-				};
-				std::pair<bool,bool> cmpFirst = sortFuncs[nSortOrder].m_first(r1, r2);
-				if (cmpFirst.first) return true;
-				if (cmpFirst.second) {
-					std::pair<bool,bool> cmpSecond = sortFuncs[nSortOrder].m_second(r1, r2);
-					if (cmpSecond.first) return true;
-					if (cmpSecond.second) {
-						std::pair<bool,bool> cmpThird = sortFuncs[nSortOrder].m_third(r1, r2);
-						if (cmpThird.first) return true;
-					}
-				}
-				return false;
-			});
+	sortELSResultList(nSortOrder, lstResults);
 
 	// Print Results:
 	std::cout << QString("Found %1 Results:\n").arg(lstResults.size()).toUtf8().data();

@@ -31,9 +31,27 @@
 #include <QStringList>
 #include <QObject>
 #include <QAbstractListModel>
+#include <QMetaType>
 
 // Forward Declarations
 class QMimeData;
+
+// ============================================================================
+
+enum ELSRESULT_SORT_ORDER_ENUM {
+	ESO_WSR,
+	ESO_WRS,
+	ESO_RWS,
+	ESO_RSW,
+	ESO_SRW,
+	ESO_SWR,
+	// ----
+	ESO_COUNT
+};
+constexpr ELSRESULT_SORT_ORDER_ENUM ESO_FIRST = ESO_WSR;
+Q_DECLARE_METATYPE(ELSRESULT_SORT_ORDER_ENUM)
+
+extern QString elsresultSortOrderDescription(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 
 // ============================================================================
 
@@ -47,6 +65,8 @@ public:
 };
 
 typedef QList<CELSResult> CELSResultList;
+
+extern void sortELSResultList(ELSRESULT_SORT_ORDER_ENUM nSortOrder, CELSResultList &lstResults);
 
 // ============================================================================
 
@@ -83,14 +103,22 @@ public:
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
+	ELSRESULT_SORT_ORDER_ENUM sortOrder() const { return m_nSortOrder; }
+
 public slots:
+	void setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 	void setSearchResults(const CELSResultList &lstResults);
 	void clearSearchResults();
+
+protected:
+	void sortResults();
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	// ----
 	CELSResultList m_lstResults;
+	// ----
+	ELSRESULT_SORT_ORDER_ENUM m_nSortOrder = ESO_WSR;
 };
 
 // ============================================================================
