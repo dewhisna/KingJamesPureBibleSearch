@@ -27,6 +27,7 @@
 #include <QAbstractTableModel>
 #include <QList>
 #include <QFont>
+#include <QFontMetrics>
 
 #include "ELSResult.h"
 
@@ -56,6 +57,8 @@ public:
 
 	QModelIndex modelIndexFromMatrixIndex(uint32_t nMatrixIndex);
 
+	const QFontMetrics &fontMetrics() const { return m_fontMatrixMetrics; }
+
 public slots:
 	void setWidth(int nWidth);
 
@@ -69,6 +72,7 @@ private:
 	QList<int> m_lstCharacterFound;		// Number of times a character is found in search result data (used for highlighting)
 	// ----
 	QFont m_fontMatrix;
+	QFontMetrics m_fontMatrixMetrics;
 };
 
 // ============================================================================

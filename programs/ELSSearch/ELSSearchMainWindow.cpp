@@ -38,6 +38,7 @@
 #include <QElapsedTimer>
 #include <QApplication>
 #include <QMessageBox>
+#include <QHeaderView>
 
 // ============================================================================
 
@@ -77,7 +78,12 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	if (pOldModel) delete pOldModel;
 	if (pOldSelModel) delete pOldSelModel;
 
-	ui->tvLetterMatrix->resizeColumnsToContents();
+	QHeaderView *pTVHeader = ui->tvLetterMatrix->verticalHeader();
+	pTVHeader->setDefaultSectionSize(m_pLetterMatrixTableModel->fontMetrics().height()+2);
+	pTVHeader = ui->tvLetterMatrix->horizontalHeader();
+	pTVHeader->setStretchLastSection(false);
+	pTVHeader->setDefaultSectionSize(m_pLetterMatrixTableModel->fontMetrics().maxWidth()+2);
+	pTVHeader->setSectionResizeMode(QHeaderView::Fixed);			// This avoids needing to resize columns
 
 	// --------------------------------
 
@@ -110,7 +116,6 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --------------------------------
 
 	connect(ui->spinWidth, SIGNAL(valueChanged(int)), m_pLetterMatrixTableModel, SLOT(setWidth(int)));
-	connect(m_pLetterMatrixTableModel, &CLetterMatrixTableModel::layoutChanged, this, &CELSSearchMainWindow::en_letterMatrixLayoutChanged);
 
 	connect(ui->btnSearch, &QToolButton::clicked, this, &CELSSearchMainWindow::search);
 	connect(ui->btnClear, &QToolButton::clicked, this, &CELSSearchMainWindow::clear);
@@ -126,11 +131,6 @@ CELSSearchMainWindow::~CELSSearchMainWindow()
 }
 
 // ----------------------------------------------------------------------------
-
-void CELSSearchMainWindow::en_letterMatrixLayoutChanged()
-{
-	ui->tvLetterMatrix->resizeColumnsToContents();
-}
 
 void CELSSearchMainWindow::en_searchResultClicked(const QModelIndex &index)
 {

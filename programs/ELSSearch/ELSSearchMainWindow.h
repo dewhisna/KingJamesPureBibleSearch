@@ -51,7 +51,6 @@ public:
 	~CELSSearchMainWindow();
 
 protected slots:
-	void en_letterMatrixLayoutChanged();
 	void en_searchResultClicked(const QModelIndex &index);
 	void en_changedSortOrder(int nIndex);
 	// ----

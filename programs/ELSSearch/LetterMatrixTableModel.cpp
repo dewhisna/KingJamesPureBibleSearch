@@ -27,6 +27,7 @@
 #include "ELSResult.h"
 
 #include <QColor>
+#include <QSize>
 
 // ============================================================================
 
@@ -36,7 +37,8 @@ CLetterMatrixTableModel::CLetterMatrixTableModel(const CLetterMatrix &letterMatr
 	:	QAbstractTableModel(parent),
 		m_letterMatrix(letterMatrix),
 		m_nWidth(nWidth),
-		m_fontMatrix("Courier", 14)
+		m_fontMatrix("Courier", 14),
+		m_fontMatrixMetrics(m_fontMatrix)
 {
 #if QT_VERSION < 0x060000
 	// NOTE: Unlike Qt6, Qt 5 has no constructor to prepopulate the list:
@@ -91,7 +93,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			break;
 
 		case Qt::SizeHintRole:
-			return Qt::MinimumSize;
+			return QSize(m_fontMatrixMetrics.maxWidth()+2, m_fontMatrixMetrics.height()+2);
 
 		case Qt::TextAlignmentRole:
 			return Qt::AlignCenter;
