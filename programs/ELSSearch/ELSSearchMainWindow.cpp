@@ -97,6 +97,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	ui->tvELSResults->resizeColumnsToContents();
 	ui->tvELSResults->horizontalHeader()->setStretchLastSection(false);
 	ui->tvELSResults->setDragEnabled(true);
+	ui->tvELSResults->setSelectionBehavior(QAbstractItemView::SelectRows);
 
 	// --------------------------------
 
@@ -122,6 +123,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->editWords, &QLineEdit::returnPressed, this, &CELSSearchMainWindow::search);
 
 	connect(ui->tvELSResults, &QTableView::doubleClicked, this, &CELSSearchMainWindow::en_searchResultClicked);
+	connect(ui->tvELSResults, &QTableView::activated, this, &CELSSearchMainWindow::en_searchResultClicked);
 	connect(ui->cmbSortOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSortOrder(int)));
 }
 
