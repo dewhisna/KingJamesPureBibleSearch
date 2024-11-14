@@ -90,6 +90,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvELSResults->resizeColumnsToContents();
 	ui->tvELSResults->horizontalHeader()->setStretchLastSection(false);
+	ui->tvELSResults->setDragEnabled(true);
 
 	// --------------------------------
 

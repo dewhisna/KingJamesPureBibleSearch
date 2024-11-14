@@ -28,8 +28,12 @@
 
 #include <QList>
 #include <QString>
+#include <QStringList>
 #include <QObject>
 #include <QAbstractListModel>
+
+// Forward Declarations
+class QMimeData;
 
 // ============================================================================
 
@@ -64,6 +68,10 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+	Qt::DropActions supportedDragActions() const override;
+	QMimeData *mimeData(const QModelIndexList &indexes) const override;
+	QStringList mimeTypes() const override;
 
 	// Editable:
 	bool setData(const QModelIndex &index, const QVariant &value,
