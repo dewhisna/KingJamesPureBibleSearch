@@ -114,7 +114,6 @@ set(ELSSearch_SOURCES
 	"../KJVCanOpener/dbDescriptors.cpp"
 	"../KJVCanOpener/dbstruct.cpp"
 	"../KJVCanOpener/Highlighter.cpp"
-	"../KJVCanOpener/MimeHelper.cpp"
 	"../KJVCanOpener/ModelRowForwardIterator.cpp"
 	"../KJVCanOpener/ParseSymbols.cpp"
 	"../KJVCanOpener/PersistentSettings.cpp"
@@ -135,7 +134,10 @@ set(ELSSearch_SOURCES
 if(NOT CONSOLE)
 	list(APPEND ELSSearch_SOURCES
 		"ELSSearchMainWindow.cpp"
+		"ELSBibleDatabaseSelectDlg.cpp"
 		"LetterMatrixTableModel.cpp"
+		# ----
+		"../KJVCanOpener/MimeHelper.cpp"
 	)
 endif()
 
@@ -156,7 +158,6 @@ set(ELSSearch_HEADERS
 	"../KJVCanOpener/dbDescriptors.h"
 	"../KJVCanOpener/dbstruct.h"
 	"../KJVCanOpener/Highlighter.h"
-	"../KJVCanOpener/MimeHelper.h"
 	"../KJVCanOpener/ModelRowForwardIterator.h"
 	"../KJVCanOpener/ParseSymbols.h"
 	"../KJVCanOpener/PersistentSettings.h"
@@ -177,9 +178,11 @@ set(ELSSearch_HEADERS
 if(NOT CONSOLE)
 	list(APPEND ELSSearch_HEADERS
 		"ELSSearchMainWindow.h"
+		"ELSBibleDatabaseSelectDlg.h"
 		"LetterMatrixTableModel.h"
 		# ----
 		"../KJVCanOpener/BusyCursor.h"
+		"../KJVCanOpener/MimeHelper.h"
 	)
 endif()
 
@@ -194,6 +197,7 @@ set(ELSSearch_FORMS
 if(NOT CONSOLE)
 	list(APPEND ELSSearch_FORMS
 		"ELSSearchMainWindow.ui"
+		"ELSBibleDatabaseSelectDlg.ui"
 	)
 endif()
 

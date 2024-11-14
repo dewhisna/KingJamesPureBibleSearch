@@ -89,9 +89,11 @@ public:
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
+#ifndef IS_CONSOLE_APP
 	Qt::DropActions supportedDragActions() const override;
 	QMimeData *mimeData(const QModelIndexList &indexes) const override;
 	QStringList mimeTypes() const override;
+#endif
 
 	// Editable:
 	bool setData(const QModelIndex &index, const QVariant &value,

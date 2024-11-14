@@ -26,13 +26,18 @@
 #include "../KJVCanOpener/ReadDB.h"
 #include "../KJVCanOpener/Translator.h"
 
-#include "ELSSearchMainWindow.h"
-
 #include "LetterMatrix.h"
 #include "FindELS.h"
 
 #ifndef IS_CONSOLE_APP
+#include "ELSSearchMainWindow.h"
 #include <QApplication>
+#include <QMessageBox>
+#include "ELSBibleDatabaseSelectDlg.h"
+#include <QProgressDialog>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QtConcurrent>
 #else
 #include <QCoreApplication>
 #endif
@@ -107,6 +112,54 @@ static void reduce(CELSResultList &lstResults, const CELSResultList &result)
 
 // ----------------------------------------------------------------------------
 
+#ifndef IS_CONSOLE_APP
+
+class CProgressLauncher : public QProgressDialog
+{
+public:
+	CProgressLauncher(CReadDatabase &rdbMain, const QString  &strBibleUUID,
+					bool bSkipColophons, bool bSkipSuperscriptions)
+		:	QProgressDialog(QObject::tr("Reading Bible Database", "ELSSearch"), QString(), 0, 0, nullptr,
+			Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowTitleHint),		// Get rid of the frame to prevent user from closing, as it will crash us
+			m_bSkipColophons(bSkipColophons),
+			m_bSkipSuperscriptions(bSkipSuperscriptions)
+	{
+		QFutureWatcher<void> *pWatcher = new QFutureWatcher<void>(this);
+		connect(pWatcher, &QFutureWatcher<void>::finished, this, [&]()->void {
+			// When the database read finishes, show the main window and close the progress dialog:
+			if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
+				m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
+														 m_bSkipColophons, m_bSkipSuperscriptions);
+
+				m_pMainWindow->show();
+				this->close();
+			}
+		});
+
+		// Read the database on a separate thread while this thread runs the progress dialog:
+		pWatcher->setFuture(
+			QtConcurrent::run([&]()->void {
+				if (!rdbMain.ReadBibleDatabase(TBibleDatabaseList::availableBibleDatabaseDescriptor(strBibleUUID), true)) {
+					QMessageBox::critical(nullptr, QApplication::applicationName(), QObject::tr("*** ERROR: Failed to Read the Bible Database!", "ELSSearch"));
+					this->close();
+				}
+			})
+		);
+	}
+
+	void deleteMainWindow()
+	{
+		if (m_pMainWindow) delete m_pMainWindow;
+	}
+
+private:
+	CELSSearchMainWindow *m_pMainWindow = nullptr;
+	bool m_bSkipColophons = false;
+	bool m_bSkipSuperscriptions = false;
+};
+
+#endif
+
 int main(int argc, char *argv[])
 {
 #ifndef IS_CONSOLE_APP
@@ -128,7 +181,7 @@ int main(int argc, char *argv[])
 	QStringList lstSearchWords;
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
-	bool bUnknownOption = false;
+	bool bShowUsageHelp = false;
 	// ----
 	bool bRunMultithreaded = false;
 	bool bSkipColophons = false;
@@ -152,7 +205,7 @@ int main(int argc, char *argv[])
 			} else if (nArgsFound == 4) {
 				lstSearchWords = strArg.split(',', Qt::SkipEmptyParts);
 			} else {
-				bUnknownOption = true;
+				bShowUsageHelp = true;
 			}
 		} else if (strArg.compare("-mt") == 0) {
 			bRunMultithreaded = true;
@@ -178,15 +231,49 @@ int main(int argc, char *argv[])
 			nSortOrder = ESO_SRW;
 		} else if (strArg.compare("-oswr") == 0) {
 			nSortOrder = ESO_SWR;
+		} else if ((strArg.compare("-h") == 0) || (strArg.compare("--help") == 0)) {
+			bShowUsageHelp = true;
 		} else {
-			bUnknownOption = true;
+			bShowUsageHelp = true;
 		}
 	}
 
-	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bUnknownOption = true;	// Each word must have at least two characters
-	if (lstSearchWords.isEmpty()) bUnknownOption = true;		// Must have at least one search word
+#ifndef IS_CONSOLE_APP
+	// Launch as a GUI unless user specified enough arguments for console app:
+	if ((nArgsFound <= 1) && (!bShowUsageHelp)) {		// Allow Bible Database argument to dialog if passed
+		QString strBibleUUID{bibleDescriptor(BDE_KJV).m_strUUID};
 
-	if ((nArgsFound != 4) || (bUnknownOption)) {
+		if ((nArgsFound == 1) && (nDescriptor >= 0) &&
+			(static_cast<unsigned int>(nDescriptor) < bibleDescriptorCount())) {
+			strBibleUUID = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor)).m_strUUID;
+		}
+
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, bSkipColophons, bSkipSuperscriptions};
+		if (dlgBibleSelect.exec() == QDialog::Rejected) return -1;
+
+		CReadDatabase rdbMain;
+		if (!rdbMain.haveBibleDatabaseFiles(TBibleDatabaseList::availableBibleDatabaseDescriptor(dlgBibleSelect.bibleUUID()))) {
+			QMessageBox::critical(nullptr, QApplication::applicationName(), QObject::tr("*** ERROR: Unable to locate Bible Database Files!", "ELSSearch"));
+			return -2;
+		}
+
+		CProgressLauncher launcher(rdbMain, dlgBibleSelect.bibleUUID(), dlgBibleSelect.removeColophons(), dlgBibleSelect.removeSuperscriptions());
+		launcher.show();
+		launcher.ensurePolished();
+		launcher.raise();
+
+		int nRetVal = app.exec();
+
+		launcher.deleteMainWindow();
+
+		return nRetVal;
+	}
+#endif
+
+	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bShowUsageHelp = true;	// Each word must have at least two characters
+	if (lstSearchWords.isEmpty()) bShowUsageHelp = true;		// Must have at least one search word
+
+	if ((nArgsFound != 4) || (bShowUsageHelp)) {
 		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Min-Letter-Skip> <Max-Letter-Skip> <Words>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database and searches for the specified <Words> at ELS\n").toUtf8().data();
@@ -241,19 +328,6 @@ int main(int argc, char *argv[])
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
-#ifndef IS_CONSOLE_APP
-
-	CELSSearchMainWindow *pMainWindow = new CELSSearchMainWindow(pBibleDatabase, bSkipColophons, bSkipSuperscriptions);
-
-	pMainWindow->show();
-
-	int nRetVal = app.exec();
-
-	delete pMainWindow;
-
-	return nRetVal;
-
-#else
 	CLetterMatrix letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions);
 
 	// ------------------------------------------------------------------------
@@ -341,6 +415,5 @@ int main(int argc, char *argv[])
 	// ------------------------------------------------------------------------
 
 	return 0;
-#endif
 }
 

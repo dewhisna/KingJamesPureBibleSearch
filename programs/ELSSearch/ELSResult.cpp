@@ -23,11 +23,13 @@
 
 #include "ELSResult.h"
 
+#ifndef IS_CONSOLE_APP
 #include "../KJVCanOpener/MimeHelper.h"
 #include "../KJVCanOpener/BusyCursor.h"
+#include <QMimeData>
+#endif
 
 #include <QVariant>
-#include <QMimeData>
 
 // ============================================================================
 
@@ -115,6 +117,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 	return QVariant();
 }
 
+#ifndef IS_CONSOLE_APP
 Qt::DropActions CELSResultListModel::supportedDragActions() const
 {
 	return Qt::CopyAction;
@@ -151,6 +154,7 @@ QStringList CELSResultListModel::mimeTypes() const
 	lstTypes << g_constrPhraseTagMimeType;
 	return lstTypes;
 }
+#endif
 
 bool CELSResultListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
