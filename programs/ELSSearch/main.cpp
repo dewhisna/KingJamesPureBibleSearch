@@ -121,11 +121,13 @@ public:
 					bool bSkipColophons, bool bSkipSuperscriptions)
 		:	QProgressDialog(QObject::tr("Reading Bible Database", "ELSSearch"), QString(), 0, 0, nullptr,
 			Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowTitleHint),		// Get rid of the frame to prevent user from closing, as it will crash us
+			m_rdbMain(rdbMain),
+			m_strBibleUUID(strBibleUUID),
 			m_bSkipColophons(bSkipColophons),
 			m_bSkipSuperscriptions(bSkipSuperscriptions)
 	{
 		QFutureWatcher<void> *pWatcher = new QFutureWatcher<void>(this);
-		connect(pWatcher, &QFutureWatcher<void>::finished, this, [&]()->void {
+		connect(pWatcher, &QFutureWatcher<void>::finished, this, [this]()->void {
 			// When the database read finishes, show the main window and close the progress dialog:
 			if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
 				m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
@@ -138,8 +140,8 @@ public:
 
 		// Read the database on a separate thread while this thread runs the progress dialog:
 		pWatcher->setFuture(
-			QtConcurrent::run([&]()->void {
-				if (!rdbMain.ReadBibleDatabase(TBibleDatabaseList::availableBibleDatabaseDescriptor(strBibleUUID), true)) {
+			QtConcurrent::run([this]()->void {
+				if (!m_rdbMain.ReadBibleDatabase(TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strBibleUUID), true)) {
 					QMessageBox::critical(nullptr, QApplication::applicationName(), QObject::tr("*** ERROR: Failed to Read the Bible Database!", "ELSSearch"));
 					this->close();
 				}
@@ -147,13 +149,20 @@ public:
 		);
 	}
 
+	bool haveMainWindow() const { return (m_pMainWindow != nullptr); }
+
 	void deleteMainWindow()
 	{
-		if (m_pMainWindow) delete m_pMainWindow;
+		if (m_pMainWindow) {
+			delete m_pMainWindow;
+			m_pMainWindow = nullptr;
+		}
 	}
 
 private:
 	CELSSearchMainWindow *m_pMainWindow = nullptr;
+	CReadDatabase &m_rdbMain;
+	QString m_strBibleUUID;
 	bool m_bSkipColophons = false;
 	bool m_bSkipSuperscriptions = false;
 };
@@ -264,6 +273,7 @@ int main(int argc, char *argv[])
 
 		int nRetVal = app.exec();
 
+		if (!launcher.haveMainWindow()) nRetVal = -3;		// If the main window didn't launch, it's equivalent to failing to read the database in the CLI path
 		launcher.deleteMainWindow();
 
 		return nRetVal;
