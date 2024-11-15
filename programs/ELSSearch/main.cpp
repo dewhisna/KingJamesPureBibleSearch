@@ -82,20 +82,20 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 	uint32_t martixIndexEnd = matrixIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
 	martixIndexEnd += (result.m_nSkip+1) - ((martixIndexEnd - matrixIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
 	int nChar = 0;
-	for (uint32_t normalIndex = matrixIndexStart; normalIndex <= martixIndexEnd; ++normalIndex) {
-		if (normalIndex == matrixIndexStart) {
+	for (uint32_t matrixIndex = matrixIndexStart; matrixIndex <= martixIndexEnd; ++matrixIndex) {
+		if (matrixIndex == matrixIndexStart) {
 			std::cout << "\n";
 			matrixIndexStart += result.m_nSkip+1;
 		}
-		if (normalIndex >= static_cast<uint32_t>(letterMatrix.size())) break;
-		std::cout << ((normalIndex == matrixIndexResult) ? "[" : " ");
+		if (matrixIndex >= static_cast<uint32_t>(letterMatrix.size())) break;
+		std::cout << ((matrixIndex == matrixIndexResult) ? "[" : " ");
 		if (bUpperCase) {
-			std::cout << QString(letterMatrix.at(normalIndex).toUpper()).toUtf8().data();
+			std::cout << QString(letterMatrix.at(matrixIndex).toUpper()).toUtf8().data();
 		} else {
-			std::cout << QString(letterMatrix.at(normalIndex)).toUtf8().data();
+			std::cout << QString(letterMatrix.at(matrixIndex)).toUtf8().data();
 		}
-		std::cout << ((normalIndex == matrixIndexResult) ? "]" : " ");
-		if ((normalIndex == matrixIndexResult) && (++nChar < result.m_strWord.size())) matrixIndexResult += result.m_nSkip+1;
+		std::cout << ((matrixIndex == matrixIndexResult) ? "]" : " ");
+		if ((matrixIndex == matrixIndexResult) && (++nChar < result.m_strWord.size())) matrixIndexResult += result.m_nSkip+1;
 	}
 	std::cout << "\n";
 }
