@@ -45,8 +45,11 @@
 #include <QIcon>
 #include <QKeySequence>
 #include <QEvent>
+#include <QWheelEvent>
 #include <QContextMenuEvent>
 #include <QClipboard>
+#include <QShortcut>
+#include <QPoint>
 
 #define ACCEL_KEY(k) (!QCoreApplication::testAttribute(Qt::AA_DontShowShortcutsInContextMenus) ?		\
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
@@ -140,7 +143,17 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->tvELSResults, &QTableView::activated, this, &CELSSearchMainWindow::en_searchResultClicked);
 	connect(ui->cmbSortOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSortOrder(int)));
 
+	// --------------------------------
+
+	QShortcut *pShortcut = new QShortcut(QKeySequence::ZoomIn, ui->tvLetterMatrix);
+	connect(pShortcut, &QShortcut::activated, ui->spinWidth, &QSpinBox::stepUp);
+	pShortcut = new QShortcut(QKeySequence::ZoomOut, ui->tvLetterMatrix);
+	connect(pShortcut, &QShortcut::activated, ui->spinWidth, &QSpinBox::stepDown);
+
+	// --------------------------------
+
 	ui->tvELSResults->installEventFilter(this);
+	ui->tvLetterMatrix->installEventFilter(this);
 }
 
 CELSSearchMainWindow::~CELSSearchMainWindow()
@@ -257,7 +270,23 @@ bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 		QMenu *pMenu = createELSResultsContextMenu();
 		pMenu->setAttribute(Qt::WA_DeleteOnClose);
 		pMenu->popup(pCMEvent->globalPos());
+		pCMEvent->setAccepted(true);
 		return true;
+	} else if ((obj == ui->tvLetterMatrix) && (ev->type() == QEvent::Wheel)) {
+		QWheelEvent *pWEvent = static_cast<QWheelEvent *>(ev);
+		QPoint ptDelta = pWEvent->angleDelta();
+
+		if ((pWEvent->modifiers() & Qt::ControlModifier) && (pWEvent->buttons() == Qt::NoButton))  {
+			if (!ptDelta.isNull()) {
+				if (ptDelta.y() > 8) {
+					ui->spinWidth->stepUp();
+				} else if (ptDelta.y() < -8) {
+					ui->spinWidth->stepDown();
+				}
+			}
+			pWEvent->setAccepted(true);
+			return true;
+		}
 	}
 
 	return false;
