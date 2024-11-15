@@ -137,12 +137,12 @@ void CLetterMatrixTableModel::setSearchResults(const CELSResultList &results)
 		if (matrixIndexResult == 0) continue;
 		for (auto const & c : result.m_strWord) {
 			Q_UNUSED(c);
-			m_lstCharacterFound[matrixIndexResult]++;
-			matrixIndexResult += result.m_nSkip+1;				// TODO : Figure out how to do non-uniform skips for Fibonacci, etc
 			if (matrixIndexResult >= static_cast<uint32_t>(m_lstCharacterFound.size())) {
 				Q_ASSERT(false);
 				break;
 			}
+			m_lstCharacterFound[matrixIndexResult]++;
+			matrixIndexResult += result.m_nSkip+1;				// TODO : Figure out how to do non-uniform skips for Fibonacci, etc
 		}
 	}
 
