@@ -112,7 +112,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 		strMimeData += QString("Word: \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
 		strMimeData += QString("Start Location: %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false));
 		strMimeData += QString("Skip: %1\n").arg(result.m_nSkip);
-		strMimeData == QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
+		strMimeData += QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
 		return strMimeData;
 	}
 
