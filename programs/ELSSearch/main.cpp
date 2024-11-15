@@ -290,6 +290,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>\n\n").toUtf8().data();
 		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
+		std::cout << QString("  -h, --help =  Show this usage information\n\n").toUtf8().data();
 		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
