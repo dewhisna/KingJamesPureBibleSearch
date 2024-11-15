@@ -33,6 +33,8 @@
 class CLetterMatrixTableModel;
 class CELSResultListModel;
 class QAction;
+class QMenu;
+class QEvent;
 
 // ============================================================================
 
@@ -50,6 +52,11 @@ public:
 							QWidget *parent = nullptr);
 	~CELSSearchMainWindow();
 
+protected:
+	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
+	// ----
+	QMenu *createELSResultsContextMenu();
+
 protected slots:
 	void en_searchResultClicked(const QModelIndex &index);
 	void en_changedSortOrder(int nIndex);
@@ -59,6 +66,8 @@ protected slots:
 	// ----
 	void search();
 	void clear();
+	// ----
+	void en_copySearchResults();
 
 private:
 	CLetterMatrix m_letterMatrix;

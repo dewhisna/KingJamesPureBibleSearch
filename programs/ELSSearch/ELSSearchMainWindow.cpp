@@ -36,9 +36,21 @@
 #include <QProgressDialog>
 #include <QTextCursor>
 #include <QElapsedTimer>
+#include <QCoreApplication>
 #include <QApplication>
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QAction>
+#include <QMenu>
+#include <QIcon>
+#include <QKeySequence>
+#include <QEvent>
+#include <QContextMenuEvent>
+#include <QClipboard>
+
+#define ACCEL_KEY(k) (!QCoreApplication::testAttribute(Qt::AA_DontShowShortcutsInContextMenus) ?		\
+					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
+
 
 // ============================================================================
 
@@ -127,6 +139,8 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->tvELSResults, &QTableView::doubleClicked, this, &CELSSearchMainWindow::en_searchResultClicked);
 	connect(ui->tvELSResults, &QTableView::activated, this, &CELSSearchMainWindow::en_searchResultClicked);
 	connect(ui->cmbSortOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSortOrder(int)));
+
+	ui->tvELSResults->installEventFilter(this);
 }
 
 CELSSearchMainWindow::~CELSSearchMainWindow()
@@ -232,6 +246,45 @@ void CELSSearchMainWindow::clear()
 	m_pLetterMatrixTableModel->clearSearchResults();
 	m_pELSResultListModel->clearSearchResults();
 	clearSearchLogText();
+}
+
+// ----------------------------------------------------------------------------
+
+bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
+{
+	if ((obj == ui->tvELSResults) && (ev->type() == QEvent::ContextMenu)) {
+		QContextMenuEvent *pCMEvent = static_cast<QContextMenuEvent *>(ev);
+		QMenu *pMenu = createELSResultsContextMenu();
+		pMenu->setAttribute(Qt::WA_DeleteOnClose);
+		pMenu->popup(pCMEvent->globalPos());
+		return true;
+	}
+
+	return false;
+}
+
+QMenu *CELSSearchMainWindow::createELSResultsContextMenu()
+{
+	QMenu *pMenu = new QMenu(tr("&Edit", "tvELSResults"), ui->tvELSResults);
+	pMenu->setStatusTip(tr("ELS Search Results Edit Operations", "MainMenu"));
+
+	QAction *pAction = pMenu->addAction(QIcon::fromTheme("edit-copy"), tr("&Copy", "tvELSResults") + ACCEL_KEY(QKeySequence::Copy), this, SLOT(en_copySearchResults()));
+	pAction->setObjectName("edit-copy");
+	pAction->setEnabled(ui->tvELSResults->selectionModel()->hasSelection());
+
+	pMenu->addSeparator();
+
+	pAction = pMenu->addAction(QIcon::fromTheme("edit-select-all"), tr("Select All", "tvELSResults") + ACCEL_KEY(QKeySequence::SelectAll), ui->tvELSResults, SLOT(selectAll()));
+	pAction->setObjectName("select-all");
+	pAction->setEnabled(m_pELSResultListModel->rowCount() != 0);
+
+	return pMenu;
+}
+
+void CELSSearchMainWindow::en_copySearchResults()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(m_pELSResultListModel->mimeData(ui->tvELSResults->selectionModel()->selectedIndexes()));
 }
 
 // ============================================================================
