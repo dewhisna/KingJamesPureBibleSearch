@@ -29,6 +29,7 @@
 #include "../KJVCanOpener/MimeHelper.h"
 #include "../KJVCanOpener/BusyCursor.h"
 #include <QMimeData>
+#include <QSet>
 #endif
 
 #include <QVariant>
@@ -145,10 +146,10 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 		}
 		strText += "\n";
 	}
-	int nLastRow = -1;
+	QSet<int> setIndexRows;
 	for (auto const & item : indexes) {
-		if (nLastRow == item.row()) continue;
-		nLastRow = item.row();
+		if (setIndexRows.contains(item.row())) continue;
+		setIndexRows.insert(item.row());
 		strText += "----------------------------------------\n";
 		strText += item.data(Qt::UserRole+1).toString();
 	}
