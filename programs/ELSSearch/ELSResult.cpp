@@ -23,6 +23,8 @@
 
 #include "ELSResult.h"
 
+#include "LetterMatrix.h"
+
 #ifndef IS_CONSOLE_APP
 #include "../KJVCanOpener/MimeHelper.h"
 #include "../KJVCanOpener/BusyCursor.h"
@@ -33,12 +35,11 @@
 
 // ============================================================================
 
-CELSResultListModel::CELSResultListModel(CBibleDatabasePtr pBibleDatabase, bool bUppercase, QObject *parent)
+CELSResultListModel::CELSResultListModel(const CLetterMatrix &letterMatrix, bool bUppercase, QObject *parent)
 	:	QAbstractListModel(parent),
-		m_pBibleDatabase(pBibleDatabase),
+		m_letterMatrix(letterMatrix),
 		m_bUppercase(bUppercase)
 {
-	Q_ASSERT(!m_pBibleDatabase.isNull());
 }
 
 CELSResultListModel::~CELSResultListModel()
@@ -100,7 +101,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 			case 2:
 				return QString(result.m_nDirection == Qt::LeftToRight ? "Fwd" : "Rev");
 			case 3:
-				return m_pBibleDatabase->PassageReferenceText(result.m_ndxStart, false);
+				return m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false);
 		}
 	} else if (role == Qt::UserRole) {		// Returns the reference
 		const CELSResult & result = m_lstResults.at(index.row());
@@ -109,7 +110,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 		const CELSResult & result = m_lstResults.at(index.row());
 		QString strMimeData;
 		strMimeData += QString("Word: \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
-		strMimeData += QString("Start Location: %1\n").arg(m_pBibleDatabase->PassageReferenceText(result.m_ndxStart, false));
+		strMimeData += QString("Start Location: %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false));
 		strMimeData += QString("Skip: %1\n").arg(result.m_nSkip);
 		strMimeData == QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
 		return strMimeData;
@@ -131,7 +132,23 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 	CBusyCursor iAmBusy(nullptr);
 
 	QString strText;
+	strText += tr("Bible:") + " " + m_letterMatrix.bibleDatabase()->description() + "\n";
+	if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
+		strText += tr("Without") + " ";
+		if (m_letterMatrix.skipColophons()) {
+			strText += tr("Colophons");
+			if (m_letterMatrix.skipSuperscriptions()) {
+				strText += " " + tr("or Superscriptions");
+			}
+		} else {
+			strText += tr("Superscriptions");
+		}
+		strText += "\n";
+	}
+	int nLastRow = -1;
 	for (auto const & item : indexes) {
+		if (nLastRow == item.row()) continue;
+		nLastRow = item.row();
 		strText += "----------------------------------------\n";
 		strText += item.data(Qt::UserRole+1).toString();
 	}

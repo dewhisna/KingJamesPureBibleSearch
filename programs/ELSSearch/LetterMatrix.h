@@ -44,6 +44,9 @@ public:
 
 	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
 
+	bool skipColophons() const { return m_bSkipColophons; }
+	bool skipSuperscriptions() const { return m_bSkipSuperscriptions; }
+
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	bool m_bSkipColophons = false;

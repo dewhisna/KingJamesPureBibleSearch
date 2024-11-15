@@ -35,6 +35,7 @@
 
 // Forward Declarations
 class QMimeData;
+class CLetterMatrix;
 
 // ============================================================================
 
@@ -75,7 +76,7 @@ class CELSResultListModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	explicit CELSResultListModel(CBibleDatabasePtr pBibleDatabase, bool bUppercase, QObject *parent = nullptr);
+	explicit CELSResultListModel(const CLetterMatrix &letterMatrix, bool bUppercase, QObject *parent = nullptr);
 	virtual ~CELSResultListModel();
 
 	// Header:
@@ -103,8 +104,6 @@ public:
 
 	// --------------------------------
 
-	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
-
 	ELSRESULT_SORT_ORDER_ENUM sortOrder() const { return m_nSortOrder; }
 
 	bool uppercase() const { return m_bUppercase; }
@@ -120,7 +119,7 @@ protected:
 	void sortResults();
 
 private:
-	CBibleDatabasePtr m_pBibleDatabase;
+	const CLetterMatrix &m_letterMatrix;
 	bool m_bUppercase;
 	// ----
 	CELSResultList m_lstResults;

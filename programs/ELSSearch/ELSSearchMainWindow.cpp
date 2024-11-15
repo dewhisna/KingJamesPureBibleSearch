@@ -89,7 +89,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	pOldSelModel = ui->tvELSResults->selectionModel();
 	pOldModel = ui->tvELSResults->model();
-	m_pELSResultListModel = new CELSResultListModel(pBibleDatabase, ui->chkUppercase->isChecked(), this);
+	m_pELSResultListModel = new CELSResultListModel(m_letterMatrix, ui->chkUppercase->isChecked(), this);
 	ui->tvELSResults->setModel(m_pELSResultListModel);
 	if (pOldModel) delete pOldModel;
 	if (pOldSelModel) delete pOldSelModel;
