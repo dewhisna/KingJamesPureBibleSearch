@@ -59,7 +59,7 @@ int CLetterMatrixTableModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid())
 		return 0;
 
-	return m_letterMatrix.size() / m_nWidth;
+	return ((m_letterMatrix.size()-1) / m_nWidth) + (((m_letterMatrix.size()-1) % m_nWidth) ? 1 : 0);
 }
 
 int CLetterMatrixTableModel::columnCount(const QModelIndex &parent) const
@@ -76,11 +76,14 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	uint32_t nMatrixIndex = (index.row() * m_nWidth) + index.column() + 1;
-	Q_ASSERT(nMatrixIndex < static_cast<uint32_t>(m_letterMatrix.size()));
+	if (nMatrixIndex >= static_cast<uint32_t>(m_letterMatrix.size())) nMatrixIndex = 0;
 
 	switch (role) {
 		case Qt::DisplayRole:
-			return m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+			if (nMatrixIndex) {
+				return m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+			}
+			break;
 
 		case Qt::UserRole:					// Returns the Matrix Index for the data cell
 			return nMatrixIndex;
@@ -89,8 +92,9 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			return m_fontMatrix;
 
 		case Qt::BackgroundRole:
-			if (m_lstCharacterFound.at(nMatrixIndex))
+			if ((nMatrixIndex != 0) && m_lstCharacterFound.at(nMatrixIndex)) {
 				return ((m_lstCharacterFound.at(nMatrixIndex) > 1) ? QColor("lightgreen") :  QColor("yellow"));
+			}
 			break;
 
 		case Qt::SizeHintRole:
@@ -112,6 +116,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 
 void CLetterMatrixTableModel::setWidth(int nWidth)
 {
+	if (nWidth < 1) nWidth = 1;
 	if (m_nWidth != nWidth) {
 		emit layoutAboutToBeChanged();
 		m_nWidth = nWidth;
