@@ -1592,6 +1592,19 @@ QString CBibleDatabase::translatedSuperscriptionString() const
 	return strSuperscription;
 }
 
+QString CBibleDatabase::translatedPrologueString() const
+{
+	// Search for "Prologue".  First try and see if we can translate it in the language of the selected Bible,
+	//		but if not, try in the current language setting
+	QString strPrologue = QObject::tr("Prologue", "Statistics");
+	TTranslatorPtr pTranslator = CTranslatorList::instance()->translator(toQtLanguageName(langID()));
+	if (!pTranslator.isNull()) {
+		QString strTemp = pTranslator->translatorApp().translate("QObject", "Prologue", "Statistics");
+		if (!strTemp.isEmpty()) strPrologue = strTemp;
+	}
+	return strPrologue;
+}
+
 bool CBibleDatabase::hasColophons() const
 {
 	for (unsigned int nBk = 1; nBk <= bibleEntry().m_nNumBk; ++nBk) {
@@ -1670,6 +1683,15 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndex &nRelIndex, boo
 #ifdef USE_EXTENDED_INDEXES
 QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool bSuppressWordOnPseudoVerse) const
 {
+	if (nRelIndex.isPrologue()) {
+		QString strBookName = bookName(nRelIndex);
+		if (!bSuppressWordOnPseudoVerse) {
+			return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
+		} else {
+			return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
+		}
+	}
+
 	CRelIndex relBase(nRelIndex.index());
 	uint32_t nWord = relBase.word();
 	relBase.setWord(0);
@@ -1677,11 +1699,11 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool 
 	if (nWord) {
 		if (((relBase.chapter() != 0) || ((relBase.chapter() == 0) && !bSuppressWordOnPseudoVerse)) &&
 			((relBase.verse() != 0) || ((relBase.verse() == 0) && !bSuppressWordOnPseudoVerse))) {
-		}
-		if (nRelIndex.letter()) {
-			strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
-		} else {
-			strRef += QString(" [%1]").arg(nWord);
+			if (nRelIndex.letter()) {
+				strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
+			} else {
+				strRef += QString(" [%1]").arg(nWord);
+			}
 		}
 	}
 	return strRef;
@@ -1689,6 +1711,15 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool 
 
 QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndexEx &nRelIndex, bool bSuppressWordOnPseudoVerse) const
 {
+	if (nRelIndex.isPrologue()) {
+		QString strBookName = bookNameAbbr(nRelIndex);
+		if (!bSuppressWordOnPseudoVerse) {
+			return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
+		} else {
+			return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
+		}
+	}
+
 	CRelIndex relBase(nRelIndex.index());
 	uint32_t nWord = relBase.word();
 	relBase.setWord(0);
@@ -1696,11 +1727,11 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndexEx &nRelIndex, b
 	if (nWord) {
 		if (((relBase.chapter() != 0) || ((relBase.chapter() == 0) && !bSuppressWordOnPseudoVerse)) &&
 			((relBase.verse() != 0) || ((relBase.verse() == 0) && !bSuppressWordOnPseudoVerse))) {
-		}
-		if (nRelIndex.letter()) {
-			strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
-		} else {
-			strRef += QString(" [%1]").arg(nWord);
+			if (nRelIndex.letter()) {
+				strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
+			} else {
+				strRef += QString(" [%1]").arg(nWord);
+			}
 		}
 	}
 	return strRef;

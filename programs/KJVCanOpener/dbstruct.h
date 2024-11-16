@@ -234,6 +234,10 @@ public:
 	}
 	~CRelIndexEx() { }
 
+	inline bool isPrologue() const {
+		return ((book() != 0) && (chapter() == 0) && (verse() == 0) && (word() == 0) && (letter() != 0));
+	}
+
 	static uint32_t maxLetterCount() { return 0xFFFFFFFF; }
 	inline uint32_t letter() const { return m_ndxEx; }
 	inline void setLetter(uint32_t nLtr) {
@@ -1354,6 +1358,7 @@ public:
 
 	QString translatedColophonString() const;				// Text "Colophon"
 	QString translatedSuperscriptionString() const;			// Text "Superscription"
+	QString translatedPrologueString() const;				// Text "Prologue"
 
 	bool hasColophons() const;								// Returns true if any book has colophons in this Bible
 	bool hasSuperscriptions() const;						// Returns true if any chapter has superscriptions in this Bible
