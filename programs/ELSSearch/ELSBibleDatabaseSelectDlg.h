@@ -40,6 +40,7 @@ public:
 	explicit CELSBibleDatabaseSelectDlg(const QString &strBibleUUID,
 										bool bRemoveColophons,
 										bool bRemoveSuperscriptions,
+										bool bWordsOfJesusOnly,
 										QWidget *parent = nullptr);
 	~CELSBibleDatabaseSelectDlg();
 
@@ -48,11 +49,14 @@ public:
 	bool removeColophons() const { return m_bRemoveColophons; }
 	// ----
 	bool removeSuperscriptions() const { return m_bRemoveSuperscriptions; }
+	// ----
+	bool wordsOfJesusOnly() const { return m_bWordsOfJesusOnly; }
 
 public slots:
 	void setBibleUUID(const QString &strBibleUUID) { m_strBibleUUID = strBibleUUID; }
 	void setRemoveColophons(bool bRemoveColophons) { m_bRemoveColophons = bRemoveColophons; }
 	void setRemoveSuperscriptions(bool bRemoveSuperscriptions) { m_bRemoveSuperscriptions = bRemoveSuperscriptions; }
+	void setWordsOfJesusOnly(bool bWordsOfJesusOnly) { m_bWordsOfJesusOnly = bWordsOfJesusOnly; }
 
 private slots:
 	void en_selectionChanged(int nIndex);
@@ -63,6 +67,7 @@ private:
 	QString m_strBibleUUID;
 	bool m_bRemoveColophons = false;
 	bool m_bRemoveSuperscriptions = false;
+	bool m_bWordsOfJesusOnly = false;
 };
 
 // ============================================================================

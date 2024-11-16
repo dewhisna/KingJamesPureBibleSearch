@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>300</width>
-    <height>150</height>
+    <width>375</width>
+    <height>176</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,6 +53,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="chkWordsOfJesusOnly">
+     <property name="text">
+      <string>Words of &amp;Jesus Only (Not supported by most databases)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -77,6 +84,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>cmbBible</tabstop>
+  <tabstop>chkRemoveColophons</tabstop>
+  <tabstop>chkRemoveSuperscriptions</tabstop>
+  <tabstop>chkWordsOfJesusOnly</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

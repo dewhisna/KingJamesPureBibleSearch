@@ -134,17 +134,22 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 
 	QString strText;
 	strText += tr("Bible:") + " " + m_letterMatrix.bibleDatabase()->description() + "\n";
-	if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
-		strText += tr("Without") + " ";
-		if (m_letterMatrix.skipColophons()) {
-			strText += tr("Colophons");
-			if (m_letterMatrix.skipSuperscriptions()) {
-				strText += " " + tr("or Superscriptions");
+	if (m_letterMatrix.wordsOfJesusOnly()) {
+		strText += tr("Words of Jesus Only") + "\n";
+	} else {
+		// There's no Words of Jesus in Colophons or Superscriptions
+		if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
+			strText += tr("Without") + " ";
+			if (m_letterMatrix.skipColophons()) {
+				strText += tr("Colophons");
+				if (m_letterMatrix.skipSuperscriptions()) {
+					strText += " " + tr("or Superscriptions");
+				}
+			} else {
+				strText += tr("Superscriptions");
 			}
-		} else {
-			strText += tr("Superscriptions");
+			strText += "\n";
 		}
-		strText += "\n";
 	}
 	QSet<int> setIndexRows;
 	for (auto const & item : indexes) {

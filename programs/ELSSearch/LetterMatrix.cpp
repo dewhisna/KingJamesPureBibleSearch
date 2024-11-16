@@ -23,12 +23,42 @@
 
 #include "LetterMatrix.h"
 
+#include "../KJVCanOpener/VerseRichifier.h"
+
+#include <QStringList>
+
 // ============================================================================
 
-CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, bool bSkipColophons, bool bSkipSuperscriptions)
+// Words of Jesus extractor variant of Verse Text Richifier Tags:
+class CWordsOfJesusExtractor : public CVerseTextPlainRichifierTags
+{
+public:
+	CWordsOfJesusExtractor(QStringList &lstWordsOfJesus)
+		:	m_lstWordsOfJesus(lstWordsOfJesus)
+	{
+		setTransChangeAddedTags(QString(), QString());
+	}
+protected:
+	virtual void wordCallback(const QString &strWord, VerseWordTypeFlags nWordTypes) const override
+	{
+		if (nWordTypes & VWT_WordsOfJesus) {
+			m_lstWordsOfJesus.append(strWord);
+		} else {
+			m_lstWordsOfJesus.append(QString());
+		}
+	}
+private:
+	QStringList &m_lstWordsOfJesus;
+};
+
+// ----------------------------------------------------------------------------
+
+CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
+							 bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_bSkipColophons(bSkipColophons),
-		m_bSkipSuperscriptions(bSkipSuperscriptions)
+		m_bSkipSuperscriptions(bSkipSuperscriptions),
+		m_bWordsOfJesusOnly(bWordsOfJesusOnly)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -46,6 +76,9 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, bool bSkipColopho
 	CRelIndex ndxMatrixLastColophon;
 	QList<QChar> lstSuperscription;
 	CRelIndex ndxMatrixLastSuperscription;
+	uint32_t nWordsOfJesusLetterSkip = 0;		// Number of letters to skip prior to words of Jesus
+	QStringList lstWordsOfJesus;
+	CWordsOfJesusExtractor vtrtWordsOfJesus(lstWordsOfJesus);
 	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
 		 normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
 		ndxMatrixCurrent = pBibleDatabase->DenormalizeIndex(normalMatrixCurrent);
@@ -74,26 +107,60 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, bool bSkipColopho
 		if (pWordEntry) {
 			const QString &strWord = pWordEntry->rawWord();
 
-			if (!ndxMatrixCurrent.isColophon()) {
-				if (!ndxMatrixCurrent.isSuperscription() || !m_bSkipSuperscriptions) {
-					// Output the book as-is without shuffling:
-					for (auto const &chrLetter : strWord) append(chrLetter);
+			if (!m_bWordsOfJesusOnly) {
+				// Since the Words of Jesus can never be in Colophons or Superscriptions,
+				//	we only need to shift the colophons to their correct position when
+				//	searching everything:
+				if (!ndxMatrixCurrent.isColophon()) {
+					if (!ndxMatrixCurrent.isSuperscription() || !m_bSkipSuperscriptions) {
+						// Output the book as-is without shuffling:
+						for (auto const &chrLetter : strWord) append(chrLetter);
+					} else {
+						// If skipping superscriptions, put them on a local buffer like
+						//	we did with colophons so that when we hit the next "verse"
+						//	(i.e. exit the superscription), we can insert a MatrixIndex
+						//	to LetterShift mapping.  Note that unlike colophons, since
+						//	we aren't moving the superscription itself, this buffer is
+						//	never transferred to the matrix:
+						for (auto const &chrLetter : strWord) lstSuperscription.append(chrLetter);
+						ndxMatrixLastSuperscription = ndxMatrixCurrent;
+					}
 				} else {
-					// If skipping superscriptions, put them on a local buffer like
-					//	we did with colophons so that when we hit the next "verse"
-					//	(i.e. exit the superscription), we can insert a MatrixIndex
-					//	to LetterShift mapping.  Note that unlike colophons, since
-					//	we aren't moving the superscription itself, this buffer is
-					//	never transferred to the matrix:
-					for (auto const &chrLetter : strWord) lstSuperscription.append(chrLetter);
-					ndxMatrixLastSuperscription = ndxMatrixCurrent;
+					// Output colophon to temp buff:
+					for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
+					ndxMatrixLastColophon = ndxMatrixCurrent;
 				}
 			} else {
-				// Output colophon to temp buff:
-				for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
-				ndxMatrixLastColophon = ndxMatrixCurrent;
+				// Trigger per-verse rendering on first word of verse:
+				if (ndxMatrixCurrent.word() == 1) {
+					const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxMatrixCurrent);
+					Q_ASSERT(pVerse != nullptr);
+					if (pVerse == nullptr) continue;
+
+					lstWordsOfJesus.clear();
+					pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtWordsOfJesus);
+					Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(lstWordsOfJesus.size()));
+				}
+				Q_ASSERT(static_cast<unsigned int>(lstWordsOfJesus.size()) >= ndxMatrixCurrent.word());
+				Q_ASSERT(ndxMatrixCurrent.word() >= 1);
+
+				if (!lstWordsOfJesus.at(ndxMatrixCurrent.word()-1).isEmpty()) {
+					// If in Words of Jesus, output letter skip for main text and append words to matrix:
+					if (nWordsOfJesusLetterSkip) {
+						m_mapMatrixIndexToLetterShift[size()] = nWordsOfJesusLetterSkip;
+						nWordsOfJesusLetterSkip = 0;
+					}
+					for (auto const &chrLetter : strWord) append(chrLetter);
+				} else {
+					// Otherwise, plan to skip the letters that aren't:
+					nWordsOfJesusLetterSkip += strWord.size();
+				}
 			}
 		}
+	}
+	if (m_bWordsOfJesusOnly && (nWordsOfJesusLetterSkip != 0)) {
+		m_mapMatrixIndexToLetterShift[size()] = nWordsOfJesusLetterSkip;
+		nWordsOfJesusLetterSkip = 0;
 	}
 
 	// Verify the matrix size as a sanity check for code bugs:
@@ -111,17 +178,22 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 	CRelIndex relIndex{nRelIndexEx.index()};
 	const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
 	if (pBook == nullptr) return 0;
-	uint32_t nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
-	if (nRelIndexEx.isColophon()) {
-		Q_ASSERT(pBook->m_bHaveColophon);
-		const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(relIndex);
-		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-		nMatrixIndex += (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon to end of book
-	} else {
-		if (pBook->m_bHaveColophon) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
-			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+	// Note: MatrixIndex must be signed here in case the part being eliminated from
+	//	the text is larger than the text before the part being kept (like in the
+	//	Words of Jesus only mode):
+	int32_t nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
+	if (!m_bWordsOfJesusOnly) {
+		if (nRelIndexEx.isColophon()) {
+			Q_ASSERT(pBook->m_bHaveColophon);
+			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(relIndex);
 			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-			nMatrixIndex -= pColophonVerse->m_nNumLtr;
+			nMatrixIndex += (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon to end of book
+		} else {
+			if (pBook->m_bHaveColophon) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
+				const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+				Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+				nMatrixIndex -= pColophonVerse->m_nNumLtr;
+			}
 		}
 	}
 
@@ -132,13 +204,14 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 	//	(unlike the other direction):
 	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
 		 itrXformMatrix != m_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
-		if (itrXformMatrix.key() <= nMatrixIndex) {
+		if (static_cast<int32_t>(itrXformMatrix.key()) <= nMatrixIndex) {
 			nMatrixIndex -= itrXformMatrix.value();
 		} else {
 			break;
 		}
 	}
 
+	if (nMatrixIndex < 0) nMatrixIndex = 1;		// Return first active position if real position is before anything in the matrix
 	return nMatrixIndex;
 }
 
@@ -171,17 +244,19 @@ CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 	const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
 	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return CRelIndexEx();
 
-	if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
-		const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
-		Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-		uint32_t nMatrixColophonNdx = m_pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
-									  (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
-		if (nMatrixIndex >= nMatrixColophonNdx) {
-			if (!m_bSkipColophons) {	// Don't adjust for the colophon here if we skipped it
-				nMatrixIndex -= (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon back to start of book
+	if (!m_bWordsOfJesusOnly) {
+		if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
+			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+			uint32_t nMatrixColophonNdx = m_pBibleDatabase->NormalizeIndexEx(CRelIndexEx(relIndex.book(), 0, 0, 1, 1)) +
+										  (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
+			if (nMatrixIndex >= nMatrixColophonNdx) {
+				if (!m_bSkipColophons) {	// Don't adjust for the colophon here if we skipped it
+					nMatrixIndex -= (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);		// Shift colophon back to start of book
+				}
+			} else {
+				nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon
 			}
-		} else {
-			nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon
 		}
 	}
 	return m_pBibleDatabase->DenormalizeIndexEx(nMatrixIndex);

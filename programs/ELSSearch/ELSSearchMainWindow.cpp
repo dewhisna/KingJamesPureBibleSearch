@@ -58,10 +58,10 @@
 // ============================================================================
 
 CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
-										   bool bSkipColophons, bool bSkipSuperscriptions,
+										   bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly,
 										   QWidget *parent)
 	:	QMainWindow(parent),
-		m_letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions),
+		m_letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly),
 		ui(new Ui::CELSSearchMainWindow)
 {
 	Q_ASSERT(!pBibleDatabase.isNull());
@@ -70,9 +70,11 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
-	ui->spinMinSkip->setMaximum(m_letterMatrix.size()/2);
-	ui->spinMaxSkip->setMaximum(m_letterMatrix.size()/2);
-	ui->spinWidth->setMaximum(m_letterMatrix.size()/2);
+	int nMax = m_letterMatrix.size()/2;
+	if (nMax < 1) nMax = 1;		// Safe-guard in case Matrix is empty (like Words of Jesus only mode on a database without them)
+	ui->spinMinSkip->setMaximum(nMax);
+	ui->spinMaxSkip->setMaximum(nMax);
+	ui->spinWidth->setMaximum(nMax);
 
 	// --------------------------------
 
@@ -237,6 +239,23 @@ void CELSSearchMainWindow::search()
 							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookStart, 0, 0, 0)))
 							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
 		}
+		if (m_letterMatrix.wordsOfJesusOnly()) {
+			strBookRange += " (" + tr("Words of Jesus Only") + ")";
+		} else {
+			// There's no Words of Jesus in Colophons or Superscriptions
+			if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
+				strBookRange += " " + tr("Without") + " ";
+				if (m_letterMatrix.skipColophons()) {
+					strBookRange += tr("Colophons");
+					if (m_letterMatrix.skipSuperscriptions()) {
+						strBookRange += " " + tr("or Superscriptions");
+					}
+				} else {
+					strBookRange += tr("Superscriptions");
+				}
+			}
+		}
+
 		insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")
 										.arg(ui->spinMinSkip->value())
 										.arg(ui->spinMaxSkip->value())
