@@ -221,6 +221,7 @@ void CELSSearchMainWindow::search()
 
 	watcher.setFuture(elsFinder.future(ui->spinMinSkip->value(), ui->spinMaxSkip->value(), &CFindELS::reduce));
 	dlgProgress.exec();
+	CBusyCursor iAmBusy(this);
 	watcher.waitForFinished();
 
 	if (!watcher.future().isCanceled()) {
