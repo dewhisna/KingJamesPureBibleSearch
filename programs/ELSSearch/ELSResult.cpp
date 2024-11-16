@@ -163,8 +163,8 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 	QMimeData *mime = new QMimeData();
 	mime->setData(g_constrPlainTextMimeType, strText.toUtf8());
 
-	if (indexes.size() == 1) {
-		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(Qt::UserRole).value<CRelIndexEx>()));
+	if (setIndexRows.size() == 1) {
+		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(Qt::UserRole).value<CRelIndexEx>()), 1);
 		CMimeHelper::addPhraseTagToMimeData(mime, tag);
 	}
 
