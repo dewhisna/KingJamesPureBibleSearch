@@ -48,6 +48,18 @@ static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 	CRelIndexEx ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
 	const CConcordanceEntry *pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+	const CBookEntry *pBook = letterMatrix.bibleDatabase()->bookEntry(ndxLast);
+	Q_ASSERT(pBook != nullptr);
+	if (pBook && pBook->m_bHaveColophon && !letterMatrix.skipColophons()) {
+		// If this book has a colophon and we aren't skipping them, then the
+		//	matrix will have moved the colophon to the end of the book so instead
+		//	of the last letter of the last word of the last verse of the last
+		//	chapter of the book (as above), we need to move to the last letter of
+		//	the last word of the colophon:
+		ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 1), CBibleDatabase::RIME_EndOfVerse);
+		pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
+		if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+	}
 	uint32_t matrixIndexLast = letterMatrix.matrixIndexFromRelIndex(ndxLast);
 	if (matrixIndexCurrent == 0) return CELSResultList();
 
