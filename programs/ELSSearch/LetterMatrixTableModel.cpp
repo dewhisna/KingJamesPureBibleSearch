@@ -26,6 +26,14 @@
 #include "LetterMatrix.h"
 #include "ELSResult.h"
 
+#ifndef IS_CONSOLE_APP
+#include "../KJVCanOpener/MimeHelper.h"
+#include "../KJVCanOpener/BusyCursor.h"
+#include <QMimeData>
+#include <QMap>
+#endif
+
+#include <QVariant>
 #include <QColor>
 #include <QSize>
 
@@ -85,8 +93,44 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			}
 			break;
 
-		case Qt::UserRole:					// Returns the Matrix Index for the data cell
+		case Qt::UserRole:					// Returns the reference
+			return QVariant::fromValue(m_letterMatrix.relIndexFromMatrixIndex(nMatrixIndex));
+
+		case Qt::UserRole+1:				// Returns the Matrix Index
 			return nMatrixIndex;
+
+		case Qt::UserRole+2:				// Returns the data for MIME export
+		{
+			QString strValue;
+			if (nMatrixIndex) {
+				switch (m_lstCharacterFound.at(nMatrixIndex)) {
+					case 0:
+						strValue += " ";
+						break;
+					case 1:
+						strValue += "[";
+						break;
+					default:
+						strValue += "{";
+						break;
+				}
+				strValue += m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+				switch (m_lstCharacterFound.at(nMatrixIndex)) {
+					case 0:
+						strValue += " ";
+						break;
+					case 1:
+						strValue += "]";
+						break;
+					default:
+						strValue += "}";
+						break;
+				}
+			} else {
+				strValue = "   ";
+			}
+			return strValue;
+		}
 
 		case Qt::FontRole:
 			return m_fontMatrix;
@@ -110,6 +154,61 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 	}
 
 	return QVariant();
+}
+
+#ifndef IS_CONSOLE_APP
+Qt::DropActions CLetterMatrixTableModel::supportedDragActions() const
+{
+	return Qt::CopyAction;
+}
+
+QMimeData *CLetterMatrixTableModel::mimeData(const QModelIndexList &indexes) const
+{
+	if (indexes.isEmpty()) return nullptr;
+
+	CBusyCursor iAmBusy(nullptr);
+
+	QString strText;
+	typedef QMap<int, QString> TColDataMap;			// Map of column index to value to export (for sorting and generation)
+	QMap<int, TColDataMap> mapRows;					// Map of the above by rows (for sorting and generation)
+
+	for (auto const & item : indexes) {
+		mapRows[item.row()][item.column()] = item.data(Qt::UserRole+2).toString();
+	}
+
+	for (auto const & rowdata : mapRows) {
+		for (auto const & coldata : rowdata) {
+			strText += coldata;
+		}
+		strText += "\n";
+	}
+
+	QMimeData *mime = new QMimeData();
+	mime->setData(g_constrPlainTextMimeType, strText.toUtf8());
+
+	if (indexes.size() == 1) {
+		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(Qt::UserRole).value<CRelIndexEx>()), 1);
+		CMimeHelper::addPhraseTagToMimeData(mime, tag);
+	}
+
+	return mime;
+}
+
+QStringList CLetterMatrixTableModel::mimeTypes() const
+{
+	QStringList lstTypes;
+	lstTypes << g_constrPlainTextMimeType;
+	lstTypes << g_constrPhraseTagMimeType;
+	return lstTypes;
+}
+#endif
+
+Qt::ItemFlags CLetterMatrixTableModel::flags(const QModelIndex &index) const
+{
+	if (!index.isValid())
+		return Qt::NoItemFlags;
+
+	return QAbstractTableModel::flags(index) | Qt::ItemIsDragEnabled;
 }
 
 // ----------------------------------------------------------------------------

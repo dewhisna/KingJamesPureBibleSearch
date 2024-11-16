@@ -26,12 +26,15 @@
 
 #include <QAbstractTableModel>
 #include <QList>
+#include <QString>
+#include <QStringList>
 #include <QFont>
 #include <QFontMetrics>
 
 #include "ELSResult.h"
 
 // Forward Declarations
+class QMimeData;
 class CLetterMatrix;
 
 // ============================================================================
@@ -51,6 +54,16 @@ public:
 	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+#ifndef IS_CONSOLE_APP
+	Qt::DropActions supportedDragActions() const override;
+	QMimeData *mimeData(const QModelIndexList &indexes) const override;
+	QStringList mimeTypes() const override;
+#endif
+
+	Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+	// --------------------------------
 
 	const CLetterMatrix &matrix() const { return m_letterMatrix; }
 
