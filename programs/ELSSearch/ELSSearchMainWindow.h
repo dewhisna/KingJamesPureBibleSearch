@@ -57,6 +57,7 @@ protected:
 	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 	// ----
 	QMenu *createELSResultsContextMenu();
+	QMenu *createLetterMatrixContextMenu();
 
 protected slots:
 	void en_searchResultClicked(const QModelIndex &index);
@@ -69,6 +70,7 @@ protected slots:
 	void clear();
 	// ----
 	void en_copySearchResults();
+	void en_copyLetterMatrix();
 
 private:
 	CLetterMatrix m_letterMatrix;

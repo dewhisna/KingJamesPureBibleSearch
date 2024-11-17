@@ -47,6 +47,7 @@
 #include <QEvent>
 #include <QWheelEvent>
 #include <QContextMenuEvent>
+#include <QKeyEvent>
 #include <QClipboard>
 #include <QShortcut>
 #include <QPoint>
@@ -286,27 +287,52 @@ void CELSSearchMainWindow::clear()
 
 bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 {
-	if ((obj == ui->tvELSResults) && (ev->type() == QEvent::ContextMenu)) {
-		QContextMenuEvent *pCMEvent = static_cast<QContextMenuEvent *>(ev);
-		QMenu *pMenu = createELSResultsContextMenu();
-		pMenu->setAttribute(Qt::WA_DeleteOnClose);
-		pMenu->popup(pCMEvent->globalPos());
-		pCMEvent->setAccepted(true);
-		return true;
-	} else if ((obj == ui->tvLetterMatrix) && (ev->type() == QEvent::Wheel)) {
-		QWheelEvent *pWEvent = static_cast<QWheelEvent *>(ev);
-		QPoint ptDelta = pWEvent->angleDelta();
-
-		if ((pWEvent->modifiers() & Qt::ControlModifier) && (pWEvent->buttons() == Qt::NoButton))  {
-			if (!ptDelta.isNull()) {
-				if (ptDelta.y() > 8) {
-					ui->spinWidth->stepUp();
-				} else if (ptDelta.y() < -8) {
-					ui->spinWidth->stepDown();
-				}
-			}
-			pWEvent->setAccepted(true);
+	if (obj == ui->tvELSResults) {									// SearchResults:
+		if (ev->type() == QEvent::ContextMenu) {					//		ContextMenu
+			QContextMenuEvent *pCMEvent = static_cast<QContextMenuEvent *>(ev);
+			QMenu *pMenu = createELSResultsContextMenu();
+			pMenu->setAttribute(Qt::WA_DeleteOnClose);
+			pMenu->popup(pCMEvent->globalPos());
+			pCMEvent->setAccepted(true);
 			return true;
+		} else if (ev->type() == QEvent::KeyPress) {				//		Keypress
+			QKeyEvent *pKEvent = static_cast<QKeyEvent *>(ev);
+			if (pKEvent->matches(QKeySequence::Copy)) {				//			Copy
+				en_copySearchResults();
+				pKEvent->accept();
+				return true;
+			}
+		}
+	} else if (obj == ui->tvLetterMatrix) {							// LetterMatrix:
+		if (ev->type() == QEvent::ContextMenu) {					//		ContextMenu
+			QContextMenuEvent *pCMEvent = static_cast<QContextMenuEvent *>(ev);
+			QMenu *pMenu = createLetterMatrixContextMenu();
+			pMenu->setAttribute(Qt::WA_DeleteOnClose);
+			pMenu->popup(pCMEvent->globalPos());
+			pCMEvent->setAccepted(true);
+			return true;
+		} else if (ev->type() == QEvent::KeyPress) {				//		Keypress
+			QKeyEvent *pKEvent = static_cast<QKeyEvent *>(ev);
+			if (pKEvent->matches(QKeySequence::Copy)) {				//			Copy
+				en_copyLetterMatrix();
+				pKEvent->accept();
+				return true;
+			}
+		} else if (ev->type() == QEvent::Wheel) {					//		Wheel
+			QWheelEvent *pWEvent = static_cast<QWheelEvent *>(ev);
+			QPoint ptDelta = pWEvent->angleDelta();
+
+			if ((pWEvent->modifiers() & Qt::ControlModifier) && (pWEvent->buttons() == Qt::NoButton))  {
+				if (!ptDelta.isNull()) {
+					if (ptDelta.y() > 8) {
+						ui->spinWidth->stepUp();
+					} else if (ptDelta.y() < -8) {
+						ui->spinWidth->stepDown();
+					}
+				}
+				pWEvent->setAccepted(true);
+				return true;
+			}
 		}
 	}
 
@@ -335,6 +361,30 @@ void CELSSearchMainWindow::en_copySearchResults()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(m_pELSResultListModel->mimeData(ui->tvELSResults->selectionModel()->selectedIndexes()));
+}
+
+QMenu *CELSSearchMainWindow::createLetterMatrixContextMenu()
+{
+	QMenu *pMenu = new QMenu(tr("&Edit", "tvLetterMatrix"), ui->tvLetterMatrix);
+	pMenu->setStatusTip(tr("ELS Search Letter Matrix Edit Operations", "MainMenu"));
+
+	QAction *pAction = pMenu->addAction(QIcon::fromTheme("edit-copy"), tr("&Copy", "tvLetterMatrix") + ACCEL_KEY(QKeySequence::Copy), this, SLOT(en_copyLetterMatrix()));
+	pAction->setObjectName("edit-copy");
+	pAction->setEnabled(ui->tvLetterMatrix->selectionModel()->hasSelection());
+
+	pMenu->addSeparator();
+
+	pAction = pMenu->addAction(QIcon::fromTheme("edit-select-all"), tr("Select All", "tvLetterMatrix") + ACCEL_KEY(QKeySequence::SelectAll), ui->tvLetterMatrix, SLOT(selectAll()));
+	pAction->setObjectName("select-all");
+	pAction->setEnabled(!m_letterMatrix.isEmpty());
+
+	return pMenu;
+}
+
+void CELSSearchMainWindow::en_copyLetterMatrix()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setMimeData(m_pLetterMatrixTableModel->mimeData(ui->tvLetterMatrix->selectionModel()->selectedIndexes()));
 }
 
 // ============================================================================
