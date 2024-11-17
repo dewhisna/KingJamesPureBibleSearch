@@ -37,7 +37,8 @@ class CLetterMatrix : public QList<QChar>
 {
 public:
 	explicit CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
-							bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly);
+							bool bSkipColophons, bool bSkipSuperscriptions,
+							bool bWordsOfJesusOnly, bool bIncludeBookPrologues);
 
 	uint32_t matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) const;
 	CRelIndexEx relIndexFromMatrixIndex(uint32_t nMatrixIndex) const;
@@ -47,12 +48,14 @@ public:
 	bool skipColophons() const { return m_bSkipColophons; }
 	bool skipSuperscriptions() const { return m_bSkipSuperscriptions; }
 	bool wordsOfJesusOnly() const { return m_bWordsOfJesusOnly; }
+	bool includeBookPrologues() const { return m_bIncludeBookPrologues; }
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	bool m_bSkipColophons = false;
 	bool m_bSkipSuperscriptions = false;
 	bool m_bWordsOfJesusOnly = false;
+	bool m_bIncludeBookPrologues = false;
 
 	// Matrix index to letter count shift for normalize/denormalize computations:
 	//	When we are skipping colophons and/or superscriptions, the matrix index

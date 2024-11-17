@@ -48,8 +48,9 @@ class CELSSearchMainWindow : public QMainWindow
 
 public:
 	explicit CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
-							bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly,
-							QWidget *parent = nullptr);
+								  bool bSkipColophons, bool bSkipSuperscriptions,
+								  bool bWordsOfJesusOnly, bool bIncludeBookPrologues,
+								  QWidget *parent = nullptr);
 	~CELSSearchMainWindow();
 
 protected:

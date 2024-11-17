@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>375</width>
-    <height>176</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,7 +55,16 @@
    <item>
     <widget class="QCheckBox" name="chkWordsOfJesusOnly">
      <property name="text">
-      <string>Words of &amp;Jesus Only (Not supported by most databases)</string>
+      <string>Words of &amp;Jesus Only
+(Works only with databases supporting red-letter markup)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="chkIncludeBookPrologue">
+     <property name="text">
+      <string>Include Book &amp;Prologue (Title and Subtitle)
+(Works Only on English King James Databases)</string>
      </property>
     </widget>
    </item>
@@ -67,7 +76,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>7</height>
+       <height>0</height>
       </size>
      </property>
     </spacer>

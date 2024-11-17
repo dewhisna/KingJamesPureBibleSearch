@@ -58,10 +58,11 @@
 // ============================================================================
 
 CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
-										   bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly,
+										   bool bSkipColophons, bool bSkipSuperscriptions,
+										   bool bWordsOfJesusOnly, bool bIncludeBookPrologues,
 										   QWidget *parent)
 	:	QMainWindow(parent),
-		m_letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly),
+		m_letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludeBookPrologues),
 		ui(new Ui::CELSSearchMainWindow)
 {
 	Q_ASSERT(!pBibleDatabase.isNull());

@@ -32,13 +32,15 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 														bool bRemoveColophons,
 														bool bRemoveSuperscriptions,
 														bool bWordsOfJesusOnly,
+														bool bIncludeBookPrologues,
 														QWidget *parent)
 	:	QDialog(parent),
 		ui(new Ui::CELSBibleDatabaseSelectDlg),
 		m_strBibleUUID(strBibleUUID),
 		m_bRemoveColophons(bRemoveColophons),
 		m_bRemoveSuperscriptions(bRemoveSuperscriptions),
-		m_bWordsOfJesusOnly(bWordsOfJesusOnly)
+		m_bWordsOfJesusOnly(bWordsOfJesusOnly),
+		m_bIncludeBookPrologues(bIncludeBookPrologues)
 {
 	ui->setupUi(this);
 
@@ -63,6 +65,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	ui->chkRemoveColophons->setChecked(m_bRemoveColophons);
 	ui->chkRemoveSuperscriptions->setChecked(m_bRemoveSuperscriptions);
 	ui->chkWordsOfJesusOnly->setChecked(m_bWordsOfJesusOnly);
+	ui->chkIncludeBookPrologue->setChecked(m_bIncludeBookPrologues);
 
 	// ---------------------------------
 
@@ -70,6 +73,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	connect(ui->chkRemoveColophons, SIGNAL(toggled(bool)), this, SLOT(setRemoveColophons(bool)));
 	connect(ui->chkRemoveSuperscriptions, SIGNAL(toggled(bool)), this, SLOT(setRemoveSuperscriptions(bool)));
 	connect(ui->chkWordsOfJesusOnly, SIGNAL(toggled(bool)), this, SLOT(setWordsOfJesusOnly(bool)));
+	connect(ui->chkIncludeBookPrologue, SIGNAL(toggled(bool)), this, SLOT(setIncludeBookPrologues(bool)));
 }
 
 CELSBibleDatabaseSelectDlg::~CELSBibleDatabaseSelectDlg()

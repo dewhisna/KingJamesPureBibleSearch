@@ -54,11 +54,13 @@ private:
 // ----------------------------------------------------------------------------
 
 CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
-							 bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly)
+							 bool bSkipColophons, bool bSkipSuperscriptions,
+							 bool bWordsOfJesusOnly, bool bIncludeBookPrologues)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_bSkipColophons(bSkipColophons),
 		m_bSkipSuperscriptions(bSkipSuperscriptions),
-		m_bWordsOfJesusOnly(bWordsOfJesusOnly)
+		m_bWordsOfJesusOnly(bWordsOfJesusOnly),
+		m_bIncludeBookPrologues(bIncludeBookPrologues)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
