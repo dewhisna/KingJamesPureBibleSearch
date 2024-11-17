@@ -31,6 +31,7 @@
 #include "../KJVCanOpener/BusyCursor.h"
 #include <QMimeData>
 #include <QMap>
+#include <utility>			// for std::pair
 #endif
 
 #include <QVariant>
@@ -170,17 +171,43 @@ QMimeData *CLetterMatrixTableModel::mimeData(const QModelIndexList &indexes) con
 
 	QString strText;
 	typedef QMap<int, QString> TColDataMap;			// Map of column index to value to export (for sorting and generation)
-	QMap<int, TColDataMap> mapRows;					// Map of the above by rows (for sorting and generation)
+	typedef QMap<int, TColDataMap> TRowDataMap;		// Map of the above by rows (for sorting and generation)
+	TRowDataMap mapRows;
+
+	int nMinRow = -1;
+	int nMaxRow = -1;
+	int nMinCol = -1;
+	int nMaxCol = -1;
 
 	for (auto const & item : indexes) {
 		mapRows[item.row()][item.column()] = item.data(Qt::UserRole+2).toString();
+		if ((nMinRow == -1) || (item.row() < nMinRow)) nMinRow = item.row();
+		if ((nMaxRow == -1) || (item.row() > nMaxRow)) nMaxRow = item.row();
+		if ((nMinCol == -1) || (item.column() < nMinCol)) nMinCol = item.column();
+		if ((nMaxCol == -1) || (item.column() > nMaxCol)) nMaxCol = item.column();
 	}
 
-	for (auto const & rowdata : mapRows) {
-		for (auto const & coldata : rowdata) {
-			strText += coldata;
+	int nCurRow = nMinRow;
+	for (TRowDataMap::const_key_value_iterator itrRowData = mapRows.constKeyValueBegin();
+		 itrRowData != mapRows.constKeyValueEnd(); ++itrRowData) {
+		const std::pair<int, TColDataMap> pairRow = *itrRowData;
+		while (pairRow.first > nCurRow) {
+			strText += "\n";
+			++nCurRow;
+		}
+		int nCurCol = nMinCol;
+		for (TColDataMap::const_key_value_iterator itrColData = pairRow.second.constKeyValueBegin();
+			 itrColData != pairRow.second.constKeyValueEnd(); ++itrColData) {
+			const std::pair<int, QString> pairCol = *itrColData;
+			while (pairCol.first > nCurCol) {
+				strText += "   ";
+				++nCurCol;
+			}
+			strText += pairCol.second;
+			++nCurCol;
 		}
 		strText += "\n";
+		++nCurRow;
 	}
 
 	QMimeData *mime = new QMimeData();
