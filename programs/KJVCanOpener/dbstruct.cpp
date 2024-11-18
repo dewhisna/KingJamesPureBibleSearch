@@ -1237,11 +1237,14 @@ uint32_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexE
 
 	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
-	if (ndxRelIndexEx.isPrologue()) {
+	if (ndxRelIndexEx.isBookPrologue()) {
 		return m_lstBooks.at(nBk-1).m_nLtrAccum + nLtr;
 	}
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
+	if (ndxRelIndexEx.isChapterPrologue()) {
+		return m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum + nLtr;
+	}
 	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
 	if (nWrd == 0) nWrd = 1;
 	if (nLtr == 0) nLtr = 1;
@@ -1291,7 +1294,7 @@ CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint32_t nN
 		return 0;
 	}
 
-	// See if the letter is in the book's prologue (and get it out of the way first):
+	// See if the letter is in the book's prologue (and get it out of the way first before chapters):
 	if (nLtr <= (m_lstBooks.at(nBk-1).m_nLtrAccum + m_lstBooks.at(nBk-1).m_strPrologue.size())) {
 		return CRelIndexEx(nBk, 0, 0, 0, nLtr-m_lstBooks.at(nBk-1).m_nLtrAccum);
 	}
@@ -1303,6 +1306,12 @@ CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint32_t nN
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
 		Q_ASSERT(false);
 		return 0;
+	}
+
+	// See if the letter is in the chapter's prologue (and get it out of the way first before verses):
+	if ((nChp != 0) && (nLtr <= (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum +
+								 m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_strPrologue.size()))) {
+		return CRelIndexEx(nBk, nChp, 0, 0, nLtr-m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum);
 	}
 
 	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);
@@ -1693,10 +1702,18 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool 
 {
 	if (nRelIndex.isPrologue()) {
 		QString strBookName = bookName(nRelIndex);
-		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
-		} else {
-			return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
+		if (nRelIndex.chapter() == 0) {			// Book Prologue
+			if (!bSuppressWordOnPseudoVerse) {
+				return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
+			} else {
+				return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
+			}
+		} else {								// Chapter Prologue
+			if (!bSuppressWordOnPseudoVerse) {
+				return QString("%1 %2 %3 [.%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString()).arg(nRelIndex.letter());
+			} else {
+				return QString("%1 %2 %3").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString());
+			}
 		}
 	}
 
@@ -1721,10 +1738,18 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndexEx &nRelIndex, b
 {
 	if (nRelIndex.isPrologue()) {
 		QString strBookName = bookNameAbbr(nRelIndex);
-		if (!bSuppressWordOnPseudoVerse) {
-			return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
-		} else {
-			return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
+		if (nRelIndex.chapter() == 0) {			// Book Prologue
+			if (!bSuppressWordOnPseudoVerse) {
+				return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
+			} else {
+				return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
+			}
+		} else {								// Chapter Prologue
+			if (!bSuppressWordOnPseudoVerse) {
+				return QString("%1 %2 %3 [.%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString()).arg(nRelIndex.letter());
+			} else {
+				return QString("%1 %2 %3").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString());
+			}
 		}
 	}
 

@@ -84,6 +84,27 @@ namespace {
 
 // ============================================================================
 
+QString intToRoman(int num)
+{
+	if ((num <= 0) || (num > 3999)) QString();
+
+	QString result;
+
+	const int values[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+	const QString numerals[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+
+	for (unsigned int i = 0; i < _countof(values); ++i) {
+		while (num >= values[i]) {
+			result += numerals[i];
+			num -= values[i];
+		}
+	}
+
+	return result;
+}
+
+// ============================================================================
+
 static void convertIndexListToNormalIndexes(const QString &strIndexList, TNormalizedIndexList &anNormalIndexList)
 {
 	QStringList lstIndex = strIndexList.split(",");
@@ -1481,6 +1502,11 @@ bool CReadDatabase::ValidateData()
 #endif
 			TChapterMap::const_iterator itrChapters = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.find(CRelIndex(nBk,nChp,0,0));
 			if (itrChapters == m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end()) continue;
+#ifdef USE_EXTENDED_INDEXES
+			ncntLtr_Chp = itrChapters->second.m_strPrologue.size();
+			ncntLtr_Bk += ncntLtr_Chp;
+			ncntLtrTot += ncntLtr_Chp;
+#endif
 			ncntChpTot++;
 			ncntChp_Bk++;
 			for (unsigned int nVrs=(itrChapters->second.m_bHaveSuperscription ? 0 : 1); nVrs<=itrChapters->second.m_nNumVrs; ++nVrs) {	// Verses
@@ -1799,7 +1825,13 @@ bool CReadDatabase::readBibleStub()
 			if (m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.find(ndxBkChp) == m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end()) continue;
 			CChapterEntry &theChapter = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[ndxBkChp];
 
+			theChapter.m_strPrologue = intToRoman(nChp).toLower();		// TODO : Change this to regExp logic like above after we determine real prologues
+
 			theChapter.m_nLtrAccum = nLtrCount;
+
+			nLtrCount += theChapter.m_strPrologue.size();	// Chapter's prologue letters come ahead of all else in the chapter
+			theChapter.m_nNumLtr += theChapter.m_strPrologue.size();
+
 			for (unsigned int nVrs = (theChapter.m_bHaveSuperscription ? 0 : 1);
 					nVrs <= theChapter.m_nNumVrs; ++nVrs) {
 				CRelIndex ndxBkChpVrs(nBk, nChp, nVrs, 0);

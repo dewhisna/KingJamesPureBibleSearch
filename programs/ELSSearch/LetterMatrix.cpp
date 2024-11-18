@@ -91,7 +91,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			if (!m_bSkipColophons) {
 				append(lstColophon);
 			} else {
-				m_mapMatrixIndexToLetterShift[size()] = lstColophon.size();
+				m_mapMatrixIndexToLetterShift[size()] += lstColophon.size();
 			}
 			lstColophon.clear();
 			ndxMatrixLastColophon.clear();
@@ -100,24 +100,40 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		// Check for skipped superscription to map:
 		if (!lstSuperscription.isEmpty() && (ndxMatrixLastSuperscription.verse() != ndxMatrixCurrent.verse())) {
 			Q_ASSERT(m_bSkipSuperscriptions);		// Should only be here if actually skipping the superscriptions
-			m_mapMatrixIndexToLetterShift[size()] = lstSuperscription.size();
+			m_mapMatrixIndexToLetterShift[size()] += lstSuperscription.size();
 			lstSuperscription.clear();
 			ndxMatrixLastSuperscription.clear();
 		}
 
-		// Add prologue first:
+		// Add prologues first:
+		bool bAddedPrologue = false;
 		if (ndxMatrixCurrent.book() != ndxMatrixLastPrologue.book()) {		// Check entering new book
 			const CBookEntry *pBook = pBibleDatabase->bookEntry(ndxMatrixCurrent);
 			Q_ASSERT(pBook != nullptr);
-			if (pBook) {
-				if (m_bIncludePrologues) {
+			if (pBook && !pBook->m_strPrologue.isEmpty()) {
+				if (m_bIncludePrologues && !m_bWordsOfJesusOnly) {
 					for (auto const &chrLetter : pBook->m_strPrologue) append(chrLetter);
 				} else {
-					m_mapMatrixIndexToLetterShift[size()] = pBook->m_strPrologue.size();
+					m_mapMatrixIndexToLetterShift[size()] += pBook->m_strPrologue.size();
 				}
 			}
-			ndxMatrixLastPrologue = ndxMatrixCurrent;
+			bAddedPrologue = true;
+			ndxMatrixLastPrologue.setChapter(0);		// Force enter new chapter if this is a new book -- without this, we miss chapters of books with only 1 chapter
 		}
+		if ((ndxMatrixCurrent.chapter() != ndxMatrixLastPrologue.chapter()) &&
+			(ndxMatrixCurrent.chapter() != 0)) {							// Check entering new chapter
+			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(ndxMatrixCurrent);
+			Q_ASSERT(pChapter != nullptr);
+			if (pChapter && !pChapter->m_strPrologue.isEmpty()) {
+				if (m_bIncludePrologues && !m_bWordsOfJesusOnly) {
+					for (auto const &chrLetter : pChapter->m_strPrologue) append(chrLetter);
+				} else {
+					m_mapMatrixIndexToLetterShift[size()] += pChapter->m_strPrologue.size();
+				}
+			}
+			bAddedPrologue = true;
+		}
+		if (bAddedPrologue) ndxMatrixLastPrologue = ndxMatrixCurrent;
 
 		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
 		Q_ASSERT(pWordEntry != nullptr);
@@ -164,7 +180,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 				if (!lstWordsOfJesus.at(ndxMatrixCurrent.word()-1).isEmpty()) {
 					// If in Words of Jesus, output letter skip for main text and append words to matrix:
 					if (nWordsOfJesusLetterSkip) {
-						m_mapMatrixIndexToLetterShift[size()] = nWordsOfJesusLetterSkip;
+						m_mapMatrixIndexToLetterShift[size()] += nWordsOfJesusLetterSkip;
 						nWordsOfJesusLetterSkip = 0;
 					}
 					for (auto const &chrLetter : strWord) append(chrLetter);
@@ -176,7 +192,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		}
 	}
 	if (m_bWordsOfJesusOnly && (nWordsOfJesusLetterSkip != 0)) {
-		m_mapMatrixIndexToLetterShift[size()] = nWordsOfJesusLetterSkip;
+		m_mapMatrixIndexToLetterShift[size()] += nWordsOfJesusLetterSkip;
 		nWordsOfJesusLetterSkip = 0;
 	}
 
