@@ -2,5 +2,9 @@
 <RCC version="1.0">
 	<qresource prefix="/">
 		<file>res/exit.png</file>
+		<!--
+			From: https://beholdthestone.com/archives/5043
+		-->
+		<file>res/BeholdtheStone.png</file>
 	</qresource>
 </RCC>

@@ -34,10 +34,11 @@
 #include <QApplication>
 #include <QMessageBox>
 #include "ELSBibleDatabaseSelectDlg.h"
-#include <QProgressDialog>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QtConcurrent>
+#include <QSplashScreen>
+#include <QPixmap>
+#include <QTimer>
+#include <QWindow>
+#include "../KJVCanOpener/BusyCursor.h"
 #else
 #include <QCoreApplication>
 #endif
@@ -114,41 +115,21 @@ static void reduce(CELSResultList &lstResults, const CELSResultList &result)
 
 #ifndef IS_CONSOLE_APP
 
-class CProgressLauncher : public QProgressDialog
+class CSplashLauncher : public QSplashScreen
 {
+	Q_OBJECT
 public:
-	CProgressLauncher(CReadDatabase &rdbMain, const QString  &strBibleUUID,
+	CSplashLauncher(const QString  &strBibleUUID,
 					bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly, bool bIncludeBookPrologues)
-		:	QProgressDialog(QObject::tr("Reading Bible Database", "ELSSearch"), QString(), 0, 0, nullptr,
-			Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowTitleHint),		// Get rid of the frame to prevent user from closing, as it will crash us
-			m_rdbMain(rdbMain),
+		:	QSplashScreen(QPixmap(":/res/BeholdtheStone.png")),
+			m_rdb(this),
 			m_strBibleUUID(strBibleUUID),
 			m_bSkipColophons(bSkipColophons),
 			m_bSkipSuperscriptions(bSkipSuperscriptions),
 			m_bWordsOfJesusOnly(bWordsOfJesusOnly),
 			m_bIncludeBookPrologues(bIncludeBookPrologues)
 	{
-		QFutureWatcher<void> *pWatcher = new QFutureWatcher<void>(this);
-		connect(pWatcher, &QFutureWatcher<void>::finished, this, [this]()->void {
-			// When the database read finishes, show the main window and close the progress dialog:
-			if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
-				m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
-														 m_bSkipColophons, m_bSkipSuperscriptions, m_bWordsOfJesusOnly, m_bIncludeBookPrologues);
-
-				m_pMainWindow->show();
-				this->close();
-			}
-		});
-
-		// Read the database on a separate thread while this thread runs the progress dialog:
-		pWatcher->setFuture(
-			QtConcurrent::run([this]()->void {
-				if (!m_rdbMain.ReadBibleDatabase(TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strBibleUUID), true)) {
-					QMessageBox::critical(nullptr, QApplication::applicationName(), QObject::tr("*** ERROR: Failed to Read the Bible Database!", "ELSSearch"));
-					this->close();
-				}
-			})
-		);
+		QTimer::singleShot(10, this, SLOT(doLaunch()));
 	}
 
 	bool haveMainWindow() const { return (m_pMainWindow != nullptr); }
@@ -161,15 +142,46 @@ public:
 		}
 	}
 
+protected slots:
+	void doLaunch()
+	{
+		// Based on waitForWindowExposed() function logic used in
+		//	QSplashScreen::finish() of Qt Source:
+		if (!windowHandle()) createWinId();
+		QWindow *pWindow = windowHandle();
+		if (!pWindow->isExposed()) {
+			QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+			QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+			QTimer::singleShot(10, this, SLOT(doLaunch()));
+		} else {
+			CBusyCursor iAmBusy(this);
+			if (!m_rdb.ReadBibleDatabase(TBibleDatabaseList::availableBibleDatabaseDescriptor(m_strBibleUUID), true)) {
+				QMessageBox::critical(nullptr, QApplication::applicationName(), QObject::tr("*** ERROR: Failed to Read the Bible Database!", "ELSSearch"));
+				close();
+			} else {
+				// When the database read finishes, show the main window and close the progress dialog:
+				if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
+					m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
+															 m_bSkipColophons, m_bSkipSuperscriptions, m_bWordsOfJesusOnly, m_bIncludeBookPrologues);
+
+					m_pMainWindow->show();
+					finish(m_pMainWindow);
+				}
+			}
+		}
+	}
+
 private:
 	CELSSearchMainWindow *m_pMainWindow = nullptr;
-	CReadDatabase &m_rdbMain;
+	CReadDatabase m_rdb;
 	QString m_strBibleUUID;
 	bool m_bSkipColophons = false;
 	bool m_bSkipSuperscriptions = false;
 	bool m_bWordsOfJesusOnly = false;
 	bool m_bIncludeBookPrologues = false;
 };
+
+#include "main.moc"
 
 #endif
 
@@ -276,9 +288,9 @@ int main(int argc, char *argv[])
 			return -2;
 		}
 
-		CProgressLauncher launcher(rdbMain, dlgBibleSelect.bibleUUID(),
-								   dlgBibleSelect.removeColophons(), dlgBibleSelect.removeSuperscriptions(),
-								   dlgBibleSelect.wordsOfJesusOnly(), dlgBibleSelect.includeBookPrologues());
+		CSplashLauncher launcher(dlgBibleSelect.bibleUUID(),
+								 dlgBibleSelect.removeColophons(), dlgBibleSelect.removeSuperscriptions(),
+								 dlgBibleSelect.wordsOfJesusOnly(), dlgBibleSelect.includeBookPrologues());
 		launcher.show();
 		launcher.ensurePolished();
 		launcher.raise();
