@@ -1866,17 +1866,19 @@ bool CReadDatabase::readCCDBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 		}
 	}
 
-	// If this Bible contained a Strong Dictionary, set the flag in its descriptor,
-	//	even if the default descriptor that loaded us didn't have it set.  Do this
-	//	before adding the BibleDatabase so our descriptors will get updated:
-	if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
-		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
-	}
+	if (bSuccess) {		// Must either check for bSuccess or a valid m_pBibleDatabase, or below could access illegal pointer in a failed case
+		// If this Bible contained a Strong Dictionary, set the flag in its descriptor,
+		//	even if the default descriptor that loaded us didn't have it set.  Do this
+		//	before adding the BibleDatabase so our descriptors will get updated:
+		if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
+			m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
+		}
 
-	// If this Bible contained a Morphology Database, set the flag in its descriptor.
-	//	Do this before adding the BibleDatabase so our descriptors will get updated:
-	if (m_pBibleDatabase->m_mapMorphDatabaseMap.size()) {
-		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasMorphology;
+		// If this Bible contained a Morphology Database, set the flag in its descriptor.
+		//	Do this before adding the BibleDatabase so our descriptors will get updated:
+		if (m_pBibleDatabase->m_mapMorphDatabaseMap.size()) {
+			m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasMorphology;
+		}
 	}
 
 	if (bSuccess) {
@@ -1965,17 +1967,19 @@ bool CReadDatabase::readS3DBBibleDatabase(const TBibleDescriptor &bblDesc, bool 
 #endif	// !NOT_USING_SQL
 	}
 
-	// If this Bible contained a Strong Dictionary, set the flag in its descriptor,
-	//	even if the default descriptor that loaded us didn't have it set.  Do this
-	//	before adding the BibleDatabase so our descriptors will get updated:
-	if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
-		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
-	}
+	if (bSuccess) {		// Must either check for bSuccess or a valid m_pBibleDatabase, or below could access illegal pointer in a failed case
+		// If this Bible contained a Strong Dictionary, set the flag in its descriptor,
+		//	even if the default descriptor that loaded us didn't have it set.  Do this
+		//	before adding the BibleDatabase so our descriptors will get updated:
+		if (m_pBibleDatabase->m_mapStrongsEntries.size()) {
+			m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasStrongs;
+		}
 
-	// If this Bible contained a Morphology Database, set the flag in its descriptor.
-	//	Do this before adding the BibleDatabase so our descriptors will get updated:
-	if (m_pBibleDatabase->m_mapMorphDatabaseMap.size()) {
-		m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasMorphology;
+		// If this Bible contained a Morphology Database, set the flag in its descriptor.
+		//	Do this before adding the BibleDatabase so our descriptors will get updated:
+		if (m_pBibleDatabase->m_mapMorphDatabaseMap.size()) {
+			m_pBibleDatabase->m_descriptor.m_btoFlags |= BTO_HasMorphology;
+		}
 	}
 
 	if (bSuccess) {
