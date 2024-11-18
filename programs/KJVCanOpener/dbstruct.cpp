@@ -1693,14 +1693,16 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool 
 	}
 
 	CRelIndex relBase(nRelIndex.index());
+	uint32_t nWord = relBase.word();
+	if (!relBase.isColophon() && !relBase.isSuperscription()) relBase.setWord(0);
 	QString strRef = PassageReferenceText(relBase, true);
-	if (relBase.word()) {
+	if (nWord) {
 		if (((relBase.chapter() != 0) || ((relBase.chapter() == 0) && !bSuppressWordOnPseudoVerse)) &&
 			((relBase.verse() != 0) || ((relBase.verse() == 0) && !bSuppressWordOnPseudoVerse))) {
 			if (nRelIndex.letter()) {
-				strRef += QString(" [%1.%2]").arg(relBase.word()).arg(nRelIndex.letter());
+				strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
 			} else {
-				strRef += QString(" [%1]").arg(relBase.word());
+				strRef += QString(" [%1]").arg(nWord);
 			}
 		}
 	}
@@ -1719,14 +1721,16 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndexEx &nRelIndex, b
 	}
 
 	CRelIndex relBase(nRelIndex.index());
+	uint32_t nWord = relBase.word();
+	if (!relBase.isColophon() && !relBase.isSuperscription()) relBase.setWord(0);
 	QString strRef = PassageReferenceAbbrText(relBase, true);
-	if (relBase.word()) {
+	if (nWord) {
 		if (((relBase.chapter() != 0) || ((relBase.chapter() == 0) && !bSuppressWordOnPseudoVerse)) &&
 			((relBase.verse() != 0) || ((relBase.verse() == 0) && !bSuppressWordOnPseudoVerse))) {
 			if (nRelIndex.letter()) {
-				strRef += QString(" [%1.%2]").arg(relBase.word()).arg(nRelIndex.letter());
+				strRef += QString(" [%1.%2]").arg(nWord).arg(nRelIndex.letter());
 			} else {
-				strRef += QString(" [%1]").arg(relBase.word());
+				strRef += QString(" [%1]").arg(nWord);
 			}
 		}
 	}
