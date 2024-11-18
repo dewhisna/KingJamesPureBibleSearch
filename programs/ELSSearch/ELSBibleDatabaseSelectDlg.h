@@ -41,7 +41,7 @@ public:
 										bool bRemoveColophons,
 										bool bRemoveSuperscriptions,
 										bool bWordsOfJesusOnly,
-										bool bIncludeBookPrologues,
+										bool bIncludePrologues,
 										QWidget *parent = nullptr);
 	~CELSBibleDatabaseSelectDlg();
 
@@ -53,14 +53,14 @@ public:
 	// ----
 	bool wordsOfJesusOnly() const { return m_bWordsOfJesusOnly; }
 	// ----
-	bool includeBookPrologues() const { return m_bIncludeBookPrologues; }
+	bool includePrologues() const { return m_bIncludePrologues; }
 
 public slots:
 	void setBibleUUID(const QString &strBibleUUID) { m_strBibleUUID = strBibleUUID; }
 	void setRemoveColophons(bool bRemoveColophons) { m_bRemoveColophons = bRemoveColophons; }
 	void setRemoveSuperscriptions(bool bRemoveSuperscriptions) { m_bRemoveSuperscriptions = bRemoveSuperscriptions; }
 	void setWordsOfJesusOnly(bool bWordsOfJesusOnly) { m_bWordsOfJesusOnly = bWordsOfJesusOnly; }
-	void setIncludeBookPrologues(bool bIncludeBookPrologues) { m_bIncludeBookPrologues = bIncludeBookPrologues; }
+	void setIncludePrologues(bool bIncludePrologues) { m_bIncludePrologues = bIncludePrologues; }
 
 private slots:
 	void en_selectionChanged(int nIndex);
@@ -72,7 +72,7 @@ private:
 	bool m_bRemoveColophons = false;
 	bool m_bRemoveSuperscriptions = false;
 	bool m_bWordsOfJesusOnly = false;
-	bool m_bIncludeBookPrologues = false;
+	bool m_bIncludePrologues = false;
 };
 
 // ============================================================================

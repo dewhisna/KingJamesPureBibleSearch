@@ -137,7 +137,9 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 	if (m_letterMatrix.wordsOfJesusOnly()) {
 		strText += tr("Words of Jesus Only") + "\n";
 	} else {
-		// There's no Words of Jesus in Colophons or Superscriptions
+		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
+		if (m_letterMatrix.includePrologues()) strText += "Including Book/Chapter Prologues\n";
+
 		if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
 			strText += tr("Without") + " ";
 			if (m_letterMatrix.skipColophons()) {

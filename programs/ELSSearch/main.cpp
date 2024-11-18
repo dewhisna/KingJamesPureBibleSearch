@@ -120,14 +120,14 @@ class CSplashLauncher : public QSplashScreen
 	Q_OBJECT
 public:
 	CSplashLauncher(const QString  &strBibleUUID,
-					bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly, bool bIncludeBookPrologues)
+					bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly, bool bIncludePrologues)
 		:	QSplashScreen(QPixmap(":/res/BeholdtheStone.png")),
 			m_rdb(this),
 			m_strBibleUUID(strBibleUUID),
 			m_bSkipColophons(bSkipColophons),
 			m_bSkipSuperscriptions(bSkipSuperscriptions),
 			m_bWordsOfJesusOnly(bWordsOfJesusOnly),
-			m_bIncludeBookPrologues(bIncludeBookPrologues)
+			m_bIncludePrologues(bIncludePrologues)
 	{
 		QTimer::singleShot(10, this, SLOT(doLaunch()));
 	}
@@ -162,7 +162,7 @@ protected slots:
 				// When the database read finishes, show the main window and close the progress dialog:
 				if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
 					m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
-															 m_bSkipColophons, m_bSkipSuperscriptions, m_bWordsOfJesusOnly, m_bIncludeBookPrologues);
+															 m_bSkipColophons, m_bSkipSuperscriptions, m_bWordsOfJesusOnly, m_bIncludePrologues);
 
 					m_pMainWindow->show();
 					finish(m_pMainWindow);
@@ -178,7 +178,7 @@ private:
 	bool m_bSkipColophons = false;
 	bool m_bSkipSuperscriptions = false;
 	bool m_bWordsOfJesusOnly = false;
-	bool m_bIncludeBookPrologues = false;
+	bool m_bIncludePrologues = false;
 };
 
 #include "main.moc"
@@ -212,7 +212,7 @@ int main(int argc, char *argv[])
 	bool bSkipColophons = false;
 	bool bSkipSuperscriptions = false;
 	bool bWordsOfJesusOnly = false;
-	bool bIncludeBookPrologues = false;
+	bool bIncludePrologues = false;
 	bool bOutputWordsAllUppercase = false;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-sj") == 0) {
 			bWordsOfJesusOnly = true;
 		} else if (strArg.compare("-sp") == 0) {
-			bIncludeBookPrologues = true;
+			bIncludePrologues = true;
 		} else if (strArg.compare("-u") == 0) {
 			bOutputWordsAllUppercase = true;
 		} else if (strArg.startsWith("-bb")) {
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 			strBibleUUID = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor)).m_strUUID;
 		}
 
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludeBookPrologues};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludePrologues};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return -1;
 
 		CReadDatabase rdbMain;
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 
 		CSplashLauncher launcher(dlgBibleSelect.bibleUUID(),
 								 dlgBibleSelect.removeColophons(), dlgBibleSelect.removeSuperscriptions(),
-								 dlgBibleSelect.wordsOfJesusOnly(), dlgBibleSelect.includeBookPrologues());
+								 dlgBibleSelect.wordsOfJesusOnly(), dlgBibleSelect.includePrologues());
 		launcher.show();
 		launcher.ensurePolished();
 		launcher.raise();
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -sj    =  Search Words of Jesus Only\n").toUtf8().data();
-		std::cerr << QString("  -sp    =  Search Book Prologues (Book Title/Subtitle)\n").toUtf8().data();
+		std::cerr << QString("  -sp    =  Search Book/Chapter Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -bb<N> =  Begin Searching in Book <N> (defaults to first)\n").toUtf8().data();
 		std::cerr << QString("  -be<N> =  End Searching in Book <N>   (defaults to last)\n").toUtf8().data();
@@ -365,7 +365,7 @@ int main(int argc, char *argv[])
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
-	CLetterMatrix letterMatrix{pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludeBookPrologues};
+	CLetterMatrix letterMatrix{pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludePrologues};
 
 	// ------------------------------------------------------------------------
 
@@ -427,8 +427,8 @@ int main(int argc, char *argv[])
 	if (bWordsOfJesusOnly) {
 		std::cout << "Words of Jesus Only\n";
 	} else {
-		// There's no Words of Jesus in Colophons or Superscriptions or Book Prologues
-		if (bIncludeBookPrologues) std::cout << "Including Book Prologues\n";
+		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
+		if (bIncludePrologues) std::cout << "Including Book/Chapter Prologues\n";
 		if (bSkipColophons) std::cout << "Skipping Colophons\n";
 		if (bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
 	}

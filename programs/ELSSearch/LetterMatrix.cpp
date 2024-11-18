@@ -55,12 +55,12 @@ private:
 
 CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 							 bool bSkipColophons, bool bSkipSuperscriptions,
-							 bool bWordsOfJesusOnly, bool bIncludeBookPrologues)
+							 bool bWordsOfJesusOnly, bool bIncludePrologues)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_bSkipColophons(bSkipColophons),
 		m_bSkipSuperscriptions(bSkipSuperscriptions),
 		m_bWordsOfJesusOnly(bWordsOfJesusOnly),
-		m_bIncludeBookPrologues(bIncludeBookPrologues)
+		m_bIncludePrologues(bIncludePrologues)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -110,7 +110,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			const CBookEntry *pBook = pBibleDatabase->bookEntry(ndxMatrixCurrent);
 			Q_ASSERT(pBook != nullptr);
 			if (pBook) {
-				if (m_bIncludeBookPrologues) {
+				if (m_bIncludePrologues) {
 					for (auto const &chrLetter : pBook->m_strPrologue) append(chrLetter);
 				} else {
 					m_mapMatrixIndexToLetterShift[size()] = pBook->m_strPrologue.size();
