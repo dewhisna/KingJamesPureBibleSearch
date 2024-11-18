@@ -63,7 +63,7 @@
    <item>
     <widget class="QCheckBox" name="chkIncludeBookPrologue">
      <property name="text">
-      <string>Include Book &amp;Prologue (Title and Subtitle)
+      <string>Include Book &amp;Prologue (Title, Subtitle, etc.)
 (Works Only on English King James Databases)</string>
      </property>
     </widget>

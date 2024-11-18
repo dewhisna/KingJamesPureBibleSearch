@@ -1237,6 +1237,9 @@ uint32_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexE
 
 	if (nBk == 0) return 0;
 	if (nBk > m_lstBooks.size()) return 0;
+	if (ndxRelIndexEx.isPrologue()) {
+		return m_lstBooks.at(nBk-1).m_nLtrAccum + nLtr;
+	}
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) nChp = 1;
 	if (nChp > m_lstBooks[nBk-1].m_nNumChp) return 0;
 	if ((nVrs == 0) && (nChp != 0) && (!m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_bHaveSuperscription)) nVrs = 1;
@@ -1286,6 +1289,11 @@ CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint32_t nN
 	if (nBk == 0) {
 		Q_ASSERT(false);
 		return 0;
+	}
+
+	// See if the letter is in the book's prologue (and get it out of the way first):
+	if (nLtr <= (m_lstBooks.at(nBk-1).m_nLtrAccum + m_lstBooks.at(nBk-1).m_strPrologue.size())) {
+		return CRelIndexEx(nBk, 0, 0, 0, nLtr-m_lstBooks.at(nBk-1).m_nLtrAccum);
 	}
 
 	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;

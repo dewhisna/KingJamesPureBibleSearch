@@ -45,6 +45,13 @@
 #include <QByteArray>
 #include <QtIOCompressor>
 
+#if QT_VERSION >= 0x050000
+#include <QRegularExpression>
+#endif
+#if QT_VERSION < 0x050F00
+#include <QRegExp>
+#endif
+
 #ifdef Q_OS_ANDROID
 #include <android/log.h>
 #endif
@@ -1449,7 +1456,8 @@ bool CReadDatabase::ValidateData()
 		ncntVrs_Bk = 0;
 		ncntWrd_Bk = 0;
 #ifdef USE_EXTENDED_INDEXES
-		ncntLtr_Bk = 0;
+		ncntLtr_Bk = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1].m_strPrologue.size();
+		ncntLtrTot += ncntLtr_Bk;
 #endif
 		ncntBkTot++;
 		// Colophons are part of the book's words, but not part of the chapter's:
@@ -1760,7 +1768,18 @@ bool CReadDatabase::readBibleStub()
 		CBookEntry &theBook = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1];
 		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 
+		theBook.m_strPrologue = (!theBook.m_strDesc.isEmpty() ? theBook.m_strDesc : theBook.m_strBkName).toLower();
+#if QT_VERSION >= 0x050E00
+		theBook.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+#else
+		theBook.m_strPrologue.remove(QRegExp("[^a-zA-Z]"));
+#endif
+
 		theBook.m_nLtrAccum = nLtrCount;
+
+		nLtrCount += theBook.m_strPrologue.size();		// Book's prologue letters come ahead of all else in the book
+		theBook.m_nNumLtr += theBook.m_strPrologue.size();
+
 		if (theBook.m_bHaveColophon) {
 			// Handle Colophon separately, as there won't be a real chapter 0 to index:
 			CVerseEntry &theVerse = mapVerses[CRelIndex(nBk, 0, 0, 0)];

@@ -81,6 +81,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 	uint32_t nWordsOfJesusLetterSkip = 0;		// Number of letters to skip prior to words of Jesus
 	QStringList lstWordsOfJesus;
 	CWordsOfJesusExtractor vtrtWordsOfJesus(lstWordsOfJesus);
+	CRelIndex ndxMatrixLastPrologue;
 	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
 		 normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
 		ndxMatrixCurrent = pBibleDatabase->DenormalizeIndex(normalMatrixCurrent);
@@ -102,6 +103,20 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			m_mapMatrixIndexToLetterShift[size()] = lstSuperscription.size();
 			lstSuperscription.clear();
 			ndxMatrixLastSuperscription.clear();
+		}
+
+		// Add prologue first:
+		if (ndxMatrixCurrent.book() != ndxMatrixLastPrologue.book()) {		// Check entering new book
+			const CBookEntry *pBook = pBibleDatabase->bookEntry(ndxMatrixCurrent);
+			Q_ASSERT(pBook != nullptr);
+			if (pBook) {
+				if (m_bIncludeBookPrologues) {
+					for (auto const &chrLetter : pBook->m_strPrologue) append(chrLetter);
+				} else {
+					m_mapMatrixIndexToLetterShift[size()] = pBook->m_strPrologue.size();
+				}
+			}
+			ndxMatrixLastPrologue = ndxMatrixCurrent;
 		}
 
 		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);

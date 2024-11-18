@@ -41,7 +41,7 @@ static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 	int nMaxLength = lstSearchWords.last().size();
 
 	// Compute starting index for first letter in the search range:
-	uint32_t matrixIndexCurrent = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(nBookStart, 1, 0, 1, 1));
+	uint32_t matrixIndexCurrent = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(nBookStart, 0, 0, 0, 1));
 	if (matrixIndexCurrent == 0) return CELSResultList();
 
 	// Compute ending index for the last letter in the search range:
