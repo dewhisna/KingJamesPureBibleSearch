@@ -181,10 +181,6 @@ public:
 
 	TCrossReferenceMap & operator=(const TCrossReferenceMap &aMap) = default;
 
-	inline bool haveCrossReferencesFor(const CRelIndex &ndx) const
-	{
-		return (find(relIndexMaskWord(ndx)) != end());
-	}
 	inline bool haveCrossReference(const CRelIndex &ndxFirst, const CRelIndex &ndxSecond) const
 	{
 		const TRelativeIndexSet refs = crossReferencesFor(ndxFirst);
@@ -213,6 +209,9 @@ private:
 
 private:
 	bool m_bNoWordRefs;
+	// ----
+	typedef std::map<QString, TCrossReferenceMap> TBibleCrossRefMap;			// Cross reference scoped to specific Bible for caching scoped references
+	mutable TBibleCrossRefMap m_mapBibleScopedCrossRefMap;						// Per-Bible (UUID) cache map of CrossRefMaps
 };
 
 typedef std::map<QString, TCrossReferenceMap> TVersificationCrossRefMap;					// Map of Versification UUID to TCrossReferenceMap

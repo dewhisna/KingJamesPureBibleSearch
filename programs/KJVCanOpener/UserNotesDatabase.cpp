@@ -107,6 +107,12 @@ TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBi
 	Q_ASSERT(pBibleDatabase != nullptr);
 	if (pBibleDatabase == nullptr) return TCrossReferenceMap(*this);
 
+	// Check cache and return cached version if available:
+	TBibleCrossRefMap::iterator itrMap = m_mapBibleScopedCrossRefMap.find(pBibleDatabase->compatibilityUUID());
+	if (itrMap != m_mapBibleScopedCrossRefMap.end()) return itrMap->second;
+
+	// Otherwise, build new scoped map:
+
 	TCrossReferenceMap mapScoped;
 
 	for (const_iterator itrMap = cbegin(); itrMap != cend(); ++itrMap) {
@@ -118,6 +124,8 @@ TCrossReferenceMap TCrossReferenceMap::createScopedMap(const CBibleDatabase *pBi
 		}
 		if (!setRefs.empty()) mapScoped[itrMap->first] = setRefs;
 	}
+
+	m_mapBibleScopedCrossRefMap[pBibleDatabase->compatibilityUUID()] = mapScoped;
 
 	return mapScoped;
 }

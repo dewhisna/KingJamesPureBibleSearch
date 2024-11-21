@@ -286,8 +286,8 @@ bool CScriptureTextHtmlBuilder::addCrossRefsFor(const CBibleDatabase *pBibleData
 	const TCrossReferenceMap *pRefMap = g_pUserNotesDatabase->crossRefsMap(pBibleDatabase);
 	if (pRefMap == nullptr) return false;
 	const TCrossReferenceMap mapCrossRefs = pRefMap->createScopedMap(pBibleDatabase);
-	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
-		const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
+	const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
+	if (!refs.empty()) {
 		bool bNext = false;
 		if (bAddLeadInSpace) appendLiteralText(" ");
 		appendLiteralText("[");
@@ -429,8 +429,8 @@ bool CScripturePlainTextBuilder::addCrossRefsFor(const CBibleDatabase *pBibleDat
 	const TCrossReferenceMap *pRefMap = g_pUserNotesDatabase->crossRefsMap(pBibleDatabase);
 	if (pRefMap == nullptr) return false;
 	const TCrossReferenceMap mapCrossRefs = pRefMap->createScopedMap(pBibleDatabase);
-	if (mapCrossRefs.haveCrossReferencesFor(relNdx)) {
-		const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
+	const TRelativeIndexSet refs = mapCrossRefs.crossReferencesFor(relNdx);
+	if (!refs.empty()) {
 		bool bNext = false;
 		if (bAddLeadInSpace) appendLiteralText(" ");
 		appendLiteralText("[");

@@ -172,7 +172,6 @@ int CVerseListModel::rowCount(const QModelIndex &zParent) const
 	if (bHighlighterNode) {
 		return m_vlmrListHighlighters.size();
 	} else if (bSingleCrossRefNode) {
-		if (!m_crossRefsResults.m_mapCrossRefs.haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return 0;
 		return static_cast<int>(m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
 	} else {
 		switch (m_private.m_nTreeMode) {
@@ -349,9 +348,10 @@ QModelIndex	CVerseListModel::index(int row, int column, const QModelIndex &zPare
 			return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(CRelIndex(), VLMNTE_HIGHLIGHTER_NODE).data()));		// Highlighter specialIndex with unset CRelIndex
 		}
 	} else if (bSingleCrossRefNode) {
-		if (!m_crossRefsResults.m_mapCrossRefs.haveCrossReferencesFor(m_private.m_ndxSingleCrossRefSource)) return QModelIndex();
+		const TRelativeIndexSet refs = m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource);
+		if (refs.empty()) return QModelIndex();
 		// For cross-references, the child entries use the parent's ndxRel, but have target nodeType set (it's relIndex comes from row()):
-		Q_ASSERT(static_cast<unsigned int>(row) < m_crossRefsResults.m_mapCrossRefs.crossReferencesFor(m_private.m_ndxSingleCrossRefSource).size());
+		Q_ASSERT(static_cast<unsigned int>(row) < refs.size());
 		return createIndex(row, column, fromVerseIndex(zResults.extraVerseIndex(m_private.m_ndxSingleCrossRefSource, VLMNTE_CROSS_REFERENCE_TARGET_NODE).data()));
 	} else {
 		switch (m_private.m_nTreeMode) {
