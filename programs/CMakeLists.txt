@@ -1,6 +1,6 @@
 ##*****************************************************************************
 ##
-## Copyright (C) 2012-2022 Donna Whisnant, a.k.a. Dewtronics.
+## Copyright (C) 2012-2024 Donna Whisnant, a.k.a. Dewtronics.
 ## Contact: http://www.dewtronics.com/
 ##
 ## This file is part of the KJVCanOpener Application as originally written
@@ -47,3 +47,5 @@ add_subdirectory(eSwordParse)
 add_subdirectory(eSwordDecrypt2)
 # -------------------------------------
 add_subdirectory(ELSSearch)
+# -------------------------------------
+add_subdirectory(CrossRefParse)
