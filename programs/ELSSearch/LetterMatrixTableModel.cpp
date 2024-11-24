@@ -85,7 +85,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 	if (!index.isValid())
 		return QVariant();
 
-	uint32_t nMatrixIndex = (index.row() * m_nWidth) + index.column() + 1;
+	uint32_t nMatrixIndex = matrixIndexFromModelIndex(index);
 	if (nMatrixIndex >= static_cast<uint32_t>(m_letterMatrix.size())) nMatrixIndex = 0;
 
 	switch (role) {
@@ -291,6 +291,17 @@ QModelIndex CLetterMatrixTableModel::modelIndexFromMatrixIndex(uint32_t nMatrixI
 {
 	if (nMatrixIndex == 0) return QModelIndex();
 	return createIndex((nMatrixIndex-1)/m_nWidth, (nMatrixIndex-1)%m_nWidth);
+}
+
+uint32_t CLetterMatrixTableModel::matrixIndexFromModelIndex(const QModelIndex &index) const
+{
+	if (!index.isValid()) return 0;
+	return (index.row() * m_nWidth) + index.column() + 1;
+}
+
+uint32_t CLetterMatrixTableModel::matrixIndexFromRowCol(int nRow, int nCol) const
+{
+	return (nRow * m_nWidth) + nCol + 1;
 }
 
 // ============================================================================

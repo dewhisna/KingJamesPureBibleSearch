@@ -65,6 +65,9 @@ protected slots:
 	// ----
 	void en_changedSearchType(int nIndex);
 	// ----
+	void en_letterMatrixLayoutAboutToChange();
+	void en_letterMatrixLayoutChanged();
+	// ----
 	void insertSearchLogText(const QString &strText);
 	void clearSearchLogText();
 	// ----
@@ -79,6 +82,8 @@ private:
 	// ----
 	QPointer<CLetterMatrixTableModel> m_pLetterMatrixTableModel;
 	QPointer<CELSResultListModel> m_pELSResultListModel;
+	// ----
+	uint32_t m_nMatrixIndexToCenter = 0;		// Matrix Index to Center during layout change
 	// ----
 	QPointer<QAction> m_pQuitAction;
 	Ui::CELSSearchMainWindow *ui;

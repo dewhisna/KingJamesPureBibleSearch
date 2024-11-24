@@ -51,6 +51,7 @@
 #include <QClipboard>
 #include <QShortcut>
 #include <QPoint>
+#include <QRect>
 
 #define ACCEL_KEY(k) (!QCoreApplication::testAttribute(Qt::AA_DontShowShortcutsInContextMenus) ?		\
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
@@ -144,6 +145,8 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --------------------------------
 
 	connect(ui->spinWidth, SIGNAL(valueChanged(int)), m_pLetterMatrixTableModel, SLOT(setWidth(int)));
+	connect(m_pLetterMatrixTableModel, SIGNAL(layoutAboutToBeChanged(QList<QPersistentModelIndex>,QAbstractItemModel::LayoutChangeHint)), this, SLOT(en_letterMatrixLayoutAboutToChange()));
+	connect(m_pLetterMatrixTableModel, SIGNAL(layoutChanged(QList<QPersistentModelIndex>,QAbstractItemModel::LayoutChangeHint)), this, SLOT(en_letterMatrixLayoutChanged()));
 	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pLetterMatrixTableModel, SLOT(setUppercase(bool)));
 	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pELSResultListModel, SLOT(setUppercase(bool)));
 
@@ -185,12 +188,25 @@ void CELSSearchMainWindow::en_searchResultClicked(const QModelIndex &index)
 {
 	CRelIndexEx ndx =  m_pELSResultListModel->data(index, Qt::UserRole).value<CRelIndexEx>();
 	uint32_t matrixIndex = m_letterMatrix.matrixIndexFromRelIndex(ndx);
-	if (matrixIndex) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(matrixIndex), QAbstractItemView::PositionAtTop);
+	if (matrixIndex) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(matrixIndex), QAbstractItemView::PositionAtCenter);
 }
 
 void CELSSearchMainWindow::en_changedSortOrder(int nIndex)
 {
 	m_pELSResultListModel->setSortOrder(static_cast<ELSRESULT_SORT_ORDER_ENUM>(ui->cmbSortOrder->itemData(nIndex).toInt()));
+}
+
+void CELSSearchMainWindow::en_letterMatrixLayoutAboutToChange()
+{
+	QRect rcTableView = ui->tvLetterMatrix->rect();
+	int nRow = ui->tvLetterMatrix->rowAt(rcTableView.height()/2);
+	int nCol = ui->tvLetterMatrix->columnAt(0) + m_pLetterMatrixTableModel->columnCount()/2;
+	m_nMatrixIndexToCenter = m_pLetterMatrixTableModel->matrixIndexFromRowCol(nRow, nCol);
+}
+
+void CELSSearchMainWindow::en_letterMatrixLayoutChanged()
+{
+	if (m_nMatrixIndexToCenter) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(m_nMatrixIndexToCenter), QAbstractItemView::PositionAtCenter);
 }
 
 // ----------------------------------------------------------------------------

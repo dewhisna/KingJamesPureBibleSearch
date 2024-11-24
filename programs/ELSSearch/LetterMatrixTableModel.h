@@ -71,6 +71,8 @@ public:
 	bool uppercase() const { return m_bUppercase; }
 
 	QModelIndex modelIndexFromMatrixIndex(uint32_t nMatrixIndex);
+	uint32_t matrixIndexFromModelIndex(const QModelIndex &index) const;
+	uint32_t matrixIndexFromRowCol(int nRow, int nCol) const;
 
 	const QFontMetrics &fontMetrics() const { return m_fontMatrixMetrics; }
 
