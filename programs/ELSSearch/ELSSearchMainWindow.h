@@ -63,6 +63,8 @@ protected slots:
 	void en_searchResultClicked(const QModelIndex &index);
 	void en_changedSortOrder(int nIndex);
 	// ----
+	void en_changedSearchType(int nIndex);
+	// ----
 	void insertSearchLogText(const QString &strText);
 	void clearSearchLogText();
 	// ----

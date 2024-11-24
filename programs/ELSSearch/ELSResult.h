@@ -56,11 +56,42 @@ extern QString elsresultSortOrderDescription(ELSRESULT_SORT_ORDER_ENUM nSortOrde
 
 // ============================================================================
 
+// List of Apophenia search types:
+enum ELS_SEARCH_TYPE_ENUM {
+	ESTE_ELS = 0,				// Normal ELS Search
+	ESTE_FLS = 1,				// Fibonacci FLS Search
+	ESTE_FLS_C9_ALL = 2,		// FLS Search with Casting out 9's, ALL
+	ESTE_FLS_C9_124875 = 3,		// FLS Search with Casting out 9's, 1-2-4-8-7-5
+	ESTE_FLS_C9_147 = 4,		// FLS Search with Casting out 9's, 1-4-7
+	ESTE_FLS_C9_852 = 5,		// FLS Search with Casting out 9's, 8-5-2
+	ESTE_FLS_C9_18 = 6,			// FLS Search with Casting out 9's, 1-8
+	ESTE_FLS_C9_45 = 7,			// FLS Search with Casting out 9's, 4-5
+	ESTE_FLS_C9_72 = 8,			// FLS Search with Casting out 9's, 7-2
+	ESTE_FLS_C9_36 = 9,			// FLS Search with Casting out 9's, 3-6
+	ESTE_FLS_C9_1 = 10,			// FLS Search with Casting out 9's, 1-Only
+	ESTE_FLS_C9_2 = 11,			// FLS Search with Casting out 9's, 2-Only
+	ESTE_FLS_C9_3 = 12,			// FLS Search with Casting out 9's, 3-Only
+	ESTE_FLS_C9_4 = 13,			// FLS Search with Casting out 9's, 4-Only
+	ESTE_FLS_C9_5 = 14,			// FLS Search with Casting out 9's, 5-Only
+	ESTE_FLS_C9_6 = 15,			// FLS Search with Casting out 9's, 6-Only
+	ESTE_FLS_C9_7 = 16,			// FLS Search with Casting out 9's, 7-Only
+	ESTE_FLS_C9_8 = 17,			// FLS Search with Casting out 9's, 8-Only
+	// ----
+	ESTE_COUNT
+};
+constexpr ELS_SEARCH_TYPE_ENUM ESTE_FIRST = ESTE_ELS;
+Q_DECLARE_METATYPE(ELS_SEARCH_TYPE_ENUM)
+
+extern QString elsSearchTypeDescription(ELS_SEARCH_TYPE_ENUM nSearchType);
+
+// ============================================================================
+
 class CELSResult
 {
 public:
 	QString m_strWord;
 	int m_nSkip = 0;
+	ELS_SEARCH_TYPE_ENUM m_nSearchType = ESTE_ELS;			// Skip algorithm -- needed here to know how to traverse the data for a specific result
 	CRelIndexEx m_ndxStart;
 	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
 };

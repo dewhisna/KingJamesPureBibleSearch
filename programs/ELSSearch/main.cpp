@@ -75,28 +75,34 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 	std::cout << "----------------------------------------\n";
 	std::cout << QString("Word: \"%1\"\n").arg(bUpperCase ? result.m_strWord.toUpper() : result.m_strWord).toUtf8().data();
 	std::cout << QString("Start Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false)).toUtf8().data();
+	std::cout << QString("Search Type: %1\n").arg(elsSearchTypeDescription(result.m_nSearchType)).toUtf8().data();
 	std::cout << QString("Skip: %1\n").arg(result.m_nSkip).toUtf8().data();
 	std::cout << QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse").toUtf8().data();
 	CRelIndex relPassageStart = CRelIndex(result.m_ndxStart.index());
 	uint32_t matrixIndexResult = letterMatrix.matrixIndexFromRelIndex(result.m_ndxStart);
 	uint32_t matrixIndexStart = letterMatrix.matrixIndexFromRelIndex(CRelIndexEx(CRelIndex(relPassageStart.book(), relPassageStart.chapter(), relPassageStart.verse(), 0), 0));
-	uint32_t martixIndexEnd = matrixIndexResult + ((result.m_nSkip+1)*(result.m_strWord.size()));
-	martixIndexEnd += (result.m_nSkip+1) - ((martixIndexEnd - matrixIndexStart + 1) % (result.m_nSkip+1));		// Make a whole number of row data
+	int nMaxDistance = CFindELS::maxDistance(result.m_nSkip, result.m_strWord.size(), result.m_nSearchType);
+	int nAvgDistance = (result.m_strWord.size() >= 2) ? nMaxDistance/(result.m_strWord.size() - 1) : nMaxDistance;
+	uint32_t martixIndexEnd = matrixIndexResult + nMaxDistance - 1;
+	martixIndexEnd += nAvgDistance - ((martixIndexEnd - matrixIndexStart + 1) % nAvgDistance);		// Make a whole number of row data
 	int nChar = 0;
 	for (uint32_t matrixIndex = matrixIndexStart; matrixIndex <= martixIndexEnd; ++matrixIndex) {
 		if (matrixIndex == matrixIndexStart) {
 			std::cout << "\n";
-			matrixIndexStart += result.m_nSkip+1;
+			matrixIndexStart += nAvgDistance;
 		}
 		if (matrixIndex >= static_cast<uint32_t>(letterMatrix.size())) break;
-		std::cout << ((matrixIndex == matrixIndexResult) ? "[" : " ");
+		std::cout << (((matrixIndex == matrixIndexResult) && (nChar < result.m_strWord.size())) ? "[" : " ");
 		if (bUpperCase) {
 			std::cout << QString(letterMatrix.at(matrixIndex).toUpper()).toUtf8().data();
 		} else {
 			std::cout << QString(letterMatrix.at(matrixIndex)).toUtf8().data();
 		}
-		std::cout << ((matrixIndex == matrixIndexResult) ? "]" : " ");
-		if ((matrixIndex == matrixIndexResult) && (++nChar < result.m_strWord.size())) matrixIndexResult += result.m_nSkip+1;
+		std::cout << (((matrixIndex == matrixIndexResult) && (nChar < result.m_strWord.size())) ? "]" : " ");
+		if ((matrixIndex == matrixIndexResult) && (nChar < result.m_strWord.size())) {
+			matrixIndexResult += CFindELS::nextOffset(result.m_nSkip, nChar, result.m_nSearchType);
+			++nChar;
+		}
 	}
 	std::cout << "\n";
 }
@@ -203,6 +209,7 @@ int main(int argc, char *argv[])
 	int nDescriptor = -1;
 	int nMinSkip = 0;
 	int nMaxSkip = 0;
+	ELS_SEARCH_TYPE_ENUM nSearchType = ESTE_ELS;
 	QStringList lstSearchWords;
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
@@ -262,6 +269,9 @@ int main(int argc, char *argv[])
 			nSortOrder = ESO_SRW;
 		} else if (strArg.compare("-oswr") == 0) {
 			nSortOrder = ESO_SWR;
+		} else if (strArg.startsWith("-t")) {
+			nSearchType = static_cast<ELS_SEARCH_TYPE_ENUM>(strArg.mid(2).toInt());
+			if ((nSearchType < ESTE_FIRST) || (nSearchType >= ESTE_COUNT)) bShowUsageHelp = true;
 		} else if ((strArg.compare("-h") == 0) || (strArg.compare("--help") == 0)) {
 			bShowUsageHelp = true;
 		} else {
@@ -310,25 +320,32 @@ int main(int argc, char *argv[])
 	if ((nArgsFound != 4) || (bShowUsageHelp)) {
 		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Min-Letter-Skip> <Max-Letter-Skip> <Words>\n\n").arg(argv[0]).toUtf8().data();
-		std::cerr << QString("Reads the specified database and searches for the specified <Words> at ELS\n").toUtf8().data();
-		std::cerr << QString("    skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>\n\n").toUtf8().data();
+		std::cerr << QString("Reads the specified database and apophenia searches for the specified <Words> at\n").toUtf8().data();
+		std::cerr << QString("    ELS/FLS skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>\n\n").toUtf8().data();
 		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
-		std::cout << QString("  -h, --help =  Show this usage information\n\n").toUtf8().data();
+		std::cerr << QString("  -h, --help =  Show this usage information\n\n").toUtf8().data();
 		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -sj    =  Search Words of Jesus Only\n").toUtf8().data();
 		std::cerr << QString("  -sp    =  Search Book/Chapter Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
-		std::cerr << QString("  -bb<N> =  Begin Searching in Book <N> (defaults to first)\n").toUtf8().data();
-		std::cerr << QString("  -be<N> =  End Searching in Book <N>   (defaults to last)\n").toUtf8().data();
+		std::cerr << QString("  -bb<n> =  Begin Searching in Book <n> (defaults to first)\n").toUtf8().data();
+		std::cerr << QString("  -be<n> =  End Searching in Book <n>   (defaults to last)\n").toUtf8().data();
 		std::cerr << QString("  -owsr  =  Order output by word, skip, then reference (this is the default)\n").toUtf8().data();
 		std::cerr << QString("  -owrs  =  Order output by word, reference, then skip\n").toUtf8().data();
 		std::cerr << QString("  -orws  =  Order output by reference, word, then skip\n").toUtf8().data();
 		std::cerr << QString("  -orsw  =  Order output by reference, skip, then word\n").toUtf8().data();
 		std::cerr << QString("  -osrw  =  Order output by skip, reference, then word\n").toUtf8().data();
 		std::cerr << QString("  -oswr  =  Order output by skip, word, then reference\n").toUtf8().data();
+		std::cerr << QString("  -t<n>  =  Search Type to perform for <n> values as follows:\n").toUtf8().data();
+		for (int i = ESTE_FIRST; i < ESTE_COUNT; ++i) {
+			std::cerr << QString("            %1 = %2%3\n")
+							 .arg(i)
+							 .arg(elsSearchTypeDescription(static_cast<ELS_SEARCH_TYPE_ENUM>(i)))
+							 .arg((i == ESTE_ELS) ? "  [Default]" : "").toUtf8().data();
+		}
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -377,7 +394,7 @@ int main(int argc, char *argv[])
 	elapsedTime.start();
 	std::cerr << "Searching";
 
-	CFindELS elsFinder(letterMatrix, lstSearchWords);
+	CFindELS elsFinder(letterMatrix, lstSearchWords, nSearchType);
 	if (!elsFinder.setBookEnds(nBookStart, nBookEnd)) {
 		std::cerr << QString("\n*** ERROR: Invalid Book Begin/End specified.  Database has books 1 through %1!\n")
 						 .arg(pBibleDatabase->bibleEntry().m_nNumBk).toUtf8().data();
@@ -422,8 +439,16 @@ int main(int argc, char *argv[])
 								.arg(pBibleDatabase->bookName(CRelIndex(nBookStart, 0, 0, 0)))
 								.arg(pBibleDatabase->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
 	}
-	std::cout << "Searching for ELS skips from " << nMinSkip << " to " << nMaxSkip;
-	std::cout << " in " << strBookRange.toUtf8().data() << "\n";
+	if (nSearchType == ESTE_ELS) {
+		std::cout << "Searching for ELS skips from " << nMinSkip << " to " << nMaxSkip;
+		std::cout << " in " << strBookRange.toUtf8().data() << "\n";
+	} else if (nSearchType == ESTE_FLS) {
+		std::cout << "Searching with FLS multipliers of " << nMinSkip << " to " << nMaxSkip;
+		std::cout << " in " << strBookRange.toUtf8().data() << "\n";
+	} else {
+		std::cout << "Searching in " << strBookRange.toUtf8().data() << "\n";
+	}
+
 	if (bWordsOfJesusOnly) {
 		std::cout << "Words of Jesus Only\n";
 	} else {

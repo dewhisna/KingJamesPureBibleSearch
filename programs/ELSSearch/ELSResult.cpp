@@ -52,13 +52,13 @@ QVariant CELSResultListModel::headerData(int section, Qt::Orientation orientatio
 	if ((role == Qt::DisplayRole) && (orientation == Qt::Horizontal)) {
 		switch (section) {
 			case 0:
-				return QString("Word");
+				return tr("Word", "CELSResult");
 			case 1:
-				return QString("Skip");
+				return tr("Skip", "CELSResult");
 			case 2:
-				return QString("Dir");
+				return tr("Dir", "CELSResult");
 			case 3:
-				return QString("Reference");
+				return tr("Reference", "CELSResult");
 		}
 	}
 
@@ -100,7 +100,7 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 			case 1:
 				return result.m_nSkip;
 			case 2:
-				return QString(result.m_nDirection == Qt::LeftToRight ? "Fwd" : "Rev");
+				return QString(result.m_nDirection == Qt::LeftToRight ? tr("Fwd", "CELSResult") : tr("Rev", "CELSResult"));
 			case 3:
 				return m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false);
 		}
@@ -110,10 +110,10 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 	} else if (role == Qt::UserRole+1) {	// Mime Data for Drag
 		const CELSResult & result = m_lstResults.at(index.row());
 		QString strMimeData;
-		strMimeData += QString("Word: \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
-		strMimeData += QString("Start Location: %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false));
-		strMimeData += QString("Skip: %1\n").arg(result.m_nSkip);
-		strMimeData += QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
+		strMimeData += tr("Word", "CELSResult") + QString(": \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
+		strMimeData += tr("Start Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false));
+		strMimeData += tr("Skip", "CELSResult") + QString(": %1\n").arg(result.m_nSkip);
+		strMimeData += tr("Direction", "CELSResult") + QString(": %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
 		return strMimeData;
 	}
 
@@ -133,22 +133,22 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 	CBusyCursor iAmBusy(nullptr);
 
 	QString strText;
-	strText += tr("Bible:") + " " + m_letterMatrix.bibleDatabase()->description() + "\n";
+	strText += tr("Bible:", "CELSResult") + " " + m_letterMatrix.bibleDatabase()->description() + "\n";
 	if (m_letterMatrix.wordsOfJesusOnly()) {
-		strText += tr("Words of Jesus Only") + "\n";
+		strText += tr("Words of Jesus Only", "CELSResult") + "\n";
 	} else {
 		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
 		if (m_letterMatrix.includePrologues()) strText += "Including Book/Chapter Prologues\n";
 
 		if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
-			strText += tr("Without") + " ";
+			strText += tr("Without", "CELSResult") + " ";
 			if (m_letterMatrix.skipColophons()) {
-				strText += tr("Colophons");
+				strText += tr("Colophons", "CELSResult");
 				if (m_letterMatrix.skipSuperscriptions()) {
-					strText += " " + tr("or Superscriptions");
+					strText += " " + tr("or Superscriptions", "CELSResult");
 				}
 			} else {
-				strText += tr("Superscriptions");
+				strText += tr("Superscriptions", "CELSResult");
 			}
 			strText += "\n";
 		}
@@ -204,22 +204,71 @@ QString elsresultSortOrderDescription(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
 {
 	switch (nSortOrder) {
 		case ESO_WSR:
-			return "Word, Skip, Ref";
+			return QObject::tr("Word, Skip, Ref", "CELSResult");
 		case ESO_WRS:
-			return "Word, Ref, Skip";
+			return QObject::tr("Word, Ref, Skip", "CELSResult");
 		case ESO_RWS:
-			return "Ref, Word, Skip";
+			return QObject::tr("Ref, Word, Skip", "CELSResult");
 		case ESO_RSW:
-			return "Ref, Skip, Word";
+			return QObject::tr("Ref, Skip, Word", "CELSResult");
 		case ESO_SRW:
-			return "Skip, Ref, Word";
+			return QObject::tr("Skip, Ref, Word", "CELSResult");
 		case ESO_SWR:
-			return "Skip, Word, Ref";
+			return QObject::tr("Skip, Word, Ref", "CELSResult");
 		default:
 			break;
 	}
 	return QString();
 }
+
+// ----------------------------------------------------------------------------
+
+QString elsSearchTypeDescription(ELS_SEARCH_TYPE_ENUM nSearchType)
+{
+	switch (nSearchType) {
+		case ESTE_ELS:
+			return QObject::tr("Equidistant Letter Sequence (ELS)", "CELSResult");
+		case ESTE_FLS:
+			return QObject::tr("Fibonacci Letter Sequence (FLS)", "CELSResult");
+		case ESTE_FLS_C9_ALL:
+			return QObject::tr("FLS Vortex-Based ALL", "CELSResult");
+		case ESTE_FLS_C9_124875:
+			return QObject::tr("FLS Vortex-Based 1-2-4-8-7-5", "CELSResult");
+		case ESTE_FLS_C9_147:
+			return QObject::tr("FLS Vortex-Based 1-4-7", "CELSResult");
+		case ESTE_FLS_C9_852:
+			return QObject::tr("FLS Vortex-Based 8-5-2", "CELSResult");
+		case ESTE_FLS_C9_18:
+			return QObject::tr("FLS Vortex-Based 1-8", "CELSResult");
+		case ESTE_FLS_C9_45:
+			return QObject::tr("FLS Vortex-Based 4-5", "CELSResult");
+		case ESTE_FLS_C9_72:
+			return QObject::tr("FLS Vortex-Based 7-2", "CELSResult");
+		case ESTE_FLS_C9_36:
+			return QObject::tr("FLS Vortex-Based 3-6", "CELSResult");
+		case ESTE_FLS_C9_1:
+			return QObject::tr("FLS Vortex-Based 1 Only", "CELSResult");
+		case ESTE_FLS_C9_2:
+			return QObject::tr("FLS Vortex-Based 2 Only", "CELSResult");
+		case ESTE_FLS_C9_3:
+			return QObject::tr("FLS Vortex-Based 3 Only", "CELSResult");
+		case ESTE_FLS_C9_4:
+			return QObject::tr("FLS Vortex-Based 4 Only", "CELSResult");
+		case ESTE_FLS_C9_5:
+			return QObject::tr("FLS Vortex-Based 5 Only", "CELSResult");
+		case ESTE_FLS_C9_6:
+			return QObject::tr("FLS Vortex-Based 6 Only", "CELSResult");
+		case ESTE_FLS_C9_7:
+			return QObject::tr("FLS Vortex-Based 7 Only", "CELSResult");
+		case ESTE_FLS_C9_8:
+			return QObject::tr("FLS Vortex-Based 8 Only", "CELSResult");
+		default:
+			break;
+	}
+	return QString();
+}
+
+// ----------------------------------------------------------------------------
 
 void CELSResultListModel::setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
 {

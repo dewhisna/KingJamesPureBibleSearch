@@ -25,6 +25,7 @@
 
 #include "LetterMatrix.h"
 #include "ELSResult.h"
+#include "FindELS.h"
 
 #ifndef IS_CONSOLE_APP
 #include "../KJVCanOpener/MimeHelper.h"
@@ -266,14 +267,13 @@ void CLetterMatrixTableModel::setSearchResults(const CELSResultList &results)
 		CRelIndexEx ndxResult = result.m_ndxStart;
 		uint32_t matrixIndexResult = m_letterMatrix.matrixIndexFromRelIndex(ndxResult);
 		if (matrixIndexResult == 0) continue;
-		for (auto const & c : result.m_strWord) {
-			Q_UNUSED(c);
+		for (int i = 0; i < result.m_strWord.size(); ++i) {
 			if (matrixIndexResult >= static_cast<uint32_t>(m_lstCharacterFound.size())) {
 				Q_ASSERT(false);
 				break;
 			}
 			m_lstCharacterFound[matrixIndexResult]++;
-			matrixIndexResult += result.m_nSkip+1;				// TODO : Figure out how to do non-uniform skips for Fibonacci, etc
+			matrixIndexResult += CFindELS::nextOffset(result.m_nSkip, i, result.m_nSearchType);
 		}
 	}
 

@@ -128,6 +128,14 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
+	// Set searchType descriptions:
+	for (int i = ESTE_FIRST; i < ESTE_COUNT; ++i) {
+		ui->cmbSearchType->addItem(elsSearchTypeDescription(static_cast<ELS_SEARCH_TYPE_ENUM>(i)), i);
+	}
+	ui->cmbSearchType->setCurrentIndex(ESTE_ELS);
+
+	// --------------------------------
+
 	m_pQuitAction = ui->toolBar->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
 	m_pQuitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 	m_pQuitAction->setStatusTip(tr("Exit the KJPBS ELS Search Application", "MainMenu"));
@@ -147,12 +155,18 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->tvELSResults, &QTableView::activated, this, &CELSSearchMainWindow::en_searchResultClicked);
 	connect(ui->cmbSortOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSortOrder(int)));
 
+	connect(ui->cmbSearchType, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchType(int)));
+
 	// --------------------------------
 
 	QShortcut *pShortcut = new QShortcut(QKeySequence::ZoomIn, ui->tvLetterMatrix);
 	connect(pShortcut, &QShortcut::activated, ui->spinWidth, &QSpinBox::stepUp);
 	pShortcut = new QShortcut(QKeySequence::ZoomOut, ui->tvLetterMatrix);
 	connect(pShortcut, &QShortcut::activated, ui->spinWidth, &QSpinBox::stepDown);
+
+	// --------------------------------
+
+	ui->editWords->setFocus();
 
 	// --------------------------------
 
@@ -181,6 +195,35 @@ void CELSSearchMainWindow::en_changedSortOrder(int nIndex)
 
 // ----------------------------------------------------------------------------
 
+void CELSSearchMainWindow::en_changedSearchType(int nIndex)
+{
+	if ((ui->cmbSearchType->itemData(nIndex).toInt() == ESTE_ELS) ||
+		(ui->cmbSearchType->itemData(nIndex).toInt() == ESTE_FLS)) {
+		ui->spinMinSkip->setEnabled(true);
+		ui->spinMaxSkip->setEnabled(true);
+		ui->lblMinSkip->setVisible(true);
+		ui->spinMinSkip->setVisible(true);
+		ui->lblMaxSkip->setVisible(true);
+		ui->spinMaxSkip->setVisible(true);
+		if (ui->cmbSearchType->itemData(nIndex).toInt() == ESTE_ELS) {
+			ui->lblMinSkip->setText(tr("Mi&nSkip:", "CELSSearchMainWindow"));
+			ui->lblMaxSkip->setText(tr("Ma&xSkip:", "CELSSearchMainWindow"));
+		} else {
+			ui->lblMinSkip->setText(tr("Mi&nMult:", "CELSSearchMainWindow"));
+			ui->lblMaxSkip->setText(tr("Ma&xMult:", "CELSSearchMainWindow"));
+		}
+	} else {
+		ui->spinMinSkip->setEnabled(false);
+		ui->spinMaxSkip->setEnabled(false);
+		ui->lblMinSkip->setVisible(false);
+		ui->spinMinSkip->setVisible(false);
+		ui->lblMaxSkip->setVisible(false);
+		ui->spinMaxSkip->setVisible(false);
+	}
+}
+
+// ----------------------------------------------------------------------------
+
 void CELSSearchMainWindow::insertSearchLogText(const QString &strText)
 {
 	ui->editSearchLog->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
@@ -198,7 +241,8 @@ void CELSSearchMainWindow::search()
 {
 	QStringList lstSearchWords = ui->editWords->text().split(QRegularExpression("[\\s,]+"), Qt::SkipEmptyParts);
 
-	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords);
+	ELS_SEARCH_TYPE_ENUM nSearchType = ui->cmbSearchType->currentData().value<ELS_SEARCH_TYPE_ENUM>();
+	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords, nSearchType);
 	if (!elsFinder.setBookEnds(ui->cmbBookStart->currentData().toUInt(), ui->cmbBookEnd->currentData().toUInt())) {
 		Q_ASSERT(false);
 		QMessageBox::critical(this, QApplication::applicationName(), tr("Failed to set Book Range!"));
@@ -208,9 +252,10 @@ void CELSSearchMainWindow::search()
 	unsigned int nBookEnd = elsFinder.bookEnd();
 
 	QProgressDialog dlgProgress;
-	dlgProgress.setLabelText(tr("Searching for: ") + lstSearchWords.join(','));
+	dlgProgress.setLabelText(tr("Searching for") + ": " + lstSearchWords.join(','));
 
-	insertSearchLogText(tr("Searching for: ") + lstSearchWords.join(','));
+	insertSearchLogText(tr("Searching for") + ": " + lstSearchWords.join(','));
+	insertSearchLogText(tr("Search Type") + ": " + elsSearchTypeDescription(nSearchType));
 
 	QElapsedTimer elapsedTime;
 	elapsedTime.start();
@@ -259,10 +304,19 @@ void CELSSearchMainWindow::search()
 			}
 		}
 
-		insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")
-										.arg(ui->spinMinSkip->value())
-										.arg(ui->spinMaxSkip->value())
-										.arg(strBookRange));
+		if (nSearchType == ESTE_ELS) {
+			insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")
+											.arg(ui->spinMinSkip->value())
+											.arg(ui->spinMaxSkip->value())
+											.arg(strBookRange));
+		} else if (nSearchType == ESTE_FLS) {
+			insertSearchLogText(tr("Searching with FLS multipliers of %1 to %2 in %3")
+									.arg(ui->spinMinSkip->value())
+									.arg(ui->spinMaxSkip->value())
+									.arg(strBookRange));
+		} else {
+			insertSearchLogText(tr("Searching in %3").arg(strBookRange));
+		}
 
 		insertSearchLogText(tr("Found %1 Results\n").arg(lstResults.size()));
 

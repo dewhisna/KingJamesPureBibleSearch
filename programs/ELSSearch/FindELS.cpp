@@ -29,10 +29,90 @@
 
 // ============================================================================
 
+int CFindELS::g_conFibonacciCast9[8][24] = { };
+
+static int castOut9(int nVal)
+{
+	while (nVal >= 10) {
+		nVal = (nVal / 10) + (nVal % 10);
+	}
+	return nVal;
+}
+
+void CFindELS::initFibonacciCast9Table()
+{
+	if (g_conFibonacciCast9[0][0]) return;		// Non-zero values means it's already initialized
+
+	// Compute base fibonacci values:
+	int n[3] = { 1, 1, 2 };
+	for (int j = 0; j < 24; ++j) {
+		g_conFibonacciCast9[0][j] = castOut9(n[0]);
+		n[0] = n[1];
+		n[1] = n[2];
+		n[2] = n[0] + n[1];
+	}
+
+	// Compute C9 multipliers:
+	for (int i = 1; i < 8; ++i) {
+		for (int j = 0; j < 24; ++j) {
+			g_conFibonacciCast9[i][j] = castOut9(g_conFibonacciCast9[0][j] * (i+1));
+		}
+	}
+}
+
+// Compute max distance for a given word length for a given search type:
+int CFindELS::maxDistance(int nSkip, int nLen, ELS_SEARCH_TYPE_ENUM nSearchType)
+{
+	Q_ASSERT(nLen > 1);
+	int nDist = 0;
+
+	if (nSearchType == ESTE_ELS) {
+		nDist = (nSkip*(nLen-1));
+	} else if (nSearchType == ESTE_FLS) {
+		int n[3] = { 1, 1, 2 };
+		for (int ndx = 0; ndx < (nLen-1); ++ndx) {
+			nDist += (n[0] * nSkip);
+			n[0] = n[1];
+			n[1] = n[2];
+			n[2] = n[0] + n[1];
+		}
+	} else {				// FLS Vortex Types:
+		for (int ndx = 0; ndx < (nLen-1); ++ndx) {
+			nDist += g_conFibonacciCast9[(nSkip-1) % 8][ndx % 24];
+		}
+	}
+
+	nDist += nLen;			// Source letters themselves
+
+	return nDist;
+}
+
+// Compute next skip for a given word letter index for a given search type:
+int CFindELS::nextOffset(int nSkip, int nLetterPos, ELS_SEARCH_TYPE_ENUM nSearchType)
+{
+	int nOffset = 1;		// 1 since offset is at least to next letter in word
+
+	if (nSearchType == ESTE_ELS) {
+		nOffset += nSkip;
+	} else if (nSearchType == ESTE_FLS) {
+		int n[3] = { 1, 1, 2 };
+		for (int ndx = 0; ndx < nLetterPos; ++ndx) {
+			n[0] = n[1];
+			n[1] = n[2];
+			n[2] = n[0] + n[1];
+		}
+		nOffset += n[0] * nSkip;
+	} else {				// FLS Vortex Types:
+		nOffset += g_conFibonacciCast9[(nSkip-1) % 8][nLetterPos % 24];
+	}
+
+	return nOffset;
+}
+
 // Concurrent Threading function to locate the ELS entries for a single skip distance:
-static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
+CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 				  const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
-				  unsigned int nBookStart, unsigned int nBookEnd)
+				  unsigned int nBookStart, unsigned int nBookEnd, ELS_SEARCH_TYPE_ENUM nSearchType)
 {
 	// Results storage (for this skip):
 	CELSResultList lstResults;
@@ -72,14 +152,14 @@ static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 				++ndxSearchWord;
 			}
 			if (lstSearchWords.at(ndxSearchWord).size() > nLen) continue;		// Find length of next longest word in the list
-			uint32_t matrixIndexNext = matrixIndexCurrent + (nSkip*(nLen-1)) + nLen - 1;
+			uint32_t matrixIndexNext = matrixIndexCurrent + maxDistance(nSkip, nLen, nSearchType) - 1;
 			if (matrixIndexNext > matrixIndexLast) continue;		// Stop if the search would run off the end of the text
 
 			QString strWord;
 			uint32_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
 			for (int i = 0; i < nLen; ++i) {
 				strWord += letterMatrix.at(matrixIndexLetter);
-				matrixIndexLetter += nSkip + 1;
+				matrixIndexLetter += nextOffset(nSkip, i, nSearchType);
 			}
 
 			for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
@@ -88,6 +168,7 @@ static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 					CELSResult result;
 					result.m_strWord = strWord;
 					result.m_nSkip = nSkip;
+					result.m_nSearchType = nSearchType;
 					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
 					result.m_nDirection = Qt::LeftToRight;
 					lstResults.append(result);
@@ -95,6 +176,7 @@ static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 					CELSResult result;
 					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
 					result.m_nSkip = nSkip;
+					result.m_nSearchType = nSearchType;
 					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
 					result.m_nDirection = Qt::RightToLeft;
 					lstResults.append(result);
@@ -110,11 +192,14 @@ static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 // ============================================================================
 
-CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords)
+CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords, ELS_SEARCH_TYPE_ENUM nSearchType)
 	:	m_letterMatrix(letterMatrix),
 		m_lstSearchWords(lstSearchWords),
-		m_lstSearchWordsRev(lstSearchWords)
+		m_lstSearchWordsRev(lstSearchWords),
+		m_nSearchType(nSearchType)
 {
+	initFibonacciCast9Table();
+
 	// Make all search words lower case and sort by ascending word length:
 	for (auto &strSearchWord : m_lstSearchWords) strSearchWord = strSearchWord.toLower();
 	std::sort(m_lstSearchWords.begin(), m_lstSearchWords.end(), [](const QString &s1, const QString &s2)->bool {
@@ -153,7 +238,7 @@ bool CFindELS::setBookEnds(unsigned int nBookStart, unsigned int nBookEnd)
 
 CELSResultList CFindELS::run(int nSkip) const
 {
-	return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd);
+	return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd, m_nSearchType);
 }
 
 // ============================================================================
