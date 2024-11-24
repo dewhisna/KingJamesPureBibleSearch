@@ -84,7 +84,9 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 	int nMaxDistance = CFindELS::maxDistance(result.m_nSkip, result.m_strWord.size(), result.m_nSearchType);
 	int nAvgDistance = (result.m_strWord.size() >= 2) ? nMaxDistance/(result.m_strWord.size() - 1) : nMaxDistance;
 	uint32_t martixIndexEnd = matrixIndexResult + nMaxDistance - 1;
+	bool bNeedExtraLine = ((martixIndexEnd - matrixIndexStart + 1) % nAvgDistance) != 0;
 	martixIndexEnd += nAvgDistance - ((martixIndexEnd - matrixIndexStart + 1) % nAvgDistance);		// Make a whole number of row data
+	if (bNeedExtraLine) martixIndexEnd += nAvgDistance;		// Add extra line for consistency, as above always will for the zero case
 	int nChar = 0;
 	for (uint32_t matrixIndex = matrixIndexStart; matrixIndex <= martixIndexEnd; ++matrixIndex) {
 		if (matrixIndex == matrixIndexStart) {
@@ -233,11 +235,11 @@ int main(int argc, char *argv[])
 			if (nArgsFound == 1) {
 				nDescriptor = strArg.toInt();
 			} else if (nArgsFound == 2) {
-				nMinSkip = strArg.toInt();
-			} else if (nArgsFound == 3) {
-				nMaxSkip = strArg.toInt();
-			} else if (nArgsFound == 4) {
 				lstSearchWords = strArg.split(',', Qt::SkipEmptyParts);
+			} else if (nArgsFound == 3) {
+				nMinSkip = strArg.toInt();
+			} else if (nArgsFound == 4) {
+				nMaxSkip = strArg.toInt();
 			} else {
 				bShowUsageHelp = true;
 			}
@@ -317,12 +319,16 @@ int main(int argc, char *argv[])
 	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bShowUsageHelp = true;	// Each word must have at least two characters
 	if (lstSearchWords.isEmpty()) bShowUsageHelp = true;		// Must have at least one search word
 
-	if ((nArgsFound != 4) || (bShowUsageHelp)) {
+	if (((nArgsFound != 4) && ((nSearchType == ESTE_ELS) || (nSearchType == ESTE_FLS))) ||
+		((nArgsFound != 2) && ((nSearchType != ESTE_ELS) && (nSearchType != ESTE_FLS))) ||
+		(bShowUsageHelp)) {
 		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
-		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Min-Letter-Skip> <Max-Letter-Skip> <Words>\n\n").arg(argv[0]).toUtf8().data();
-		std::cerr << QString("Reads the specified database and apophenia searches for the specified <Words> at\n").toUtf8().data();
-		std::cerr << QString("    ELS/FLS skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>\n\n").toUtf8().data();
-		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n").toUtf8().data();
+		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Words> [<Min-Letter-Skip> <Max-Letter-Skip>]\n\n").arg(argv[0]).toUtf8().data();
+		std::cerr << QString("Reads the specified database and apophenic searches for the specified <Words> at\n").toUtf8().data();
+		std::cerr << QString("    ELS/FLS skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>.\n").toUtf8().data();
+		std::cerr << QString("    Letter skips are required for ELS and FLS searches, but are optional and\n").toUtf8().data();
+		std::cerr << QString("    aren't used for Vortex-Based FLS searches.\n\n").toUtf8().data();
+		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -h, --help =  Show this usage information\n\n").toUtf8().data();
 		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
