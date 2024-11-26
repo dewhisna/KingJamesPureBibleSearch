@@ -24,6 +24,10 @@
 #include "ELSSearchMainWindow.h"
 #include "ui_ELSSearchMainWindow.h"
 
+#ifdef USING_ELSSEARCH			// if using ELSSearch as KJPBS subcomponent:
+#include "myApplication.h"
+#endif
+
 #include "../KJVCanOpener/BusyCursor.h"
 
 #include "LetterMatrixTableModel.h"
@@ -139,8 +143,13 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	m_pQuitAction = ui->toolBar->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
 	m_pQuitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
-	m_pQuitAction->setStatusTip(tr("Exit the KJPBS ELS Search Application", "MainMenu"));
+	m_pQuitAction->setStatusTip(tr("Exit Application", "MainMenu"));
 	m_pQuitAction->setToolTip(tr("Exit Application", "MainMenu"));
+	m_pQuitAction->setMenuRole(QAction::QuitRole);
+#ifdef USING_ELSSEARCH						// Here if "using" ELSSearch as a subcomponent of KJPBS:
+	m_pQuitAction->setEnabled(g_pMyApplication->canQuit());
+	connect(g_pMyApplication.data(), SIGNAL(canQuitChanged(bool)), m_pQuitAction, SLOT(setEnabled(bool)));
+#endif
 
 	// --------------------------------
 
@@ -175,6 +184,10 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvELSResults->installEventFilter(this);
 	ui->tvLetterMatrix->installEventFilter(this);
+
+	// ---------------------------------
+
+	setWindowTitle(windowTitle() + " - " + pBibleDatabase->description());
 }
 
 CELSSearchMainWindow::~CELSSearchMainWindow()

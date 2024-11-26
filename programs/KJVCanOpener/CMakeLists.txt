@@ -65,6 +65,7 @@ cmake_dependent_option(EMSCRIPTEN "Emscripen Build" OFF "NOT CONSOLE;NOT WASM" O
 cmake_dependent_option(VNC "VNC Build" OFF "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN" OFF)
 cmake_dependent_option(WEBCHANNEL "Enable WebChannel Support" ON "UNIX;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT APPLE;NOT WIN32" OFF)
 cmake_dependent_option(LITEHTML "Use litehtml Renderer" ON "NOT CONSOLE" OFF)
+cmake_dependent_option(ELSSEARCH "Use ELSSearch" ON "NOT CONSOLE" OFF)
 # -------------------------------------
 option(OPTION_EXCEPTIONS_OFF "Disable Exception Processing" OFF)
 cmake_dependent_option(OPTION_BUILD_BIBLE_DATABASE "Enable Bible Database Building" ON "NOT CONSOLE;NOT WASM;NOT EMSCRIPTEN;NOT VNC;NOT ANDRIOD;NOT IOS" OFF)
@@ -120,6 +121,13 @@ endif()
 
 if(WEBCHANNEL OR VNC OR (NOT CONSOLE AND NOT WASM AND NOT EMSCRIPTEN AND NOT VNC AND NOT ANDRIOD AND NOT IOS))	# If using OPTION_SINGLE_APPLICATION_TYPE, we need Network
 	list(APPEND QT_COMPONENTS Network)
+endif()
+
+
+if(ELSSEARCH)
+	include(../ELSSearch/ELSSearch.cmake)
+
+	list(APPEND QT_COMPONENTS ${elssearch_QT_COMPONENTS})
 endif()
 
 
@@ -517,6 +525,15 @@ endif()
 
 # =============================================================================
 
+if(ELSSEARCH)
+	list(APPEND KJVCanOpener_SOURCES ${elssearch_SOURCES})
+	list(APPEND KJVCanOpener_HEADERS ${elssearch_SHARED_HEADERS} ${elssearch_PRIVATE_HEADERS})
+	list(APPEND KJVCanOpener_FORMS ${elssearch_FORMS})
+	list(APPEND KJVCanOpener_RESOURCES ${elssearch_RESOURCES})
+endif()
+
+# =============================================================================
+
 if(WIN32)
 	set(MY_COMPILE_OPTIONS "/W3")
 else()
@@ -642,6 +659,10 @@ if(WEBCHANNEL)
 	setup_qwebchannel_subtargets(${KJVCanOpener_TARGET})
 endif()
 
+
+if(ELSSEARCH)
+	setup_elssearch_subtargets(${KJVCanOpener_TARGET})
+endif()
 
 if(USING_wwWidgets)
 	if(NOT TARGET wwWidgets)

@@ -45,6 +45,12 @@
 #include "TextRenderer.h"
 #include "PhraseListModel.h"
 
+#ifdef USING_ELSSEARCH
+#include "../ELSSearch/ELSSearchMainWindow.h"
+#include "../ELSSearch/ELSBibleDatabaseSelectDlg.h"
+#include "BusyCursor.h"
+#endif
+
 #ifdef USE_GEOMAP
 #include "GeoMap.h"
 #endif
@@ -961,6 +967,15 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	//	Do this via a QueuedConnection so that KJVCanOpeners coming/going during opening other search windows
 	//	won't crash if the menu that was triggering it gets yanked out from under it:
 	connect(g_pMyApplication.data(), SIGNAL(updateSearchWindowList()), this, SLOT(en_updateSearchWindowList()), Qt::QueuedConnection);
+
+#ifdef USING_ELSSEARCH
+	pWindowMenu->addSeparator();
+
+	// TODO : Add icon for ELSSearch:
+	pAction = pWindowMenu->addAction(tr("&ELSSearch..."), this, SLOT(en_LaunchELSSearch()));
+	pAction->setStatusTip(tr("Open ELS/FLS Search Tool Window", "MainMenu"));
+	pAction->setToolTip(tr("Open ELS/FLS Search Tool Window", "MainMenu"));
+#endif
 
 	// --- Help Menu
 	ui.mainToolBar->addSeparator();
@@ -3250,6 +3265,41 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 	}
 #endif
 }
+
+#ifdef USING_ELSSEARCH
+void CKJVCanOpener::en_LaunchELSSearch()
+{
+	// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
+	CELSBibleDatabaseSelectDlg dlgBibleSelect{m_pBibleDatabase->compatibilityUUID(), false, false, false, false, this};
+	if (dlgBibleSelect.exec() == QDialog::Rejected) return;
+
+	CBusyCursor iAmBusy(nullptr);
+
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dlgBibleSelect.bibleUUID());
+#ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
+	if (pBibleDatabase.isNull()) {
+		if (TBibleDatabaseList::instance()->loadBibleDatabase(dlgBibleSelect.bibleUUID(), false, this)) {
+			pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dlgBibleSelect.bibleUUID());
+			Q_ASSERT(!pBibleDatabase.isNull());
+		} else {
+			return;
+		}
+	}
+#else
+	Q_ASSERT(!pBibleDatabase.isNull());
+#endif
+
+	CELSSearchMainWindow *pELSSearchWindow = new CELSSearchMainWindow(pBibleDatabase,
+																	  dlgBibleSelect.removeColophons(),
+																	  dlgBibleSelect.removeSuperscriptions(),
+																	  dlgBibleSelect.wordsOfJesusOnly(),
+																	  dlgBibleSelect.includePrologues());
+	pELSSearchWindow->show();
+
+	// TODO : Do we need to hook the ELSSearch window into the CMyApplication KJVCanOpener
+	//	logic for app close/restart??
+}
+#endif
 
 #ifdef USING_QT_SPEECH
 

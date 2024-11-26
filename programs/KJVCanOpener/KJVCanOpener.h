@@ -232,6 +232,10 @@ protected slots:
 
 	void en_changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener, CKJVCanOpener *pOldActiveCanOpener);
 
+#ifdef USING_ELSSEARCH
+	void en_LaunchELSSearch();
+#endif
+
 #ifdef USING_QT_SPEECH
 	void en_speechPause();
 	void en_speechStop();
