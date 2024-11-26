@@ -80,28 +80,226 @@ namespace {
 	const QString g_constrUserReadConnection = "UserReadConnection";
 #endif
 
+
+#ifdef USE_EXTENDED_INDEXES
+	const QList<QString> g_conlstBookProloguesKJV =
+	{
+		"THE FIRST BOOK OF MOSES, CALLED GENESIS.",
+		"THE SECOND BOOK OF MOSES, CALLED EXODUS.",
+		"THE THIRD BOOK OF MOSES, CALLED LEVITICUS.",
+		"THE FOURTH BOOK OF MOSES, CALLED NUMBERS.",
+		"THE FIFTH BOOK OF MOSES, CALLED DEUTERONOMY.",
+		"THE BOOK OF JOSHUA",
+		"THE BOOK OF JUDGES",
+		"THE BOOK OF RUTH",
+		"THE FIRST BOOK OF SAMUEL, OTHERWISE CALLED, THE FIRST BOOK OF THE KINGS.",
+		"THE SECOND BOOK OF SAMUEL, OTHERWISE CALLED, THE SECOND BOOK OF THE KINGS.",
+		"THE FIRST BOOK OF THE KINGS, COMMONLY CALLED, THE THIRD BOOK OF THE KINGS.",
+		"THE SECOND BOOK OF THE KINGS, COMMONLY CALLED, THE FOURTH BOOK OF THE KINGS.",
+		"THE FIRST BOOK OF THE CHRONICLES",
+		"THE SECOND BOOK OF THE CHRONICLES",
+		"EZRA",
+		"THE BOOK OF NEHEMIAH",
+		"THE BOOK OF ESTHER",
+		"THE BOOK OF JOB",
+		"THE BOOK OF PSALMS",
+		"THE PROVERBS",
+		"ECCLESIASTES OR, THE PREACHER",
+		"THE SONG OF SOLOMON",
+		"THE BOOK OF THE PROPHET ISAIAH",
+		"THE BOOK OF THE PROPHET JEREMIAH",
+		"THE LAMENTATIONS OF JEREMIAH",
+		"THE BOOK OF THE PROPHET EZEKIEL",
+		"THE BOOK OF DANIEL",
+		"HOSEA",
+		"JOEL",
+		"AMOS",
+		"OBADIAH",
+		"JONAH",
+		"MICAH",
+		"NAHUM",
+		"HABAKKUK",
+		"ZEPHANIAH",
+		"HAGGAI",
+		"ZECHARIAH",
+		"MALACHI",
+		// ----
+		"THE GOSPEL ACCORDING TO ST MATTHEW",
+		"THE GOSPEL ACCORDING TO ST MARK",
+		"THE GOSPEL ACCORDING TO ST LUKE",
+		"THE GOSPEL ACCORDING TO ST JOHN",
+		"THE ACTS OF THE APOSTLES",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE ROMANS",
+		"THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS",
+		"THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE GALATIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE EPHESIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE PHILIPPIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE COLOSSIANS",
+		"THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS",
+		"THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS",
+		"THE FIRST EPISTLE OF PAUL THE APOSTLE TO TIMOTHY",
+		"THE SECOND EPISTLE OF PAUL THE APOSTLE TO TIMOTHY",
+		"THE EPISTLE OF PAUL TO TITUS",
+		"THE EPISTLE OF PAUL TO PHILEMON",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE HEBREWS",
+		"THE GENERAL EPISTLE OF JAMES",
+		"THE FIRST EPISTLE GENERAL OF PETER",
+		"THE SECOND EPISTLE GENERAL OF PETER",
+		"THE FIRST EPISTLE GENERAL OF JOHN",
+		"THE SECOND EPISTLE OF JOHN",
+		"THE THIRD EPISTLE OF JOHN",
+		"THE GENERAL EPISTLE OF JUDE",
+		"THE REVELATION OF ST JOHN THE DIVINE",
+		// ----
+		"THE FIRST BOOK OF ESDRAS",
+		"THE SECOND BOOK OF ESDRAS",
+		"TOBIT",
+		"JUDITH",
+		"THE REST OF THE CHAPTERS OF THE BOOK OF ESTHER, WHICH ARE FOUND NEITHER IN THE HEBREW, NOR IN THE CHALDEE",
+		"THE WISDOM OF SOLOMON",
+		"THE WISDOM OF JESUS THE SON OF SIRACH, OR, ECCLESIASTICUS",
+		"BARUCH",
+		"THE SONG OF THE THREE HOLY CHILDREN",
+		"THE HISTORY OF SUSANNA",
+		"THE HISTORY OF THE DESTRUCTION OF BEL AND THE DRAGON",
+		"THE PRAYER OF MANASSES KING OF JUDA WHEN HE WAS HOLDEN CAPTIVE IN BABYLON",
+		"THE FIRST BOOK OF THE MACCABEES",
+		"THE SECOND BOOK OF THE MACCABEES",
+	};
+
+	const QList<QString> g_conlstBookPrologues1611 =
+	{
+		"THE FIRST BOOKE OF MOSES, called GENESIS.",
+		"THE SECOND BOOKE OF Moses, called Exodus.",
+		"THE THIRD BOOKE of Moses, called Leviticus.",
+		"THE FOVRTH BOOKE of Moses, called Numbers.",
+		"THE FIFTH BOOKE OF Moses, called Deuteronomie.",
+		"THE BOOKE OF Joshua.",
+		"THE BOOKE OF Judges.",
+		"THE BOOKE OF Ruth.",
+		"THE FIRST BOOKE of Samuel, otherwise called, The first Booke of the Kings.",
+		"THE SECOND BOOKE of Samuel, otherwise called, The second Booke of the Kings.",
+		"THE FIRST BOOKE OF the Kings, commonly called The third Booke of the Kings.",
+		"THE SECOND BOOKE of the Kings, commonly called, The fourth Booke of the Kings.",
+		"THE FIRST BOOKE of the Chronicles.",
+		"THE SECOND BOOKE of the Chronicles.",
+		"EZRA.",
+		"THE BOOKE OF Nehemiah.",
+		"THE BOOKE OF Esther.",
+		"THE BOOKE OF Job.",
+		"THE BOOKE OF Psalmes.",
+		"THE PROVERBES.",
+		"ECCLESIASTES, or the Preacher.",
+		"The Song of Solomon.",
+		"THE BOOKE OF THE Prophet Isaiah.",
+		"THE BOOKE OF THE Prophet Jeremiah.",
+		"The Lamentations of Jeremiah.",
+		"THE BOOKE OF THE Prophet Ezekiel.",
+		"THE BOOKE OF Daniel.",
+		"HOSEA.",
+		"IOEL.",
+		"AMOS.",
+		"OBADIAH.",
+		"IONAH.",
+		"MICAH.",
+		"NAHVM.",
+		"HABAKKVK.",
+		"ZEPHANIAH.",
+		"HAGGAI.",
+		"ZECHARIAH.",
+		"MALACHI.",
+		// ----
+		"THE GOSPEL ACCORDING to S.Matthew.",
+		"The Gospel according to S.Marke.",
+		"The Gospel according to S.Luke.",
+		"The Gospel according to S. John.",
+		"THE ACTES OF the Apostles.",
+		"THE EPISTLE OF PAUL THE Apostle to the Romanes.",
+		"THE FIRST EPISTLE of Paul the Apostle to the Corinthians.",
+		"THE SECOND EPISTLE of Paul the Apostle to the Corinthians.",
+		"THE EPISTLE OF Paul to the Galatians.",
+		"THE EPISTLE OF PAUL the Apostle to the Ephesians.",
+		"THE EPISTLE OF PAUL the Apostle to the Philippians.",
+		"THE EPISTLE OF PAUL the Apostle to the Colossians.",
+		"THE FIRST EPISTLE OF Paul the Apostle to the Thessalonians.",
+		"THE SECOND EPISTLE of Paul the Apostle to the Thessalonians.",
+		"THE FIRST EPISTLE of Paul the Apostle to Timothie.",
+		"THE SECOND EPISTLE of Paul the Apostle to Timothie.",
+		"THE EPISTLE OF Paul to Titus.",
+		"THE EPISTLE OF Paul to Philemon.",
+		"THE EPISTLE OF PAUL the Apostle to the Hebrewes.",
+		"THE GENERALL Epistle of James.",
+		"THE FIRST EPISTLE generall of Peter.",
+		"THE SECOND EPISTLE generall of Peter.",
+		"THE FIRST EPISTLE generall of John.",
+		"The second Epistle of John.",
+		"The third Epistle of John.",
+		"THE GENERALL Epistle of Jude.",
+		"THE REVELATION of S.John the Divine.",
+		// ----
+		"I. ESDRAS.",
+		"II. ESDRAS.",
+		"TOBIT.",
+		"IVDETH.",
+		"The rest of the Chapters of the Booke of Esther, which are found neither in the Hebrew, nor in the Calde.",
+		"The Wisedome of Solomon.",
+		"THE WISDOME OF Jefus the sonne of Sirach, Or Ecclesiasticus.",
+		"BARVCH.",
+		"The Song of the three holy children",
+		"The historie of Susanna",
+		"The history of the destruction of Bel and the Dragon",
+		"The Prayer of Manasses King of Juda, when he was holden captive in Babylon.",
+		"The first booke of the Maccabees.",
+		"The second booke of the Maccabees.",
+	};
+
+#endif	// USE_EXTENDED_INDEXES
+
 }		// Namespace
 
 // ============================================================================
 
-QString intToRoman(int num)
+#ifdef USE_EXTENDED_INDEXES
+
+// intToRoman:
+//	Convert integer to Roman Numeral.
+//	Note: b1611Style drops the 'IV' for '4'.  For some reason
+//	they wrote the number '4' as 'IIII', like 'XXIIII', etc.
+static QString intToRoman(int num, bool b1611Style)
 {
 	if ((num <= 0) || (num > 3999)) QString();
 
 	QString result;
 
-	const int values[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
-	const QString numerals[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+	if (!b1611Style) {
+		const int values[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+		const QString numerals[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+		Q_ASSERT(_countof(values) == _countof(numerals));
 
-	for (unsigned int i = 0; i < _countof(values); ++i) {
-		while (num >= values[i]) {
-			result += numerals[i];
-			num -= values[i];
+		for (unsigned int i = 0; i < _countof(values); ++i) {
+			while (num >= values[i]) {
+				result += numerals[i];
+				num -= values[i];
+			}
+		}
+	} else {
+		const int values1611[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 1};
+		const QString numerals1611[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "I"};
+		Q_ASSERT(_countof(values1611) == _countof(numerals1611));
+
+		for (unsigned int i = 0; i < _countof(values1611); ++i) {
+			while (num >= values1611[i]) {
+				result += numerals1611[i];
+				num -= values1611[i];
+			}
 		}
 	}
 
 	return result;
 }
+
+#endif	// USE_EXTENDED_INDEXES
 
 // ============================================================================
 
@@ -1785,6 +1983,20 @@ bool CReadDatabase::readBibleStub()
 		(!ReadVersificationTables()) ||
 		(!ValidateData())) return false;
 #ifdef USE_EXTENDED_INDEXES
+	bool bIsKJV = false;			// Used for prologues
+	bool bIs1611 = false;			// Used for weird 1611 prologue variants
+
+	if ((m_pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJV).m_strUUID, Qt::CaseInsensitive) == 0) ||
+		(m_pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJVPCE).m_strUUID, Qt::CaseInsensitive) == 0) ||
+		(m_pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJVA).m_strUUID, Qt::CaseInsensitive) == 0)) {
+		bIsKJV = true;
+		Q_ASSERT(g_conlstBookProloguesKJV.size() == 80);		// 39 + 27 + 14
+	} else if ((m_pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJV1611).m_strUUID, Qt::CaseInsensitive) == 0) ||
+			   (m_pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJV1611A).m_strUUID, Qt::CaseInsensitive) == 0)) {
+		bIs1611 = true;
+		Q_ASSERT(g_conlstBookPrologues1611.size() == 80);		// 39 + 27 + 14
+	}
+
 	// Build Letter counts.  Do this here after reading the
 	//	tables because the Letter Counts aren't stored in
 	//	the other tables and can't be computed until the
@@ -1794,7 +2006,12 @@ bool CReadDatabase::readBibleStub()
 		CBookEntry &theBook = m_pBibleDatabase->m_itrCurrentLayout->m_lstBooks[nBk-1];
 		TVerseEntryMap &mapVerses = m_pBibleDatabase->m_itrCurrentLayout->m_lstBookVerses[nBk-1];
 
-		theBook.m_strPrologue = (!theBook.m_strDesc.isEmpty() ? theBook.m_strDesc : theBook.m_strBkName).toLower();
+		if (bIsKJV && (nBk <= static_cast<unsigned int>(g_conlstBookProloguesKJV.size()))) {
+			theBook.m_strPrologue = g_conlstBookProloguesKJV.at(nBk-1).toLower();
+		} else if (bIs1611 && (nBk <= static_cast<unsigned int>(g_conlstBookPrologues1611.size()))) {
+			theBook.m_strPrologue = g_conlstBookPrologues1611.at(nBk-1).toLower();
+		}
+
 #if QT_VERSION >= 0x050E00
 		theBook.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
 #else
@@ -1825,7 +2042,31 @@ bool CReadDatabase::readBibleStub()
 			if (m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.find(ndxBkChp) == m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters.end()) continue;
 			CChapterEntry &theChapter = m_pBibleDatabase->m_itrCurrentLayout->m_mapChapters[ndxBkChp];
 
-			theChapter.m_strPrologue = intToRoman(nChp).toLower();		// TODO : Change this to regExp logic like above after we determine real prologues
+			if (theBook.m_nNumChp > 1) {
+				if (bIsKJV) {
+					if (nBk == PSALMS_BOOK_NUM) {
+						theChapter.m_strPrologue = QString("psalm %1").arg(intToRoman(nChp, false)).toLower();
+					} else {
+						theChapter.m_strPrologue = QString("chapter %1").arg(intToRoman(nChp, false)).toLower();
+					}
+				} else if (bIs1611) {
+					if (nBk == PSALMS_BOOK_NUM) {
+						if (nChp == 1) {
+							theChapter.m_strPrologue = QString("psalme %1").arg(intToRoman(nChp, true)).toLower();
+						} else {
+							theChapter.m_strPrologue = QString("psal %1").arg(intToRoman(nChp, true)).toLower();
+						}
+					} else {
+						theChapter.m_strPrologue = QString("chap %1").arg(intToRoman(nChp, true)).toLower();
+					}
+				}
+			}
+
+#if QT_VERSION >= 0x050E00
+			theChapter.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+#else
+			theChapter.m_strPrologue.remove(QRegExp("[^a-zA-Z]"));
+#endif
 
 			theChapter.m_nLtrAccum = nLtrCount;
 
