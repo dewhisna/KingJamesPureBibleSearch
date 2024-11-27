@@ -71,6 +71,9 @@ extern const QString g_constrApplicationID;
 class CKJVCanOpener;
 class QSplashScreen;
 class CMyApplication;
+#ifdef USING_ELSSEARCH
+class CELSSearchMainWindow;
+#endif
 
 // ============================================================================
 
@@ -220,6 +223,10 @@ public slots:
 	void closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener = nullptr);
 	void restartApp(CKJVCanOpener *pCallingCanOpener = nullptr);
 
+#ifdef USING_ELSSEARCH
+	void registerELSSearchWindow(CELSSearchMainWindow *pELSSearch);
+#endif
+
 signals:
 	void loadFile(const QString &strFilename);
 	void canQuitChanged(bool bCanQuit);
@@ -263,6 +270,10 @@ protected:
 protected:
 	bool m_bSingleThreadedSearchResults;				// True if we are using single-threaded Search Results processing
 	QString m_strFileToLoad;
+
+#ifdef USING_ELSSEARCH
+	QList< QPointer<CELSSearchMainWindow> > m_lstELSSearchWindows;		// List of ELSSearch Windows to close at shutdown
+#endif
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivatedCanOpener;						// Index of last KJVCanOpener that was activated by the user

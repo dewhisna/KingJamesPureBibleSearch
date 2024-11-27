@@ -147,7 +147,12 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File", "MainMenu"));
 
+#ifndef USING_ELSSEARCH						// Here if "using" ELSSearch standalone:
 	QAction *pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
+#else										// Here if "using" ELSSearch as a subcomponent of KJPBS:
+	QAction *pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication.data(), SLOT(closeAllCanOpeners()));
+#endif
+
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 	pAction->setStatusTip(tr("Exit Application", "MainMenu"));
 	pAction->setToolTip(tr("Exit Application", "MainMenu"));

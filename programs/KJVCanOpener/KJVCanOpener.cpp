@@ -3296,8 +3296,8 @@ void CKJVCanOpener::en_LaunchELSSearch()
 																	  dlgBibleSelect.includePrologues());
 	pELSSearchWindow->show();
 
-	// TODO : Do we need to hook the ELSSearch window into the CMyApplication KJVCanOpener
-	//	logic for app close/restart??
+	// Hook ELSSearch window into quit/restart logic:
+	g_pMyApplication->registerELSSearchWindow(pELSSearchWindow);
 }
 #endif
 

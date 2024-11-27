@@ -95,6 +95,10 @@
 
 #include "PathConsts.h"
 
+#ifdef USING_ELSSEARCH
+#include "../ELSSearch/ELSSearchMainWindow.h"
+#endif
+
 // ============================================================================
 
 QPointer<CMyApplication> g_pMyApplication = nullptr;
@@ -934,6 +938,16 @@ void CMyApplication::removeKJVCanOpener(CKJVCanOpener *pKJVCanOpener)
 			}
 		}
 	}
+
+#ifdef USING_ELSSEARCH
+	// Close ELSSearch windows if this was the last CANOpener:
+	if (m_lstKJVCanOpeners.isEmpty()) {
+		for (int ndx = (m_lstELSSearchWindows.size()-1); ndx >= 0; --ndx) {
+			if (!m_lstELSSearchWindows.at(ndx).isNull()) m_lstELSSearchWindows.at(ndx)->close();
+		}
+	}
+#endif
+
 	emit updateSearchWindowList();
 }
 
@@ -1028,6 +1042,19 @@ void CMyApplication::activateAllCanOpeners() const
 	}
 }
 
+#ifdef USING_ELSSEARCH
+void CMyApplication::registerELSSearchWindow(CELSSearchMainWindow *pELSSearch)
+{
+	// Register new ELSSearch window:
+	m_lstELSSearchWindows.append(QPointer<CELSSearchMainWindow>(pELSSearch));
+
+	// Remove references to any ELSSearch window that has been closed:
+	for (int ndx = (m_lstELSSearchWindows.size()-1); ndx >= 0; --ndx) {
+		if (m_lstELSSearchWindows.at(ndx).isNull()) m_lstELSSearchWindows.removeAt(ndx);
+	}
+}
+#endif
+
 void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 {
 	Q_ASSERT(canQuit());
@@ -1059,6 +1086,13 @@ void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(ndx), SLOT(close()));
 	}
 	// Note: List update will happen automatically as the windows close...
+
+#ifdef USING_ELSSEARCH
+	// Close ELSSearch windows:
+	for (int ndx = (m_lstELSSearchWindows.size()-1); ndx >= 0; --ndx) {
+		if (!m_lstELSSearchWindows.at(ndx).isNull()) m_lstELSSearchWindows.at(ndx)->close();
+	}
+#endif
 
 	if (m_bAreRestarting) {
 		createKJVCanOpener(pBibleDatabase);
