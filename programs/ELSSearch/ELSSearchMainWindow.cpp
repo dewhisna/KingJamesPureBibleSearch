@@ -144,14 +144,17 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
-	m_pQuitAction = ui->toolBar->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
-	m_pQuitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
-	m_pQuitAction->setStatusTip(tr("Exit Application", "MainMenu"));
-	m_pQuitAction->setToolTip(tr("Exit Application", "MainMenu"));
-	m_pQuitAction->setMenuRole(QAction::QuitRole);
+	// --- File Menu
+	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File", "MainMenu"));
+
+	QAction *pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+	pAction->setStatusTip(tr("Exit Application", "MainMenu"));
+	pAction->setToolTip(tr("Exit Application", "MainMenu"));
+	pAction->setMenuRole(QAction::QuitRole);
 #ifdef USING_ELSSEARCH						// Here if "using" ELSSearch as a subcomponent of KJPBS:
-	m_pQuitAction->setEnabled(g_pMyApplication->canQuit());
-	connect(g_pMyApplication.data(), SIGNAL(canQuitChanged(bool)), m_pQuitAction, SLOT(setEnabled(bool)));
+	pAction->setEnabled(g_pMyApplication->canQuit());
+	connect(g_pMyApplication.data(), SIGNAL(canQuitChanged(bool)), pAction, SLOT(setEnabled(bool)));
 #endif
 
 	// --------------------------------
@@ -216,7 +219,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	if (!strStatus.isEmpty()) {
 		strStatus = tr("Matrix") + ":" + strStatus;
 		QLabel *pStatusLabel = new QLabel(strStatus, this);
-		ui->statusbar->addPermanentWidget(pStatusLabel);
+		ui->statusBar->addPermanentWidget(pStatusLabel);
 	}
 }
 

@@ -32,7 +32,6 @@
 // Forward Declarations
 class CLetterMatrixTableModel;
 class CELSResultListModel;
-class QAction;
 class QMenu;
 class QEvent;
 
@@ -85,7 +84,6 @@ private:
 	// ----
 	uint32_t m_nMatrixIndexToCenter = 0;		// Matrix Index to Center during layout change
 	// ----
-	QPointer<QAction> m_pQuitAction;
 	Ui::CELSSearchMainWindow *ui;
 };
 
