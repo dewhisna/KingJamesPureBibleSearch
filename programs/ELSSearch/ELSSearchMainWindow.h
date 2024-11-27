@@ -32,6 +32,7 @@
 // Forward Declarations
 class CLetterMatrixTableModel;
 class CELSResultListModel;
+class QAction;
 class QMenu;
 class QEvent;
 
@@ -67,6 +68,8 @@ protected slots:
 	void en_letterMatrixLayoutAboutToChange();
 	void en_letterMatrixLayoutChanged();
 	// ----
+	void en_letterMatrixCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+	// ----
 	void insertSearchLogText(const QString &strText);
 	void clearSearchLogText();
 	// ----
@@ -83,6 +86,8 @@ private:
 	QPointer<CELSResultListModel> m_pELSResultListModel;
 	// ----
 	uint32_t m_nMatrixIndexToCenter = 0;		// Matrix Index to Center during layout change
+	// ----
+	QPointer<QAction> m_pStatusAction;			// Used to update the status bar without an enter/leave sequence
 	// ----
 	Ui::CELSSearchMainWindow *ui;
 };

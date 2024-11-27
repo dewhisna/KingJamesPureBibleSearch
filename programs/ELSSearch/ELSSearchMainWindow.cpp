@@ -165,6 +165,10 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pLetterMatrixTableModel, SLOT(setUppercase(bool)));
 	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pELSResultListModel, SLOT(setUppercase(bool)));
 
+	connect(ui->tvLetterMatrix->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(en_letterMatrixCurrentChanged(QModelIndex,QModelIndex)));
+	ui->tvLetterMatrix->setMouseTracking(true);		// Enable mouse movement changing the status message
+	m_pStatusAction = new QAction(this);
+
 	connect(ui->btnSearch, &QToolButton::clicked, this, &CELSSearchMainWindow::search);
 	connect(ui->btnClear, &QToolButton::clicked, this, &CELSSearchMainWindow::clear);
 	connect(ui->editWords, &QLineEdit::returnPressed, this, &CELSSearchMainWindow::search);
@@ -242,6 +246,8 @@ void CELSSearchMainWindow::en_changedSortOrder(int nIndex)
 	m_pELSResultListModel->setSortOrder(static_cast<ELSRESULT_SORT_ORDER_ENUM>(ui->cmbSortOrder->itemData(nIndex).toInt()));
 }
 
+// ----------------------------------------------------------------------------
+
 void CELSSearchMainWindow::en_letterMatrixLayoutAboutToChange()
 {
 	QRect rcTableView = ui->tvLetterMatrix->rect();
@@ -253,6 +259,18 @@ void CELSSearchMainWindow::en_letterMatrixLayoutAboutToChange()
 void CELSSearchMainWindow::en_letterMatrixLayoutChanged()
 {
 	if (m_nMatrixIndexToCenter) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(m_nMatrixIndexToCenter), QAbstractItemView::PositionAtCenter);
+}
+
+void CELSSearchMainWindow::en_letterMatrixCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+	Q_UNUSED(previous);
+
+	if (current.isValid()) {
+		QString strStatusTip = current.data(Qt::StatusTipRole).toString();
+		ui->tvLetterMatrix->setStatusTip(strStatusTip);
+		m_pStatusAction->setStatusTip(strStatusTip);
+		m_pStatusAction->showStatusText();
+	}
 }
 
 // ----------------------------------------------------------------------------
