@@ -109,6 +109,9 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	pTVHeader->setDefaultSectionSize(m_pLetterMatrixTableModel->fontMetrics().maxWidth()+2);
 	pTVHeader->setSectionResizeMode(QHeaderView::Fixed);			// This avoids needing to resize columns
 
+	ui->tvLetterMatrix->setLayoutDirection(pBibleDatabase->direction());
+	ui->editWords->setLayoutDirection(pBibleDatabase->direction());
+
 	// --------------------------------
 
 	pOldSelModel = ui->tvELSResults->selectionModel();
