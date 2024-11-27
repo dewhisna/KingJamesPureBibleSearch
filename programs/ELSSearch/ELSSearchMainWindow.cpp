@@ -188,9 +188,36 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	ui->tvELSResults->installEventFilter(this);
 	ui->tvLetterMatrix->installEventFilter(this);
 
-	// ---------------------------------
+	// --------------------------------
 
 	setWindowTitle(windowTitle() + " - " + pBibleDatabase->description());
+
+	// --------------------------------
+
+	QString strStatus;
+	if (m_letterMatrix.wordsOfJesusOnly()) {
+		strStatus += " " + tr("Words of Jesus Only");
+	} else {
+		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
+		if (m_letterMatrix.includePrologues()) strStatus += " " + tr("Including Book/Chapter Prologues");
+
+		if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
+			strStatus += " " + tr("Without") + " ";
+			if (m_letterMatrix.skipColophons()) {
+				strStatus += tr("Colophons");
+				if (m_letterMatrix.skipSuperscriptions()) {
+					strStatus += " " + tr("or Superscriptions");
+				}
+			} else {
+				strStatus += tr("Superscriptions");
+			}
+		}
+	}
+	if (!strStatus.isEmpty()) {
+		strStatus = tr("Matrix") + ":" + strStatus;
+		QLabel *pStatusLabel = new QLabel(strStatus, this);
+		ui->statusbar->addPermanentWidget(pStatusLabel);
+	}
 }
 
 CELSSearchMainWindow::~CELSSearchMainWindow()
@@ -322,7 +349,9 @@ void CELSSearchMainWindow::search()
 		if (m_letterMatrix.wordsOfJesusOnly()) {
 			strBookRange += " (" + tr("Words of Jesus Only") + ")";
 		} else {
-			// There's no Words of Jesus in Colophons or Superscriptions
+			// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
+			if (m_letterMatrix.includePrologues()) strBookRange += " " + tr("Including Book/Chapter Prologues");
+
 			if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
 				strBookRange += " " + tr("Without") + " ";
 				if (m_letterMatrix.skipColophons()) {
