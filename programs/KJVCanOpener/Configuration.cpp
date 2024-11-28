@@ -1153,7 +1153,8 @@ void CConfigTextFormat::setPreview()
 
 void CConfigTextFormat::en_selectionChangedBrowser()
 {
-	m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase(), m_pScriptureBrowser->selection().primarySelection(), false);
+	if (m_pDictionaryWidget != nullptr)
+		m_pDictionaryWidget->setWord(m_pSearchResultsTreeView->vlmodel()->bibleDatabase(), m_pScriptureBrowser->selection().primarySelection(), false);
 }
 
 void CConfigTextFormat::en_userNotesChanged()
