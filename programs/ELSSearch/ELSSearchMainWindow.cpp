@@ -146,11 +146,21 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File", "MainMenu"));
+	QAction *pAction = nullptr;
+
+#ifdef USING_ELSSEARCH						// Add "close" option only for KJPBS embedded ELSSearch, since there are multiple windows
+	pAction = pFileMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this ELS Search Window", "MainMenu"), this, SLOT(close()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
+
+	pFileMenu->addSeparator();
+#endif
+
+	// -------------
 
 #ifndef USING_ELSSEARCH						// Here if "using" ELSSearch standalone:
-	QAction *pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
+	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), QApplication::instance(), &QApplication::exit);
 #else										// Here if "using" ELSSearch as a subcomponent of KJPBS:
-	QAction *pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication.data(), SLOT(closeAllCanOpeners()));
+	pAction = pFileMenu->addAction(QIcon(":/res/exit.png"), tr("E&xit", "MainMenu"), g_pMyApplication.data(), SLOT(closeAllCanOpeners()));
 #endif
 
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
