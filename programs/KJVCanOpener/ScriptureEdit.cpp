@@ -51,8 +51,11 @@
 #include <QHelpEvent>
 #include <QKeyEvent>
 #include <QColor>
+
+#ifndef IS_CONSOLE_APP
 #include <QMessageBox>
 #include <QDesktopServices>
+#endif
 
 #if QT_VERSION >= 0x050E00
 #include <QRegularExpression>
@@ -1526,7 +1529,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 #endif
 		}
 	} else {
-#ifndef VNCSERVER
+#if !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 		if ((strScheme.compare("http", Qt::CaseInsensitive) == 0) ||
 			(strScheme.compare("https", Qt::CaseInsensitive) == 0) ||
 			(strScheme.compare("ftp", Qt::CaseInsensitive) == 0) ||

@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
 	//	it's lost either way.
 	//
 	//	I'm limiting this fix to Qt 6.5.3 on Linux, unless we see it elsewhere:
-#if ((QT_VERSION == 0x060503) && defined(Q_OS_LINUX))
+#if ((QT_VERSION == 0x060503) && defined(Q_OS_LINUX) && !defined(IS_CONSOLE_APP))
 	pApp->clipboard()->clear();
 #endif
 
