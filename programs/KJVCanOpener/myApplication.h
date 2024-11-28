@@ -220,11 +220,21 @@ public slots:
 	void activateCanOpener(CKJVCanOpener *pCanOpener) const;
 	void activateCanOpener(int ndx) const;
 	void activateAllCanOpeners() const;
-	void closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener = nullptr);
-	void restartApp(CKJVCanOpener *pCallingCanOpener = nullptr);
+	void closeAllCanOpeners(QWidget *pCallingMainWindow = nullptr);
+	void restartApp(QWidget *pCallingMainWindow = nullptr);
 
 #ifdef USING_ELSSEARCH
 	void registerELSSearchWindow(CELSSearchMainWindow *pELSSearch);
+#endif
+
+#ifndef IS_CONSOLE_APP
+	void configureSettings(int nInitialPage = -1);
+
+	int confirmFollowLink();					// Returns either QMessageBox::Yes or QMessageBox::No
+
+	void showHelpManual();
+	void showHelpAbout();
+	void gotoPureBibleSearchDotCom();
 #endif
 
 signals:

@@ -45,10 +45,6 @@
 #include <singleapplication.h>
 #endif
 
-#ifdef USING_QT_SPEECH
-#include <QUrl>
-#endif
-
 #ifdef SHOW_SPLASH_SCREEN
 #include <QPixmap>
 #include <QSplashScreen>
@@ -62,12 +58,6 @@
 #include <QProxyStyle>
 #include <QFont>
 #include <QFontDatabase>
-#if QT_VERSION < 0x050000
-#include <QDesktopWidget>
-#include <QDesktopServices>
-#else
-#include <QStandardPaths>
-#endif
 #include <QTextStream>
 #include <QDir>
 #include <QFile>
@@ -99,6 +89,19 @@
 #include "../ELSSearch/ELSSearchMainWindow.h"
 #endif
 
+#ifndef IS_CONSOLE_APP
+#include <QUrl>
+#include <QMessageBox>
+#include "AboutDlg.h"
+#include <QDesktopServices>
+#endif
+
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
+#include "Configuration.h"
+#include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
+#include "HighlighterButtons.h"
+#endif
+
 // ============================================================================
 
 QPointer<CMyApplication> g_pMyApplication = nullptr;
@@ -120,6 +123,29 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
+
+#ifndef IS_CONSOLE_APP
+
+#ifdef Q_OS_ANDROID
+//	const char *g_constrHelpDocFilename = "doc/KingJamesPureBibleSearch.pdf";
+const char *g_constrHelpDocFilename = "http://www.PureBibleSearch.com/manual/";
+#elif defined(Q_OS_IOS)
+const char *g_constrHelpDocFilename = "doc/KingJamesPureBibleSearch.pdf";
+#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
+const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
+#elif defined(EMSCRIPTEN)
+const char *g_constrHelpDocFilename = "http://cloud.dewtronics.com/KingJamesPureBibleSearch/KingJamesPureBibleSearch.pdf";
+#elif defined(VNCSERVER)
+//	const char *g_constrHelpDocFilename = "";
+#else
+const char *g_constrHelpDocFilename = "doc/KingJamesPureBibleSearch.pdf";
+#endif
+
+#ifndef VNCSERVER
+const char *g_constrPureBibleSearchURL = "http://www.PureBibleSearch.com/";
+#endif
+
+#endif
 
 	// Key constants:
 	// --------------
@@ -1074,7 +1100,7 @@ void CMyApplication::registerELSSearchWindow(CELSSearchMainWindow *pELSSearch)
 }
 #endif
 
-void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
+void CMyApplication::closeAllCanOpeners(QWidget *pCallingMainWindow)
 {
 	Q_ASSERT(canQuit());
 	if (!canQuit()) return;
@@ -1082,7 +1108,16 @@ void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 	int nLastCanOpener = 0;
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
-	if (pActiveCanOpener) pBibleDatabase = pActiveCanOpener->bibleDatabase();
+#ifdef USING_ELSSEARCH
+	CELSSearchMainWindow *pELSSearch = qobject_cast<CELSSearchMainWindow *>(pCallingMainWindow);
+	if (pELSSearch != nullptr) {
+		pBibleDatabase = pELSSearch->bibleDatabase();
+	}
+#endif
+	CKJVCanOpener *pCanOpener = qobject_cast<CKJVCanOpener *>(pCallingMainWindow);
+	if (pCanOpener != nullptr) {
+		pBibleDatabase = pCanOpener->bibleDatabase();
+	}
 
 	if (m_bAreRestarting) {
 		// Hold the last instance until we create the new one, because if we delete it, we exit.
@@ -1096,7 +1131,7 @@ void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 		//	the database of the current CanOpener and let the main() just be
 		//	a fallback on desktop/vnc builds.  The fallback is needed for
 		//	older Qt's that don't support functor calls in singleShot
-		//	(see CKJVCanOpener::en_Configure):
+		//	(see configureSettings):
 		nLastCanOpener = 1;
 	}
 
@@ -1117,13 +1152,12 @@ void CMyApplication::closeAllCanOpeners(CKJVCanOpener *pActiveCanOpener)
 		createKJVCanOpener(pBibleDatabase);
 		QTimer::singleShot(0, m_lstKJVCanOpeners.at(0), SLOT(close()));
 	}
-
 }
 
-void CMyApplication::restartApp(CKJVCanOpener *pCallingCanOpener)
+void CMyApplication::restartApp(QWidget *pCallingMainWindow)
 {
 	m_bAreRestarting = true;
-	closeAllCanOpeners(pCallingCanOpener);
+	closeAllCanOpeners(pCallingMainWindow);
 }
 
 void CMyApplication::en_triggeredKJVCanOpener(QAction *pAction)
@@ -1594,6 +1628,7 @@ int CMyApplication::execute(bool bBuildDB, int nVersion)
 			}
 		}
 #else
+		Q_UNUSED(nVersion);
 		if (bBuildDB) {
 			displayWarning(m_pSplash, g_constrInitialization, tr("Database building isn't supported on this platform/build...", "Errors"));
 			return -2;
@@ -1770,5 +1805,138 @@ void CMyApplication::executeEvent(bool bBuildDB, int nVersion)
 		exit(nRetVal);			// If KJPBS fails to start, exit with an error code
 	}
 }
+
+// ============================================================================
+
+#ifndef IS_CONSOLE_APP
+
+int CMyApplication::confirmFollowLink()
+{
+	return QMessageBox::question(activeWindow(), applicationName(), tr("Following this link will launch an external browser on your system.  "
+														 "Doing so may incur extra charges from your service provider "
+														 "and may make it known to your service provider that you are browsing Bible resources.\n\n"
+														 "Do you wish to follow this link?", "Errors"),
+								 QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
+								 QMessageBox::No);
+}
+
+void CMyApplication::showHelpManual()
+{
+#if defined(EMSCRIPTEN)
+	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
+#elif defined(VNCSERVER)
+#elif defined(Q_OS_ANDROID)
+	if (confirmFollowLink() == QMessageBox::Yes) {
+		QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
+	}
+#else
+	QFileInfo fiHelpDoc(initialAppDirPath(), g_constrHelpDocFilename);
+	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
+		displayWarning(activeWindow(), applicationName(), tr("Unable to open the King James Pure Bible Search Users Manual.\n"
+											   "Verify that you have a PDF Viewer, such as Adobe Acrobat, installed.\n"
+											   "And check installation of King James Pure Bible Search User Manual at:\n\n"
+											   "%1", "Errors").arg(QDir::toNativeSeparators(fiHelpDoc.absoluteFilePath())));
+	}
+#endif
+}
+
+void CMyApplication::showHelpAbout()
+{
+#ifndef USE_ASYNC_DIALOGS
+	CAboutDlg pDlg(activeWindow());
+	pDlg.exec();
+#else
+	CAboutDlg *pDlg = new CAboutDlg(activeWindow());
+	pDlg->show();
+#endif
+}
+
+void CMyApplication::gotoPureBibleSearchDotCom()
+{
+#ifndef VNCSERVER
+	if (confirmFollowLink() == QMessageBox::Yes) {
+		if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
+#ifndef EMSCRIPTEN
+			displayWarning(activeWindow(), applicationName(), tr("Unable to open a System Web Browser for\n\n"
+												   "%1", "Errors").arg(g_constrPureBibleSearchURL));
+#endif
+		}
+	}
+#endif
+}
+
+// ----------------------------------------------------------------------------
+
+void CMyApplication::configureSettings(int nInitialPage)
+{
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
+	const QList<CKJVCanOpener *> &lstCanOpeners = canOpeners();
+
+	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
+		CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
+		if (pHighlighterButtons != nullptr) pHighlighterButtons->enterConfigurationMode();
+	}
+
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+	CDictionaryDatabasePtr pDictionaryDatabase = TDictionaryDatabaseList::instance()->mainDictionaryDatabase();
+#ifdef USING_ELSSEARCH
+	CELSSearchMainWindow *pELSSearch = qobject_cast<CELSSearchMainWindow *>(activeWindow());
+	if (pELSSearch != nullptr) {
+		pBibleDatabase = pELSSearch->bibleDatabase();
+	}
+#endif
+	CKJVCanOpener *pCanOpener = qobject_cast<CKJVCanOpener *>(activeWindow());
+	if (pCanOpener != nullptr) {
+		pBibleDatabase = pCanOpener->bibleDatabase();
+		pDictionaryDatabase = pCanOpener->dictionaryDatabase();
+	}
+
+	QPointer<CConfigurationDialog> pDlgConfigure = new CConfigurationDialog(
+														pBibleDatabase,
+														pDictionaryDatabase,
+														activeWindow(),
+														static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
+
+	auto &&fnCompletion = [this, pDlgConfigure](int nResult)->void {
+		const QList<CKJVCanOpener *> &lstCanOpeners = canOpeners();
+		Q_UNUSED(nResult);
+		for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
+			CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
+			if (pHighlighterButtons != nullptr) pHighlighterButtons->leaveConfigurationMode();
+		}
+
+		Q_ASSERT(!pDlgConfigure.isNull());
+		if (pDlgConfigure) {
+			if (pDlgConfigure->restartApp()) {
+#if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
+				QTimer::singleShot(10, this, [this]()->void { restartApp(activeWindow()); });
+#else
+				QTimer::singleShot(10, this, SLOT(restartApp()));
+#endif
+			}
+			pDlgConfigure->deleteLater();
+		}
+	};
+
+#ifndef USE_ASYNC_DIALOGS
+
+	pDlgConfigure->exec();
+	fnCompletion(0);
+
+#else
+
+	connect(pDlgConfigure, &CConfigurationDialog::finished, fnCompletion);
+	pDlgConfigure->setAttribute(Qt::WA_DeleteOnClose, false);
+	pDlgConfigure->setAttribute(Qt::WA_ShowModal, true);
+	pDlgConfigure->show();
+
+#endif
+
+#else
+	Q_UNUSED(nInitialPage);
+#endif
+}
+
+#endif		// !IS_CONSOLE_APP
 
 // ============================================================================

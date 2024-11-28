@@ -144,10 +144,6 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
 
 	// --------------------------------------------------------------
 
-#ifndef Q_OS_MAC
-	setWindowModality(Qt::WindowModal);		// Only block our parentCanOpener, not the whole app
-#endif
-
 	// Note:  The minimumSizeHint isn't computed until the
 	//	event loop runs, so just calling adjustSize here has
 	//	no effect.  So, we'll setup a dummy timer and

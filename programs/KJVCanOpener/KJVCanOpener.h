@@ -148,7 +148,6 @@ signals:
 
 public:
 	static QString determineBibleUUIDForKJVSearchFile(const QString &strFilePathName);
-	int confirmFollowLink();					// Returns either QMessageBox::Yes or QMessageBox::No
 
 public slots:
 	bool openKJVSearchFile(const QString &strFilePathName);
@@ -212,13 +211,8 @@ protected slots:
 	void en_viewGeoMap();
 	void setGeoMapEnable(bool bEnable);
 
-	void en_HelpManual();
-	void en_HelpAbout();
-	void en_PureBibleSearchDotCom();
-
 	void en_QuickActivate();
 
-	void en_Configure(int nInitialPage = -1);
 	void en_LaunchGeneralSettingsConfig();
 	void en_LaunchCopyOptionsConfig();
 	void en_LaunchTextColorAndFontsConfig();
@@ -241,6 +235,11 @@ protected slots:
 	void en_speechStop();
 	void setSpeechActionEnables();
 #endif
+
+// Private Helper Functions:
+private:
+	void addSettingsMenu(QMainWindow *pMainWindow) const;
+	void addHelpMenu(QMainWindow *pMainWindow, QToolBar *pToolBar = nullptr) const;
 
 // Data Private:
 private:
@@ -288,7 +287,6 @@ private:
 	QAction *m_pActionSearchWindowList;		// Action for Window list of KJVCanOpeners
 	QPointer<QActionGroup> m_pActionGroupSearchWindowList;		// Actual Window List items for Search Window List
 	// ----
-	QAction *m_pActionAbout;		// About Application
 	QList<QAction *> m_lstpQuickActivate;	// Quick activation (Ctrl-1 through Ctrl-8 to activate upto first 8 search phrases, Ctrl-9 to activate Search Results, and Ctrl-0 to activate the browser)
 	// ----
 	QToolBar *m_pSpeechToolbar;		// Text-To-Speech Playback actions toolbar -- these will be NULL if Text-To-Speech isn't supported

@@ -32,7 +32,6 @@
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "HighlighterButtons.h"
-#include "AboutDlg.h"
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 #include "Configuration.h"
 #include "DictionaryWidget.h"			// Note: This one is needed if we are doing configuration in general, not just USING_DICTIONARIES
@@ -80,8 +79,8 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QFileInfo>
-#include <QDesktopServices>
 #include <QDir>
+#include <QUrl>
 
 // ============================================================================
 
@@ -95,25 +94,6 @@ namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-#ifdef Q_OS_ANDROID
-//	const char *g_constrHelpDocFilename = "doc/KingJamesPureBibleSearch.pdf";
-	const char *g_constrHelpDocFilename = "http://www.PureBibleSearch.com/manual/";
-#elif defined(Q_OS_IOS)
-	const char *g_constrHelpDocFilename = "doc/KingJamesPureBibleSearch.pdf";
-#elif defined(Q_OS_OSX) || defined(Q_OS_MACX)
-	const char *g_constrHelpDocFilename = "../SharedSupport/doc/KingJamesPureBibleSearch.pdf";
-#elif defined(EMSCRIPTEN)
-	const char *g_constrHelpDocFilename = "http://cloud.dewtronics.com/KingJamesPureBibleSearch/KingJamesPureBibleSearch.pdf";
-#elif defined(VNCSERVER)
-//	const char *g_constrHelpDocFilename = "";
-#else
-	const char *g_constrHelpDocFilename = "doc/KingJamesPureBibleSearch.pdf";
-#endif
-
-#ifndef VNCSERVER
-	const char *g_constrPureBibleSearchURL = "http://www.PureBibleSearch.com/";
-#endif
 
 	// Key constants:
 	// --------------
@@ -302,8 +282,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// ----
 	m_pActionBibleDatabasesList(nullptr),
 	m_pActionSearchWindowList(nullptr),
-	// ----
-	m_pActionAbout(nullptr),
 	// ----
 	m_pSpeechToolbar(nullptr),
 	m_pActionSpeechPlay(nullptr),
@@ -875,12 +853,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	// --- Settings Menu
-	QMenu *pSettingsMenu = ui.menuBar->addMenu(tr("Se&ttings", "MainMenu"));
-
-	pAction = pSettingsMenu->addAction(QIcon(":/res/Settings-icon2-128.png"), tr("Configure...", "MainMenu"), this, SLOT(en_Configure()));
-	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application", "MainMenu"));
-	pAction->setToolTip(tr("Configure King James Pure Bible Search", "MainMenu"));
-	pAction->setMenuRole(QAction::PreferencesRole);
+	addSettingsMenu(this);
 
 	pAction = new QAction(this);
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F1));
@@ -980,28 +953,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	// --- Help Menu
 	ui.mainToolBar->addSeparator();
 
-	QMenu *pHelpMenu = ui.menuBar->addMenu(tr("&Help", "MainMenu"));
-
-#ifndef VNCSERVER
-	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help", "MainMenu"), this, SLOT(en_HelpManual()));
-	pAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F1));
-	pAction->setStatusTip(tr("Display the Users Manual", "MainMenu"));
-
-	pAction = pHelpMenu->addAction(QIcon(":/res/package_network-128.png"), tr("Goto PureBibleSearch.com...", "MainMenu"), this, SLOT(en_PureBibleSearchDotCom()));
-	pAction->setShortcut(QKeySequence(Qt::Key_F2));
-	pAction->setStatusTip(tr("Open a Web Browser and Navigate to www.PureBibleSearch.com", "MainMenu"));
-	pAction->setToolTip(tr("Goto www.PureBibleSearch.com Home Page", "MainMenu"));
-	ui.mainToolBar->addAction(pAction);
-#endif
-
-	m_pActionAbout = new QAction(QIcon(":/res/help_icon1.png"), tr("About...", "MainMenu"), this);
-	m_pActionAbout->setShortcut(QKeySequence(Qt::Key_F1));
-	m_pActionAbout->setStatusTip(tr("About the King James Pure Bible Search", "MainMenu"));
-	m_pActionAbout->setToolTip(tr("About the King James Pure Bible Search...", "MainMenu"));
-	m_pActionAbout->setMenuRole(QAction::AboutRole);
-	connect(m_pActionAbout, SIGNAL(triggered()), this, SLOT(en_HelpAbout()));
-	ui.mainToolBar->addAction(m_pActionAbout);
-	pHelpMenu->addAction(m_pActionAbout);
+	addHelpMenu(this, ui.mainToolBar);
 
 	// -------------------- Quick Activate:
 
@@ -3001,61 +2953,6 @@ void CKJVCanOpener::en_changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener,
 
 // ------------------------------------------------------------------
 
-int CKJVCanOpener::confirmFollowLink()
-{
-	return QMessageBox::question(this, windowTitle(), tr("Following this link will launch an external browser on your system.  "
-														"Doing so may incur extra charges from your service provider.\n\n"
-														"Do you wish to follow this link?", "Errors"),
-														QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No),
-														QMessageBox::No);
-}
-
-void CKJVCanOpener::en_HelpManual()
-{
-#if defined(EMSCRIPTEN)
-	QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
-#elif defined(VNCSERVER)
-#elif defined(Q_OS_ANDROID)
-	if (confirmFollowLink() == QMessageBox::Yes) {
-		QDesktopServices::openUrl(QUrl(g_constrHelpDocFilename));
-	}
-#else
-	QFileInfo fiHelpDoc(initialAppDirPath(), g_constrHelpDocFilename);
-	if ((!fiHelpDoc.exists()) || (!QDesktopServices::openUrl(QUrl::fromLocalFile(fiHelpDoc.absoluteFilePath())))) {
-		displayWarning(this, windowTitle(), tr("Unable to open the King James Pure Bible Search Users Manual.\n"
-													 "Verify that you have a PDF Viewer, such as Adobe Acrobat, installed.\n"
-													 "And check installation of King James Pure Bible Search User Manual at:\n\n"
-													 "%1", "Errors").arg(QDir::toNativeSeparators(fiHelpDoc.absoluteFilePath())));
-	}
-#endif
-}
-
-void CKJVCanOpener::en_HelpAbout()
-{
-#ifndef USE_ASYNC_DIALOGS
-	CKJVCanOpenerCloseGuard closeGuard(this);
-	CAboutDlgPtr pDlg(this);
-	pDlg->exec();
-#else
-	CAboutDlg *pDlg = new CAboutDlg(this);
-	pDlg->show();
-#endif
-}
-
-void CKJVCanOpener::en_PureBibleSearchDotCom()
-{
-#ifndef VNCSERVER
-	if (confirmFollowLink() == QMessageBox::Yes) {
-		if (!QDesktopServices::openUrl(QUrl(g_constrPureBibleSearchURL))) {
-#ifndef EMSCRIPTEN
-			displayWarning(this, windowTitle(), tr("Unable to open a System Web Browser for\n\n"
-														 "%1", "Errors").arg(g_constrPureBibleSearchURL));
-#endif
-		}
-	}
-#endif
-}
-
 void CKJVCanOpener::en_QuickActivate()
 {
 	bool bServiced = false;
@@ -3091,113 +2988,67 @@ void CKJVCanOpener::en_QuickActivate()
 	Q_ASSERT(bServiced);
 }
 
-void CKJVCanOpener::en_Configure(int nInitialPage)
-{
-#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-	Q_ASSERT(!g_pMyApplication.isNull());
-
-	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
-
-	for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
-		CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
-		if (pHighlighterButtons != nullptr) pHighlighterButtons->enterConfigurationMode();
-	}
-
-	QPointer<CConfigurationDialog> pDlgConfigure = new CConfigurationDialog(m_pBibleDatabase, ((m_pDictionaryWidget != nullptr) ? m_pDictionaryWidget->dictionaryDatabase() : CDictionaryDatabasePtr()), this, static_cast<CONFIGURATION_PAGE_SELECTION_ENUM>(nInitialPage));
-
-	auto &&fnCompletion = [this, lstCanOpeners, pDlgConfigure](int nResult)->void {
-		Q_UNUSED(nResult);
-		for (int ndxCanOpener = 0; ndxCanOpener < lstCanOpeners.size(); ++ndxCanOpener) {
-			CHighlighterButtons *pHighlighterButtons = lstCanOpeners.at(ndxCanOpener)->highlighterButtons();
-			if (pHighlighterButtons != nullptr) pHighlighterButtons->leaveConfigurationMode();
-		}
-
-		Q_ASSERT(!pDlgConfigure.isNull());
-		if (pDlgConfigure) {
-			if (pDlgConfigure->restartApp()) {
-#if QT_VERSION >= 0x050400		// Functor calls was introduced in Qt 5.4
-				QTimer::singleShot(10, this, [this]()->void { g_pMyApplication->restartApp(this); });
-#else
-				Q_UNUSED(this);
-				QTimer::singleShot(10, g_pMyApplication.data(), SLOT(restartApp()));
-#endif
-			}
-			pDlgConfigure->deleteLater();
-		}
-	};
-
-#ifndef USE_ASYNC_DIALOGS
-
-	pDlgConfigure->exec();
-	fnCompletion(0);
-
-#else
-
-	connect(pDlgConfigure, &CConfigurationDialog::finished, fnCompletion);
-	pDlgConfigure->setAttribute(Qt::WA_DeleteOnClose, false);
-	pDlgConfigure->setAttribute(Qt::WA_ShowModal, true);
-	pDlgConfigure->show();
-
-#endif
-
-#else
-	Q_UNUSED(nInitialPage);
-#endif
-}
-
 void CKJVCanOpener::en_LaunchGeneralSettingsConfig()
 {
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-	en_Configure(CPSE_GENERAL_SETTINGS);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_GENERAL_SETTINGS);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchCopyOptionsConfig()
 {
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-	en_Configure(CPSE_COPY_OPTIONS);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_COPY_OPTIONS);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchTextColorAndFontsConfig()
 {
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-	en_Configure(CPSE_TEXT_FORMAT);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_TEXT_FORMAT);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchNotesFileSettingsConfig()
 {
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) && !defined(VNCSERVER)
-	en_Configure(CPSE_USER_NOTES_DATABASE);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_USER_NOTES_DATABASE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchBibleDatabaseConfig()
 {
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-	en_Configure(CPSE_BIBLE_DATABASE);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_BIBLE_DATABASE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchDictDatabaseConfig()
 {
 #if defined(USING_DICTIONARIES) && !defined(IS_CONSOLE_APP)
-	en_Configure(CPSE_DICT_DATABASE);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_DICT_DATABASE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchLocaleSettingsConfig()
 {
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
-	en_Configure(CPSE_LOCALE);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_LOCALE);
 #endif
 }
 
 void CKJVCanOpener::en_LaunchTTSOptionsConfig()
 {
 #if defined(USING_QT_SPEECH) && !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	en_Configure(CPSE_TTS_OPTIONS);
+	Q_ASSERT(!g_pMyApplication.isNull());
+	g_pMyApplication->configureSettings(CPSE_TTS_OPTIONS);
 #endif
 }
 
@@ -3294,6 +3145,10 @@ void CKJVCanOpener::en_LaunchELSSearch()
 																	  dlgBibleSelect.removeSuperscriptions(),
 																	  dlgBibleSelect.wordsOfJesusOnly(),
 																	  dlgBibleSelect.includePrologues());
+#if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
+	addSettingsMenu(pELSSearchWindow);
+#endif
+	addHelpMenu(pELSSearchWindow);
 	pELSSearchWindow->show();
 
 	// Hook ELSSearch window into quit/restart logic:
@@ -3328,3 +3183,42 @@ void CKJVCanOpener::setSpeechActionEnables()
 }
 
 #endif
+
+void CKJVCanOpener::addSettingsMenu(QMainWindow *pMainWindow) const
+{
+	Q_ASSERT(pMainWindow != nullptr);
+	QMenu *pSettingsMenu = pMainWindow->menuBar()->addMenu(tr("Se&ttings", "MainMenu"));
+	QAction *pAction = nullptr;
+
+	pAction = pSettingsMenu->addAction(QIcon(":/res/Settings-icon2-128.png"), tr("Configure...", "MainMenu"), g_pMyApplication, SLOT(configureSettings()));
+	pAction->setStatusTip(tr("Configure the King James Pure Bible Search Application", "MainMenu"));
+	pAction->setToolTip(tr("Configure King James Pure Bible Search", "MainMenu"));
+	pAction->setMenuRole(QAction::PreferencesRole);
+}
+
+void CKJVCanOpener::addHelpMenu(QMainWindow *pMainWindow, QToolBar *pToolBar) const
+{
+	Q_ASSERT(pMainWindow != nullptr);
+	QMenu *pHelpMenu = pMainWindow->menuBar()->addMenu(tr("&Help", "MainMenu"));
+	QAction *pAction = nullptr;
+
+#ifndef VNCSERVER
+	pAction = pHelpMenu->addAction(QIcon(":/res/help_book.png"), tr("&Help", "MainMenu"), g_pMyApplication, SLOT(showHelpManual()));
+	pAction->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_F1));
+	pAction->setStatusTip(tr("Display the Users Manual", "MainMenu"));
+	pAction->setToolTip(tr("Display the Users Manual", "MainMenu"));
+
+	pAction = pHelpMenu->addAction(QIcon(":/res/package_network-128.png"), tr("Goto PureBibleSearch.com...", "MainMenu"), g_pMyApplication, SLOT(gotoPureBibleSearchDotCom()));
+	pAction->setShortcut(QKeySequence(Qt::Key_F2));
+	pAction->setStatusTip(tr("Open a Web Browser and Navigate to www.PureBibleSearch.com", "MainMenu"));
+	pAction->setToolTip(tr("Goto www.PureBibleSearch.com Home Page", "MainMenu"));
+	if (pToolBar) pToolBar->addAction(pAction);
+#endif
+
+	pAction = pHelpMenu->addAction(QIcon(":/res/help_icon1.png"), tr("About...", "MainMenu"), g_pMyApplication, SLOT(showHelpAbout()));
+	pAction->setShortcut(QKeySequence(Qt::Key_F1));
+	pAction->setStatusTip(tr("About the King James Pure Bible Search", "MainMenu"));
+	pAction->setToolTip(tr("About the King James Pure Bible Search...", "MainMenu"));
+	pAction->setMenuRole(QAction::AboutRole);
+	if (pToolBar) pToolBar->addAction(pAction);
+}

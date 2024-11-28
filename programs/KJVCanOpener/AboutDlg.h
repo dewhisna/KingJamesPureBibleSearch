@@ -65,24 +65,4 @@ private:
 
 // ============================================================================
 
-// SmartPointer classes needed, particularly for stack instantiated dialogs, since
-//		this dialog is only WindowModal and the parent can get deleted during an
-//		app close event, causing an attempted double-free which leads to a crash:
-class CAboutDlgPtr : public QPointer<CAboutDlg>
-{
-public:
-	CAboutDlgPtr(QWidget *parent = nullptr)
-		:	QPointer<CAboutDlg>(new CAboutDlg(parent))
-	{
-
-	}
-
-	virtual ~CAboutDlgPtr()
-	{
-		if (!isNull()) delete data();
-	}
-};
-
-// ============================================================================
-
 #endif // ABOUT_DIALOG_H

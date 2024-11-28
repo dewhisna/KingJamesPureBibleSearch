@@ -397,7 +397,6 @@ CKJVCanOpener *CSearchResultsTreeView::parentCanOpener() const
 void CSearchResultsTreeView::en_findParentCanOpener()
 {
 	CKJVCanOpener *pCanOpener = parentCanOpener();
-	Q_ASSERT(pCanOpener != nullptr);
 
 	if (pCanOpener != nullptr) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
@@ -474,7 +473,7 @@ void CSearchResultsTreeView::setSpeechActionEnables()
 	QtSpeech *pSpeech = g_pMyApplication->speechSynth();
 
 	if ((pSpeech != nullptr) && (hasFocus())) {
-		if (parentCanOpener()->actionSpeechPlay() != nullptr) {
+		if ((parentCanOpener() != nullptr) && (parentCanOpener()->actionSpeechPlay() != nullptr)) {
 			parentCanOpener()->actionSpeechPlay()->setEnabled(pSpeech->canSpeak() && !pSpeech->isTalking() && speakableNodeSelected());
 		}
 	}

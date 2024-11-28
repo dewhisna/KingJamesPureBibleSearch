@@ -415,7 +415,6 @@ template<class T, class U>
 void CScriptureText<T,U>::en_findParentCanOpener()
 {
 	CKJVCanOpener *pCanOpener = parentCanOpener();
-	Q_ASSERT(pCanOpener != nullptr);
 
 	if ((pCanOpener != nullptr) && (qobject_cast<const QTextBrowser *>(this) != nullptr)) {
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -1535,7 +1534,7 @@ void CScriptureText<T,U>::en_anchorClicked(const QUrl &link)
 			(strScheme.compare("sftp", Qt::CaseInsensitive) == 0)) {
 
 #ifndef EMSCRIPTEN
-			if (parentCanOpener()->confirmFollowLink() == QMessageBox::Yes) {
+			if (g_pMyApplication->confirmFollowLink() == QMessageBox::Yes) {
 				if (!QDesktopServices::openUrl(link)) {
 					displayWarning(this, parentCanOpener()->windowTitle(), CKJVCanOpener::tr("Unable to open a System Web Browser for\n\n"
 																									"%1", "Errors").arg(strAnchor));
