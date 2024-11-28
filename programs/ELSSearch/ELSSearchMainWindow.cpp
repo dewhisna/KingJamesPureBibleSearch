@@ -179,7 +179,6 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(ui->editWords, &QLineEdit::returnPressed, this, &CELSSearchMainWindow::search);
 
 	connect(ui->tvELSResults, &QTableView::doubleClicked, this, &CELSSearchMainWindow::en_searchResultClicked);
-	connect(ui->tvELSResults, &QTableView::activated, this, &CELSSearchMainWindow::en_searchResultClicked);
 	connect(ui->cmbSortOrder, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSortOrder(int)));
 
 	connect(ui->cmbSearchType, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedSearchType(int)));
@@ -441,6 +440,9 @@ bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 			if (pKEvent->matches(QKeySequence::Copy)) {				//			Copy
 				en_copySearchResults();
 				pKEvent->accept();
+				return true;
+			} else if ((pKEvent->key() == Qt::Key_Return) || (pKEvent->key() == Qt::Key_Enter)) {
+				en_searchResultClicked(ui->tvELSResults->currentIndex());
 				return true;
 			}
 		}
