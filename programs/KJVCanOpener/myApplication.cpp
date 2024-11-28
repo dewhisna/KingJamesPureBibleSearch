@@ -314,12 +314,31 @@ CMyDaemon::CMyDaemon(CMyApplication *pMyApplication)
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, m_sigusr1Fd))
 		qFatal("Couldn't create SIGUSR1 socketpair");
 
+	// Note: The following old-style connects are marked deprecated in Qt6
+	//	and are slated to be removed by Qt7.  The new form started working
+	//	with Qt5, but this code still needs to support the special VNC
+	//	target on Qt4, at least for the time being.
+
 	m_psnHup = new QSocketNotifier(m_sighupFd[1], QSocketNotifier::Read, this);
+#if QT_VERSION < 0x050000
 	connect(m_psnHup, SIGNAL(activated(int)), this, SLOT(handleSigHup()));
+#else
+	connect(m_psnHup, &QSocketNotifier::activated, this, &CMyDaemon::handleSigHup);
+#endif
+
 	m_psnTerm = new QSocketNotifier(m_sigtermFd[1], QSocketNotifier::Read, this);
+#if QT_VERSION < 0x050000
 	connect(m_psnTerm, SIGNAL(activated(int)), this, SLOT(handleSigTerm()));
+#else
+	connect(m_psnTerm, &QSocketNotifier::activated, this, &CMyDaemon::handleSigTerm);
+#endif
+
 	m_psnUsr1 = new QSocketNotifier(m_sigusr1Fd[1], QSocketNotifier::Read, this);
+#if QT_VERSION < 0x050000
 	connect(m_psnUsr1, SIGNAL(activated(int)), this, SLOT(handleSigUsr1()));
+#else
+	connect(m_psnUsr1, &QSocketNotifier::activated, this, &CMyDaemon::handleSigUsr1);
+#endif
 }
 
 CMyDaemon::~CMyDaemon()
