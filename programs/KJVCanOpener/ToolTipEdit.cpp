@@ -575,18 +575,21 @@ int CTipEdit::getTipScreen(const QPoint &pos, QWidget *w)
 
 void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 {
-//	if (testAttribute(Qt::WA_StyleSheet) || (w && qobject_cast<QStyleSheetStyle *>(w->style()))) {
-	if (testAttribute(Qt::WA_StyleSheet) || (w && w->style() && w->style()->inherits("QStyleSheetStyle"))) {
-		//the stylesheet need to know the real parent
-		instance(m_nTipEditType, m_pParentCanOpener)->setProperty("_q_stylesheet_parent", QVariant::fromValue(w));
-		//we force the style to be the QStyleSheetStyle, and force to clear the cache as well.
-//		instance(m_pParentCanOpener)->setStyleSheet(QLatin1String(" "));
+	CTipEdit *pInstance = instance(m_nTipEditType, m_pParentCanOpener);
+	if (pInstance != nullptr) {
+//		if (testAttribute(Qt::WA_StyleSheet) || (w && qobject_cast<QStyleSheetStyle *>(w->style()))) {
+		if (testAttribute(Qt::WA_StyleSheet) || (w && w->style() && w->style()->inherits("QStyleSheetStyle"))) {
+			//the stylesheet need to know the real parent
+			pInstance->setProperty("_q_stylesheet_parent", QVariant::fromValue(w));
+			//we force the style to be the QStyleSheetStyle, and force to clear the cache as well.
+//			pInstance->setStyleSheet(QLatin1String(" "));
 
-		// Set up for cleaning up this later...
-		instance(m_nTipEditType, m_pParentCanOpener)->styleSheetParent = w;
-		if (w) {
-			connect(w, SIGNAL(destroyed()),
-					instance(m_nTipEditType, m_pParentCanOpener), SLOT(styleSheetParentDestroyed()));
+			// Set up for cleaning up this later...
+			pInstance->styleSheetParent = w;
+			if (w) {
+				connect(w, SIGNAL(destroyed()),
+						instance(m_nTipEditType, m_pParentCanOpener), SLOT(styleSheetParentDestroyed()));
+			}
 		}
 	}
 
@@ -671,7 +674,8 @@ void CTipEdit::placeTip(const QPoint &pos, QWidget *w)
 
 bool CTipEdit::tipChanged(const QPoint &pos, const QString &strText, QObject *o)
 {
-	if (instance(m_nTipEditType, m_pParentCanOpener)->text() != strText)
+	CTipEdit *pInstance = instance(m_nTipEditType, m_pParentCanOpener);
+	if ((pInstance != nullptr) && (pInstance->text() != strText))
 		return true;
 
 	if (o != widget)
