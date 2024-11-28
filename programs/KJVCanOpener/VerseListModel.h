@@ -804,7 +804,7 @@ public:
 		TVerseIndex *pVerseIndex = toVerseIndex(index);
 		Q_ASSERT(pVerseIndex->resultsType() == VVME_to_VLMRTE(m_private.m_nViewMode));
 
-		return results(*toVerseIndex(index));
+		return results(*pVerseIndex);
 	}
 	const TVerseListModelSearchResults &searchResults(bool bExcluded) const
 	{
