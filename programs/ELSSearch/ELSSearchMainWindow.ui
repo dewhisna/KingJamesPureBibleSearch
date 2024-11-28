@@ -101,7 +101,7 @@
       <item>
        <widget class="QLabel" name="lblSearchType">
         <property name="text">
-         <string>&amp;Type:</string>
+         <string>T&amp;ype:</string>
         </property>
         <property name="buddy">
          <cstring>cmbSearchType</cstring>

@@ -53,6 +53,8 @@ public:
 								  QWidget *parent = nullptr);
 	~CELSSearchMainWindow();
 
+	CBibleDatabasePtr bibleDatabase() const { return m_letterMatrix.bibleDatabase(); }
+
 protected:
 	virtual bool eventFilter(QObject *obj, QEvent *ev) override;
 	// ----

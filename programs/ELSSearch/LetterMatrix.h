@@ -43,7 +43,7 @@ public:
 	uint32_t matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) const;
 	CRelIndexEx relIndexFromMatrixIndex(uint32_t nMatrixIndex) const;
 
-	const CBibleDatabase *bibleDatabase() const { return m_pBibleDatabase.data(); }
+	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 
 	bool skipColophons() const { return m_bSkipColophons; }
 	bool skipSuperscriptions() const { return m_bSkipSuperscriptions; }
