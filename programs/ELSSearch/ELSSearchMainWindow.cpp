@@ -125,6 +125,9 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	ui->tvELSResults->horizontalHeader()->setStretchLastSection(false);
 	ui->tvELSResults->setDragEnabled(true);
 	ui->tvELSResults->setSelectionBehavior(QAbstractItemView::SelectRows);
+	for (int i = 0; i < m_pELSResultListModel->columnCount(); ++i) {
+		ui->tvELSResults->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
+	}
 
 	// --------------------------------
 
@@ -145,6 +148,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --------------------------------
 
 	ui->splitterELSResults->setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
+	ui->splitterSearchLog->setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
 
 	// --------------------------------
 
@@ -421,6 +425,7 @@ void CELSSearchMainWindow::search()
 		insertSearchLogText(tr("Found %1 Results\n").arg(lstResults.size()));
 
 		ui->tvELSResults->resizeColumnsToContents();
+		ui->tvELSResults->adjustSize();
 
 		// Should we clear editWords here?
 	} else {
