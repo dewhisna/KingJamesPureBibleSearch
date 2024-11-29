@@ -47,6 +47,7 @@
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
+#include <QRegularExpression>
 #include <QList>
 #include <QMap>
 #include <QElapsedTimer>
@@ -225,7 +226,8 @@ int main(int argc, char *argv[])
 			if (nArgsFound == 1) {
 				nDescriptor = strArg.toInt();
 			} else if (nArgsFound == 2) {
-				lstSearchWords = strArg.split(',', Qt::SkipEmptyParts);
+				static const QRegularExpression regExWordSplit = QRegularExpression("[\\s,]+");
+				lstSearchWords = strArg.split(regExWordSplit, Qt::SkipEmptyParts);
 			} else if (nArgsFound == 3) {
 				nMinSkip = strArg.toInt();
 			} else if (nArgsFound == 4) {

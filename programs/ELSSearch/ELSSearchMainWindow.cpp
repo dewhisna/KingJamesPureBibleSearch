@@ -341,7 +341,15 @@ void CELSSearchMainWindow::clearSearchLogText()
 
 void CELSSearchMainWindow::search()
 {
-	QStringList lstSearchWords = ui->editWords->text().split(QRegularExpression("[\\s,]+"), Qt::SkipEmptyParts);
+	static const QRegularExpression regExWordSplit = QRegularExpression("[\\s,]+");
+	QStringList lstSearchWords = ui->editWords->text().split(regExWordSplit, Qt::SkipEmptyParts);
+
+	// Remove any words that aren't at least 2 letters.  This is needed
+	//	for the skip logic, plus searching for single letters is ridiculous:
+	for (int ndx = lstSearchWords.size()-1; ndx >= 0; --ndx) {
+		if (lstSearchWords.at(ndx).size() < 2) lstSearchWords.removeAt(ndx);
+	}
+	if (lstSearchWords.isEmpty()) return;
 
 	ELS_SEARCH_TYPE_ENUM nSearchType = ui->cmbSearchType->currentData().value<ELS_SEARCH_TYPE_ENUM>();
 	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords, nSearchType);

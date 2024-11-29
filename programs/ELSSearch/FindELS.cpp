@@ -117,6 +117,8 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 	// Results storage (for this skip):
 	CELSResultList lstResults;
 
+	if (lstSearchWords.isEmpty()) return lstResults;		// Must have at least one search word, else exit
+
 	// Get maximum search word lengths to know bounds of search:
 	int nMaxLength = lstSearchWords.last().size();
 
@@ -195,10 +197,16 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords, ELS_SEARCH_TYPE_ENUM nSearchType)
 	:	m_letterMatrix(letterMatrix),
 		m_lstSearchWords(lstSearchWords),
-		m_lstSearchWordsRev(lstSearchWords),
 		m_nSearchType(nSearchType)
 {
 	initFibonacciCast9Table();
+
+	// Remove any words that aren't at least 2 letters.  This is needed
+	//	for the skip logic, plus searching for single letters is ridiculous:
+	for (int ndx = m_lstSearchWords.size()-1; ndx >= 0; --ndx) {
+		if (m_lstSearchWords.at(ndx).size() < 2) m_lstSearchWords.removeAt(ndx);
+	}
+	m_lstSearchWordsRev = lstSearchWords;		// Copy to reverse list as starting point
 
 	// Make all search words lower case and sort by ascending word length:
 	for (auto &strSearchWord : m_lstSearchWords) strSearchWord = strSearchWord.toLower();
