@@ -144,6 +144,10 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
+	ui->splitterELSResults->setStyleSheet("QSplitter::handle:hover { background-color: palette(highlight); }");
+
+	// --------------------------------
+
 	// --- File Menu
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File", "MainMenu"));
 	QAction *pAction = nullptr;
