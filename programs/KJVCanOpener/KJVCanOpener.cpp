@@ -3121,7 +3121,7 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 void CKJVCanOpener::en_LaunchELSSearch()
 {
 	// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
-	CELSBibleDatabaseSelectDlg dlgBibleSelect{m_pBibleDatabase->compatibilityUUID(), false, false, false, false, this};
+	CELSBibleDatabaseSelectDlg dlgBibleSelect{m_pBibleDatabase->compatibilityUUID(), LMTMO_None, this};
 	if (dlgBibleSelect.exec() == QDialog::Rejected) return;
 
 	CBusyCursor iAmBusy(nullptr);
@@ -3141,10 +3141,7 @@ void CKJVCanOpener::en_LaunchELSSearch()
 #endif
 
 	CELSSearchMainWindow *pELSSearchWindow = new CELSSearchMainWindow(pBibleDatabase,
-																	  dlgBibleSelect.removeColophons(),
-																	  dlgBibleSelect.removeSuperscriptions(),
-																	  dlgBibleSelect.wordsOfJesusOnly(),
-																	  dlgBibleSelect.includePrologues());
+																	  dlgBibleSelect.textModifierOptions());
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	addSettingsMenu(pELSSearchWindow);
 #endif

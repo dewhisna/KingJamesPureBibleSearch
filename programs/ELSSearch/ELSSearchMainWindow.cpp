@@ -64,11 +64,10 @@
 // ============================================================================
 
 CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
-										   bool bSkipColophons, bool bSkipSuperscriptions,
-										   bool bWordsOfJesusOnly, bool bIncludePrologues,
+										   LetterMatrixTextModifierOptionFlags flagsLMTMO,
 										   QWidget *parent)
 	:	QMainWindow(parent),
-		m_letterMatrix(pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludePrologues),
+		m_letterMatrix(pBibleDatabase, flagsLMTMO),
 		ui(new Ui::CELSSearchMainWindow)
 {
 	Q_ASSERT(!pBibleDatabase.isNull());
@@ -224,17 +223,18 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --------------------------------
 
 	QString strStatus;
-	if (m_letterMatrix.wordsOfJesusOnly()) {
+	if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
 		strStatus += " " + tr("Words of Jesus Only");
 	} else {
 		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-		if (m_letterMatrix.includePrologues()) strStatus += " " + tr("Including Book/Chapter Prologues");
+		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) strStatus += " " + tr("Including Book Prologues");
+		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) strStatus += " " + tr("Including Chapter Prologues");
 
-		if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
+		if (m_letterMatrix.textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
 			strStatus += " " + tr("Without") + " ";
-			if (m_letterMatrix.skipColophons()) {
+			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
 				strStatus += tr("Colophons");
-				if (m_letterMatrix.skipSuperscriptions()) {
+				if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {
 					strStatus += " " + tr("or Superscriptions");
 				}
 			} else {
@@ -389,17 +389,18 @@ void CELSSearchMainWindow::search()
 							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookStart, 0, 0, 0)))
 							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
 		}
-		if (m_letterMatrix.wordsOfJesusOnly()) {
+		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
 			strBookRange += " (" + tr("Words of Jesus Only") + ")";
 		} else {
 			// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-			if (m_letterMatrix.includePrologues()) strBookRange += " " + tr("Including Book/Chapter Prologues");
+			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) strBookRange += " " + tr("Including Book Prologues");
+			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) strBookRange += " " + tr("Including Chapter Prologues");
 
-			if (m_letterMatrix.skipColophons() || m_letterMatrix.skipSuperscriptions()) {
+			if (m_letterMatrix.textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
 				strBookRange += " " + tr("Without") + " ";
-				if (m_letterMatrix.skipColophons()) {
+				if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
 					strBookRange += tr("Colophons");
-					if (m_letterMatrix.skipSuperscriptions()) {
+					if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {
 						strBookRange += " " + tr("or Superscriptions");
 					}
 				} else {

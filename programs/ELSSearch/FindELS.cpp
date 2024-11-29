@@ -130,7 +130,7 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
 	const CBookEntry *pBook = letterMatrix.bibleDatabase()->bookEntry(ndxLast);
 	Q_ASSERT(pBook != nullptr);
-	if (pBook && pBook->m_bHaveColophon && !letterMatrix.skipColophons()) {
+	if (pBook && pBook->m_bHaveColophon && !letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
 		// If this book has a colophon and we aren't skipping them, then the
 		//	matrix will have moved the colophon to the end of the book so instead
 		//	of the last letter of the last word of the last verse of the last

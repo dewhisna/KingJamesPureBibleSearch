@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>375</width>
-    <height>235</height>
+    <height>280</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,9 +61,17 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="chkIncludePrologues">
+    <widget class="QCheckBox" name="chkIncludeBookPrologues">
      <property name="text">
-      <string>Include Book/Chapter &amp;Prologues (Title, Subtitle, etc.)
+      <string>Include &amp;Book Prologues (Title, Subtitle, etc.)
+(Works Only on English King James Databases)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="chkIncludeChapterPrologues">
+     <property name="text">
+      <string>Include &amp;Chapter Prologues (Chapter Number, etc.)
 (Works Only on English King James Databases)</string>
      </property>
     </widget>

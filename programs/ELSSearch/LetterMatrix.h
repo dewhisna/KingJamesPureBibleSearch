@@ -29,6 +29,20 @@
 #include <QChar>
 #include <QList>
 #include <QMap>
+#include <QFlags>
+
+// ============================================================================
+
+enum LetterMatrixTextModifierOptions {
+	LMTMO_None = 0x0,						// Default -- No modifiers (use Bible Database as-is)
+	LMTMO_RemoveColophons = 0x0001,			// Strip out colophons from epistles
+	LMTMO_RemoveSuperscriptions = 0x0002,	// Strip out superscriptions from Psalms
+	LMTMO_WordsOfJesusOnly = 0x0004,		// Use Words of Jesus Only
+	LMTMO_IncludeBookPrologues = 0x0008,	// Insert Book Title Prologes (KJV Bibles Only)
+	LMTMO_IncludeChapterPrologues = 0x0010,	// Insert Chapter Heading Prologues (KJV Bibles Only)
+};
+Q_DECLARE_FLAGS(LetterMatrixTextModifierOptionFlags, LetterMatrixTextModifierOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
 
 // ============================================================================
 
@@ -37,25 +51,18 @@ class CLetterMatrix : public QList<QChar>
 {
 public:
 	explicit CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
-							bool bSkipColophons, bool bSkipSuperscriptions,
-							bool bWordsOfJesusOnly, bool bIncludePrologues);
+						   LetterMatrixTextModifierOptionFlags flagsLMTMO);
 
 	uint32_t matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) const;
 	CRelIndexEx relIndexFromMatrixIndex(uint32_t nMatrixIndex) const;
 
 	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 
-	bool skipColophons() const { return m_bSkipColophons; }
-	bool skipSuperscriptions() const { return m_bSkipSuperscriptions; }
-	bool wordsOfJesusOnly() const { return m_bWordsOfJesusOnly; }
-	bool includePrologues() const { return m_bIncludePrologues; }
+	LetterMatrixTextModifierOptionFlags textModifierOptions() const { return m_flagsLMTMO; }
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	bool m_bSkipColophons = false;
-	bool m_bSkipSuperscriptions = false;
-	bool m_bWordsOfJesusOnly = false;
-	bool m_bIncludePrologues = false;
+	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_None;
 
 	// Matrix index to letter count shift for normalize/denormalize computations:
 	//	When we are skipping colophons and/or superscriptions, the matrix index

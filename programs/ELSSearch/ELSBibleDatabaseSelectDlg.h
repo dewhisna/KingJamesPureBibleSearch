@@ -24,6 +24,8 @@
 #ifndef ELSBIBLEDATABASESELECTDLG_H
 #define ELSBIBLEDATABASESELECTDLG_H
 
+#include "LetterMatrix.h"
+
 #include <QDialog>
 
 // ============================================================================
@@ -38,41 +40,29 @@ class CELSBibleDatabaseSelectDlg : public QDialog
 
 public:
 	explicit CELSBibleDatabaseSelectDlg(const QString &strBibleUUID,
-										bool bRemoveColophons,
-										bool bRemoveSuperscriptions,
-										bool bWordsOfJesusOnly,
-										bool bIncludePrologues,
+										LetterMatrixTextModifierOptionFlags flagsLMTMO,
 										QWidget *parent = nullptr);
 	~CELSBibleDatabaseSelectDlg();
 
 	QString bibleUUID() const { return m_strBibleUUID; }
 	// ----
-	bool removeColophons() const { return m_bRemoveColophons; }
-	// ----
-	bool removeSuperscriptions() const { return m_bRemoveSuperscriptions; }
-	// ----
-	bool wordsOfJesusOnly() const { return m_bWordsOfJesusOnly; }
-	// ----
-	bool includePrologues() const { return m_bIncludePrologues; }
-
-public slots:
-	void setBibleUUID(const QString &strBibleUUID) { m_strBibleUUID = strBibleUUID; }
-	void setRemoveColophons(bool bRemoveColophons) { m_bRemoveColophons = bRemoveColophons; }
-	void setRemoveSuperscriptions(bool bRemoveSuperscriptions) { m_bRemoveSuperscriptions = bRemoveSuperscriptions; }
-	void setWordsOfJesusOnly(bool bWordsOfJesusOnly) { m_bWordsOfJesusOnly = bWordsOfJesusOnly; }
-	void setIncludePrologues(bool bIncludePrologues) { m_bIncludePrologues = bIncludePrologues; }
+	LetterMatrixTextModifierOptionFlags textModifierOptions() const { return m_flagsLMTMO; }
 
 private slots:
+	void setBibleUUID(const QString &strBibleUUID) { m_strBibleUUID = strBibleUUID; }
+	void setRemoveColophons(bool bRemoveColophons) { m_flagsLMTMO.setFlag(LMTMO_RemoveColophons, bRemoveColophons); }
+	void setRemoveSuperscriptions(bool bRemoveSuperscriptions) { m_flagsLMTMO.setFlag(LMTMO_RemoveSuperscriptions, bRemoveSuperscriptions); }
+	void setWordsOfJesusOnly(bool bWordsOfJesusOnly) { m_flagsLMTMO.setFlag(LMTMO_WordsOfJesusOnly, bWordsOfJesusOnly); }
+	void setIncludeBookPrologues(bool bIncludeBookPrologues) { m_flagsLMTMO.setFlag(LMTMO_IncludeBookPrologues, bIncludeBookPrologues); }
+	void setIncludeChapterPrologues(bool bIncludeChapterPrologues) { m_flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, bIncludeChapterPrologues); }
+
 	void en_selectionChanged(int nIndex);
 
 private:
 	Ui::CELSBibleDatabaseSelectDlg *ui;
 	// ----
 	QString m_strBibleUUID;
-	bool m_bRemoveColophons = false;
-	bool m_bRemoveSuperscriptions = false;
-	bool m_bWordsOfJesusOnly = false;
-	bool m_bIncludePrologues = false;
+	LetterMatrixTextModifierOptionFlags m_flagsLMTMO;
 };
 
 // ============================================================================

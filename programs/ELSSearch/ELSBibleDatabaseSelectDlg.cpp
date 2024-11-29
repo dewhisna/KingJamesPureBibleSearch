@@ -29,18 +29,12 @@
 // ============================================================================
 
 CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUUID,
-														bool bRemoveColophons,
-														bool bRemoveSuperscriptions,
-														bool bWordsOfJesusOnly,
-														bool bIncludePrologues,
-														QWidget *parent)
+													   LetterMatrixTextModifierOptionFlags flagsLMTMO,
+													   QWidget *parent)
 	:	QDialog(parent),
 		ui(new Ui::CELSBibleDatabaseSelectDlg),
 		m_strBibleUUID(strBibleUUID),
-		m_bRemoveColophons(bRemoveColophons),
-		m_bRemoveSuperscriptions(bRemoveSuperscriptions),
-		m_bWordsOfJesusOnly(bWordsOfJesusOnly),
-		m_bIncludePrologues(bIncludePrologues)
+		m_flagsLMTMO(flagsLMTMO)
 {
 	ui->setupUi(this);
 
@@ -62,10 +56,11 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	}
 	if (nSelected >= 0) ui->cmbBible->setCurrentIndex(nSelected);
 
-	ui->chkRemoveColophons->setChecked(m_bRemoveColophons);
-	ui->chkRemoveSuperscriptions->setChecked(m_bRemoveSuperscriptions);
-	ui->chkWordsOfJesusOnly->setChecked(m_bWordsOfJesusOnly);
-	ui->chkIncludePrologues->setChecked(m_bIncludePrologues);
+	ui->chkRemoveColophons->setChecked(m_flagsLMTMO.testFlag(LMTMO_RemoveColophons));
+	ui->chkRemoveSuperscriptions->setChecked(m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions));
+	ui->chkWordsOfJesusOnly->setChecked(m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
+	ui->chkIncludeBookPrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues));
+	ui->chkIncludeChapterPrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 
 	// ---------------------------------
 
@@ -73,7 +68,8 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	connect(ui->chkRemoveColophons, SIGNAL(toggled(bool)), this, SLOT(setRemoveColophons(bool)));
 	connect(ui->chkRemoveSuperscriptions, SIGNAL(toggled(bool)), this, SLOT(setRemoveSuperscriptions(bool)));
 	connect(ui->chkWordsOfJesusOnly, SIGNAL(toggled(bool)), this, SLOT(setWordsOfJesusOnly(bool)));
-	connect(ui->chkIncludePrologues, SIGNAL(toggled(bool)), this, SLOT(setIncludePrologues(bool)));
+	connect(ui->chkIncludeBookPrologues, SIGNAL(toggled(bool)), this, SLOT(setIncludeBookPrologues(bool)));
+	connect(ui->chkIncludeChapterPrologues, SIGNAL(toggled(bool)), this, SLOT(setIncludeChapterPrologues(bool)));
 }
 
 CELSBibleDatabaseSelectDlg::~CELSBibleDatabaseSelectDlg()

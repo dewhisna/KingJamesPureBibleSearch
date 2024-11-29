@@ -127,15 +127,11 @@ class CSplashLauncher : public QSplashScreen
 {
 	Q_OBJECT
 public:
-	CSplashLauncher(const QString  &strBibleUUID,
-					bool bSkipColophons, bool bSkipSuperscriptions, bool bWordsOfJesusOnly, bool bIncludePrologues)
+	CSplashLauncher(const QString  &strBibleUUID, LetterMatrixTextModifierOptionFlags flagsLMTMO)
 		:	QSplashScreen(QPixmap(":/res/BeholdtheStone.png")),
 			m_rdb(this),
 			m_strBibleUUID(strBibleUUID),
-			m_bSkipColophons(bSkipColophons),
-			m_bSkipSuperscriptions(bSkipSuperscriptions),
-			m_bWordsOfJesusOnly(bWordsOfJesusOnly),
-			m_bIncludePrologues(bIncludePrologues)
+			m_flagsLMTMO(flagsLMTMO)
 	{
 		QTimer::singleShot(10, this, SLOT(doLaunch()));
 	}
@@ -170,7 +166,7 @@ protected slots:
 				// When the database read finishes, show the main window and close the progress dialog:
 				if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
 					m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
-															 m_bSkipColophons, m_bSkipSuperscriptions, m_bWordsOfJesusOnly, m_bIncludePrologues);
+															 m_flagsLMTMO);
 
 					m_pMainWindow->show();
 					finish(m_pMainWindow);
@@ -183,10 +179,7 @@ private:
 	CELSSearchMainWindow *m_pMainWindow = nullptr;
 	CReadDatabase m_rdb;
 	QString m_strBibleUUID;
-	bool m_bSkipColophons = false;
-	bool m_bSkipSuperscriptions = false;
-	bool m_bWordsOfJesusOnly = false;
-	bool m_bIncludePrologues = false;
+	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_None;
 };
 
 #include "main.moc"
@@ -218,10 +211,7 @@ int main(int argc, char *argv[])
 	bool bShowUsageHelp = false;
 	// ----
 	bool bRunMultithreaded = false;
-	bool bSkipColophons = false;
-	bool bSkipSuperscriptions = false;
-	bool bWordsOfJesusOnly = false;
-	bool bIncludePrologues = false;
+	LetterMatrixTextModifierOptionFlags flagsLMTMO = LMTMO_None;
 	bool bOutputWordsAllUppercase = false;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
@@ -246,13 +236,15 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-mt") == 0) {
 			bRunMultithreaded = true;
 		} else if (strArg.compare("-sc") == 0) {
-			bSkipColophons = true;
+			flagsLMTMO.setFlag(LMTMO_RemoveColophons, true);
 		} else if (strArg.compare("-ss") == 0) {
-			bSkipSuperscriptions = true;
+			flagsLMTMO.setFlag(LMTMO_RemoveSuperscriptions, true);
 		} else if (strArg.compare("-sj") == 0) {
-			bWordsOfJesusOnly = true;
-		} else if (strArg.compare("-sp") == 0) {
-			bIncludePrologues = true;
+			flagsLMTMO.setFlag(LMTMO_WordsOfJesusOnly, true);
+		} else if (strArg.compare("-sbp") == 0) {
+			flagsLMTMO.setFlag(LMTMO_IncludeBookPrologues, true);
+		} else if (strArg.compare("-scp") == 0) {
+			flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, true);
 		} else if (strArg.compare("-u") == 0) {
 			bOutputWordsAllUppercase = true;
 		} else if (strArg.startsWith("-bb")) {
@@ -291,7 +283,7 @@ int main(int argc, char *argv[])
 			strBibleUUID = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor)).m_strUUID;
 		}
 
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludePrologues};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, flagsLMTMO};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return -1;
 
 		CReadDatabase rdbMain;
@@ -300,9 +292,7 @@ int main(int argc, char *argv[])
 			return -2;
 		}
 
-		CSplashLauncher launcher(dlgBibleSelect.bibleUUID(),
-								 dlgBibleSelect.removeColophons(), dlgBibleSelect.removeSuperscriptions(),
-								 dlgBibleSelect.wordsOfJesusOnly(), dlgBibleSelect.includePrologues());
+		CSplashLauncher launcher{dlgBibleSelect.bibleUUID(), dlgBibleSelect.textModifierOptions()};
 		launcher.show();
 		launcher.ensurePolished();
 		launcher.raise();
@@ -335,7 +325,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -sj    =  Search Words of Jesus Only\n").toUtf8().data();
-		std::cerr << QString("  -sp    =  Search Book/Chapter Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
+		std::cerr << QString("  -sbp   =  Search Book Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
+		std::cerr << QString("  -scp   =  Search Chapter Prologues (Chapter Number, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -bb<n> =  Begin Searching in Book <n> (defaults to first)\n").toUtf8().data();
 		std::cerr << QString("  -be<n> =  End Searching in Book <n>   (defaults to last)\n").toUtf8().data();
@@ -388,7 +379,7 @@ int main(int argc, char *argv[])
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
 
-	CLetterMatrix letterMatrix{pBibleDatabase, bSkipColophons, bSkipSuperscriptions, bWordsOfJesusOnly, bIncludePrologues};
+	CLetterMatrix letterMatrix{pBibleDatabase, flagsLMTMO};
 
 	// ------------------------------------------------------------------------
 
@@ -455,13 +446,14 @@ int main(int argc, char *argv[])
 		std::cout << "Searching in " << strBookRange.toUtf8().data() << "\n";
 	}
 
-	if (bWordsOfJesusOnly) {
+	if (flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
 		std::cout << "Words of Jesus Only\n";
 	} else {
 		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-		if (bIncludePrologues) std::cout << "Including Book/Chapter Prologues\n";
-		if (bSkipColophons) std::cout << "Skipping Colophons\n";
-		if (bSkipSuperscriptions) std::cout << "Skipping Superscriptions\n";
+		if (flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues)) std::cout << "Including Book Prologues\n";
+		if (flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues)) std::cout << "Including Chapter Prologues\n";
+		if (flagsLMTMO.testFlag(LMTMO_RemoveColophons)) std::cout << "Skipping Colophons\n";
+		if (flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) std::cout << "Skipping Superscriptions\n";
 	}
 
 	// Print Summary:
