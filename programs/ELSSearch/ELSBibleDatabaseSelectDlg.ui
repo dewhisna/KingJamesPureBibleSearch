@@ -39,6 +39,14 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="chkWordsOfJesusOnly">
+     <property name="text">
+      <string>Words of &amp;Jesus Only
+(Works only with databases supporting red-letter markup)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="chkRemoveColophons">
      <property name="text">
       <string>Remove &amp;Colophons</string>
@@ -49,14 +57,6 @@
     <widget class="QCheckBox" name="chkRemoveSuperscriptions">
      <property name="text">
       <string>Remove &amp;Superscriptions</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="chkWordsOfJesusOnly">
-     <property name="text">
-      <string>Words of &amp;Jesus Only
-(Works only with databases supporting red-letter markup)</string>
      </property>
     </widget>
    </item>
@@ -103,9 +103,11 @@
  </widget>
  <tabstops>
   <tabstop>cmbBible</tabstop>
+  <tabstop>chkWordsOfJesusOnly</tabstop>
   <tabstop>chkRemoveColophons</tabstop>
   <tabstop>chkRemoveSuperscriptions</tabstop>
-  <tabstop>chkWordsOfJesusOnly</tabstop>
+  <tabstop>chkIncludeBookPrologues</tabstop>
+  <tabstop>chkIncludeChapterPrologues</tabstop>
  </tabstops>
  <resources/>
  <connections>

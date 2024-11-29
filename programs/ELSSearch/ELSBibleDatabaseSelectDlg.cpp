@@ -56,20 +56,54 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	}
 	if (nSelected >= 0) ui->cmbBible->setCurrentIndex(nSelected);
 
+	if (m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly))
+		m_flagsLMTMO = LMTMO_WordsOfJesusOnly | LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions;	// No include book/chapter prologues
+
+	ui->chkWordsOfJesusOnly->setChecked(m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 	ui->chkRemoveColophons->setChecked(m_flagsLMTMO.testFlag(LMTMO_RemoveColophons));
 	ui->chkRemoveSuperscriptions->setChecked(m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions));
-	ui->chkWordsOfJesusOnly->setChecked(m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 	ui->chkIncludeBookPrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues));
 	ui->chkIncludeChapterPrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+
+	ui->chkRemoveColophons->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
+	ui->chkRemoveSuperscriptions->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
+	ui->chkIncludeBookPrologues->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
+	ui->chkIncludeChapterPrologues->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 
 	// ---------------------------------
 
 	connect(ui->cmbBible, SIGNAL(currentIndexChanged(int)), this, SLOT(en_selectionChanged(int)));
-	connect(ui->chkRemoveColophons, SIGNAL(toggled(bool)), this, SLOT(setRemoveColophons(bool)));
-	connect(ui->chkRemoveSuperscriptions, SIGNAL(toggled(bool)), this, SLOT(setRemoveSuperscriptions(bool)));
-	connect(ui->chkWordsOfJesusOnly, SIGNAL(toggled(bool)), this, SLOT(setWordsOfJesusOnly(bool)));
-	connect(ui->chkIncludeBookPrologues, SIGNAL(toggled(bool)), this, SLOT(setIncludeBookPrologues(bool)));
-	connect(ui->chkIncludeChapterPrologues, SIGNAL(toggled(bool)), this, SLOT(setIncludeChapterPrologues(bool)));
+	connect(ui->chkWordsOfJesusOnly, &QCheckBox::toggled, this, [this](bool bWordsOfJesusOnly)->void {
+		m_flagsLMTMO.setFlag(LMTMO_WordsOfJesusOnly, bWordsOfJesusOnly);
+		if (bWordsOfJesusOnly) {
+			if (!ui->chkRemoveColophons->isChecked()) ui->chkRemoveColophons->setChecked(true);
+			if (!ui->chkRemoveSuperscriptions->isChecked()) ui->chkRemoveSuperscriptions->setChecked(true);
+			if (ui->chkIncludeBookPrologues->isChecked()) ui->chkIncludeBookPrologues->setChecked(false);
+			if (ui->chkIncludeChapterPrologues->isChecked()) ui->chkIncludeChapterPrologues->setChecked(false);
+
+			ui->chkRemoveColophons->setEnabled(false);
+			ui->chkRemoveSuperscriptions->setEnabled(false);
+			ui->chkIncludeBookPrologues->setEnabled(false);
+			ui->chkIncludeChapterPrologues->setEnabled(false);
+		} else {
+			ui->chkRemoveColophons->setEnabled(true);
+			ui->chkRemoveSuperscriptions->setEnabled(true);
+			ui->chkIncludeBookPrologues->setEnabled(true);
+			ui->chkIncludeChapterPrologues->setEnabled(true);
+		}
+	});
+	connect(ui->chkRemoveColophons, &QCheckBox::toggled, this, [this](bool bRemoveColophons)->void {
+		m_flagsLMTMO.setFlag(LMTMO_RemoveColophons, bRemoveColophons);
+	});
+	connect(ui->chkRemoveSuperscriptions, &QCheckBox::toggled, this, [this](bool bRemoveSuperscriptions)->void {
+		m_flagsLMTMO.setFlag(LMTMO_RemoveSuperscriptions, bRemoveSuperscriptions);
+	});
+	connect(ui->chkIncludeBookPrologues, &QCheckBox::toggled, this, [this](bool bIncludeBookPrologues)->void {
+		m_flagsLMTMO.setFlag(LMTMO_IncludeBookPrologues, bIncludeBookPrologues);
+	});
+	connect(ui->chkIncludeChapterPrologues, &QCheckBox::toggled, this, [this](bool bIncludeChapterPrologues)->void {
+		m_flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, bIncludeChapterPrologues);
+	});
 }
 
 CELSBibleDatabaseSelectDlg::~CELSBibleDatabaseSelectDlg()
@@ -79,7 +113,7 @@ CELSBibleDatabaseSelectDlg::~CELSBibleDatabaseSelectDlg()
 
 void CELSBibleDatabaseSelectDlg::en_selectionChanged(int nIndex)
 {
-	setBibleUUID(ui->cmbBible->itemData(nIndex).toString());
+	m_strBibleUUID = ui->cmbBible->itemData(nIndex).toString();
 }
 
 // ============================================================================

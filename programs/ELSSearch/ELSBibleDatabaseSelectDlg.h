@@ -49,13 +49,6 @@ public:
 	LetterMatrixTextModifierOptionFlags textModifierOptions() const { return m_flagsLMTMO; }
 
 private slots:
-	void setBibleUUID(const QString &strBibleUUID) { m_strBibleUUID = strBibleUUID; }
-	void setRemoveColophons(bool bRemoveColophons) { m_flagsLMTMO.setFlag(LMTMO_RemoveColophons, bRemoveColophons); }
-	void setRemoveSuperscriptions(bool bRemoveSuperscriptions) { m_flagsLMTMO.setFlag(LMTMO_RemoveSuperscriptions, bRemoveSuperscriptions); }
-	void setWordsOfJesusOnly(bool bWordsOfJesusOnly) { m_flagsLMTMO.setFlag(LMTMO_WordsOfJesusOnly, bWordsOfJesusOnly); }
-	void setIncludeBookPrologues(bool bIncludeBookPrologues) { m_flagsLMTMO.setFlag(LMTMO_IncludeBookPrologues, bIncludeBookPrologues); }
-	void setIncludeChapterPrologues(bool bIncludeChapterPrologues) { m_flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, bIncludeChapterPrologues); }
-
 	void en_selectionChanged(int nIndex);
 
 private:

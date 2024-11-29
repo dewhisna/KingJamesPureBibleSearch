@@ -35,9 +35,9 @@
 
 enum LetterMatrixTextModifierOptions {
 	LMTMO_None = 0x0,						// Default -- No modifiers (use Bible Database as-is)
-	LMTMO_RemoveColophons = 0x0001,			// Strip out colophons from epistles
-	LMTMO_RemoveSuperscriptions = 0x0002,	// Strip out superscriptions from Psalms
-	LMTMO_WordsOfJesusOnly = 0x0004,		// Use Words of Jesus Only
+	LMTMO_WordsOfJesusOnly = 0x0001,		// Use Words of Jesus Only
+	LMTMO_RemoveColophons = 0x0002,			// Strip out colophons from epistles
+	LMTMO_RemoveSuperscriptions = 0x0004,	// Strip out superscriptions from Psalms
 	LMTMO_IncludeBookPrologues = 0x0008,	// Insert Book Title Prologes (KJV Bibles Only)
 	LMTMO_IncludeChapterPrologues = 0x0010,	// Insert Chapter Heading Prologues (KJV Bibles Only)
 };
