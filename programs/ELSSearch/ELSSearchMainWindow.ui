@@ -30,7 +30,7 @@
     <property name="spacing">
      <number>3</number>
     </property>
-    <item row="0" column="0" colspan="5">
+    <item row="0" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="lblWords">
@@ -131,7 +131,7 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="0" rowspan="7">
+    <item row="1" column="0">
      <widget class="QTableView" name="tvLetterMatrix">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -172,135 +172,168 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>0</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="1" column="2">
-     <widget class="QLabel" name="lblSortBy">
-      <property name="text">
-       <string>So&amp;rt By:</string>
-      </property>
-      <property name="buddy">
-       <cstring>cmbSortOrder</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="3">
-     <widget class="QComboBox" name="cmbSortOrder">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="4">
-     <widget class="QCheckBox" name="chkUppercase">
-      <property name="text">
-       <string>&amp;Uppercase</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1" rowspan="4" colspan="4">
-     <widget class="QTableView" name="tvELSResults">
+     <widget class="QFrame" name="frameELSResults">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
       </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContents</enum>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="tabKeyNavigation">
-       <bool>false</bool>
-      </property>
-      <property name="dragEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="dragDropMode">
-       <enum>QAbstractItemView::DragOnly</enum>
-      </property>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
+      <layout class="QGridLayout" name="gridELSResults">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="lblSortBy">
+         <property name="text">
+          <string>So&amp;rt By:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>cmbSortOrder</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QComboBox" name="cmbSortOrder">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QCheckBox" name="chkUppercase">
+         <property name="text">
+          <string>&amp;Uppercase</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="4">
+        <widget class="QTableView" name="tvELSResults">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="tabKeyNavigation">
+          <bool>false</bool>
+         </property>
+         <property name="dragEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::DragOnly</enum>
+         </property>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="4">
+        <widget class="QToolButton" name="btnClear">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>&amp;Clear</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="2">
+        <widget class="QLabel" name="lblWidth">
+         <property name="text">
+          <string>Wi&amp;dth:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>spinWidth</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QSpinBox" name="spinWidth">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimum">
+          <number>2</number>
+         </property>
+         <property name="maximum">
+          <number>1000000</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
-    <item row="6" column="1" colspan="4">
-     <widget class="QToolButton" name="btnClear">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>&amp;Clear</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="1" colspan="2">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>0</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="7" column="3">
-     <widget class="QLabel" name="lblWidth">
-      <property name="text">
-       <string>Wi&amp;dth:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="buddy">
-       <cstring>spinWidth</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="4">
-     <widget class="QSpinBox" name="spinWidth">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimum">
-       <number>2</number>
-      </property>
-      <property name="maximum">
-       <number>1000000</number>
-      </property>
-      <property name="value">
-       <number>50</number>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="0" colspan="5">
+    <item row="2" column="0" colspan="2">
      <widget class="QPlainTextEdit" name="editSearchLog">
       <property name="readOnly">
        <bool>true</bool>
