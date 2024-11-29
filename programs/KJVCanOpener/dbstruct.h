@@ -947,8 +947,8 @@ Q_DECLARE_METATYPE(TPhraseTag)
 
 const QString g_constrPhraseTagMimeType("application/vnd.dewtronics.kjvcanopener.phrasetag");
 const QString g_constrHighlighterPhraseTagListMimeType("application/vnd.dewtronics.kjvcanopener.highlighter.phrasetaglist");
-const QString g_constrPlainTextMimeType("text/plain;charset=utf-8");
-const QString g_constrHTMLTextMimeType("text/html;charset=utf-8");
+const QString g_constrPlainTextMimeType("text/plain");
+const QString g_constrHTMLTextMimeType("text/html");
 
 // ----------------------------------------------------------------------------
 
