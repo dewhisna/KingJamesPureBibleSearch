@@ -31,6 +31,7 @@
 #include "../KJVCanOpener/MimeHelper.h"
 #include "../KJVCanOpener/BusyCursor.h"
 #include <QMimeData>
+#include <QTextDocument>	// Needed for outputting HTML MIME data
 #include <QMap>
 #include <utility>			// for std::pair
 #include <QColor>
@@ -110,7 +111,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 		case Qt::UserRole+1:				// Returns the Matrix Index
 			return nMatrixIndex;
 
-		case Qt::UserRole+2:				// Returns the data for MIME export
+		case Qt::UserRole+2:				// Returns the plain text data for MIME export
 		{
 			QString strValue;
 			if (nMatrixIndex) {
@@ -139,6 +140,23 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 				}
 			} else {
 				strValue = "   ";
+			}
+			return strValue;
+		}
+
+		case Qt::UserRole+3:				// Returns them HTML data for MIME export
+		{
+			QString strValue;
+			if (nMatrixIndex) {
+				if (m_lstCharacterFound.at(nMatrixIndex)) {
+					strValue += QString("<td style=\"background-color:%1\">").arg((m_lstCharacterFound.at(nMatrixIndex) > 1) ? "lightgreen" : "yellow");
+				} else {
+					strValue += "<td>";
+				}
+				strValue += m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+				strValue += "</td>";
+			} else {
+				strValue = "<td>&nbsp;</td>";
 			}
 			return strValue;
 		}
@@ -200,8 +218,13 @@ QMimeData *CLetterMatrixTableModel::mimeData(const QModelIndexList &indexes) con
 
 	CBusyCursor iAmBusy(nullptr);
 
-	QString strText;
-	typedef QMap<int, QString> TColDataMap;			// Map of column index to value to export (for sorting and generation)
+	QString strHTMLText;							// HTML text generation
+	QString strPlainText;							// Plain text generation
+	struct TCellData {
+		QString m_strPlainText;
+		QString m_strHTMLText;
+	};
+	typedef QMap<int, TCellData> TColDataMap;		// Map of column index to value to export (for sorting and generation)
 	typedef QMap<int, TColDataMap> TRowDataMap;		// Map of the above by rows (for sorting and generation)
 	TRowDataMap mapRows;
 
@@ -211,38 +234,56 @@ QMimeData *CLetterMatrixTableModel::mimeData(const QModelIndexList &indexes) con
 	int nMaxCol = -1;
 
 	for (auto const & item : indexes) {
-		mapRows[item.row()][item.column()] = item.data(Qt::UserRole+2).toString();
+		mapRows[item.row()][item.column()] = { item.data(Qt::UserRole+2).toString(), item.data(Qt::UserRole+3).toString() };
 		if ((nMinRow == -1) || (item.row() < nMinRow)) nMinRow = item.row();
 		if ((nMaxRow == -1) || (item.row() > nMaxRow)) nMaxRow = item.row();
 		if ((nMinCol == -1) || (item.column() < nMinCol)) nMinCol = item.column();
 		if ((nMaxCol == -1) || (item.column() > nMaxCol)) nMaxCol = item.column();
 	}
 
+	strHTMLText += QString("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+						   "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+						   "<style type=\"text/css\">\n"
+						   "table { font-family:'Courier'; font-size:14pt; }\n"
+						   "</style></head><body>\n");
+
+	strHTMLText += "<table>\n";
 	int nCurRow = nMinRow;
 	for (TRowDataMap::const_key_value_iterator itrRowData = mapRows.constKeyValueBegin();
 		 itrRowData != mapRows.constKeyValueEnd(); ++itrRowData) {
+		strHTMLText += "<tr>";
 		const std::pair<int, TColDataMap> pairRow = *itrRowData;
 		while (pairRow.first > nCurRow) {
-			strText += "\n";
+			strPlainText += "\n";
+			strHTMLText += "</tr>\n<tr>";
 			++nCurRow;
 		}
 		int nCurCol = nMinCol;
 		for (TColDataMap::const_key_value_iterator itrColData = pairRow.second.constKeyValueBegin();
 			 itrColData != pairRow.second.constKeyValueEnd(); ++itrColData) {
-			const std::pair<int, QString> pairCol = *itrColData;
+			const std::pair<int, TCellData> pairCol = *itrColData;
 			while (pairCol.first > nCurCol) {
-				strText += "   ";
+				strPlainText += "   ";
+				strHTMLText += "<td>&nbsp;</td>";
 				++nCurCol;
 			}
-			strText += pairCol.second;
+			strPlainText += pairCol.second.m_strPlainText;
+			strHTMLText += pairCol.second.m_strHTMLText;
 			++nCurCol;
 		}
-		strText += "\n";
+		strPlainText += "\n";
+		strHTMLText += "</tr>\n";
 		++nCurRow;
 	}
+	strHTMLText += "</table>\n";
+	strHTMLText += "</body></html>";
+
+	QTextDocument docHTMLText;						// HTML text generation to final HTML via QTextDocument
+	docHTMLText.setHtml(strHTMLText);
 
 	QMimeData *mime = new QMimeData();
-	mime->setData(g_constrPlainTextMimeType, strText.toUtf8());
+	mime->setData(g_constrPlainTextMimeType, strPlainText.toUtf8());
+	mime->setData(g_constrHTMLTextMimeType, docHTMLText.toHtml().toUtf8());
 
 	if (indexes.size() == 1) {
 		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(Qt::UserRole).value<CRelIndexEx>()), 1);
@@ -256,6 +297,7 @@ QStringList CLetterMatrixTableModel::mimeTypes() const
 {
 	QStringList lstTypes;
 	lstTypes << g_constrPlainTextMimeType;
+	lstTypes << g_constrHTMLTextMimeType;
 	lstTypes << g_constrPhraseTagMimeType;
 	return lstTypes;
 }
