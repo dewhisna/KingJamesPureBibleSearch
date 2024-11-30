@@ -102,9 +102,10 @@ public:
 	QFont fontSearchResults() const { return m_pPersistentSettingData->m_fntSearchResults; }
 	QFont fontDictionary() const { return m_pPersistentSettingData->m_fntDictionary; }
 
+	bool useSystemColorTheme() const { return m_pPersistentSettingData->m_bUseSystemColorTheme; }
 	bool invertTextBrightness() const { return m_pPersistentSettingData->m_bInvertTextBrightness; }
 	int textBrightness() const { return m_pPersistentSettingData->m_nTextBrightness; }
-	bool adjustDialogElementBrightness() const { return m_pPersistentSettingData->m_bAdjustDialogElementBrightness; }
+	bool adjustDialogElementBrightness() const { return m_pPersistentSettingData->m_bAdjustDialogElementBrightness; }		// Deprecated
 	bool disableToolTips() const { return m_pPersistentSettingData->m_bDisableToolTips; }
 
 	static QColor textForegroundColor(bool bInvert, int nBrightness);
@@ -219,7 +220,8 @@ signals:
 	void fontChangedSearchResults(const QFont &aFont);
 	void fontChangedDictionary(const QFont &aFont);
 
-	void adjustDialogElementBrightnessChanged(bool bAdjust);
+	void changedUseSystemColorTheme(bool bUseSystemColorTheme);
+	void adjustDialogElementBrightnessChanged(bool bAdjust);				// Deprecated
 	void changedTextBrightness(bool bInvert, int nBrightness);
 	void changedDisableToolTips(bool bDisableToolTips);
 
@@ -281,6 +283,7 @@ public slots:
 	void setFontSearchResults(const QFont &aFont);
 	void setFontDictionary(const QFont &aFont);
 
+	void setUseSystemColorTheme(bool bUseSystemColorTheme);
 	void setTextBrightness(bool bInvert, int nBrightness);
 	void setAdjustDialogElementBrightness(bool bAdjust);
 	void setDisableToolTips(bool bDisableToolTips);
@@ -371,9 +374,10 @@ private:
 		QFont m_fntScriptureBrowser;
 		QFont m_fntSearchResults;
 		QFont m_fntDictionary;
-		bool m_bInvertTextBrightness;
+		bool m_bUseSystemColorTheme;					// True if we are using the OS for Light/Dark mode changes
+		bool m_bInvertTextBrightness;					// Note: This is equivalent to isDarkMode, either tracking system or user-selected
 		int m_nTextBrightness;
-		bool m_bAdjustDialogElementBrightness;
+		bool m_bAdjustDialogElementBrightness;			// Deprecated and no longer used
 		bool m_bDisableToolTips;
 		QColor m_clrWordsOfJesus;						// Color for the Words of Jesus (usually "red")
 		QColor m_clrSearchResults;						// Color for the Search Results text we find (usually "blue")

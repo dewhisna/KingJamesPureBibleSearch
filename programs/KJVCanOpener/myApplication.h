@@ -159,8 +159,8 @@ protected:
 public:
 
 #ifndef IS_CONSOLE_APP
-	bool isDarkMode() const;
-	bool colorThemeFollowsSystem() const;
+	bool isDarkMode() const;						// System light/dark if we are following system or user selection if not
+	bool colorThemeCanFollowSystem() const;			// True if we are able to follow system color theme (i.e. newer Qt, etc)
 #endif
 
 	static void saveApplicationLanguage();
@@ -271,6 +271,7 @@ private slots:
 
 	void en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClose);
 
+	void en_changedUseSystemColorTheme(bool bUseSystemColorTheme);
 	void en_setTextBrightness(bool bInvert, int nBrightness);
 	void en_setAdjustDialogElementBrightness(bool bAdjust);
 	void en_setDisableToolTips(bool bDisableToolTips);

@@ -95,9 +95,10 @@ namespace {
 	// --------------
 	// MainApp Control:
 	const QString constrMainAppControlGroup("MainApp/Controls");
-	const QString constrInvertTextBrightnessKey("InvertTextBrightness");
+	const QString constrUseSystemColorThemeKey("UseSystemColorTheme");
+	const QString constrInvertTextBrightnessKey("InvertTextBrightness");			// Equivalent to "Dark Mode"
 	const QString constrTextBrightnessKey("TextBrightness");
-	const QString constrAdjustDialogElementBrightnessKey("AdjustDialogElementBrightness");
+	const QString constrAdjustDialogElementBrightnessKey("AdjustDialogElementBrightness");		// Deprecated
 	const QString constrDisableToolTipsKey("DisableToolTips");
 
 	// Main Bible Database Settings:
@@ -1136,6 +1137,7 @@ void CKJVCanOpener::savePersistentSettings(bool bSaveLastSearchOnly)
 
 		// Main App General Settings:
 		settings.beginGroup(constrMainAppControlGroup);
+		settings.setValue(constrUseSystemColorThemeKey, CPersistentSettings::instance()->useSystemColorTheme());
 		settings.setValue(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness());
 		settings.setValue(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness());
 		settings.setValue(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness());
@@ -1410,14 +1412,16 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrMainAppControlGroup);
 			bool bInvertTextBrightness = settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool();
+			bool bUseSystemColorTheme = settings.value(constrUseSystemColorThemeKey, CPersistentSettings::instance()->useSystemColorTheme()).toBool();
 #ifndef IS_CONSOLE_APP
-			if (g_pMyApplication->colorThemeFollowsSystem()) bInvertTextBrightness = g_pMyApplication->isDarkMode();
+			if (g_pMyApplication->colorThemeCanFollowSystem() && bUseSystemColorTheme) bInvertTextBrightness = g_pMyApplication->isDarkMode();
 #endif
 			int nTextBrightness = settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt();
 			bool bAdjustDialogElementBrightness = settings.value(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool();
-			bAdjustDialogElementBrightness = false;		// Override any existing setting for this since we now have a dark theme and/or using the system theme tracking : TODO: decide what to do with this long-term
+			bAdjustDialogElementBrightness = false;		// Deprecated : Override any existing setting for this since we now have a dark theme and/or using the system theme tracking : TODO: decide what to do with this long-term
 			CPersistentSettings::instance()->setAdjustDialogElementBrightness(bAdjustDialogElementBrightness);
 			CPersistentSettings::instance()->setTextBrightness(bInvertTextBrightness, nTextBrightness);
+			CPersistentSettings::instance()->setUseSystemColorTheme(bUseSystemColorTheme);		// Do this after setTextBrightness above so we don't change the palette multiple times
 			CPersistentSettings::instance()->setDisableToolTips(settings.value(constrDisableToolTipsKey, CPersistentSettings::instance()->disableToolTips()).toBool());
 			settings.endGroup();
 		}

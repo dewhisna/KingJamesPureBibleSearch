@@ -88,6 +88,7 @@ CPersistentSettings::TPersistentSettingData::TPersistentSettingData()
 		m_fntDictionary("DejaVu Serif", 12),
 #endif
 		// Default Text Brightness and ToolTip Options:
+		m_bUseSystemColorTheme(true),
 		m_bInvertTextBrightness(false),
 		m_nTextBrightness(100),
 		m_bAdjustDialogElementBrightness(false),
@@ -307,6 +308,7 @@ void CPersistentSettings::togglePersistentSettingData(bool bCopy)
 		if (pSource->m_fntSearchResults != pTarget->m_fntSearchResults) emit fontChangedSearchResults(pTarget->m_fntSearchResults);
 		if (pSource->m_fntDictionary != pTarget->m_fntDictionary) emit fontChangedDictionary(pTarget->m_fntDictionary);
 
+		if (pSource->m_bUseSystemColorTheme != pTarget->m_bUseSystemColorTheme) emit changedUseSystemColorTheme(pTarget->m_bUseSystemColorTheme);
 		if ((pSource->m_bInvertTextBrightness != pTarget->m_bInvertTextBrightness) ||
 			(pSource->m_nTextBrightness != pTarget->m_nTextBrightness)) emit changedTextBrightness(pTarget->m_bInvertTextBrightness, pTarget->m_nTextBrightness);
 		if (pSource->m_bAdjustDialogElementBrightness != pTarget->m_bAdjustDialogElementBrightness) emit adjustDialogElementBrightnessChanged(pTarget->m_bAdjustDialogElementBrightness);
@@ -424,6 +426,20 @@ void CPersistentSettings::setFontDictionary(const QFont &aFont)
 	}
 }
 
+void CPersistentSettings::setUseSystemColorTheme(bool bUseSystemColorTheme)
+{
+	if (m_pPersistentSettingData->m_bUseSystemColorTheme != bUseSystemColorTheme) {
+		m_pPersistentSettingData->m_bUseSystemColorTheme = bUseSystemColorTheme;
+		emit changedUseSystemColorTheme(m_pPersistentSettingData->m_bUseSystemColorTheme);
+	}
+	// Since Dark Mode can change via the system while editing settings,
+	//	we need to apply this setting immediately so that if the OS
+	//	changes things in the middle of the user configuration changes,
+	//	we won't get out of sync:
+	m_PersistentSettingData1.m_bUseSystemColorTheme = bUseSystemColorTheme;
+	m_PersistentSettingData2.m_bUseSystemColorTheme = bUseSystemColorTheme;
+}
+
 void CPersistentSettings::setTextBrightness(bool bInvert, int nBrightness)
 {
 	Q_ASSERT((nBrightness >= 0) && (nBrightness <= 100));
@@ -435,6 +451,11 @@ void CPersistentSettings::setTextBrightness(bool bInvert, int nBrightness)
 		m_pPersistentSettingData->m_nTextBrightness = nBrightness;
 		emit changedTextBrightness(m_pPersistentSettingData->m_bInvertTextBrightness, m_pPersistentSettingData->m_nTextBrightness);
 	}
+	// Since Dark Mode can change via the system while editing settings,
+	//	we need to save the bInvert to both datasets so it won't get
+	//	undone if the user aborts the configuration change
+	m_PersistentSettingData1.m_bInvertTextBrightness = bInvert;
+	m_PersistentSettingData2.m_bInvertTextBrightness = bInvert;
 }
 
 void CPersistentSettings::setAdjustDialogElementBrightness(bool bAdjust)

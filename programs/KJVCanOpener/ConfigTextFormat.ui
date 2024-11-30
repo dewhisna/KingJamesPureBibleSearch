@@ -42,15 +42,15 @@
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>Invert the color scheme brightness</string>
+        <string>Use Dark Color Scheme</string>
        </property>
        <property name="text">
-        <string>&amp;Invert Text Brightness:</string>
+        <string>&amp;Dark Mode</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLabel" name="lblInvertTextBrightness">
+      <widget class="QLabel" name="lblTextBrightness">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -63,9 +63,12 @@
        <property name="text">
         <string>Text Brightness:</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
       </widget>
      </item>
-     <item row="0" column="2" colspan="2">
+     <item row="0" column="2">
       <widget class="QSlider" name="horzSliderTextBrigtness">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -91,6 +94,22 @@
       </widget>
      </item>
      <item row="1" column="0" colspan="2">
+      <widget class="QCheckBox" name="checkBoxUseSystemColorTheme">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Use Operating System Light/Dark Color Theme</string>
+       </property>
+       <property name="text">
+        <string>&amp;Use Operating System Color Theme</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
       <widget class="QCheckBox" name="checkBoxDisableToolTips">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -103,35 +122,6 @@
        </property>
        <property name="text">
         <string>Disable &amp;Tool Tips</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QCheckBox" name="checkBoxAdjustDialogElementBrightness">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Enable All Dialog Element Text Brightness vs. Search Results/Scripture Browser only</string>
-       </property>
-       <property name="text">
-        <string>Adjust &amp;Dialog Element Brightness</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QLabel" name="lblAdjustDialogElementBrightness">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Note: Application color scheme is controlled by operating system</string>
        </property>
       </widget>
      </item>
@@ -562,7 +552,8 @@
   <tabstop>dblSpinBoxDictionaryFontSize</tabstop>
   <tabstop>checkBoxInvertTextBrightness</tabstop>
   <tabstop>horzSliderTextBrigtness</tabstop>
-  <tabstop>checkBoxAdjustDialogElementBrightness</tabstop>
+  <tabstop>checkBoxUseSystemColorTheme</tabstop>
+  <tabstop>checkBoxDisableToolTips</tabstop>
   <tabstop>listWidgetHighlighterColors</tabstop>
   <tabstop>comboBoxHighlighters</tabstop>
   <tabstop>toolButtonAddHighlighter</tabstop>

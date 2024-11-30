@@ -112,6 +112,7 @@ public slots:
 	void en_SearchResultsFontSizeChanged(double nFontSize);
 	void en_DictionaryFontSizeChanged(double nFontSize);
 
+	void en_UseSystemColorThemeChanged(bool bUseSystemColorTheme);
 	void en_InvertTextBrightnessChanged(bool bInvert);
 	void en_TextBrightnessChanged(int nBrightness);
 	void en_AdjustDialogElementBrightness(bool bAdjust);
@@ -158,9 +159,10 @@ private:
 	QFont m_fntScriptureBrowser;
 	QFont m_fntSearchResults;
 	QFont m_fntDictionary;
+	bool m_bUseSystemColorTheme;
 	bool m_bInvertTextBrightness;
 	int m_nTextBrightness;
-	bool m_bAdjustDialogElementBrightness;
+	bool m_bAdjustDialogElementBrightness;		// Deprecated
 	bool m_bDisableToolTips;
 
 // UI Private:

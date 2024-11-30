@@ -486,9 +486,9 @@ CConfigTextFormat::CConfigTextFormat(CBibleDatabasePtr pBibleDatabase, CDictiona
 
 	// --------------------------------------------------------------
 
+	connect(ui.checkBoxUseSystemColorTheme, SIGNAL(clicked(bool)), this, SLOT(en_UseSystemColorThemeChanged(bool)));
 	connect(ui.checkBoxInvertTextBrightness, SIGNAL(clicked(bool)), this, SLOT(en_InvertTextBrightnessChanged(bool)));
 	connect(ui.horzSliderTextBrigtness, SIGNAL(valueChanged(int)), this, SLOT(en_TextBrightnessChanged(int)));
-	connect(ui.checkBoxAdjustDialogElementBrightness, SIGNAL(clicked(bool)), this, SLOT(en_AdjustDialogElementBrightness(bool)));
 	connect(ui.checkBoxDisableToolTips, SIGNAL(clicked(bool)), this, SLOT(en_DisableToolTipsChanged(bool)));
 
 #if QT_VERSION >= 0x060500
@@ -556,37 +556,17 @@ void CConfigTextFormat::loadSettings()
 
 	// --------------------------------------------------------------
 
+	m_bUseSystemColorTheme = CPersistentSettings::instance()->useSystemColorTheme();
 	m_bInvertTextBrightness = CPersistentSettings::instance()->invertTextBrightness();
 	m_nTextBrightness = CPersistentSettings::instance()->textBrightness();
 	m_bAdjustDialogElementBrightness = CPersistentSettings::instance()->adjustDialogElementBrightness();
 	m_bDisableToolTips = CPersistentSettings::instance()->disableToolTips();
 
-	// Note: lblInvertTextBrightness is a placeholder for checkBoxInvertTextBrightness.
-	//	When the system is controlling the dark/light theme, then the placeholder will
-	//	be visible.  When the user controls it (like older Qt versions), then the checkbox
-	//	will be visible.  This solves the problem on some themes where the disabled
-	//	checkbox looks identical to the enabled and you can't tell that it's disabled.
-	//	Similarly, lblAdjustDialogElementBrightness is a placeholder for checkBoxAdjustDialogElementBrightness.
-
 	ui.checkBoxInvertTextBrightness->setChecked(m_bInvertTextBrightness);
-	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
-	//	the invert checkbox.  The overall invert for that will be set in KJVCanOpener.
-	//	If the OS and/or color scheme doesn't support dark/light settings, we will
-	//	keep this enabled and let the user set it:
-	ui.checkBoxInvertTextBrightness->setEnabled(!g_pMyApplication->colorThemeFollowsSystem());
-	ui.checkBoxInvertTextBrightness->setVisible(!g_pMyApplication->colorThemeFollowsSystem());
-	ui.lblInvertTextBrightness->setVisible(g_pMyApplication->colorThemeFollowsSystem());
+	ui.checkBoxInvertTextBrightness->setEnabled(!g_pMyApplication->colorThemeCanFollowSystem() || !m_bUseSystemColorTheme);
 	ui.horzSliderTextBrigtness->setValue(m_nTextBrightness);
-	ui.checkBoxAdjustDialogElementBrightness->setChecked(m_bAdjustDialogElementBrightness);
-	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
-	//	the adjust dialog element checkbox.  The base value for it will be set in KJVCanOpener.
-	//	If the OS and/or color scheme doesn't support dark/light settings, we will
-	//	keep this enabled and let the user set it:
-//	ui.checkBoxAdjustDialogElementBrightness->setEnabled(!g_pMyApplication->colorThemeFollowsSystem());
-//	ui.checkBoxAdjustDialogElementBrightness->setVisible(!g_pMyApplication->colorThemeFollowsSystem());
-	ui.checkBoxAdjustDialogElementBrightness->setEnabled(false);
-	ui.checkBoxAdjustDialogElementBrightness->setVisible(false);
-	ui.lblAdjustDialogElementBrightness->setVisible(g_pMyApplication->colorThemeFollowsSystem());
+	ui.checkBoxUseSystemColorTheme->setChecked(m_bUseSystemColorTheme);
+	ui.checkBoxUseSystemColorTheme->setEnabled(g_pMyApplication->colorThemeCanFollowSystem());
 	ui.checkBoxDisableToolTips->setChecked(m_bDisableToolTips);
 	adjustSize();			// Readjust the sizing now that we've hidden controls above based on system setup
 
@@ -614,6 +594,7 @@ void CConfigTextFormat::saveSettings()
 	CPersistentSettings::instance()->setAdjustDialogElementBrightness(m_bAdjustDialogElementBrightness);
 	CPersistentSettings::instance()->setTextBrightness(m_bInvertTextBrightness, m_nTextBrightness);
 	CPersistentSettings::instance()->setDisableToolTips(m_bDisableToolTips);
+	// Note: UseSystemColorTheme is set immediately in its change handler
 
 	// Save application font only if not in stealth mode:
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -717,6 +698,19 @@ void CConfigTextFormat::en_DictionaryFontSizeChanged(double nFontSize)
 	emit dataChanged(false);
 }
 
+void CConfigTextFormat::en_UseSystemColorThemeChanged(bool bUseSystemColorTheme)
+{
+	if (m_bLoadingData) return;
+
+	m_bUseSystemColorTheme = bUseSystemColorTheme;
+	ui.checkBoxInvertTextBrightness->setEnabled(!g_pMyApplication->colorThemeCanFollowSystem() || !bUseSystemColorTheme);
+	CPersistentSettings::instance()->setUseSystemColorTheme(m_bUseSystemColorTheme);
+	setPreview();
+	// Don't set IsDirty or fire dataChanged, as we had to apply the above setting
+	//	immediately, as the user might change the OS setting in the middle of this
+	//	configuration and cause us to get out-of-sync otherwise.
+}
+
 void CConfigTextFormat::en_InvertTextBrightnessChanged(bool bInvert)
 {
 	if (m_bLoadingData) return;
@@ -749,8 +743,10 @@ void CConfigTextFormat::en_AdjustDialogElementBrightness(bool bAdjust)
 
 void CConfigTextFormat::en_sysChangedTextBrightness(bool bInvert, int nBrightness)
 {
-	Q_UNUSED(nBrightness);		// We leave nBrightness alone, as we'll use the user setting for preview and apply
+	// We leave nBrightness alone, as we'll use the user setting for preview and apply
 	m_bInvertTextBrightness = bInvert;
+	ui.checkBoxInvertTextBrightness->setChecked(bInvert);
+	CPersistentSettings::instance()->setTextBrightness(bInvert, nBrightness);		// Save the setting
 	setPreview();
 	// Don't set IsDirty here or raise dataChanged event since the user
 	//	didn't make this change!

@@ -530,6 +530,52 @@ public:
 			palette.setColor(QPalette::HighlightedText, Qt::white);
 			palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
 							 QColor(127, 127, 127));
+		} else {
+			// From Fusion style in Qt source:
+			const QColor windowText = Qt::black;
+			const QColor backGround = QColor(239, 239, 239);
+			const QColor light = backGround.lighter(150);
+			const QColor mid = (backGround.darker(130));
+			const QColor midLight = mid.lighter(110);
+			const QColor base = Qt::white;
+			const QColor disabledBase(backGround);
+			const QColor dark = backGround.darker(150);
+			const QColor darkDisabled = QColor(209, 209, 209).darker(110);
+			const QColor text = Qt::black;
+			const QColor highlight = QColor(48, 140, 198);
+			const QColor hightlightedText = Qt::white;
+			const QColor disabledText = QColor(190, 190, 190);
+			const QColor button = backGround;
+			const QColor shadow = dark.darker(135);
+			const QColor disabledShadow = shadow.lighter(150);
+			QColor placeholder = text;
+			placeholder.setAlpha(128);
+
+			const QBrush windowBrush(backGround);
+			const QBrush lightBrush(light);
+			palette.setColorGroup(QPalette::All, QBrush(windowText), windowBrush, lightBrush,
+						  QBrush(dark), QBrush(mid), QBrush(text), lightBrush,
+						  QBrush(base), windowBrush);
+
+			palette.setBrush(QPalette::Midlight, midLight);
+			palette.setBrush(QPalette::Button, button);
+			palette.setBrush(QPalette::Shadow, shadow);
+			palette.setBrush(QPalette::HighlightedText, hightlightedText);
+
+			palette.setBrush(QPalette::Disabled, QPalette::Text, disabledText);
+			palette.setBrush(QPalette::Disabled, QPalette::WindowText, disabledText);
+			palette.setBrush(QPalette::Disabled, QPalette::ButtonText, disabledText);
+			palette.setBrush(QPalette::Disabled, QPalette::Base, disabledBase);
+			palette.setBrush(QPalette::Disabled, QPalette::Dark, darkDisabled);
+			palette.setBrush(QPalette::Disabled, QPalette::Shadow, disabledShadow);
+
+			palette.setBrush(QPalette::Active, QPalette::Highlight, highlight);
+			palette.setBrush(QPalette::Inactive, QPalette::Highlight, highlight);
+			palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(145, 145, 145));
+
+#if QT_VERSION >= 0x050C00			// Placeholder was introduced in Qt 5.12, so disable for Qt 4.8.7 targets, etc
+			palette.setBrush(QPalette::PlaceholderText, placeholder);
+#endif
 		}
 	}
 
@@ -763,6 +809,7 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 //	CPersistentSettings::instance()->setAdjustDialogElementBrightness(colorThemeFollowsSystem());
 #endif
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
+	connect(CPersistentSettings::instance(), SIGNAL(changedUseSystemColorTheme(bool)), this, SLOT(en_changedUseSystemColorTheme(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_setTextBrightness(bool,int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_setAdjustDialogElementBrightness(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedDisableToolTips(bool)), this, SLOT(en_setDisableToolTips(bool)));
@@ -773,13 +820,13 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
 	//	the invert checkbox.  The initial setting will be done above.
 	//	Here, we hook the colorSchemeChanged signal to update it:
-	connect(styleHints(), &QStyleHints::colorSchemeChanged,
-			[](Qt::ColorScheme nColorScheme)->void {
+	connect(styleHints(), &QStyleHints::colorSchemeChanged, this,
+			[this](Qt::ColorScheme nColorScheme)->void {
 				if (nColorScheme != Qt::ColorScheme::Unknown) {
 					CPersistentSettings::instance()->setTextBrightness(
-						nColorScheme == Qt::ColorScheme::Dark,
+						CPersistentSettings::instance()->useSystemColorTheme() ? (nColorScheme == Qt::ColorScheme::Dark) : isDarkMode(),
 						CPersistentSettings::instance()->textBrightness());
-				}
+				}	// Note: Since Qt will always be trying to change the theme on us anyway, we need to call setTextBrightness() above, even when not using the system settings
 			});
 #endif
 #endif
@@ -789,15 +836,17 @@ void CMyApplication::setupTextBrightnessStyleHooks()
 bool CMyApplication::isDarkMode() const
 {
 #if QT_VERSION >= 0x060500
-	return styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+	if (CPersistentSettings::instance()->useSystemColorTheme()) {
+		return styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+	} else {
+		return CPersistentSettings::instance()->invertTextBrightness();
+	}
 #else
-//	const QPalette defaultPalette;
-//	return defaultPalette.color(QPalette::WindowText).lightness() > defaultPalette.color(QPalette::Window).lightness();
 	return CPersistentSettings::instance()->invertTextBrightness();
 #endif
 }
 
-bool CMyApplication::colorThemeFollowsSystem() const
+bool CMyApplication::colorThemeCanFollowSystem() const
 {
 #if QT_VERSION >= 0x060500
 	return styleHints()->colorScheme() != Qt::ColorScheme::Unknown;
@@ -1274,6 +1323,14 @@ void CMyApplication::en_canCloseChanged(CKJVCanOpener *pCanOpener, bool bCanClos
 	Q_UNUSED(pCanOpener);
 	Q_UNUSED(bCanClose);
 	emit canQuitChanged(canQuit());
+}
+
+void CMyApplication::en_changedUseSystemColorTheme(bool bUseSystemColorTheme)
+{
+	Q_UNUSED(bUseSystemColorTheme);
+#ifndef IS_CONSOLE_APP
+	CPersistentSettings::instance()->setTextBrightness(isDarkMode(), CPersistentSettings::instance()->textBrightness());
+#endif
 }
 
 void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
