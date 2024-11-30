@@ -34,11 +34,16 @@
 #include <QMap>
 #include <utility>			// for std::pair
 #include <QColor>
+
 #ifdef USING_ELSSEARCH
 #include "../KJVCanOpener/myApplication.h"
 #include <QPalette>
+#elif QT_VERSION >= 0x060500
+#include <QStyleHints>
+#include <QApplication>
 #endif
-#endif
+
+#endif	// !IS_CONSOLE_APP
 
 #include <QVariant>
 #include <QSize>
@@ -142,12 +147,20 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			return m_fontMatrix;
 
 		case Qt::ForegroundRole:
-#if !defined(IS_CONSOLE_APP) && defined(USING_ELSSEARCH)
+#ifndef IS_CONSOLE_APP
+#ifdef USING_ELSSEARCH
 			if (g_pMyApplication->isDarkMode()) {
 				if ((nMatrixIndex != 0) && m_lstCharacterFound.at(nMatrixIndex)) {
 					return g_pMyApplication->palette("QTableView").base();
 				}
 			}
+#elif QT_VERSION >= 0x060500
+			if (QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+				if ((nMatrixIndex != 0) && m_lstCharacterFound.at(nMatrixIndex)) {
+					return QApplication::palette("QTableView").base();
+				}
+			}
+#endif
 #endif
 			break;
 
