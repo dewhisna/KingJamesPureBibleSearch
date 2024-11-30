@@ -154,7 +154,14 @@ public:
 
 	static void saveApplicationFontSettings();
 	static void restoreApplicationFontSettings();
+protected:
 	void setupTextBrightnessStyleHooks();
+public:
+
+#ifndef IS_CONSOLE_APP
+	bool isDarkMode() const;
+	bool colorThemeFollowsSystem() const;
+#endif
 
 	static void saveApplicationLanguage();
 	static void restoreApplicationLanguage();
@@ -287,7 +294,9 @@ protected:
 
 	QList<CKJVCanOpener *> m_lstKJVCanOpeners;
 	int m_nLastActivatedCanOpener;						// Index of last KJVCanOpener that was activated by the user
+	QString m_strDarkStyleSheet;						// KJPBS Dark StyleSheet
 	QString m_strStartupStyleSheet;						// Initial stylesheet given to us at startup, which will be the user's StyleSheet if they used the "-stylesheet" option
+	QPointer<class MyProxyStyle> m_pMyProxyStyle;
 	bool m_bUsingCustomStyleSheet;						// Set to true if we've overridden the StartupStyleSheet
 	bool m_bAreRestarting;								// Set to true if we are exiting to restart the app
 	QString m_strTTSServerURL;							// Text-To-Speech server URL for use with Festival, etc. from the command-line "-TTSServer" option

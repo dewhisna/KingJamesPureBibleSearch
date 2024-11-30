@@ -34,10 +34,9 @@
 #include <QMap>
 #include <utility>			// for std::pair
 #include <QColor>
-#if QT_VERSION >= 0x060500
+#ifdef USING_ELSSEARCH
 #include "../KJVCanOpener/myApplication.h"
 #include <QPalette>
-#include <QStyleHints>
 #endif
 #endif
 
@@ -143,14 +142,12 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			return m_fontMatrix;
 
 		case Qt::ForegroundRole:
-#if QT_VERSION >= 0x060500
 #if !defined(IS_CONSOLE_APP) && defined(USING_ELSSEARCH)
-			if (g_pMyApplication->styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+			if (g_pMyApplication->isDarkMode()) {
 				if ((nMatrixIndex != 0) && m_lstCharacterFound.at(nMatrixIndex)) {
 					return g_pMyApplication->palette("QTableView").base();
 				}
 			}
-#endif
 #endif
 			break;
 

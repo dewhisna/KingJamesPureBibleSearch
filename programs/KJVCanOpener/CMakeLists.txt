@@ -466,6 +466,7 @@ endif()
 
 set(KJVCanOpener_RESOURCES
 	"KJVCanOpener.qrc"
+	"darkstyle.qrc"
 )
 
 if(WIN32)

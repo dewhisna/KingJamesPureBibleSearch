@@ -94,6 +94,10 @@
 #include <QMessageBox>
 #include "AboutDlg.h"
 #include <QDesktopServices>
+#if QT_VERSION >= 0x060500
+#include <QStyleHints>
+#endif
+#include <QPalette>
 #endif
 
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
@@ -498,6 +502,41 @@ public:
 
 		return QProxyStyle::styleHint(hint, option, widget, returnData);
 	}
+
+	virtual void polish(QPalette &palette) override
+	{
+		if (m_bDarkMode) {
+			// modify palette to dark
+			palette.setColor(QPalette::Window, QColor(53, 53, 53));
+			palette.setColor(QPalette::WindowText, Qt::white);
+			palette.setColor(QPalette::Disabled, QPalette::WindowText,
+							 QColor(127, 127, 127));
+			palette.setColor(QPalette::Base, QColor(42, 42, 42));
+			palette.setColor(QPalette::AlternateBase, QColor(66, 66, 66));
+			palette.setColor(QPalette::ToolTipBase, Qt::white);
+			palette.setColor(QPalette::ToolTipText, QColor(53, 53, 53));
+			palette.setColor(QPalette::Text, Qt::white);
+			palette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
+			palette.setColor(QPalette::Dark, QColor(35, 35, 35));
+			palette.setColor(QPalette::Shadow, QColor(20, 20, 20));
+			palette.setColor(QPalette::Button, QColor(53, 53, 53));
+			palette.setColor(QPalette::ButtonText, Qt::white);
+			palette.setColor(QPalette::Disabled, QPalette::ButtonText,
+							 QColor(127, 127, 127));
+			palette.setColor(QPalette::BrightText, Qt::red);
+			palette.setColor(QPalette::Link, QColor(42, 130, 218));
+			palette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+			palette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(80, 80, 80));
+			palette.setColor(QPalette::HighlightedText, Qt::white);
+			palette.setColor(QPalette::Disabled, QPalette::HighlightedText,
+							 QColor(127, 127, 127));
+		}
+	}
+
+	void setDarkMode(bool bDarkMode) { m_bDarkMode = bDarkMode; }
+
+private:
+	bool m_bDarkMode = false;
 };
 
 // ============================================================================
@@ -554,7 +593,15 @@ CMyApplication::CMyApplication(int & argc, char ** argv)
 		}
 	}
 
-	setStyle(new MyProxyStyle());			// Note: QApplication will take ownership of this (no need for delete)
+	// Load Dark Style:
+	QFile qfDarkstyle(QLatin1String(":/darkstyle/darkstyle.qss"));
+	if (qfDarkstyle.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		m_strDarkStyleSheet = QString::fromUtf8(qfDarkstyle.readAll());
+		qfDarkstyle.close();
+	}
+
+	m_pMyProxyStyle = new MyProxyStyle();
+	setStyle(m_pMyProxyStyle);			// Note: QApplication will take ownership of this (no need for delete)
 #endif
 
 	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
@@ -711,11 +758,54 @@ void CMyApplication::restoreApplicationFontSettings()
 void CMyApplication::setupTextBrightnessStyleHooks()
 {
 	// Setup Default TextBrightness:
+#ifndef IS_CONSOLE_APP
+	CPersistentSettings::instance()->setTextBrightness(isDarkMode(), CPersistentSettings::instance()->textBrightness());
+//	CPersistentSettings::instance()->setAdjustDialogElementBrightness(colorThemeFollowsSystem());
+#endif
 	en_setTextBrightness(CPersistentSettings::instance()->invertTextBrightness(), CPersistentSettings::instance()->textBrightness());
 	connect(CPersistentSettings::instance(), SIGNAL(changedTextBrightness(bool,int)), this, SLOT(en_setTextBrightness(bool,int)));
 	connect(CPersistentSettings::instance(), SIGNAL(adjustDialogElementBrightnessChanged(bool)), this, SLOT(en_setAdjustDialogElementBrightness(bool)));
 	connect(CPersistentSettings::instance(), SIGNAL(changedDisableToolTips(bool)), this, SLOT(en_setDisableToolTips(bool)));
+
+// -------------------- Dark/Light ColorScheme OS Tracking:
+#ifndef IS_CONSOLE_APP
+#if QT_VERSION >= 0x060500
+	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
+	//	the invert checkbox.  The initial setting will be done above.
+	//	Here, we hook the colorSchemeChanged signal to update it:
+	connect(styleHints(), &QStyleHints::colorSchemeChanged,
+			[](Qt::ColorScheme nColorScheme)->void {
+				if (nColorScheme != Qt::ColorScheme::Unknown) {
+					CPersistentSettings::instance()->setTextBrightness(
+						nColorScheme == Qt::ColorScheme::Dark,
+						CPersistentSettings::instance()->textBrightness());
+				}
+			});
+#endif
+#endif
 }
+
+#ifndef IS_CONSOLE_APP
+bool CMyApplication::isDarkMode() const
+{
+#if QT_VERSION >= 0x060500
+	return styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+#else
+//	const QPalette defaultPalette;
+//	return defaultPalette.color(QPalette::WindowText).lightness() > defaultPalette.color(QPalette::Window).lightness();
+	return CPersistentSettings::instance()->invertTextBrightness();
+#endif
+}
+
+bool CMyApplication::colorThemeFollowsSystem() const
+{
+#if QT_VERSION >= 0x060500
+	return styleHints()->colorScheme() != Qt::ColorScheme::Unknown;
+#else
+	return false;
+#endif
+}
+#endif	// IS_CONSOLE_APP
 
 // ============================================================================
 
@@ -1191,12 +1281,16 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 
 #ifndef IS_CONSOLE_APP
 
+	if (!m_pMyProxyStyle.isNull()) m_pMyProxyStyle->setDarkMode(bInvert);
+	setStyle(m_pMyProxyStyle);
+
 	// Note: This code needs to cooperate with the setStyleSheet in the constructor
 	//			of KJVCanOpener that works around QTBUG-13768...
 
 	if (CPersistentSettings::instance()->adjustDialogElementBrightness()) {
 		// Note: This will automatically cause a repaint:
-		setStyleSheet(QString("%3\n"
+		setStyleSheet(QString("%5\n"
+							  "%3\n"
 							  "%4\n"
 							  "CPhraseLineEdit { background-color:%1; color:%2; }\n"
 							  "QLineEdit { background-color:%1; color:%2; }\n"
@@ -1210,13 +1304,16 @@ void CMyApplication::en_setTextBrightness(bool bInvert, int nBrightness)
 							).arg(CPersistentSettings::textBackgroundColor(bInvert, nBrightness).name())
 							 .arg(CPersistentSettings::textForegroundColor(bInvert, nBrightness).name())
 							 .arg(CPersistentSettings::instance()->disableToolTips() ? "QToolTip { opacity: 0; }" : "")
-							 .arg(startupStyleSheet()));
+							 .arg(startupStyleSheet())
+							 .arg(bInvert ? m_strDarkStyleSheet : QString()));
 		m_bUsingCustomStyleSheet = true;
 	} else {
-		setStyleSheet(QString("%1\n"
+		setStyleSheet(QString("%3\n"
+							  "%1\n"
 							  "%2\n"
 							).arg(CPersistentSettings::instance()->disableToolTips() ? "QToolTip { opacity: 0; }" : "")
-							 .arg(startupStyleSheet()));
+							 .arg(startupStyleSheet())
+							 .arg(bInvert ? m_strDarkStyleSheet : QString()));
 		m_bUsingCustomStyleSheet = false;
 	}
 

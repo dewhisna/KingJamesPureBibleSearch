@@ -90,7 +90,23 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="1" column="0" colspan="2">
+      <widget class="QCheckBox" name="checkBoxDisableToolTips">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Disable Tool Tip Popups in application</string>
+       </property>
+       <property name="text">
+        <string>Disable &amp;Tool Tips</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
       <widget class="QCheckBox" name="checkBoxAdjustDialogElementBrightness">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -106,7 +122,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="2">
+     <item row="1" column="3">
       <widget class="QLabel" name="lblAdjustDialogElementBrightness">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -116,22 +132,6 @@
        </property>
        <property name="text">
         <string>Note: Application color scheme is controlled by operating system</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QCheckBox" name="checkBoxDisableToolTips">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Disable Tool Tip Popups in application</string>
-       </property>
-       <property name="text">
-        <string>Disable &amp;Tool Tips</string>
        </property>
       </widget>
      </item>

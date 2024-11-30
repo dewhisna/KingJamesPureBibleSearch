@@ -68,10 +68,6 @@
 #include <QKeySequence>
 #include <QMessageBox>
 #include <QMimeData>
-#if QT_VERSION >= 0x050000
-#include <QGuiApplication>
-#include <QStyleHints>
-#endif
 #include <QApplication>
 #include <QClipboard>
 #include <QTime>
@@ -1012,23 +1008,6 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 #endif
 
 
-	// -------------------- Dark/Light ColorScheme OS Tracking:
-#if QT_VERSION >= 0x060500
-	// For Qt >=6.5, we will follow the system dark/light scheme instead of using
-	//	the invert checkbox.  The initial setting will be done below in
-	//	restorePersistentSettings().  Here, we hook thec olorSchemeChanged signal
-	//	to update it:
-	connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged,
-			[](Qt::ColorScheme nColorScheme)->void {
-				if (nColorScheme != Qt::ColorScheme::Unknown) {
-					CPersistentSettings::instance()->setTextBrightness(
-						nColorScheme == Qt::ColorScheme::Dark,
-						CPersistentSettings::instance()->textBrightness());
-				}
-			});
-#endif
-
-
 	// -------------------- Persistent Settings:
 	// Do this as a singleShot to delay it until after we get out of the constructor.
 	//		This is necessary because that function can cause modal message boxes, etc,
@@ -1431,24 +1410,12 @@ void CKJVCanOpener::restorePersistentSettings(bool bAppRestarting)
 		if (bIsFirstCanOpener) {
 			settings.beginGroup(constrMainAppControlGroup);
 			bool bInvertTextBrightness = settings.value(constrInvertTextBrightnessKey, CPersistentSettings::instance()->invertTextBrightness()).toBool();
+#ifndef IS_CONSOLE_APP
+			if (g_pMyApplication->colorThemeFollowsSystem()) bInvertTextBrightness = g_pMyApplication->isDarkMode();
+#endif
 			int nTextBrightness = settings.value(constrTextBrightnessKey, CPersistentSettings::instance()->textBrightness()).toInt();
-#if QT_VERSION >= 0x060500
-			// For Qt >=6.5, we will follow the system dark/light scheme instead of using
-			//	the invert checkbox.  The initial setting is set here and we will also
-			//	hook the colorSchemeChanged signal (above) to update it:
-			if (QGuiApplication::styleHints()->colorScheme() != Qt::ColorScheme::Unknown) {
-				bInvertTextBrightness = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
-			}
-#endif
 			bool bAdjustDialogElementBrightness = settings.value(constrAdjustDialogElementBrightnessKey, CPersistentSettings::instance()->adjustDialogElementBrightness()).toBool();
-#if QT_VERSION >= 0x060500
-			// For Qt >=6.5, we will follow the system dark/light scheme instead of using
-			//	the adjust dialog element checkbox.  When following the dark/light scheme,
-			//	we must always adjust the dialog boxes:
-			if (QGuiApplication::styleHints()->colorScheme() != Qt::ColorScheme::Unknown) {
-				bAdjustDialogElementBrightness = true;
-			}
-#endif
+			bAdjustDialogElementBrightness = false;		// Override any existing setting for this since we now have a dark theme and/or using the system theme tracking : TODO: decide what to do with this long-term
 			CPersistentSettings::instance()->setAdjustDialogElementBrightness(bAdjustDialogElementBrightness);
 			CPersistentSettings::instance()->setTextBrightness(bInvertTextBrightness, nTextBrightness);
 			CPersistentSettings::instance()->setDisableToolTips(settings.value(constrDisableToolTipsKey, CPersistentSettings::instance()->disableToolTips()).toBool());
