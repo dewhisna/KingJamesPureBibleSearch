@@ -33,10 +33,15 @@
 #include <QMimeData>
 #include <QMap>
 #include <utility>			// for std::pair
+#include <QColor>
+#if QT_VERSION >= 0x060500
+#include "../KJVCanOpener/myApplication.h"
+#include <QPalette>
+#include <QStyleHints>
+#endif
 #endif
 
 #include <QVariant>
-#include <QColor>
 #include <QSize>
 
 // ============================================================================
@@ -137,10 +142,24 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 		case Qt::FontRole:
 			return m_fontMatrix;
 
+		case Qt::ForegroundRole:
+#if QT_VERSION >= 0x060500
+#if !defined(IS_CONSOLE_APP) && defined(USING_ELSSEARCH)
+			if (g_pMyApplication->styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+				if ((nMatrixIndex != 0) && m_lstCharacterFound.at(nMatrixIndex)) {
+					return g_pMyApplication->palette("QTableView").base();
+				}
+			}
+#endif
+#endif
+			break;
+
 		case Qt::BackgroundRole:
+#ifndef IS_CONSOLE_APP
 			if ((nMatrixIndex != 0) && m_lstCharacterFound.at(nMatrixIndex)) {
 				return ((m_lstCharacterFound.at(nMatrixIndex) > 1) ? QColor("lightgreen") :  QColor("yellow"));
 			}
+#endif
 			break;
 
 		case Qt::SizeHintRole:
