@@ -942,7 +942,7 @@ CKJVCanOpener::CKJVCanOpener(CBibleDatabasePtr pBibleDatabase, QWidget *parent) 
 	pWindowMenu->addSeparator();
 
 	// TODO : Add icon for ELSSearch:
-	pAction = pWindowMenu->addAction(tr("&ELSSearch..."), this, SLOT(en_LaunchELSSearch()));
+	pAction = pWindowMenu->addAction(tr("&ELSSearch..."), this, SLOT(launchELSSearch()));
 	pAction->setStatusTip(tr("Open ELS/FLS Search Tool Window", "MainMenu"));
 	pAction->setToolTip(tr("Open ELS/FLS Search Tool Window", "MainMenu"));
 #endif
@@ -3089,30 +3089,38 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 }
 
 #ifdef USING_ELSSEARCH
-void CKJVCanOpener::en_LaunchELSSearch()
+CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID, LetterMatrixTextModifierOptionFlags flagsTMO, QWidget *pParent)
 {
-	// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
-	CELSBibleDatabaseSelectDlg dlgBibleSelect{m_pBibleDatabase->compatibilityUUID(), LMTMO_None, this};
-	if (dlgBibleSelect.exec() == QDialog::Rejected) return;
+	if (pParent == nullptr) pParent = this;
+
+	QString strTargetUUID = strUUID;
+	LetterMatrixTextModifierOptionFlags flagsTargetTMO = flagsTMO;
+
+	if (strTargetUUID.isEmpty()) {
+		// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{m_pBibleDatabase->compatibilityUUID(), LMTMO_None, pParent};
+		if (dlgBibleSelect.exec() == QDialog::Rejected) return nullptr;
+		strTargetUUID = dlgBibleSelect.bibleUUID();
+		flagsTargetTMO = dlgBibleSelect.textModifierOptions();
+	}
 
 	CBusyCursor iAmBusy(nullptr);
 
-	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dlgBibleSelect.bibleUUID());
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strTargetUUID);
 #ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
 	if (pBibleDatabase.isNull()) {
-		if (TBibleDatabaseList::instance()->loadBibleDatabase(dlgBibleSelect.bibleUUID(), false, this)) {
-			pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dlgBibleSelect.bibleUUID());
+		if (TBibleDatabaseList::instance()->loadBibleDatabase(strTargetUUID, false, pParent)) {
+			pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strTargetUUID);
 			Q_ASSERT(!pBibleDatabase.isNull());
 		} else {
-			return;
+			return nullptr;
 		}
 	}
 #else
 	Q_ASSERT(!pBibleDatabase.isNull());
 #endif
 
-	CELSSearchMainWindow *pELSSearchWindow = new CELSSearchMainWindow(pBibleDatabase,
-																	  dlgBibleSelect.textModifierOptions());
+	CELSSearchMainWindow *pELSSearchWindow = new CELSSearchMainWindow(pBibleDatabase, flagsTargetTMO);
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	addSettingsMenu(pELSSearchWindow);
 #endif
@@ -3121,6 +3129,8 @@ void CKJVCanOpener::en_LaunchELSSearch()
 
 	// Hook ELSSearch window into quit/restart logic:
 	g_pMyApplication->registerELSSearchWindow(pELSSearchWindow);
+
+	return pELSSearchWindow;
 }
 #endif
 

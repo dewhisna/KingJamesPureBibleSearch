@@ -1,6 +1,9 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 	<qresource prefix="/">
+		<file>res/gnome_window_new.png</file>
+		<file>res/open-file-icon3.png</file>
+		<file>res/save-file-icon3.png</file>
 		<file>res/exit.png</file>
 		<!--
 			From: https://beholdthestone.com/archives/5043

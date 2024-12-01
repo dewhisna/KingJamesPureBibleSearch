@@ -32,6 +32,10 @@
 #include "SearchResults.h"
 #include "BrowserWidget.h"
 
+#ifdef USING_ELSSEARCH
+#include "../ELSSearch/LetterMatrix.h"
+#endif
+
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QMenu>
@@ -54,6 +58,9 @@ class CTipEdit;
 class CDictionaryWidget;
 #ifdef USE_GEOMAP
 class CGeoMap;
+#endif
+#ifdef USING_ELSSEARCH
+class CELSSearchMainWindow;
 #endif
 
 // ============================================================================
@@ -150,6 +157,10 @@ public:
 	static QString determineBibleUUIDForKJVSearchFile(const QString &strFilePathName);
 
 public slots:
+#ifdef USING_ELSSEARCH
+	CELSSearchMainWindow *launchELSSearch(const QString &strUUID = QString(), LetterMatrixTextModifierOptionFlags flagsTMO = LMTMO_None, QWidget *pParent = nullptr);
+#endif
+
 	bool openKJVSearchFile(const QString &strFilePathName);
 	bool saveKJVSearchFile(const QString &strFilePathName) const;
 
@@ -225,10 +236,6 @@ protected slots:
 	void en_NewCanOpener(QAction *pAction = nullptr);
 
 	void en_changeActiveCanOpener(CKJVCanOpener *pNewActiveCanOpener, CKJVCanOpener *pOldActiveCanOpener);
-
-#ifdef USING_ELSSEARCH
-	void en_LaunchELSSearch();
-#endif
 
 #ifdef USING_QT_SPEECH
 	void en_speechPause();

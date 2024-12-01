@@ -222,6 +222,45 @@ QString elsresultSortOrderDescription(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
 	return QString();
 }
 
+ELSRESULT_SORT_ORDER_ENUM elsresultSortOrderFromLetters(const QString &strLetters)
+{
+	if (strLetters.compare("wsr", Qt::CaseInsensitive) == 0) {
+		return ESO_WSR;
+	} else if (strLetters.compare("wrs", Qt::CaseInsensitive) == 0) {
+		return ESO_WRS;
+	} else if (strLetters.compare("rws", Qt::CaseInsensitive) == 0) {
+		return ESO_RWS;
+	} else if (strLetters.compare("rsw", Qt::CaseInsensitive) == 0) {
+		return ESO_RSW;
+	} else if (strLetters.compare("srw", Qt::CaseInsensitive) == 0) {
+		return ESO_SRW;
+	} else if (strLetters.compare("swr", Qt::CaseInsensitive) == 0) {
+		return ESO_SWR;
+	}
+	return ESO_COUNT;
+}
+
+QString elsresultSortOrderToLetters(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
+{
+	switch (nSortOrder) {
+		case ESO_WSR:
+			return "wsr";
+		case ESO_WRS:
+			return "wrs";
+		case ESO_RWS:
+			return "rws";
+		case ESO_RSW:
+			return "rsw";
+		case ESO_SRW:
+			return "srw";
+		case ESO_SWR:
+			return "swr";
+		default:
+			break;
+	}
+	return QString();
+}
+
 // ----------------------------------------------------------------------------
 
 QString elsSearchTypeDescription(ELS_SEARCH_TYPE_ENUM nSearchType)
@@ -263,6 +302,93 @@ QString elsSearchTypeDescription(ELS_SEARCH_TYPE_ENUM nSearchType)
 			return QObject::tr("FLS Vortex-Based 7 Only", "CELSResult");
 		case ESTE_FLS_C9_8:
 			return QObject::tr("FLS Vortex-Based 8 Only", "CELSResult");
+		default:
+			break;
+	}
+	return QString();
+}
+
+ELS_SEARCH_TYPE_ENUM elsSearchTypeFromID(const QString &strID)
+{
+	if (strID.compare("ELS", Qt::CaseInsensitive) == 0) {
+		return ESTE_ELS;
+	} else if (strID.compare("FLS", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS;
+	} else if (strID.compare("FLS_C9_ALL", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_ALL;
+	} else if (strID.compare("FLS_C9_124875", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_124875;
+	} else if (strID.compare("FLS_C9_147", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_147;
+	} else if (strID.compare("FLS_C9_852", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_852;
+	} else if (strID.compare("FLS_C9_18", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_18;
+	} else if (strID.compare("FLS_C9_45", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_45;
+	} else if (strID.compare("FLS_C9_72", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_72;
+	} else if (strID.compare("FLS_C9_36", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_36;
+	} else if (strID.compare("FLS_C9_1", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_1;
+	} else if (strID.compare("FLS_C9_2", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_2;
+	} else if (strID.compare("FLS_C9_3", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_3;
+	} else if (strID.compare("FLS_C9_4", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_4;
+	} else if (strID.compare("FLS_C9_5", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_5;
+	} else if (strID.compare("FLS_C9_6", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_6;
+	} else if (strID.compare("FLS_C9_7", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_7;
+	} else if (strID.compare("FLS_C9_8", Qt::CaseInsensitive) == 0) {
+		return ESTE_FLS_C9_8;
+	}
+	return ESTE_COUNT;
+}
+
+QString elsSearchTypeToID(ELS_SEARCH_TYPE_ENUM nSearchType)
+{
+	switch (nSearchType) {
+		case ESTE_ELS:
+			return "ELS";
+		case ESTE_FLS:
+			return "FLS";
+		case ESTE_FLS_C9_ALL:
+			return "FLS_C9_ALL";
+		case ESTE_FLS_C9_124875:
+			return "FLS_C9_124875";
+		case ESTE_FLS_C9_147:
+			return "FLS_C9_147";
+		case ESTE_FLS_C9_852:
+			return "FLS_C9_852";
+		case ESTE_FLS_C9_18:
+			return "FLS_C9_18";
+		case ESTE_FLS_C9_45:
+			return "FLS_C9_45";
+		case ESTE_FLS_C9_72:
+			return "FLS_C9_72";
+		case ESTE_FLS_C9_36:
+			return "FLS_C9_36";
+		case ESTE_FLS_C9_1:
+			return "FLS_C9_1";
+		case ESTE_FLS_C9_2:
+			return "FLS_C9_2";
+		case ESTE_FLS_C9_3:
+			return "FLS_C9_3";
+		case ESTE_FLS_C9_4:
+			return "FLS_C9_4";
+		case ESTE_FLS_C9_5:
+			return "FLS_C9_5";
+		case ESTE_FLS_C9_6:
+			return "FLS_C9_6";
+		case ESTE_FLS_C9_7:
+			return "FLS_C9_7";
+		case ESTE_FLS_C9_8:
+			return "FLS_C9_8";
 		default:
 			break;
 	}

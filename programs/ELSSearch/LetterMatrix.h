@@ -33,6 +33,7 @@
 
 // ============================================================================
 
+// Warning: Don't change this list or you'll break .els transcript files:
 enum LetterMatrixTextModifierOptions {
 	LMTMO_None = 0x0,						// Default -- No modifiers (use Bible Database as-is)
 	LMTMO_WordsOfJesusOnly = 0x0001,		// Use Words of Jesus Only

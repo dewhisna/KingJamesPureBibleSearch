@@ -53,6 +53,8 @@ constexpr ELSRESULT_SORT_ORDER_ENUM ESO_FIRST = ESO_WSR;
 Q_DECLARE_METATYPE(ELSRESULT_SORT_ORDER_ENUM)
 
 extern QString elsresultSortOrderDescription(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
+extern ELSRESULT_SORT_ORDER_ENUM elsresultSortOrderFromLetters(const QString &strLetters);		// Returns ESO_COUNT if invalid
+extern QString elsresultSortOrderToLetters(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 
 // ============================================================================
 
@@ -83,6 +85,8 @@ constexpr ELS_SEARCH_TYPE_ENUM ESTE_FIRST = ESTE_ELS;
 Q_DECLARE_METATYPE(ELS_SEARCH_TYPE_ENUM)
 
 extern QString elsSearchTypeDescription(ELS_SEARCH_TYPE_ENUM nSearchType);
+extern ELS_SEARCH_TYPE_ENUM elsSearchTypeFromID(const QString &strID);		// Returns ESTE_COUNT if invalid
+extern QString elsSearchTypeToID(ELS_SEARCH_TYPE_ENUM nSearchType);
 
 // ============================================================================
 

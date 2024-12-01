@@ -138,6 +138,7 @@ if(NOT CONSOLE)
 		"LetterMatrixTableModel.cpp"
 		# ----
 		"../KJVCanOpener/MimeHelper.cpp"
+		"../KJVCanOpener/SaveLoadFileDialog.cpp"
 	)
 endif()
 
@@ -183,6 +184,7 @@ if(NOT CONSOLE)
 		# ----
 		"../KJVCanOpener/BusyCursor.h"
 		"../KJVCanOpener/MimeHelper.h"
+		"../KJVCanOpener/SaveLoadFileDialog.h"
 	)
 endif()
 

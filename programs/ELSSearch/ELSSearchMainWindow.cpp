@@ -26,6 +26,7 @@
 
 #ifdef USING_ELSSEARCH			// if using ELSSearch as KJPBS subcomponent:
 #include "myApplication.h"
+#include "KJVCanOpener.h"
 #endif
 
 #include "../KJVCanOpener/BusyCursor.h"
@@ -33,6 +34,15 @@
 #include "LetterMatrixTableModel.h"
 #include "FindELS.h"
 #include "ELSResult.h"
+
+#include "../KJVCanOpener/ReportError.h"
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+#include "../KJVCanOpener/SaveLoadFileDialog.h"
+#include <QtIOCompressor>
+#include "../KJVCanOpener/CSV.h"
+#include <QTimer>
+#endif
 
 #include <QStringList>
 #include <QRegularExpression>
@@ -42,7 +52,6 @@
 #include <QElapsedTimer>
 #include <QCoreApplication>
 #include <QApplication>
-#include <QMessageBox>
 #include <QHeaderView>
 #include <QAction>
 #include <QMenu>
@@ -61,7 +70,13 @@
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
 
 
+constexpr int ELS_FILE_VERSION = 1;		// Current ELS Transcript File Version
+
 // ============================================================================
+
+QString CELSSearchMainWindow::g_strLastELSFilePath;
+
+// ----------------------------------------------------------------------------
 
 CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 										   LetterMatrixTextModifierOptionFlags flagsLMTMO,
@@ -155,7 +170,38 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File", "MainMenu"));
 	QAction *pAction = nullptr;
 
-#ifdef USING_ELSSEARCH						// Add "close" option only for KJPBS embedded ELSSearch, since there are multiple windows
+#ifdef USING_ELSSEARCH
+	pAction = pFileMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New ELS Search Window...", "MainMenu"), this, SLOT(newELSSearchWindow()));
+	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
+	pAction->setStatusTip(tr("Create New ELS Search Window", "MainMenu"));
+	pAction->setToolTip(tr("Create New ELS Search Window", "MainMenu"));
+
+	pFileMenu->addSeparator();
+#endif
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
+	m_pLoadTranscriptionAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search Transcript File...", "MainMenu"), this, SLOT(en_openSearchTranscript()));
+	m_pLoadTranscriptionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
+	m_pLoadTranscriptionAction->setStatusTip(tr("Load ELS Search Transcript File", "MainMenu"));
+	m_pLoadTranscriptionAction->setToolTip(tr("Load ELS Search Transcript File", "MainMenu"));
+
+	m_pCreateTranscriptionAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("C&reate Search Transcript File...", "MainMenu"), this, SLOT(en_createSearchTranscript()));
+	m_pCreateTranscriptionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
+	m_pCreateTranscriptionAction->setStatusTip(tr("Create ELS Search Transcript File", "MainMenu"));
+	m_pCreateTranscriptionAction->setToolTip(tr("Create ELS Search Transcript File", "MainMenu"));
+
+	m_pCloseTranscriptionAction = pFileMenu->addAction(tr("Clos&e Transcription", "MainMenu"), this, SLOT(closeSearchTranscript()));
+	m_pCloseTranscriptionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
+	m_pCloseTranscriptionAction->setStatusTip(tr("Close ELS Search Transcript File", "MainMenu"));
+	m_pCloseTranscriptionAction->setToolTip(tr("Close ELS Search Transcript File", "MainMenu"));
+	m_pCloseTranscriptionAction->setEnabled(false);
+
+	pFileMenu->addSeparator();
+#endif
+
+	// -------------
+
+#ifdef USING_ELSSEARCH						// Add "close window" option only for KJPBS embedded ELSSearch, since there are multiple windows
 	pAction = pFileMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this ELS Search Window", "MainMenu"), this, SLOT(close()));
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
 
@@ -251,8 +297,293 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 CELSSearchMainWindow::~CELSSearchMainWindow()
 {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	closeSearchTranscript();
+#endif
+
 	delete ui;
 }
+
+// ----------------------------------------------------------------------------
+
+#ifdef USING_ELSSEARCH
+void CELSSearchMainWindow::newELSSearchWindow()
+{
+	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
+	Q_ASSERT(!lstCanOpeners.isEmpty());
+	CKJVCanOpener *pCanOpener = lstCanOpeners.at(0);		// Shouldn't matter which one we launch from, so pick the first
+	if (pCanOpener) {
+		pCanOpener->launchELSSearch(QString(), LMTMO_None, this);
+	}
+}
+#endif
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+
+void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
+{
+	bool bSuccess = true;
+
+	QString strFilePathName = strFilePath;
+	if (strFilePath.isEmpty()) {
+		strFilePathName = CSaveLoadFileDialog::getOpenFileName(this,
+									tr("Open ELS Search Transcript File", "FileFilters"),
+									g_strLastELSFilePath,
+									tr("ELS Transcript Files (*.els)", "FileFilters"),
+									nullptr, QFileDialog::ReadOnly);
+	}
+	if (!strFilePathName.isEmpty()) {
+		g_strLastELSFilePath = strFilePathName;
+		m_fileSearchTranscript.setFileName(strFilePathName);
+		if (!m_fileSearchTranscript.open(QIODevice::ReadOnly)) {
+			bSuccess = false;
+			displayWarning(this, QApplication::applicationName(), tr("Failed to open ELS Search Transcript File!", "Errors"));
+		} else {
+			m_pSearchTranscriptCompressor.reset(new QtIOCompressor(&m_fileSearchTranscript));
+			m_pSearchTranscriptCompressor->setStreamFormat(QtIOCompressor::ZlibFormat);
+			if (!m_pSearchTranscriptCompressor->open(QIODevice::ReadOnly)) {
+				bSuccess = false;
+				displayWarning(this, QApplication::applicationName(), tr("Failed to create ELS Search Transcript Decompressor!", "Errors"));
+			} else {
+				m_pSearchTranscriptCSVStream.reset(
+							new CCSVStream(static_cast<QIODevice *>(m_pSearchTranscriptCompressor.data())));
+			}
+		}
+	}
+
+	if (bSuccess) {
+		clear();						// Clear old data before we start
+
+		bool bBadELSFile = false;
+		int nELSVersion = 0;
+
+		while (!m_pSearchTranscriptCSVStream->atEnd()) {
+			QStringList lstEntry;
+			(*m_pSearchTranscriptCSVStream) >> lstEntry;
+			if (lstEntry.isEmpty()) continue;
+
+			QString strCommand = lstEntry.at(0);
+
+			if (strCommand.compare("ELSFileVersion", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 2) {
+					bBadELSFile = true;
+					break;
+				}
+				nELSVersion = lstEntry.at(1).toInt();
+				if (nELSVersion > ELS_FILE_VERSION) {
+					int nResult = displayWarning(this, QApplication::applicationName(),
+									tr( "This ELS Transcript File was created with a newer version of this search tool.\n\n"
+										"Playback may not replicate the original search!  Continue?"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::Yes);
+					if (nResult != QMessageBox::Yes) break;
+				}
+			} else if (strCommand.compare("Bible", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 3) {
+					bBadELSFile = true;
+					break;
+				}
+				QString strUUID = lstEntry.at(1);
+				LetterMatrixTextModifierOptionFlags tmo = static_cast<LetterMatrixTextModifierOptionFlags>(lstEntry.at(2).toInt());		// Thi would use fromInt(), but that needs Qt 6.2+
+				if ((bibleDatabase()->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) != 0) ||
+					(tmo != m_letterMatrix.textModifierOptions())) {
+#ifdef USING_ELSSEARCH
+					const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
+					Q_ASSERT(!lstCanOpeners.isEmpty());
+					CKJVCanOpener *pCanOpener = lstCanOpeners.at(0);		// Shouldn't matter which one we launch from, so pick the first
+					if (pCanOpener) {
+						int nResult = displayWarning(this, QApplication::applicationName(),
+										tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
+											"Do you want to launch a new search window with those settings??"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+						if (nResult == QMessageBox::Yes) {
+							CELSSearchMainWindow *pNewELSSearch = pCanOpener->launchELSSearch(strUUID, tmo, this);
+							if (!pNewELSSearch) break;
+							// Launch the search in the new window after we've closed and exited here:
+							QTimer::singleShot(1, pNewELSSearch, [pNewELSSearch, strFilePathName]()->void {
+								pNewELSSearch->en_openSearchTranscript(strFilePathName);
+							});
+							break;
+						}
+						nResult = displayWarning(this, QApplication::applicationName(),
+										tr( "Continue using this search window??\n\n"
+											"The playback results will not be same as the original search!"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+						if (nResult != QMessageBox::Yes) break;
+					} else {
+						int nResult = displayWarning(this, QApplication::applicationName(),
+										tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
+											"The playback results will not be same as the original search!  Continue?"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+						if (nResult != QMessageBox::Yes) break;
+					}
+#else
+					int nResult = displayWarning(this, QApplication::applicationName(),
+									tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
+										"The playback results will not be same as the original search!  Continue?"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+					if (nResult != QMessageBox::Yes) break;
+#endif
+				}
+			} else if (strCommand.compare("Width", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 2) {
+					bBadELSFile = true;
+					break;
+				}
+				ui->spinWidth->setValue(lstEntry.at(1).toInt());
+			} else if (strCommand.compare("SortOrder", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 2) {
+					bBadELSFile = true;
+					break;
+				}
+				ELSRESULT_SORT_ORDER_ENUM nSortOrder = elsresultSortOrderFromLetters(lstEntry.at(1));
+				if (nSortOrder < ESO_COUNT) {
+					int nIndex = ui->cmbSortOrder->findData(nSortOrder);
+					if (nIndex >= 0) ui->cmbSortOrder->setCurrentIndex(nIndex);
+				} else {
+					bBadELSFile = true;
+					break;
+				}
+			} else if (strCommand.compare("Uppercase", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 2) {
+					bBadELSFile = true;
+					break;
+				}
+				ui->chkUppercase->setChecked(QVariant(lstEntry.at(1)).toBool());
+			} else if (strCommand.compare("MatrixTopLeftRowCol", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 3) {
+					bBadELSFile = true;
+					break;
+				}
+				int nRow = lstEntry.at(1).toInt();
+				int nCol = lstEntry.at(2).toInt();
+				uint32_t nMatrixIndex = m_pLetterMatrixTableModel->matrixIndexFromRowCol(nRow, nCol);
+				if (nMatrixIndex) {
+					QModelIndex index = m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(nMatrixIndex);
+					ui->tvLetterMatrix->scrollTo(index, QAbstractItemView::PositionAtTop);
+				}
+			} else if (strCommand.compare("Search", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 7) {
+					bBadELSFile = true;
+					break;
+				}
+				ELS_SEARCH_TYPE_ENUM nSearchType = elsSearchTypeFromID(lstEntry.at(2));
+				if (nSearchType < ESTE_COUNT) {
+					int nIndexSearchType = ui->cmbSearchType->findData(nSearchType);
+					int nIndexBookStart = ui->cmbBookStart->findData(lstEntry.at(5).toUInt());
+					int nIndexBookEnd = ui->cmbBookEnd->findData(lstEntry.at(6).toUInt());
+					if ((nIndexSearchType >= 0) &&
+						(nIndexBookStart >= 0) &&
+						(nIndexBookEnd >= 0)) {
+						ui->editWords->setText(lstEntry.at(1));
+						ui->cmbSearchType->setCurrentIndex(nIndexSearchType);
+						ui->spinMinSkip->setValue(lstEntry.at(3).toInt());
+						ui->spinMaxSkip->setValue(lstEntry.at(4).toInt());
+						ui->cmbBookStart->setCurrentIndex(nIndexBookStart);
+						ui->cmbBookEnd->setCurrentIndex(nIndexBookEnd);
+						if (!search()) break;				// Perform search and break if user cancelled
+					} else {
+						if (nIndexSearchType < 0) {
+							displayWarning(this, QApplication::applicationName(),
+								tr("Unable to find the Search Type \"%1\".  Skipping search for \"%2\".")
+								.arg(lstEntry.at(2)).arg(lstEntry.at(1)));
+						} else {
+							displayWarning(this, QApplication::applicationName(),
+								tr("Unable to find the Book Start (%1) and/or Book End (%2) indexes.  Skipping search for \"%3\".")
+								.arg(lstEntry.at(5)).arg(lstEntry.at(6)).arg(lstEntry.at(1)));
+						}
+					}
+				}
+			} else {
+				if (nELSVersion <= ELS_FILE_VERSION) {		// Bad/Unknown command for this version of ELS, including backward compat
+					bBadELSFile = true;
+					break;
+				}
+			}
+		}
+
+		if (bBadELSFile) {
+			displayWarning(this, QApplication::applicationName(),
+						   tr("This ELS Transcript File is bad or contains corrupt data and can't be processed."));
+		}
+	}
+
+	closeSearchTranscript();
+}
+
+void CELSSearchMainWindow::en_createSearchTranscript()
+{
+	bool bSuccess = true;
+
+	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this,
+										tr("Save ELS Search Transcript File", "FileFilters"),
+										g_strLastELSFilePath,
+										tr("ELS Transcript Files (*.els)", "FileFilters"),
+										"els", nullptr, QFileDialog::Options());
+	if (!strFilePathName.isEmpty()) {
+		g_strLastELSFilePath = strFilePathName;
+		m_fileSearchTranscript.setFileName(strFilePathName);
+		if (!m_fileSearchTranscript.open(QIODevice::WriteOnly)) {
+			bSuccess = false;
+			displayWarning(this, QApplication::applicationName(), tr("Failed to create ELS Search Transcript File!", "Errors"));
+		} else {
+			m_pSearchTranscriptCompressor.reset(new QtIOCompressor(&m_fileSearchTranscript));
+			m_pSearchTranscriptCompressor->setStreamFormat(QtIOCompressor::ZlibFormat);
+			if (!m_pSearchTranscriptCompressor->open(QIODevice::WriteOnly)) {
+				bSuccess = false;
+				displayWarning(this, QApplication::applicationName(), tr("Failed to create ELS Search Transcript Compressor!", "Errors"));
+			} else {
+				m_pSearchTranscriptCSVStream.reset(
+					new CCSVStream(static_cast<QIODevice *>(m_pSearchTranscriptCompressor.data())));
+			}
+		}
+	}
+
+	if (bSuccess) {
+		clear();						// Clear old data before we start
+
+		m_bRecordingTranscript = true;
+
+		// Write ELS File Version:
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "ELSFileVersion", QString::number(ELS_FILE_VERSION) };
+
+		// Write Bible Source Text Identifier:
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "Bible", bibleDatabase()->compatibilityUUID(), QString::number(m_letterMatrix.textModifierOptions()) };
+
+		// Disable Load/Create and Change "Clear" to "Close":
+		m_pLoadTranscriptionAction->setEnabled(false);
+		m_pCreateTranscriptionAction->setEnabled(false);
+		m_pCloseTranscriptionAction->setEnabled(true);
+		ui->btnClear->setText(tr("&Close Transcription"));
+	} else {
+		closeSearchTranscript();
+	}
+}
+
+void CELSSearchMainWindow::closeSearchTranscript()
+{
+	if (m_bRecordingTranscript) {
+		Q_ASSERT(!m_pSearchTranscriptCSVStream.isNull());
+
+		// Write GUI Setting information so layout can be reconstructed:
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "Width", QString::number(ui->spinWidth->value()) };
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "SortOrder", elsresultSortOrderToLetters(
+									 static_cast<ELSRESULT_SORT_ORDER_ENUM>(ui->cmbSortOrder->currentData().toInt())) };
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "Uppercase", QVariant(ui->chkUppercase->isChecked()).toString() };
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "MatrixTopLeftRowCol",
+													 QString::number(ui->tvLetterMatrix->rowAt(0)),
+													 QString::number(ui->tvLetterMatrix->columnAt(0)) };
+	}
+
+	// Close File objects:
+	m_pSearchTranscriptCSVStream.reset();
+	m_pSearchTranscriptCompressor.reset();
+	if (m_fileSearchTranscript.isOpen()) m_fileSearchTranscript.close();
+
+	// Enable Load/Create and Change "Close" to "Clear":
+	m_pLoadTranscriptionAction->setEnabled(true);
+	m_pCreateTranscriptionAction->setEnabled(true);
+	m_pCloseTranscriptionAction->setEnabled(false);
+	ui->btnClear->setText(tr("&Clear"));
+
+	m_bRecordingTranscript = false;
+}
+
+#endif	// !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
 // ----------------------------------------------------------------------------
 
@@ -339,7 +670,7 @@ void CELSSearchMainWindow::clearSearchLogText()
 
 // ----------------------------------------------------------------------------
 
-void CELSSearchMainWindow::search()
+bool CELSSearchMainWindow::search()
 {
 	static const QRegularExpression regExWordSplit = QRegularExpression("[\\s,]+");
 	QStringList lstSearchWords = ui->editWords->text().split(regExWordSplit, Qt::SkipEmptyParts);
@@ -349,17 +680,20 @@ void CELSSearchMainWindow::search()
 	for (int ndx = lstSearchWords.size()-1; ndx >= 0; --ndx) {
 		if (lstSearchWords.at(ndx).size() < 2) lstSearchWords.removeAt(ndx);
 	}
-	if (lstSearchWords.isEmpty()) return;
+	if (lstSearchWords.isEmpty()) return false;
 
 	ELS_SEARCH_TYPE_ENUM nSearchType = ui->cmbSearchType->currentData().value<ELS_SEARCH_TYPE_ENUM>();
 	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords, nSearchType);
 	if (!elsFinder.setBookEnds(ui->cmbBookStart->currentData().toUInt(), ui->cmbBookEnd->currentData().toUInt())) {
 		Q_ASSERT(false);
-		QMessageBox::critical(this, QApplication::applicationName(), tr("Failed to set Book Range!"));
-		return;
+		displayWarning(this, QApplication::applicationName(), tr("Failed to set Book Range!"));
+		return false;
 	}
 	unsigned int nBookStart = elsFinder.bookStart();
 	unsigned int nBookEnd = elsFinder.bookEnd();
+
+	int nMinSkip = ui->spinMinSkip->value();
+	int nMaxSkip = ui->spinMaxSkip->value();
 
 	QProgressDialog dlgProgress;
 	dlgProgress.setLabelText(tr("Searching for") + ": " + lstSearchWords.join(','));
@@ -376,16 +710,16 @@ void CELSSearchMainWindow::search()
 	connect(&watcher, &QFutureWatcher<CELSResultList>::progressRangeChanged, &dlgProgress, &QProgressDialog::setRange);
 	connect(&watcher, &QFutureWatcher<CELSResultList>::progressValueChanged, &dlgProgress, &QProgressDialog::setValue);
 
-	watcher.setFuture(elsFinder.future(ui->spinMinSkip->value(), ui->spinMaxSkip->value(), &CFindELS::reduce));
+	watcher.setFuture(elsFinder.future(nMinSkip, nMaxSkip, &CFindELS::reduce));
 	dlgProgress.exec();
 	CBusyCursor iAmBusy(this);
 	watcher.waitForFinished();
 
-	if (!watcher.future().isCanceled()) {
+	bool bWasCanceled = watcher.future().isCanceled();
+	if (!bWasCanceled) {
 		CELSResultList lstResults = watcher.result();
 		m_pLetterMatrixTableModel->setSearchResults(lstResults);
 		m_pELSResultListModel->setSearchResults(lstResults);
-		// TODO : Add sort order support in model and tie to GUI
 
 		insertSearchLogText(tr("Search Time: %1 secs").arg(elapsedTime.elapsed() / 1000.0));
 
@@ -419,13 +753,13 @@ void CELSSearchMainWindow::search()
 
 		if (nSearchType == ESTE_ELS) {
 			insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")
-											.arg(ui->spinMinSkip->value())
-											.arg(ui->spinMaxSkip->value())
+											.arg(nMinSkip)
+											.arg(nMaxSkip)
 											.arg(strBookRange));
 		} else if (nSearchType == ESTE_FLS) {
 			insertSearchLogText(tr("Searching with FLS multipliers of %1 to %2 in %3")
-									.arg(ui->spinMinSkip->value())
-									.arg(ui->spinMaxSkip->value())
+									.arg(nMinSkip)
+									.arg(nMaxSkip)
 									.arg(strBookRange));
 		} else {
 			insertSearchLogText(tr("Searching in %3").arg(strBookRange));
@@ -437,15 +771,41 @@ void CELSSearchMainWindow::search()
 		ui->tvELSResults->adjustSize();
 
 		// Should we clear editWords here?
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+		// Record transcript only if search was completed:
+		if (m_bRecordingTranscript) {
+			Q_ASSERT(!m_pSearchTranscriptCSVStream.isNull());
+			(*m_pSearchTranscriptCSVStream) << QStringList{
+				"Search",
+				lstSearchWords.join(","),
+				elsSearchTypeToID(nSearchType),
+				QString::number(nMinSkip),
+				QString::number(nMaxSkip),
+				QString::number(nBookStart),
+				QString::number(nBookEnd),
+			};
+		}
+#endif
+
 	} else {
 		insertSearchLogText(tr("Search was cancelled by user\n"));
 	}
 
 	insertSearchLogText("----------------------------------------");
+
+	return !bWasCanceled;
 }
 
 void CELSSearchMainWindow::clear()
 {
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	if (m_bRecordingTranscript) {
+		closeSearchTranscript();
+		return;
+	}
+#endif
+
 	m_pLetterMatrixTableModel->clearSearchResults();
 	m_pELSResultListModel->clearSearchResults();
 	clearSearchLogText();

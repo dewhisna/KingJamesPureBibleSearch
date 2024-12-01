@@ -26,6 +26,8 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QScopedPointer>
+#include <QFile>
 
 #include "LetterMatrix.h"
 
@@ -35,6 +37,8 @@ class CELSResultListModel;
 class QAction;
 class QMenu;
 class QEvent;
+class QtIOCompressor;
+class CCSVStream;
 
 // ============================================================================
 
@@ -61,6 +65,17 @@ protected:
 	QMenu *createLetterMatrixContextMenu();
 
 protected slots:
+#ifdef USING_ELSSEARCH
+	void newELSSearchWindow();
+#endif
+
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	void en_openSearchTranscript(const QString &strFilePath = QString());
+	void en_createSearchTranscript();
+	// ----
+	void closeSearchTranscript();
+#endif
+	// ----
 	void en_searchResultClicked(const QModelIndex &index);
 	void en_changedSortOrder(int nIndex);
 	// ----
@@ -74,13 +89,27 @@ protected slots:
 	void insertSearchLogText(const QString &strText);
 	void clearSearchLogText();
 	// ----
-	void search();
+	bool search();				// Returns False on cancel or failed
 	void clear();
 	// ----
 	void en_copySearchResults();
 	void en_copyLetterMatrix();
 
 private:
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	static QString g_strLastELSFilePath;
+	// ----
+	QFile m_fileSearchTranscript;
+	QScopedPointer<QtIOCompressor> m_pSearchTranscriptCompressor;		// Stream Compressor for ELS Search Transcript
+	QScopedPointer<CCSVStream> m_pSearchTranscriptCSVStream;			// CSV Stream for Search Transcript
+	// ----
+	bool m_bRecordingTranscript = false;
+	// ----
+	QPointer<QAction> m_pLoadTranscriptionAction;
+	QPointer<QAction> m_pCreateTranscriptionAction;
+	QPointer<QAction> m_pCloseTranscriptionAction;
+#endif
+	// ----
 	CLetterMatrix m_letterMatrix;
 	// ----
 	QPointer<CLetterMatrixTableModel> m_pLetterMatrixTableModel;
