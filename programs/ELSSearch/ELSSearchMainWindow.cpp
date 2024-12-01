@@ -180,20 +180,20 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 #endif
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
-	m_pLoadTranscriptionAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("L&oad Search Transcript File...", "MainMenu"), this, SLOT(en_openSearchTranscript()));
+	m_pLoadTranscriptionAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("Playback Search Rec&ording File...", "MainMenu"), this, SLOT(en_openSearchTranscript()));
 	m_pLoadTranscriptionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
-	m_pLoadTranscriptionAction->setStatusTip(tr("Load ELS Search Transcript File", "MainMenu"));
-	m_pLoadTranscriptionAction->setToolTip(tr("Load ELS Search Transcript File", "MainMenu"));
+	m_pLoadTranscriptionAction->setStatusTip(tr("Load and Playback ELS Search Recording Transcript File", "MainMenu"));
+	m_pLoadTranscriptionAction->setToolTip(tr("Load and Playback ELS Search Recording Transcript File", "MainMenu"));
 
-	m_pCreateTranscriptionAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("C&reate Search Transcript File...", "MainMenu"), this, SLOT(en_createSearchTranscript()));
+	m_pCreateTranscriptionAction = pFileMenu->addAction(QIcon(":/res/save-file-icon3.png"), tr("&Start Search Recording File...", "MainMenu"), this, SLOT(en_createSearchTranscript()));
 	m_pCreateTranscriptionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
-	m_pCreateTranscriptionAction->setStatusTip(tr("Create ELS Search Transcript File", "MainMenu"));
-	m_pCreateTranscriptionAction->setToolTip(tr("Create ELS Search Transcript File", "MainMenu"));
+	m_pCreateTranscriptionAction->setStatusTip(tr("Start Recording Searches to ELS Search Transcript File", "MainMenu"));
+	m_pCreateTranscriptionAction->setToolTip(tr("Start Recording Searches to ELS Search Transcript File", "MainMenu"));
 
-	m_pCloseTranscriptionAction = pFileMenu->addAction(tr("Clos&e Transcription", "MainMenu"), this, SLOT(closeSearchTranscript()));
+	m_pCloseTranscriptionAction = pFileMenu->addAction(tr("Stop S&earch Recording", "MainMenu"), this, SLOT(closeSearchTranscript()));
 	m_pCloseTranscriptionAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
-	m_pCloseTranscriptionAction->setStatusTip(tr("Close ELS Search Transcript File", "MainMenu"));
-	m_pCloseTranscriptionAction->setToolTip(tr("Close ELS Search Transcript File", "MainMenu"));
+	m_pCloseTranscriptionAction->setStatusTip(tr("Stop ELS Search Transcript Recording", "MainMenu"));
+	m_pCloseTranscriptionAction->setToolTip(tr("Stop ELS Search Transcript Recording", "MainMenu"));
 	m_pCloseTranscriptionAction->setEnabled(false);
 
 	pFileMenu->addSeparator();
@@ -548,7 +548,7 @@ void CELSSearchMainWindow::en_createSearchTranscript()
 		m_pLoadTranscriptionAction->setEnabled(false);
 		m_pCreateTranscriptionAction->setEnabled(false);
 		m_pCloseTranscriptionAction->setEnabled(true);
-		ui->btnClear->setText(tr("&Close Transcription"));
+		ui->btnClear->setText(tr("Stop Re&cording"));
 	} else {
 		closeSearchTranscript();
 	}
