@@ -809,6 +809,8 @@ void CELSSearchMainWindow::clear()
 	m_pLetterMatrixTableModel->clearSearchResults();
 	m_pELSResultListModel->clearSearchResults();
 	clearSearchLogText();
+	ui->editWords->clear();
+	ui->editWords->setFocus();
 }
 
 // ----------------------------------------------------------------------------
