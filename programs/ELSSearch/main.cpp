@@ -76,6 +76,8 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 	std::cout << "----------------------------------------\n";
 	std::cout << QString("Word: \"%1\"\n").arg(bUpperCase ? result.m_strWord.toUpper() : result.m_strWord).toUtf8().data();
 	std::cout << QString("Start Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false)).toUtf8().data();
+	std::cout << QString("Nominal Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxNominal, false)).toUtf8().data();
+	std::cout << QString("End Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxEnd, false)).toUtf8().data();
 	std::cout << QString("Search Type: %1\n").arg(elsSearchTypeDescription(result.m_nSearchType)).toUtf8().data();
 	std::cout << QString("Skip: %1\n").arg(result.m_nSkip).toUtf8().data();
 	std::cout << QString("Direction: %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse").toUtf8().data();

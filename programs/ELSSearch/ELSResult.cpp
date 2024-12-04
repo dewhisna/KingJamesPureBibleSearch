@@ -58,7 +58,7 @@ QVariant CELSResultListModel::headerData(int section, Qt::Orientation orientatio
 			case 2:
 				return tr("Dir", "CELSResult");
 			case 3:
-				return tr("Reference", "CELSResult");
+				return tr("Nom. Reference", "CELSResult");
 		}
 	}
 
@@ -102,16 +102,18 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 			case 2:
 				return QString(result.m_nDirection == Qt::LeftToRight ? tr("Fwd", "CELSResult") : tr("Rev", "CELSResult"));
 			case 3:
-				return m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false);
+				return m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxNominal, false);
 		}
 	} else if (role == Qt::UserRole) {		// Returns the reference
 		const CELSResult & result = m_lstResults.at(index.row());
-		return QVariant::fromValue(result.m_ndxStart);
+		return QVariant::fromValue(result.m_ndxNominal);
 	} else if (role == Qt::UserRole+1) {	// Mime Data for Drag
 		const CELSResult & result = m_lstResults.at(index.row());
 		QString strMimeData;
 		strMimeData += tr("Word", "CELSResult") + QString(": \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
 		strMimeData += tr("Start Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false));
+		strMimeData += tr("Nominal Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxNominal, false));
+		strMimeData += tr("End Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxEnd, false));
 		strMimeData += tr("Skip", "CELSResult") + QString(": %1\n").arg(result.m_nSkip);
 		strMimeData += tr("Direction", "CELSResult") + QString(": %1\n").arg((result.m_nDirection == Qt::LeftToRight) ? "Forward" : "Reverse");
 		return strMimeData;
@@ -445,8 +447,8 @@ void sortELSResultList(ELSRESULT_SORT_ORDER_ENUM nSortOrder, CELSResultList &lst
 					  return std::pair<bool,bool>(r1.m_nSkip < r2.m_nSkip, r1.m_nSkip == r2.m_nSkip);
 				  };
 				  auto fnRef = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
-					  return std::pair<bool,bool>(r1.m_ndxStart.indexEx() < r2.m_ndxStart.indexEx(),
-												   r1.m_ndxStart.indexEx() == r2.m_ndxStart.indexEx());
+					  return std::pair<bool,bool>(r1.m_ndxNominal.indexEx() < r2.m_ndxNominal.indexEx(),
+												   r1.m_ndxNominal.indexEx() == r2.m_ndxNominal.indexEx());
 				  };
 				  struct TFuncs {
 					  std::pair<bool,bool> (*m_first)(const CELSResult &, const CELSResult &);

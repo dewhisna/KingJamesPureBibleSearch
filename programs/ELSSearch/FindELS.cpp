@@ -27,6 +27,16 @@
 #include <algorithm>		// for std::sort
 #include <functional>		// for std::bind
 
+#if __cplusplus > 201907L
+// Starting in C++20, we can use the one from std::numbers:
+#include <numbers>
+static inline constexpr double g_phiRecp = 1.0 / std::numbers::phi_v<double>;
+#else
+template<typename _Tp>
+constexpr _Tp phi_v = _Tp(1.618033988749894848204586834365638118L);
+static constexpr double g_phiRecp = 1.0 / phi_v<double>;
+#endif
+
 // ============================================================================
 
 int CFindELS::g_conFibonacciCast9[8][24] = { };
@@ -109,6 +119,18 @@ int CFindELS::nextOffset(int nSkip, int nLetterPos, ELS_SEARCH_TYPE_ENUM nSearch
 	return nOffset;
 }
 
+// Compute nominal matrix index between start and end indexes for the given search type:
+uint32_t CFindELS::nominalIndex(uint32_t ndxStart, uint32_t ndxEnd, ELS_SEARCH_TYPE_ENUM nSearchType)
+{
+	double nWeight = 0.5;
+
+	if (nSearchType == ESTE_FLS) {
+		nWeight = g_phiRecp;
+	}	// TODO : Should the Vortex types have a different weight than 0.5??  If so, what?
+
+	return uint32_t(double(ndxEnd - ndxStart) * nWeight) + ndxStart;
+}
+
 // Concurrent Threading function to locate the ELS entries for a single skip distance:
 CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 				  const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
@@ -159,7 +181,12 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 			QString strWord;
 			uint32_t matrixIndexLetter = matrixIndexCurrent;		// MatrixIndex for the current letter being extracted
+			uint32_t matrixIndexNominalLetter = matrixIndexCurrent;
+			uint32_t matrixIndexLastLetter = matrixIndexLetter;
+			int nNominalLetterPos = (nLen-1)/2;		// Note: -1 to round to the leftmost letter when there's an even number of letters
 			for (int i = 0; i < nLen; ++i) {
+				if (i == nNominalLetterPos) matrixIndexNominalLetter = matrixIndexLetter;
+				matrixIndexLastLetter = matrixIndexLetter;
 				strWord += letterMatrix.at(matrixIndexLetter);
 				matrixIndexLetter += nextOffset(nSkip, i, nSearchType);
 			}
@@ -172,6 +199,8 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 					result.m_nSkip = nSkip;
 					result.m_nSearchType = nSearchType;
 					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
+					result.m_ndxEnd = letterMatrix.relIndexFromMatrixIndex(matrixIndexLastLetter);
+					result.m_ndxNominal = letterMatrix.relIndexFromMatrixIndex(matrixIndexNominalLetter);
 					result.m_nDirection = Qt::LeftToRight;
 					lstResults.append(result);
 				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
@@ -180,6 +209,8 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 					result.m_nSkip = nSkip;
 					result.m_nSearchType = nSearchType;
 					result.m_ndxStart = letterMatrix.relIndexFromMatrixIndex(matrixIndexCurrent);
+					result.m_ndxEnd = letterMatrix.relIndexFromMatrixIndex(matrixIndexLastLetter);
+					result.m_ndxNominal = letterMatrix.relIndexFromMatrixIndex(matrixIndexNominalLetter);
 					result.m_nDirection = Qt::RightToLeft;
 					lstResults.append(result);
 				}

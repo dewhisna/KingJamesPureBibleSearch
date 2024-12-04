@@ -165,6 +165,7 @@ public:
 
 	static int maxDistance(int nSkip, int nLen, ELS_SEARCH_TYPE_ENUM nSearchType);			// Compute max distance for a given word length for a given search type
 	static int nextOffset(int nSkip, int nLetterPos, ELS_SEARCH_TYPE_ENUM nSearchType);		// Compute next skip for a given word letter index for a given search type
+	static uint32_t nominalIndex(uint32_t ndxStart, uint32_t ndxEnd, ELS_SEARCH_TYPE_ENUM nSearchType);		// Compute nominal matrix index between start and end indexes for the given search type
 
 private:
 	static void initFibonacciCast9Table();

@@ -96,7 +96,9 @@ public:
 	QString m_strWord;
 	int m_nSkip = 0;
 	ELS_SEARCH_TYPE_ENUM m_nSearchType = ESTE_ELS;			// Skip algorithm -- needed here to know how to traverse the data for a specific result
-	CRelIndexEx m_ndxStart;
+	CRelIndexEx m_ndxStart;									// Index of first letter (in matrix order, i.e. will be last letter if found in RightToLeft direction)
+	CRelIndexEx m_ndxEnd;									// Index of last letter (in matrix order, i.e. will be last letter if found in LeftToRight direction)
+	CRelIndexEx m_ndxNominal;								// Nominal index of word -- dependent on search type weighting
 	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
 };
 
