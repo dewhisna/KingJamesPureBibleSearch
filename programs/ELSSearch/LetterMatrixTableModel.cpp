@@ -52,11 +52,12 @@
 // ============================================================================
 
 CLetterMatrixTableModel::CLetterMatrixTableModel(const CLetterMatrix &letterMatrix,
-												 int nWidth, bool bUppercase,
+												 int nWidth, int nOffset, bool bUppercase,
 												 QObject *parent)
 	:	QAbstractTableModel(parent),
 		m_letterMatrix(letterMatrix),
 		m_nWidth(nWidth),
+		m_nOffset(nOffset),
 		m_bUppercase(bUppercase),
 		m_fontMatrix("Courier", 14),
 		m_fontMatrixMetrics(m_fontMatrix)
@@ -79,7 +80,7 @@ int CLetterMatrixTableModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid())
 		return 0;
 
-	return ((m_letterMatrix.size()-1) / m_nWidth) + (((m_letterMatrix.size()-1) % m_nWidth) ? 1 : 0);
+	return ((m_letterMatrix.size()+m_nOffset-1) / m_nWidth) + (((m_letterMatrix.size()+m_nOffset-1) % m_nWidth) ? 1 : 0);
 }
 
 int CLetterMatrixTableModel::columnCount(const QModelIndex &parent) const
@@ -320,6 +321,19 @@ void CLetterMatrixTableModel::setWidth(int nWidth)
 		emit layoutAboutToBeChanged();
 		m_nWidth = nWidth;
 		emit layoutChanged();
+		emit widthChanged(nWidth);
+	}
+}
+
+void CLetterMatrixTableModel::setOffset(int nOffset)
+{
+	if (nOffset < 0) nOffset = 0;
+	if (nOffset >= m_nWidth) nOffset = m_nWidth-1;
+	if (m_nOffset != nOffset) {
+		emit layoutAboutToBeChanged();
+		m_nOffset = nOffset;
+		emit layoutChanged();
+		emit offsetChanged(nOffset);
 	}
 }
 
@@ -362,18 +376,18 @@ void CLetterMatrixTableModel::clearSearchResults()
 QModelIndex CLetterMatrixTableModel::modelIndexFromMatrixIndex(uint32_t nMatrixIndex)
 {
 	if (nMatrixIndex == 0) return QModelIndex();
-	return createIndex((nMatrixIndex-1)/m_nWidth, (nMatrixIndex-1)%m_nWidth);
+	return createIndex((nMatrixIndex+m_nOffset-1)/m_nWidth, (nMatrixIndex+m_nOffset-1)%m_nWidth);
 }
 
 uint32_t CLetterMatrixTableModel::matrixIndexFromModelIndex(const QModelIndex &index) const
 {
 	if (!index.isValid()) return 0;
-	return (index.row() * m_nWidth) + index.column() + 1;
+	return (index.row() * m_nWidth) + index.column() + 1 - m_nOffset;
 }
 
 uint32_t CLetterMatrixTableModel::matrixIndexFromRowCol(int nRow, int nCol) const
 {
-	return (nRow * m_nWidth) + nCol + 1;
+	return (nRow * m_nWidth) + nCol + 1 - m_nOffset;
 }
 
 // ============================================================================

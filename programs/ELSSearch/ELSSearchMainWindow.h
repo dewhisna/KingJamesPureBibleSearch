@@ -82,7 +82,9 @@ protected slots:
 	void en_changedSearchType(int nIndex);
 	// ----
 	void en_letterMatrixLayoutAboutToChange();
-	void en_letterMatrixLayoutChanged();
+	void en_widthChanged(int nWidth);					// Width from ItemModel
+	void en_offsetChanged(int nOffset);
+	void en_widthSpinValueChanged(int nWidth);			// SpinBox value changed
 	// ----
 	void en_letterMatrixCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 	// ----

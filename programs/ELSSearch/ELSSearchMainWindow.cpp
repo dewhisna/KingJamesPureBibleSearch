@@ -70,7 +70,7 @@
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
 
 
-constexpr int ELS_FILE_VERSION = 1;		// Current ELS Transcript File Version
+constexpr int ELS_FILE_VERSION = 2;		// Current ELS Transcript File Version
 
 // ============================================================================
 
@@ -96,6 +96,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	ui->spinMinSkip->setMaximum(nMax);
 	ui->spinMaxSkip->setMaximum(nMax);
 	ui->spinWidth->setMaximum(nMax);
+	ui->spinOffset->setMaximum(ui->spinWidth->value()-1);
 
 	// --------------------------------
 
@@ -111,7 +112,11 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	QItemSelectionModel *pOldSelModel = ui->tvLetterMatrix->selectionModel();
 	QAbstractItemModel *pOldModel = ui->tvLetterMatrix->model();
-	m_pLetterMatrixTableModel = new CLetterMatrixTableModel(m_letterMatrix, ui->spinWidth->value(), ui->chkUppercase->isChecked(), this);
+	m_pLetterMatrixTableModel = new CLetterMatrixTableModel(m_letterMatrix,
+															ui->spinWidth->value(),
+															ui->spinOffset->value(),
+															ui->chkUppercase->isChecked(),
+															this);
 	ui->tvLetterMatrix->setModel(m_pLetterMatrixTableModel);
 	if (pOldModel) delete pOldModel;
 	if (pOldSelModel) delete pOldSelModel;
@@ -227,9 +232,11 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
-	connect(ui->spinWidth, SIGNAL(valueChanged(int)), m_pLetterMatrixTableModel, SLOT(setWidth(int)));
+	connect(ui->spinWidth, SIGNAL(valueChanged(int)), this, SLOT(en_widthSpinValueChanged(int)));
+	connect(ui->spinOffset, SIGNAL(valueChanged(int)), m_pLetterMatrixTableModel, SLOT(setOffset(int)));
 	connect(m_pLetterMatrixTableModel, SIGNAL(layoutAboutToBeChanged(QList<QPersistentModelIndex>,QAbstractItemModel::LayoutChangeHint)), this, SLOT(en_letterMatrixLayoutAboutToChange()));
-	connect(m_pLetterMatrixTableModel, SIGNAL(layoutChanged(QList<QPersistentModelIndex>,QAbstractItemModel::LayoutChangeHint)), this, SLOT(en_letterMatrixLayoutChanged()));
+	connect(m_pLetterMatrixTableModel, SIGNAL(widthChanged(int)), this, SLOT(en_widthChanged(int)));
+	connect(m_pLetterMatrixTableModel, SIGNAL(offsetChanged(int)), this, SLOT(en_offsetChanged(int)));
 	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pLetterMatrixTableModel, SLOT(setUppercase(bool)));
 	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pELSResultListModel, SLOT(setUppercase(bool)));
 
@@ -353,6 +360,7 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 
 	if (bSuccess) {
 		clear();						// Clear old data before we start
+		ui->spinOffset->setValue(0);	// Set Offset to zero for reading ELS that didn't have offset saved
 
 		bool bBadELSFile = false;
 		int nELSVersion = 0;
@@ -425,6 +433,12 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					break;
 				}
 				ui->spinWidth->setValue(lstEntry.at(1).toInt());
+			} else if (strCommand.compare("Offset", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 2) {
+					bBadELSFile = true;
+					break;
+				}
+				ui->spinOffset->setValue(lstEntry.at(1).toInt());
 			} else if (strCommand.compare("SortOrder", Qt::CaseInsensitive) == 0) {
 				if (lstEntry.size() != 2) {
 					bBadELSFile = true;
@@ -561,6 +575,7 @@ void CELSSearchMainWindow::closeSearchTranscript()
 
 		// Write GUI Setting information so layout can be reconstructed:
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "Width", QString::number(ui->spinWidth->value()) };
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "Offset", QString::number(ui->spinOffset->value()) };
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "SortOrder", elsresultSortOrderToLetters(
 									 static_cast<ELSRESULT_SORT_ORDER_ENUM>(ui->cmbSortOrder->currentData().toInt())) };
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "Uppercase", QVariant(ui->chkUppercase->isChecked()).toString() };
@@ -609,9 +624,21 @@ void CELSSearchMainWindow::en_letterMatrixLayoutAboutToChange()
 	m_nMatrixIndexToCenter = m_pLetterMatrixTableModel->matrixIndexFromRowCol(nRow, nCol);
 }
 
-void CELSSearchMainWindow::en_letterMatrixLayoutChanged()
+void CELSSearchMainWindow::en_widthChanged(int nWidth)
 {
+	Q_UNUSED(nWidth);
 	if (m_nMatrixIndexToCenter) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(m_nMatrixIndexToCenter), QAbstractItemView::PositionAtCenter);
+}
+
+void CELSSearchMainWindow::en_offsetChanged(int nOffset)
+{
+	Q_UNUSED(nOffset);
+}
+
+void CELSSearchMainWindow::en_widthSpinValueChanged(int nWidth)
+{
+	ui->spinOffset->setMaximum(nWidth-1);
+	m_pLetterMatrixTableModel->setWidth(nWidth);		// This will automatically cause a en_widthChanged() event
 }
 
 void CELSSearchMainWindow::en_letterMatrixCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
