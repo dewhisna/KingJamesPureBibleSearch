@@ -64,14 +64,14 @@ CLetterMatrixTableModel::CLetterMatrixTableModel(const CLetterMatrix &letterMatr
 {
 #if QT_VERSION < 0x060000
 	// NOTE: Unlike Qt6, Qt 5 has no constructor to prepopulate the list:
-	m_lstCharacterFoundWords.clear();
-	m_lstCharacterFoundWords.reserve(m_letterMatrix.size());
+	m_lstCharacterResultMap.clear();
+	m_lstCharacterResultMap.reserve(m_letterMatrix.size());
 	for (auto const &c : m_letterMatrix) {
 		Q_UNUSED(c);
-		m_lstCharacterFoundWords.append(QSet<QString>());
+		m_lstCharacterResultMap.append(QMap<CELSResult, bool>());
 	}
 #else
-	m_lstCharacterFoundWords = QList< QSet<QString> >(m_letterMatrix.size());
+	m_lstCharacterResultMap = QList< QMap<CELSResult, bool> >(m_letterMatrix.size());
 #endif
 }
 
@@ -116,7 +116,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 		{
 			QString strValue;
 			if (nMatrixIndex) {
-				switch (m_lstCharacterFoundWords.at(nMatrixIndex).size()) {
+				switch (m_lstCharacterResultMap.at(nMatrixIndex).size()) {
 					case 0:
 						strValue += " ";
 						break;
@@ -128,7 +128,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 						break;
 				}
 				strValue += m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
-				switch (m_lstCharacterFoundWords.at(nMatrixIndex).size()) {
+				switch (m_lstCharacterResultMap.at(nMatrixIndex).size()) {
 					case 0:
 						strValue += " ";
 						break;
@@ -149,8 +149,8 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 		{
 			QString strValue;
 			if (nMatrixIndex) {
-				if (!m_lstCharacterFoundWords.at(nMatrixIndex).isEmpty()) {
-					strValue += QString("<td style=\"background-color:%1\">").arg((m_lstCharacterFoundWords.at(nMatrixIndex).size() > 1) ? "lightgreen" : "yellow");
+				if (!m_lstCharacterResultMap.at(nMatrixIndex).isEmpty()) {
+					strValue += QString("<td style=\"background-color:%1\">").arg((m_lstCharacterResultMap.at(nMatrixIndex).size() > 1) ? "lightgreen" : "yellow");
 				} else {
 					strValue += "<td>";
 				}
@@ -169,13 +169,13 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 #ifndef IS_CONSOLE_APP
 #ifdef USING_ELSSEARCH
 			if (g_pMyApplication->isDarkMode()) {
-				if ((nMatrixIndex != 0) && !m_lstCharacterFoundWords.at(nMatrixIndex).isEmpty()) {
+				if ((nMatrixIndex != 0) && !m_lstCharacterResultMap.at(nMatrixIndex).isEmpty()) {
 					return g_pMyApplication->palette("QTableView").base();
 				}
 			}
 #elif QT_VERSION >= 0x060500
 			if (QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
-				if ((nMatrixIndex != 0) && !m_lstCharacterFoundWords.at(nMatrixIndex).isEmpty()) {
+				if ((nMatrixIndex != 0) && !m_lstCharacterResultMap.at(nMatrixIndex).isEmpty()) {
 					return QApplication::palette("QTableView").base();
 				}
 			}
@@ -185,8 +185,8 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 
 		case Qt::BackgroundRole:
 #ifndef IS_CONSOLE_APP
-			if ((nMatrixIndex != 0) && !m_lstCharacterFoundWords.at(nMatrixIndex).isEmpty()) {
-				return ((m_lstCharacterFoundWords.at(nMatrixIndex).size() > 1) ? QColor("lightgreen") :  QColor("yellow"));
+			if ((nMatrixIndex != 0) && !m_lstCharacterResultMap.at(nMatrixIndex).isEmpty()) {
+				return ((m_lstCharacterResultMap.at(nMatrixIndex).size() > 1) ? QColor("lightgreen") :  QColor("yellow"));
 			}
 #endif
 			break;
@@ -354,11 +354,11 @@ void CLetterMatrixTableModel::setSearchResults(const CELSResultList &results)
 		uint32_t matrixIndexResult = m_letterMatrix.matrixIndexFromRelIndex(ndxResult);
 		if (matrixIndexResult == 0) continue;
 		for (int i = 0; i < result.m_strWord.size(); ++i) {
-			if (matrixIndexResult >= static_cast<uint32_t>(m_lstCharacterFoundWords.size())) {
+			if (matrixIndexResult >= static_cast<uint32_t>(m_lstCharacterResultMap.size())) {
 				Q_ASSERT(false);
 				break;
 			}
-			m_lstCharacterFoundWords[matrixIndexResult].insert(result.m_strWord);
+			m_lstCharacterResultMap[matrixIndexResult].insert(result, true);
 			matrixIndexResult += CFindELS::nextOffset(result.m_nSkip, i, result.m_nSearchType);
 		}
 	}
@@ -368,7 +368,7 @@ void CLetterMatrixTableModel::setSearchResults(const CELSResultList &results)
 
 void CLetterMatrixTableModel::clearSearchResults()
 {
-	for (auto & wordSet : m_lstCharacterFoundWords) wordSet.clear();
+	for (auto & resultMap : m_lstCharacterResultMap) resultMap.clear();
 
 	emit dataChanged(createIndex(0, 0), createIndex(rowCount()-1, columnCount()-1), { Qt::BackgroundRole });
 }
