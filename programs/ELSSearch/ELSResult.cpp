@@ -411,7 +411,10 @@ void CELSResultListModel::setSearchResults(const CELSResultList &lstResults)
 {
 	beginResetModel();
 	for (auto const & result : lstResults) {
-		if (!m_lstResults.contains(result)) m_lstResults.append(result);
+		if (!m_mapResults.contains(result)) {
+			m_mapResults[result] = true;
+			m_lstResults.append(result);
+		}
 	}
 	sortResults();
 	endResetModel();
@@ -421,6 +424,7 @@ void CELSResultListModel::clearSearchResults()
 {
 	beginResetModel();
 	m_lstResults.clear();
+	m_mapResults.clear();
 	endResetModel();
 }
 

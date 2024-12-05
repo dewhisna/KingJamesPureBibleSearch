@@ -27,6 +27,7 @@
 #include "../KJVCanOpener/dbstruct.h"
 
 #include <QList>
+#include <QMap>
 #include <QString>
 #include <QStringList>
 #include <QObject>
@@ -101,21 +102,55 @@ public:
 	CRelIndexEx m_ndxNominal;								// Nominal index of word -- dependent on search type weighting
 	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
 
-	inline bool operator==(const CELSResult &result) const
+	// operator<() needed for QMap:
+	inline bool operator<(const CELSResult &result) const	// This '<' operator is for QMap containing functionality only, and not for actually sorting CELSResult values!
 	{
-		return ((m_strWord == result.m_strWord) &&
-				(m_nSkip == result.m_nSkip) &&
-				(m_nSearchType == result.m_nSearchType) &&
-				(m_ndxStart == result.m_ndxStart) &&
-				(m_ndxNominal == result.m_ndxNominal) &&
-				(m_ndxEnd == result.m_ndxEnd) &&
-				(m_nDirection == result.m_nDirection));
-	}
-	inline bool operator!=(const CELSResult &result) const
-	{
-		return !operator==(result);
+		if (m_strWord < result.m_strWord) {
+			return true;
+		} else if (m_strWord == result.m_strWord) {
+			if (m_nSkip < result.m_nSkip) {
+				return true;
+			} else if (m_nSkip == result.m_nSkip) {
+				if (m_nSearchType < result.m_nSearchType) {
+					return true;
+				} else if (m_nSearchType == result.m_nSearchType) {
+					if (m_ndxStart < result.m_ndxStart) {
+						return true;
+					} else if (m_ndxStart == result.m_ndxStart) {
+						if (m_ndxNominal < result.m_ndxNominal) {
+							return true;
+						} else if (m_ndxNominal == result.m_ndxNominal) {
+							if (m_ndxEnd < result.m_ndxEnd) {
+								return true;
+							} else if (m_ndxEnd == result.m_ndxEnd) {
+								if (m_nDirection < result.m_nDirection) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
+//	// operator==() and !=() needed for QList::contains()
+//	inline bool operator==(const CELSResult &result) const
+//	{
+//		return ((m_strWord == result.m_strWord) &&
+//				(m_nSkip == result.m_nSkip) &&
+//				(m_nSearchType == result.m_nSearchType) &&
+//				(m_ndxStart == result.m_ndxStart) &&
+//				(m_ndxNominal == result.m_ndxNominal) &&
+//				(m_ndxEnd == result.m_ndxEnd) &&
+//				(m_nDirection == result.m_nDirection));
+//	}
+//	inline bool operator!=(const CELSResult &result) const
+//	{
+//		return !operator==(result);
+//	}
 };
 
 typedef QList<CELSResult> CELSResultList;
@@ -176,6 +211,7 @@ private:
 	bool m_bUppercase;
 	// ----
 	CELSResultList m_lstResults;
+	QMap<CELSResult, bool> m_mapResults;			// Map of results to have a quick way to check for duplicates -- QSet would be better, but it requires a qHash function
 	// ----
 	ELSRESULT_SORT_ORDER_ENUM m_nSortOrder = ESO_WSR;
 };
