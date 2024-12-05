@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
 	// ----
-	ELSRESULT_SORT_ORDER_ENUM nSortOrder = ESO_WSR;
+	ELSRESULT_SORT_ORDER_ENUM nSortOrder = ESO_RWS;
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -334,9 +334,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -bb<n> =  Begin Searching in Book <n> (defaults to first)\n").toUtf8().data();
 		std::cerr << QString("  -be<n> =  End Searching in Book <n>   (defaults to last)\n").toUtf8().data();
-		std::cerr << QString("  -owsr  =  Order output by word, skip, then reference (this is the default)\n").toUtf8().data();
+		std::cerr << QString("  -owsr  =  Order output by word, skip, then reference\n").toUtf8().data();
 		std::cerr << QString("  -owrs  =  Order output by word, reference, then skip\n").toUtf8().data();
-		std::cerr << QString("  -orws  =  Order output by reference, word, then skip\n").toUtf8().data();
+		std::cerr << QString("  -orws  =  Order output by reference, word, then skip (this is the default)\n").toUtf8().data();
 		std::cerr << QString("  -orsw  =  Order output by reference, skip, then word\n").toUtf8().data();
 		std::cerr << QString("  -osrw  =  Order output by skip, reference, then word\n").toUtf8().data();
 		std::cerr << QString("  -oswr  =  Order output by skip, word, then reference\n").toUtf8().data();

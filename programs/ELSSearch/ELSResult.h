@@ -217,7 +217,7 @@ private:
 	CELSResultList m_lstResults;
 	CELSResultSet m_mapResults;			// Map of results to have a quick way to check for duplicates -- QSet would be better, but it requires a qHash function
 	// ----
-	ELSRESULT_SORT_ORDER_ENUM m_nSortOrder = ESO_WSR;
+	ELSRESULT_SORT_ORDER_ENUM m_nSortOrder = ESO_RWS;
 };
 
 // ============================================================================
