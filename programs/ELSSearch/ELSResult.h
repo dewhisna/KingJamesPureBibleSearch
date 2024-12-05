@@ -100,6 +100,22 @@ public:
 	CRelIndexEx m_ndxEnd;									// Index of last letter (in matrix order, i.e. will be last letter if found in LeftToRight direction)
 	CRelIndexEx m_ndxNominal;								// Nominal index of word -- dependent on search type weighting
 	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
+
+	inline bool operator==(const CELSResult &result) const
+	{
+		return ((m_strWord == result.m_strWord) &&
+				(m_nSkip == result.m_nSkip) &&
+				(m_nSearchType == result.m_nSearchType) &&
+				(m_ndxStart == result.m_ndxStart) &&
+				(m_ndxNominal == result.m_ndxNominal) &&
+				(m_ndxEnd == result.m_ndxEnd) &&
+				(m_nDirection == result.m_nDirection));
+	}
+	inline bool operator!=(const CELSResult &result) const
+	{
+		return !operator==(result);
+	}
+
 };
 
 typedef QList<CELSResult> CELSResultList;

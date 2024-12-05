@@ -410,7 +410,9 @@ void CELSResultListModel::setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
 void CELSResultListModel::setSearchResults(const CELSResultList &lstResults)
 {
 	beginResetModel();
-	m_lstResults.append(lstResults);
+	for (auto const & result : lstResults) {
+		if (!m_lstResults.contains(result)) m_lstResults.append(result);
+	}
 	sortResults();
 	endResetModel();
 }
