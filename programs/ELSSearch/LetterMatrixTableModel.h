@@ -26,6 +26,7 @@
 
 #include <QAbstractTableModel>
 #include <QList>
+#include <QSet>
 #include <QString>
 #include <QStringList>
 #include <QFont>
@@ -96,7 +97,7 @@ private:
 	int m_nOffset = 0;					// Offset of the Matrix starting position (value is 0 to Width-1)
 	bool m_bUppercase = false;
 	// ----
-	QList<int> m_lstCharacterFound;		// Number of times a character is found in search result data (used for highlighting)
+	QList< QSet<QString> > m_lstCharacterFoundWords;		// Set of words intersecting this location, whose size is the number of different words a character is found in search result data (used for highlighting)
 	// ----
 	QFont m_fontMatrix;
 	QFontMetrics m_fontMatrixMetrics;
