@@ -86,6 +86,7 @@ protected slots:
 	void en_offsetChanged(int nOffset);
 	void en_widthSpinValueChanged(int nWidth);			// SpinBox value changed
 	// ----
+	void en_letterMatrixCellClicked(const QModelIndex &index);
 	void en_letterMatrixCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 	// ----
 	void insertSearchLogText(const QString &strText);

@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QMetaType>
+#include <QModelIndexList>
 
 // Forward Declarations
 class QMimeData;
@@ -154,6 +155,7 @@ public:
 };
 
 typedef QList<CELSResult> CELSResultList;
+typedef QMap<CELSResult, bool> CELSResultSet;		// "Set" implemented as a QMap -- value not used, but QSet requires a qHash function
 
 extern void sortELSResultList(ELSRESULT_SORT_ORDER_ENUM nSortOrder, CELSResultList &lstResults);
 
@@ -196,6 +198,8 @@ public:
 
 	bool uppercase() const { return m_bUppercase; }
 
+	QModelIndexList getResultIndexes(const CELSResultSet &setResults);
+
 public slots:
 	void setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 	void setSearchResults(const CELSResultList &lstResults);
@@ -211,7 +215,7 @@ private:
 	bool m_bUppercase;
 	// ----
 	CELSResultList m_lstResults;
-	QMap<CELSResult, bool> m_mapResults;			// Map of results to have a quick way to check for duplicates -- QSet would be better, but it requires a qHash function
+	CELSResultSet m_mapResults;			// Map of results to have a quick way to check for duplicates -- QSet would be better, but it requires a qHash function
 	// ----
 	ELSRESULT_SORT_ORDER_ENUM m_nSortOrder = ESO_WSR;
 };

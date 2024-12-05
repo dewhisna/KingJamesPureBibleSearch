@@ -244,6 +244,8 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	ui->tvLetterMatrix->setMouseTracking(true);		// Enable mouse movement changing the status message
 	m_pStatusAction = new QAction(this);
 
+	connect(ui->tvLetterMatrix, &QTableView::doubleClicked, this, &CELSSearchMainWindow::en_letterMatrixCellClicked);
+
 	connect(ui->btnSearch, &QToolButton::clicked, this, &CELSSearchMainWindow::search);
 	connect(ui->btnClear, &QToolButton::clicked, this, &CELSSearchMainWindow::clear);
 	connect(ui->editWords, &QLineEdit::returnPressed, this, &CELSSearchMainWindow::search);
@@ -639,6 +641,26 @@ void CELSSearchMainWindow::en_widthSpinValueChanged(int nWidth)
 {
 	ui->spinOffset->setMaximum(nWidth-1);
 	m_pLetterMatrixTableModel->setWidth(nWidth);		// This will automatically cause a en_widthChanged() event
+}
+
+// ----------------------------------------------------------------------------
+
+void CELSSearchMainWindow::en_letterMatrixCellClicked(const QModelIndex &index)
+{
+	const CELSResultSet &setResults = m_pLetterMatrixTableModel->resultsSet(index);
+
+	if (!setResults.isEmpty()) {
+		QItemSelectionModel *pSelModel = ui->tvELSResults->selectionModel();
+		Q_ASSERT(pSelModel != nullptr);
+
+		QModelIndexList lstIndexes = m_pELSResultListModel->getResultIndexes(setResults);
+		Q_ASSERT(lstIndexes.size() == setResults.size());
+		pSelModel->clearSelection();
+		for (auto const & ndx : lstIndexes) {
+			pSelModel->select(ndx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+			ui->tvELSResults->scrollTo(ndx);
+		}
+	}
 }
 
 void CELSSearchMainWindow::en_letterMatrixCurrentChanged(const QModelIndex &current, const QModelIndex &previous)

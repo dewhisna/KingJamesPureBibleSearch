@@ -68,10 +68,10 @@ CLetterMatrixTableModel::CLetterMatrixTableModel(const CLetterMatrix &letterMatr
 	m_lstCharacterResultMap.reserve(m_letterMatrix.size());
 	for (auto const &c : m_letterMatrix) {
 		Q_UNUSED(c);
-		m_lstCharacterResultMap.append(QMap<CELSResult, bool>());
+		m_lstCharacterResultMap.append(CELSResultSet());
 	}
 #else
-	m_lstCharacterResultMap = QList< QMap<CELSResult, bool> >(m_letterMatrix.size());
+	m_lstCharacterResultMap = QList<CELSResultSet>(m_letterMatrix.size());
 #endif
 }
 
@@ -388,6 +388,19 @@ uint32_t CLetterMatrixTableModel::matrixIndexFromModelIndex(const QModelIndex &i
 uint32_t CLetterMatrixTableModel::matrixIndexFromRowCol(int nRow, int nCol) const
 {
 	return (nRow * m_nWidth) + nCol + 1 - m_nOffset;
+}
+
+const CELSResultSet &CLetterMatrixTableModel::resultsSet(uint32_t nMatrixIndex) const
+{
+	if (nMatrixIndex >= static_cast<uint32_t>(m_lstCharacterResultMap.size())) {
+		return m_lstCharacterResultMap.at(0);		// Entry 0 is a null/dummy index to match that of the letterMatrix
+	}
+	return m_lstCharacterResultMap.at(nMatrixIndex);
+}
+
+const CELSResultSet &CLetterMatrixTableModel::resultsSet(const QModelIndex &index) const
+{
+	return resultsSet(matrixIndexFromModelIndex(index));
 }
 
 // ============================================================================

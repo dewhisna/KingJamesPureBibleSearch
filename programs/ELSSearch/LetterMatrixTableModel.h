@@ -26,7 +26,6 @@
 
 #include <QAbstractTableModel>
 #include <QList>
-#include <QMap>
 #include <QString>
 #include <QStringList>
 #include <QFont>
@@ -76,6 +75,8 @@ public:
 	QModelIndex modelIndexFromMatrixIndex(uint32_t nMatrixIndex);
 	uint32_t matrixIndexFromModelIndex(const QModelIndex &index) const;
 	uint32_t matrixIndexFromRowCol(int nRow, int nCol) const;
+	const CELSResultSet &resultsSet(uint32_t nMatrixIndex) const;
+	const CELSResultSet &resultsSet(const QModelIndex &index) const;
 
 	const QFontMetrics &fontMetrics() const { return m_fontMatrixMetrics; }
 
@@ -97,7 +98,7 @@ private:
 	int m_nOffset = 0;					// Offset of the Matrix starting position (value is 0 to Width-1)
 	bool m_bUppercase = false;
 	// ----
-	QList< QMap<CELSResult, bool> > m_lstCharacterResultMap;		// Map of words intersecting this location, whose size is the number of different words a character is found in search result data (used for highlighting and results selection)
+	QList<CELSResultSet> m_lstCharacterResultMap;		// Map of words intersecting this location, whose size is the number of different words a character is found in search result data (used for highlighting and results selection)
 	// ----
 	QFont m_fontMatrix;
 	QFontMetrics m_fontMatrixMetrics;

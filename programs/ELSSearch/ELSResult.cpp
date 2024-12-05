@@ -399,6 +399,20 @@ QString elsSearchTypeToID(ELS_SEARCH_TYPE_ENUM nSearchType)
 
 // ----------------------------------------------------------------------------
 
+QModelIndexList CELSResultListModel::getResultIndexes(const CELSResultSet &setResults)
+{
+	QModelIndexList lstIndexes;
+
+	for (int ndx = 0; ndx < m_lstResults.size(); ++ndx) {
+		if (setResults.contains(m_lstResults.at(ndx)))
+			lstIndexes.append(createIndex(ndx, 0));
+	}
+
+	return lstIndexes;
+}
+
+// ----------------------------------------------------------------------------
+
 void CELSResultListModel::setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder)
 {
 	m_nSortOrder = nSortOrder;
