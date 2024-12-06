@@ -65,12 +65,54 @@
 #include <QShortcut>
 #include <QPoint>
 #include <QRect>
+#include <QPainter>
+#include <QPen>
 
 #define ACCEL_KEY(k) (!QCoreApplication::testAttribute(Qt::AA_DontShowShortcutsInContextMenus) ?		\
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
 
 
 constexpr int ELS_FILE_VERSION = 2;		// Current ELS Transcript File Version
+
+// ============================================================================
+
+
+void CELSSearchMainWindow::CLetterMatrixResultsLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+	// TODO : Fix this to be not so hard coded:
+	static QPen penLine(QBrush(QColor("lightblue")), 3, Qt::DashLine);
+
+	QStyledItemDelegate::paint(painter, option, index);
+
+	const QVariant &varResultsSet = index.data(CLetterMatrixTableModel::UserRole_ResultsSet);
+	if (varResultsSet.isValid() && varResultsSet.canConvert<CELSResultSet>()) {
+		const CELSResultSet &setResults = varResultsSet.value<CELSResultSet>();
+
+		CELSSearchMainWindow *pMainWindow = qobject_cast<CELSSearchMainWindow *>(parent());
+		Q_ASSERT(pMainWindow != nullptr);
+
+		for (CELSResultSet::const_iterator itrResults = setResults.cbegin(); itrResults != setResults.cend(); ++itrResults) {
+			const CELSResult &result = itrResults.key();
+			uint32_t ndxLetter = pMainWindow->m_letterMatrix.matrixIndexFromRelIndex(result.m_ndxStart);
+			QRect rcCur = pMainWindow->ui->tvLetterMatrix->visualRect(
+								pMainWindow->m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(ndxLetter));
+			for (int i = 0; i < result.m_strWord.size()-1; ++i) {
+				ndxLetter += CFindELS::nextOffset(result.m_nSkip, i, result.m_nSearchType);
+				QRect rcNext = pMainWindow->ui->tvLetterMatrix->visualRect(
+								pMainWindow->m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(ndxLetter));
+
+				if (rcCur.isValid() && rcNext.isValid()) {
+					painter->save();
+					painter->setPen(penLine);
+					painter->drawLine(rcCur.center(), rcNext.center());
+					painter->restore();
+				}
+
+				rcCur = rcNext;
+			}
+		}
+	}
+}
 
 // ============================================================================
 
@@ -82,6 +124,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 										   LetterMatrixTextModifierOptionFlags flagsLMTMO,
 										   QWidget *parent)
 	:	QMainWindow(parent),
+		m_letterMatrixResultsLineDelegate(this),
 		m_letterMatrix(pBibleDatabase, flagsLMTMO),
 		ui(new Ui::CELSSearchMainWindow)
 {
@@ -130,6 +173,8 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvLetterMatrix->setLayoutDirection(pBibleDatabase->direction());
 	ui->editWords->setLayoutDirection(pBibleDatabase->direction());
+
+	ui->tvLetterMatrix->setItemDelegate(&m_letterMatrixResultsLineDelegate);
 
 	// --------------------------------
 
@@ -606,7 +651,7 @@ void CELSSearchMainWindow::closeSearchTranscript()
 
 void CELSSearchMainWindow::en_searchResultClicked(const QModelIndex &index)
 {
-	CRelIndexEx ndx =  m_pELSResultListModel->data(index, Qt::UserRole).value<CRelIndexEx>();
+	CRelIndexEx ndx =  m_pELSResultListModel->data(index, CELSResultListModel::UserRole_Reference).value<CRelIndexEx>();
 	uint32_t matrixIndex = m_letterMatrix.matrixIndexFromRelIndex(ndx);
 	if (matrixIndex) ui->tvLetterMatrix->scrollTo(m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(matrixIndex), QAbstractItemView::PositionAtCenter);
 }

@@ -104,10 +104,10 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 			case 3:
 				return m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxNominal, false);
 		}
-	} else if (role == Qt::UserRole) {		// Returns the reference
+	} else if (role == UserRole_Reference) {		// Returns the reference
 		const CELSResult & result = m_lstResults.at(index.row());
 		return QVariant::fromValue(result.m_ndxNominal);
-	} else if (role == Qt::UserRole+1) {	// Mime Data for Drag
+	} else if (role == UserRole_MIMEData) {			// Mime Data for Drag
 		const CELSResult & result = m_lstResults.at(index.row());
 		QString strMimeData;
 		strMimeData += tr("Word", "CELSResult") + QString(": \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
@@ -161,7 +161,7 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 		if (setIndexRows.contains(item.row())) continue;
 		setIndexRows.insert(item.row());
 		strText += "----------------------------------------\n";
-		strText += item.data(Qt::UserRole+1).toString();
+		strText += item.data(UserRole_MIMEData).toString();
 	}
 	strText += "----------------------------------------\n";
 
@@ -169,7 +169,7 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 	mime->setData(g_constrPlainTextMimeType, strText.toUtf8());
 
 	if (setIndexRows.size() == 1) {
-		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(Qt::UserRole).value<CRelIndexEx>()), 1);
+		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(UserRole_Reference).value<CRelIndexEx>()), 1);
 		CMimeHelper::addPhraseTagToMimeData(mime, tag);
 	}
 

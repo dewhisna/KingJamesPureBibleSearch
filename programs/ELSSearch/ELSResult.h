@@ -156,6 +156,8 @@ public:
 
 typedef QList<CELSResult> CELSResultList;
 typedef QMap<CELSResult, bool> CELSResultSet;		// "Set" implemented as a QMap -- value not used, but QSet requires a qHash function
+Q_DECLARE_METATYPE(CELSResultList)
+Q_DECLARE_METATYPE(CELSResultSet)
 
 extern void sortELSResultList(ELSRESULT_SORT_ORDER_ENUM nSortOrder, CELSResultList &lstResults);
 
@@ -178,6 +180,8 @@ public:
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+	static constexpr int UserRole_Reference = Qt::UserRole;
+	static constexpr int UserRole_MIMEData = Qt::UserRole+1;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 #ifndef IS_CONSOLE_APP

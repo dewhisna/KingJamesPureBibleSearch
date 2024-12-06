@@ -106,13 +106,13 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			}
 			break;
 
-		case Qt::UserRole:					// Returns the reference
+		case UserRole_Reference:			// Returns the reference
 			return QVariant::fromValue(m_letterMatrix.relIndexFromMatrixIndex(nMatrixIndex));
 
-		case Qt::UserRole+1:				// Returns the Matrix Index
+		case UserRole_MatrixIndex:			// Returns the Matrix Index
 			return nMatrixIndex;
 
-		case Qt::UserRole+2:				// Returns the plain text data for MIME export
+		case UserRole_MIMEPlainText:		// Returns the plain text data for MIME export
 		{
 			QString strValue;
 			if (nMatrixIndex) {
@@ -145,7 +145,7 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			return strValue;
 		}
 
-		case Qt::UserRole+3:				// Returns them HTML data for MIME export
+		case UserRole_MIMEHTMLText:			// Returns them HTML data for MIME export
 		{
 			QString strValue;
 			if (nMatrixIndex) {
@@ -161,6 +161,9 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 			}
 			return strValue;
 		}
+
+		case UserRole_ResultsSet:			// Returns the CELSResultSet
+			return QVariant::fromValue(resultsSet(nMatrixIndex));
 
 		case Qt::FontRole:
 			return m_fontMatrix;
@@ -235,7 +238,7 @@ QMimeData *CLetterMatrixTableModel::mimeData(const QModelIndexList &indexes) con
 	int nMaxCol = -1;
 
 	for (auto const & item : indexes) {
-		mapRows[item.row()][item.column()] = { item.data(Qt::UserRole+2).toString(), item.data(Qt::UserRole+3).toString() };
+		mapRows[item.row()][item.column()] = { item.data(UserRole_MIMEPlainText).toString(), item.data(UserRole_MIMEHTMLText).toString() };
 		if ((nMinRow == -1) || (item.row() < nMinRow)) nMinRow = item.row();
 		if ((nMaxRow == -1) || (item.row() > nMaxRow)) nMaxRow = item.row();
 		if ((nMinCol == -1) || (item.column() < nMinCol)) nMinCol = item.column();
@@ -287,7 +290,7 @@ QMimeData *CLetterMatrixTableModel::mimeData(const QModelIndexList &indexes) con
 	mime->setData(g_constrHTMLTextMimeType, docHTMLText.toHtml().toUtf8());
 
 	if (indexes.size() == 1) {
-		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(Qt::UserRole).value<CRelIndexEx>()), 1);
+		TPhraseTag tag(CRelIndexEx(indexes.at(0).data(UserRole_Reference).value<CRelIndexEx>()), 1);
 		CMimeHelper::addPhraseTagToMimeData(mime, tag);
 	}
 

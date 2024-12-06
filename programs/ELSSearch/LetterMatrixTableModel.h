@@ -54,6 +54,11 @@ public:
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+	static constexpr int UserRole_Reference = Qt::UserRole;
+	static constexpr int UserRole_MatrixIndex = Qt::UserRole+1;
+	static constexpr int UserRole_MIMEPlainText = Qt::UserRole+2;
+	static constexpr int UserRole_MIMEHTMLText = Qt::UserRole+3;
+	static constexpr int UserRole_ResultsSet = Qt::UserRole+4;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 #ifndef IS_CONSOLE_APP

@@ -28,6 +28,7 @@
 #include <QPointer>
 #include <QScopedPointer>
 #include <QFile>
+#include <QStyledItemDelegate>
 
 #include "LetterMatrix.h"
 
@@ -49,6 +50,15 @@ class CELSSearchMainWindow;
 class CELSSearchMainWindow : public QMainWindow
 {
 	Q_OBJECT
+
+protected:
+	class CLetterMatrixResultsLineDelegate : public QStyledItemDelegate
+	{
+	public:
+		using QStyledItemDelegate::QStyledItemDelegate;
+
+		virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	} m_letterMatrixResultsLineDelegate;
 
 public:
 	explicit CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
@@ -99,6 +109,8 @@ protected slots:
 	void en_copyLetterMatrix();
 
 private:
+	friend class CLetterMatrixResultsLineDelegate;
+
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	static QString g_strLastELSFilePath;
 	// ----
