@@ -69,6 +69,7 @@
 #include <QRect>
 #include <QSize>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPen>
 
 #define ACCEL_KEY(k) (!QCoreApplication::testAttribute(Qt::AA_DontShowShortcutsInContextMenus) ?		\
@@ -99,6 +100,8 @@ void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 	if (nRowLast == -1) nRowLast = nRowFirst + m_pModel->rowCount() -1;
 	if (nColLast == -1) nColLast = nColFirst + m_pModel->width() - 1;
 
+	QPainterPath clipWhole;
+	clipWhole.addRect(0, 0, size().width(), size().height());
 	for (int nRow = nRowFirst; nRow <= nRowLast; ++nRow) {
 		for (int nCol = nColFirst; nCol <= nColLast; ++nCol) {
 			QModelIndex index = m_pModel->modelIndexFromMatrixIndex(m_pModel->matrixIndexFromRowCol(nRow, nCol));
@@ -117,11 +120,18 @@ void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 
 							if (rcCur.isValid() && rcNext.isValid()) {
 								linePainter.setPen(penLine);
+								linePainter.drawEllipse(rcCur.center(), rcCur.width()/2, rcCur.height()/2);
+								QPainterPath clipPath;
+								clipPath.addEllipse(rcCur.center(), rcCur.width()/2, rcCur.height()/2);
+								clipPath.addEllipse(rcNext.center(), rcNext.width()/2, rcNext.height()/2);
+								linePainter.setClipPath(clipWhole.subtracted(clipPath));
 								linePainter.drawLine(rcCur.center(), rcNext.center());
+								linePainter.setClipPath(QPainterPath(), Qt::NoClip);
 							}
 
 							rcCur = rcNext;
 						}
+						linePainter.drawEllipse(rcCur.center(), rcCur.width()/2, rcCur.height()/2);		// Final letter
 					}
 				}
 			}
