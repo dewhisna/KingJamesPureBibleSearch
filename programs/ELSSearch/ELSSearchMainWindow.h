@@ -44,36 +44,37 @@ class CCSVStream;
 
 // ============================================================================
 
-class CLetterMatrixTableView : public QTableView
-{
-	Q_OBJECT
-public:
-	CLetterMatrixTableView(QWidget *pParent = nullptr);
-
-	virtual void scrollContentsBy(int dx, int dy) override;
-
-private:
-	class CELSSearchMainWindow *m_pMainWindow = nullptr;
-};
-
-// ============================================================================
+class CLetterMatrixTableView;
 
 // Special widget for drawing lines in the LetterMatrix for ELSResults:
 class CLetterMatrixLineWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	CLetterMatrixLineWidget(CLetterMatrixTableModel *pModel, QTableView *pView, QWidget *pParent = nullptr)
+	CLetterMatrixLineWidget(CLetterMatrixTableView *pView, QWidget *pParent = nullptr)
 		:	QWidget(pParent),
-		m_pModel(pModel),
-		m_pView(pView)
+			m_pView(pView)
 	{ }
 
 	virtual void paintEvent(QPaintEvent *event) override;
 
 private:
-	CLetterMatrixTableModel *m_pModel = nullptr;
-	QTableView *m_pView = nullptr;
+	CLetterMatrixTableView *m_pView = nullptr;
+};
+
+// ============================================================================
+
+class CLetterMatrixTableView : public QTableView
+{
+	Q_OBJECT
+public:
+	CLetterMatrixTableView(QWidget *pParent = nullptr);
+
+	virtual bool viewportEvent(QEvent *event) override;
+	virtual void scrollContentsBy(int dx, int dy) override;
+
+private:
+	CLetterMatrixLineWidget *m_pLetterMatrixLineWidget = nullptr;		// Widget to draw lines in the LetterMatrix for ELSResults
 };
 
 // ============================================================================
@@ -135,8 +136,6 @@ protected slots:
 	void en_copyLetterMatrix();
 
 private:
-	friend class CLetterMatrixTableView;
-
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	static QString g_strLastELSFilePath;
 	// ----
@@ -160,7 +159,6 @@ private:
 	// ----
 	QPointer<QAction> m_pStatusAction;			// Used to update the status bar without an enter/leave sequence
 	// ----
-	CLetterMatrixLineWidget *m_pLetterMatrixLineWidget = nullptr;		// Widget to draw lines in the LetterMatrix for ELSResults
 	Ui::CELSSearchMainWindow *ui;
 };
 

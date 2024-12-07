@@ -80,30 +80,6 @@ constexpr int ELS_FILE_VERSION = 2;		// Current ELS Transcript File Version
 
 // ============================================================================
 
-CLetterMatrixTableView::CLetterMatrixTableView(QWidget *pParent)
-	:	QTableView(pParent)
-{
-	QObject *pNextParent = pParent;
-	while ((m_pMainWindow == nullptr) && pNextParent) {
-		m_pMainWindow = qobject_cast<CELSSearchMainWindow *>(pNextParent);
-		pNextParent = pNextParent->parent();
-	}
-	Q_ASSERT(m_pMainWindow != nullptr);
-}
-
-void CLetterMatrixTableView::scrollContentsBy(int dx, int dy)
-{
-	Q_ASSERT(m_pMainWindow != nullptr);
-
-	QTableView::scrollContentsBy(dx, dy);
-	if (m_pMainWindow &&
-		m_pMainWindow->m_pLetterMatrixLineWidget) {
-		m_pMainWindow->m_pLetterMatrixLineWidget->move(0, 0);
-	}
-}
-
-// ============================================================================
-
 void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 {
 	// TODO : Fix this to be not so hard coded:
@@ -113,6 +89,8 @@ void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 
 	QPainter linePainter(this);
 
+	CLetterMatrixTableModel *pModel = qobject_cast<CLetterMatrixTableModel *>(m_pView->model());
+	Q_ASSERT(pModel != nullptr);
 	QSize szViewport = m_pView->viewport()->size();
 	Q_ASSERT(size() == szViewport);
 
@@ -121,14 +99,14 @@ void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 	int nColFirst = (m_pView->layoutDirection() == Qt::LeftToRight) ? m_pView->columnAt(0) : m_pView->columnAt(szViewport.width()-2);
 	int nColLast =  (m_pView->layoutDirection() == Qt::LeftToRight) ? m_pView->columnAt(szViewport.width()-2) : m_pView->columnAt(0);
 
-	if (nRowLast == -1) nRowLast = nRowFirst + m_pModel->rowCount() -1;
-	if (nColLast == -1) nColLast = nColFirst + m_pModel->width() - 1;
+	if (nRowLast == -1) nRowLast = nRowFirst + pModel->rowCount() -1;
+	if (nColLast == -1) nColLast = nColFirst + pModel->width() - 1;
 
 	QPainterPath clipWhole;
 	clipWhole.addRect(0, 0, size().width(), size().height());
 	for (int nRow = nRowFirst; nRow <= nRowLast; ++nRow) {
 		for (int nCol = nColFirst; nCol <= nColLast; ++nCol) {
-			QModelIndex index = m_pModel->modelIndexFromMatrixIndex(m_pModel->matrixIndexFromRowCol(nRow, nCol));
+			QModelIndex index = pModel->modelIndexFromMatrixIndex(pModel->matrixIndexFromRowCol(nRow, nCol));
 			if (index.isValid()) {
 				const QVariant &varResultsSet = index.data(CLetterMatrixTableModel::UserRole_ResultsSet);
 				if (varResultsSet.isValid() && varResultsSet.canConvert<CELSResultSet>()) {
@@ -136,11 +114,11 @@ void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 
 					for (CELSResultSet::const_iterator itrResults = setResults.cbegin(); itrResults != setResults.cend(); ++itrResults) {
 						const CELSResult &result = itrResults.key();
-						uint32_t ndxLetter = m_pModel->matrix().matrixIndexFromRelIndex(result.m_ndxStart);
-						QRect rcCur = m_pView->visualRect(m_pModel->modelIndexFromMatrixIndex(ndxLetter));
+						uint32_t ndxLetter = pModel->matrix().matrixIndexFromRelIndex(result.m_ndxStart);
+						QRect rcCur = m_pView->visualRect(pModel->modelIndexFromMatrixIndex(ndxLetter));
 						for (int i = 0; i < result.m_strWord.size()-1; ++i) {
 							ndxLetter += CFindELS::nextOffset(result.m_nSkip, i, result.m_nSearchType);
-							QRect rcNext = m_pView->visualRect(m_pModel->modelIndexFromMatrixIndex(ndxLetter));
+							QRect rcNext = m_pView->visualRect(pModel->modelIndexFromMatrixIndex(ndxLetter));
 
 							if (rcCur.isValid() && rcNext.isValid()) {
 								linePainter.setPen(penLine);
@@ -160,6 +138,36 @@ void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 				}
 			}
 		}
+	}
+}
+
+// ============================================================================
+
+CLetterMatrixTableView::CLetterMatrixTableView(QWidget *pParent)
+	:	QTableView(pParent)
+{
+	// Create special widget to draw lines on the LetterMatrix for ELSResults:
+	m_pLetterMatrixLineWidget = new CLetterMatrixLineWidget(this, viewport());
+}
+
+bool CLetterMatrixTableView::viewportEvent(QEvent *event)
+{
+	bool bRetVal = QTableView::viewportEvent(event);
+	if (m_pLetterMatrixLineWidget &&					// Note: This function may be called when m_pLetterMatrixLineWidget is still nullptr during construction
+		(event->type() == QEvent::Resize)) {
+		QResizeEvent *pResizeEvent = static_cast<QResizeEvent *>(event);
+		m_pLetterMatrixLineWidget->resize(pResizeEvent->size());
+	}
+	return bRetVal;
+}
+
+void CLetterMatrixTableView::scrollContentsBy(int dx, int dy)
+{
+	Q_ASSERT(m_pLetterMatrixLineWidget != nullptr);
+
+	QTableView::scrollContentsBy(dx, dy);
+	if (m_pLetterMatrixLineWidget) {
+		m_pLetterMatrixLineWidget->move(0, 0);
 	}
 }
 
@@ -221,11 +229,6 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvLetterMatrix->setLayoutDirection(pBibleDatabase->direction());
 	ui->editWords->setLayoutDirection(pBibleDatabase->direction());
-
-	// --------------------------------
-
-	// Create special widget to draw lines on the LetterMatrix for ELSResults:
-	m_pLetterMatrixLineWidget = new CLetterMatrixLineWidget(m_pLetterMatrixTableModel, ui->tvLetterMatrix, ui->tvLetterMatrix->viewport());
 
 	// --------------------------------
 
@@ -366,7 +369,6 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvELSResults->installEventFilter(this);
 	ui->tvLetterMatrix->installEventFilter(this);
-	ui->tvLetterMatrix->viewport()->installEventFilter(this);
 
 	// --------------------------------
 
@@ -1012,11 +1014,6 @@ bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 				pWEvent->setAccepted(true);
 				return true;
 			}
-		}
-	} else if (obj == ui->tvLetterMatrix->viewport()) {				//		Resize (for doing image overlay)
-		if (ev->type() == QEvent::Resize) {
-			QResizeEvent *pResizeEvent = static_cast<QResizeEvent *>(ev);
-			m_pLetterMatrixLineWidget->resize(pResizeEvent->size());
 		}
 	}
 
