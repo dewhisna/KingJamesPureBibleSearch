@@ -28,7 +28,6 @@
 #include <QPointer>
 #include <QScopedPointer>
 #include <QFile>
-#include <QStyledItemDelegate>
 
 #include "LetterMatrix.h"
 
@@ -38,8 +37,30 @@ class CELSResultListModel;
 class QAction;
 class QMenu;
 class QEvent;
+class QPaintEvent;
+class QTableView;
 class QtIOCompressor;
 class CCSVStream;
+
+// ============================================================================
+
+// Special widget for drawing lines in the LetterMatrix for ELSResults:
+class CLetterMatrixLineWidget : public QWidget
+{
+	Q_OBJECT
+public:
+	CLetterMatrixLineWidget(CLetterMatrixTableModel *pModel, QTableView *pView, QWidget *pParent = nullptr)
+		:	QWidget(pParent),
+		m_pModel(pModel),
+		m_pView(pView)
+	{ }
+
+	virtual void paintEvent(QPaintEvent *event) override;
+
+private:
+	CLetterMatrixTableModel *m_pModel = nullptr;
+	QTableView *m_pView = nullptr;
+};
 
 // ============================================================================
 
@@ -50,15 +71,6 @@ class CELSSearchMainWindow;
 class CELSSearchMainWindow : public QMainWindow
 {
 	Q_OBJECT
-
-protected:
-	class CLetterMatrixResultsLineDelegate : public QStyledItemDelegate
-	{
-	public:
-		using QStyledItemDelegate::QStyledItemDelegate;
-
-		virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-	} m_letterMatrixResultsLineDelegate;
 
 public:
 	explicit CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
@@ -109,8 +121,6 @@ protected slots:
 	void en_copyLetterMatrix();
 
 private:
-	friend class CLetterMatrixResultsLineDelegate;
-
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	static QString g_strLastELSFilePath;
 	// ----
@@ -134,6 +144,7 @@ private:
 	// ----
 	QPointer<QAction> m_pStatusAction;			// Used to update the status bar without an enter/leave sequence
 	// ----
+	CLetterMatrixLineWidget *m_pLetterMatrixLineWidget = nullptr;		// Widget to draw lines in the LetterMatrix for ELSResults
 	Ui::CELSSearchMainWindow *ui;
 };
 

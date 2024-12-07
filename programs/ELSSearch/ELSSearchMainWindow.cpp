@@ -61,10 +61,13 @@
 #include <QWheelEvent>
 #include <QContextMenuEvent>
 #include <QKeyEvent>
+#include <QPaintEvent>
+#include <QResizeEvent>
 #include <QClipboard>
 #include <QShortcut>
 #include <QPoint>
 #include <QRect>
+#include <QSize>
 #include <QPainter>
 #include <QPen>
 
@@ -76,39 +79,51 @@ constexpr int ELS_FILE_VERSION = 2;		// Current ELS Transcript File Version
 
 // ============================================================================
 
-
-void CELSSearchMainWindow::CLetterMatrixResultsLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 {
 	// TODO : Fix this to be not so hard coded:
 	static QPen penLine(QBrush(QColor("lightblue")), 3, Qt::DashLine);
 
-	QStyledItemDelegate::paint(painter, option, index);
+	QWidget::paintEvent(event);
 
-	const QVariant &varResultsSet = index.data(CLetterMatrixTableModel::UserRole_ResultsSet);
-	if (varResultsSet.isValid() && varResultsSet.canConvert<CELSResultSet>()) {
-		const CELSResultSet &setResults = varResultsSet.value<CELSResultSet>();
+	QPainter linePainter(this);
 
-		CELSSearchMainWindow *pMainWindow = qobject_cast<CELSSearchMainWindow *>(parent());
-		Q_ASSERT(pMainWindow != nullptr);
+	QSize szViewport = m_pView->viewport()->size();
+	Q_ASSERT(size() == szViewport);
 
-		for (CELSResultSet::const_iterator itrResults = setResults.cbegin(); itrResults != setResults.cend(); ++itrResults) {
-			const CELSResult &result = itrResults.key();
-			uint32_t ndxLetter = pMainWindow->m_letterMatrix.matrixIndexFromRelIndex(result.m_ndxStart);
-			QRect rcCur = pMainWindow->ui->tvLetterMatrix->visualRect(
-								pMainWindow->m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(ndxLetter));
-			for (int i = 0; i < result.m_strWord.size()-1; ++i) {
-				ndxLetter += CFindELS::nextOffset(result.m_nSkip, i, result.m_nSearchType);
-				QRect rcNext = pMainWindow->ui->tvLetterMatrix->visualRect(
-								pMainWindow->m_pLetterMatrixTableModel->modelIndexFromMatrixIndex(ndxLetter));
+	int nRowFirst = m_pView->rowAt(0);
+	int nRowLast = m_pView->rowAt(szViewport.height()-2);
+	int nColFirst = (m_pView->layoutDirection() == Qt::LeftToRight) ? m_pView->columnAt(0) : m_pView->columnAt(szViewport.width()-2);
+	int nColLast =  (m_pView->layoutDirection() == Qt::LeftToRight) ? m_pView->columnAt(szViewport.width()-2) : m_pView->columnAt(0);
 
-				if (rcCur.isValid() && rcNext.isValid()) {
-					painter->save();
-					painter->setPen(penLine);
-					painter->drawLine(rcCur.center(), rcNext.center());
-					painter->restore();
+	if (nRowLast == -1) nRowLast = nRowFirst + m_pModel->rowCount() -1;
+	if (nColLast == -1) nColLast = nColFirst + m_pModel->width() - 1;
+
+	for (int nRow = nRowFirst; nRow <= nRowLast; ++nRow) {
+		for (int nCol = nColFirst; nCol <= nColLast; ++nCol) {
+			QModelIndex index = m_pModel->modelIndexFromMatrixIndex(m_pModel->matrixIndexFromRowCol(nRow, nCol));
+			if (index.isValid()) {
+				const QVariant &varResultsSet = index.data(CLetterMatrixTableModel::UserRole_ResultsSet);
+				if (varResultsSet.isValid() && varResultsSet.canConvert<CELSResultSet>()) {
+					const CELSResultSet &setResults = varResultsSet.value<CELSResultSet>();
+
+					for (CELSResultSet::const_iterator itrResults = setResults.cbegin(); itrResults != setResults.cend(); ++itrResults) {
+						const CELSResult &result = itrResults.key();
+						uint32_t ndxLetter = m_pModel->matrix().matrixIndexFromRelIndex(result.m_ndxStart);
+						QRect rcCur = m_pView->visualRect(m_pModel->modelIndexFromMatrixIndex(ndxLetter));
+						for (int i = 0; i < result.m_strWord.size()-1; ++i) {
+							ndxLetter += CFindELS::nextOffset(result.m_nSkip, i, result.m_nSearchType);
+							QRect rcNext = m_pView->visualRect(m_pModel->modelIndexFromMatrixIndex(ndxLetter));
+
+							if (rcCur.isValid() && rcNext.isValid()) {
+								linePainter.setPen(penLine);
+								linePainter.drawLine(rcCur.center(), rcNext.center());
+							}
+
+							rcCur = rcNext;
+						}
+					}
 				}
-
-				rcCur = rcNext;
 			}
 		}
 	}
@@ -124,7 +139,6 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 										   LetterMatrixTextModifierOptionFlags flagsLMTMO,
 										   QWidget *parent)
 	:	QMainWindow(parent),
-		m_letterMatrixResultsLineDelegate(this),
 		m_letterMatrix(pBibleDatabase, flagsLMTMO),
 		ui(new Ui::CELSSearchMainWindow)
 {
@@ -174,7 +188,10 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	ui->tvLetterMatrix->setLayoutDirection(pBibleDatabase->direction());
 	ui->editWords->setLayoutDirection(pBibleDatabase->direction());
 
-	ui->tvLetterMatrix->setItemDelegate(&m_letterMatrixResultsLineDelegate);
+	// --------------------------------
+
+	// Create special widget to draw lines on the LetterMatrix for ELSResults:
+	m_pLetterMatrixLineWidget = new CLetterMatrixLineWidget(m_pLetterMatrixTableModel, ui->tvLetterMatrix, ui->tvLetterMatrix->viewport());
 
 	// --------------------------------
 
@@ -315,6 +332,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	ui->tvELSResults->installEventFilter(this);
 	ui->tvLetterMatrix->installEventFilter(this);
+	ui->tvLetterMatrix->viewport()->installEventFilter(this);
 
 	// --------------------------------
 
@@ -960,6 +978,15 @@ bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 				pWEvent->setAccepted(true);
 				return true;
 			}
+		} else if (ev->type() == QEvent::Paint) {					//		Paint (for doing image overlay)
+			m_pLetterMatrixLineWidget->move(0, 0);
+			m_pLetterMatrixLineWidget->update();
+			// Note: Don't filter this event, continue to return false
+		}
+	} else if (obj == ui->tvLetterMatrix->viewport()) {				//		Resize (for doing image overlay)
+		if (ev->type() == QEvent::Resize) {
+			QResizeEvent *pResizeEvent = static_cast<QResizeEvent *>(ev);
+			m_pLetterMatrixLineWidget->resize(pResizeEvent->size());
 		}
 	}
 
