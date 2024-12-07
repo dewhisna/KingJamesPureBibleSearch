@@ -28,6 +28,7 @@
 #include <QPointer>
 #include <QScopedPointer>
 #include <QFile>
+#include <QTableView>
 
 #include "LetterMatrix.h"
 
@@ -38,9 +39,22 @@ class QAction;
 class QMenu;
 class QEvent;
 class QPaintEvent;
-class QTableView;
 class QtIOCompressor;
 class CCSVStream;
+
+// ============================================================================
+
+class CLetterMatrixTableView : public QTableView
+{
+	Q_OBJECT
+public:
+	CLetterMatrixTableView(QWidget *pParent = nullptr);
+
+	virtual void scrollContentsBy(int dx, int dy) override;
+
+private:
+	class CELSSearchMainWindow *m_pMainWindow = nullptr;
+};
 
 // ============================================================================
 
@@ -121,6 +135,8 @@ protected slots:
 	void en_copyLetterMatrix();
 
 private:
+	friend class CLetterMatrixTableView;
+
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	static QString g_strLastELSFilePath;
 	// ----

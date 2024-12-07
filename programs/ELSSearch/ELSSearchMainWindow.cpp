@@ -80,6 +80,30 @@ constexpr int ELS_FILE_VERSION = 2;		// Current ELS Transcript File Version
 
 // ============================================================================
 
+CLetterMatrixTableView::CLetterMatrixTableView(QWidget *pParent)
+	:	QTableView(pParent)
+{
+	QObject *pNextParent = pParent;
+	while ((m_pMainWindow == nullptr) && pNextParent) {
+		m_pMainWindow = qobject_cast<CELSSearchMainWindow *>(pNextParent);
+		pNextParent = pNextParent->parent();
+	}
+	Q_ASSERT(m_pMainWindow != nullptr);
+}
+
+void CLetterMatrixTableView::scrollContentsBy(int dx, int dy)
+{
+	Q_ASSERT(m_pMainWindow != nullptr);
+
+	QTableView::scrollContentsBy(dx, dy);
+	if (m_pMainWindow &&
+		m_pMainWindow->m_pLetterMatrixLineWidget) {
+		m_pMainWindow->m_pLetterMatrixLineWidget->move(0, 0);
+	}
+}
+
+// ============================================================================
+
 void CLetterMatrixLineWidget::paintEvent(QPaintEvent *event)
 {
 	// TODO : Fix this to be not so hard coded:
@@ -988,10 +1012,6 @@ bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 				pWEvent->setAccepted(true);
 				return true;
 			}
-		} else if (ev->type() == QEvent::Paint) {					//		Paint (for doing image overlay)
-			m_pLetterMatrixLineWidget->move(0, 0);
-			m_pLetterMatrixLineWidget->update();
-			// Note: Don't filter this event, continue to return false
 		}
 	} else if (obj == ui->tvLetterMatrix->viewport()) {				//		Resize (for doing image overlay)
 		if (ev->type() == QEvent::Resize) {
