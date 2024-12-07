@@ -42,6 +42,7 @@
 #elif QT_VERSION >= 0x060500
 #include <QStyleHints>
 #include <QApplication>
+#include <QPalette>
 #endif
 
 #endif	// !IS_CONSOLE_APP
@@ -177,11 +178,17 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 				}
 			}
 #elif QT_VERSION >= 0x060500
-			if (QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) {
+		{
+			const QPalette defaultPalette;
+			const auto text = defaultPalette.color(QPalette::WindowText);
+			const auto window = defaultPalette.color(QPalette::Window);
+
+			if ((QApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark) && (text.lightness() > window.lightness())) {
 				if ((nMatrixIndex != 0) && !m_lstCharacterResultMap.at(nMatrixIndex).isEmpty()) {
 					return QApplication::palette("QTableView").base();
 				}
 			}
+		}
 #endif
 #endif
 			break;
