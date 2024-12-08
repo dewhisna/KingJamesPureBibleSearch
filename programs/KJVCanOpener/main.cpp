@@ -167,6 +167,10 @@ int main(int argc, char *argv[])
 	pApp->setWindowIcon(QIcon(":/res/bible.ico"));
 #elif defined(Q_OS_MAC)
 	pApp->setWindowIcon(QIcon(":/res/bible.icns"));
+
+	// On the Mac/Cocoa platform this attribute is enabled by default
+	// We override it to ensure shortcuts show in context menus on that platform
+	QApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false);
 #else
 	pApp->setWindowIcon(QIcon(":/res/bible_48.png"));
 #endif

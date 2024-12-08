@@ -278,6 +278,13 @@ int main(int argc, char *argv[])
 	}
 
 #ifndef IS_CONSOLE_APP
+
+#ifdef Q_OS_MAC
+	// On the Mac/Cocoa platform this attribute is enabled by default
+	// We override it to ensure shortcuts show in context menus on that platform
+	QApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false);
+#endif
+
 	// Launch as a GUI unless user specified enough arguments for console app:
 	if ((nArgsFound <= 1) && (!bShowUsageHelp)) {		// Allow Bible Database argument to dialog if passed
 		QString strBibleUUID{bibleDescriptor(BDE_KJV).m_strUUID};
