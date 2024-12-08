@@ -1947,7 +1947,7 @@ QString CReadDatabase::dictionaryDefinition(const CDictionaryDatabase *pDictiona
 
 // ============================================================================
 
-bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const
+bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc)
 {
 	QFileInfo fiSQL(bblDesc.m_strS3DBFilename);
 	QFileInfo fiCC(bblDesc.m_strCCDBFilename);
@@ -1960,7 +1960,7 @@ bool CReadDatabase::haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) cons
 			(fiSQL.exists() && fiSQL.isFile()));
 }
 
-bool CReadDatabase::haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const
+bool CReadDatabase::haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc)
 {
 	if (dctDesc.m_strCCDBFilename.isEmpty() && dctDesc.m_strS3DBFilename.isEmpty()) {
 		// Empty filenames is special-case to refer back to a dictionary integrated in

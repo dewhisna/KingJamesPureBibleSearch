@@ -49,8 +49,8 @@ public:
 	CReadDatabase(QWidget *pParent = nullptr);
 	virtual ~CReadDatabase();
 
-	virtual bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc) const;
-	virtual bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc) const;
+	static bool haveBibleDatabaseFiles(const TBibleDescriptor &bblDesc);
+	static bool haveDictionaryDatabaseFiles(const TDictionaryDescriptor &dctDesc);
 	virtual bool ReadBibleDatabase(const TBibleDescriptor &bblDesc, bool bSetAsMain = false);
 	virtual bool ReadSpecialBibleDatabase(const QString &strCCDBPathFilename, bool bSetAsMain = false);		// If an absolute path is given, it's used, else the path is considered relative to m_strBibleDatabasePath
 	virtual bool ReadDictionaryDatabase(const TDictionaryDescriptor &dctDesc, bool bLiveDB = true, bool bSetAsMain = false);
