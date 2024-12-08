@@ -658,7 +658,18 @@ bool CReadDatabase::ReadDBInfoTable()
 			strError = QObject::tr("Invalid Text Direction", "ReadDB");
 		} else {
 			// Note: This overrides any defaults read from internal descriptor list:
-			m_pBibleDatabase->m_descriptor.m_strUUID = lstFields.at(2);
+			if (m_pBibleDatabase->m_descriptor.m_strUUID.isEmpty()) {
+				m_pBibleDatabase->m_descriptor.m_strUUID = lstFields.at(2);
+			} else {
+				// This check prevents someone from renaming a database file to the valid
+				//	name of a different descriptor, which allows for a valid database read,
+				//	but for the wrong database, leading to a crash in KJVCanOpener because
+				//	the expected database wouldn't actually be open:
+				if (m_pBibleDatabase->m_descriptor.m_strUUID.compare(lstFields.at(2), Qt::CaseInsensitive) != 0) {
+					bDBInfoGood = false;
+					strError = QObject::tr("Bible Database File UUID mismatch", "ReadDB");
+				}
+			}
 			m_pBibleDatabase->m_descriptor.m_strLanguage = lstFields.at(3);
 			m_pBibleDatabase->m_descriptor.m_strDBName = lstFields.at(4);
 			m_pBibleDatabase->m_descriptor.m_strDBDesc = lstFields.at(5);		// Should we set strDBDesc=strDBName here if strDBDesc is empty??
