@@ -237,13 +237,14 @@ CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSear
 	for (int ndx = m_lstSearchWords.size()-1; ndx >= 0; --ndx) {
 		if (m_lstSearchWords.at(ndx).size() < 2) m_lstSearchWords.removeAt(ndx);
 	}
-	m_lstSearchWordsRev = lstSearchWords;		// Copy to reverse list as starting point
 
 	// Make all search words lower case and sort by ascending word length:
 	for (auto &strSearchWord : m_lstSearchWords) strSearchWord = strSearchWord.toLower();
 	std::sort(m_lstSearchWords.begin(), m_lstSearchWords.end(), [](const QString &s1, const QString &s2)->bool {
 		return (s1.size() < s2.size());
 	});
+
+	m_lstSearchWordsRev = m_lstSearchWords;		// Copy to reverse list as starting point
 
 	// Create reversed word list so we can also search for ELS occurrences in both directions:
 	for (auto &strSearchWord : m_lstSearchWordsRev) std::reverse(strSearchWord.begin(), strSearchWord.end());
