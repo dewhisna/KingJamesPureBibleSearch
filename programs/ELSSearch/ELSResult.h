@@ -95,13 +95,16 @@ extern QString elsSearchTypeToID(ELS_SEARCH_TYPE_ENUM nSearchType);
 class CELSResult
 {
 public:
+	// Unique data:
 	QString m_strWord;
 	int m_nSkip = 0;
 	ELS_SEARCH_TYPE_ENUM m_nSearchType = ESTE_ELS;			// Skip algorithm -- needed here to know how to traverse the data for a specific result
 	CRelIndexEx m_ndxStart;									// Index of first letter (in matrix order, i.e. will be last letter if found in RightToLeft direction)
+	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
+	// ----
+	// Computable data:
 	CRelIndexEx m_ndxEnd;									// Index of last letter (in matrix order, i.e. will be last letter if found in LeftToRight direction)
 	CRelIndexEx m_ndxNominal;								// Nominal index of word -- dependent on search type weighting
-	Qt::LayoutDirection m_nDirection = Qt::LeftToRight;
 
 	// operator<() needed for QMap:
 	inline bool operator<(const CELSResult &result) const	// This '<' operator is for QMap containing functionality only, and not for actually sorting CELSResult values!
@@ -117,17 +120,9 @@ public:
 				} else if (m_nSearchType == result.m_nSearchType) {
 					if (m_ndxStart < result.m_ndxStart) {
 						return true;
-					} else if (m_ndxStart == result.m_ndxStart) {
-						if (m_ndxNominal < result.m_ndxNominal) {
+					} else if (m_ndxStart == result.m_ndxStart) {	// Note: Don't compare Nominal and End, since they should be computable from search type and skip
+						if (m_nDirection < result.m_nDirection) {
 							return true;
-						} else if (m_ndxNominal == result.m_ndxNominal) {
-							if (m_ndxEnd < result.m_ndxEnd) {
-								return true;
-							} else if (m_ndxEnd == result.m_ndxEnd) {
-								if (m_nDirection < result.m_nDirection) {
-									return true;
-								}
-							}
 						}
 					}
 				}
@@ -137,21 +132,19 @@ public:
 		return false;
 	}
 
-//	// operator==() and !=() needed for QList::contains()
-//	inline bool operator==(const CELSResult &result) const
-//	{
-//		return ((m_strWord == result.m_strWord) &&
-//				(m_nSkip == result.m_nSkip) &&
-//				(m_nSearchType == result.m_nSearchType) &&
-//				(m_ndxStart == result.m_ndxStart) &&
-//				(m_ndxNominal == result.m_ndxNominal) &&
-//				(m_ndxEnd == result.m_ndxEnd) &&
-//				(m_nDirection == result.m_nDirection));
-//	}
-//	inline bool operator!=(const CELSResult &result) const
-//	{
-//		return !operator==(result);
-//	}
+	// operator==() and !=() needed for QList::contains()
+	inline bool operator==(const CELSResult &result) const
+	{
+		return ((m_strWord == result.m_strWord) &&
+				(m_nSkip == result.m_nSkip) &&
+				(m_nSearchType == result.m_nSearchType) &&
+				(m_ndxStart == result.m_ndxStart) &&				// Note: Don't compare Nominal and End, since they should be computable from search type and skip
+				(m_nDirection == result.m_nDirection));
+	}
+	inline bool operator!=(const CELSResult &result) const
+	{
+		return !operator==(result);
+	}
 };
 
 typedef QList<CELSResult> CELSResultList;
