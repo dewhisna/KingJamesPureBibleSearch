@@ -204,9 +204,12 @@ public:
 
 	QModelIndexList getResultIndexes(const CELSResultSet &setResults);
 
+	const CELSResultList &results() const { return m_lstResults; }
+
 public slots:
 	void setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 	void setSearchResults(const CELSResultList &lstResults);
+	void deleteSearchResults(const QModelIndexList &indexes);
 	void clearSearchResults();
 
 	void setUppercase(bool bUppercase);

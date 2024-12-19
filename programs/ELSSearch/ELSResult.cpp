@@ -32,6 +32,8 @@
 #include <QSet>
 #endif
 
+#include <algorithm>		// std::sort
+
 #include <QVariant>
 
 // ============================================================================
@@ -431,6 +433,38 @@ void CELSResultListModel::setSearchResults(const CELSResultList &lstResults)
 		}
 	}
 	sortResults();
+	endResetModel();
+}
+
+void CELSResultListModel::deleteSearchResults(const QModelIndexList &indexes)
+{
+	QList<int> lstIndexesToRemove;
+
+	beginResetModel();
+
+	// Since incoming index list can be unordered and have duplicates,
+	//	remove the duplicates and make a list of indexes to remove:
+	QSet<int> setIndexRows;
+	for (auto const & item : indexes) {
+		if (setIndexRows.contains(item.row())) continue;
+		setIndexRows.insert(item.row());
+		lstIndexesToRemove.append(item.row());
+	}
+
+	// Sort the list to remove in reverse order so we can remove them
+	//	without breaking iterators:
+	std::sort(lstIndexesToRemove.begin(), lstIndexesToRemove.end(), [](int ndx1, int ndx2)->bool {
+		return (ndx2 < ndx1);
+	});
+
+	// Remove them:
+	for (auto const & ndx : lstIndexesToRemove) {
+		m_mapResults.remove(m_lstResults.at(ndx));
+		m_lstResults.removeAt(ndx);
+	}
+
+	// Note: no need to call sortResults() here as removing some shouldn't break sorting of remaining items...
+
 	endResetModel();
 }
 

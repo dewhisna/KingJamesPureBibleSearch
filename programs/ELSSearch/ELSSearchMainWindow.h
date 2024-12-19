@@ -133,6 +133,8 @@ protected slots:
 	void clear();
 	// ----
 	void en_copySearchResults();
+	void en_deleteSearchResults();
+	// ----
 	void en_copyLetterMatrix();
 
 private:

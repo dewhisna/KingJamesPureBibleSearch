@@ -979,6 +979,10 @@ bool CELSSearchMainWindow::eventFilter(QObject *obj, QEvent *ev)
 				en_copySearchResults();
 				pKEvent->accept();
 				return true;
+			} else if (pKEvent->matches(QKeySequence::Delete)) {	//			Delete
+				en_deleteSearchResults();
+				pKEvent->accept();
+				return true;
 			} else if ((pKEvent->key() == Qt::Key_Return) || (pKEvent->key() == Qt::Key_Enter)) {
 				en_searchResultClicked(ui->tvELSResults->currentIndex());
 				return true;
@@ -1029,6 +1033,10 @@ QMenu *CELSSearchMainWindow::createELSResultsContextMenu()
 	pAction->setObjectName("edit-copy");
 	pAction->setEnabled(ui->tvELSResults->selectionModel()->hasSelection());
 
+	pAction = pMenu->addAction(QIcon::fromTheme("edit-delete"), tr("&Delete", "tvELSResults") + ACCEL_KEY(QKeySequence::Delete), this, SLOT(en_deleteSearchResults()));
+	pAction->setObjectName("edit-delete");
+	pAction->setEnabled(ui->tvELSResults->selectionModel()->hasSelection());
+
 	pMenu->addSeparator();
 
 	pAction = pMenu->addAction(QIcon::fromTheme("edit-select-all"), tr("Select All", "tvELSResults") + ACCEL_KEY(QKeySequence::SelectAll), ui->tvELSResults, SLOT(selectAll()));
@@ -1042,6 +1050,19 @@ void CELSSearchMainWindow::en_copySearchResults()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setMimeData(m_pELSResultListModel->mimeData(ui->tvELSResults->selectionModel()->selectedIndexes()));
+}
+
+void CELSSearchMainWindow::en_deleteSearchResults()
+{
+	// Delete results selected in the ELSResult view:
+	m_pELSResultListModel->deleteSearchResults(ui->tvELSResults->selectionModel()->selectedIndexes());
+
+	// Blow away the matrix results and recompute them, since it
+	//	keeps running totals for overlaps:
+	m_pLetterMatrixTableModel->clearSearchResults();
+	m_pLetterMatrixTableModel->setSearchResults(m_pELSResultListModel->results());
+
+	// TODO : Add support to remove deleted results in the ELS File
 }
 
 QMenu *CELSSearchMainWindow::createLetterMatrixContextMenu()
