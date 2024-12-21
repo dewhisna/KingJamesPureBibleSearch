@@ -68,6 +68,79 @@ namespace {
 
 }	// namespace
 
+// ============================================================================
+
+int runTests(CBibleDatabasePtr pBibleDatabase)
+{
+	std::cerr << "RelIndexEx Roundtrip Testing";
+	for (uint32_t ndx = 0; ndx <= pBibleDatabase->bibleEntry().m_nNumLtr; ++ndx) {
+		if ((ndx % 10000) == 0) {
+			std::cerr << ".";
+			std::cerr.flush();
+		}
+		CRelIndexEx relIndex = pBibleDatabase->DenormalizeIndexEx(ndx);
+		uint32_t ndxTest = pBibleDatabase->NormalizeIndexEx(relIndex);		// Separate variable for debug viewing
+		if (ndx != ndxTest) {
+			std::cerr << "\n";
+			std::cerr << "Normal Index: " << (unsigned int)(ndx) << std::endl;
+			std::cerr << "relIndex    : 0x" << QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data() << std::endl;
+			std::cerr << "Roundtrip   : " << (unsigned int)(ndxTest) << std::endl;
+
+			// Perform again as a convenient place to attach a breakpoint and watch what happens:
+			CRelIndexEx relRedo = pBibleDatabase->DenormalizeIndexEx(ndx);
+			uint32_t ndxTest2 = pBibleDatabase->NormalizeIndexEx(relRedo);
+			Q_UNUSED(ndxTest2);
+
+			return -1;
+		}
+	}
+	std::cerr << std::endl;
+
+	for (LetterMatrixTextModifierOptionFlags flags = LMTMO_None; flags <= LMTMO_ALL;
+		 flags=static_cast<LetterMatrixTextModifierOptionFlags>(static_cast<int>(flags)+1)) {
+		std::cerr << "LetterMatrix Roundtrip Test\n";
+		std::cerr << "Options: ";
+		if (flags == LMTMO_None) {
+			std::cerr << "None";
+		} else {
+			bool bOutput = false;
+			if (flags.testFlag(LMTMO_WordsOfJesusOnly)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Words of Jesus";
+				bOutput = true;
+			}
+			if (flags.testFlag(LMTMO_RemoveColophons)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Remove Colophons";
+				bOutput = true;
+			}
+			if (flags.testFlag(LMTMO_RemoveSuperscriptions)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Remove Superscriptions";
+				bOutput = true;
+			}
+			if (flags.testFlag(LMTMO_IncludeBookPrologues)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Include Book Prologues";
+				bOutput = true;
+			}
+			if (flags.testFlag(LMTMO_IncludeChapterPrologues)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Include Chapter Prologues";
+				bOutput = true;
+			}
+		}
+		std::cerr << std::endl;
+
+		CLetterMatrix letterMatrix(pBibleDatabase, flags);
+		if (!letterMatrix.runMatrixIndexRoundtripTest()) return -2;
+		std::cerr << std::endl;
+	}
+
+	std::cerr << "Tests Complete" << std::endl;
+
+	return 0;			// All good
+}
 
 // ============================================================================
 
@@ -212,6 +285,7 @@ int main(int argc, char *argv[])
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
 	bool bShowUsageHelp = false;
+	bool bTestMode = false;
 	// ----
 	bool bRunMultithreaded = false;
 	LetterMatrixTextModifierOptionFlags flagsLMTMO = LMTMO_None;
@@ -272,6 +346,8 @@ int main(int argc, char *argv[])
 			if ((nSearchType < ESTE_FIRST) || (nSearchType >= ESTE_COUNT)) bShowUsageHelp = true;
 		} else if ((strArg.compare("-h") == 0) || (strArg.compare("--help") == 0)) {
 			bShowUsageHelp = true;
+		} else if (strArg.compare("--test") == 0) {
+			bTestMode = true;
 		} else {
 			bShowUsageHelp = true;
 		}
@@ -285,8 +361,8 @@ int main(int argc, char *argv[])
 	QApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false);
 #endif
 
-	// Launch as a GUI unless user specified enough arguments for console app:
-	if ((nArgsFound <= 1) && (!bShowUsageHelp)) {		// Allow Bible Database argument to dialog if passed
+	// Launch as a GUI unless user specified enough arguments for console app or is running tests:
+	if ((nArgsFound <= 1) && !bShowUsageHelp && !bTestMode) {		// Allow Bible Database argument to dialog if passed
 		QString strBibleUUID{bibleDescriptor(BDE_KJV).m_strUUID};
 
 		if ((nArgsFound == 1) && (nDescriptor >= 0) &&
@@ -318,10 +394,11 @@ int main(int argc, char *argv[])
 #endif
 
 	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bShowUsageHelp = true;	// Each word must have at least two characters
-	if (lstSearchWords.isEmpty()) bShowUsageHelp = true;		// Must have at least one search word
+	if (lstSearchWords.isEmpty() && !bTestMode) bShowUsageHelp = true;		// Must have at least one search word
 
-	if (((nArgsFound != 4) && ((nSearchType == ESTE_ELS) || (nSearchType == ESTE_FLS))) ||
-		((nArgsFound != 2) && ((nSearchType != ESTE_ELS) && (nSearchType != ESTE_FLS))) ||
+	if (((nArgsFound != 4) && ((nSearchType == ESTE_ELS) || (nSearchType == ESTE_FLS)) && !bTestMode) ||
+		((nArgsFound != 2) && ((nSearchType != ESTE_ELS) && (nSearchType != ESTE_FLS)) && !bTestMode) ||
+		((nArgsFound != 1) && bTestMode) ||
 		(bShowUsageHelp)) {
 		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Words> [<Min-Letter-Skip> <Max-Letter-Skip>]\n\n").arg(argv[0]).toUtf8().data();
@@ -331,7 +408,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    aren't used for Vortex-Based FLS searches.\n\n").toUtf8().data();
 		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
-		std::cerr << QString("  -h, --help =  Show this usage information\n\n").toUtf8().data();
+		std::cerr << QString("  -h, --help =  Show this usage information\n").toUtf8().data();
+		std::cerr << QString("  --test     =  Run regression tests (preempts all search option, only pass <UUID-Index>)\n").toUtf8().data();
+		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
@@ -389,6 +468,8 @@ int main(int argc, char *argv[])
 	// ------------------------------------------------------------------------
 
 	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->mainBibleDatabase();
+
+	if (bTestMode) return runTests(pBibleDatabase);
 
 	CLetterMatrix letterMatrix{pBibleDatabase, flagsLMTMO};
 

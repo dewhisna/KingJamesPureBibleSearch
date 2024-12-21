@@ -27,6 +27,8 @@
 
 #include <QStringList>
 
+#include <iostream>
+
 #define TEST_MATRIX_INDEXING 0		// Set to '1' to enable matrix index roundtrip testing -- WARNING: This is VERY slow test!
 
 // ============================================================================
@@ -206,24 +208,51 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextM
 
 	// Additional Matrix Index Roundtrip Test for debugging:
 #if TEST_MATRIX_INDEXING
+	runMatrixIndexRoundtripTest();
+#endif
+}
+
+bool CLetterMatrix::runMatrixIndexRoundtripTest() const
+{
 	for (uint32_t ndx = 1; ndx < static_cast<uint32_t>(size()); ++ndx) {
+#if !TEST_MATRIX_INDEXING
+		if ((ndx % 10000) == 0) {
+			std::cerr << ".";
+			std::cerr.flush();
+		}
+#endif
 		CRelIndexEx relIndex = relIndexFromMatrixIndex(ndx);
 		uint32_t ndxTest = matrixIndexFromRelIndex(relIndex);		// Separate variable for debug viewing
 		if (ndx != ndxTest) {
 			QString strTemp;
 			for (uint32_t i = 0; ((i < 32) && (i < static_cast<uint32_t>(size()))); ++i) strTemp += at(ndx+i);
+#if TEST_MATRIX_INDEXING
 			qDebug("Real Index:     %d : %s", ndx, strTemp.toUtf8().data());
 			qDebug("relIndex: 0x%s", QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data());
+#else
+			std::cerr << "\n";
+			std::cerr << "Real Index:     " << (unsigned int)(ndx) << " : " << strTemp.toUtf8().data() << std::endl;
+			std::cerr << "relIndex: 0x" << QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data() << std::endl;
+#endif
 			strTemp.clear();
 			for (uint32_t i = 0; ((i < 32) && (i < static_cast<uint32_t>(size()))); ++i) strTemp += at(ndxTest+i);
+#if TEST_MATRIX_INDEXING
 			qDebug("Resolved Index: %d : %s", ndxTest, strTemp.toUtf8().data());
+#else
+			std::cerr << "Resolved Index: " << (unsigned int)(ndxTest) << " : " << strTemp.toUtf8().data() << std::endl;
+#endif
+
+			// Perform again as a convenient place to attach a breakpoint and watch what happens:
 			CRelIndexEx relRedo = relIndexFromMatrixIndex(ndx);
 			uint32_t ndxTest2 = matrixIndexFromRelIndex(relRedo);
 			Q_UNUSED(ndxTest2);
+#if TEST_MATRIX_INDEXING
 			Q_ASSERT(false);
+#endif
+			return false;
 		}
 	}
-#endif
+	return true;
 }
 
 // ----------------------------------------------------------------------------

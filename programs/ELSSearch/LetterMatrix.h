@@ -41,6 +41,8 @@ enum LetterMatrixTextModifierOptions {
 	LMTMO_RemoveSuperscriptions = 0x0004,	// Strip out superscriptions from Psalms
 	LMTMO_IncludeBookPrologues = 0x0008,	// Insert Book Title Prologes (KJV Bibles Only)
 	LMTMO_IncludeChapterPrologues = 0x0010,	// Insert Chapter Heading Prologues (KJV Bibles Only)
+	// ----
+	LMTMO_ALL = 0x001F,						// Values with all flags set to use as a loop iterator over available flags
 };
 Q_DECLARE_FLAGS(LetterMatrixTextModifierOptionFlags, LetterMatrixTextModifierOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
@@ -60,6 +62,8 @@ public:
 	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 
 	LetterMatrixTextModifierOptionFlags textModifierOptions() const { return m_flagsLMTMO; }
+
+	bool runMatrixIndexRoundtripTest() const;
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
