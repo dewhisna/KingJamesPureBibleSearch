@@ -436,9 +436,10 @@ void CELSResultListModel::setSearchResults(const CELSResultList &lstResults)
 	endResetModel();
 }
 
-void CELSResultListModel::deleteSearchResults(const QModelIndexList &indexes)
+CELSResultList CELSResultListModel::deleteSearchResults(const QModelIndexList &indexes)
 {
 	QList<int> lstIndexesToRemove;
+	CELSResultList lstResultsRemoved;
 
 	beginResetModel();
 
@@ -459,8 +460,26 @@ void CELSResultListModel::deleteSearchResults(const QModelIndexList &indexes)
 
 	// Remove them:
 	for (auto const & ndx : lstIndexesToRemove) {
+		lstResultsRemoved.append(m_lstResults.at(ndx));
 		m_mapResults.remove(m_lstResults.at(ndx));
 		m_lstResults.removeAt(ndx);
+	}
+
+	// Note: no need to call sortResults() here as removing some shouldn't break sorting of remaining items...
+
+	endResetModel();
+
+	return lstResultsRemoved;
+}
+
+void CELSResultListModel::deleteSearchResults(const CELSResultList &lstResults)
+{
+	beginResetModel();
+
+	// Remove them:
+	for (auto const & result : lstResults) {
+		m_mapResults.remove(result);
+		m_lstResults.removeAll(result);
 	}
 
 	// Note: no need to call sortResults() here as removing some shouldn't break sorting of remaining items...

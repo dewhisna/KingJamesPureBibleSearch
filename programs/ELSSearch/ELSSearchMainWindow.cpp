@@ -603,6 +603,43 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 						}
 					}
 				}
+			} else if (strCommand.compare("Delete", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() < 2) {
+					bBadELSFile = true;
+					break;
+				}
+				qsizetype nNumDeletions = lstEntry.at(1).toULongLong();
+				if (lstEntry.size() != (nNumDeletions + 2)) {
+					bBadELSFile = true;
+					break;
+				}
+				CELSResultList lstResultsToRemove;
+				for (qsizetype ndx = 0; ndx < nNumDeletions; ++ndx) {
+					QString strResult = lstEntry.at(ndx + 2);
+					CCSVStream csvResult(&strResult, QIODevice::ReadOnly);
+					QStringList lstResult;
+					csvResult >> lstResult;
+					if (lstResult.size() != 5) {
+						bBadELSFile = true;
+						break;
+					}
+					CELSResult result;
+					result.m_strWord = lstResult.at(0);
+					result.m_nSkip = lstResult.at(1).toInt();
+					result.m_nSearchType = elsSearchTypeFromID(lstResult.at(2));
+					result.m_ndxStart = CRelIndexEx(lstResult.at(3).toULongLong());
+					if (lstResult.at(4).compare("Fwd", Qt::CaseInsensitive) == 0) {
+						result.m_nDirection = Qt::LeftToRight;
+					} else if (lstResult.at(4).compare("Rev", Qt::CaseInsensitive) == 0) {
+						result.m_nDirection = Qt::RightToLeft;
+					} else {
+						bBadELSFile = true;
+						break;
+					}
+					lstResultsToRemove.append(result);
+				}
+				if (bBadELSFile) break;
+				m_pELSResultListModel->deleteSearchResults(lstResultsToRemove);
 			} else {
 				if (nELSVersion <= ELS_FILE_VERSION) {		// Bad/Unknown command for this version of ELS, including backward compat
 					bBadELSFile = true;
@@ -1055,14 +1092,43 @@ void CELSSearchMainWindow::en_copySearchResults()
 void CELSSearchMainWindow::en_deleteSearchResults()
 {
 	// Delete results selected in the ELSResult view:
-	m_pELSResultListModel->deleteSearchResults(ui->tvELSResults->selectionModel()->selectedIndexes());
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	CELSResultList lstResultsRemoved =
+#endif
+		m_pELSResultListModel->deleteSearchResults(ui->tvELSResults->selectionModel()->selectedIndexes());
 
 	// Blow away the matrix results and recompute them, since it
 	//	keeps running totals for overlaps:
 	m_pLetterMatrixTableModel->clearSearchResults();
 	m_pLetterMatrixTableModel->setSearchResults(m_pELSResultListModel->results());
 
-	// TODO : Add support to remove deleted results in the ELS File
+#if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
+	// Record deletion if recording is active:
+	if (m_bRecordingTranscript) {
+		Q_ASSERT(!m_pSearchTranscriptCSVStream.isNull());
+		QStringList lstDeletion = QStringList{
+			"Delete",
+			QString::number(lstResultsRemoved.size())
+		};
+		for (auto const & result : lstResultsRemoved) {
+			QString strResult;
+			CCSVStream csvResult(&strResult, QIODevice::WriteOnly);
+
+			csvResult << QStringList {
+				result.m_strWord,
+				QString::number(result.m_nSkip),
+				elsSearchTypeToID(result.m_nSearchType),
+				QString::number(result.m_ndxStart.indexEx()),
+				(result.m_nDirection == Qt::LeftToRight) ? QString("Fwd") : QString("Rev")
+			};
+
+			lstDeletion << strResult;
+		}
+		(*m_pSearchTranscriptCSVStream) << lstDeletion;
+	}
+#endif
+
+
 }
 
 QMenu *CELSSearchMainWindow::createLetterMatrixContextMenu()

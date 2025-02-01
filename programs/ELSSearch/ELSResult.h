@@ -202,7 +202,8 @@ public:
 public slots:
 	void setSortOrder(ELSRESULT_SORT_ORDER_ENUM nSortOrder);
 	void setSearchResults(const CELSResultList &lstResults);
-	void deleteSearchResults(const QModelIndexList &indexes);
+	CELSResultList deleteSearchResults(const QModelIndexList &indexes);
+	void deleteSearchResults(const CELSResultList &lstResults);
 	void clearSearchResults();
 
 	void setUppercase(bool bUppercase);
