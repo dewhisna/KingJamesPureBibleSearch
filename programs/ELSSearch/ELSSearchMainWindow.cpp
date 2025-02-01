@@ -76,7 +76,7 @@
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
 
 
-constexpr int ELS_FILE_VERSION = 2;		// Current ELS Transcript File Version
+constexpr int ELS_FILE_VERSION = 3;		// Current ELS Transcript File Version
 
 // ============================================================================
 
