@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -------------------------------------------------------------------------------
 
 Modified for the behaviour desired in King James Pure Bible Search.
-Modifications Copyright (C) 2013-2022, Donna Whisnant, a.k.a. Dewtronics
+Modifications Copyright (C) 2013-2025, Donna Whisnant, a.k.a. Dewtronics
 
 -------------------------------------------------------------------------------
 

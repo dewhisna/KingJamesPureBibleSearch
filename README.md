@@ -17,7 +17,7 @@ License
 
 King James Pure Bible Search
 
-Copyright (C) 2012-2022 Donna Whisnant, a.k.a. Dewtronics.
+Copyright (C) 2012-2025 Donna Whisnant, a.k.a. Dewtronics.
 
 Contact: <http://www.dewtronics.com/>
 
