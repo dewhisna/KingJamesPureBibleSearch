@@ -21,11 +21,14 @@
 ##
 ##*****************************************************************************
 
-cmake_minimum_required(VERSION 3.20...3.28)
+cmake_minimum_required(VERSION 3.21...3.28)
 
 set(LANGUAGES CXX)
 
-project(KJVSumThing VERSION 4.0.0 DESCRIPTION "KJPBS SumThing Tool" LANGUAGES ${LANGUAGES})
+project(KJVSumThing DESCRIPTION "KJPBS SumThing Tool" LANGUAGES ${LANGUAGES})
+if(PROJECT_IS_TOP_LEVEL)
+	message(FATAL_ERROR "Don't use this project directly.  Use the CMakeLists.txt in parent folder instead!")
+endif()
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

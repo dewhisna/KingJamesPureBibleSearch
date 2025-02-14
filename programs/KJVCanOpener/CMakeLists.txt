@@ -21,7 +21,7 @@
 ##
 ##*****************************************************************************
 
-cmake_minimum_required(VERSION 3.20...3.28)
+cmake_minimum_required(VERSION 3.21...3.28)
 
 if(WIN32)
 	set(LANGUAGES C CXX RC)
@@ -30,7 +30,12 @@ else()
 endif()
 
 
-project(KJVCanOpener VERSION 4.0.0 DESCRIPTION "King James Pure Bible Search" LANGUAGES ${LANGUAGES})
+project(KJVCanOpener DESCRIPTION "King James Pure Bible Search" LANGUAGES ${LANGUAGES})
+if(PROJECT_IS_TOP_LEVEL)
+	message(FATAL_ERROR "Don't use this project directly.  Use the CMakeLists.txt in parent folder instead!")
+endif()
+
+set(KJVCanOpener_TARGET KingJamesPureBibleSearch)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -144,6 +149,14 @@ if(NOT CONSOLE)
 	if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
 		set(GUI_TYPE MACOSX_BUNDLE)
 		set(MACOSX_BUNDLE_ICON_FILE bible.icns)
+
+		set(MACOSX_BUNDLE_BUNDLE_NAME ${KJVCanOpener_TARGET})
+		set(MACOSX_BUNDLE_EXECUTABLE_NAME ${KJVCanOpener_TARGET})
+
+		set(MACOSX_BUNDLE_COPYRIGHT ${KJPBS_COPYRIGHT})
+
+		set(MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION})
+		set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION})
 
 		set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/res/bible.icns")
 		set_source_files_properties(${app_icon_macos} PROPERTIES
@@ -543,8 +556,6 @@ endif()
 
 # -----------------------------------------------------------------------------
 
-set(KJVCanOpener_TARGET KingJamesPureBibleSearch)
-
 add_executable(${KJVCanOpener_TARGET} ${GUI_TYPE}
 	${KJVCanOpener_SOURCES}
 	${KJVCanOpener_HEADERS}
@@ -552,6 +563,14 @@ add_executable(${KJVCanOpener_TARGET} ${GUI_TYPE}
 	${KJVCanOpener_RESOURCES}
 )
 target_compile_options(${KJVCanOpener_TARGET} PUBLIC ${MY_COMPILE_OPTIONS})
+
+if(NOT CONSOLE)
+	if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+		set_target_properties(${KJVCanOpener_TARGET} PROPERTIES
+			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/KJVCanOpener.Info.plist.in"
+		)
+	endif()
+endif()
 
 target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 	${QT_LINK_LIBS}

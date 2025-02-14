@@ -21,12 +21,15 @@
 ##
 ##*****************************************************************************
 
-cmake_minimum_required(VERSION 3.20...3.28)
+# Note: 3.21 needed for PROJECT_IS_TOP_LEVEL
+cmake_minimum_required(VERSION 3.21...3.28)
 
 set(LANGUAGES C CXX)
 if(WIN32)
 	list(APPEND LANGUAGES RC)
 endif()
+
+set(KJPBS_COPYRIGHT "Copyright(c)2012-2025 Donna Whisnant, a.k.a. Dewtronics" CACHE INTERNAL "Copyright Notice")
 
 project(KJPBS VERSION 4.0.0 DESCRIPTION "KJPBS" LANGUAGES ${LANGUAGES})
 
