@@ -24,8 +24,8 @@
 #ifndef KJVCANOPENER_ORG_H
 #define KJVCANOPENER_ORG_H
 
-#define VER_APPNAME_STR_QT			"KingJamesPureBibleSearch"
-#define VER_ORGNAME_STR_QT			"Dewtronics"
-#define VER_ORGDOMAIN_STR_QT		"dewtronics.com"
+#define QAPP_APPNAME_STR			"KingJamesPureBibleSearch"
+#define QAPP_ORGNAME_STR			"Dewtronics"
+#define QAPP_ORGDOMAIN_STR			"dewtronics.com"
 
 #endif	// KJVCANOPENER_ORG_H
