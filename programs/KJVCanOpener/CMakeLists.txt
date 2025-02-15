@@ -352,7 +352,6 @@ set(KJVCanOpener_HEADERS
 	"Highlighter.h"
 	"HighlighterButtons.h"
 	"KJVCanOpener.h"
-	"KJVCanOpener_QApp.h"
 	"MimeHelper.h"
 	"ModelRowForwardIterator.h"
 	"NoteKeywordWidget.h"

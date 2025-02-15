@@ -40,4 +40,8 @@
 
 #define KJVCanOpener_HOMEPAGE_URL "http://visitbethelchurch.com/"
 
+#define KJVCanOpener_APPNAME "KingJamesPureBibleSearch"
+#define KJPBS_ORGNAME "Dewtronics"
+#define KJPBS_ORGDOMAIN "dewtronics.com"
+
 #endif // VERSION_487_H

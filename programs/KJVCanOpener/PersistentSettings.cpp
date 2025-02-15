@@ -24,7 +24,11 @@
 #include "PersistentSettings.h"
 
 #if !defined(NO_PERSISTENT_SETTINGS)
-#include "KJVCanOpener_QApp.h"
+#if QT_VERSION >= 0x050000
+#include "version.h"
+#else
+#include "version-487.h"
+#endif
 #endif
 
 #include <QCoreApplication>
@@ -225,9 +229,9 @@ CPersistentSettings::CPersistentSettings(QObject *parent)
 {
 #ifndef NO_PERSISTENT_SETTINGS
 	// Must set these in main() before calling settings!:
-	Q_ASSERT(QCoreApplication::applicationName().compare(QAPP_APPNAME_STR) == 0);
-	Q_ASSERT(QCoreApplication::organizationName().compare(QAPP_ORGNAME_STR) == 0);
-	Q_ASSERT(QCoreApplication::organizationDomain().compare(QAPP_ORGDOMAIN_STR) == 0);
+	Q_ASSERT(!QCoreApplication::applicationName().isEmpty());
+	Q_ASSERT(QCoreApplication::organizationName().compare(KJPBS_ORGNAME) == 0);
+	Q_ASSERT(QCoreApplication::organizationDomain().compare(KJPBS_ORGDOMAIN) == 0);
 #else
 	// If running without Persistent Settings, use Stealth Mode:
 	setStealthMode(QString());

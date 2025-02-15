@@ -50,7 +50,6 @@
 #else
 #include "version-487.h"
 #endif
-#include "KJVCanOpener_QApp.h"
 #include "PersistentSettings.h"
 
 #include <iostream>
@@ -124,9 +123,9 @@ int main(int argc, char *argv[])
 	CMyApplication *pApp = new CMyApplication(argc, argv);
 	g_pMyApplication = pApp;
 	pApp->setApplicationVersion(KJVCanOpener_VERSION);
-	pApp->setApplicationName(QAPP_APPNAME_STR);
-	pApp->setOrganizationName(QAPP_ORGNAME_STR);
-	pApp->setOrganizationDomain(QAPP_ORGDOMAIN_STR);
+	pApp->setApplicationName(KJVCanOpener_APPNAME);
+	pApp->setOrganizationName(KJPBS_ORGNAME);
+	pApp->setOrganizationDomain(KJPBS_ORGDOMAIN);
 #ifdef USING_SINGLEAPPLICATION
 	SingleApplication instance(g_constrApplicationID, pApp);
 #endif
