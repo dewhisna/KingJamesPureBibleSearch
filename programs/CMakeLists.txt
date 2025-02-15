@@ -31,6 +31,8 @@ if(WIN32)
 	list(APPEND LANGUAGES RC)
 endif()
 
+set(CMAKE_PROJECT_VERSION_PRERELEASE "AlphaTest" CACHE STRING "PreRelease Descriptor")		# Set to empty string for official release
+
 project(KJPBS VERSION 4.0.0 DESCRIPTION "KJPBS" LANGUAGES ${LANGUAGES})
 project_genver(HEADER_FILE
 	DEFINES

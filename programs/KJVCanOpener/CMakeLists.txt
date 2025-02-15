@@ -31,8 +31,6 @@ else()
 	set(LANGUAGES C CXX)
 endif()
 
-set(PROJECT_VERSION_PRERELEASE "AlphaTest" CACHE STRING "PreRelease Descriptor")		# Set to empty string for official release
-
 project(KJVCanOpener
 	DESCRIPTION "King James Pure Bible Search"
 	HOMEPAGE_URL "http://visitbethelchurch.com/"
@@ -130,7 +128,7 @@ elseif(EMSCRIPTEN)
 	set(PROJECT_VERSION_SPECIALBUILD "(Emscripten Web-Version)")
 elseif(VNC)
 	set(PROJECT_VERSION_SPECIALBUILD "(VNC Web-Version)")
-elseif(NOT "${PROJECT_VERSION_PRERELEASE}" STREQUAL "")
+elseif(NOT "${CMAKE_PROJECT_VERSION_PRERELEASE}" STREQUAL "")
 	set(PROJECT_VERSION_SPECIALBUILD "Alpha Test Version")
 endif()
 
