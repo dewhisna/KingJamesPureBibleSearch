@@ -445,7 +445,7 @@ HEADERS += \
 	VerseListModel.h \
 	VerseListDelegate.h \
 	VerseRichifier.h \
-	version.h \
+	version-487.h \
 	XML.h
 
 buildKJVDatabase:HEADERS += \

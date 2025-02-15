@@ -1,0 +1,109 @@
+/****************************************************************************
+**
+** Copyright (C) 2025 Donna Whisnant, a.k.a. Dewtronics.
+** Contact: http://www.dewtronics.com/
+**
+** This file is part of the KJVCanOpener Application as originally written
+** and developed for Bethel Church, Festus, MO.
+**
+** GNU General Public License Usage
+** This file may be used under the terms of the GNU General Public License
+** version 3.0 as published by the Free Software Foundation and appearing
+** in the file gpl-3.0.txt included in the packaging of this file. Please
+** review the following information to ensure the GNU General Public License
+** version 3.0 requirements will be met:
+** http://www.gnu.org/copyleft/gpl.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and
+** Dewtronics.
+**
+****************************************************************************/
+
+#include <winresrc.h>
+#pragma code_page(65001) /* UTF-8 */
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+#include "${VERSION_HEADER_FILE}"
+
+/* https://learn.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource */
+VS_VERSION_INFO VERSIONINFO
+	/* use all the fields that are defined, then pad out the rest with zeros */
+	/* FIXME: Microsoft's RC.exe doesn't mind omitted fields, but wine's wrc wants exactly 4 */
+	FILEVERSION ${VS_VERSION_INFO_FILE}_VERSION_MAJOR /* innermost project() call */
+# ifdef ${VS_VERSION_INFO_FILE}_VERSION_MINOR
+		, ${VS_VERSION_INFO_FILE}_VERSION_MINOR
+#  ifdef ${VS_VERSION_INFO_FILE}_VERSION_PATCH
+		, ${VS_VERSION_INFO_FILE}_VERSION_PATCH
+#   ifdef ${VS_VERSION_INFO_FILE}_VERSION_TWEAK
+		, ${VS_VERSION_INFO_FILE}_VERSION_TWEAK
+#   else
+		, 0
+#   endif
+#  else
+		, 0, 0
+#  endif
+# else
+		, 0, 0, 0
+# endif
+
+	PRODUCTVERSION ${VS_VERSION_INFO_PRODUCT}_VERSION_MAJOR /* outermost project() call */
+# ifdef ${VS_VERSION_INFO_PRODUCT}_VERSION_MINOR
+		, ${VS_VERSION_INFO_PRODUCT}_VERSION_MINOR
+#  ifdef ${VS_VERSION_INFO_PRODUCT}_VERSION_PATCH
+		, ${VS_VERSION_INFO_PRODUCT}_VERSION_PATCH
+#   ifdef ${VS_VERSION_INFO_PRODUCT}_VERSION_TWEAK
+		, ${VS_VERSION_INFO_PRODUCT}_VERSION_TWEAK
+#   else
+		, 0
+#   endif
+#  else
+		, 0, 0
+#  endif
+# else
+		, 0, 0, 0
+# endif
+
+	FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+	FILEFLAGS 0$<$<IN_LIST:PrivateBuild,${StringFileInfo_Keys}>: | VS_FF_PRIVATEBUILD>$<$<IN_LIST:SpecialBuild,${StringFileInfo_Keys}>: | VS_FF_SPECIALBUILD>
+#ifdef _DEBUG
+		| VS_FF_DEBUG
+#endif
+#ifdef ${VS_VERSION_INFO_FILE}_VERSION_PRERELEASE
+		| VS_FF_PRERELEASE
+#endif
+	FILEOS VOS_NT_WINDOWS32
+
+/* mappings from CMake $<TARGET_PROPERTY:TYPE> names to winresrc's VFT_* */
+#define VFT_EXECUTABLE VFT_APP
+#define VFT_SHARED_LIBRARY VFT_DLL
+#define VFT_MODULE_LIBRARY VFT_DLL
+#define VFT_STATIC_LIBRARY VFT_STATIC_LIB
+
+	FILETYPE VFT_$<TARGET_PROPERTY:TYPE>
+	FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "000004b0" /* Neutral, Unicode */
+		BEGIN
+			VALUE "FileVersion", ${VS_VERSION_INFO_FILE}_VERSION_SEMVER
+			VALUE "ProductName", ${VS_VERSION_INFO_PRODUCT}_NAME
+			VALUE "ProductVersion", ${VS_VERSION_INFO_PRODUCT}_VERSION_SEMVER
+
+			VALUE "InternalName", "$<TARGET_PROPERTY:NAME>"
+			VALUE "OriginalFilename", "$<TARGET_FILE_NAME:$<TARGET_PROPERTY:NAME>>"
+
+			$<$<NOT:$<IN_LIST:CompanyName,${StringFileInfo_Keys}>>:VALUE "CompanyName", "Dewtronics">
+			${VS_VERSION_INFO_StringFileInfo}
+		END
+	END
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0, 1200 /* Neutral, Unicode */
+	END
+END
+
+

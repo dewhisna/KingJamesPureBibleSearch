@@ -24,6 +24,8 @@
 # Note: 3.21 needed for PROJECT_IS_TOP_LEVEL
 cmake_minimum_required(VERSION 3.21...3.28)
 
+include(GenerateVersion.cmake)
+
 set(LANGUAGES C CXX)
 if(WIN32)
 	list(APPEND LANGUAGES RC)
@@ -32,6 +34,8 @@ endif()
 set(KJPBS_COPYRIGHT "Copyright(c)2012-2025 Donna Whisnant, a.k.a. Dewtronics" CACHE INTERNAL "Copyright Notice")
 
 project(KJPBS VERSION 4.0.0 DESCRIPTION "KJPBS" LANGUAGES ${LANGUAGES})
+
+project_genver(HEADER_FILE)
 
 add_subdirectory(KJVCanOpener)
 add_subdirectory(KJVDataParse)

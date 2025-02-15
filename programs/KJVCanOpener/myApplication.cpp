@@ -68,7 +68,11 @@
 
 #include <QMdiSubWindow>
 
+#if QT_VERSION >= 0x050000
 #include "version.h"
+#else
+#include "version-487.h"
+#endif
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "DelayedExecutionTimer.h"
@@ -727,7 +731,10 @@ void CMyApplication::setSplashMessage(const QString &strMessage)
 	if (m_pSplash != nullptr) {
 		m_pSplash->clearMessage();
 		const QString strOffsetSpace = "";
-		QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
+		QString strSpecialVersion;
+#if defined(KJVCanOpener_VERSION_SPECIALBUILD)
+		strSpecialVersion = QString(KJVCanOpener_VERSION_SPECIALBUILD);
+#endif
 		if (!strSpecialVersion.isEmpty()) strSpecialVersion = "<br>\n" + strOffsetSpace + strSpecialVersion;
 		QString strStatus;
 		if (!strMessage.isEmpty()) strStatus += "<br>\n" + strOffsetSpace + strMessage;

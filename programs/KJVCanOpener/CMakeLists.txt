@@ -23,14 +23,21 @@
 
 cmake_minimum_required(VERSION 3.21...3.28)
 
+include(../GenerateVersion.cmake)
+
 if(WIN32)
 	set(LANGUAGES C CXX RC)
 else()
 	set(LANGUAGES C CXX)
 endif()
 
+set(PROJECT_VERSION_PRERELEASE "AlphaTest" CACHE STRING "PreRelease Descriptor")		# Set to empty string for official release
 
-project(KJVCanOpener DESCRIPTION "King James Pure Bible Search" LANGUAGES ${LANGUAGES})
+project(KJVCanOpener
+	DESCRIPTION "King James Pure Bible Search"
+	HOMEPAGE_URL "http://visitbethelchurch.com/"
+	LANGUAGES ${LANGUAGES}
+)
 if(PROJECT_IS_TOP_LEVEL)
 	message(FATAL_ERROR "Don't use this project directly.  Use the CMakeLists.txt in parent folder instead!")
 endif()
@@ -114,6 +121,20 @@ if(NOT EMSCRIPTEN AND NOT WASM)
 else()
 	set(USING_wwWidgets OFF)
 endif()
+
+# -----------------------------------------------------------------------------
+
+if(WASM)
+	set(PROJECT_VERSION_SPECIALBUILD "(WebAssembly Version)")
+elseif(EMSCRIPTEN)
+	set(PROJECT_VERSION_SPECIALBUILD "(Emscripten Web-Version)")
+elseif(VNC)
+	set(PROJECT_VERSION_SPECIALBUILD "(VNC Web-Version)")
+elseif(NOT "${PROJECT_VERSION_PRERELEASE}" STREQUAL "")
+	set(PROJECT_VERSION_SPECIALBUILD "Alpha Test Version")
+endif()
+
+project_genver(HEADER_FILE)
 
 # -----------------------------------------------------------------------------
 
@@ -327,6 +348,7 @@ set(KJVCanOpener_HEADERS
 	"Highlighter.h"
 	"HighlighterButtons.h"
 	"KJVCanOpener.h"
+	"KJVCanOpener_org.h"
 	"MimeHelper.h"
 	"ModelRowForwardIterator.h"
 	"NoteKeywordWidget.h"
@@ -367,7 +389,6 @@ set(KJVCanOpener_HEADERS
 	"VerseListModel.h"
 	"VerseListDelegate.h"
 	"VerseRichifier.h"
-	"version.h"
 	"XML.h"
 )
 
@@ -580,6 +601,11 @@ target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 )
 
 if(WIN32)
+	target_versioninfo(${KJVCanOpener_TARGET}
+		Comments="Don't make me have to open a can on you!\\n"
+		LegalCopyright="${KJPBS_COPYRIGHT}"
+	)
+
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		UNICODE					# Windows API
 		_UNICODE				# MSVCRT

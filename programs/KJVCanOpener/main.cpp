@@ -45,7 +45,12 @@
 #include <QClipboard>
 #endif
 
+#if QT_VERSION >= 0x050000
 #include "version.h"
+#else
+#include "version-487.h"
+#endif
+#include "KJVCanOpener_org.h"
 #include "PersistentSettings.h"
 
 #include <iostream>
@@ -118,7 +123,7 @@ int main(int argc, char *argv[])
 
 	CMyApplication *pApp = new CMyApplication(argc, argv);
 	g_pMyApplication = pApp;
-	pApp->setApplicationVersion(VER_QT);
+	pApp->setApplicationVersion(KJVCanOpener_VERSION);
 	pApp->setApplicationName(VER_APPNAME_STR_QT);
 	pApp->setOrganizationName(VER_ORGNAME_STR_QT);
 	pApp->setOrganizationDomain(VER_ORGDOMAIN_STR_QT);

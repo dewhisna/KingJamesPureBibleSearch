@@ -28,7 +28,11 @@
 #include "VerseListModel.h"
 #include "VerseListDelegate.h"
 #include "PassageNavigatorDlg.h"
+#if QT_VERSION >= 0x050000
 #include "version.h"
+#else
+#include "version-487.h"
+#endif
 #include "PersistentSettings.h"
 #include "UserNotesDatabase.h"
 #include "HighlighterButtons.h"
@@ -2125,7 +2129,7 @@ bool CKJVCanOpener::saveKJVSearchFile(const QString &strFilePathName) const
 	kjsFile.clear();
 
 	kjsFile.beginGroup("KJVPureBibleSearch");
-	kjsFile.setValue("AppVersion", VER_QT);
+	kjsFile.setValue("AppVersion", KJVCanOpener_VERSION);
 	kjsFile.setValue("KJSFileVersion", KJS_FILE_VERSION);
 	kjsFile.setValue("BibleDatabase/UUID", m_pBibleDatabase->compatibilityUUID());
 	kjsFile.endGroup();

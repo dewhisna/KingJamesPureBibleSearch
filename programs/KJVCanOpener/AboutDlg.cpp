@@ -24,7 +24,11 @@
 #include "AboutDlg.h"
 
 #include "ReportError.h"
+#if QT_VERSION >= 0x050000
 #include "version.h"
+#else
+#include "version-487.h"
+#endif
 
 #include <QApplication>
 #include <QGraphicsScene>
@@ -88,13 +92,16 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
 #else
 	m_pExtraVersionInfo = nullptr;
 #endif
-	QString strSpecialVersion(SPECIAL_BUILD ? QString(VER_SPECIALVERSION_STR) : QString());
+	QString strSpecialVersion;
+#if defined(KJVCanOpener_VERSION_SPECIALBUILD)
+	strSpecialVersion = QString(KJVCanOpener_VERSION_SPECIALBUILD);
+#endif
 	if (!strSpecialVersion.isEmpty()) {
 		m_pAppSpecialVersion = scene->addText(QString("%1").arg(strSpecialVersion), QFont("Times New Roman", 10));
 		m_pAppSpecialVersion->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	}
-	QString strBuildDate(VER_BUILD_DATE_STR);
-	QString strBuildTime(VER_BUILD_TIME_STR);
+	QString strBuildDate(__DATE__);
+	QString strBuildTime(__TIME__);
 	if (!strBuildDate.isEmpty()) {
 		m_pAppBuildDateTime = scene->addText(QString("%1: %2  %3").arg(tr("Built", "AboutBox")).arg(strBuildDate).arg(strBuildTime), QFont("Times New Roman", 10));
 		m_pAppBuildDateTime->setTextInteractionFlags(Qt::TextBrowserInteraction);
@@ -103,7 +110,7 @@ CAboutDlg::CAboutDlg(QWidget *parent) :
 	m_pBroughtToYouBy = scene->addText(tr("Brought to you by the fervent prayers of Bethel Church; Festus, MO", "AboutBox"), QFont("Script MT Bold", 12));
 	m_pBroughtToYouBy->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	m_pBethelURL = scene->addText("");
-	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(VER_URL_STR) + QString("\">") + htmlEscape(tr("Click Here to Visit Bethel Church", "AboutBox")) + QString("</a></body></html>"));
+	m_pBethelURL->setHtml(QString("<html><head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"><style type=\"text/css\"><!-- A { text-decoration:none } %s --></style></head><body style=\" font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;\"><a href=\"") + QString(KJVCanOpener_HOMEPAGE_URL) + QString("\">") + htmlEscape(tr("Click Here to Visit Bethel Church", "AboutBox")) + QString("</a></body></html>"));
 	m_pBethelURL->setOpenExternalLinks(true);
 	m_pBethelURL->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	// --------

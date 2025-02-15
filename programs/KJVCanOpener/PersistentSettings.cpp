@@ -24,7 +24,7 @@
 #include "PersistentSettings.h"
 
 #if !defined(NO_PERSISTENT_SETTINGS)
-#include "version.h"
+#include "KJVCanOpener_org.h"
 #endif
 
 #include <QCoreApplication>
