@@ -21,7 +21,7 @@
 ##
 ##*****************************************************************************
 
-cmake_minimum_required(VERSION 3.21...3.28)
+cmake_minimum_required(VERSION 3.21...3.31)
 include_guard(GLOBAL)
 
 function(string_quote var str)
