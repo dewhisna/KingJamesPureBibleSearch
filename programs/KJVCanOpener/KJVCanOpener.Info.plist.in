@@ -9,6 +9,8 @@
 
 	<key>CFBundleName</key>
 	<string>${MACOSX_BUNDLE_BUNDLE_NAME}</string>
+	<key>CFBundleSpokenName</key>
+	<string>${MACOSX_BUNDLE_BUNDLE_SPOKEN_NAME}</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.dewtronics.${MACOSX_BUNDLE_EXECUTABLE_NAME}</string>
 	<key>CFBundleExecutable</key>

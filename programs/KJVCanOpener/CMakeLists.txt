@@ -172,12 +172,13 @@ if(NOT CONSOLE)
 		set(MACOSX_BUNDLE_ICON_FILE bible.icns)
 
 		set(MACOSX_BUNDLE_BUNDLE_NAME ${KJVCanOpener_TARGET})
+		set(MACOSX_BUNDLE_BUNDLE_SPOKEN_NAME ${KJVCanOpener_DESCRIPTION})
 		set(MACOSX_BUNDLE_EXECUTABLE_NAME ${KJVCanOpener_TARGET})
 
 		set(MACOSX_BUNDLE_COPYRIGHT ${KJPBS_COPYRIGHT})
 
-		set(MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION})
-		set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION})
+		set(MACOSX_BUNDLE_BUNDLE_VERSION ${KJVCanOpener_VERSION})			# KJVCanOpener_VERSION requires previous call to project_genver() or would need to be CMAKE_PROJECT_VERSION
+		set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${KJVCanOpener_VERSION})		# KJVCanOpener_VERSION requires previous call to project_genver() or would need to be CMAKE_PROJECT_VERSION
 
 		set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/res/bible.icns")
 		set_source_files_properties(${app_icon_macos} PROPERTIES
