@@ -23,7 +23,7 @@
 
 cmake_minimum_required(VERSION 3.21...3.28)
 
-include(../GenerateVersion.cmake)
+include(../cmake/GenerateVersion.cmake)
 
 if(WIN32)
 	set(LANGUAGES C CXX RC)

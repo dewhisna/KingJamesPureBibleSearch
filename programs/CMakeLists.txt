@@ -24,7 +24,7 @@
 # Note: 3.21 needed for PROJECT_IS_TOP_LEVEL
 cmake_minimum_required(VERSION 3.21...3.28)
 
-include(GenerateVersion.cmake)
+include(cmake/GenerateVersion.cmake)
 
 set(LANGUAGES C CXX)
 if(WIN32)
