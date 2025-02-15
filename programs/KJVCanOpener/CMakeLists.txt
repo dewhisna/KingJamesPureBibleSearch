@@ -134,7 +134,10 @@ elseif(NOT "${PROJECT_VERSION_PRERELEASE}" STREQUAL "")
 	set(PROJECT_VERSION_SPECIALBUILD "Alpha Test Version")
 endif()
 
-project_genver(HEADER_FILE)
+project_genver(HEADER_FILE
+	DEFINES
+		APPNAME=${KJVCanOpener_TARGET}
+)
 
 # -----------------------------------------------------------------------------
 
@@ -175,7 +178,7 @@ if(NOT CONSOLE)
 		set(MACOSX_BUNDLE_BUNDLE_SPOKEN_NAME ${KJVCanOpener_DESCRIPTION})
 		set(MACOSX_BUNDLE_EXECUTABLE_NAME ${KJVCanOpener_TARGET})
 
-		set(MACOSX_BUNDLE_COPYRIGHT ${KJPBS_COPYRIGHT})
+		set(MACOSX_BUNDLE_COPYRIGHT ${KJVCanOpener_LEGAL_COPYRIGHT})
 
 		set(MACOSX_BUNDLE_BUNDLE_VERSION ${KJVCanOpener_VERSION})			# KJVCanOpener_VERSION requires previous call to project_genver() or would need to be CMAKE_PROJECT_VERSION
 		set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${KJVCanOpener_VERSION})		# KJVCanOpener_VERSION requires previous call to project_genver() or would need to be CMAKE_PROJECT_VERSION
@@ -604,7 +607,8 @@ target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 if(WIN32)
 	target_versioninfo(${KJVCanOpener_TARGET}
 		Comments="Don't make me have to open a can on you!\\n"
-		LegalCopyright="${KJPBS_COPYRIGHT}"
+		LegalCopyright="${KJVCanOpener_LEGAL_COPYRIGHT}"
+		CompanyName="${KJVCanOpener_ORGNAME}"
 	)
 
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE

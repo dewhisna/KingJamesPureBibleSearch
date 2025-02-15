@@ -39,7 +39,10 @@ function(string_quote var str)
 	endif()
 endfunction()
 
-# Output files:
+# project_genver()
+#
+# Arguments:
+# [DEFINES name1=value1 name2=value2 ...]
 #
 # [HEADER_FILE [version.h]]
 # Write a C preprocessor header file containing the PROJECT_VERSION* variables as `#define NAME value
@@ -50,7 +53,7 @@ endfunction()
 # Same as above, but as a JSON object instead of #defines
 
 function(project_genver)
-	cmake_parse_arguments(PARSE_ARGV 0 arg "" "HEADER_FILE;JSON_FILE" "")
+	cmake_parse_arguments(PARSE_ARGV 0 arg "" "HEADER_FILE;JSON_FILE" "DEFINES")
 
 	if(NOT (PROJECT_NAME AND PROJECT_SOURCE_DIR AND PROJECT_BINARY_DIR))
 		message(FATAL_ERROR "call project() before project_genver()")
@@ -95,8 +98,39 @@ function(project_genver)
 		set_project(VERSION_SEMVER "${PROJECT_VERSION}")
 	endif()
 
+	# Assume anything in "DEFINES" is custom Name1=Value1 Name2=Value2 ...
+	set(ProjectDefine_Keys)
+	foreach(arg IN LISTS arg_DEFINES)
+		if(arg MATCHES "^([^=]*)=(.*)")
+			set(name "${CMAKE_MATCH_1}")
+			set(value "${CMAKE_MATCH_2}")
+			set_project(${name} "${value}")
+			list(APPEND ProjectDefine_Keys ${name})
+		else()
+			message(SEND_ERROR "project_genver: Extra Project Defines must be name=value: ${arg}")
+		endif()
+	endforeach()
+	if((NOT ${PROJECT_NAME}_APPNAME) AND (NOT PROJECT_IS_TOP_LEVEL))
+		set_project(APPNAME ${PROJECT_NAME})
+		list(APPEND ProjectDefine_Keys APPNAME)
+	endif()
+	if((NOT ${PROJECT_NAME}_ORGNAME) AND (NOT PROJECT_IS_TOP_LEVEL))
+		set_project(ORGNAME ${CMAKE_PROJECT_ORGNAME})
+		list(APPEND ProjectDefine_Keys ORGNAME)
+	endif()
+	if((NOT ${PROJECT_NAME}_ORGDOMAIN) AND (NOT PROJECT_IS_TOP_LEVEL))
+		set_project(ORGDOMAIN ${CMAKE_PROJECT_ORGDOMAIN})
+		list(APPEND ProjectDefine_Keys ORGDOMAIN)
+	endif()
+	if((NOT ${PROJECT_NAME}_LEGAL_COPYRIGHT) AND (NOT PROJECT_IS_TOP_LEVEL))
+		set_project(LEGAL_COPYRIGHT ${CMAKE_PROJECT_LEGAL_COPYRIGHT})
+		list(APPEND ProjectDefine_Keys LEGAL_COPYRIGHT)
+	endif()
+
 	set(out_suffix NAME DESCRIPTION HOMEPAGE_URL VERSION_SEMVER VERSION VERSION_MAJOR VERSION_MINOR VERSION_PATCH VERSION_TWEAK VERSION_PRERELEASE VERSION_PRIVATEBUILD VERSION_SPECIALBUILD)
-	set(quote_suffix NAME DESCRIPTION HOMEPAGE_URL VERSION_SEMVER VERSION VERSION_PRERELEASE VERSION_PRIVATEBUILD VERSION_SPECIALBUILD)
+	set(quote_suffix NAME DESCRIPTION HOMEPAGE_URL VERSION_SEMVER VERSION VERSION_PRERELEASE VERSION_PRIVATEBUILD VERSION_SPECIALBUILD APPNAME)
+
+	list(APPEND out_suffix ${ProjectDefine_Keys})
 
 	if(HEADER_FILE IN_LIST arg_KEYWORDS_MISSING_VALUES)
 		set(arg_HEADER_FILE ${PROJECT_BINARY_DIR}/version.h)

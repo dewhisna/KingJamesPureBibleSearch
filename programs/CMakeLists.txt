@@ -31,11 +31,13 @@ if(WIN32)
 	list(APPEND LANGUAGES RC)
 endif()
 
-set(KJPBS_COPYRIGHT "Copyright(c)2012-2025 Donna Whisnant, a.k.a. Dewtronics" CACHE INTERNAL "Copyright Notice")
-
 project(KJPBS VERSION 4.0.0 DESCRIPTION "KJPBS" LANGUAGES ${LANGUAGES})
-
-project_genver(HEADER_FILE)
+project_genver(HEADER_FILE
+	DEFINES
+		LEGAL_COPYRIGHT="Copyright\(c\)2012-2025 Donna Whisnant, a.k.a. Dewtronics"
+		ORGNAME="Dewtronics"
+		ORGDOMAIN="dewtronics.com"
+)
 
 add_subdirectory(KJVCanOpener)
 add_subdirectory(KJVDataParse)
