@@ -51,12 +51,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 20000;		// Version 2.0.0
 
 }	// namespace
 
@@ -71,7 +71,7 @@ static bool ascendingLessThan(const CPhraseEntry &s1, const CPhraseEntry &s2)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVPhraseDump_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound < 1) || (bUnknownOption)) {
-		std::cerr << QString("KJVPhraseDump Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVPhraseDump_APPNAME << " Version " << KJVPhraseDump_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> [[<Min-Occurrences>] <Max-Occurrences]\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database, dumps all phrases with at least %1 words and an occurrence\n").arg(nMinLength).toUtf8().data();
 		std::cerr << QString("    count greater or equal to that specified (default 2).\n\n").toUtf8().data();

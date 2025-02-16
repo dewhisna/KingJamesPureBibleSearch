@@ -50,12 +50,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 20000;		// Version 2.0.0
 
 }	// namespace
 
@@ -70,7 +70,7 @@ static bool ascendingLessThan(const CPhraseEntry &s1, const CPhraseEntry &s2)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVPhraseSearch_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound < 2) || (bUnknownOption)) {
-		std::cerr << QString("KJVPhraseSearch Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVPhraseSearch_APPNAME << " Version " << KJVPhraseSearch_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Occurrences> [<MinLen> [<MaxLen>]]\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database, searches for all phrases of the\n").toUtf8().data();
 		std::cerr << QString("    specified length range that occur the specified number of times.\n\n").toUtf8().data();

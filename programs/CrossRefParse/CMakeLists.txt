@@ -23,6 +23,8 @@
 
 cmake_minimum_required(VERSION 3.21...3.28)
 
+include(../cmake/GenerateVersion.cmake)
+
 set(LANGUAGES CXX)
 
 project(CrossRefParse DESCRIPTION "CrossRef Parse Tool for www.openbible.info data" LANGUAGES ${LANGUAGES})
@@ -82,6 +84,7 @@ endforeach()
 
 # -----------------------------------------------------------------------------
 
+project_genver(HEADER_FILE)
 
 # =============================================================================
 

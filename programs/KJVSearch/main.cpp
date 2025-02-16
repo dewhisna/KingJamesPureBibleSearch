@@ -46,12 +46,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 20000;		// Version 2.0.0
 
 }	// namespace
 
@@ -60,7 +60,7 @@ namespace {
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVSearch_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 2) || (bUnknownOption)) {
-		std::cerr << QString("KJVSearch Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVSearch_APPNAME << " Version " << KJVSearch_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Phrase>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database, searches for the specified Phrase\n").toUtf8().data();
 		std::cerr << QString("    and outputs Normal Indexes for all found matching references\n\n").toUtf8().data();

@@ -54,12 +54,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 10000;		// Version 1.0.0
 
 }	// namespace
 
@@ -69,7 +69,7 @@ namespace {
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVDataDump_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 	if (bOutputWordsOnly && bOutputTransChangeAdded) bUnknownOption = true;	// Can't have transchange only and words only as both are types of words-only modes
 
 	if ((nArgsFound != 1) || (bUnknownOption)) {
-		std::cerr << QString("KJVDataDump Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVDataDump_APPNAME << " Version " << KJVDataDump_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database and dumps relevant data for each verse\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();

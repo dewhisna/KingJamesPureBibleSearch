@@ -23,6 +23,8 @@
 
 cmake_minimum_required(VERSION 3.21...3.28)
 
+include(../cmake/GenerateVersion.cmake)
+
 set(LANGUAGES CXX)
 
 project(KJVPhraseDump DESCRIPTION "KJPBS PhraseDump Tool" LANGUAGES ${LANGUAGES})
@@ -82,6 +84,7 @@ endforeach()
 
 # -----------------------------------------------------------------------------
 
+project_genver(HEADER_FILE)
 
 # =============================================================================
 

@@ -37,6 +37,8 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/BibleLayout.h"
 
+#include "version.h"
+
 // ============================================================================
 
 static inline QString htmlEscape(const QString &aString)
@@ -47,10 +49,6 @@ static inline QString htmlEscape(const QString &aString)
 #ifndef _countof
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif
-
-// ============================================================================
-
-const unsigned int VERSION = 10000;		// Version 1.0.0
 
 // ============================================================================
 
@@ -170,7 +168,7 @@ QString CRTFParseBaton::parseToOsis(const QString &strRTFText)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(eSwordParse_VERSION);
 
 	int nArgsFound = 0;
 	bool bConvertAmpersand = false;
@@ -198,7 +196,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 3) || (bUnknownOption)) {
-		std::cerr << QString("eSwordParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << eSwordParse_APPNAME << " Version " << eSwordParse_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <eSword-SQL-in-file> <OSIS-out-file>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("<eSword-SQL-in-file> = e-Sword .bblx SQL Database File\n").toUtf8().data();
 		std::cerr << QString("<OSIS-out-file>      = OSIS XML Output File\n\n").toUtf8().data();

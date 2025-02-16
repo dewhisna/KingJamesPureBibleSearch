@@ -63,12 +63,12 @@ constexpr int MIN_SEARCH_WITHIN_CACHE_LIMIT = 10;		// Minimum number of results 
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 20000;		// Version 2.0.0
 
 }	// namespace
 
@@ -402,7 +402,7 @@ static bool ascendingLessThanModulusFirst(const CPhraseList &lst1, const CPhrase
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVSumThing_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -600,7 +600,7 @@ int main(int argc, char *argv[])
 	if (bToggleAccentSensitive) bPreserveAccentSensitive = false;
 
 	if ((nArgsFound < 3) || (nArgsFound > 5) || (bUnknownOption)) {
-		std::cerr << QString("KJVSumThing Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVSumThing_APPNAME << " Version " << KJVSumThing_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <Bible-UUID-Index> <Phrase-Count> <Modulus-Value> [<Start-Ref> [<End-Ref>]]\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("Reads the specified Bible Database and Searches for n-consecutive\n").toUtf8().data();

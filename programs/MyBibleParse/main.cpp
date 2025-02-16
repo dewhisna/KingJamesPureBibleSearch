@@ -35,6 +35,8 @@
 #include "../KJVCanOpener/dbDescriptors.h"
 #include "../KJVCanOpener/BibleLayout.h"
 
+#include "version.h"
+
 // ============================================================================
 
 static inline QString htmlEscape(const QString &aString)
@@ -47,8 +49,6 @@ static inline QString htmlEscape(const QString &aString)
 #endif
 
 // ============================================================================
-
-const unsigned int VERSION = 10000;		// Version 1.0.0
 
 typedef struct {
 	const QString m_strName;
@@ -336,7 +336,7 @@ QString CMyBibleTextParser::parseToOsis(const QString &strText)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(MyBibleParse_VERSION);
 
 	int nArgsFound = 0;
 	bool bUnknownOption = false;
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 3) || (bUnknownOption)) {
-		std::cerr << QString("MyBibleParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << MyBibleParse_APPNAME << " Version " << MyBibleParse_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 <UUID-Index> <MyBible-SQL-in-file> <OSIS-out-file>\n\n").arg(argv[0]).toUtf8().data();
 //		std::cerr << QString("Usage: %1 [options] <UUID-Index> <MyBible-SQL-in-file> <OSIS-out-file>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("<MyBible-SQL-in-file> = MyBible .SQLite3 Database File\n").toUtf8().data();

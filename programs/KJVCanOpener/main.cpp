@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (bShowHelp) {
-		std::cout << "King James Pure Bible Search\n";
+		std::cout << KJVCanOpener_APPNAME << " Version " << KJVCanOpener_VERSION_SEMVER << "\n\n";
 		std::cout << "Usage information:\n\n";
 		std::cout << QString("%1 [options] [<KJSFile>]\n\n").arg(QFileInfo(CMyApplication::applicationFilePath()).fileName()).toUtf8().data();
 		std::cout << "Where:\n";

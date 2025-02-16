@@ -42,12 +42,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 10000;		// Version 1.0.0
 
 }	// namespace
 
@@ -56,7 +56,7 @@ namespace {
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVDictWord_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 2) || (bUnknownOption)) {
-		std::cerr << QString("KJVDictWord Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVDictWord_APPNAME << " Version " << KJVDictWord_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <Bible-UUID-Index> <Dictionary-UUID-Index>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified Bible Database and Dictionary Database and\n").toUtf8().data();
 		std::cerr << QString("    searches every word in the Bible to see if it's found in\n").toUtf8().data();

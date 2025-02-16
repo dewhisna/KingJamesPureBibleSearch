@@ -59,12 +59,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 10000;		// Version 1.0.0
 
 }	// namespace
 
@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
 #else
 	QCoreApplication app(argc, argv);
 #endif
-	app.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	app.setApplicationVersion(ELSSearch_VERSION);
 
 	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
@@ -400,7 +400,7 @@ int main(int argc, char *argv[])
 		((nArgsFound != 2) && ((nSearchType != ESTE_ELS) && (nSearchType != ESTE_FLS)) && !bTestMode) ||
 		((nArgsFound != 1) && bTestMode) ||
 		(bShowUsageHelp)) {
-		std::cerr << QString("ELSSearch Version %1\n\n").arg(app.applicationVersion()).toUtf8().data();
+		std::cerr << ELSSearch_APPNAME << " Version " << ELSSearch_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <Words> [<Min-Letter-Skip> <Max-Letter-Skip>]\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database and apophenic searches for the specified <Words> at\n").toUtf8().data();
 		std::cerr << QString("    ELS/FLS skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>.\n").toUtf8().data();

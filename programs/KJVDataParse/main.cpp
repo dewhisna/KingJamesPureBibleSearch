@@ -60,7 +60,7 @@
 
 #define CHECK_INDEXES 0
 
-const unsigned int VERSION = 10000;		// Version 1.0.0
+#include "version.h"
 
 namespace {
 	// Env constants:
@@ -3837,7 +3837,7 @@ int dumpIndexes(const CBibleDatabase *pBibleDatabase)		// Not static to avoid un
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVDataParse_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -3972,7 +3972,7 @@ int main(int argc, char *argv[])
 	if (bLookingForMorphFilename) bUnknownOption = true;	// Still looking for morphology filename
 
 	if ((nArgsFound < 3) || (nArgsFound > 4) || (strOutputPath.isEmpty()) || (bUnknownOption)) {
-		std::cerr << QString("KJVDataParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVDataParse_APPNAME << " Version " << KJVDataParse_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <UUID-Index> <OSIS-Database> <infofile> [<Strongs-Imp-path>]\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads and parses the OSIS database and outputs all of the CSV files\n").toUtf8().data();
 		std::cerr << QString("    necessary to import into KJPBS into <datafile-path> (see -o option below)\n\n").toUtf8().data();

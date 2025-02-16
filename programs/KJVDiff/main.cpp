@@ -55,14 +55,14 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 // ============================================================================
 
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 10000;		// Version 1.0.0
 
 }	// namespace
 
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 	a.setApplicationName("KJVDiff");
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(KJVDiff_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 2) || (bUnknownOption)) {
-		std::cerr << QString("%1 Version %2\n\n").arg(a.applicationName()).arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << KJVDiff_APPNAME << " Version " << KJVDiff_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <File/UUID-Index-1> <File/UUID-Index-2>\n\n").arg(a.applicationName()).toUtf8().data();
 		std::cerr << QString("Reads the specified databases and does a comparison for pertinent differences\n").toUtf8().data();
 		std::cerr << QString("    and outputs the diff results...\n").toUtf8().data();

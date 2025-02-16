@@ -44,14 +44,12 @@
 
 #include "../KJVCanOpener/PathConsts.h"
 
+#include "version.h"
+
 namespace {
 	//////////////////////////////////////////////////////////////////////
 	// File-scoped constants
 	//////////////////////////////////////////////////////////////////////
-
-	const unsigned int VERSION = 10000;		// Version 1.0.0
-
-	// --------------------------------
 
 	const QString constrKJNPrefix("kjn");
 	const QString constrKJNNameSpaceURI("http://www.dewtronics.com/KingJamesPureBibleSearch/namespace");
@@ -154,7 +152,7 @@ TPassageTag parsePassageReference(const QString &strRef)
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(CrossRefParse_VERSION);
 
 #if QT_VERSION < 0x050000
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -189,7 +187,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 2) || (bUnknownOption)) {
-		std::cerr << QString("CrossRefParse Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << CrossRefParse_APPNAME << " Version " << CrossRefParse_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [options] <CrossRefFile> <KJNOutputFile>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified www.openbible.info cross-references file and generates\n").toUtf8().data();
 		std::cerr << QString("    KJPBS Notes (KJN) database file\n\n").toUtf8().data();

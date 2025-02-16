@@ -45,6 +45,8 @@
 #include "twofish_opt2.h"
 #include <zlib.h>
 
+#include "version.h"
+
 // ============================================================================
 
 #ifndef _countof
@@ -54,8 +56,6 @@
 // ============================================================================
 
 namespace {
-	const unsigned int VERSION = 10000;		// Version 1.0.0
-
 	const QString g_constrDatabaseType = "QSQLITE";
 	const QString g_constrMainReadConnection = "MainReadConnection";
 	const QString g_constrMainWriteConnection = "MainWriteConnection";
@@ -899,7 +899,7 @@ int devxDecrypt(CSQLitePlusDecryptor &decryptor, QSqlDatabase &dbSource, QSqlDat
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
-	a.setApplicationVersion(QString("%1.%2.%3").arg(VERSION/10000).arg((VERSION/100)%100).arg(VERSION%100));
+	a.setApplicationVersion(eSwordDecrypt_VERSION);
 
 	enum DB_TYPE_ENUM {
 		DTE_Unknown = 0,			// Unknown or not yet defined
@@ -964,7 +964,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((nArgsFound != 2) || (bUnknownOption) || (strSQLInFilename.isEmpty()) || (strSQLOutFilename.isEmpty())) {
-		std::cerr << QString("eSwordDecrypt Version %1\n\n").arg(a.applicationVersion()).toUtf8().data();
+		std::cerr << eSwordDecrypt_APPNAME << " Version " << eSwordDecrypt_VERSION_SEMVER << "\n\n";
 		std::cerr << QString("Usage: %1 [Options] <eSword-SQL-in-file> <eSword-SQL-out-file>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("<eSword-SQL-in-file>  = Encrypted e-Sword .bblx SQL Database File\n").toUtf8().data();
 		std::cerr << QString("<eSword-SQL-out-file> = Decrypted e-Sword .bblx SQL Database File\n").toUtf8().data();

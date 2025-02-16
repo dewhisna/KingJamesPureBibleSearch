@@ -23,12 +23,20 @@
 
 cmake_minimum_required(VERSION 3.21...3.28)
 
-set(LANGUAGES CXX)
+include(../cmake/GenerateVersion.cmake)
+
+if(WIN32)
+	set(LANGUAGES C CXX RC)
+else()
+	set(LANGUAGES C CXX)
+endif()
 
 project(ELSSearch DESCRIPTION "KJPBS ELS Search Tool" LANGUAGES ${LANGUAGES})
 if(PROJECT_IS_TOP_LEVEL)
 	message(FATAL_ERROR "Don't use this project directly.  Use the CMakeLists.txt in parent folder instead!")
 endif()
+
+set(ELSSearch_TARGET ELSSearch)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -100,6 +108,11 @@ endforeach()
 
 # -----------------------------------------------------------------------------
 
+if(NOT "${CMAKE_PROJECT_VERSION_PRERELEASE}" STREQUAL "")
+	set(PROJECT_VERSION_SPECIALBUILD "Alpha Test Version")
+endif()
+
+project_genver(HEADER_FILE)
 
 # =============================================================================
 
@@ -251,8 +264,6 @@ endif()
 
 # -----------------------------------------------------------------------------
 
-set(ELSSearch_TARGET ELSSearch)
-
 add_executable(${ELSSearch_TARGET} ${GUI_TYPE}
 	${ELSSearch_SOURCES}
 	${ELSSearch_HEADERS}
@@ -266,6 +277,23 @@ target_link_libraries(${ELSSearch_TARGET} PRIVATE
 	grantlee
 	QtIOCompressor
 )
+
+if(WIN32)
+	target_versioninfo(${ELSSearch_TARGET}
+		Comments="Don't make me have to open a can on you!\\n"
+		LegalCopyright="${ELSSearch_LEGAL_COPYRIGHT}"
+		CompanyName="${ELSSearch_ORGNAME}"
+	)
+
+	target_compile_definitions(${ELSSearch_TARGET} PRIVATE
+		UNICODE					# Windows API
+		_UNICODE				# MSVCRT
+		NOMINMAX
+		WIN32_LEAN_AND_MEAN
+		WINVER=0x0601			# 0x0601 is Win7 and higher
+		_WIN32_WINNT=0x0601		# 0x0601 is Win7 and higher
+	)
+endif()
 
 if(ENABLE_TRANSLATIONS)
 	target_compile_definitions(${ELSSearch_TARGET} PRIVATE
