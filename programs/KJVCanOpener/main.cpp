@@ -86,6 +86,11 @@ namespace {
 
 // ============================================================================
 
+#ifdef WORKAROUND_QTBUG_SecureRestorableState
+extern void setCocoaAppDelegate();
+extern void releaseCocoaAppDelegate();
+#endif
+
 #ifdef EMSCRIPTEN_NATIVE
 extern int emscriptenQtSDLMain(int argc, char *argv[]);
 #include <QtGui/emscripten-qt-sdl.h>
@@ -118,6 +123,10 @@ int main(int argc, char *argv[])
 	// Workaround the dark background/contrast android dialogs on some devices by switching
 	//		to native dialogs:
 	qputenv("QT_USE_ANDROID_NATIVE_DIALOGS", "0");
+#endif
+
+#ifdef WORKAROUND_QTBUG_SecureRestorableState
+	setCocoaAppDelegate();
 #endif
 
 	CMyApplication *pApp = new CMyApplication(argc, argv);
@@ -626,6 +635,10 @@ int main(int argc, char *argv[])
 	}
 #endif
 
+#endif
+
+#ifdef WORKAROUND_QTBUG_SecureRestorableState
+	releaseCocoaAppDelegate();
 #endif
 
 	return nRetVal;

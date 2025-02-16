@@ -27,6 +27,8 @@ include(../cmake/GenerateVersion.cmake)
 
 if(WIN32)
 	set(LANGUAGES C CXX RC)
+elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+	set(LANGUAGES C CXX OBJCXX)
 else()
 	set(LANGUAGES C CXX)
 endif()
@@ -1096,6 +1098,19 @@ endif()
 if(ANDROID)
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
 		WORKAROUND_QTBUG_35313_35687	# Android QMessageBox dialogs have wrong theming (workaround uses Android Native Dialogs)
+	)
+endif()
+
+
+if((CMAKE_SYSTEM_NAME STREQUAL Darwin) AND (QT_VERSION_MAJOR GREATER_EQUAL 5) AND NOT CONSOLE)
+	# Resolves this warning on Sonoma:
+	#	WARNING: Secure coding is not enabled for restorable state! Enable secure coding by implementing NSApplicationDelegate.applicationSupportsSecureRestorableState: and returning YES.
+	#	See: https://stackoverflow.com/questions/77283578/sonoma-and-nsapplicationdelegate-applicationsupportssecurerestorablestate
+	target_sources(${KJVCanOpener_TARGET} PRIVATE
+		"CocoaDelegate.mm"
+	)
+	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
+		WORKAROUND_QTBUG_SecureRestorableState
 	)
 endif()
 
