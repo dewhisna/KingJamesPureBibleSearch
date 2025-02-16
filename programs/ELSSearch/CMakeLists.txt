@@ -281,8 +281,8 @@ target_link_libraries(${ELSSearch_TARGET} PRIVATE
 if(WIN32)
 	target_versioninfo(${ELSSearch_TARGET}
 		Comments="Don't make me have to open a can on you!\\n"
-		LegalCopyright="${ELSSearch_LEGAL_COPYRIGHT}"
-		CompanyName="${ELSSearch_ORGNAME}"
+		LegalCopyright=${ELSSearch_LEGAL_COPYRIGHT}
+		CompanyName=${ELSSearch_ORGNAME}
 	)
 
 	target_compile_definitions(${ELSSearch_TARGET} PRIVATE

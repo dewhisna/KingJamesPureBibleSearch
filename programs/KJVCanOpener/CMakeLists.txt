@@ -604,8 +604,8 @@ target_link_libraries(${KJVCanOpener_TARGET} PRIVATE
 if(WIN32)
 	target_versioninfo(${KJVCanOpener_TARGET}
 		Comments="Don't make me have to open a can on you!\\n"
-		LegalCopyright="${KJVCanOpener_LEGAL_COPYRIGHT}"
-		CompanyName="${KJVCanOpener_ORGNAME}"
+		LegalCopyright=${KJVCanOpener_LEGAL_COPYRIGHT}
+		CompanyName=${KJVCanOpener_ORGNAME}
 	)
 
 	target_compile_definitions(${KJVCanOpener_TARGET} PRIVATE
