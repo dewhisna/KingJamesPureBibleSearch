@@ -45,9 +45,6 @@
 #include <QStringList>
 #include <QList>
 #include <QtGlobal>
-#if QT_VERSION < 0x050000
-#include <QTextCodec>
-#endif
 
 #include <iostream>
 #include <set>
@@ -70,10 +67,6 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 	a.setApplicationVersion(KJVDataDump_VERSION);
-
-#if QT_VERSION < 0x050000
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
 
 	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);

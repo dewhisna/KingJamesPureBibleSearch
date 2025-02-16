@@ -27,10 +27,6 @@
 
 #include <QCoreApplication>
 
-#if QT_VERSION < 0x050000
-#include <QTextCodec>
-#endif
-
 #include <QDir>
 #include <QFileInfo>
 #include <QString>
@@ -57,10 +53,6 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 	a.setApplicationVersion(KJVDictWord_VERSION);
-
-#if QT_VERSION < 0x050000
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
 
 	int nBibleDescriptor = -1;
 	int nDictDescriptor = -1;

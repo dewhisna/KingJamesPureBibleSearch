@@ -40,14 +40,7 @@
 #include <QSet>
 #include <QStringList>
 #include <QtGlobal>
-#if QT_VERSION < 0x050000
-#include <QTextCodec>
-#endif
-#if QT_VERSION >= 0x050000
 #include <QRegularExpression>
-#else
-#include <QRegExp>
-#endif
 
 #include <iostream>
 #include <set>
@@ -207,11 +200,7 @@ QString normalizeTemplate(const QString &strTemplateIn)
 		lstDivineName.append(nInDivineName);
 
 // Remove the symbols we've parsed out:
-#if QT_VERSION >= 0x050000
 		lstWords[ndxWord].remove(QRegularExpression("[JjTtDd]"));
-#else
-		lstWords[ndxWord].remove(QRegExp("[JjTtDd]"));
-#endif
 	}
 
 	strTemplate.clear();
@@ -261,10 +250,6 @@ int main(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 	a.setApplicationName("KJVDiff");
 	a.setApplicationVersion(KJVDiff_VERSION);
-
-#if QT_VERSION < 0x050000
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
 
 	g_strTranslationsPath = QFileInfo(QCoreApplication::applicationDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrTranslationFilenamePrefix);
@@ -547,63 +532,33 @@ int main(int argc, char *argv[])
 					QString strTemplate2 = ((pVerse2 != nullptr) ? pVerse2->m_strTemplate : QString());
 					bool bHaveTextDiff = false;
 					if (bIgnoreDivineNames) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[Dd]"));
 						strTemplate2.remove(QRegularExpression("[Dd]"));
-#else
-						strTemplate1.remove(QRegExp("[Dd]"));
-						strTemplate2.remove(QRegExp("[Dd]"));
-#endif
 					}
 					if (bIgnoreTransChange) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[Tt]"));
 						strTemplate2.remove(QRegularExpression("[Tt]"));
-#else
-						strTemplate1.remove(QRegExp("[Tt]"));
-						strTemplate2.remove(QRegExp("[Tt]"));
-#endif
 					}
 					if (bIgnoreWordsOfJesus) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[Jj]"));
 						strTemplate2.remove(QRegularExpression("[Jj]"));
-#else
-						strTemplate1.remove(QRegExp("[Jj]"));
-						strTemplate2.remove(QRegExp("[Jj]"));
-#endif
 					}
 					if (bNormalizeMarkup) {
 						strTemplate1 = normalizeTemplate(strTemplate1);
 						strTemplate2 = normalizeTemplate(strTemplate2);
 					}
 					if (bIgnoreLemmas) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[Ll]"));
 						strTemplate2.remove(QRegularExpression("[Ll]"));
-#else
-						strTemplate1.remove(QRegExp("[Ll]"));
-						strTemplate2.remove(QRegExp("[Ll]"));
-#endif
 					}
 					if (bIgnoreInlineFootnotes) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[Nn]"));
 						strTemplate2.remove(QRegularExpression("[Nn]"));
-#else
-						strTemplate1.remove(QRegExp("[Nn]"));
-						strTemplate2.remove(QRegExp("[Nn]"));
-#endif
 					}
 
 					if (bIgnoreHebrewPs119) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[M]"));
 						strTemplate2.remove(QRegularExpression("[M]"));
-#else
-						strTemplate1.remove(QRegExp("[M]"));
-						strTemplate2.remove(QRegExp("[M]"));
-#endif
 					}
 					if (bIgnoreVerseText || bPunctuationOnly) {
 						// Leave the "w" in place so that rendering checks will work correctly!
@@ -649,13 +604,8 @@ int main(int argc, char *argv[])
 						if (strVerseText1 != strVerseText2) bHaveTextDiff = true;
 					}
 					if (bIgnoreRendering) {
-#if QT_VERSION >= 0x050000
 						strTemplate1.remove(QRegularExpression("[^DdTtJjLlNnMw]"));
 						strTemplate2.remove(QRegularExpression("[^DdTtJjLlNnMw]"));
-#else
-						strTemplate1.remove(QRegExp("[^DdTtJjLlNnMw]"));
-						strTemplate2.remove(QRegExp("[^DdTtJjLlNnMw]"));
-#endif
 					}
 					CVerseEntry veNewVerse1((pVerse1 != nullptr) ? *pVerse1 : CVerseEntry());
 					veNewVerse1.m_strTemplate = strTemplate1;
@@ -663,19 +613,11 @@ int main(int argc, char *argv[])
 					veNewVerse2.m_strTemplate = strTemplate2;
 					// Do PunctuationOnly reduction here so that we leave the full rendering spec in the NewVerse objects so we don't assert on rendering the words
 					if (bPunctuationOnly) {
-#if QT_VERSION >= 0x050000
 //						strTemplate1.remove(QRegularExpression("[^\\.\\,\\?\\!\\-\\:\\;]"));
 //						strTemplate2.remove(QRegularExpression("[^\\.\\,\\?\\!\\-\\:\\;]"));
 						// Special case for comparing the King James Française by ignoring commas too:
 						strTemplate1.remove(QRegularExpression("[^\\.\\?\\!\\-\\:\\;]"));
 						strTemplate2.remove(QRegularExpression("[^\\.\\?\\!\\-\\:\\;]"));
-#else
-//						strTemplate1.remove(QRegExp("[^\\.\\,\\?\\!\\-\\:\\;]"));
-//						strTemplate2.remove(QRegExp("[^\\.\\,\\?\\!\\-\\:\\;]"));
-						// Special case for comparing the King James Française by ignoring commas too:
-						strTemplate1.remove(QRegExp("[^\\.\\?\\!\\-\\:\\;]"));
-						strTemplate2.remove(QRegExp("[^\\.\\?\\!\\-\\:\\;]"));
-#endif
 					}
 					if ((bIgnoreEmptyVerses) &&
 						(strTemplate1.isEmpty() || strTemplate2.isEmpty())) {

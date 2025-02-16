@@ -40,17 +40,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
-#if QT_VERSION >= 0x050F00
 #include <QRegularExpression>
-#else
-#include <QRegExp>
-#endif
 #include <QStringList>
 #include <QtGlobal>
 #include <QSettings>
-#if QT_VERSION < 0x050000
-#include <QTextCodec>
-#endif
 #include <QBuffer>
 #include <QByteArray>
 
@@ -2538,11 +2531,7 @@ void COSISXmlHandler::endVerseEntry(CRelIndex &relIndex)
 				 (g_strApostrophes.contains(strRichWord.at(0))))) {
 				// Don't count words that are only a hyphen or apostrophe:
 				verse.m_strTemplate += strRichWord;
-	#if QT_VERSION >= 0x050F00
 			} else if (m_bNoArabicNumeralWords && (QRegularExpression(QRegularExpression::anchoredPattern("\\d*")).match(strWord).hasMatch())) {
-	#else
-			} else if (m_bNoArabicNumeralWords && (QRegExp("\\d*").exactMatch(strWord))) {
-	#endif
 				// If we aren't counting Arabic Numerals as words, move them out to the verse template for rendering but not counting:
 				verse.m_strTemplate += strWord;		// It shouldn't matter here if we use Word or RichWord (unlike apostrophes above)
 			} else {
@@ -3838,10 +3827,6 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 	a.setApplicationVersion(KJVDataParse_VERSION);
-
-#if QT_VERSION < 0x050000
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-#endif
 
 	g_strTranslationsPath = QFileInfo(initialAppDirPath(), g_constrTranslationsPath).absoluteFilePath();
 	g_strTranslationFilenamePrefix = QString::fromUtf8(g_constrDataParseTranslationFilenamePrefix);
