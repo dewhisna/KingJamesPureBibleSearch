@@ -34,8 +34,10 @@
 
 #if defined(VNCSERVER)
 #define KJVCanOpener_VERSION_SPECIALBUILD	"(VNC Web-Version)"
+#define KJVCanOpener_VERSION_SEMVER		KJVCanOpener_VERSION "-VNC"
 #else
 #define KJVCanOpener_VERSION_SPECIALBUILD	"Alpha Test Version\0"
+#define KJVCanOpener_VERSION_SEMVER		KJVCanOpener_VERSION "-AlphaTest"
 #endif
 
 #define KJVCanOpener_HOMEPAGE_URL "http://visitbethelchurch.com/"
