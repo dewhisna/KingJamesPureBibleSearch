@@ -118,6 +118,8 @@ protected slots:
 	// ----
 	void en_changedSearchType(int nIndex);
 	// ----
+	void en_changedLetterCase(int nIndex);
+	// ----
 	void en_letterMatrixLayoutAboutToChange();
 	void en_widthChanged(int nWidth);					// Width from ItemModel
 	void en_offsetChanged(int nOffset);

@@ -47,7 +47,7 @@ public:
 	explicit CLetterMatrixTableModel(const CLetterMatrix &letterMatrix,
 									 int nWidth,
 									 int nOffset,
-									 bool bUppercase,
+									 LETTER_CASE_ENUM nLetterCase,
 									 QObject *parent = nullptr);
 
 	// Basic functionality:
@@ -75,7 +75,7 @@ public:
 
 	int width() const { return m_nWidth; }
 	int offset() const { return m_nOffset; }
-	bool uppercase() const { return m_bUppercase; }
+	LETTER_CASE_ENUM letterCase() const { return m_nLetterCase; }
 
 	QModelIndex modelIndexFromMatrixIndex(uint32_t nMatrixIndex);
 	uint32_t matrixIndexFromModelIndex(const QModelIndex &index) const;
@@ -88,7 +88,7 @@ public:
 public slots:
 	void setWidth(int nWidth);
 	void setOffset(int nOffset);
-	void setUppercase(bool bUppercase);
+	void setLetterCase(LETTER_CASE_ENUM nLetterCase);
 
 	void setSearchResults(const CELSResultList &results);
 	void clearSearchResults();
@@ -101,7 +101,7 @@ private:
 	const CLetterMatrix &m_letterMatrix;
 	int m_nWidth = 10;					// Width of Matrix for displaying
 	int m_nOffset = 0;					// Offset of the Matrix starting position (value is 0 to Width-1)
-	bool m_bUppercase = false;
+	LETTER_CASE_ENUM m_nLetterCase = LCE_LOWER;		// Case to use for letter rendering
 	// ----
 	QList<CELSResultSet> m_lstCharacterResultMap;		// Map of words intersecting this location, whose size is the number of different words a character is found in search result data (used for highlighting and results selection)
 	// ----

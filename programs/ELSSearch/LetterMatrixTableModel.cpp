@@ -53,13 +53,13 @@
 // ============================================================================
 
 CLetterMatrixTableModel::CLetterMatrixTableModel(const CLetterMatrix &letterMatrix,
-												 int nWidth, int nOffset, bool bUppercase,
+												 int nWidth, int nOffset, LETTER_CASE_ENUM nLetterCase,
 												 QObject *parent)
 	:	QAbstractTableModel(parent),
 		m_letterMatrix(letterMatrix),
 		m_nWidth(nWidth),
 		m_nOffset(nOffset),
-		m_bUppercase(bUppercase),
+		m_nLetterCase(nLetterCase),
 		m_fontMatrix("Courier", 14),
 		m_fontMatrixMetrics(m_fontMatrix)
 {
@@ -103,7 +103,14 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 	switch (role) {
 		case Qt::DisplayRole:
 			if (nMatrixIndex) {
-				return m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+				switch (m_nLetterCase) {
+					case LCE_LOWER:
+						return m_letterMatrix.at(nMatrixIndex).toLower();
+					case LCE_UPPER:
+						return m_letterMatrix.at(nMatrixIndex).toUpper();
+					case LCE_ORIGINAL:
+						return m_letterMatrix.at(nMatrixIndex);
+				}
 			}
 			break;
 
@@ -128,7 +135,17 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 						strValue += "{";
 						break;
 				}
-				strValue += m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+				switch (m_nLetterCase) {
+					case LCE_LOWER:
+						strValue += m_letterMatrix.at(nMatrixIndex).toLower();
+						break;
+					case LCE_UPPER:
+						strValue += m_letterMatrix.at(nMatrixIndex).toUpper();
+						break;
+					case LCE_ORIGINAL:
+						strValue += m_letterMatrix.at(nMatrixIndex);
+						break;
+				}
 				switch (m_lstCharacterResultMap.at(nMatrixIndex).size()) {
 					case 0:
 						strValue += " ";
@@ -155,7 +172,17 @@ QVariant CLetterMatrixTableModel::data(const QModelIndex &index, int role) const
 				} else {
 					strValue += "<td>";
 				}
-				strValue += m_bUppercase ? m_letterMatrix.at(nMatrixIndex).toUpper() : m_letterMatrix.at(nMatrixIndex);
+				switch (m_nLetterCase) {
+					case LCE_LOWER:
+						strValue += m_letterMatrix.at(nMatrixIndex).toLower();
+						break;
+					case LCE_UPPER:
+						strValue += m_letterMatrix.at(nMatrixIndex).toUpper();
+						break;
+					case LCE_ORIGINAL:
+						strValue += m_letterMatrix.at(nMatrixIndex);
+						break;
+				}
 				strValue += "</td>";
 			} else {
 				strValue = "<td>&nbsp;</td>";
@@ -347,10 +374,10 @@ void CLetterMatrixTableModel::setOffset(int nOffset)
 	}
 }
 
-void CLetterMatrixTableModel::setUppercase(bool bUppercase)
+void CLetterMatrixTableModel::setLetterCase(LETTER_CASE_ENUM nLetterCase)
 {
-	if (m_bUppercase != bUppercase) {
-		m_bUppercase = bUppercase;
+	if (m_nLetterCase != nLetterCase) {
+		m_nLetterCase = nLetterCase;
 		emit dataChanged(createIndex(0, 0), createIndex(rowCount()-1, columnCount()-1), { Qt::DisplayRole });
 	}
 }

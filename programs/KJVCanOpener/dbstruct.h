@@ -541,7 +541,7 @@ public:
 	bool m_bIsProperWord;				// Proper Words is set to True if a Word and all its Alternate Word Forms begin with a character in the Letter_Uppercase category (and isn't a special ordinary word, as determined in the KJVDataParse tool)
 	QStringList m_lstAltWords;			// Complete exact word of the Bible Database, are related variations of the base root (such as hyphenated and non-hyphenated or capital vs lowercase), these are the exact words of the text
 	QStringList m_lstSearchWords;		// Search word reduced from the complete list, for example without cantillation marks
-	QStringList m_lstRawAltWords;				// Decomposed Words, without hyphens, without apostrophies, in lowercase -- used for ELS and places where letters-only need to be used
+	QStringList m_lstRawAltWords;				// Decomposed Words, without hyphens, without apostrophies, in original case -- used for ELS and places where letters-only need to be used
 	QStringList m_lstDecomposedAltWords;		// Decomposed Words (used for matching), without hyphens
 	QStringList m_lstDecomposedHyphenAltWords;	// Decomposed Words (used for matching), with hyphens
 	QStringList m_lstDeApostrAltWords;			// Decomposed Words (used for matching), with apostrophies decomposed without hyphens

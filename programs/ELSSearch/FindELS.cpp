@@ -193,7 +193,7 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 			for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
 				if (lstSearchWords.at(ndxWord).size() != nLen) break;				// Check all words of this length only and exit when we hit a longer word
-				if (strWord.compare(lstSearchWords.at(ndxWord)) == 0) {				// Check forward direction
+				if (strWord.compare(lstSearchWords.at(ndxWord), Qt::CaseInsensitive) == 0) {				// Check forward direction
 					CELSResult result;
 					result.m_strWord = strWord;
 					result.m_nSkip = nSkip;
@@ -203,7 +203,7 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 					result.m_ndxNominal = letterMatrix.relIndexFromMatrixIndex(matrixIndexNominalLetter);
 					result.m_nDirection = Qt::LeftToRight;
 					lstResults.append(result);
-				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord)) == 0) {	// Check reverse direction
+				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord), Qt::CaseInsensitive) == 0) {	// Check reverse direction
 					CELSResult result;
 					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
 					result.m_nSkip = nSkip;

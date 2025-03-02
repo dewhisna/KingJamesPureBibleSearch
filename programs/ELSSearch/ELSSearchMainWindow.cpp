@@ -76,7 +76,7 @@
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
 
 
-constexpr int ELS_FILE_VERSION = 3;		// Current ELS Transcript File Version
+constexpr int ELS_FILE_VERSION = 4;		// Current ELS Transcript File Version
 
 // ============================================================================
 
@@ -209,12 +209,20 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// --------------------------------
 
+	// Set LetterCase drop list:
+	ui->cmbLetterCase->addItem(letterCaseDescription(LCE_LOWER), LCE_LOWER);
+	ui->cmbLetterCase->addItem(letterCaseDescription(LCE_UPPER), LCE_UPPER);
+	ui->cmbLetterCase->addItem(letterCaseDescription(LCE_ORIGINAL), LCE_ORIGINAL);
+	ui->cmbLetterCase->setCurrentIndex(LCE_LOWER);
+
+	// --------------------------------
+
 	QItemSelectionModel *pOldSelModel = ui->tvLetterMatrix->selectionModel();
 	QAbstractItemModel *pOldModel = ui->tvLetterMatrix->model();
 	m_pLetterMatrixTableModel = new CLetterMatrixTableModel(m_letterMatrix,
 															ui->spinWidth->value(),
 															ui->spinOffset->value(),
-															ui->chkUppercase->isChecked(),
+															ui->cmbLetterCase->currentData().value<LETTER_CASE_ENUM>(),
 															this);
 	ui->tvLetterMatrix->setModel(m_pLetterMatrixTableModel);
 	if (pOldModel) delete pOldModel;
@@ -234,7 +242,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	pOldSelModel = ui->tvELSResults->selectionModel();
 	pOldModel = ui->tvELSResults->model();
-	m_pELSResultListModel = new CELSResultListModel(m_letterMatrix, ui->chkUppercase->isChecked(), this);
+	m_pELSResultListModel = new CELSResultListModel(m_letterMatrix, ui->cmbLetterCase->currentData().value<LETTER_CASE_ENUM>(), this);
 	ui->tvELSResults->setModel(m_pELSResultListModel);
 	if (pOldModel) delete pOldModel;
 	if (pOldSelModel) delete pOldSelModel;
@@ -336,8 +344,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	connect(m_pLetterMatrixTableModel, SIGNAL(layoutAboutToBeChanged(QList<QPersistentModelIndex>,QAbstractItemModel::LayoutChangeHint)), this, SLOT(en_letterMatrixLayoutAboutToChange()));
 	connect(m_pLetterMatrixTableModel, SIGNAL(widthChanged(int)), this, SLOT(en_widthChanged(int)));
 	connect(m_pLetterMatrixTableModel, SIGNAL(offsetChanged(int)), this, SLOT(en_offsetChanged(int)));
-	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pLetterMatrixTableModel, SLOT(setUppercase(bool)));
-	connect(ui->chkUppercase, SIGNAL(toggled(bool)), m_pELSResultListModel, SLOT(setUppercase(bool)));
+	connect(ui->cmbLetterCase, SIGNAL(currentIndexChanged(int)), this, SLOT(en_changedLetterCase(int)));
 
 	connect(ui->tvLetterMatrix->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(en_letterMatrixCurrentChanged(QModelIndex,QModelIndex)));
 	ui->tvLetterMatrix->setMouseTracking(true);		// Enable mouse movement changing the status message
@@ -553,12 +560,26 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					bBadELSFile = true;
 					break;
 				}
-			} else if (strCommand.compare("Uppercase", Qt::CaseInsensitive) == 0) {
+			} else if (strCommand.compare("Uppercase", Qt::CaseInsensitive) == 0) {			// Deprecated -- Replaced by LetterCase
 				if (lstEntry.size() != 2) {
 					bBadELSFile = true;
 					break;
 				}
-				ui->chkUppercase->setChecked(QVariant(lstEntry.at(1)).toBool());
+				int nIndex = ui->cmbLetterCase->findData(QVariant(lstEntry.at(1)).toBool() ? LCE_UPPER : LCE_LOWER);
+				if (nIndex >= 0) ui->cmbLetterCase->setCurrentIndex(nIndex);
+			} else if (strCommand.compare("LetterCase", Qt::CaseInsensitive) == 0) {
+				if (lstEntry.size() != 2) {
+					bBadELSFile = true;
+					break;
+				}
+				LETTER_CASE_ENUM nLetterCase = letterCaseFromID(lstEntry.at(1));
+				int nIndex = ui->cmbLetterCase->findData(nLetterCase);
+				if (nIndex >= 0) {
+					ui->cmbLetterCase->setCurrentIndex(nIndex);
+				} else {
+					bBadELSFile = true;
+					break;
+				}
 			} else if (strCommand.compare("MatrixTopLeftRowCol", Qt::CaseInsensitive) == 0) {
 				if (lstEntry.size() != 3) {
 					bBadELSFile = true;
@@ -716,7 +737,7 @@ void CELSSearchMainWindow::closeSearchTranscript()
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "Offset", QString::number(ui->spinOffset->value()) };
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "SortOrder", elsresultSortOrderToLetters(
 									 static_cast<ELSRESULT_SORT_ORDER_ENUM>(ui->cmbSortOrder->currentData().toInt())) };
-		(*m_pSearchTranscriptCSVStream) << QStringList{ "Uppercase", QVariant(ui->chkUppercase->isChecked()).toString() };
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "LetterCase", letterCaseToID(ui->cmbLetterCase->currentData().value<LETTER_CASE_ENUM>()) };
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "MatrixTopLeftRowCol",
 													 QString::number(ui->tvLetterMatrix->rowAt(0)),
 													 QString::number(ui->tvLetterMatrix->columnAt(0)) };
@@ -809,6 +830,14 @@ void CELSSearchMainWindow::en_letterMatrixCurrentChanged(const QModelIndex &curr
 		m_pStatusAction->setStatusTip(strStatusTip);
 		m_pStatusAction->showStatusText();
 	}
+}
+
+// ----------------------------------------------------------------------------
+
+void CELSSearchMainWindow::en_changedLetterCase(int nIndex)
+{
+	m_pLetterMatrixTableModel->setLetterCase(ui->cmbLetterCase->itemData(nIndex).value<LETTER_CASE_ENUM>());
+	m_pELSResultListModel->setLetterCase(ui->cmbLetterCase->itemData(nIndex).value<LETTER_CASE_ENUM>());
 }
 
 // ----------------------------------------------------------------------------

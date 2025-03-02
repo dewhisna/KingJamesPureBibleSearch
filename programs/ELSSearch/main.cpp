@@ -144,10 +144,22 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 
 // ============================================================================
 
-void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bool bUpperCase)
+void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, LETTER_CASE_ENUM nLetterCase)
 {
+	QString strWord;
+	switch (nLetterCase) {
+		case LCE_LOWER:
+			strWord = result.m_strWord.toLower();
+			break;
+		case LCE_UPPER:
+			strWord = result.m_strWord.toUpper();
+			break;
+		case LCE_ORIGINAL:
+			strWord = result.m_strWord;
+			break;
+	}
 	std::cout << "----------------------------------------\n";
-	std::cout << QString("Word: \"%1\"\n").arg(bUpperCase ? result.m_strWord.toUpper() : result.m_strWord).toUtf8().data();
+	std::cout << QString("Word: \"%1\"\n").arg(strWord).toUtf8().data();
 	std::cout << QString("Start Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false)).toUtf8().data();
 	std::cout << QString("Nominal Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxNominal, false)).toUtf8().data();
 	std::cout << QString("End Location: %1\n").arg(letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxEnd, false)).toUtf8().data();
@@ -171,10 +183,16 @@ void printResult(const CLetterMatrix &letterMatrix, const CELSResult &result, bo
 		}
 		if (matrixIndex >= static_cast<uint32_t>(letterMatrix.size())) break;
 		std::cout << (((matrixIndex == matrixIndexResult) && (nChar < result.m_strWord.size())) ? "[" : " ");
-		if (bUpperCase) {
-			std::cout << QString(letterMatrix.at(matrixIndex).toUpper()).toUtf8().data();
-		} else {
-			std::cout << QString(letterMatrix.at(matrixIndex)).toUtf8().data();
+		switch (nLetterCase) {
+			case LCE_LOWER:
+				std::cout << QString(letterMatrix.at(matrixIndex).toLower()).toUtf8().data();
+				break;
+			case LCE_UPPER:
+				std::cout << QString(letterMatrix.at(matrixIndex).toUpper()).toUtf8().data();
+				break;
+			case LCE_ORIGINAL:
+				std::cout << QString(letterMatrix.at(matrixIndex)).toUtf8().data();
+				break;
 		}
 		std::cout << (((matrixIndex == matrixIndexResult) && (nChar < result.m_strWord.size())) ? "]" : " ");
 		if ((matrixIndex == matrixIndexResult) && (nChar < result.m_strWord.size())) {
@@ -289,7 +307,7 @@ int main(int argc, char *argv[])
 	// ----
 	bool bRunMultithreaded = false;
 	LetterMatrixTextModifierOptionFlags flagsLMTMO = LMTMO_None;
-	bool bOutputWordsAllUppercase = false;
+	LETTER_CASE_ENUM nLetterCase = LCE_LOWER;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
 	// ----
@@ -324,7 +342,9 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-scp") == 0) {
 			flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, true);
 		} else if (strArg.compare("-u") == 0) {
-			bOutputWordsAllUppercase = true;
+			nLetterCase = LCE_UPPER;
+		} else if (strArg.compare("-o") == 0) {
+			nLetterCase = LCE_ORIGINAL;
 		} else if (strArg.startsWith("-bb")) {
 			nBookStart = strArg.mid(3).toUInt();
 		} else if (strArg.startsWith("-be")) {
@@ -418,6 +438,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -sbp   =  Search Book Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -scp   =  Search Chapter Prologues (Chapter Number, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
+		std::cerr << QString("  -o     =  Print Output Text in original case (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -bb<n> =  Begin Searching in Book <n> (defaults to first)\n").toUtf8().data();
 		std::cerr << QString("  -be<n> =  End Searching in Book <n>   (defaults to last)\n").toUtf8().data();
 		std::cerr << QString("  -owsr  =  Order output by word, skip, then reference\n").toUtf8().data();
@@ -551,7 +572,19 @@ int main(int argc, char *argv[])
 	// Print Summary:
 	std::cout << "\nWord Occurrence Counts:\n";
 	for (int i = 0; i < lstSearchWords.size(); ++i) {
-		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(bOutputWordsAllUppercase ? lstSearchWords.at(i).toUpper() : lstSearchWords.at(i))
+		QString strWord;
+		switch (nLetterCase) {
+			case LCE_LOWER:
+				strWord = lstSearchWords.at(i).toLower();
+				break;
+			case LCE_UPPER:
+				strWord = lstSearchWords.at(i).toUpper();
+				break;
+			case LCE_ORIGINAL:
+				strWord = lstSearchWords.at(i);
+				break;
+		}
+		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(strWord)
 						 .arg(mapResultsWordCountForward[lstSearchWords.at(i)])
 						 .arg(mapResultsWordCountReverse[lstSearchWords.at(i)]).toUtf8().data();
 	}
@@ -567,7 +600,7 @@ int main(int argc, char *argv[])
 	// Print Results:
 	std::cout << QString("Found %1 Results:\n").arg(lstResults.size()).toUtf8().data();
 	for (auto const & result : lstResults) {
-		printResult(letterMatrix, result, bOutputWordsAllUppercase);
+		printResult(letterMatrix, result, nLetterCase);
 	}
 
 	// ------------------------------------------------------------------------

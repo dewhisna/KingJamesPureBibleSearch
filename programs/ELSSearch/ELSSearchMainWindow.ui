@@ -262,50 +262,7 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <item row="0" column="0">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="lblSortBy">
-              <property name="text">
-               <string>So&amp;rt By:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-              <property name="buddy">
-               <cstring>cmbSortOrder</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QComboBox" name="cmbSortOrder">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QCheckBox" name="chkUppercase">
-              <property name="text">
-               <string>&amp;Uppercase</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" colspan="4">
+            <item row="1" column="0" colspan="6">
              <widget class="QTableView" name="tvELSResults">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
@@ -342,7 +299,53 @@
               </attribute>
              </widget>
             </item>
-            <item row="2" column="0" colspan="4">
+            <item row="0" column="0">
+             <widget class="QLabel" name="lblSortBy">
+              <property name="text">
+               <string>So&amp;rt By:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="buddy">
+               <cstring>cmbSortOrder</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="cmbSortOrder">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="3">
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <widget class="QComboBox" name="cmbLetterCase"/>
+            </item>
+            <item row="2" column="0" colspan="6">
              <widget class="QToolButton" name="btnClear">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -355,7 +358,7 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0" colspan="4">
+            <item row="3" column="0" colspan="6">
              <widget class="QFrame" name="frameMatrixFormat">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">

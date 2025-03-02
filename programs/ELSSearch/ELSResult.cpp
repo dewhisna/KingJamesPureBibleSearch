@@ -38,10 +38,10 @@
 
 // ============================================================================
 
-CELSResultListModel::CELSResultListModel(const CLetterMatrix &letterMatrix, bool bUppercase, QObject *parent)
+CELSResultListModel::CELSResultListModel(const CLetterMatrix &letterMatrix, LETTER_CASE_ENUM nLetterCase, QObject *parent)
 	:	QAbstractListModel(parent),
 		m_letterMatrix(letterMatrix),
-		m_bUppercase(bUppercase)
+		m_nLetterCase(nLetterCase)
 {
 }
 
@@ -98,7 +98,15 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 
 		switch (index.column()) {
 			case 0:
-				return m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord;
+				switch (m_nLetterCase) {
+					case LCE_LOWER:
+						return result.m_strWord.toLower();
+					case LCE_UPPER:
+						return result.m_strWord.toUpper();
+					case LCE_ORIGINAL:
+						return result.m_strWord;
+				}
+				return QString();
 			case 1:
 				return result.m_nSkip;
 			case 2:
@@ -112,7 +120,19 @@ QVariant CELSResultListModel::data(const QModelIndex &index, int role) const
 	} else if (role == UserRole_MIMEData) {			// Mime Data for Drag
 		const CELSResult & result = m_lstResults.at(index.row());
 		QString strMimeData;
-		strMimeData += tr("Word", "CELSResult") + QString(": \"%1\"\n").arg(m_bUppercase ? result.m_strWord.toUpper() : result.m_strWord);
+		QString strWord;
+		switch (m_nLetterCase) {
+			case LCE_LOWER:
+				strWord = result.m_strWord.toLower();
+				break;
+			case LCE_UPPER:
+				strWord = result.m_strWord.toUpper();
+				break;
+			case LCE_ORIGINAL:
+				strWord = result.m_strWord;
+				break;
+		}
+		strMimeData += tr("Word", "CELSResult") + QString(": \"%1\"\n").arg(strWord);
 		strMimeData += tr("Start Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxStart, false));
 		strMimeData += tr("Nominal Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxNominal, false));
 		strMimeData += tr("End Location", "CELSResult") + QString(": %1\n").arg(m_letterMatrix.bibleDatabase()->PassageReferenceText(result.m_ndxEnd, false));
@@ -201,6 +221,46 @@ Qt::ItemFlags CELSResultListModel::flags(const QModelIndex &index) const
 		return Qt::NoItemFlags;
 
 	return QAbstractItemModel::flags(index) | Qt::ItemIsDragEnabled;
+}
+
+// ----------------------------------------------------------------------------
+
+QString letterCaseDescription(LETTER_CASE_ENUM nLetterCase)
+{
+	switch (nLetterCase) {
+		case LCE_LOWER:
+			return QObject::tr("Lower Case", "CELSResult");
+		case LCE_UPPER:
+			return QObject::tr("Upper Case", "CELSResult");
+		case LCE_ORIGINAL:
+			return QObject::tr("Orig Case", "CELSResult");
+	}
+	return QString();
+}
+
+LETTER_CASE_ENUM letterCaseFromID(const QString &strID)
+{
+	if (strID.compare("lower", Qt::CaseInsensitive) == 0) {
+		return LCE_LOWER;
+	} else if (strID.compare("upper", Qt::CaseInsensitive) == 0) {
+		return LCE_UPPER;
+	} else if (strID.compare("orig", Qt::CaseInsensitive) == 0) {
+		return LCE_ORIGINAL;
+	}
+	return LCE_LOWER;
+}
+
+QString letterCaseToID(LETTER_CASE_ENUM nLetterCase)
+{
+	switch (nLetterCase) {
+		case LCE_LOWER:
+			return "lower";
+		case LCE_UPPER:
+			return "upper";
+		case LCE_ORIGINAL:
+			return "orig";
+	}
+	return QString();
 }
 
 // ----------------------------------------------------------------------------
@@ -495,10 +555,10 @@ void CELSResultListModel::clearSearchResults()
 	endResetModel();
 }
 
-void CELSResultListModel::setUppercase(bool bUppercase)
+void CELSResultListModel::setLetterCase(LETTER_CASE_ENUM nLetterCase)
 {
-	if (m_bUppercase != bUppercase) {
-		m_bUppercase = bUppercase;
+	if (m_nLetterCase != nLetterCase) {
+		m_nLetterCase = nLetterCase;
 		emit dataChanged(createIndex(0, 0), createIndex(m_lstResults.size()-1, columnCount()-1), { Qt::DisplayRole });
 	}
 }
@@ -513,7 +573,7 @@ void sortELSResultList(ELSRESULT_SORT_ORDER_ENUM nSortOrder, CELSResultList &lst
 	std::sort(lstResults.begin(), lstResults.end(),
 			  [nSortOrder](const CELSResult &r1, const CELSResult &r2)->bool {
 				  auto fnWord = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {
-					  int nComp = r1.m_strWord.compare(r2.m_strWord);
+					  int nComp = r1.m_strWord.compare(r2.m_strWord, Qt::CaseInsensitive);
 					  return std::pair<bool,bool>(nComp < 0, nComp == 0);
 				  };
 				  auto fnSkip = [](const CELSResult &r1, const CELSResult &r2)->std::pair<bool,bool> {

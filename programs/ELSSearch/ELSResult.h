@@ -41,6 +41,19 @@ class CLetterMatrix;
 
 // ============================================================================
 
+enum LETTER_CASE_ENUM {
+	LCE_LOWER = 0,			// All Lower-Case
+	LCE_UPPER = 1,			// All Upper-Case
+	LCE_ORIGINAL = 2,		// Original case in source text
+};
+Q_DECLARE_METATYPE(LETTER_CASE_ENUM)
+
+extern QString letterCaseDescription(LETTER_CASE_ENUM nLetterCase);
+extern LETTER_CASE_ENUM letterCaseFromID(const QString &strID);		// Returns LCE_LOWER if invalid
+extern QString letterCaseToID(LETTER_CASE_ENUM nLetterCase);
+
+// ============================================================================
+
 enum ELSRESULT_SORT_ORDER_ENUM {
 	ESO_WSR,
 	ESO_WRS,
@@ -161,7 +174,7 @@ class CELSResultListModel : public QAbstractListModel
 	Q_OBJECT
 
 public:
-	explicit CELSResultListModel(const CLetterMatrix &letterMatrix, bool bUppercase, QObject *parent = nullptr);
+	explicit CELSResultListModel(const CLetterMatrix &letterMatrix, LETTER_CASE_ENUM nLetterCase, QObject *parent = nullptr);
 	virtual ~CELSResultListModel();
 
 	// Header:
@@ -193,7 +206,7 @@ public:
 
 	ELSRESULT_SORT_ORDER_ENUM sortOrder() const { return m_nSortOrder; }
 
-	bool uppercase() const { return m_bUppercase; }
+	LETTER_CASE_ENUM letterCase() const { return m_nLetterCase; }
 
 	QModelIndexList getResultIndexes(const CELSResultSet &setResults);
 
@@ -206,14 +219,14 @@ public slots:
 	void deleteSearchResults(const CELSResultList &lstResults);
 	void clearSearchResults();
 
-	void setUppercase(bool bUppercase);
+	void setLetterCase(LETTER_CASE_ENUM nLetterCase);
 
 protected:
 	void sortResults();
 
 private:
 	const CLetterMatrix &m_letterMatrix;
-	bool m_bUppercase;
+	LETTER_CASE_ENUM m_nLetterCase;
 	// ----
 	CELSResultList m_lstResults;
 	CELSResultSet m_mapResults;			// Map of results to have a quick way to check for duplicates -- QSet would be better, but it requires a qHash function
