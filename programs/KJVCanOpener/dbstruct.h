@@ -235,7 +235,7 @@ public:
 	~CRelIndexEx() { }
 
 	inline bool isPrologue() const {
-		return ((book() != 0) && (verse() == 0) && (word() == 0) && (letter() != 0));
+		return isBookPrologue() || isChapterPrologue() || isVersePrologue();
 	}
 
 	inline bool isBookPrologue() const {
@@ -244,6 +244,10 @@ public:
 
 	inline bool isChapterPrologue() const {
 		return ((book() != 0) && (chapter() != 0) && (verse() == 0) && (word() == 0) && (letter() != 0));
+	}
+
+	inline bool isVersePrologue() const {
+		return ((book() != 0) && (chapter() != 0) && (verse() != 0) && (word() == 0) && (letter() != 0));
 	}
 
 	static uint32_t maxLetterCount() { return 0xFFFFFFFF; }

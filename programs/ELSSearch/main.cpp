@@ -129,6 +129,11 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 				std::cerr << "Include Chapter Prologues";
 				bOutput = true;
 			}
+			if (flags.testFlag(LMTMO_IncludeVersePrologues)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Include Verse Prologues";
+				bOutput = true;
+			}
 		}
 		std::cerr << std::endl;
 
