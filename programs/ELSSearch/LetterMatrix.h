@@ -79,7 +79,26 @@ private:
 	//	corresponding letter count added or subtracted (depending on direction
 	//	of the transformation):
 	typedef QMap<uint32_t, uint32_t> TMapMatrixIndexToLetterShift;	// MatrixIndex -> LetterCount
-	TMapMatrixIndexToLetterShift m_mapMatrixIndexToLetterShift;
+	TMapMatrixIndexToLetterShift m_mapMatrixIndexToLetterShift;		// Note: This is things to remove
+
+	// Matrix index to prologue insertion.  This is a map of the matrix
+	//	insertion location of each prologue generated from various
+	//	LetterMatrixTextModifierOptionFlags values and allows them to be
+	//	independent from the specific Bible Database.
+	//	Note: The CRelIndex entry must specify a different prologue type
+	//	when there are adjacent prologue entries.  This is used in
+	//	matrixIndexFromRelIndex() to decide when to continue processing
+	//	vs. exiting when encountering adjacent entries.  Otherwise,
+	//	adjacent entries would have to be combined into one.  This is a
+	//	bit tacky, but there isn't a much better way to do it, as having
+	//	them separate with the CRelIndex makes processing in the
+	//	relIndexFromMatrixIndex() function so much easier to deal with.
+	struct TPrologueEntry {
+		QString m_strPrologue;
+		CRelIndex m_ndxBible;			// RelIndex in the Bible, used to determine if this is a book, chapter, or verse prologue
+	};
+	typedef QMap<uint32_t, TPrologueEntry> TMapMatrixIndexToPrologue;	// MatrixIndex -> PrologeEntry
+	TMapMatrixIndexToPrologue m_mapMatrixIndexToPrologue;				// Note: This is things to add
 };
 
 // ============================================================================

@@ -1294,11 +1294,6 @@ CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint32_t nN
 		return 0;
 	}
 
-	// See if the letter is in the book's prologue (and get it out of the way first before chapters):
-	if (nLtr <= (m_lstBooks.at(nBk-1).m_nLtrAccum + m_lstBooks.at(nBk-1).m_strPrologue.size())) {
-		return CRelIndexEx(nBk, 0, 0, 0, nLtr-m_lstBooks.at(nBk-1).m_nLtrAccum);
-	}
-
 	unsigned int nChp = m_lstBooks.at(nBk-1).m_nNumChp;
 	while ((nChp > 0) && (nLtr <= m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum)) {
 		nChp--;
@@ -1306,12 +1301,6 @@ CRelIndexEx CBibleDatabase::TVersificationLayout::DenormalizeIndexEx(uint32_t nN
 	if ((nChp == 0) && (!m_lstBooks.at(nBk-1).m_bHaveColophon)) {
 		Q_ASSERT(false);
 		return 0;
-	}
-
-	// See if the letter is in the chapter's prologue (and get it out of the way first before verses):
-	if ((nChp != 0) && (nLtr <= (m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum +
-								 m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_strPrologue.size()))) {
-		return CRelIndexEx(nBk, nChp, 0, 0, nLtr-m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nLtrAccum);
 	}
 
 	unsigned int nVrs = ((nChp != 0) ? m_mapChapters.at(CRelIndex(nBk,nChp,0,0)).m_nNumVrs : 0);

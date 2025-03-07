@@ -432,8 +432,6 @@ public:
 #ifdef USE_EXTENDED_INDEXES
 	uint32_t m_nNumLtr;			// Number of letters in this book
 	uint32_t m_nLtrAccum;		// Number of accumulated letters prior to, but not including this book
-	// ----
-	QString m_strPrologue;		// Prologue text that comes before any data in the book itself.  It's letters are counted, but not as words.  Used only for special tools like ELS Search and with extended CRelIndexEx.
 #endif
 	QString m_strDesc;			// Description (subtitle)
 
@@ -471,8 +469,6 @@ public:
 #ifdef USE_EXTENDED_INDEXES
 	uint32_t m_nNumLtr;			// Number of letters in this chapter
 	uint32_t m_nLtrAccum;		// Number of accumulated letters prior to, but not including this chapter
-	// ----
-	QString m_strPrologue;		// Prologue text that comes before any data in the book itself.  It's letters are counted, but not as words.  Used only for special tools like ELS Search and with extended CRelIndexEx.
 #endif
 
 	bool m_bHaveSuperscription;	// True if this chapter has a Superscription pseudo-verse (will be indexed as [nBk|nChp|0|0] in the TVerseEntryMap, ie. nVrs==0)

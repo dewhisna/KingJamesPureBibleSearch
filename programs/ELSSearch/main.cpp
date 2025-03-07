@@ -83,7 +83,9 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 		if (ndx != ndxTest) {
 			std::cerr << "\n";
 			std::cerr << "Normal Index: " << (unsigned int)(ndx) << std::endl;
-			std::cerr << "relIndex    : 0x" << QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data() << std::endl;
+			std::cerr << "relIndex    : 0x" << QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data()
+					  << " +0x" << QString("%1").arg(relIndex.letter(), 2, 16, QChar('0')).toUpper().toUtf8().data() << std::endl;
+
 			std::cerr << "Roundtrip   : " << (unsigned int)(ndxTest) << std::endl;
 
 			// Perform again as a convenient place to attach a breakpoint and watch what happens:

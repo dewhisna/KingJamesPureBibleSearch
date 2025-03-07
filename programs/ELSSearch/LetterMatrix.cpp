@@ -26,10 +26,228 @@
 #include "../KJVCanOpener/VerseRichifier.h"
 
 #include <QStringList>
+#include <QRegularExpression>
 
 #include <iostream>
+#include <limits>
 
 #define TEST_MATRIX_INDEXING 0		// Set to '1' to enable matrix index roundtrip testing -- WARNING: This is VERY slow test!
+
+// ============================================================================
+
+namespace {
+	const QList<QString> g_conlstBookProloguesKJV =
+	{
+		"THE FIRST BOOK OF MOSES, CALLED GENESIS.",
+		"THE SECOND BOOK OF MOSES, CALLED EXODUS.",
+		"THE THIRD BOOK OF MOSES, CALLED LEVITICUS.",
+		"THE FOURTH BOOK OF MOSES, CALLED NUMBERS.",
+		"THE FIFTH BOOK OF MOSES, CALLED DEUTERONOMY.",
+		"THE BOOK OF JOSHUA",
+		"THE BOOK OF JUDGES",
+		"THE BOOK OF RUTH",
+		"THE FIRST BOOK OF SAMUEL, OTHERWISE CALLED, THE FIRST BOOK OF THE KINGS.",
+		"THE SECOND BOOK OF SAMUEL, OTHERWISE CALLED, THE SECOND BOOK OF THE KINGS.",
+		"THE FIRST BOOK OF THE KINGS, COMMONLY CALLED, THE THIRD BOOK OF THE KINGS.",
+		"THE SECOND BOOK OF THE KINGS, COMMONLY CALLED, THE FOURTH BOOK OF THE KINGS.",
+		"THE FIRST BOOK OF THE CHRONICLES",
+		"THE SECOND BOOK OF THE CHRONICLES",
+		"EZRA",
+		"THE BOOK OF NEHEMIAH",
+		"THE BOOK OF ESTHER",
+		"THE BOOK OF JOB",
+		"THE BOOK OF PSALMS",
+		"THE PROVERBS",
+		"ECCLESIASTES OR, THE PREACHER",
+		"THE SONG OF SOLOMON",
+		"THE BOOK OF THE PROPHET ISAIAH",
+		"THE BOOK OF THE PROPHET JEREMIAH",
+		"THE LAMENTATIONS OF JEREMIAH",
+		"THE BOOK OF THE PROPHET EZEKIEL",
+		"THE BOOK OF DANIEL",
+		"HOSEA",
+		"JOEL",
+		"AMOS",
+		"OBADIAH",
+		"JONAH",
+		"MICAH",
+		"NAHUM",
+		"HABAKKUK",
+		"ZEPHANIAH",
+		"HAGGAI",
+		"ZECHARIAH",
+		"MALACHI",
+		// ----
+		"THE GOSPEL ACCORDING TO ST MATTHEW",
+		"THE GOSPEL ACCORDING TO ST MARK",
+		"THE GOSPEL ACCORDING TO ST LUKE",
+		"THE GOSPEL ACCORDING TO ST JOHN",
+		"THE ACTS OF THE APOSTLES",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE ROMANS",
+		"THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS",
+		"THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE CORINTHIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE GALATIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE EPHESIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE PHILIPPIANS",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE COLOSSIANS",
+		"THE FIRST EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS",
+		"THE SECOND EPISTLE OF PAUL THE APOSTLE TO THE THESSALONIANS",
+		"THE FIRST EPISTLE OF PAUL THE APOSTLE TO TIMOTHY",
+		"THE SECOND EPISTLE OF PAUL THE APOSTLE TO TIMOTHY",
+		"THE EPISTLE OF PAUL TO TITUS",
+		"THE EPISTLE OF PAUL TO PHILEMON",
+		"THE EPISTLE OF PAUL THE APOSTLE TO THE HEBREWS",
+		"THE GENERAL EPISTLE OF JAMES",
+		"THE FIRST EPISTLE GENERAL OF PETER",
+		"THE SECOND EPISTLE GENERAL OF PETER",
+		"THE FIRST EPISTLE GENERAL OF JOHN",
+		"THE SECOND EPISTLE OF JOHN",
+		"THE THIRD EPISTLE OF JOHN",
+		"THE GENERAL EPISTLE OF JUDE",
+		"THE REVELATION OF ST JOHN THE DIVINE",
+		// ----
+		"THE FIRST BOOK OF ESDRAS",
+		"THE SECOND BOOK OF ESDRAS",
+		"TOBIT",
+		"JUDITH",
+		"THE REST OF THE CHAPTERS OF THE BOOK OF ESTHER, WHICH ARE FOUND NEITHER IN THE HEBREW, NOR IN THE CHALDEE",
+		"THE WISDOM OF SOLOMON",
+		"THE WISDOM OF JESUS THE SON OF SIRACH, OR, ECCLESIASTICUS",
+		"BARUCH",
+		"THE SONG OF THE THREE HOLY CHILDREN",
+		"THE HISTORY OF SUSANNA",
+		"THE HISTORY OF THE DESTRUCTION OF BEL AND THE DRAGON",
+		"THE PRAYER OF MANASSES KING OF JUDA WHEN HE WAS HOLDEN CAPTIVE IN BABYLON",
+		"THE FIRST BOOK OF THE MACCABEES",
+		"THE SECOND BOOK OF THE MACCABEES",
+	};
+
+	const QList<QString> g_conlstBookPrologues1611 =
+	{
+		"THE FIRST BOOKE OF MOSES, called GENESIS.",
+		"THE SECOND BOOKE OF Moses, called Exodus.",
+		"THE THIRD BOOKE of Moses, called Leviticus.",
+		"THE FOVRTH BOOKE of Moses, called Numbers.",
+		"THE FIFTH BOOKE OF Moses, called Deuteronomie.",
+		"THE BOOKE OF Joshua.",
+		"THE BOOKE OF Judges.",
+		"THE BOOKE OF Ruth.",
+		"THE FIRST BOOKE of Samuel, otherwise called, The first Booke of the Kings.",
+		"THE SECOND BOOKE of Samuel, otherwise called, The second Booke of the Kings.",
+		"THE FIRST BOOKE OF the Kings, commonly called The third Booke of the Kings.",
+		"THE SECOND BOOKE of the Kings, commonly called, The fourth Booke of the Kings.",
+		"THE FIRST BOOKE of the Chronicles.",
+		"THE SECOND BOOKE of the Chronicles.",
+		"EZRA.",
+		"THE BOOKE OF Nehemiah.",
+		"THE BOOKE OF Esther.",
+		"THE BOOKE OF Job.",
+		"THE BOOKE OF Psalmes.",
+		"THE PROVERBES.",
+		"ECCLESIASTES, or the Preacher.",
+		"The Song of Solomon.",
+		"THE BOOKE OF THE Prophet Isaiah.",
+		"THE BOOKE OF THE Prophet Jeremiah.",
+		"The Lamentations of Jeremiah.",
+		"THE BOOKE OF THE Prophet Ezekiel.",
+		"THE BOOKE OF Daniel.",
+		"HOSEA.",
+		"IOEL.",
+		"AMOS.",
+		"OBADIAH.",
+		"IONAH.",
+		"MICAH.",
+		"NAHVM.",
+		"HABAKKVK.",
+		"ZEPHANIAH.",
+		"HAGGAI.",
+		"ZECHARIAH.",
+		"MALACHI.",
+		// ----
+		"THE GOSPEL ACCORDING to S.Matthew.",
+		"The Gospel according to S.Marke.",
+		"The Gospel according to S.Luke.",
+		"The Gospel according to S. John.",
+		"THE ACTES OF the Apostles.",
+		"THE EPISTLE OF PAUL THE Apostle to the Romanes.",
+		"THE FIRST EPISTLE of Paul the Apostle to the Corinthians.",
+		"THE SECOND EPISTLE of Paul the Apostle to the Corinthians.",
+		"THE EPISTLE OF Paul to the Galatians.",
+		"THE EPISTLE OF PAUL the Apostle to the Ephesians.",
+		"THE EPISTLE OF PAUL the Apostle to the Philippians.",
+		"THE EPISTLE OF PAUL the Apostle to the Colossians.",
+		"THE FIRST EPISTLE OF Paul the Apostle to the Thessalonians.",
+		"THE SECOND EPISTLE of Paul the Apostle to the Thessalonians.",
+		"THE FIRST EPISTLE of Paul the Apostle to Timothie.",
+		"THE SECOND EPISTLE of Paul the Apostle to Timothie.",
+		"THE EPISTLE OF Paul to Titus.",
+		"THE EPISTLE OF Paul to Philemon.",
+		"THE EPISTLE OF PAUL the Apostle to the Hebrewes.",
+		"THE GENERALL Epistle of James.",
+		"THE FIRST EPISTLE generall of Peter.",
+		"THE SECOND EPISTLE generall of Peter.",
+		"THE FIRST EPISTLE generall of John.",
+		"The second Epistle of John.",
+		"The third Epistle of John.",
+		"THE GENERALL Epistle of Jude.",
+		"THE REVELATION of S.John the Divine.",
+		// ----
+		"I. ESDRAS.",
+		"II. ESDRAS.",
+		"TOBIT.",
+		"IVDETH.",
+		"The rest of the Chapters of the Booke of Esther, which are found neither in the Hebrew, nor in the Calde.",
+		"The Wisedome of Solomon.",
+		"THE WISDOME OF Jefus the sonne of Sirach, Or Ecclesiasticus.",
+		"BARVCH.",
+		"The Song of the three holy children",
+		"The historie of Susanna",
+		"The history of the destruction of Bel and the Dragon",
+		"The Prayer of Manasses King of Juda, when he was holden captive in Babylon.",
+		"The first booke of the Maccabees.",
+		"The second booke of the Maccabees.",
+	};
+
+}		// Namespace
+
+// ============================================================================
+
+// intToRoman:
+//	Convert integer to Roman Numeral.
+//	Note: b1611Style drops the 'IV' for '4'.  For some reason
+//	they wrote the number '4' as 'IIII', like 'XXIIII', etc.
+static QString intToRoman(int num, bool b1611Style)
+{
+	if ((num <= 0) || (num > 3999)) QString();
+
+	QString result;
+
+	if (!b1611Style) {
+		const int values[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+		const QString numerals[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+		Q_ASSERT(_countof(values) == _countof(numerals));
+
+		for (unsigned int i = 0; i < _countof(values); ++i) {
+			while (num >= values[i]) {
+				result += numerals[i];
+				num -= values[i];
+			}
+		}
+	} else {
+		const int values1611[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 1};
+		const QString numerals1611[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "I"};
+		Q_ASSERT(_countof(values1611) == _countof(numerals1611));
+
+		for (unsigned int i = 0; i < _countof(values1611); ++i) {
+			while (num >= values1611[i]) {
+				result += numerals1611[i];
+				num -= values1611[i];
+			}
+		}
+	}
+
+	return result;
+}
 
 // ============================================================================
 
@@ -63,12 +281,26 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextM
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
+	bool bIsKJV = false;			// Used for prologues
+	bool bIs1611 = false;			// Used for weird 1611 prologue variants
+
+	if ((pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJV).m_strUUID, Qt::CaseInsensitive) == 0) ||
+		(pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJVPCE).m_strUUID, Qt::CaseInsensitive) == 0) ||
+		(pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJVA).m_strUUID, Qt::CaseInsensitive) == 0)) {
+		bIsKJV = true;
+		Q_ASSERT(g_conlstBookProloguesKJV.size() == 80);		// 39 + 27 + 14
+	} else if ((pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJV1611).m_strUUID, Qt::CaseInsensitive) == 0) ||
+			   (pBibleDatabase->descriptor().m_strUUID.compare(bibleDescriptor(BDE_KJV1611A).m_strUUID, Qt::CaseInsensitive) == 0)) {
+		bIs1611 = true;
+		Q_ASSERT(g_conlstBookPrologues1611.size() == 80);		// 39 + 27 + 14
+	}
+
 	// Create giant array of all letters from the Bible text for speed:
 	//	NOTE: This is with the entire Bible content (sans colophons/
 	//	superscriptions when they are skipped) and not the search span
 	//	so that we don't have to convert the matrix index based on the
 	//	search span.
-	reserve(pBibleDatabase->bibleEntry().m_nNumLtr + 1);		// +1 since we reserve the 0 entry
+	reserve(pBibleDatabase->bibleEntry().m_nNumLtr + 1);		// +1 since we reserve the 0 entry (Note this fails to preallocate space for prologues since we don't know how big they will be yet)
 	append(QChar());
 	CRelIndex ndxMatrixCurrent = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_Start);
 	CRelIndex ndxMatrixEnd = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
@@ -107,15 +339,20 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextM
 		// Add prologues first:
 		bool bAddedPrologue = false;
 		if (ndxMatrixCurrent.book() != ndxMatrixLastPrologue.book()) {		// Check entering new book
-			const CBookEntry *pBook = pBibleDatabase->bookEntry(ndxMatrixCurrent);
-			Q_ASSERT(pBook != nullptr);
-			if (pBook && !pBook->m_strPrologue.isEmpty()) {
+			TPrologueEntry entryPrologue;
+			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), 0, 0, 0);
+
+			if (bIsKJV && (ndxMatrixCurrent.book() <= static_cast<unsigned int>(g_conlstBookProloguesKJV.size()))) {
+				entryPrologue.m_strPrologue = g_conlstBookProloguesKJV.at(ndxMatrixCurrent.book()-1);
+			} else if (bIs1611 && (ndxMatrixCurrent.book()<= static_cast<unsigned int>(g_conlstBookPrologues1611.size()))) {
+				entryPrologue.m_strPrologue = g_conlstBookPrologues1611.at(ndxMatrixCurrent.book()-1);
+			}
+			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+
+			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
-					for (auto const &chrLetter : pBook->m_strPrologue) append(chrLetter);
-				} else {
-					if (!pBook->m_strPrologue.isEmpty()) {
-						m_mapMatrixIndexToLetterShift[size()] += pBook->m_strPrologue.size();
-					}
+					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Book Prologue to the prologue map
+					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Book Prologue to the matrix
 				}
 			}
 			bAddedPrologue = true;
@@ -123,15 +360,32 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextM
 		}
 		if ((ndxMatrixCurrent.chapter() != ndxMatrixLastPrologue.chapter()) &&
 			(ndxMatrixCurrent.chapter() != 0)) {							// Check entering new chapter
-			const CChapterEntry *pChapter = pBibleDatabase->chapterEntry(ndxMatrixCurrent);
-			Q_ASSERT(pChapter != nullptr);
-			if (pChapter && !pChapter->m_strPrologue.isEmpty()) {
-				if (m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
-					for (auto const &chrLetter : pChapter->m_strPrologue) append(chrLetter);
+			TPrologueEntry entryPrologue;
+			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), 0, 0);
+
+			if (bIsKJV) {
+				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
+					entryPrologue.m_strPrologue = QString("PSALM %1").arg(intToRoman(ndxMatrixCurrent.chapter(), false));
 				} else {
-					if (!pChapter->m_strPrologue.isEmpty()) {
-						m_mapMatrixIndexToLetterShift[size()] += pChapter->m_strPrologue.size();
+					entryPrologue.m_strPrologue = QString("CHAPTER %1").arg(intToRoman(ndxMatrixCurrent.chapter(), false));
+				}
+			} else if (bIs1611) {
+				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
+					if (ndxMatrixCurrent.chapter() == 1) {
+						entryPrologue.m_strPrologue = QString("PSALME %1").arg(intToRoman(ndxMatrixCurrent.chapter(), true));
+					} else {
+						entryPrologue.m_strPrologue = QString("PSAL %1").arg(intToRoman(ndxMatrixCurrent.chapter(), true));
 					}
+				} else {
+					entryPrologue.m_strPrologue = QString("CHAP %1").arg(intToRoman(ndxMatrixCurrent.chapter(), true));
+				}
+			}
+			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+
+			if (!entryPrologue.m_strPrologue.isEmpty()) {
+				if (m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Chapter Prologue to the prologue map
+					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Chapter Prologue to the matrix
 				}
 			}
 			bAddedPrologue = true;
@@ -228,11 +482,13 @@ bool CLetterMatrix::runMatrixIndexRoundtripTest() const
 			for (uint32_t i = 0; ((i < 32) && (i < static_cast<uint32_t>(size()))); ++i) strTemp += at(ndx+i);
 #if TEST_MATRIX_INDEXING
 			qDebug("Real Index:     %d : %s", ndx, strTemp.toUtf8().data());
-			qDebug("relIndex: 0x%s", QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data());
+			qDebug("relIndex: 0x%s +0x%s", QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data(),
+					QString("%1").arg(relIndex.letter(), 2, 16, QChar('0')).toUpper().toUtf8().data());
 #else
 			std::cerr << "\n";
 			std::cerr << "Real Index:     " << (unsigned int)(ndx) << " : " << strTemp.toUtf8().data() << std::endl;
-			std::cerr << "relIndex: 0x" << QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data() << std::endl;
+			std::cerr << "relIndex: 0x" << QString("%1").arg(relIndex.index(), 8, 16, QChar('0')).toUpper().toUtf8().data()
+					  << " +0x" << QString("%1").arg(relIndex.letter(), 2, 16, QChar('0')).toUpper().toUtf8().data() << std::endl;
 #endif
 			strTemp.clear();
 			for (uint32_t i = 0; ((i < 32) && (i < static_cast<uint32_t>(size()))); ++i) strTemp += at(ndxTest+i);
@@ -265,15 +521,13 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 	// Note: MatrixIndex must be signed here in case the part being eliminated from
 	//	the text is larger than the text before the part being kept (like in the
 	//	Words of Jesus only mode):
-	int32_t nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(nRelIndexEx);
+	int32_t nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(CRelIndexEx(nRelIndexEx, nRelIndexEx.isPrologue() ? 0 : nRelIndexEx.letter()));
 	if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
 		if (nRelIndexEx.isColophon()) {
 			Q_ASSERT(pBook->m_bHaveColophon);
 			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(relIndex);
 			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-			// Note: BookPrologue must be included since it is included in the book letter
-			//	count, but not any verse letter count, including the colophon:
-			uint32_t nColophonShift = (pBook->m_nNumLtr - pBook->m_strPrologue.size() - pColophonVerse->m_nNumLtr);
+			uint32_t nColophonShift = (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
 			nMatrixIndex += nColophonShift;		// Shift colophon to end of book
 		} else {
 			if (pBook->m_bHaveColophon && !nRelIndexEx.isBookPrologue()) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
@@ -282,37 +536,62 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 				nMatrixIndex -= pColophonVerse->m_nNumLtr;
 			}
 		}
-
-		if (!m_flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues) && nRelIndexEx.isBookPrologue()) {
-			// If not including the book prologues, add any letters that
-			//	would normally be processed there so that the shift below
-			//	doesn't move the index backward into the previous book:
-			nMatrixIndex += pBook->m_strPrologue.size();
-		}
-
-		if (!m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues) && nRelIndexEx.isChapterPrologue()) {
-			// If not including the chapter prologues, add any letters that
-			//	would normally be processed there so that the shift below
-			//	doesn't move the index backward into the previous book:
-			const CChapterEntry *pChapter = m_pBibleDatabase->chapterEntry(relIndex);
-			Q_ASSERT(pChapter != nullptr);
-			nMatrixIndex += pChapter->m_strPrologue.size();
-		}
 	}
 
-	// Note: Since the colophon transform mapping is inserted at the
-	//	point where the colophon would be (after moving) in the matrix, then
-	//	we must do this index transform after the other colophon transforms:
+	// Add in Matrix Cells for all prologues inserted ahead of this point.
+	//	And do the letter shift shuffles concurrently.  They have to be
+	//	concurrent or the indexes being compared won't be correct:
 	// Note: These must be subtracted as we go as these shifts must be cumulative
 	//	(unlike the other direction):
-	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
-		 itrXformMatrix != m_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
-		if (static_cast<int32_t>(itrXformMatrix.key()) <= nMatrixIndex) {
-			nMatrixIndex -= itrXformMatrix.value();
+	TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
+	TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
+	bool bDoneShuffle = false;
+
+	while (!bDoneShuffle) {
+		bool bPrologue = (itrPrologues != m_mapMatrixIndexToPrologue.cend());
+		bool bXform = (itrXformMatrix != m_mapMatrixIndexToLetterShift.cend());
+		uint32_t nNextKey = std::min(bPrologue ? itrPrologues.key() : std::numeric_limits<uint32_t>::max(),
+									 bXform ? itrXformMatrix.key() : std::numeric_limits<uint32_t>::max());
+
+		if (bXform && (nNextKey == itrXformMatrix.key())) {					// Must handle text removals before insertions
+			if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
+				nMatrixIndex -= itrXformMatrix.value();
+				++itrXformMatrix;
+			} else {
+				itrXformMatrix = m_mapMatrixIndexToLetterShift.cend();		// break
+			}
+		} else if (bPrologue && (nNextKey == itrPrologues.key())) {
+			if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
+				if ((nMatrixIndex < static_cast<int32_t>(nNextKey + itrPrologues.value().m_strPrologue.size())) && nRelIndexEx.isPrologue()) {
+					// If we are currently inside a prologue, don't pass it, but
+					//	instead, stay in it so we can process it.  However, first
+					//	see if we have adjacent prologue entries by checking the
+					//	index typing:
+					if ((nRelIndexEx.isBookPrologue() && CRelIndexEx(itrPrologues.value().m_ndxBible, 1).isBookPrologue()) ||
+						(nRelIndexEx.isChapterPrologue() && CRelIndexEx(itrPrologues.value().m_ndxBible, 1).isChapterPrologue()) ||
+						(nRelIndexEx.isVersePrologue() && CRelIndexEx(itrPrologues.value().m_ndxBible, 1).isVersePrologue())) {
+						itrPrologues = m_mapMatrixIndexToPrologue.cend();		// break;
+					} else {
+						// If this prologue type doesn't match the specified Relndex Prologue type,
+						//	then keep going, as it probably means we have adjacent prologues
+						//	like book and chapter that have the same initial matrix index:
+						nMatrixIndex += itrPrologues.value().m_strPrologue.size();
+						++itrPrologues;
+					}
+				} else {
+					nMatrixIndex += itrPrologues.value().m_strPrologue.size();
+					++itrPrologues;
+				}
+			} else {
+				itrPrologues = m_mapMatrixIndexToPrologue.cend();			// break;
+			}
 		} else {
-			break;
+			bDoneShuffle = true;
 		}
 	}
+
+	// If this was a prologue, index by its letter into the matrix:
+	if (nRelIndexEx.isPrologue()) nMatrixIndex += nRelIndexEx.letter()-1;
 
 	if (nMatrixIndex < 0) nMatrixIndex = 1;		// Return first active position if real position is before anything in the matrix
 	return nMatrixIndex;
@@ -320,6 +599,23 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 
 CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 {
+	// Since this is a matrix index that's becoming a Bible Normal
+	//	index, we should first adjust for any prologues added prior
+	//	to this matrix index.  And if we are on a prologue, save it:
+	uint32_t nMatrixShift = 0;
+	for (TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
+		 itrPrologues != m_mapMatrixIndexToPrologue.cend(); ++itrPrologues) {
+		if (itrPrologues.key() <= nMatrixIndex) {
+			if (nMatrixIndex < (itrPrologues.key() + itrPrologues.value().m_strPrologue.size())) {
+				// If we are currently inside a prologue, return with its index:
+				return CRelIndexEx(itrPrologues.value().m_ndxBible, (nMatrixIndex - itrPrologues.key())+1);
+			}
+			nMatrixShift += itrPrologues.value().m_strPrologue.size();
+		} else {
+			break;
+		}
+	}
+
 	// Note: Since the colophon transform mapping is inserted at the
 	//	point where the colophon would be (after moving) in the matrix, then
 	//	we must do this index transform prior to other colophon transforms.
@@ -337,7 +633,9 @@ CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 			break;
 		}
 	}
-	nMatrixIndex += nLetterShift;
+
+	nMatrixIndex -= nMatrixShift;			// Remove letters from all of the prologues inserted ahead of current index
+	nMatrixIndex += nLetterShift;			// Add letters for all text skipped ahead of current index
 
 	// Since we are only shifting the colophons from the beginning of each book
 	//	to the end of each book, the number of letters in each book should be
@@ -352,9 +650,7 @@ CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
 			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
 			uint32_t nMatrixOldColophonNdx = pColophonVerse->m_nLtrAccum + 1;
-			// Note: BookPrologue must be included since it is included in the book letter
-			//	count, but not any verse letter count, including the colophon:
-			uint32_t nColophonShift = (pBook->m_nNumLtr - pBook->m_strPrologue.size() - pColophonVerse->m_nNumLtr);
+			uint32_t nColophonShift = (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
 			uint32_t nMatrixNewColophonNdx = nMatrixOldColophonNdx + nColophonShift;
 			if (nMatrixIndex >= nMatrixNewColophonNdx) {
 				if (!m_flagsLMTMO.testFlag(LMTMO_RemoveColophons)) {	// Don't adjust for the colophon here if we skipped it
