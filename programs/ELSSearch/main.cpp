@@ -55,7 +55,7 @@
 
 #include <iostream>
 #include <algorithm>		// for std::sort
-#include <utility>			// for std::pair
+#include <utility>			// for std::pair and std::swap
 
 #include "../KJVCanOpener/PathConsts.h"
 
@@ -395,6 +395,15 @@ int main(int argc, char *argv[])
 			bShowUsageHelp = true;
 		}
 	}
+
+	if (nSearchType != ESTE_ELS) {
+		if (nMinSkip < 1) nMinSkip = 1;
+		if (nMaxSkip < 1) nMaxSkip = 1;
+	} else {
+		if (nMinSkip < 0) nMinSkip = 0;
+		if (nMaxSkip < 0) nMaxSkip = 0;
+	}
+	if (nMaxSkip < nMinSkip) std::swap(nMinSkip, nMaxSkip);
 
 #ifndef IS_CONSOLE_APP
 

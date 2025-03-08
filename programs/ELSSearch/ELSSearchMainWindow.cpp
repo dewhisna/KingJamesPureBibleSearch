@@ -35,6 +35,8 @@
 #include "FindELS.h"
 #include "ELSResult.h"
 
+#include <utility>			// for std::swap
+
 #include "../KJVCanOpener/ReportError.h"
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
@@ -850,9 +852,15 @@ void CELSSearchMainWindow::en_changedSearchType(int nIndex)
 		if (ui->cmbSearchType->itemData(nIndex).toInt() == ESTE_ELS) {
 			ui->lblMinSkip->setText(tr("Mi&nSkip:", "CELSSearchMainWindow"));
 			ui->lblMaxSkip->setText(tr("Ma&xSkip:", "CELSSearchMainWindow"));
+
+			ui->spinMinSkip->setMinimum(0);
+			ui->spinMaxSkip->setMinimum(0);
 		} else {
 			ui->lblMinSkip->setText(tr("Mi&nMult:", "CELSSearchMainWindow"));
 			ui->lblMaxSkip->setText(tr("Ma&xMult:", "CELSSearchMainWindow"));
+
+			ui->spinMinSkip->setMinimum(1);
+			ui->spinMaxSkip->setMinimum(1);
 		}
 	} else {
 		ui->spinMinSkip->setEnabled(false);
@@ -903,6 +911,14 @@ bool CELSSearchMainWindow::search()
 
 	int nMinSkip = ui->spinMinSkip->value();
 	int nMaxSkip = ui->spinMaxSkip->value();
+	if (nSearchType != ESTE_ELS) {
+		if (nMinSkip < 1) nMinSkip = 1;
+		if (nMaxSkip < 1) nMaxSkip = 1;
+	} else {
+		if (nMinSkip < 0) nMinSkip = 0;
+		if (nMaxSkip < 0) nMaxSkip = 0;
+	}
+	if (nMaxSkip < nMinSkip) std::swap(nMinSkip, nMaxSkip);
 
 	QProgressDialog dlgProgress;
 	dlgProgress.setLabelText(tr("Searching for") + ": " + lstSearchWords.join(','));

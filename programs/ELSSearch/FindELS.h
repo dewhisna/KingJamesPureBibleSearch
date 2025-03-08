@@ -33,6 +33,7 @@
 #include <QtConcurrent>
 
 #include <numeric>			// for std::iota
+#include <utility>			// for std::swap
 
 // Forward Declarations
 class CLetterMatrix;
@@ -51,6 +52,15 @@ public:
 	template<typename ReduceFunctor>
 	QFuture<CELSResultList> future(int nMinSkip, int nMaxSkip, ReduceFunctor &&fnReduce)		// Multithread runner to compute ELS
 	{
+		if (m_nSearchType != ESTE_ELS) {
+			if (nMinSkip < 1) nMinSkip = 1;
+			if (nMaxSkip < 1) nMaxSkip = 1;
+		} else {
+			if (nMinSkip < 0) nMinSkip = 0;
+			if (nMaxSkip < 0) nMaxSkip = 0;
+		}
+		if (nMaxSkip < nMinSkip) std::swap(nMinSkip, nMaxSkip);
+
 		// Build list of skips to search:
 		m_lstSkips.clear();
 		switch (m_nSearchType) {
