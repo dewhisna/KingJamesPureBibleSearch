@@ -419,13 +419,13 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 						if (ndxMatrixCurrent.chapter() == 1) {
 							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 42) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 2, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 73) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 3, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 90) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 4, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 107) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 5, bIs1611);
 						}
 					}
 				}
