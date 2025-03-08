@@ -67,16 +67,37 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	if (m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly))
 		m_flagsLMTMO = LMTMO_WordsOfJesusOnly | LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions;	// No include book/chapter prologues
 
+	ui->cmbCPONumbers->addItem(tr("None"), LMCPO_NumbersNone);
+	ui->cmbCPONumbers->addItem(tr("Roman"), LMCPO_NumbersRoman);
+	ui->cmbCPONumbers->addItem(tr("Arabic"), LMCPO_NumbersArabic);
+	ui->cmbCPONumbers->setCurrentIndex(ui->cmbCPONumbers->findData(QVariant::fromValue(static_cast<LMChapterPrologueOptionFlags>(m_flagsLMCPO & LMCPO_NumberOptionsMask))));
+
+	ui->chkCPOPsalmBooks->setChecked(m_flagsLMCPO.testFlag(LMCPO_PsalmBookTags));
+
+	ui->cmbVPONumbers->addItem(tr("None"), LMVPO_NumbersNone);
+	ui->cmbVPONumbers->addItem(tr("Roman"), LMVPO_NumbersRoman);
+	ui->cmbVPONumbers->addItem(tr("Arabic"), LMVPO_NumbersArabic);
+	ui->cmbVPONumbers->setCurrentIndex(ui->cmbVPONumbers->findData(QVariant::fromValue(static_cast<LMVersePrologueOptionFlags>(m_flagsLMVPO & LMVPO_NumberOptionsMask))));
+
 	ui->chkWordsOfJesusOnly->setChecked(m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 	ui->chkRemoveColophons->setChecked(m_flagsLMTMO.testFlag(LMTMO_RemoveColophons));
 	ui->chkRemoveSuperscriptions->setChecked(m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions));
 	ui->chkIncludeBookPrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues));
 	ui->chkIncludeChapterPrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+	ui->chkIncludeVersePrologues->setChecked(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 
 	ui->chkRemoveColophons->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 	ui->chkRemoveSuperscriptions->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 	ui->chkIncludeBookPrologues->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
 	ui->chkIncludeChapterPrologues->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
+	ui->chkIncludeVersePrologues->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly));
+
+	ui->lblCPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+	ui->cmbCPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+	ui->chkCPOPsalmBooks->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+
+	ui->lblVPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+	ui->cmbVPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 
 	// ---------------------------------
 
@@ -88,16 +109,33 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 			if (!ui->chkRemoveSuperscriptions->isChecked()) ui->chkRemoveSuperscriptions->setChecked(true);
 			if (ui->chkIncludeBookPrologues->isChecked()) ui->chkIncludeBookPrologues->setChecked(false);
 			if (ui->chkIncludeChapterPrologues->isChecked()) ui->chkIncludeChapterPrologues->setChecked(false);
+			if (ui->chkIncludeVersePrologues->isChecked()) ui->chkIncludeVersePrologues->setChecked(false);
 
 			ui->chkRemoveColophons->setEnabled(false);
 			ui->chkRemoveSuperscriptions->setEnabled(false);
 			ui->chkIncludeBookPrologues->setEnabled(false);
 			ui->chkIncludeChapterPrologues->setEnabled(false);
+			ui->chkIncludeVersePrologues->setEnabled(false);
+
+			ui->lblCPONumbers->setEnabled(false);
+			ui->cmbCPONumbers->setEnabled(false);
+			ui->chkCPOPsalmBooks->setEnabled(false);
+
+			ui->lblVPONumbers->setEnabled(false);
+			ui->cmbVPONumbers->setEnabled(false);
 		} else {
 			ui->chkRemoveColophons->setEnabled(true);
 			ui->chkRemoveSuperscriptions->setEnabled(true);
 			ui->chkIncludeBookPrologues->setEnabled(true);
 			ui->chkIncludeChapterPrologues->setEnabled(true);
+			ui->chkIncludeVersePrologues->setEnabled(true);
+
+			ui->lblCPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+			ui->cmbCPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+			ui->chkCPOPsalmBooks->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+
+			ui->lblVPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+			ui->cmbVPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 		}
 	});
 	connect(ui->chkRemoveColophons, &QCheckBox::toggled, this, [this](bool bRemoveColophons)->void {
@@ -111,6 +149,29 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	});
 	connect(ui->chkIncludeChapterPrologues, &QCheckBox::toggled, this, [this](bool bIncludeChapterPrologues)->void {
 		m_flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, bIncludeChapterPrologues);
+
+		ui->lblCPONumbers->setEnabled(bIncludeChapterPrologues);
+		ui->cmbCPONumbers->setEnabled(bIncludeChapterPrologues);
+		ui->chkCPOPsalmBooks->setEnabled(bIncludeChapterPrologues);
+	});
+	connect(ui->chkIncludeVersePrologues, &QCheckBox::toggled, this, [this](bool bIncludeVersePrologues)->void {
+		m_flagsLMTMO.setFlag(LMTMO_IncludeVersePrologues, bIncludeVersePrologues);
+
+		ui->lblVPONumbers->setEnabled(bIncludeVersePrologues);
+		ui->cmbVPONumbers->setEnabled(bIncludeVersePrologues);
+	});
+
+	connect(ui->cmbCPONumbers, &QComboBox::currentIndexChanged, this, [this](int nIndex)->void {
+		m_flagsLMCPO &= ~LMCPO_NumberOptionsMask;
+		m_flagsLMCPO |= ui->cmbCPONumbers->itemData(nIndex).value<LMChapterPrologueOptionFlags>();
+	});
+	connect(ui->chkCPOPsalmBooks, &QCheckBox::toggled, this, [this](bool bCPOPsalmBooks)->void {
+		m_flagsLMCPO.setFlag(LMCPO_PsalmBookTags, bCPOPsalmBooks);
+	});
+
+	connect(ui->cmbVPONumbers, &QComboBox::currentIndexChanged, this, [this](int nIndex)->void {
+		m_flagsLMVPO &= ~LMVPO_NumberOptionsMask;
+		m_flagsLMVPO |= ui->cmbVPONumbers->itemData(nIndex).value<LMVersePrologueOptionFlags>();
 	});
 }
 

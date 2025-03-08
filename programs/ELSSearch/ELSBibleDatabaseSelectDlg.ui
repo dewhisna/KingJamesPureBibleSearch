@@ -29,38 +29,40 @@
     <x>0</x>
     <y>0</y>
     <width>375</width>
-    <height>280</height>
+    <height>415</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ELSSearch Select Bible Database</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="lblBible">
-       <property name="text">
-        <string>&amp;Bible</string>
-       </property>
-       <property name="buddy">
-        <cstring>cmbBible</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="cmbBible">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-    </layout>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="lblBible">
+     <property name="text">
+      <string>&amp;Bible</string>
+     </property>
+     <property name="buddy">
+      <cstring>cmbBible</cstring>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="0" column="1" colspan="3">
+    <widget class="QComboBox" name="cmbBible">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="4">
     <widget class="QCheckBox" name="chkWordsOfJesusOnly">
      <property name="text">
       <string>Words of &amp;Jesus Only
@@ -68,21 +70,21 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0" colspan="4">
     <widget class="QCheckBox" name="chkRemoveColophons">
      <property name="text">
       <string>Remove &amp;Colophons</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="3" column="0" colspan="4">
     <widget class="QCheckBox" name="chkRemoveSuperscriptions">
      <property name="text">
       <string>Remove &amp;Superscriptions</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="4" column="0" colspan="4">
     <widget class="QCheckBox" name="chkIncludeBookPrologues">
      <property name="text">
       <string>Include &amp;Book Prologues (Title, Subtitle, etc.)
@@ -90,7 +92,7 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="5" column="0" colspan="4">
     <widget class="QCheckBox" name="chkIncludeChapterPrologues">
      <property name="text">
       <string>Include &amp;Chapter Prologues (Chapter Number, etc.)
@@ -98,7 +100,74 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="lblCPONumbers">
+     <property name="text">
+      <string>Numbers:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QComboBox" name="cmbCPONumbers"/>
+   </item>
+   <item row="6" column="3">
+    <spacer name="hsCPONumbers1">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="7" column="1" colspan="3">
+    <widget class="QCheckBox" name="chkCPOPsalmBooks">
+     <property name="text">
+      <string>Include Psalm &quot;BOOK&quot;s</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="4">
+    <widget class="QCheckBox" name="chkIncludeVersePrologues">
+     <property name="text">
+      <string>Include &amp;Verse Prologues (Verse Number, etc.)
+(Works Only on English King James Databases)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLabel" name="lblVPONumbers">
+     <property name="text">
+      <string>Numbers:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="2">
+    <widget class="QComboBox" name="cmbVPONumbers"/>
+   </item>
+   <item row="9" column="3">
+    <spacer name="hsVPONumbers1">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="10" column="0" colspan="4">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -111,7 +180,7 @@
      </property>
     </spacer>
    </item>
-   <item>
+   <item row="11" column="0" colspan="4">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -130,6 +199,10 @@
   <tabstop>chkRemoveSuperscriptions</tabstop>
   <tabstop>chkIncludeBookPrologues</tabstop>
   <tabstop>chkIncludeChapterPrologues</tabstop>
+  <tabstop>lblCPONumbers</tabstop>
+  <tabstop>chkCPOPsalmBooks</tabstop>
+  <tabstop>chkIncludeVersePrologues</tabstop>
+  <tabstop>lblVPONumbers</tabstop>
  </tabstops>
  <resources/>
  <connections>
