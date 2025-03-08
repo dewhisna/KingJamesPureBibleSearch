@@ -408,6 +408,90 @@ CELSSearchMainWindow::~CELSSearchMainWindow()
 
 // ----------------------------------------------------------------------------
 
+// ===========================================
+// .els Search Transcript File Format Details:
+// ===========================================
+//
+// Basic file is a zlib-stream deflated CSV file
+//
+// ELSFileVersion,<version>
+//	File Format/Version Header
+//		<version> = ELS File version
+//			Example: ELSFileVersion,4
+//
+// Bible,<uuid>,<LMTMO>[,<LMBPO>,<LMCPO>,<LMVPO>]
+//	Bible and Letter Matrix settings from CELSBibleDatabaseSelectDlg
+//		<uuid> = Bible Database UUID unique identifier
+//		<LMTMO> = LetterMatrixTextModifierOptions as decimal integer
+//		<LMBPO> = LMBookPrologueOptions as decimal integer
+//		<LMCPO> = LMChapterPrologueOptions as decimal integer
+//		<LMVPO> = LMVersePrologueOptions as decimal integer
+//			<LMBPO>,<LMCPO>,<LMVPO> are optional and was added in ELS Version 4
+//			Example: Bible,85D8A6B0-E670-11E2-A28F-0800200C9A66,0,0,1,0
+//
+// Search,<words>,<SearchType>,<MinSkip>,<MaxSkip>,<StartBook>,<EndBook>[,<CaseSensitive>]
+//	Word Search Entry
+//		<words> = Comma separated list of words to search (quoted in single field)
+//		<SearchType> = ELS_SEARCH_TYPE_ENUM value as elsSearchTypeToID() ID string
+//		<MinSkip> = Minimum skip for search as decimal integer
+//		<MaxSkip> = Maximum skip for search as decimal integer
+//		<StartBook> = 1-originated Bible Book Number to start the search as decimal integer
+//		<EndBook> = 1-originated Bible Book Number to end the search as decimal integer
+//		<CaseSensitive> = Boolean (true/false) flag to search case-sensitive WRT original text
+//			<CaseSensitive> is optional and was added in ELS Version 4
+//			Example: Search,roswell,ELS,3,3,1,66,false
+//
+// Delete,<count>,<ELSResult>
+//	ELSResult Deletion Entry
+//		<count> = Number of ELSResult values in array
+//		<ELSResult> = New-Line separated of ELSResult entries, with each entry being
+//					the unique data portion of CELSResult as a comma-separated entry as:
+//					<word>,<skip>,<SearchType>,<CRelIndexExStart>,<Dir>
+//						<word> = Search word for the result
+//						<skip> = Skip distance word was found at
+//						<SearchType> = ELS_SEARCH_TYPE_ENUM value as elsSearchTypeToID() ID string
+//						<CRelIndexExStart> = Start CRelIndexEx location as 64-bit integer
+//						<Dir> = Direction result was found as "Fwd" or "Rev" for LeftToRight or RightToLeft, respectively
+//			Example: Delete,3,"ufo,11,ELS,80538144402833416,Fwd
+//			         ","ufo,11,ELS,79699208440905732,Fwd
+//			         ","ufo,11,ELS,73759685282365442,Rev
+//			         "
+//
+// Width,<width>
+//	Letter Matrix display width value
+//		<width> = Matrix Width as decimal integer
+//			Example: Width,4
+//
+// Offset,<offset>
+//	Letter Matrix display offset value
+//		<offset> = Matrix Offset as decimal integer
+//			Example: Offset,0
+//
+// SortOrder,<SortOrder>
+//	ELSResult output sort order
+//		<SortOrder> = ELSRESULT_SORT_ORDER_ENUM value as elsresultSortOrderToLetters() ID string
+//			Example: SortOrder,rws
+//
+// UpperCase,<UpperCase>
+//	Display Letter Matrix and ELSResult words in uppercase instead of lowercase [DEPRECATED in ELS Version 4 -- USE LetterCase instead]
+//		<UpperCase> = Boolean (true/false) flag with true being uppercase and false being lowercase
+//			Example: Uppercase,false
+//
+// LetterCase,<LetterCase>
+//	Display Case for Letter Matrix and ELSResult words [Replaces UpperCase, introduced in ELS Version 4]
+//		<LetterCase> = LETTER_CASE_ENUM value as letterCaseToID() ID string
+//			Example: LetterCase,lower
+//
+// MatrixTopLeftRowCol,<Row>,<Col>
+//	Row and Column for the Letter Matrix display "scroll-to" position
+//		<Row> = 0-originated row of the Letter Matrix for the Top-Left cell as decimal integer
+//		<Col> = 0-originated column of the Letter Matrix for the Top-Left cell as decimal integer
+//			Example: MatrixTopLeftRowCol,21925,0
+//
+//
+
+// ----------------------------------------------------------------------------
+
 #ifdef USING_ELSSEARCH
 void CELSSearchMainWindow::newELSSearchWindow()
 {
