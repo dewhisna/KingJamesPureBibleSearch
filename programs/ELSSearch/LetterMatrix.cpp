@@ -389,7 +389,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		bool bAddedPrologue = false;
 		if (ndxMatrixCurrent.book() != ndxMatrixLastPrologue.book()) {		// Check entering new book
 			TPrologueEntry entryPrologue;
-			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), 0, 0, 0);
+			entryPrologue.m_ndxPrologue = CRelIndex(ndxMatrixCurrent.book(), 0, 0, 0);
 
 			if (bIsKJV && (ndxMatrixCurrent.book() <= static_cast<unsigned int>(g_conlstBookProloguesKJV.size()))) {
 				entryPrologue.m_strPrologue = g_conlstBookProloguesKJV.at(ndxMatrixCurrent.book()-1);
@@ -411,7 +411,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		if ((ndxMatrixCurrent.chapter() != ndxMatrixLastPrologue.chapter()) &&
 			(ndxMatrixCurrent.chapter() != 0)) {							// Check entering new chapter
 			TPrologueEntry entryPrologue;
-			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), 0, 0);
+			entryPrologue.m_ndxPrologue = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), 0, 0);
 
 			if (bIsKJV || bIs1611) {
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
@@ -462,7 +462,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		if ((ndxMatrixCurrent.verse() != ndxMatrixLastPrologue.verse()) &&
 			(ndxMatrixCurrent.verse() != 0)) {							// Check entering new verse
 			TPrologueEntry entryPrologue;
-			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), ndxMatrixCurrent.verse(), 0);
+			entryPrologue.m_ndxPrologue = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), ndxMatrixCurrent.verse(), 0);
 
 			if (bIsKJV || bIs1611) {
 				entryPrologue.m_strPrologue += verseNumber(QString(), m_flagsLMVPO, ndxMatrixCurrent.verse(), bIs1611);
@@ -638,6 +638,7 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 		TMapMatrixIndexToPrologue::const_iterator m_itr;
 	};
 	QList<TFoundPrologue> lstFoundPrologues;
+	lstFoundPrologues.reserve(3);				// Room for book, chapter, and verse prologues
 
 	while (!bDoneShuffle) {
 		bool bPrologue = (itrPrologues != m_mapMatrixIndexToPrologue.cend());
@@ -657,8 +658,8 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 				if ((static_cast<int32_t>(nNextKey) == nMatrixIndex) &&
 					(nMatrixIndex < static_cast<int32_t>(nNextKey + itrPrologues.value().m_strPrologue.size())) &&
 					nRelIndexEx.isPrologue()) {
-					// If we are currently inside a prologue, add it to the
-					//	list so we can return the best prologue that fits request:
+					// If we are currently inside a prologue, add it to the list
+					//	so we can return the best prologue that fits the request:
 					TFoundPrologue fp;
 					fp.m_nMatrixIndex = nMatrixIndex;
 					fp.m_itr = itrPrologues;
@@ -674,26 +675,32 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 		}
 	}
 
+	// If this was a prologue, find the best fit prologue part for
+	//	that requested and index by its letter into the matrix:
 	if (!lstFoundPrologues.isEmpty()) {
 		Q_ASSERT(nRelIndexEx.isPrologue());
-		// If this was a prologue, find the best fit prologue part for
-		//	that requested and index by its letter into the matrix:
-		TFoundPrologue fp;
-		if (nRelIndexEx.isBookPrologue()) {
-			fp = lstFoundPrologues.first();
-		} else if (nRelIndexEx.isVersePrologue()) {
-			fp = lstFoundPrologues.last();
-		} else {
-			Q_ASSERT(nRelIndexEx.isChapterPrologue());
-			for (auto const & prologue : lstFoundPrologues) {
-				if (CRelIndexEx(prologue.m_itr.value().m_ndxBible, 1).isChapterPrologue()) {
-					fp = prologue;
-					break;
-				}
+		// First, try to find exact match:
+		int32_t nFoundMatrixIndex = 0;
+		for (auto const & prologue : lstFoundPrologues) {
+			CRelIndexEx ndxPrologue(prologue.m_itr.value().m_ndxPrologue, 1);
+			if ((ndxPrologue.isBookPrologue() && nRelIndexEx.isBookPrologue()) ||
+				(ndxPrologue.isChapterPrologue() && nRelIndexEx.isChapterPrologue()) ||
+				(ndxPrologue.isVersePrologue() && nRelIndexEx.isVersePrologue())) {
+				nFoundMatrixIndex = prologue.m_nMatrixIndex;
+				break;
 			}
-			if (fp.m_nMatrixIndex == 0) fp = lstFoundPrologues.first();
 		}
-		nMatrixIndex = fp.m_nMatrixIndex + nRelIndexEx.letter()-1;
+		// If no exact match, find closest match:
+		if (nFoundMatrixIndex == 0) {
+			if (nRelIndexEx.isBookPrologue()) {
+				nFoundMatrixIndex = lstFoundPrologues.first().m_nMatrixIndex;	// Book -> Chapter -> Verse
+			} else if (nRelIndexEx.isVersePrologue()) {
+				nFoundMatrixIndex = lstFoundPrologues.last().m_nMatrixIndex;	// Verse -> Chapter -> Book
+			} else {
+				nFoundMatrixIndex = lstFoundPrologues.first().m_nMatrixIndex;	// Chapter -> Book -> Verse
+			}
+		}
+		nMatrixIndex = nFoundMatrixIndex + nRelIndexEx.letter()-1;
 	}
 
 	if (nMatrixIndex < 0) nMatrixIndex = 1;		// Return first active position if real position is before anything in the matrix
@@ -711,7 +718,7 @@ CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 		if (itrPrologues.key() <= nMatrixIndex) {
 			if (nMatrixIndex < (itrPrologues.key() + itrPrologues.value().m_strPrologue.size())) {
 				// If we are currently inside a prologue, return with its index:
-				return CRelIndexEx(itrPrologues.value().m_ndxBible, (nMatrixIndex - itrPrologues.key())+1);
+				return CRelIndexEx(itrPrologues.value().m_ndxPrologue, (nMatrixIndex - itrPrologues.key())+1);
 			}
 			nMatrixShift += itrPrologues.value().m_strPrologue.size();
 		} else {

@@ -143,7 +143,7 @@ private:
 	//	relIndexFromMatrixIndex() function so much easier to deal with.
 	struct TPrologueEntry {
 		QString m_strPrologue;
-		CRelIndex m_ndxBible;			// RelIndex in the Bible, used to determine if this is a book, chapter, or verse prologue
+		CRelIndex m_ndxPrologue;		// RelIndex for the prologue, used to determine if this is a book, chapter, or verse prologue
 	};
 	typedef QMap<uint32_t, TPrologueEntry> TMapMatrixIndexToPrologue;	// MatrixIndex -> PrologeEntry
 	TMapMatrixIndexToPrologue m_mapMatrixIndexToPrologue;				// Note: This is things to add
