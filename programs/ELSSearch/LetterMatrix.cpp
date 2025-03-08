@@ -633,6 +633,11 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 	TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
 	TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
 	bool bDoneShuffle = false;
+	struct TFoundPrologue {
+		int32_t m_nMatrixIndex = 0;
+		TMapMatrixIndexToPrologue::const_iterator m_itr;
+	};
+	QList<TFoundPrologue> lstFoundPrologues;
 
 	while (!bDoneShuffle) {
 		bool bPrologue = (itrPrologues != m_mapMatrixIndexToPrologue.cend());
@@ -649,26 +654,18 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 			}
 		} else if (bPrologue && (nNextKey == itrPrologues.key())) {
 			if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
-				if ((nMatrixIndex < static_cast<int32_t>(nNextKey + itrPrologues.value().m_strPrologue.size())) && nRelIndexEx.isPrologue()) {
-					// If we are currently inside a prologue, don't pass it, but
-					//	instead, stay in it so we can process it.  However, first
-					//	see if we have adjacent prologue entries by checking the
-					//	index typing:
-					if ((nRelIndexEx.isBookPrologue() && CRelIndexEx(itrPrologues.value().m_ndxBible, 1).isBookPrologue()) ||
-						(nRelIndexEx.isChapterPrologue() && CRelIndexEx(itrPrologues.value().m_ndxBible, 1).isChapterPrologue()) ||
-						(nRelIndexEx.isVersePrologue() && CRelIndexEx(itrPrologues.value().m_ndxBible, 1).isVersePrologue())) {
-						itrPrologues = m_mapMatrixIndexToPrologue.cend();		// break;
-					} else {
-						// If this prologue type doesn't match the specified Relndex Prologue type,
-						//	then keep going, as it probably means we have adjacent prologues
-						//	like book and chapter that have the same initial matrix index:
-						nMatrixIndex += itrPrologues.value().m_strPrologue.size();
-						++itrPrologues;
-					}
-				} else {
-					nMatrixIndex += itrPrologues.value().m_strPrologue.size();
-					++itrPrologues;
+				if ((static_cast<int32_t>(nNextKey) == nMatrixIndex) &&
+					(nMatrixIndex < static_cast<int32_t>(nNextKey + itrPrologues.value().m_strPrologue.size())) &&
+					nRelIndexEx.isPrologue()) {
+					// If we are currently inside a prologue, add it to the
+					//	list so we can return the best prologue that fits request:
+					TFoundPrologue fp;
+					fp.m_nMatrixIndex = nMatrixIndex;
+					fp.m_itr = itrPrologues;
+					lstFoundPrologues.append(fp);
 				}
+				nMatrixIndex += itrPrologues.value().m_strPrologue.size();
+				++itrPrologues;
 			} else {
 				itrPrologues = m_mapMatrixIndexToPrologue.cend();			// break;
 			}
@@ -677,8 +674,27 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 		}
 	}
 
-	// If this was a prologue, index by its letter into the matrix:
-	if (nRelIndexEx.isPrologue()) nMatrixIndex += nRelIndexEx.letter()-1;
+	if (!lstFoundPrologues.isEmpty()) {
+		Q_ASSERT(nRelIndexEx.isPrologue());
+		// If this was a prologue, find the best fit prologue part for
+		//	that requested and index by its letter into the matrix:
+		TFoundPrologue fp;
+		if (nRelIndexEx.isBookPrologue()) {
+			fp = lstFoundPrologues.first();
+		} else if (nRelIndexEx.isVersePrologue()) {
+			fp = lstFoundPrologues.last();
+		} else {
+			Q_ASSERT(nRelIndexEx.isChapterPrologue());
+			for (auto const & prologue : lstFoundPrologues) {
+				if (CRelIndexEx(prologue.m_itr.value().m_ndxBible, 1).isChapterPrologue()) {
+					fp = prologue;
+					break;
+				}
+			}
+			if (fp.m_nMatrixIndex == 0) fp = lstFoundPrologues.first();
+		}
+		nMatrixIndex = fp.m_nMatrixIndex + nRelIndexEx.letter()-1;
+	}
 
 	if (nMatrixIndex < 0) nMatrixIndex = 1;		// Return first active position if real position is before anything in the matrix
 	return nMatrixIndex;
