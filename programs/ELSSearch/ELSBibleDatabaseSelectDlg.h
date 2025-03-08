@@ -55,7 +55,9 @@ public:
 	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
 
 private slots:
-	void en_selectionChanged(int nIndex);
+	void en_BibleSelectionChanged(int nIndex);
+	void en_CPONumberSelectionChanged(int nIndex);
+	void en_VPONumberSelectionChanged(int nIndex);
 
 private:
 	Ui::CELSBibleDatabaseSelectDlg *ui;
