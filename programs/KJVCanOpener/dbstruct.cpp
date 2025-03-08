@@ -1264,6 +1264,9 @@ uint32_t CBibleDatabase::TVersificationLayout::NormalizeIndexEx(const CRelIndexE
 	} else {
 		if (nVrs != 0) return 0;
 	}
+	if (ndxRelIndexEx.isVersePrologue()) {
+		return m_lstBookVerses.at(nBk-1).at(CRelIndex(nBk,nChp,nVrs,0)).m_nLtrAccum + nLtr;
+	}
 	if (nWrd > (m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nNumWrd) return 0;
 
 	nWordNormal = ((m_lstBookVerses.at(nBk-1)).at(CRelIndex(nBk,nChp,nVrs,0)).m_nWrdAccum + nWrd);
