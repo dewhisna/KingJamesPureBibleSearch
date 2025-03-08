@@ -370,6 +370,14 @@ int main(int argc, char *argv[])
 			flagsLMTMO.setFlag(LMTMO_IncludeBookPrologues, true);
 		} else if (strArg.compare("-scp") == 0) {
 			flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, true);
+		} else if (strArg.compare("-svp") == 0) {
+			flagsLMTMO.setFlag(LMTMO_IncludeVersePrologues, true);
+		} else if (strArg.startsWith("-cpn")) {
+			flagsLMCPO |= static_cast<LMChapterPrologueOptions>(strArg.mid(4).toUInt() & LMCPO_NumberOptionsMask);
+		} else if (strArg.compare("-cppb") == 0) {
+			flagsLMCPO.setFlag(LMCPO_PsalmBookTags, true);
+		} else if (strArg.startsWith("-vpn")) {
+			flagsLMVPO |= static_cast<LMVersePrologueOptions>(strArg.mid(4).toUInt() & LMVPO_NumberOptionsMask);
 		} else if (strArg.compare("-l") == 0) {
 			nLetterCase = LCE_LOWER;
 		} else if (strArg.compare("-u") == 0) {
@@ -457,8 +465,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	// TODO : Finish options for BPO/CPO/VPO
-
 	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bShowUsageHelp = true;	// Each word must have at least two characters
 	if (lstSearchWords.isEmpty() && !bTestMode) bShowUsageHelp = true;		// Must have at least one search word
 
@@ -478,12 +484,22 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  --test     =  Run regression tests (preempts all search option, only pass <UUID-Index>)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
-		std::cerr << QString("  -c     =  Case-Sensitive search (default is not case-sensitive)\n").data();
+		std::cerr << QString("  -c     =  Case-Sensitive search (default is not case-sensitive)\n").toUtf8().data();
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -sj    =  Search Words of Jesus Only\n").toUtf8().data();
 		std::cerr << QString("  -sbp   =  Search Book Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -scp   =  Search Chapter Prologues (Chapter Number, etc.)\n").toUtf8().data();
+		std::cerr << QString("  -svp   =  Search Verse Prologues (Verse Number, etc.)\n").toUtf8().data();
+		std::cerr << QString("  -cpn<n>=  Chapter Prologue Numeral Format, where <n> is:\n").toUtf8().data();
+		std::cerr << QString("              0 = None (default)\n").toUtf8().data();
+		std::cerr << QString("              1 = Roman\n").toUtf8().data();
+		std::cerr << QString("              2 = Arabic\n").toUtf8().data();
+		std::cerr << QString("  -cppb  =  Chapter Prologues enable Psalms \"BOOK\"s tags\n").toUtf8().data();
+		std::cerr << QString("  -vpn<n>=  Verse Prologue Numeral Format, where <n> is:\n").toUtf8().data();
+		std::cerr << QString("              0 = None (default)\n").toUtf8().data();
+		std::cerr << QString("              1 = Roman\n").toUtf8().data();
+		std::cerr << QString("              2 = Arabic\n").toUtf8().data();
 		std::cerr << QString("  -l     =  Print Output Text in all lowercase (this is the default)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -o     =  Print Output Text in original case (default is lowercase)\n").toUtf8().data();
