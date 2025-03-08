@@ -43,7 +43,8 @@ class CLetterMatrix;
 class CFindELS
 {
 public:
-	CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords, ELS_SEARCH_TYPE_ENUM nSearchType);
+	CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords,
+				ELS_SEARCH_TYPE_ENUM nSearchType, bool bCaseSensitive);
 
 	bool setBookEnds(unsigned int nBookStart = 0, unsigned int nBookEnd = 0);
 	unsigned int bookStart() const { return m_nBookStart; }
@@ -183,7 +184,8 @@ private:
 	// Concurrent Threading function to locate the ELS entries for a single skip distance:
 	static CELSResultList findELS(int nSkip, const CLetterMatrix &letterMatrix,
 								  const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
-								  unsigned int nBookStart, unsigned int nBookEnd, ELS_SEARCH_TYPE_ENUM nSearchType);
+								  unsigned int nBookStart, unsigned int nBookEnd, ELS_SEARCH_TYPE_ENUM nSearchType,
+								  bool bCaseSensitive);
 
 private:
 	QList<int> m_lstSkips;
@@ -193,6 +195,7 @@ private:
 	unsigned int m_nBookStart = 0;
 	unsigned int m_nBookEnd = 0;
 	ELS_SEARCH_TYPE_ENUM m_nSearchType = ESTE_ELS;
+	bool m_bCaseSensitive = false;
 	// ----
 	static int g_conFibonacciCast9[8][24];
 };

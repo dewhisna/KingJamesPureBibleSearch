@@ -134,7 +134,8 @@ uint32_t CFindELS::nominalIndex(uint32_t ndxStart, uint32_t ndxEnd, ELS_SEARCH_T
 // Concurrent Threading function to locate the ELS entries for a single skip distance:
 CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 				  const QStringList &lstSearchWords, const QStringList &lstSearchWordsRev,
-				  unsigned int nBookStart, unsigned int nBookEnd, ELS_SEARCH_TYPE_ENUM nSearchType)
+				  unsigned int nBookStart, unsigned int nBookEnd, ELS_SEARCH_TYPE_ENUM nSearchType,
+				  bool bCaseSensitive)
 {
 	// Results storage (for this skip):
 	CELSResultList lstResults;
@@ -193,7 +194,7 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 			for (int ndxWord = ndxSearchWord; ndxWord < lstSearchWords.size(); ++ndxWord) {
 				if (lstSearchWords.at(ndxWord).size() != nLen) break;				// Check all words of this length only and exit when we hit a longer word
-				if (strWord.compare(lstSearchWords.at(ndxWord), Qt::CaseInsensitive) == 0) {				// Check forward direction
+				if (strWord.compare(lstSearchWords.at(ndxWord), bCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) == 0) {				// Check forward direction
 					CELSResult result;
 					result.m_strWord = strWord;
 					result.m_nSkip = nSkip;
@@ -203,7 +204,7 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 					result.m_ndxNominal = letterMatrix.relIndexFromMatrixIndex(matrixIndexNominalLetter);
 					result.m_nDirection = Qt::LeftToRight;
 					lstResults.append(result);
-				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord), Qt::CaseInsensitive) == 0) {	// Check reverse direction
+				} else if (strWord.compare(lstSearchWordsRev.at(ndxWord), bCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive) == 0) {		// Check reverse direction
 					CELSResult result;
 					result.m_strWord = lstSearchWords.at(ndxWord);		// Result is always forward ordered word
 					result.m_nSkip = nSkip;
@@ -225,10 +226,12 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 // ============================================================================
 
-CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords, ELS_SEARCH_TYPE_ENUM nSearchType)
+CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSearchWords,
+					ELS_SEARCH_TYPE_ENUM nSearchType, bool bCaseSensitive)
 	:	m_letterMatrix(letterMatrix),
 		m_lstSearchWords(lstSearchWords),
-		m_nSearchType(nSearchType)
+		m_nSearchType(nSearchType),
+		m_bCaseSensitive(bCaseSensitive)
 {
 	initFibonacciCast9Table();
 
@@ -238,8 +241,10 @@ CFindELS::CFindELS(const CLetterMatrix &letterMatrix, const QStringList &lstSear
 		if (m_lstSearchWords.at(ndx).size() < 2) m_lstSearchWords.removeAt(ndx);
 	}
 
-	// Make all search words lower case and sort by ascending word length:
-	for (auto &strSearchWord : m_lstSearchWords) strSearchWord = strSearchWord.toLower();
+	// Make all search words lower case (if not case sensitive) and sort by ascending word length:
+	if (!m_bCaseSensitive) {
+		for (auto &strSearchWord : m_lstSearchWords) strSearchWord = strSearchWord.toLower();
+	}
 	std::sort(m_lstSearchWords.begin(), m_lstSearchWords.end(), [](const QString &s1, const QString &s2)->bool {
 		return (s1.size() < s2.size());
 	});
@@ -278,7 +283,8 @@ bool CFindELS::setBookEnds(unsigned int nBookStart, unsigned int nBookEnd)
 
 CELSResultList CFindELS::run(int nSkip) const
 {
-	return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev, m_nBookStart, m_nBookEnd, m_nSearchType);
+	return findELS(nSkip, m_letterMatrix, m_lstSearchWords, m_lstSearchWordsRev,
+					m_nBookStart, m_nBookEnd, m_nSearchType, m_bCaseSensitive);
 }
 
 // ============================================================================

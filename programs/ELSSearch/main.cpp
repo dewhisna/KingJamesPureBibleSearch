@@ -322,6 +322,7 @@ int main(int argc, char *argv[])
 	int nMinSkip = 0;
 	int nMaxSkip = 0;
 	ELS_SEARCH_TYPE_ENUM nSearchType = ESTE_ELS;
+	bool bCaseSensitive = false;
 	QStringList lstSearchWords;
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
@@ -357,6 +358,8 @@ int main(int argc, char *argv[])
 			}
 		} else if (strArg.compare("-mt") == 0) {
 			bRunMultithreaded = true;
+		} else if (strArg.compare("-c") == 0) {
+			bCaseSensitive = true;
 		} else if (strArg.compare("-sc") == 0) {
 			flagsLMTMO.setFlag(LMTMO_RemoveColophons, true);
 		} else if (strArg.compare("-ss") == 0) {
@@ -367,6 +370,8 @@ int main(int argc, char *argv[])
 			flagsLMTMO.setFlag(LMTMO_IncludeBookPrologues, true);
 		} else if (strArg.compare("-scp") == 0) {
 			flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, true);
+		} else if (strArg.compare("-l") == 0) {
+			nLetterCase = LCE_LOWER;
 		} else if (strArg.compare("-u") == 0) {
 			nLetterCase = LCE_UPPER;
 		} else if (strArg.compare("-o") == 0) {
@@ -473,11 +478,13 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  --test     =  Run regression tests (preempts all search option, only pass <UUID-Index>)\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("  -mt    =  Run Multi-Threaded\n").toUtf8().data();
+		std::cerr << QString("  -c     =  Case-Sensitive search (default is not case-sensitive)\n").data();
 		std::cerr << QString("  -sc    =  Skip Colophons\n").toUtf8().data();
 		std::cerr << QString("  -ss    =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -sj    =  Search Words of Jesus Only\n").toUtf8().data();
 		std::cerr << QString("  -sbp   =  Search Book Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -scp   =  Search Chapter Prologues (Chapter Number, etc.)\n").toUtf8().data();
+		std::cerr << QString("  -l     =  Print Output Text in all lowercase (this is the default)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -o     =  Print Output Text in original case (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -bb<n> =  Begin Searching in Book <n> (defaults to first)\n").toUtf8().data();
@@ -545,7 +552,7 @@ int main(int argc, char *argv[])
 	elapsedTime.start();
 	std::cerr << "Searching";
 
-	CFindELS elsFinder(letterMatrix, lstSearchWords, nSearchType);
+	CFindELS elsFinder(letterMatrix, lstSearchWords, nSearchType, bCaseSensitive);
 	if (!elsFinder.setBookEnds(nBookStart, nBookEnd)) {
 		std::cerr << QString("\n*** ERROR: Invalid Book Begin/End specified.  Database has books 1 through %1!\n")
 						 .arg(pBibleDatabase->bibleEntry().m_nNumBk).toUtf8().data();
@@ -566,14 +573,28 @@ int main(int argc, char *argv[])
 	}
 
 	// Results counts:
+	QMap<QString, QString> mapResultWords;
 	QMap<QString, int> mapResultsWordCountForward;
 	QMap<QString, int> mapResultsWordCountReverse;
 
 	for (auto const & result : lstResults) {
+		QString strWord;
+		switch (nLetterCase) {
+			case LCE_LOWER:
+				strWord = result.m_strWord.toLower();
+				break;
+			case LCE_UPPER:
+				strWord = result.m_strWord.toUpper();
+				break;
+			case LCE_ORIGINAL:
+				strWord = result.m_strWord;
+				break;
+		}
+		mapResultWords[strWord] = strWord;
 		if (result.m_nDirection == Qt::LeftToRight) {
-			mapResultsWordCountForward[result.m_strWord]++;
+			mapResultsWordCountForward[strWord]++;
 		} else {
-			mapResultsWordCountReverse[result.m_strWord]++;
+			mapResultsWordCountReverse[strWord]++;
 		}
 	}
 
@@ -599,28 +620,17 @@ int main(int argc, char *argv[])
 	} else {
 		std::cout << "Searching in " << strBookRange.toUtf8().data() << "\n";
 	}
+	std::cout << (bCaseSensitive ? "Case-Sensitive" : "Case-Insensitive") << "\n";
 
 	QString strTemp = letterMatrix.getOptionDescription(false);
 	if (!strTemp.isEmpty()) std::cout << strTemp.toUtf8().data();
 
 	// Print Summary:
 	std::cout << "\nWord Occurrence Counts:\n";
-	for (int i = 0; i < lstSearchWords.size(); ++i) {
-		QString strWord;
-		switch (nLetterCase) {
-			case LCE_LOWER:
-				strWord = lstSearchWords.at(i).toLower();
-				break;
-			case LCE_UPPER:
-				strWord = lstSearchWords.at(i).toUpper();
-				break;
-			case LCE_ORIGINAL:
-				strWord = lstSearchWords.at(i);
-				break;
-		}
+	for (auto const & strWord : mapResultWords) {
 		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(strWord)
-						 .arg(mapResultsWordCountForward[lstSearchWords.at(i)])
-						 .arg(mapResultsWordCountReverse[lstSearchWords.at(i)]).toUtf8().data();
+						 .arg(mapResultsWordCountForward[strWord])
+						 .arg(mapResultsWordCountReverse[strWord]).toUtf8().data();
 	}
 	std::cout << "\n";
 

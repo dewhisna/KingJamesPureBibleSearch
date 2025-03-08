@@ -586,7 +586,7 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					ui->tvLetterMatrix->scrollTo(index, QAbstractItemView::PositionAtTop);
 				}
 			} else if (strCommand.compare("Search", Qt::CaseInsensitive) == 0) {
-				if (lstEntry.size() != 7) {
+				if ((lstEntry.size() != 7) && (lstEntry.size() != 8)) {
 					bBadELSFile = true;
 					break;
 				}
@@ -595,6 +595,9 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					int nIndexSearchType = ui->cmbSearchType->findData(nSearchType);
 					int nIndexBookStart = ui->cmbBookStart->findData(lstEntry.at(5).toUInt());
 					int nIndexBookEnd = ui->cmbBookEnd->findData(lstEntry.at(6).toUInt());
+					bool bCaseSensitive = false;
+					if (lstEntry.size() >= 8) bCaseSensitive = QVariant(lstEntry.at(7)).toBool();
+					ui->chkCaseSensitive->setChecked(bCaseSensitive);
 					if ((nIndexSearchType >= 0) &&
 						(nIndexBookStart >= 0) &&
 						(nIndexBookEnd >= 0)) {
@@ -900,7 +903,7 @@ bool CELSSearchMainWindow::search()
 	if (lstSearchWords.isEmpty()) return false;
 
 	ELS_SEARCH_TYPE_ENUM nSearchType = ui->cmbSearchType->currentData().value<ELS_SEARCH_TYPE_ENUM>();
-	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords, nSearchType);
+	CFindELS elsFinder(m_pLetterMatrixTableModel->matrix(), lstSearchWords, nSearchType, ui->chkCaseSensitive->isChecked());
 	if (!elsFinder.setBookEnds(ui->cmbBookStart->currentData().toUInt(), ui->cmbBookEnd->currentData().toUInt())) {
 		Q_ASSERT(false);
 		displayWarning(this, QApplication::applicationName(), tr("Failed to set Book Range!"));
@@ -923,7 +926,8 @@ bool CELSSearchMainWindow::search()
 	QProgressDialog dlgProgress;
 	dlgProgress.setLabelText(tr("Searching for") + ": " + lstSearchWords.join(','));
 
-	insertSearchLogText(tr("Searching for") + ": " + lstSearchWords.join(','));
+	insertSearchLogText(tr("Searching for") + ": " + lstSearchWords.join(',') +
+						" (" + (ui->chkCaseSensitive->isChecked() ? tr("Case-Sensitive") : tr("Case-Insensitive")) + ")");
 	insertSearchLogText(tr("Search Type") + ": " + elsSearchTypeDescription(nSearchType));
 
 	QElapsedTimer elapsedTime;
@@ -991,6 +995,7 @@ bool CELSSearchMainWindow::search()
 				QString::number(nMaxSkip),
 				QString::number(nBookStart),
 				QString::number(nBookEnd),
+				QVariant(ui->chkCaseSensitive->isChecked()).toString(),
 			};
 		}
 #endif
