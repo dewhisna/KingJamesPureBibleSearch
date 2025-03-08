@@ -158,7 +158,12 @@ public:
 
 public slots:
 #ifdef USING_ELSSEARCH
-	CELSSearchMainWindow *launchELSSearch(const QString &strUUID = QString(), LetterMatrixTextModifierOptionFlags flagsTMO = LMTMO_None, QWidget *pParent = nullptr);
+	CELSSearchMainWindow *launchELSSearch(const QString &strUUID = QString(),
+										  LetterMatrixTextModifierOptionFlags flagsTMO = LMTMO_None,
+										  LMBookPrologueOptionFlags flagsLMBPO = LMBPO_None,
+										  LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_None,
+										  LMVersePrologueOptionFlags flagsLMVPO = LMVPO_None,
+										  QWidget *pParent = nullptr);
 #endif
 
 	bool openKJVSearchFile(const QString &strFilePathName);

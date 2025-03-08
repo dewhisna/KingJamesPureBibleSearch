@@ -249,6 +249,48 @@ static QString intToRoman(int num, bool b1611Style)
 	return result;
 }
 
+// ----------------------------------------------------------------------------
+
+QString chapterNumber(const QString &strPrefix, LMChapterPrologueOptionFlags flagsCPO, uint32_t nNumber, bool b1611)
+{
+	QString strChapNumber;
+	switch (flagsCPO & LMCPO_NumberOptionsMask) {
+		case LMCPO_NumbersRoman:
+			strChapNumber = intToRoman(nNumber, b1611);
+			break;
+
+		case LMCPO_NumbersArabic:
+			strChapNumber = QString::number(nNumber);
+			break;
+
+		case LMCPO_NumbersNone:
+		default:
+			break;
+	}
+
+	return strPrefix + ((!strPrefix.isEmpty() && !strChapNumber.isEmpty()) ? " " : "") + strChapNumber;
+}
+
+QString verseNumber(const QString &strPrefix, LMVersePrologueOptionFlags flagsVPO, uint32_t nNumber, bool b1611)
+{
+	QString strVrsNumber;
+	switch (flagsVPO & LMVPO_NumberOptionsMask) {
+		case LMVPO_NumbersRoman:
+			strVrsNumber = intToRoman(nNumber, b1611);
+			break;
+
+		case LMVPO_NumbersArabic:
+			strVrsNumber = QString::number(nNumber);
+			break;
+
+		case LMVPO_NumbersNone:
+		default:
+			break;
+	}
+
+	return strPrefix + ((!strPrefix.isEmpty() && !strVrsNumber.isEmpty()) ? " " : "") + strVrsNumber;
+}
+
 // ============================================================================
 
 // Words of Jesus extractor variant of Verse Text Richifier Tags:
@@ -275,9 +317,16 @@ private:
 
 // ----------------------------------------------------------------------------
 
-CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextModifierOptionFlags flagsLMTMO)
+CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
+							 LetterMatrixTextModifierOptionFlags flagsLMTMO,
+							 LMBookPrologueOptionFlags flagsLMBPO,
+							 LMChapterPrologueOptionFlags flagsLMCPO,
+							 LMVersePrologueOptionFlags flagsLMVPO)
 	:	m_pBibleDatabase(pBibleDatabase),
-		m_flagsLMTMO(flagsLMTMO)
+		m_flagsLMTMO(flagsLMTMO),
+		m_flagsLMBPO(flagsLMBPO),
+		m_flagsLMCPO(flagsLMCPO),
+		m_flagsLMVPO(flagsLMVPO)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -357,27 +406,46 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextM
 			}
 			bAddedPrologue = true;
 			ndxMatrixLastPrologue.setChapter(0);		// Force enter new chapter if this is a new book -- without this, we miss chapters of books with only 1 chapter
+			ndxMatrixLastPrologue.setVerse(0);			// Force enter new verse if this is a new book
 		}
 		if ((ndxMatrixCurrent.chapter() != ndxMatrixLastPrologue.chapter()) &&
 			(ndxMatrixCurrent.chapter() != 0)) {							// Check entering new chapter
 			TPrologueEntry entryPrologue;
 			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), 0, 0);
 
+			if (bIsKJV || bIs1611) {
+				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
+					if (m_flagsLMCPO.testFlag(LMCPO_PsalmBookTags)) {
+						if (ndxMatrixCurrent.chapter() == 1) {
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+						} else if (ndxMatrixCurrent.chapter() == 42) {
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+						} else if (ndxMatrixCurrent.chapter() == 73) {
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+						} else if (ndxMatrixCurrent.chapter() == 90) {
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+						} else if (ndxMatrixCurrent.chapter() == 107) {
+							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+						}
+					}
+				}
+			}
+
 			if (bIsKJV) {
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
-					entryPrologue.m_strPrologue = QString("PSALM %1").arg(intToRoman(ndxMatrixCurrent.chapter(), false));
+					entryPrologue.m_strPrologue += chapterNumber("PSALM", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 				} else {
-					entryPrologue.m_strPrologue = QString("CHAPTER %1").arg(intToRoman(ndxMatrixCurrent.chapter(), false));
+					entryPrologue.m_strPrologue += chapterNumber("CHAPTER", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 				}
 			} else if (bIs1611) {
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
 					if (ndxMatrixCurrent.chapter() == 1) {
-						entryPrologue.m_strPrologue = QString("PSALME %1").arg(intToRoman(ndxMatrixCurrent.chapter(), true));
+						entryPrologue.m_strPrologue += chapterNumber("PSALME", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 					} else {
-						entryPrologue.m_strPrologue = QString("PSAL %1").arg(intToRoman(ndxMatrixCurrent.chapter(), true));
+						entryPrologue.m_strPrologue += chapterNumber("PSAL.", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 					}
 				} else {
-					entryPrologue.m_strPrologue = QString("CHAP %1").arg(intToRoman(ndxMatrixCurrent.chapter(), true));
+					entryPrologue.m_strPrologue += chapterNumber("CHAP.", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 				}
 			}
 			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
@@ -386,6 +454,25 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase, LetterMatrixTextM
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
 					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Chapter Prologue to the prologue map
 					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Chapter Prologue to the matrix
+				}
+			}
+			bAddedPrologue = true;
+			ndxMatrixLastPrologue.setVerse(0);			// Force enter new verse if this is a new chapter
+		}
+		if ((ndxMatrixCurrent.verse() != ndxMatrixLastPrologue.verse()) &&
+			(ndxMatrixCurrent.verse() != 0)) {							// Check entering new verse
+			TPrologueEntry entryPrologue;
+			entryPrologue.m_ndxBible = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), ndxMatrixCurrent.verse(), 0);
+
+			if (bIsKJV || bIs1611) {
+				entryPrologue.m_strPrologue += verseNumber(QString(), m_flagsLMVPO, ndxMatrixCurrent.verse(), bIs1611);
+			}
+			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+
+			if (!entryPrologue.m_strPrologue.isEmpty()) {
+				if (m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Verse Prologue to the prologue map
+					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Verse Prologue to the matrix
 				}
 			}
 			bAddedPrologue = true;

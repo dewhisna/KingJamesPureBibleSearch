@@ -90,6 +90,9 @@ class CELSSearchMainWindow : public QMainWindow
 public:
 	explicit CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 								  LetterMatrixTextModifierOptionFlags flagsLMTMO,
+								  LMBookPrologueOptionFlags flagsLMBPO,
+								  LMChapterPrologueOptionFlags flagsLMCPO,
+								  LMVersePrologueOptionFlags flagsLMVPO,
 								  QWidget *parent = nullptr);
 	~CELSSearchMainWindow();
 

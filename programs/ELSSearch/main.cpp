@@ -139,7 +139,7 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 		}
 		std::cerr << std::endl;
 
-		CLetterMatrix letterMatrix(pBibleDatabase, flags);
+		CLetterMatrix letterMatrix(pBibleDatabase, flags, LMBPO_None, LMCPO_None, LMVPO_None);
 		if (!letterMatrix.runMatrixIndexRoundtripTest()) return -2;
 		std::cerr << std::endl;
 	}
@@ -228,11 +228,18 @@ class CSplashLauncher : public QSplashScreen
 {
 	Q_OBJECT
 public:
-	CSplashLauncher(const QString  &strBibleUUID, LetterMatrixTextModifierOptionFlags flagsLMTMO)
+	CSplashLauncher(const QString  &strBibleUUID,
+					LetterMatrixTextModifierOptionFlags flagsLMTMO,
+					LMBookPrologueOptionFlags flagsLMBPO,
+					LMChapterPrologueOptionFlags flagsLMCPO,
+					LMVersePrologueOptionFlags flagsLMVPO)
 		:	QSplashScreen(QPixmap(":/res/BeholdtheStone.png")),
 			m_rdb(this),
 			m_strBibleUUID(strBibleUUID),
-			m_flagsLMTMO(flagsLMTMO)
+			m_flagsLMTMO(flagsLMTMO),
+			m_flagsLMBPO(flagsLMBPO),
+			m_flagsLMCPO(flagsLMCPO),
+			m_flagsLMVPO(flagsLMVPO)
 	{
 		QTimer::singleShot(10, this, SLOT(doLaunch()));
 	}
@@ -267,7 +274,10 @@ protected slots:
 				// When the database read finishes, show the main window and close the progress dialog:
 				if (!TBibleDatabaseList::instance()->mainBibleDatabase().isNull()) {
 					m_pMainWindow = new CELSSearchMainWindow(TBibleDatabaseList::instance()->mainBibleDatabase(),
-															 m_flagsLMTMO);
+															 m_flagsLMTMO,
+															 m_flagsLMBPO,
+															 m_flagsLMCPO,
+															 m_flagsLMVPO);
 
 					m_pMainWindow->show();
 					finish(m_pMainWindow);
@@ -281,6 +291,9 @@ private:
 	CReadDatabase m_rdb;
 	QString m_strBibleUUID;
 	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_None;
+	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_None;
+	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_None;
+	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_None;
 };
 
 #include "main.moc"
@@ -314,6 +327,9 @@ int main(int argc, char *argv[])
 	// ----
 	bool bRunMultithreaded = false;
 	LetterMatrixTextModifierOptionFlags flagsLMTMO = LMTMO_None;
+	LMBookPrologueOptionFlags flagsLMBPO = LMBPO_None;
+	LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_None;
+	LMVersePrologueOptionFlags flagsLMVPO = LMVPO_None;
 	LETTER_CASE_ENUM nLetterCase = LCE_LOWER;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
@@ -397,7 +413,7 @@ int main(int argc, char *argv[])
 			strBibleUUID = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor)).m_strUUID;
 		}
 
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, flagsLMTMO};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return -1;
 
 		CReadDatabase rdbMain;
@@ -406,7 +422,11 @@ int main(int argc, char *argv[])
 			return -2;
 		}
 
-		CSplashLauncher launcher{dlgBibleSelect.bibleUUID(), dlgBibleSelect.textModifierOptions()};
+		CSplashLauncher launcher{dlgBibleSelect.bibleUUID(),
+								 dlgBibleSelect.textModifierOptions(),
+								 dlgBibleSelect.bookPrologueOptions(),
+								 dlgBibleSelect.chapterPrologueOptions(),
+								 dlgBibleSelect.versePrologueOptions()};
 		launcher.show();
 		launcher.ensurePolished();
 		launcher.raise();
@@ -419,6 +439,8 @@ int main(int argc, char *argv[])
 		return nRetVal;
 	}
 #endif
+
+	// TODO : Finish options for BPO/CPO/VPO
 
 	for (auto const &strSearchWord : lstSearchWords) if (strSearchWord.size() < 2) bShowUsageHelp = true;	// Each word must have at least two characters
 	if (lstSearchWords.isEmpty() && !bTestMode) bShowUsageHelp = true;		// Must have at least one search word
@@ -499,7 +521,7 @@ int main(int argc, char *argv[])
 
 	if (bTestMode) return runTests(pBibleDatabase);
 
-	CLetterMatrix letterMatrix{pBibleDatabase, flagsLMTMO};
+	CLetterMatrix letterMatrix{pBibleDatabase, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO};
 
 	// ------------------------------------------------------------------------
 

@@ -33,7 +33,7 @@
 
 // ============================================================================
 
-// Warning: Don't change this list or you'll break .els transcript files:
+// Warning: Don't change this list order or you'll break .els transcript files:
 enum LetterMatrixTextModifierOptions {
 	LMTMO_None = 0x0,						// Default -- No modifiers (use Bible Database as-is)
 	LMTMO_WordsOfJesusOnly = 0x0001,		// Use Words of Jesus Only
@@ -50,12 +50,53 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
 
 // ============================================================================
 
+// Warning: Don't change this list order or you'll break .els transcript files:
+enum LMBookPrologueOptions {
+	LMBPO_None = 0x0,						// Default for new format .els files
+};
+Q_DECLARE_FLAGS(LMBookPrologueOptionFlags, LMBookPrologueOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(LMBookPrologueOptionFlags)
+
+// ============================================================================
+
+enum LMChapterPrologueOptions {
+	LMCPO_None = 0x0,						// Default for new format .els files
+	// ----
+	LMCPO_NumbersNone = 0x0,				// No numbers will be output
+	LMCPO_NumbersRoman = 0x1,				// Use Roman Numerals
+	LMCPO_NumbersArabic = 0x2,				// Use Arabic Numerals
+	LMCPO_NumberOptionsMask = 0xF,			// Low Nybble is the Number Options
+	// ----
+	LMCPO_PsalmBookTags = 0x0010,			// Add the "BOOK" tags to Psalms 1, 42, 73, 90, and 107
+};
+Q_DECLARE_FLAGS(LMChapterPrologueOptionFlags, LMChapterPrologueOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(LMChapterPrologueOptionFlags)
+
+// ============================================================================
+
+enum LMVersePrologueOptions {
+	LMVPO_None = 0x0,						// Default for new format .els files
+	// ----
+	LMVPO_NumbersNone = 0x0,				// No numbers will be output
+	LMVPO_NumbersRoman = 0x1,				// Use Roman Numerals
+	LMVPO_NumbersArabic = 0x2,				// Use Arabic Numerals
+	LMVPO_NumberOptionsMask = 0xF,			// Low Nybble is the Number Options
+	// ----
+};
+Q_DECLARE_FLAGS(LMVersePrologueOptionFlags, LMVersePrologueOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(LMVersePrologueOptionFlags)
+
+// ============================================================================
+
 // Giant array of all letters from the Bible text for speed
 class CLetterMatrix : public QList<QChar>
 {
 public:
 	explicit CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
-						   LetterMatrixTextModifierOptionFlags flagsLMTMO);
+						   LetterMatrixTextModifierOptionFlags flagsLMTMO,
+						   LMBookPrologueOptionFlags flagsLMBPO,
+						   LMChapterPrologueOptionFlags flagsLMCPO,
+						   LMVersePrologueOptionFlags flagsLMVPO);
 
 	uint32_t matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) const;
 	CRelIndexEx relIndexFromMatrixIndex(uint32_t nMatrixIndex) const;
@@ -63,12 +104,18 @@ public:
 	CBibleDatabasePtr bibleDatabase() const { return m_pBibleDatabase; }
 
 	LetterMatrixTextModifierOptionFlags textModifierOptions() const { return m_flagsLMTMO; }
+	LMBookPrologueOptionFlags bookPrologueOptions() const { return m_flagsLMBPO; }
+	LMChapterPrologueOptionFlags chapterPrologueOptions() const { return m_flagsLMCPO; }
+	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
 
 	bool runMatrixIndexRoundtripTest() const;
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
 	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_None;
+	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_None;
+	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_None;
+	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_None;
 
 	// Matrix index to letter count shift for normalize/denormalize computations:
 	//	When we are skipping colophons and/or superscriptions, the matrix index

@@ -179,9 +179,12 @@ QString CELSSearchMainWindow::g_strLastELSFilePath;
 
 CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 										   LetterMatrixTextModifierOptionFlags flagsLMTMO,
+										   LMBookPrologueOptionFlags flagsLMBPO,
+										   LMChapterPrologueOptionFlags flagsLMCPO,
+										   LMVersePrologueOptionFlags flagsLMVPO,
 										   QWidget *parent)
 	:	QMainWindow(parent),
-		m_letterMatrix(pBibleDatabase, flagsLMTMO),
+		m_letterMatrix(pBibleDatabase, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO),
 		ui(new Ui::CELSSearchMainWindow)
 {
 	Q_ASSERT(!pBibleDatabase.isNull());
@@ -428,7 +431,7 @@ void CELSSearchMainWindow::newELSSearchWindow()
 	Q_ASSERT(!lstCanOpeners.isEmpty());
 	CKJVCanOpener *pCanOpener = lstCanOpeners.at(0);		// Shouldn't matter which one we launch from, so pick the first
 	if (pCanOpener) {
-		pCanOpener->launchELSSearch(QString(), LMTMO_None, this);
+		pCanOpener->launchELSSearch(QString(), LMTMO_None, LMBPO_None, LMCPO_None, LMVPO_None, this);
 	}
 }
 #endif
@@ -493,14 +496,20 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					if (nResult != QMessageBox::Yes) break;
 				}
 			} else if (strCommand.compare("Bible", Qt::CaseInsensitive) == 0) {
-				if (lstEntry.size() != 3) {
+				if ((lstEntry.size() != 3) && (lstEntry.size() != 6)) {
 					bBadELSFile = true;
 					break;
 				}
 				QString strUUID = lstEntry.at(1);
-				LetterMatrixTextModifierOptionFlags tmo = static_cast<LetterMatrixTextModifierOptionFlags>(lstEntry.at(2).toInt());		// Thi would use fromInt(), but that needs Qt 6.2+
+				LetterMatrixTextModifierOptionFlags tmo = static_cast<LetterMatrixTextModifierOptionFlags>(lstEntry.at(2).toInt());		// This would use fromInt(), but that needs Qt 6.2+
+				LMBookPrologueOptionFlags bpo = (lstEntry.size() >= 6) ? static_cast<LMBookPrologueOptionFlags>(lstEntry.at(3).toInt()) : LMBPO_None;	// This would use fromInt(), but that needs Qt 6.2+
+				LMChapterPrologueOptionFlags cpo = (lstEntry.size() >= 6) ? static_cast<LMChapterPrologueOptionFlags>(lstEntry.at(4).toInt()) : LMCPO_NumbersRoman;	// This would use fromInt(), but that needs Qt 6.2+
+				LMVersePrologueOptionFlags vpo = (lstEntry.size() >= 6) ? static_cast<LMVersePrologueOptionFlags>(lstEntry.at(5).toInt()) : LMVPO_None;	// This would use fromInt(), but that needs Qt 6.2+
 				if ((bibleDatabase()->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) != 0) ||
-					(tmo != m_letterMatrix.textModifierOptions())) {
+					(tmo != m_letterMatrix.textModifierOptions()) ||
+					(bpo != m_letterMatrix.bookPrologueOptions()) ||
+					(cpo != m_letterMatrix.chapterPrologueOptions()) ||
+					(vpo != m_letterMatrix.versePrologueOptions())) {
 #ifdef USING_ELSSEARCH
 					const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 					Q_ASSERT(!lstCanOpeners.isEmpty());
@@ -510,7 +519,7 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 										tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
 											"Do you want to launch a new search window with those settings??"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 						if (nResult == QMessageBox::Yes) {
-							CELSSearchMainWindow *pNewELSSearch = pCanOpener->launchELSSearch(strUUID, tmo, this);
+							CELSSearchMainWindow *pNewELSSearch = pCanOpener->launchELSSearch(strUUID, tmo, bpo, cpo, vpo, this);
 							if (!pNewELSSearch) break;
 							// Launch the search in the new window after we've closed and exited here:
 							QTimer::singleShot(1, pNewELSSearch, [pNewELSSearch, strFilePathName]()->void {
@@ -715,7 +724,11 @@ void CELSSearchMainWindow::en_createSearchTranscript()
 		(*m_pSearchTranscriptCSVStream) << QStringList{ "ELSFileVersion", QString::number(ELS_FILE_VERSION) };
 
 		// Write Bible Source Text Identifier:
-		(*m_pSearchTranscriptCSVStream) << QStringList{ "Bible", bibleDatabase()->compatibilityUUID(), QString::number(m_letterMatrix.textModifierOptions()) };
+		(*m_pSearchTranscriptCSVStream) << QStringList{ "Bible", bibleDatabase()->compatibilityUUID(),
+														QString::number(m_letterMatrix.textModifierOptions()),
+														QString::number(m_letterMatrix.bookPrologueOptions()),
+														QString::number(m_letterMatrix.chapterPrologueOptions()),
+														QString::number(m_letterMatrix.versePrologueOptions()) };
 
 		// Disable Load/Create and Change "Clear" to "Close":
 		m_pLoadTranscriptionAction->setEnabled(false);

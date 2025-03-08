@@ -41,12 +41,18 @@ class CELSBibleDatabaseSelectDlg : public QDialog
 public:
 	explicit CELSBibleDatabaseSelectDlg(const QString &strBibleUUID,
 										LetterMatrixTextModifierOptionFlags flagsLMTMO,
+										LMBookPrologueOptionFlags flagsLMBPO,
+										LMChapterPrologueOptionFlags flagsLMCPO,
+										LMVersePrologueOptionFlags flagsLMVPO,
 										QWidget *parent = nullptr);
 	~CELSBibleDatabaseSelectDlg();
 
 	QString bibleUUID() const { return m_strBibleUUID; }
 	// ----
 	LetterMatrixTextModifierOptionFlags textModifierOptions() const { return m_flagsLMTMO; }
+	LMBookPrologueOptionFlags bookPrologueOptions() const { return m_flagsLMBPO; }
+	LMChapterPrologueOptionFlags chapterPrologueOptions() const { return m_flagsLMCPO; }
+	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
 
 private slots:
 	void en_selectionChanged(int nIndex);
@@ -56,6 +62,9 @@ private:
 	// ----
 	QString m_strBibleUUID;
 	LetterMatrixTextModifierOptionFlags m_flagsLMTMO;
+	LMBookPrologueOptionFlags m_flagsLMBPO;
+	LMChapterPrologueOptionFlags m_flagsLMCPO;
+	LMVersePrologueOptionFlags m_flagsLMVPO;
 };
 
 // ============================================================================

@@ -30,13 +30,21 @@
 
 CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUUID,
 													   LetterMatrixTextModifierOptionFlags flagsLMTMO,
+													   LMBookPrologueOptionFlags flagsLMBPO,
+													   LMChapterPrologueOptionFlags flagsLMCPO,
+													   LMVersePrologueOptionFlags flagsLMVPO,
 													   QWidget *parent)
 	:	QDialog(parent),
 		ui(new Ui::CELSBibleDatabaseSelectDlg),
 		m_strBibleUUID(strBibleUUID),
-		m_flagsLMTMO(flagsLMTMO)
+		m_flagsLMTMO(flagsLMTMO),
+		m_flagsLMBPO(flagsLMBPO),
+		m_flagsLMCPO(flagsLMCPO),
+		m_flagsLMVPO(flagsLMVPO)
 {
 	ui->setupUi(this);
+
+// TODO : Finish UI for BPO/CPO/VPO
 
 	// --------------------------------
 
