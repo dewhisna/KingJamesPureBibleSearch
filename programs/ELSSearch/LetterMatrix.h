@@ -107,6 +107,7 @@ public:
 	LMBookPrologueOptionFlags bookPrologueOptions() const { return m_flagsLMBPO; }
 	LMChapterPrologueOptionFlags chapterPrologueOptions() const { return m_flagsLMCPO; }
 	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
+	QString getOptionDescription(bool bSingleLine) const;
 
 	bool runMatrixIndexRoundtripTest() const;
 

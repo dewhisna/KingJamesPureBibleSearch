@@ -755,3 +755,73 @@ CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 
 // ----------------------------------------------------------------------------
 
+QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
+{
+	auto &&fnNumDesc = [](int nOpt)->QString {
+		QString strDesc;
+		switch (nOpt) {
+			case 0:				// LMCPO_NumbersNone/LMVPO_NumbersNone
+				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
+				break;
+			case 1:				// LMCPO_NumbersRoman/LMVPO_NumbersRoman
+				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
+				break;
+			case 2:				// LMCPO_NumbersArabic/LMVPO_NumbersArabic
+				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
+				break;
+			default:
+				break;
+		};
+		return strDesc;
+	};
+
+	QString strDescription;
+	if (textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
+		if (bSingleLine) strDescription += " ";
+		strDescription += QObject::tr("Words of Jesus Only", "CLetterMatrix");
+		if (!bSingleLine) strDescription += "\n";
+	} else {
+		bool bPrologues = false;
+
+		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
+		if (textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) {
+			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
+			strDescription += QObject::tr("Including Book Prologues", "CLetterMatrix");
+			if (!bSingleLine) strDescription += "\n";
+			bPrologues = true;
+		}
+		if (textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) {
+			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
+			strDescription += QObject::tr("Including Chapter Prologues", "CLetterMatrix");
+			strDescription += fnNumDesc(chapterPrologueOptions() & LMCPO_NumberOptionsMask);
+			if (chapterPrologueOptions().testFlag(LMCPO_PsalmBookTags)) strDescription += " " + QObject::tr("w/PsalmBOOKs", "CLetterMatrix");
+			if (!bSingleLine) strDescription += "\n";
+			bPrologues = true;
+		}
+		if (textModifierOptions().testFlag(LMTMO_IncludeVersePrologues)) {
+			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
+			strDescription += QObject::tr("Including Verse Prologues", "CLetterMatrix");
+			strDescription += fnNumDesc(versePrologueOptions() & LMVPO_NumberOptionsMask);
+			if (!bSingleLine) strDescription += "\n";
+			bPrologues = true;
+		}
+
+		if (textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
+			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
+			strDescription += QObject::tr("Without", "CLetterMatrix") + " ";
+			if (textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
+				strDescription += QObject::tr("Colophons", "CLetterMatrix");
+				if (textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {
+					strDescription += " " + QObject::tr("or Superscriptions", "CLetterMatrix");
+				}
+			} else {
+				strDescription += QObject::tr("Superscriptions", "CLetterMatrix");
+			}
+			if (!bSingleLine) strDescription += "\n";
+		}
+	}
+
+	return strDescription;
+}
+
+// ----------------------------------------------------------------------------

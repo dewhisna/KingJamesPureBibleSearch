@@ -387,25 +387,7 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	// --------------------------------
 
 	QString strStatus;
-	if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
-		strStatus += " " + tr("Words of Jesus Only");
-	} else {
-		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) strStatus += " " + tr("Including Book Prologues");
-		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) strStatus += " " + tr("Including Chapter Prologues");
-
-		if (m_letterMatrix.textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
-			strStatus += " " + tr("Without") + " ";
-			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
-				strStatus += tr("Colophons");
-				if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {
-					strStatus += " " + tr("or Superscriptions");
-				}
-			} else {
-				strStatus += tr("Superscriptions");
-			}
-		}
-	}
+	strStatus += m_letterMatrix.getOptionDescription(true);
 	if (!strStatus.isEmpty()) {
 		strStatus = tr("Matrix") + ":" + strStatus;
 		QLabel *pStatusLabel = new QLabel(strStatus, this);
@@ -958,25 +940,7 @@ bool CELSSearchMainWindow::search()
 							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookStart, 0, 0, 0)))
 							   .arg(m_letterMatrix.bibleDatabase()->bookName(CRelIndex(nBookEnd, 0, 0, 0)));
 		}
-		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
-			strBookRange += " (" + tr("Words of Jesus Only") + ")";
-		} else {
-			// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) strBookRange += " " + tr("Including Book Prologues");
-			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) strBookRange += " " + tr("Including Chapter Prologues");
-
-			if (m_letterMatrix.textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
-				strBookRange += " " + tr("Without") + " ";
-				if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
-					strBookRange += tr("Colophons");
-					if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {
-						strBookRange += " " + tr("or Superscriptions");
-					}
-				} else {
-					strBookRange += tr("Superscriptions");
-				}
-			}
-		}
+		strBookRange += m_letterMatrix.getOptionDescription(true);
 
 		if (nSearchType == ESTE_ELS) {
 			insertSearchLogText(tr("Searching for ELS skips from %1 to %2 in %3")

@@ -158,26 +158,7 @@ QMimeData *CELSResultListModel::mimeData(const QModelIndexList &indexes) const
 
 	QString strText;
 	strText += tr("Bible:", "CELSResult") + " " + m_letterMatrix.bibleDatabase()->description() + "\n";
-	if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
-		strText += tr("Words of Jesus Only", "CELSResult") + "\n";
-	} else {
-		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) strText += tr("Including Book Prologues", "CELSResult") + "\n";
-		if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) strText += tr("Including Chapter Prologues", "CELSResult") + "\n";
-
-		if (m_letterMatrix.textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
-			strText += tr("Without", "CELSResult") + " ";
-			if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
-				strText += tr("Colophons", "CELSResult");
-				if (m_letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {
-					strText += " " + tr("or Superscriptions", "CELSResult");
-				}
-			} else {
-				strText += tr("Superscriptions", "CELSResult");
-			}
-			strText += "\n";
-		}
-	}
+	strText += m_letterMatrix.getOptionDescription(false);
 	QSet<int> setIndexRows;
 	for (auto const & item : indexes) {
 		if (setIndexRows.contains(item.row())) continue;

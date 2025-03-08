@@ -588,15 +588,8 @@ int main(int argc, char *argv[])
 		std::cout << "Searching in " << strBookRange.toUtf8().data() << "\n";
 	}
 
-	if (flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
-		std::cout << "Words of Jesus Only\n";
-	} else {
-		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
-		if (flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues)) std::cout << "Including Book Prologues\n";
-		if (flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues)) std::cout << "Including Chapter Prologues\n";
-		if (flagsLMTMO.testFlag(LMTMO_RemoveColophons)) std::cout << "Skipping Colophons\n";
-		if (flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) std::cout << "Skipping Superscriptions\n";
-	}
+	QString strTemp = letterMatrix.getOptionDescription(false);
+	if (!strTemp.isEmpty()) std::cout << strTemp.toUtf8().data();
 
 	// Print Summary:
 	std::cout << "\nWord Occurrence Counts:\n";
