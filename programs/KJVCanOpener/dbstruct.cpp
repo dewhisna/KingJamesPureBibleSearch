@@ -1694,18 +1694,28 @@ QString CBibleDatabase::PassageReferenceText(const CRelIndexEx &nRelIndex, bool 
 {
 	if (nRelIndex.isPrologue()) {
 		QString strBookName = bookName(nRelIndex);
-		if (nRelIndex.chapter() == 0) {			// Book Prologue
+		if (nRelIndex.isBookPrologue()) {				// Book Prologue
 			if (!bSuppressWordOnPseudoVerse) {
 				return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
 			} else {
 				return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
 			}
-		} else {								// Chapter Prologue
+		} else if (nRelIndex.isChapterPrologue()) {		// Chapter Prologue
 			if (!bSuppressWordOnPseudoVerse) {
 				return QString("%1 %2 %3 [.%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString()).arg(nRelIndex.letter());
 			} else {
 				return QString("%1 %2 %3").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString());
 			}
+		} else if (nRelIndex.isVersePrologue()) {		// Verse Prologue
+			if (!bSuppressWordOnPseudoVerse) {
+				return QString("%1 %2:%3 %4 [.%5]").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse())
+													.arg(translatedPrologueString()).arg(nRelIndex.letter());
+			} else {
+				return QString("%1 %2:%3 %4").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse())
+													.arg(translatedPrologueString());
+			}
+		} else {
+			Q_ASSERT(false);
 		}
 	}
 
@@ -1730,18 +1740,28 @@ QString CBibleDatabase::PassageReferenceAbbrText(const CRelIndexEx &nRelIndex, b
 {
 	if (nRelIndex.isPrologue()) {
 		QString strBookName = bookNameAbbr(nRelIndex);
-		if (nRelIndex.chapter() == 0) {			// Book Prologue
+		if (nRelIndex.isBookPrologue()) {				// Book Prologue
 			if (!bSuppressWordOnPseudoVerse) {
 				return QString("%1 %2 [.%3]").arg(strBookName).arg(translatedPrologueString()).arg(nRelIndex.letter());
 			} else {
 				return QString("%1 %2").arg(strBookName).arg(translatedPrologueString());
 			}
-		} else {								// Chapter Prologue
+		} else if (nRelIndex.isChapterPrologue()) {		// Chapter Prologue
 			if (!bSuppressWordOnPseudoVerse) {
 				return QString("%1 %2 %3 [.%4]").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString()).arg(nRelIndex.letter());
 			} else {
 				return QString("%1 %2 %3").arg(strBookName).arg(nRelIndex.chapter()).arg(translatedPrologueString());
 			}
+		} else if (nRelIndex.isVersePrologue()) {		// Verse Prologue
+			if (!bSuppressWordOnPseudoVerse) {
+				return QString("%1 %2:%3 %4 [.%5]").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse())
+					.arg(translatedPrologueString()).arg(nRelIndex.letter());
+			} else {
+				return QString("%1 %2:%3 %4").arg(strBookName).arg(nRelIndex.chapter()).arg(nRelIndex.verse())
+					.arg(translatedPrologueString());
+			}
+		} else {
+			Q_ASSERT(false);
 		}
 	}
 
