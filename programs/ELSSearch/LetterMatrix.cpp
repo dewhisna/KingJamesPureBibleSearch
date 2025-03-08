@@ -448,7 +448,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 					entryPrologue.m_strPrologue += chapterNumber("CHAP.", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 				}
 			}
-			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z0-9]"));
 
 			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
@@ -467,7 +467,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			if (bIsKJV || bIs1611) {
 				entryPrologue.m_strPrologue += verseNumber(QString(), m_flagsLMVPO, ndxMatrixCurrent.verse(), bIs1611);
 			}
-			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z]"));
+			entryPrologue.m_strPrologue.remove(QRegularExpression("[^a-zA-Z0-9]"));
 
 			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
