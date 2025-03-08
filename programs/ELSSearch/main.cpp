@@ -139,7 +139,10 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 		}
 		std::cerr << std::endl;
 
-		CLetterMatrix letterMatrix(pBibleDatabase, flags, LMBPO_None, LMCPO_None, LMVPO_None);
+		CLetterMatrix letterMatrix(pBibleDatabase, flags,
+									LMBPO_None,
+									flags.testFlag(LMTMO_IncludeChapterPrologues) ? LMCPO_NumbersRoman : LMCPO_None,
+									flags.testFlag(LMTMO_IncludeVersePrologues) ? LMVPO_NumbersArabic : LMVPO_None);
 		if (!letterMatrix.runMatrixIndexRoundtripTest()) return -2;
 		std::cerr << std::endl;
 	}
