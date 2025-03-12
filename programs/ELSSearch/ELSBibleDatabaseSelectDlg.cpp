@@ -71,6 +71,10 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	ui->cmbCPONumbers->setCurrentIndex(ui->cmbCPONumbers->findData(QVariant::fromValue(static_cast<unsigned int>(m_flagsLMCPO & LMCPO_NumberOptionsMask))));
 
 	ui->chkCPOPsalmBooks->setChecked(m_flagsLMCPO.testFlag(LMCPO_PsalmBookTags));
+	ui->cmbCPOPsalmBookNumbers->addItem(tr("None"), LMCPO_PsalmBookNumbersNone);
+	ui->cmbCPOPsalmBookNumbers->addItem(tr("Roman"), LMCPO_PsalmBookNumbersRoman);
+	ui->cmbCPOPsalmBookNumbers->addItem(tr("Arabic"), LMCPO_PsalmBookNumbersArabic);
+	ui->cmbCPOPsalmBookNumbers->setCurrentIndex(ui->cmbCPOPsalmBookNumbers->findData(QVariant::fromValue(static_cast<unsigned int>(m_flagsLMCPO & LMCPO_PsalmBookNumberOptionsMask))));
 
 	ui->cmbVPONumbers->addItem(tr("None"), LMVPO_NumbersNone);
 	ui->cmbVPONumbers->addItem(tr("Roman"), LMVPO_NumbersRoman);
@@ -93,6 +97,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	ui->lblCPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 	ui->cmbCPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 	ui->chkCPOPsalmBooks->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+	ui->cmbCPOPsalmBookNumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 
 	ui->lblVPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 	ui->cmbVPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
@@ -118,6 +123,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 			ui->lblCPONumbers->setEnabled(false);
 			ui->cmbCPONumbers->setEnabled(false);
 			ui->chkCPOPsalmBooks->setEnabled(false);
+			ui->cmbCPOPsalmBookNumbers->setEnabled(false);
 
 			ui->lblVPONumbers->setEnabled(false);
 			ui->cmbVPONumbers->setEnabled(false);
@@ -131,6 +137,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 			ui->lblCPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 			ui->cmbCPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 			ui->chkCPOPsalmBooks->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
+			ui->cmbCPOPsalmBookNumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues));
 
 			ui->lblVPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 			ui->cmbVPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
@@ -151,6 +158,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 		ui->lblCPONumbers->setEnabled(bIncludeChapterPrologues);
 		ui->cmbCPONumbers->setEnabled(bIncludeChapterPrologues);
 		ui->chkCPOPsalmBooks->setEnabled(bIncludeChapterPrologues);
+		ui->cmbCPOPsalmBookNumbers->setEnabled(bIncludeChapterPrologues);
 	});
 	connect(ui->chkIncludeVersePrologues, &QCheckBox::toggled, this, [this](bool bIncludeVersePrologues)->void {
 		m_flagsLMTMO.setFlag(LMTMO_IncludeVersePrologues, bIncludeVersePrologues);
@@ -163,6 +171,7 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	connect(ui->chkCPOPsalmBooks, &QCheckBox::toggled, this, [this](bool bCPOPsalmBooks)->void {
 		m_flagsLMCPO.setFlag(LMCPO_PsalmBookTags, bCPOPsalmBooks);
 	});
+	connect(ui->cmbCPOPsalmBookNumbers, SIGNAL(currentIndexChanged(int)), this, SLOT(en_CPOPsalmBookNumberSelectionChanged(int)));
 
 	connect(ui->cmbVPONumbers, SIGNAL(currentIndexChanged(int)), this, SLOT(en_VPONumberSelectionChanged(int)));
 }
@@ -181,6 +190,12 @@ void CELSBibleDatabaseSelectDlg::en_CPONumberSelectionChanged(int nIndex)
 {
 	m_flagsLMCPO &= ~LMCPO_NumberOptionsMask;
 	m_flagsLMCPO |= static_cast<LMChapterPrologueOptions>(ui->cmbCPONumbers->itemData(nIndex).toUInt());
+}
+
+void CELSBibleDatabaseSelectDlg::en_CPOPsalmBookNumberSelectionChanged(int nIndex)
+{
+	m_flagsLMCPO &= ~LMCPO_PsalmBookNumberOptionsMask;
+	m_flagsLMCPO |= static_cast<LMChapterPrologueOptions>(ui->cmbCPOPsalmBookNumbers->itemData(nIndex).toUInt());
 }
 
 void CELSBibleDatabaseSelectDlg::en_VPONumberSelectionChanged(int nIndex)

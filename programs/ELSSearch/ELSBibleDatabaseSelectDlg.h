@@ -57,6 +57,7 @@ public:
 private slots:
 	void en_BibleSelectionChanged(int nIndex);
 	void en_CPONumberSelectionChanged(int nIndex);
+	void en_CPOPsalmBookNumberSelectionChanged(int nIndex);
 	void en_VPONumberSelectionChanged(int nIndex);
 
 private:

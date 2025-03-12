@@ -60,14 +60,18 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LMBookPrologueOptionFlags)
 // ============================================================================
 
 enum LMChapterPrologueOptions {
-	LMCPO_None = 0x0,						// Default for new format .els files
+	LMCPO_None = 0x0,							// Default for new format .els files
 	// ----
-	LMCPO_NumbersNone = 0x0,				// No numbers will be output
-	LMCPO_NumbersRoman = 0x1,				// Use Roman Numerals
-	LMCPO_NumbersArabic = 0x2,				// Use Arabic Numerals
-	LMCPO_NumberOptionsMask = 0xF,			// Low Nybble is the Number Options
+	LMCPO_NumbersNone = 0x0,					// No numbers will be output
+	LMCPO_NumbersRoman = 0x1,					// Use Roman Numerals
+	LMCPO_NumbersArabic = 0x2,					// Use Arabic Numerals
+	LMCPO_NumberOptionsMask = 0xF,				// Low Nybble is the Number Options
 	// ----
-	LMCPO_PsalmBookTags = 0x0010,			// Add the "BOOK" tags to Psalms 1, 42, 73, 90, and 107
+	LMCPO_PsalmBookTags = 0x0010,				// Add the "BOOK" tags to Psalms 1, 42, 73, 90, and 107
+	LMCPO_PsalmBookNumbersNone = 0x0000,		// No numbers will be output
+	LMCPO_PsalmBookNumbersRoman = 0x0020,		// Use Roman Numerals
+	LMCPO_PsalmBookNumbersArabic = 0x0040,		// Use Arabic Numerals
+	LMCPO_PsalmBookNumberOptionsMask = 0x01E0,	// Low Nybble is the Number Options
 };
 Q_DECLARE_FLAGS(LMChapterPrologueOptionFlags, LMChapterPrologueOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMChapterPrologueOptionFlags)

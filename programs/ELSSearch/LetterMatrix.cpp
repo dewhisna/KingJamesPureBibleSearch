@@ -271,6 +271,26 @@ QString chapterNumber(const QString &strPrefix, LMChapterPrologueOptionFlags fla
 	return strPrefix + ((!strPrefix.isEmpty() && !strChapNumber.isEmpty()) ? " " : "") + strChapNumber;
 }
 
+QString chapterPsalmBookNumber(const QString &strPrefix, LMChapterPrologueOptionFlags flagsCPO, uint32_t nNumber, bool b1611)
+{
+	QString strChapNumber;
+	switch (flagsCPO & LMCPO_PsalmBookNumberOptionsMask) {
+		case LMCPO_PsalmBookNumbersRoman:
+			strChapNumber = intToRoman(nNumber, b1611);
+			break;
+
+		case LMCPO_PsalmBookNumbersArabic:
+			strChapNumber = QString::number(nNumber);
+			break;
+
+		case LMCPO_PsalmBookNumbersNone:
+		default:
+			break;
+	}
+
+	return strPrefix + ((!strPrefix.isEmpty() && !strChapNumber.isEmpty()) ? " " : "") + strChapNumber;
+}
+
 QString verseNumber(const QString &strPrefix, LMVersePrologueOptionFlags flagsVPO, uint32_t nNumber, bool b1611)
 {
 	QString strVrsNumber;
@@ -417,15 +437,15 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
 					if (m_flagsLMCPO.testFlag(LMCPO_PsalmBookTags)) {
 						if (ndxMatrixCurrent.chapter() == 1) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
+							entryPrologue.m_strPrologue += chapterPsalmBookNumber("BOOK", m_flagsLMCPO, 1, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 42) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 2, bIs1611);
+							entryPrologue.m_strPrologue += chapterPsalmBookNumber("BOOK", m_flagsLMCPO, 2, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 73) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 3, bIs1611);
+							entryPrologue.m_strPrologue += chapterPsalmBookNumber("BOOK", m_flagsLMCPO, 3, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 90) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 4, bIs1611);
+							entryPrologue.m_strPrologue += chapterPsalmBookNumber("BOOK", m_flagsLMCPO, 4, bIs1611);
 						} else if (ndxMatrixCurrent.chapter() == 107) {
-							entryPrologue.m_strPrologue += chapterNumber("BOOK", m_flagsLMCPO, 5, bIs1611);
+							entryPrologue.m_strPrologue += chapterPsalmBookNumber("BOOK", m_flagsLMCPO, 5, bIs1611);
 						}
 					}
 				}
@@ -780,16 +800,50 @@ CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 
 QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 {
-	auto &&fnNumDesc = [](int nOpt)->QString {
+	auto &&fnCPONumDesc = [](LMChapterPrologueOptionFlags nOpt)->QString {
 		QString strDesc;
-		switch (nOpt) {
-			case 0:				// LMCPO_NumbersNone/LMVPO_NumbersNone
+		switch (nOpt & LMCPO_NumberOptionsMask) {
+			case LMCPO_NumbersNone:
 				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
 				break;
-			case 1:				// LMCPO_NumbersRoman/LMVPO_NumbersRoman
+			case LMCPO_NumbersRoman:
 				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
 				break;
-			case 2:				// LMCPO_NumbersArabic/LMVPO_NumbersArabic
+			case LMCPO_NumbersArabic:
+				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
+				break;
+			default:
+				break;
+		};
+		return strDesc;
+	};
+	auto &&fnCPOPsalmBookNumDesc = [](LMChapterPrologueOptionFlags nOpt)->QString {
+		QString strDesc;
+		switch (nOpt & LMCPO_PsalmBookNumberOptionsMask) {
+			case LMCPO_PsalmBookNumbersNone:
+				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
+				break;
+			case LMCPO_PsalmBookNumbersRoman:
+				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
+				break;
+			case LMCPO_PsalmBookNumbersArabic:
+				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
+				break;
+			default:
+				break;
+		};
+		return strDesc;
+	};
+	auto &&fnVPONumDesc = [](LMVersePrologueOptionFlags nOpt)->QString {
+		QString strDesc;
+		switch (nOpt & LMVPO_NumberOptionsMask) {
+			case LMVPO_NumbersNone:
+				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
+				break;
+			case LMVPO_NumbersRoman:
+				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
+				break;
+			case LMVPO_NumbersArabic:
 				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
 				break;
 			default:
@@ -816,15 +870,17 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 		if (textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += QObject::tr("Including Chapter Prologues", "CLetterMatrix");
-			strDescription += fnNumDesc(chapterPrologueOptions() & LMCPO_NumberOptionsMask);
-			if (chapterPrologueOptions().testFlag(LMCPO_PsalmBookTags)) strDescription += " " + QObject::tr("w/PsalmBOOKs", "CLetterMatrix");
+			strDescription += fnCPONumDesc(chapterPrologueOptions());
+			if (chapterPrologueOptions().testFlag(LMCPO_PsalmBookTags)) {
+				strDescription += " " + QObject::tr("w/PsalmBOOKs", "CLetterMatrix") + fnCPOPsalmBookNumDesc(chapterPrologueOptions());
+			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}
 		if (textModifierOptions().testFlag(LMTMO_IncludeVersePrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += QObject::tr("Including Verse Prologues", "CLetterMatrix");
-			strDescription += fnNumDesc(versePrologueOptions() & LMVPO_NumberOptionsMask);
+			strDescription += fnVPONumDesc(versePrologueOptions());
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}
