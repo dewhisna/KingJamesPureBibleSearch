@@ -151,22 +151,38 @@ CELSResultList CFindELS::findELS(int nSkip, const CLetterMatrix &letterMatrix,
 
 	// Compute ending index for the last letter in the search range:
 	CRelIndexEx ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 0), CBibleDatabase::RIME_EndOfBook);
-	const CConcordanceEntry *pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
-	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	const CBookEntry *pBook = letterMatrix.bibleDatabase()->bookEntry(ndxLast);
-	Q_ASSERT(pBook != nullptr);
-	if (pBook && pBook->m_bHaveColophon && !letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
-		// If this book has a colophon and we aren't skipping them, then the
-		//	matrix will have moved the colophon to the end of the book so instead
-		//	of the last letter of the last word of the last verse of the last
-		//	chapter of the book (as above), we need to move to the last letter of
-		//	the last word of the colophon:
-		ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 1), CBibleDatabase::RIME_EndOfVerse);
-		pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
+	if (!letterMatrix.isFTMode() || letterMatrix.textModifierOptions().testFlag(LMTMO_WordsOfJesusOnly)) {
+		const CConcordanceEntry *pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
 		if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+		const CBookEntry *pBook = letterMatrix.bibleDatabase()->bookEntry(ndxLast);
+		Q_ASSERT(pBook != nullptr);
+		if (pBook && pBook->m_bHaveColophon && !letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
+			// If this book has a colophon and we aren't skipping them, then the
+			//	matrix will have moved the colophon to the end of the book so instead
+			//	of the last letter of the last word of the last verse of the last
+			//	chapter of the book (as above), we need to move to the last letter of
+			//	the last word of the colophon:
+			ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 1), CBibleDatabase::RIME_EndOfVerse);
+			pceLastWord = letterMatrix.bibleDatabase()->concordanceEntryForWordAtIndex(ndxLast);
+			if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+		}
+	} else {
+		const CBookEntry *pBook = letterMatrix.bibleDatabase()->bookEntry(ndxLast);
+		Q_ASSERT(pBook != nullptr);
+		if (pBook && pBook->m_bHaveColophon && !letterMatrix.textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
+			// If this book has a colophon and we aren't skipping them, then the
+			//	matrix will have moved the colophon to the end of the book so instead
+			//	of the last verse of the last chapter of the book (as above), we need
+			//	to move to the colophon:
+			ndxLast = letterMatrix.bibleDatabase()->calcRelIndex(CRelIndex(nBookEnd, 0, 0, 1), CBibleDatabase::RIME_StartOfVerse);
+		}
+		ndxLast.setWord(1);		// Index as first word of last full verse
+		ndxLast.setLetter(letterMatrix.letterCountForFullVerse(ndxLast));
+		Q_ASSERT(ndxLast.letter() != 0);
 	}
 	uint32_t matrixIndexLast = letterMatrix.matrixIndexFromRelIndex(ndxLast);
 	if (matrixIndexCurrent == 0) return CELSResultList();
+	Q_ASSERT(matrixIndexLast < static_cast<uint32_t>(letterMatrix.size()));
 
 	while (matrixIndexCurrent <= matrixIndexLast) {
 		int ndxSearchWord = 0;				// Index to current search word being tested

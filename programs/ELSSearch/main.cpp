@@ -136,6 +136,16 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 				std::cerr << "Include Verse Prologues";
 				bOutput = true;
 			}
+			if (flags.testFlag(LMTMO_IncludePunctuation)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Include Punctuation";
+				bOutput = true;
+			}
+			if (flags.testFlag(LMTMO_IncludeSpaces)) {
+				if (bOutput) std::cerr << ", ";
+				std::cerr << "Include Spaces";
+				bOutput = true;
+			}
 		}
 		std::cerr << std::endl;
 

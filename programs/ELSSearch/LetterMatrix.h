@@ -41,9 +41,13 @@ enum LetterMatrixTextModifierOptions {
 	LMTMO_RemoveSuperscriptions = 0x0004,	// Strip out superscriptions from Psalms
 	LMTMO_IncludeBookPrologues = 0x0008,	// Insert Book Title Prologes (KJV Bibles Only)
 	LMTMO_IncludeChapterPrologues = 0x0010,	// Insert Chapter Heading Prologues (KJV Bibles Only)
-	LMTMO_IncludeVersePrologues=0x0020,		// Insert Verse Heading Prologues, like verse number (KJV Bibles Only)
+	LMTMO_IncludeVersePrologues = 0x0020,	// Insert Verse Heading Prologues, like verse number (KJV Bibles Only)
+	LMTMO_IncludePunctuation = 0x0040,		// Insert Punctuation from Verse Templates
+	LMTMO_IncludeSpaces = 0x0080,			// Insert Spaces from Verse Templates (or space between words)
 	// ----
-	LMTMO_ALL = 0x003F,						// Values with all flags set to use as a loop iterator over available flags
+	LMTMO_FTextModeMask = 0x00C0,			// Mask for either Punctuation or Spaces where the "full text" mode must be used
+	// ----
+	LMTMO_ALL = 0x00FF,						// Values with all flags set to use as a loop iterator over available flags
 };
 Q_DECLARE_FLAGS(LetterMatrixTextModifierOptionFlags, LetterMatrixTextModifierOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
@@ -112,8 +116,11 @@ public:
 	LMChapterPrologueOptionFlags chapterPrologueOptions() const { return m_flagsLMCPO; }
 	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
 	QString getOptionDescription(bool bSingleLine) const;
+	bool isFTMode() const { return ((m_flagsLMTMO & LMTMO_FTextModeMask) != 0); }
 
 	bool runMatrixIndexRoundtripTest() const;
+
+	uint32_t letterCountForFullVerse(const CRelIndex nRelIndex) const;
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
@@ -150,7 +157,20 @@ private:
 		CRelIndex m_ndxPrologue;		// RelIndex for the prologue, used to determine if this is a book, chapter, or verse prologue
 	};
 	typedef QMap<uint32_t, TPrologueEntry> TMapMatrixIndexToPrologue;	// MatrixIndex -> PrologeEntry
+	typedef QMap<CRelIndex, uint32_t> TMapRelIndexToMatrixIndex;		// Map of CRelIndex to Matrix Index for Prologue entry lookup
 	TMapMatrixIndexToPrologue m_mapMatrixIndexToPrologue;				// Note: This is things to add
+	TMapRelIndexToMatrixIndex m_mapPrologueRelIndexToMatrixIndex;
+	// TODO : Rework Prologues above to be done more like FullText logic below...
+
+	// Full text map for use with "include punctuation" or "include spaces" mode:
+	struct TFullVerseEntry {
+		QString m_strVerseText;
+		uint32_t m_nMatrixIndex = 0;
+	};
+	typedef QMap<CRelIndex, TFullVerseEntry> TMapFullVerseText;			// Map of CRelIndex to Full Verse Text Line and Matrix Index
+	typedef QMap<uint32_t, CRelIndex> TMapMatrixIndexToRelIndex;		// Map of Matrix Index to CRelIndex of Full Verse Text
+	TMapFullVerseText m_mapFullVerseText;
+	TMapMatrixIndexToRelIndex m_mapFullTextMatrixIndexToRelIndex;
 };
 
 // ============================================================================

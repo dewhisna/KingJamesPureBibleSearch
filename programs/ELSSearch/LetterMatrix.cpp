@@ -208,6 +208,17 @@ namespace {
 		"The second booke of the Maccabees.",
 	};
 
+	// ------------------------------------------------------------------------
+
+	const QString g_constrNoNumerals = QObject::tr("No Numerals", "CLetterMatrix");
+	const QString g_constrNoNums = QObject::tr("NoNums", "CLetterMatrix");
+
+	const QString g_constrRomanNumerals = QObject::tr("Roman Numerals", "CLetterMatrix");
+	const QString g_constrRomanNums = QObject::tr("Roman", "CLetterMatrix");
+
+	const QString g_constrArabicNumerals = QObject::tr("Arabic Numerals", "CLetterMatrix");
+	const QString g_constrArabicNums = QObject::tr("Arabic", "CLetterMatrix");
+
 }		// Namespace
 
 // ============================================================================
@@ -381,6 +392,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 	uint32_t nWordsOfJesusLetterSkip = 0;		// Number of letters to skip prior to words of Jesus
 	QStringList lstWordsOfJesus;
 	CWordsOfJesusExtractor vtrtWordsOfJesus(lstWordsOfJesus);
+	CVerseTextPlainRichifierTags vtrtFullText;
 	CRelIndex ndxMatrixLastPrologue;
 	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
 		 normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
@@ -389,9 +401,15 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		// Transfer any pending colophon if book changes:
 		if (!lstColophon.isEmpty() && (ndxMatrixLastColophon.book() != ndxMatrixCurrent.book())) {
 			if (!m_flagsLMTMO.testFlag(LMTMO_RemoveColophons)) {
+				if (isFTMode()) {
+					m_mapFullVerseText[ndxMatrixLastColophon].m_nMatrixIndex = size();
+					m_mapFullTextMatrixIndexToRelIndex[size()] = ndxMatrixLastColophon;
+				}
 				append(lstColophon);
 			} else {
-				m_mapMatrixIndexToLetterShift[size()] += lstColophon.size();
+				if (!isFTMode()) {
+					m_mapMatrixIndexToLetterShift[size()] += lstColophon.size();
+				}
 			}
 			lstColophon.clear();
 			ndxMatrixLastColophon.clear();
@@ -420,6 +438,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 
 			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeBookPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+					m_mapPrologueRelIndexToMatrixIndex[entryPrologue.m_ndxPrologue] = size();
 					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Book Prologue to the prologue map
 					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Book Prologue to the matrix
 				}
@@ -472,6 +491,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 
 			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeChapterPrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+					m_mapPrologueRelIndexToMatrixIndex[entryPrologue.m_ndxPrologue] = size();
 					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Chapter Prologue to the prologue map
 					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Chapter Prologue to the matrix
 				}
@@ -491,6 +511,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 
 			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+					m_mapPrologueRelIndexToMatrixIndex[entryPrologue.m_ndxPrologue] = size();
 					m_mapMatrixIndexToPrologue[size()] = entryPrologue;								// Add Verse Prologue to the prologue map
 					for (auto const &chrLetter : entryPrologue.m_strPrologue) append(chrLetter);	// Add Verse Prologue to the matrix
 				}
@@ -499,60 +520,90 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		}
 		if (bAddedPrologue) ndxMatrixLastPrologue = ndxMatrixCurrent;
 
-		const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
-		Q_ASSERT(pWordEntry != nullptr);
-		if (pWordEntry) {
-			const QString &strWord = pWordEntry->rawWord();
+		// TODO : Figure out what to do about Psalm 119 Hebrew Prefixes!! (Part of Verse Prologue?)
 
-			if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
-				// Since the Words of Jesus can never be in Colophons or Superscriptions,
-				//	we only need to shift the colophons to their correct position when
-				//	searching everything:
-				if (!ndxMatrixCurrent.isColophon()) {
-					if (!ndxMatrixCurrent.isSuperscription() || !m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
-						// Output the book as-is without shuffling:
+		if (!isFTMode() || m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+			const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
+			Q_ASSERT(pWordEntry != nullptr);
+			if (pWordEntry) {
+				const QString &strWord = pWordEntry->rawWord();
+
+				if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+					// Since the Words of Jesus can never be in Colophons or Superscriptions,
+					//	we only need to shift the colophons to their correct position when
+					//	searching everything:
+					if (!ndxMatrixCurrent.isColophon()) {
+						if (!ndxMatrixCurrent.isSuperscription() || !m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
+							// Output the book as-is without shuffling:
+							for (auto const &chrLetter : strWord) append(chrLetter);
+						} else {
+							// If skipping superscriptions, put them on a local buffer like
+							//	we did with colophons so that when we hit the next "verse"
+							//	(i.e. exit the superscription), we can insert a MatrixIndex
+							//	to LetterShift mapping.  Note that unlike colophons, since
+							//	we aren't moving the superscription itself, this buffer is
+							//	never transferred to the matrix:
+							for (auto const &chrLetter : strWord) lstSuperscription.append(chrLetter);
+							ndxMatrixLastSuperscription = ndxMatrixCurrent;
+						}
+					} else {
+						// Output colophon to temp buff:
+						for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
+						ndxMatrixLastColophon = ndxMatrixCurrent;
+					}
+				} else {
+					// Trigger per-verse rendering on first word of verse:
+					if (ndxMatrixCurrent.word() == 1) {
+						const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxMatrixCurrent);
+						Q_ASSERT(pVerse != nullptr);
+						if (pVerse == nullptr) continue;
+
+						lstWordsOfJesus.clear();
+						pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtWordsOfJesus);
+						Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(lstWordsOfJesus.size()));
+					}
+					Q_ASSERT(static_cast<unsigned int>(lstWordsOfJesus.size()) >= ndxMatrixCurrent.word());
+					Q_ASSERT(ndxMatrixCurrent.word() >= 1);
+
+					if (!lstWordsOfJesus.at(ndxMatrixCurrent.word()-1).isEmpty()) {
+						// If in Words of Jesus, output letter skip for main text and append words to matrix:
+						if (nWordsOfJesusLetterSkip) {
+							m_mapMatrixIndexToLetterShift[size()] += nWordsOfJesusLetterSkip;
+							nWordsOfJesusLetterSkip = 0;
+						}
 						for (auto const &chrLetter : strWord) append(chrLetter);
 					} else {
-						// If skipping superscriptions, put them on a local buffer like
-						//	we did with colophons so that when we hit the next "verse"
-						//	(i.e. exit the superscription), we can insert a MatrixIndex
-						//	to LetterShift mapping.  Note that unlike colophons, since
-						//	we aren't moving the superscription itself, this buffer is
-						//	never transferred to the matrix:
-						for (auto const &chrLetter : strWord) lstSuperscription.append(chrLetter);
-						ndxMatrixLastSuperscription = ndxMatrixCurrent;
+						// Otherwise, plan to skip the letters that aren't:
+						nWordsOfJesusLetterSkip += strWord.size();
 					}
-				} else {
-					// Output colophon to temp buff:
-					for (auto const &chrLetter : strWord) lstColophon.append(chrLetter);
-					ndxMatrixLastColophon = ndxMatrixCurrent;
-				}
-			} else {
-				// Trigger per-verse rendering on first word of verse:
-				if (ndxMatrixCurrent.word() == 1) {
-					const CVerseEntry *pVerse = pBibleDatabase->verseEntry(ndxMatrixCurrent);
-					Q_ASSERT(pVerse != nullptr);
-					if (pVerse == nullptr) continue;
-
-					lstWordsOfJesus.clear();
-					pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtWordsOfJesus);
-					Q_ASSERT(pVerse->m_nNumWrd == static_cast<unsigned int>(lstWordsOfJesus.size()));
-				}
-				Q_ASSERT(static_cast<unsigned int>(lstWordsOfJesus.size()) >= ndxMatrixCurrent.word());
-				Q_ASSERT(ndxMatrixCurrent.word() >= 1);
-
-				if (!lstWordsOfJesus.at(ndxMatrixCurrent.word()-1).isEmpty()) {
-					// If in Words of Jesus, output letter skip for main text and append words to matrix:
-					if (nWordsOfJesusLetterSkip) {
-						m_mapMatrixIndexToLetterShift[size()] += nWordsOfJesusLetterSkip;
-						nWordsOfJesusLetterSkip = 0;
-					}
-					for (auto const &chrLetter : strWord) append(chrLetter);
-				} else {
-					// Otherwise, plan to skip the letters that aren't:
-					nWordsOfJesusLetterSkip += strWord.size();
 				}
 			}
+		} else {
+			QString strFullVerseText = pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtFullText);
+			if (!m_flagsLMTMO.testFlag(LMTMO_IncludeSpaces)) {
+				strFullVerseText.remove(QRegularExpression("\\s"));
+			}
+
+			if (!ndxMatrixCurrent.isColophon()) {
+				if (!ndxMatrixCurrent.isSuperscription() || !m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
+					// Output the book as-is without shuffling:
+					Q_ASSERT(ndxMatrixCurrent.word() == 1);
+					m_mapFullVerseText[ndxMatrixCurrent].m_strVerseText = strFullVerseText;
+					m_mapFullVerseText[ndxMatrixCurrent].m_nMatrixIndex = size();
+					m_mapFullTextMatrixIndexToRelIndex[size()] = ndxMatrixCurrent;
+					for (auto const &chrLetter : strFullVerseText) append(chrLetter);
+				}	// Else case would be "superscriptions" that we are completely skipping
+			} else {
+				// Output colophon to temp buff for shuffling:
+				for (auto const &chrLetter : strFullVerseText) lstColophon.append(chrLetter);
+				ndxMatrixLastColophon = ndxMatrixCurrent;
+				m_mapFullVerseText[ndxMatrixCurrent].m_strVerseText = strFullVerseText;
+				// Note: We'll populate m_mapFullTextMatrixIndexToRelIndex when we transfer this buffer to the matrix above
+			}
+
+			const CVerseEntry *pVerseEntry = pBibleDatabase->verseEntry(ndxMatrixCurrent);
+			Q_ASSERT(pVerseEntry != nullptr);
+			if (pVerseEntry) normalMatrixCurrent += pVerseEntry->m_nNumWrd-1;	// -1 to index us to the last word of this verse.  The loop will increment us to the next verse.
 		}
 	}
 	if (m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && (nWordsOfJesusLetterSkip != 0)) {
@@ -561,11 +612,15 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 	}
 
 	// Verify the matrix size as a sanity check for code bugs:
-	CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
-	const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
-	if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
-	uint32_t matrixIndexLast = matrixIndexFromRelIndex(ndxLast);
-	Q_ASSERT((matrixIndexLast+1) == static_cast<uint32_t>(size()));
+	if (!isFTMode() || m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+		CRelIndexEx ndxLast = pBibleDatabase->calcRelIndex(CRelIndex(), CBibleDatabase::RIME_End);
+		const CConcordanceEntry *pceLastWord = pBibleDatabase->concordanceEntryForWordAtIndex(ndxLast);
+		if (pceLastWord) ndxLast.setLetter(pceLastWord->letterCount());
+		uint32_t matrixIndexLast = matrixIndexFromRelIndex(ndxLast);
+		Q_ASSERT((matrixIndexLast+1) == static_cast<uint32_t>(size()));
+	} else {
+		// TODO : Figure out how to do a sanity check for full-text mode
+	}
 
 	// Additional Matrix Index Roundtrip Test for debugging:
 #if TEST_MATRIX_INDEXING
@@ -620,107 +675,168 @@ bool CLetterMatrix::runMatrixIndexRoundtripTest() const
 
 // ----------------------------------------------------------------------------
 
+uint32_t CLetterMatrix::letterCountForFullVerse(const CRelIndex nRelIndex) const
+{
+	Q_ASSERT(isFTMode());
+	TMapFullVerseText::const_iterator itrFullVerse = m_mapFullVerseText.find(nRelIndex);
+	if (itrFullVerse == m_mapFullVerseText.cend()) return 0;
+	return itrFullVerse->m_strVerseText.size();
+}
+
 uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) const
 {
 	CRelIndex relIndex{nRelIndexEx.index()};
-	const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
-	if (pBook == nullptr) return 0;
+
 	// Note: MatrixIndex must be signed here in case the part being eliminated from
 	//	the text is larger than the text before the part being kept (like in the
 	//	Words of Jesus only mode):
-	int32_t nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(CRelIndexEx(nRelIndexEx, nRelIndexEx.isPrologue() ? 0 : nRelIndexEx.letter()));
-	if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
-		if (nRelIndexEx.isColophon()) {
-			Q_ASSERT(pBook->m_bHaveColophon);
-			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(relIndex);
-			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-			uint32_t nColophonShift = (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
-			nMatrixIndex += nColophonShift;		// Shift colophon to end of book
-		} else {
-			if (pBook->m_bHaveColophon && !nRelIndexEx.isBookPrologue()) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
-				const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+	int32_t nMatrixIndex = 0;
+	if (!isFTMode() || m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
+		if (pBook == nullptr) return 0;
+
+		nMatrixIndex = m_pBibleDatabase->NormalizeIndexEx(CRelIndexEx(nRelIndexEx, nRelIndexEx.isPrologue() ? 0 : nRelIndexEx.letter()));
+		if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+			if (nRelIndexEx.isColophon()) {
+				Q_ASSERT(pBook->m_bHaveColophon);
+				const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(relIndex);
 				Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-				nMatrixIndex -= pColophonVerse->m_nNumLtr;
-			}
-		}
-	}
-
-	// Add in Matrix Cells for all prologues inserted ahead of this point.
-	//	And do the letter shift shuffles concurrently.  They have to be
-	//	concurrent or the indexes being compared won't be correct:
-	// Note: These must be subtracted as we go as these shifts must be cumulative
-	//	(unlike the other direction):
-	TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
-	TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
-	bool bDoneShuffle = false;
-	struct TFoundPrologue {
-		int32_t m_nMatrixIndex = 0;
-		TMapMatrixIndexToPrologue::const_iterator m_itr;
-	};
-	QList<TFoundPrologue> lstFoundPrologues;
-	lstFoundPrologues.reserve(3);				// Room for book, chapter, and verse prologues
-
-	while (!bDoneShuffle) {
-		bool bPrologue = (itrPrologues != m_mapMatrixIndexToPrologue.cend());
-		bool bXform = (itrXformMatrix != m_mapMatrixIndexToLetterShift.cend());
-		uint32_t nNextKey = std::min(bPrologue ? itrPrologues.key() : std::numeric_limits<uint32_t>::max(),
-									 bXform ? itrXformMatrix.key() : std::numeric_limits<uint32_t>::max());
-
-		if (bXform && (nNextKey == itrXformMatrix.key())) {					// Must handle text removals before insertions
-			if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
-				nMatrixIndex -= itrXformMatrix.value();
-				++itrXformMatrix;
+				uint32_t nColophonShift = (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
+				nMatrixIndex += nColophonShift;		// Shift colophon to end of book
 			} else {
-				itrXformMatrix = m_mapMatrixIndexToLetterShift.cend();		// break
-			}
-		} else if (bPrologue && (nNextKey == itrPrologues.key())) {
-			if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
-				if ((static_cast<int32_t>(nNextKey) == nMatrixIndex) &&
-					(nMatrixIndex < static_cast<int32_t>(nNextKey + itrPrologues.value().m_strPrologue.size())) &&
-					nRelIndexEx.isPrologue()) {
-					// If we are currently inside a prologue, add it to the list
-					//	so we can return the best prologue that fits the request:
-					TFoundPrologue fp;
-					fp.m_nMatrixIndex = nMatrixIndex;
-					fp.m_itr = itrPrologues;
-					lstFoundPrologues.append(fp);
+				if (pBook->m_bHaveColophon && !nRelIndexEx.isBookPrologue()) {		// If this book has a colophon, but this index isn't it, shift this index ahead of colophon
+					const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+					Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+					nMatrixIndex -= pColophonVerse->m_nNumLtr;
 				}
-				nMatrixIndex += itrPrologues.value().m_strPrologue.size();
-				++itrPrologues;
-			} else {
-				itrPrologues = m_mapMatrixIndexToPrologue.cend();			// break;
 			}
-		} else {
-			bDoneShuffle = true;
 		}
-	}
 
-	// If this was a prologue, find the best fit prologue part for
-	//	that requested and index by its letter into the matrix:
-	if (!lstFoundPrologues.isEmpty()) {
-		Q_ASSERT(nRelIndexEx.isPrologue());
-		// First, try to find exact match:
-		int32_t nFoundMatrixIndex = 0;
-		for (auto const & prologue : lstFoundPrologues) {
-			CRelIndexEx ndxPrologue(prologue.m_itr.value().m_ndxPrologue, 1);
-			if ((ndxPrologue.isBookPrologue() && nRelIndexEx.isBookPrologue()) ||
-				(ndxPrologue.isChapterPrologue() && nRelIndexEx.isChapterPrologue()) ||
-				(ndxPrologue.isVersePrologue() && nRelIndexEx.isVersePrologue())) {
-				nFoundMatrixIndex = prologue.m_nMatrixIndex;
-				break;
-			}
-		}
-		// If no exact match, find closest match:
-		if (nFoundMatrixIndex == 0) {
-			if (nRelIndexEx.isBookPrologue()) {
-				nFoundMatrixIndex = lstFoundPrologues.first().m_nMatrixIndex;	// Book -> Chapter -> Verse
-			} else if (nRelIndexEx.isVersePrologue()) {
-				nFoundMatrixIndex = lstFoundPrologues.last().m_nMatrixIndex;	// Verse -> Chapter -> Book
+		// Add in Matrix Cells for all prologues inserted ahead of this point.
+		//	And do the letter shift shuffles concurrently.  They have to be
+		//	concurrent or the indexes being compared won't be correct:
+		// Note: These must be subtracted as we go as these shifts must be cumulative
+		//	(unlike the other direction):
+		TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
+		TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
+		bool bDoneShuffle = false;
+		struct TFoundPrologue {
+			int32_t m_nMatrixIndex = 0;
+			TMapMatrixIndexToPrologue::const_iterator m_itr;
+		};
+		QList<TFoundPrologue> lstFoundPrologues;
+		lstFoundPrologues.reserve(3);				// Room for book, chapter, and verse prologues
+
+		while (!bDoneShuffle) {
+			bool bPrologue = (itrPrologues != m_mapMatrixIndexToPrologue.cend());
+			bool bXform = (itrXformMatrix != m_mapMatrixIndexToLetterShift.cend());
+			uint32_t nNextKey = std::min(bPrologue ? itrPrologues.key() : std::numeric_limits<uint32_t>::max(),
+										 bXform ? itrXformMatrix.key() : std::numeric_limits<uint32_t>::max());
+
+			if (bXform && (nNextKey == itrXformMatrix.key())) {					// Must handle text removals before insertions
+				if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
+					nMatrixIndex -= itrXformMatrix.value();
+					++itrXformMatrix;
+				} else {
+					itrXformMatrix = m_mapMatrixIndexToLetterShift.cend();		// break
+				}
+			} else if (bPrologue && (nNextKey == itrPrologues.key())) {
+				if (static_cast<int32_t>(nNextKey) <= nMatrixIndex) {
+					if ((static_cast<int32_t>(nNextKey) == nMatrixIndex) &&
+						(nMatrixIndex < static_cast<int32_t>(nNextKey + itrPrologues.value().m_strPrologue.size())) &&
+						nRelIndexEx.isPrologue()) {
+						// If we are currently inside a prologue, add it to the list
+						//	so we can return the best prologue that fits the request:
+						TFoundPrologue fp;
+						fp.m_nMatrixIndex = nMatrixIndex;
+						fp.m_itr = itrPrologues;
+						lstFoundPrologues.append(fp);
+					}
+					nMatrixIndex += itrPrologues.value().m_strPrologue.size();
+					++itrPrologues;
+				} else {
+					itrPrologues = m_mapMatrixIndexToPrologue.cend();			// break;
+				}
 			} else {
-				nFoundMatrixIndex = lstFoundPrologues.first().m_nMatrixIndex;	// Chapter -> Book -> Verse
+				bDoneShuffle = true;
 			}
 		}
-		nMatrixIndex = nFoundMatrixIndex + nRelIndexEx.letter()-1;
+
+		// If this was a prologue, find the best fit prologue part for
+		//	that requested and index by its letter into the matrix:
+		if (!lstFoundPrologues.isEmpty()) {
+			Q_ASSERT(nRelIndexEx.isPrologue());
+			// First, try to find exact match:
+			int32_t nFoundMatrixIndex = 0;
+			for (auto const & prologue : lstFoundPrologues) {
+				CRelIndexEx ndxPrologue(prologue.m_itr.value().m_ndxPrologue, 1);
+				if ((ndxPrologue.isBookPrologue() && nRelIndexEx.isBookPrologue()) ||
+					(ndxPrologue.isChapterPrologue() && nRelIndexEx.isChapterPrologue()) ||
+					(ndxPrologue.isVersePrologue() && nRelIndexEx.isVersePrologue())) {
+					nFoundMatrixIndex = prologue.m_nMatrixIndex;
+					break;
+				}
+			}
+			// If no exact match, find closest match:
+			if (nFoundMatrixIndex == 0) {
+				if (nRelIndexEx.isBookPrologue()) {
+					nFoundMatrixIndex = lstFoundPrologues.first().m_nMatrixIndex;	// Book -> Chapter -> Verse
+				} else if (nRelIndexEx.isVersePrologue()) {
+					nFoundMatrixIndex = lstFoundPrologues.last().m_nMatrixIndex;	// Verse -> Chapter -> Book
+				} else {
+					nFoundMatrixIndex = lstFoundPrologues.first().m_nMatrixIndex;	// Chapter -> Book -> Verse
+				}
+			}
+			nMatrixIndex = nFoundMatrixIndex + nRelIndexEx.letter()-1;
+		}
+	} else {
+		relIndex.setWord(1);
+		if (relIndex.isColophon() && m_flagsLMTMO.testFlag(LMTMO_RemoveColophons)) {
+			relIndex.setBook(relIndex.book()+1);
+			relIndex.setChapter(1);
+			relIndex.setVerse(1);
+		} else if (relIndex.isSuperscription() && m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
+			relIndex.setVerse(1);
+		}
+
+		// First see if we have a prologue for it:
+		bool bFound = false;
+		CRelIndexEx ndxSearch = nRelIndexEx;
+		if (ndxSearch.isPrologue()) {
+			TMapRelIndexToMatrixIndex::const_iterator itrPrologue = m_mapPrologueRelIndexToMatrixIndex.find(ndxSearch);
+			if (itrPrologue != m_mapPrologueRelIndexToMatrixIndex.cend()) {
+				nMatrixIndex = itrPrologue.value();
+				nMatrixIndex += ndxSearch.letter()-1;		// Index into the prologue
+				bFound = true;
+			}
+			if (!bFound && ndxSearch.isBookPrologue()) {
+				ndxSearch.setChapter(1);					// Convert from Book Prologue to Chapter Prologue and try that
+				itrPrologue = m_mapPrologueRelIndexToMatrixIndex.find(ndxSearch);
+				if (itrPrologue != m_mapPrologueRelIndexToMatrixIndex.cend()) {
+					nMatrixIndex = itrPrologue.value();
+					nMatrixIndex += ndxSearch.letter()-1;		// Index into the prologue
+					bFound = true;
+				}
+			}
+			if (!bFound && ndxSearch.isChapterPrologue()) {
+				ndxSearch.setVerse(1);						// Convert from Chapter Prologue to Verse Prologue and try that
+				itrPrologue = m_mapPrologueRelIndexToMatrixIndex.find(ndxSearch);
+				if (itrPrologue != m_mapPrologueRelIndexToMatrixIndex.cend()) {
+					nMatrixIndex = itrPrologue.value();
+					nMatrixIndex += ndxSearch.letter()-1;		// Index into the prologue
+					bFound = true;
+				}
+			}
+		}
+		if (!bFound) {
+			// Normalize and Denormalize to find first book/chapter/verse with text:
+			TMapFullVerseText::const_iterator itrFullVerse = m_mapFullVerseText.find(
+										m_pBibleDatabase->DenormalizeIndex(m_pBibleDatabase->NormalizeIndex(relIndex)));
+			if (itrFullVerse != m_mapFullVerseText.cend()) {
+				nMatrixIndex = itrFullVerse->m_nMatrixIndex;
+				nMatrixIndex += nRelIndexEx.letter()-1;		// Index into the verse full text
+			}
+		}
 	}
 
 	if (nMatrixIndex < 0) nMatrixIndex = 1;		// Return first active position if real position is before anything in the matrix
@@ -729,122 +845,146 @@ uint32_t CLetterMatrix::matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) c
 
 CRelIndexEx CLetterMatrix::relIndexFromMatrixIndex(uint32_t nMatrixIndex) const
 {
-	// Since this is a matrix index that's becoming a Bible Normal
-	//	index, we should first adjust for any prologues added prior
-	//	to this matrix index.  And if we are on a prologue, save it:
-	uint32_t nMatrixShift = 0;
-	for (TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
-		 itrPrologues != m_mapMatrixIndexToPrologue.cend(); ++itrPrologues) {
-		if (itrPrologues.key() <= nMatrixIndex) {
-			if (nMatrixIndex < (itrPrologues.key() + itrPrologues.value().m_strPrologue.size())) {
-				// If we are currently inside a prologue, return with its index:
-				return CRelIndexEx(itrPrologues.value().m_ndxPrologue, (nMatrixIndex - itrPrologues.key())+1);
-			}
-			nMatrixShift += itrPrologues.value().m_strPrologue.size();
-		} else {
-			break;
-		}
-	}
-
-	// Note: Since the colophon transform mapping is inserted at the
-	//	point where the colophon would be (after moving) in the matrix, then
-	//	we must do this index transform prior to other colophon transforms.
-	//	This is also needed for the logic below where we do a denormalization
-	//	of MatrixIndex and it needs to have the correct number of letters prior
-	//	to this point:
-	// Note: These must be added after we've accumulated the total as these
-	//	shouldn't be cumulative (unlike the other direction):
-	uint32_t nLetterShift = 0;
-	for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
-		 itrXformMatrix != m_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
-		if (itrXformMatrix.key() <= nMatrixIndex) {
-			nLetterShift += itrXformMatrix.value();
-		} else {
-			break;
-		}
-	}
-
-	nMatrixIndex -= nMatrixShift;			// Remove letters from all of the prologues inserted ahead of current index
-	nMatrixIndex += nLetterShift;			// Add letters for all text skipped ahead of current index
-
-	// Since we are only shifting the colophons from the beginning of each book
-	//	to the end of each book, the number of letters in each book should be
-	//	the same.  Therefore, the standard Denormalize call should give the same
-	//	book:
-	CRelIndex relIndex{m_pBibleDatabase->DenormalizeIndexEx(nMatrixIndex)};
-	const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
-	Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return CRelIndexEx();
-
-	if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
-		if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
-			const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
-			Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
-			uint32_t nMatrixOldColophonNdx = pColophonVerse->m_nLtrAccum + 1;
-			uint32_t nColophonShift = (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
-			uint32_t nMatrixNewColophonNdx = nMatrixOldColophonNdx + nColophonShift;
-			if (nMatrixIndex >= nMatrixNewColophonNdx) {
-				if (!m_flagsLMTMO.testFlag(LMTMO_RemoveColophons)) {	// Don't adjust for the colophon here if we skipped it
-					nMatrixIndex -= nColophonShift;						// Shift colophon back to start of book
+	if (!isFTMode() || m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+		// Since this is a matrix index that's becoming a Bible Normal
+		//	index, we should first adjust for any prologues added prior
+		//	to this matrix index.  And if we are on a prologue, save it:
+		uint32_t nMatrixShift = 0;
+		for (TMapMatrixIndexToPrologue::const_iterator itrPrologues = m_mapMatrixIndexToPrologue.cbegin();
+			 itrPrologues != m_mapMatrixIndexToPrologue.cend(); ++itrPrologues) {
+			if (itrPrologues.key() <= nMatrixIndex) {
+				if (nMatrixIndex < (itrPrologues.key() + itrPrologues.value().m_strPrologue.size())) {
+					// If we are currently inside a prologue, return with its index:
+					return CRelIndexEx(itrPrologues.value().m_ndxPrologue, (nMatrixIndex - itrPrologues.key())+1);
 				}
+				nMatrixShift += itrPrologues.value().m_strPrologue.size();
 			} else {
-				if (nMatrixIndex >= nMatrixOldColophonNdx) {
-					nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon (as long as the index isn't part of the prologue)
+				break;
+			}
+		}
+
+		// Note: Since the colophon transform mapping is inserted at the
+		//	point where the colophon would be (after moving) in the matrix, then
+		//	we must do this index transform prior to other colophon transforms.
+		//	This is also needed for the logic below where we do a denormalization
+		//	of MatrixIndex and it needs to have the correct number of letters prior
+		//	to this point:
+		// Note: These must be added after we've accumulated the total as these
+		//	shouldn't be cumulative (unlike the other direction):
+		uint32_t nLetterShift = 0;
+		for (TMapMatrixIndexToLetterShift::const_iterator itrXformMatrix = m_mapMatrixIndexToLetterShift.cbegin();
+			 itrXformMatrix != m_mapMatrixIndexToLetterShift.cend(); ++itrXformMatrix) {
+			if (itrXformMatrix.key() <= nMatrixIndex) {
+				nLetterShift += itrXformMatrix.value();
+				} else {
+				break;
+			}
+		}
+
+		nMatrixIndex -= nMatrixShift;			// Remove letters from all of the prologues inserted ahead of current index
+		nMatrixIndex += nLetterShift;			// Add letters for all text skipped ahead of current index
+
+		// Since we are only shifting the colophons from the beginning of each book
+		//	to the end of each book, the number of letters in each book should be
+		//	the same.  Therefore, the standard Denormalize call should give the same
+		//	book:
+		CRelIndex relIndex{m_pBibleDatabase->DenormalizeIndexEx(nMatrixIndex)};
+		const CBookEntry *pBook = m_pBibleDatabase->bookEntry(relIndex);
+		Q_ASSERT(pBook != nullptr);  if (pBook == nullptr) return CRelIndexEx();
+
+		if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
+			if (pBook->m_bHaveColophon) {		// Must do this even when skipping colophons to shift other indexes after colophon until we catchup with the transform above
+				const CVerseEntry *pColophonVerse = m_pBibleDatabase->verseEntry(CRelIndex(relIndex.book(), 0, 0, relIndex.word()));
+				Q_ASSERT(pColophonVerse != nullptr);  if (pColophonVerse == nullptr) return 0;
+				uint32_t nMatrixOldColophonNdx = pColophonVerse->m_nLtrAccum + 1;
+				uint32_t nColophonShift = (pBook->m_nNumLtr - pColophonVerse->m_nNumLtr);
+				uint32_t nMatrixNewColophonNdx = nMatrixOldColophonNdx + nColophonShift;
+				if (nMatrixIndex >= nMatrixNewColophonNdx) {
+					if (!m_flagsLMTMO.testFlag(LMTMO_RemoveColophons)) {	// Don't adjust for the colophon here if we skipped it
+						nMatrixIndex -= nColophonShift;						// Shift colophon back to start of book
+					}
+				} else {
+					if (nMatrixIndex >= nMatrixOldColophonNdx) {
+						nMatrixIndex += pColophonVerse->m_nNumLtr;		// Shift other indexes after colophon (as long as the index isn't part of the prologue)
+					}
 				}
 			}
 		}
+		return m_pBibleDatabase->DenormalizeIndexEx(nMatrixIndex);
+	} else {
+		// Find the start of this verse entry or prologue:
+		uint32_t nLetterCount = 1;
+		TMapMatrixIndexToRelIndex::const_iterator itrRelIndex = m_mapFullTextMatrixIndexToRelIndex.find(nMatrixIndex);
+		TMapMatrixIndexToPrologue::const_iterator itrPrologue = m_mapMatrixIndexToPrologue.find(nMatrixIndex);
+		bool bFound = (itrRelIndex != m_mapFullTextMatrixIndexToRelIndex.cend()) ||
+					  (itrPrologue != m_mapMatrixIndexToPrologue.cend());
+		while (!bFound && (nMatrixIndex > 0)) {
+			++nLetterCount;
+			--nMatrixIndex;
+			itrRelIndex = m_mapFullTextMatrixIndexToRelIndex.find(nMatrixIndex);
+			itrPrologue = m_mapMatrixIndexToPrologue.find(nMatrixIndex);
+			bFound = (itrRelIndex != m_mapFullTextMatrixIndexToRelIndex.cend()) ||
+					 (itrPrologue != m_mapMatrixIndexToPrologue.cend());
+		}
+		if (itrRelIndex != m_mapFullTextMatrixIndexToRelIndex.cend()) {
+			// This was a verse or superscription or colophon:
+			return CRelIndexEx(itrRelIndex.value(), nLetterCount);
+		} else {
+			Q_ASSERT(itrPrologue != m_mapMatrixIndexToPrologue.cend());
+			return CRelIndexEx(itrPrologue->m_ndxPrologue, nLetterCount);
+		}
 	}
-	return m_pBibleDatabase->DenormalizeIndexEx(nMatrixIndex);
 }
 
 // ----------------------------------------------------------------------------
 
 QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 {
-	auto &&fnCPONumDesc = [](LMChapterPrologueOptionFlags nOpt)->QString {
+	auto &&fnCPONumDesc = [=](LMChapterPrologueOptionFlags nOpt)->QString {
 		QString strDesc;
 		switch (nOpt & LMCPO_NumberOptionsMask) {
 			case LMCPO_NumbersNone:
-				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrNoNums : g_constrNoNumerals);
 				break;
 			case LMCPO_NumbersRoman:
-				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrRomanNums : g_constrRomanNumerals);
 				break;
 			case LMCPO_NumbersArabic:
-				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrArabicNums : g_constrArabicNumerals);
 				break;
 			default:
 				break;
 		};
 		return strDesc;
 	};
-	auto &&fnCPOPsalmBookNumDesc = [](LMChapterPrologueOptionFlags nOpt)->QString {
+	auto &&fnCPOPsalmBookNumDesc = [=](LMChapterPrologueOptionFlags nOpt)->QString {
 		QString strDesc;
 		switch (nOpt & LMCPO_PsalmBookNumberOptionsMask) {
 			case LMCPO_PsalmBookNumbersNone:
-				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrNoNums : g_constrNoNumerals);
 				break;
 			case LMCPO_PsalmBookNumbersRoman:
-				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrRomanNums : g_constrRomanNumerals);
 				break;
 			case LMCPO_PsalmBookNumbersArabic:
-				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrArabicNums : g_constrArabicNumerals);
 				break;
 			default:
 				break;
 		};
 		return strDesc;
 	};
-	auto &&fnVPONumDesc = [](LMVersePrologueOptionFlags nOpt)->QString {
+	auto &&fnVPONumDesc = [=](LMVersePrologueOptionFlags nOpt)->QString {
 		QString strDesc;
 		switch (nOpt & LMVPO_NumberOptionsMask) {
 			case LMVPO_NumbersNone:
-				strDesc = QString(" (%1)").arg(QObject::tr("No Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrNoNums : g_constrNoNumerals);
 				break;
 			case LMVPO_NumbersRoman:
-				strDesc = QString(" (%1)").arg(QObject::tr("Roman Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrRomanNums : g_constrRomanNumerals);
 				break;
 			case LMVPO_NumbersArabic:
-				strDesc = QString(" (%1)").arg(QObject::tr("Arabic Numerals", "CLetterMatrix"));
+				strDesc = QString(" (%1)").arg(bSingleLine ? g_constrArabicNums : g_constrArabicNumerals);
 				break;
 			default:
 				break;
@@ -859,17 +999,20 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 		if (!bSingleLine) strDescription += "\n";
 	} else {
 		bool bPrologues = false;
+		QString strWithPrefix = QObject::tr("With", "CLetterMatrix") + " ";
 
 		// There's no Words of Jesus in Colophons or Superscriptions or Book/Chapter Prologues
 		if (textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
-			strDescription += QObject::tr("Including Book Prologues", "CLetterMatrix");
+			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
+			strDescription += QObject::tr("Book Prologues", "CLetterMatrix");
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}
 		if (textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
-			strDescription += QObject::tr("Including Chapter Prologues", "CLetterMatrix");
+			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
+			strDescription += QObject::tr("Chapter Prologues", "CLetterMatrix");
 			strDescription += fnCPONumDesc(chapterPrologueOptions());
 			if (chapterPrologueOptions().testFlag(LMCPO_PsalmBookTags)) {
 				strDescription += " " + QObject::tr("w/PsalmBOOKs", "CLetterMatrix") + fnCPOPsalmBookNumDesc(chapterPrologueOptions());
@@ -879,15 +1022,34 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 		}
 		if (textModifierOptions().testFlag(LMTMO_IncludeVersePrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
-			strDescription += QObject::tr("Including Verse Prologues", "CLetterMatrix");
+			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
+			strDescription += QObject::tr("Verse Prologues", "CLetterMatrix");
 			strDescription += fnVPONumDesc(versePrologueOptions());
+			if (!bSingleLine) strDescription += "\n";
+			bPrologues = true;
+		}
+		if (textModifierOptions().testFlag(LMTMO_IncludePunctuation)) {
+			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
+			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
+			strDescription += QObject::tr("Punctuation", "CLetterMatrix");
+			if (!bSingleLine) strDescription += "\n";
+			bPrologues = true;
+		}
+		if (textModifierOptions().testFlag(LMTMO_IncludePunctuation)) {
+			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
+			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
+			strDescription += QObject::tr("Spaces", "CLetterMatrix");
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}
 
 		if (textModifierOptions() & (LMTMO_RemoveColophons | LMTMO_RemoveSuperscriptions)) {
-			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
-			strDescription += QObject::tr("Without", "CLetterMatrix") + " ";
+			if (bSingleLine) {
+				strDescription += (bPrologues ? ", " : " ");
+				strDescription += QObject::tr("W/O", "CLetterMatrix") + " ";
+			} else {
+				strDescription += QObject::tr("Without", "CLetterMatrix") + " ";
+			}
 			if (textModifierOptions().testFlag(LMTMO_RemoveColophons)) {
 				strDescription += QObject::tr("Colophons", "CLetterMatrix");
 				if (textModifierOptions().testFlag(LMTMO_RemoveSuperscriptions)) {

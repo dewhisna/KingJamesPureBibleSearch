@@ -29,7 +29,7 @@
     <x>0</x>
     <y>0</y>
     <width>375</width>
-    <height>415</height>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,7 +73,7 @@
    <item row="2" column="0" colspan="4">
     <widget class="QCheckBox" name="chkRemoveColophons">
      <property name="text">
-      <string>Remove &amp;Colophons</string>
+      <string>Remove Co&amp;lophons</string>
      </property>
     </widget>
    </item>
@@ -87,7 +87,7 @@
    <item row="4" column="0" colspan="4">
     <widget class="QCheckBox" name="chkIncludeBookPrologues">
      <property name="text">
-      <string>Include &amp;Book Prologues (Title, Subtitle, etc.)
+      <string>Include Boo&amp;k Prologues (Title, Subtitle, etc.)
 (Works Only on English King James Databases)</string>
      </property>
     </widget>
@@ -95,7 +95,7 @@
    <item row="5" column="0" colspan="4">
     <widget class="QCheckBox" name="chkIncludeChapterPrologues">
      <property name="text">
-      <string>Include &amp;Chapter Prologues (Chapter Number, etc.)
+      <string>Include C&amp;hapter Prologues (Chapter Number, etc.)
 (Works Only on English King James Databases)</string>
      </property>
     </widget>
@@ -188,6 +188,20 @@
     </spacer>
    </item>
    <item row="10" column="0" colspan="4">
+    <widget class="QCheckBox" name="chkIncludePunctuation">
+     <property name="text">
+      <string>Include P&amp;unctuation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="4">
+    <widget class="QCheckBox" name="chkIncludeSpaces">
+     <property name="text">
+      <string>Include S&amp;paces</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="4">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -200,7 +214,7 @@
      </property>
     </spacer>
    </item>
-   <item row="11" column="0" colspan="4">
+   <item row="13" column="0" colspan="4">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -224,6 +238,8 @@
   <tabstop>cmbCPOPsalmBookNumbers</tabstop>
   <tabstop>chkIncludeVersePrologues</tabstop>
   <tabstop>cmbVPONumbers</tabstop>
+  <tabstop>chkIncludePunctuation</tabstop>
+  <tabstop>chkIncludeSpaces</tabstop>
  </tabstops>
  <resources/>
  <connections>
