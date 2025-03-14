@@ -511,7 +511,7 @@ void CELSSearchMainWindow::newELSSearchWindow()
 
 void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 {
-	bool bSuccess = true;
+	bool bSuccess = false;
 
 	QString strFilePathName = strFilePath;
 	if (strFilePath.isEmpty()) {
@@ -525,17 +525,16 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 		g_strLastELSFilePath = strFilePathName;
 		m_fileSearchTranscript.setFileName(strFilePathName);
 		if (!m_fileSearchTranscript.open(QIODevice::ReadOnly)) {
-			bSuccess = false;
 			displayWarning(this, QApplication::applicationName(), tr("Failed to open ELS Search Transcript File!", "Errors"));
 		} else {
 			m_pSearchTranscriptCompressor.reset(new QtIOCompressor(&m_fileSearchTranscript));
 			m_pSearchTranscriptCompressor->setStreamFormat(QtIOCompressor::ZlibFormat);
 			if (!m_pSearchTranscriptCompressor->open(QIODevice::ReadOnly)) {
-				bSuccess = false;
 				displayWarning(this, QApplication::applicationName(), tr("Failed to create ELS Search Transcript Decompressor!", "Errors"));
 			} else {
 				m_pSearchTranscriptCSVStream.reset(
 							new CCSVStream(static_cast<QIODevice *>(m_pSearchTranscriptCompressor.data())));
+				bSuccess = true;
 			}
 		}
 	}
@@ -765,7 +764,7 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 
 void CELSSearchMainWindow::en_createSearchTranscript()
 {
-	bool bSuccess = true;
+	bool bSuccess = false;
 
 	QString strFilePathName = CSaveLoadFileDialog::getSaveFileName(this,
 										tr("Save ELS Search Transcript File", "FileFilters"),
@@ -776,17 +775,16 @@ void CELSSearchMainWindow::en_createSearchTranscript()
 		g_strLastELSFilePath = strFilePathName;
 		m_fileSearchTranscript.setFileName(strFilePathName);
 		if (!m_fileSearchTranscript.open(QIODevice::WriteOnly)) {
-			bSuccess = false;
 			displayWarning(this, QApplication::applicationName(), tr("Failed to create ELS Search Transcript File!", "Errors"));
 		} else {
 			m_pSearchTranscriptCompressor.reset(new QtIOCompressor(&m_fileSearchTranscript));
 			m_pSearchTranscriptCompressor->setStreamFormat(QtIOCompressor::ZlibFormat);
 			if (!m_pSearchTranscriptCompressor->open(QIODevice::WriteOnly)) {
-				bSuccess = false;
 				displayWarning(this, QApplication::applicationName(), tr("Failed to create ELS Search Transcript Compressor!", "Errors"));
 			} else {
 				m_pSearchTranscriptCSVStream.reset(
 					new CCSVStream(static_cast<QIODevice *>(m_pSearchTranscriptCompressor.data())));
+				bSuccess = true;
 			}
 		}
 	}
