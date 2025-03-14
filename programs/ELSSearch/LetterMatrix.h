@@ -43,11 +43,10 @@ enum LetterMatrixTextModifierOptions {
 	LMTMO_IncludeChapterPrologues = 0x0010,	// Insert Chapter Heading Prologues (KJV Bibles Only)
 	LMTMO_IncludeVersePrologues = 0x0020,	// Insert Verse Heading Prologues, like verse number (KJV Bibles Only)
 	LMTMO_IncludePunctuation = 0x0040,		// Insert Punctuation from Verse Templates
-	LMTMO_IncludeSpaces = 0x0080,			// Insert Spaces from Verse Templates (or space between words)
 	// ----
-	LMTMO_FTextModeMask = 0x00C0,			// Mask for either Punctuation or Spaces where the "full text" mode must be used
+	LMTMO_FTextModeMask = 0x0040,			// Mask for Punctuation where the "full text" mode must be used -- Used as a placeholder for if/when additional options are added requiring Full Text Mode
 	// ----
-	LMTMO_ALL = 0x00FF,						// Values with all flags set to use as a loop iterator over available flags
+	LMTMO_ALL = 0x007F,						// Values with all flags set to use as a loop iterator over available flags
 };
 Q_DECLARE_FLAGS(LetterMatrixTextModifierOptionFlags, LetterMatrixTextModifierOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
@@ -96,6 +95,17 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LMVersePrologueOptionFlags)
 
 // ============================================================================
 
+enum LMFullVerseTextOptions {
+	LMFVTO_None = 0x0,						// Default for new format .els files
+	// ----
+	LMFVTO_NoBracketsForTransChange = 0x1,	// Remove brackets for Translation Add/Change markup
+	// ----
+};
+Q_DECLARE_FLAGS(LMFullVerseTextOptionFlags, LMFullVerseTextOptions)
+Q_DECLARE_OPERATORS_FOR_FLAGS(LMFullVerseTextOptionFlags)
+
+// ============================================================================
+
 // Giant array of all letters from the Bible text for speed
 class CLetterMatrix : public QList<QChar>
 {
@@ -104,7 +114,8 @@ public:
 						   LetterMatrixTextModifierOptionFlags flagsLMTMO,
 						   LMBookPrologueOptionFlags flagsLMBPO,
 						   LMChapterPrologueOptionFlags flagsLMCPO,
-						   LMVersePrologueOptionFlags flagsLMVPO);
+						   LMVersePrologueOptionFlags flagsLMVPO,
+						   LMFullVerseTextOptionFlags flagsLMFVTO);
 
 	uint32_t matrixIndexFromRelIndex(const CRelIndexEx nRelIndexEx) const;
 	CRelIndexEx relIndexFromMatrixIndex(uint32_t nMatrixIndex) const;
@@ -115,6 +126,7 @@ public:
 	LMBookPrologueOptionFlags bookPrologueOptions() const { return m_flagsLMBPO; }
 	LMChapterPrologueOptionFlags chapterPrologueOptions() const { return m_flagsLMCPO; }
 	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
+	LMFullVerseTextOptionFlags fullVerseTextOptions() const { return m_flagsLMFVTO; }
 	QString getOptionDescription(bool bSingleLine) const;
 	bool isFTMode() const { return ((m_flagsLMTMO & LMTMO_FTextModeMask) != 0); }
 
@@ -128,6 +140,7 @@ private:
 	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_None;
 	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_None;
 	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_None;
+	LMFullVerseTextOptionFlags m_flagsLMFVTO = LMFVTO_None;
 
 	// Matrix index to letter count shift for normalize/denormalize computations:
 	//	When we are skipping colophons and/or superscriptions, the matrix index
@@ -162,7 +175,7 @@ private:
 	TMapRelIndexToMatrixIndex m_mapPrologueRelIndexToMatrixIndex;
 	// TODO : Rework Prologues above to be done more like FullText logic below...
 
-	// Full text map for use with "include punctuation" or "include spaces" mode:
+	// Full text map for use with "include punctuation" mode:
 	struct TFullVerseEntry {
 		QString m_strVerseText;
 		uint32_t m_nMatrixIndex = 0;

@@ -141,18 +141,14 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 				std::cerr << "Include Punctuation";
 				bOutput = true;
 			}
-			if (flags.testFlag(LMTMO_IncludeSpaces)) {
-				if (bOutput) std::cerr << ", ";
-				std::cerr << "Include Spaces";
-				bOutput = true;
-			}
 		}
 		std::cerr << std::endl;
 
 		CLetterMatrix letterMatrix(pBibleDatabase, flags,
 									LMBPO_None,
 									flags.testFlag(LMTMO_IncludeChapterPrologues) ? LMCPO_NumbersRoman : LMCPO_None,
-									flags.testFlag(LMTMO_IncludeVersePrologues) ? LMVPO_NumbersArabic : LMVPO_None);
+									flags.testFlag(LMTMO_IncludeVersePrologues) ? LMVPO_NumbersArabic : LMVPO_None,
+									LMFVTO_None);
 		if (!letterMatrix.runMatrixIndexRoundtripTest()) return -2;
 		std::cerr << std::endl;
 	}
@@ -245,14 +241,16 @@ public:
 					LetterMatrixTextModifierOptionFlags flagsLMTMO,
 					LMBookPrologueOptionFlags flagsLMBPO,
 					LMChapterPrologueOptionFlags flagsLMCPO,
-					LMVersePrologueOptionFlags flagsLMVPO)
+					LMVersePrologueOptionFlags flagsLMVPO,
+					LMFullVerseTextOptionFlags flagsLMFVTO)
 		:	QSplashScreen(QPixmap(":/res/BeholdtheStone.png")),
 			m_rdb(this),
 			m_strBibleUUID(strBibleUUID),
 			m_flagsLMTMO(flagsLMTMO),
 			m_flagsLMBPO(flagsLMBPO),
 			m_flagsLMCPO(flagsLMCPO),
-			m_flagsLMVPO(flagsLMVPO)
+			m_flagsLMVPO(flagsLMVPO),
+			m_flagsLMFVTO(flagsLMFVTO)
 	{
 		QTimer::singleShot(10, this, SLOT(doLaunch()));
 	}
@@ -290,7 +288,8 @@ protected slots:
 															 m_flagsLMTMO,
 															 m_flagsLMBPO,
 															 m_flagsLMCPO,
-															 m_flagsLMVPO);
+															 m_flagsLMVPO,
+															 m_flagsLMFVTO);
 
 					m_pMainWindow->show();
 					finish(m_pMainWindow);
@@ -307,6 +306,7 @@ private:
 	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_None;
 	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_None;
 	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_None;
+	LMFullVerseTextOptionFlags m_flagsLMFVTO = LMFVTO_None;
 };
 
 #include "main.moc"
@@ -344,6 +344,7 @@ int main(int argc, char *argv[])
 	LMBookPrologueOptionFlags flagsLMBPO = LMBPO_None;
 	LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_None;
 	LMVersePrologueOptionFlags flagsLMVPO = LMVPO_None;
+	LMFullVerseTextOptionFlags flagsLMFVTO = LMFVTO_None;
 	LETTER_CASE_ENUM nLetterCase = LCE_LOWER;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
@@ -382,12 +383,16 @@ int main(int argc, char *argv[])
 			flagsLMTMO.setFlag(LMTMO_IncludeChapterPrologues, true);
 		} else if (strArg.compare("-svp") == 0) {
 			flagsLMTMO.setFlag(LMTMO_IncludeVersePrologues, true);
+		} else if (strArg.compare("-p") == 0) {
+			flagsLMTMO.setFlag(LMTMO_IncludePunctuation);
 		} else if (strArg.startsWith("-cpn")) {
 			flagsLMCPO |= static_cast<LMChapterPrologueOptions>(strArg.mid(4).toUInt() & LMCPO_NumberOptionsMask);
 		} else if (strArg.compare("-cppb") == 0) {
 			flagsLMCPO.setFlag(LMCPO_PsalmBookTags, true);
 		} else if (strArg.startsWith("-vpn")) {
 			flagsLMVPO |= static_cast<LMVersePrologueOptions>(strArg.mid(4).toUInt() & LMVPO_NumberOptionsMask);
+		} else if (strArg.compare("-pntca") == 0) {
+			flagsLMFVTO.setFlag(LMFVTO_NoBracketsForTransChange);
 		} else if (strArg.compare("-l") == 0) {
 			nLetterCase = LCE_LOWER;
 		} else if (strArg.compare("-u") == 0) {
@@ -448,7 +453,7 @@ int main(int argc, char *argv[])
 			strBibleUUID = bibleDescriptor(static_cast<BIBLE_DESCRIPTOR_ENUM>(nDescriptor)).m_strUUID;
 		}
 
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strBibleUUID, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO, flagsLMFVTO};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return -1;
 
 		CReadDatabase rdbMain;
@@ -461,7 +466,8 @@ int main(int argc, char *argv[])
 								 dlgBibleSelect.textModifierOptions(),
 								 dlgBibleSelect.bookPrologueOptions(),
 								 dlgBibleSelect.chapterPrologueOptions(),
-								 dlgBibleSelect.versePrologueOptions()};
+								 dlgBibleSelect.versePrologueOptions(),
+								 dlgBibleSelect.fullVerseTextOptions()};
 		launcher.show();
 		launcher.ensurePolished();
 		launcher.raise();
@@ -510,6 +516,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("              0 = None (default)\n").toUtf8().data();
 		std::cerr << QString("              1 = Roman\n").toUtf8().data();
 		std::cerr << QString("              2 = Arabic\n").toUtf8().data();
+		std::cerr << QString("  -p     =  Include Punctuation\n").toUtf8().data();
+		std::cerr << QString("  -pntca =  No Translation Change/Added in Punctuation generation\n").toUtf8().data();
 		std::cerr << QString("  -l     =  Print Output Text in all lowercase (this is the default)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -o     =  Print Output Text in original case (default is lowercase)\n").toUtf8().data();
@@ -566,7 +574,7 @@ int main(int argc, char *argv[])
 
 	if (bTestMode) return runTests(pBibleDatabase);
 
-	CLetterMatrix letterMatrix{pBibleDatabase, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO};
+	CLetterMatrix letterMatrix{pBibleDatabase, flagsLMTMO, flagsLMBPO, flagsLMCPO, flagsLMVPO, flagsLMFVTO};
 
 	// ------------------------------------------------------------------------
 

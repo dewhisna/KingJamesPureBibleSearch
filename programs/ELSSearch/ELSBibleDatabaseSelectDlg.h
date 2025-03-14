@@ -44,6 +44,7 @@ public:
 										LMBookPrologueOptionFlags flagsLMBPO,
 										LMChapterPrologueOptionFlags flagsLMCPO,
 										LMVersePrologueOptionFlags flagsLMVPO,
+										LMFullVerseTextOptionFlags flagsLMFVTO,
 										QWidget *parent = nullptr);
 	~CELSBibleDatabaseSelectDlg();
 
@@ -53,6 +54,7 @@ public:
 	LMBookPrologueOptionFlags bookPrologueOptions() const { return m_flagsLMBPO; }
 	LMChapterPrologueOptionFlags chapterPrologueOptions() const { return m_flagsLMCPO; }
 	LMVersePrologueOptionFlags versePrologueOptions() const { return m_flagsLMVPO; }
+	LMFullVerseTextOptionFlags fullVerseTextOptions() const { return m_flagsLMFVTO; }
 
 private slots:
 	void en_BibleSelectionChanged(int nIndex);
@@ -68,6 +70,7 @@ private:
 	LMBookPrologueOptionFlags m_flagsLMBPO;
 	LMChapterPrologueOptionFlags m_flagsLMCPO;
 	LMVersePrologueOptionFlags m_flagsLMVPO;
+	LMFullVerseTextOptionFlags m_flagsLMFVTO;
 };
 
 // ============================================================================

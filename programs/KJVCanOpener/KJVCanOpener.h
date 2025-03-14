@@ -163,6 +163,7 @@ public slots:
 										  LMBookPrologueOptionFlags flagsLMBPO = LMBPO_None,
 										  LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_None,
 										  LMVersePrologueOptionFlags flagsLMVPO = LMVPO_None,
+										  LMFullVerseTextOptionFlags flagsLMFVTO = LMFVTO_None,
 										  QWidget *pParent = nullptr);
 #endif
 

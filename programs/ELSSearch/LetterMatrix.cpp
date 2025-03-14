@@ -352,12 +352,14 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 							 LetterMatrixTextModifierOptionFlags flagsLMTMO,
 							 LMBookPrologueOptionFlags flagsLMBPO,
 							 LMChapterPrologueOptionFlags flagsLMCPO,
-							 LMVersePrologueOptionFlags flagsLMVPO)
+							 LMVersePrologueOptionFlags flagsLMVPO,
+							 LMFullVerseTextOptionFlags flagsLMFVTO)
 	:	m_pBibleDatabase(pBibleDatabase),
 		m_flagsLMTMO(flagsLMTMO),
 		m_flagsLMBPO(flagsLMBPO),
 		m_flagsLMCPO(flagsLMCPO),
-		m_flagsLMVPO(flagsLMVPO)
+		m_flagsLMVPO(flagsLMVPO),
+		m_flagsLMFVTO(flagsLMFVTO)
 {
 	Q_ASSERT(!m_pBibleDatabase.isNull());
 
@@ -393,6 +395,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 	QStringList lstWordsOfJesus;
 	CWordsOfJesusExtractor vtrtWordsOfJesus(lstWordsOfJesus);
 	CVerseTextPlainRichifierTags vtrtFullText;
+	if (m_flagsLMFVTO.testFlag(LMFVTO_NoBracketsForTransChange)) vtrtFullText.setTransChangeAddedTags(QString(), QString());
 	CRelIndex ndxMatrixLastPrologue;
 	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
 		 normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {
@@ -580,9 +583,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			}
 		} else {
 			QString strFullVerseText = pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtFullText);
-			if (!m_flagsLMTMO.testFlag(LMTMO_IncludeSpaces)) {
-				strFullVerseText.remove(QRegularExpression("\\s"));
-			}
+			strFullVerseText.remove(QRegularExpression("\\s"));		// Remove spaces in verse rendering
 
 			if (!ndxMatrixCurrent.isColophon()) {
 				if (!ndxMatrixCurrent.isSuperscription() || !m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
@@ -1032,13 +1033,9 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
 			strDescription += QObject::tr("Punctuation", "CLetterMatrix");
-			if (!bSingleLine) strDescription += "\n";
-			bPrologues = true;
-		}
-		if (textModifierOptions().testFlag(LMTMO_IncludePunctuation)) {
-			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
-			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
-			strDescription += QObject::tr("Spaces", "CLetterMatrix");
+			if (fullVerseTextOptions().testFlag(LMFVTO_NoBracketsForTransChange)) {
+				strDescription += " " + QObject::tr("(NoTCA)", "CLetterMatrix");
+			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}

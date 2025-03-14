@@ -3098,6 +3098,7 @@ CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID,
 													 LMBookPrologueOptionFlags flagsLMBPO,
 													 LMChapterPrologueOptionFlags flagsLMCPO,
 													 LMVersePrologueOptionFlags flagsLMVPO,
+													 LMFullVerseTextOptionFlags flagsLMFVTO,
 													 QWidget *pParent)
 {
 	if (pParent == nullptr) pParent = this;
@@ -3107,17 +3108,19 @@ CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID,
 	LMBookPrologueOptionFlags flagsTargetLMBPO = flagsLMBPO;
 	LMChapterPrologueOptionFlags flagsTargetLMCPO = flagsLMCPO;
 	LMVersePrologueOptionFlags flagsTargetLMVPO = flagsLMVPO;
+	LMFullVerseTextOptionFlags flagsTargetLMFVTO = flagsLMFVTO;
 
 	if (strTargetUUID.isEmpty()) {
 		if (pParent == this) strTargetUUID = m_pBibleDatabase->compatibilityUUID();
 		// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strTargetUUID, LMTMO_None, LMBPO_None, LMCPO_None, LMVPO_None, pParent};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strTargetUUID, LMTMO_None, LMBPO_None, LMCPO_None, LMVPO_None, LMFVTO_None, pParent};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return nullptr;
 		strTargetUUID = dlgBibleSelect.bibleUUID();
 		flagsTargetTMO = dlgBibleSelect.textModifierOptions();
 		flagsTargetLMBPO = dlgBibleSelect.bookPrologueOptions();
 		flagsTargetLMCPO = dlgBibleSelect.chapterPrologueOptions();
 		flagsTargetLMVPO = dlgBibleSelect.versePrologueOptions();
+		flagsTargetLMFVTO = dlgBibleSelect.fullVerseTextOptions();
 	}
 
 	CBusyCursor iAmBusy(nullptr);
@@ -3137,7 +3140,8 @@ CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID,
 #endif
 
 	CELSSearchMainWindow *pELSSearchWindow = new CELSSearchMainWindow(pBibleDatabase, flagsTargetTMO,
-																flagsTargetLMBPO, flagsTargetLMCPO, flagsTargetLMVPO);
+																flagsTargetLMBPO, flagsTargetLMCPO, flagsTargetLMVPO,
+																flagsTargetLMFVTO);
 #if (!defined(EMSCRIPTEN) && !defined(IS_CONSOLE_APP)) || defined(Q_OS_WASM)
 	addSettingsMenu(pELSSearchWindow);
 #endif

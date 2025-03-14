@@ -93,6 +93,7 @@ public:
 								  LMBookPrologueOptionFlags flagsLMBPO,
 								  LMChapterPrologueOptionFlags flagsLMCPO,
 								  LMVersePrologueOptionFlags flagsLMVPO,
+								  LMFullVerseTextOptionFlags flagsLMFVTO,
 								  QWidget *parent = nullptr);
 	~CELSSearchMainWindow();
 
