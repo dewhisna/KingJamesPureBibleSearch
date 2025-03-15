@@ -114,6 +114,7 @@ enum LMFullVerseTextOptions {
 	// ----
 	LMFVTO_NoBracketsForTransChange = 0x1,	// Remove brackets for Translation Add/Change markup
 	LMFVTO_IncludePilcrowMarkers = 0x2,		// Include pilcrow markers in markup
+	LMFVTO_DecomposeLetters = 0x4,			// Decompose letters to remove accents
 	// ----
 	LMFVTO_Default = LMFVTO_None,			// Default for new format .els files
 };

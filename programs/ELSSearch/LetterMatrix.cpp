@@ -770,8 +770,12 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 		} else {
 			QString strFullVerseText = pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtFullText);
 			strFullVerseText.remove(QRegularExpression("\\s"));		// Remove spaces in verse rendering
-			strFullVerseText = StringParse::deCantillate(strFullVerseText);			// Decantillate first in case that's not the current Bible database setting, so we match the "search word" part of the logic
-			strFullVerseText = StringParse::decompose(strFullVerseText, false);		// Decompose things like ligatures and remove accents, but leave apostrophes and hyphens
+			strFullVerseText = StringParse::deCantillate(strFullVerseText);				// Decantillate first in case that's not the current Bible database setting, so we match the "search word" part of the logic
+			if (m_flagsLMFVTO.testFlag(LMFVTO_DecomposeLetters)) {
+				strFullVerseText = StringParse::decompose(strFullVerseText, false);		// Decompose things like ligatures and remove accents, but leave apostrophes and hyphens
+			} else {
+				strFullVerseText = StringParse::reduce(strFullVerseText, false);		// Remove free-standing marks (like Hebrew Sheva)
+			}
 
 			if (!ndxMatrixCurrent.isColophon()) {
 				if (!ndxMatrixCurrent.isSuperscription() || !m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
@@ -1236,6 +1240,9 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 			}
 			if (fullVerseTextOptions().testFlag(LMFVTO_IncludePilcrowMarkers)) {
 				strDescription += "(" + QString(g_chrPilcrow) + ")";
+			}
+			if (fullVerseTextOptions().testFlag(LMFVTO_DecomposeLetters)) {
+				strDescription += "(" + QObject::tr("decomp", "CLetterMatrix") + ")";
 			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;

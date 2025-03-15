@@ -57,6 +57,7 @@ extern const QChar g_chrPilcrow;
 
 namespace StringParse {
 	QString decompose(const QString &strWord, bool bRemoveHyphens);			// Word decompose() function to breakdown and remove accents from words for searching purposes
+	QString reduce(const QString &strWord, bool bRemoveHyphens);			// Like decompose(), but removes non-canonical marks -- keeps things like German Umlauts, but removes things like Hebrew Sheva
 	QString deLigature(const QString &strWord);								// Decompose Ligatures into their constituent parts (decompose already does this too)
 	QString deApostrHyphen(const QString &strWord, bool bRemoveHyphens);	// Decompose Apostrophes and Hyphens so matches work correctly and yet rendered text can have the rich set.  (decompose already does this too)
 	QString deApostrophe(const QString &strWord, bool bRemove = false);		// Decompose/remove Apostrophes only

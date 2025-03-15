@@ -141,6 +141,17 @@ namespace StringParse {
 		return strDecomposed;
 	}
 
+	QString reduce(const QString &strWord, bool bRemoveHyphens)
+	{
+		QString strReduced = deLigature(deApostrHyphen(strWord, bRemoveHyphens).normalized(QString::NormalizationForm_KC));
+
+		for (int nPos = strReduced.size()-1; nPos >= 0; --nPos) {
+			if (strReduced.at(nPos).isMark()) strReduced.remove(nPos, 1);
+		}
+
+		return strReduced;
+	}
+
 	QString deLigature(const QString &strWord)
 	{
 		QString strDecomposed = strWord;

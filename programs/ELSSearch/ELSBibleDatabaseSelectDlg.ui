@@ -28,8 +28,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
-    <height>591</height>
+    <width>380</width>
+    <height>620</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -229,7 +229,14 @@
      </property>
     </widget>
    </item>
-   <item row="16" column="0" colspan="4">
+   <item row="16" column="1" colspan="3">
+    <widget class="QCheckBox" name="chkDecomposeLetters">
+     <property name="text">
+      <string>Deco&amp;mpose Letters (Remove Accents)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="17" column="0" colspan="4">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -242,7 +249,7 @@
      </property>
     </spacer>
    </item>
-   <item row="17" column="0" colspan="4">
+   <item row="18" column="0" colspan="4">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -272,6 +279,7 @@
   <tabstop>chkIncludePunctuation</tabstop>
   <tabstop>chkNoTransChangeAddedTags</tabstop>
   <tabstop>chkIncludePilcrowMarkers</tabstop>
+  <tabstop>chkDecomposeLetters</tabstop>
  </tabstops>
  <resources/>
  <connections>
