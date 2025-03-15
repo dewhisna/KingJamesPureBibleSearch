@@ -24,6 +24,7 @@
 #include "LetterMatrix.h"
 
 #include "../KJVCanOpener/VerseRichifier.h"
+#include "../KJVCanOpener/ParseSymbols.h"
 
 #include <QStringList>
 #include <QRegularExpression>
@@ -1211,6 +1212,15 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
 			strDescription += QObject::tr("Verse Prologues", "CLetterMatrix");
 			strDescription += fnVPONumDesc(versePrologueOptions());
+			if ((versePrologueOptions() & LMVPO_PS119_Mask) != 0) {
+				strDescription += " (w/";
+				if (versePrologueOptions().testFlag(LMVPO_PS119_HebrewLetter)) strDescription += QObject::tr("Heb", "CLetterMatrix");
+				if (versePrologueOptions().testFlag(LMVPO_PS119_Transliteration)) strDescription += QObject::tr("Trn", "CLetterMatrix");
+				if (versePrologueOptions().testFlag(LMVPO_PS119_Punctuation) &&
+					textModifierOptions().testFlag(LMTMO_IncludePunctuation)) strDescription += QObject::tr("Pun", "CLetterMatrix");
+				strDescription += QObject::tr("Acrostics", "CLetterMatrix");
+				strDescription += ")";
+			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}
@@ -1218,8 +1228,12 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
 			strDescription += QObject::tr("Punctuation", "CLetterMatrix");
+			if (fullVerseTextOptions() != LMFVTO_None) strDescription += " ";
 			if (fullVerseTextOptions().testFlag(LMFVTO_NoBracketsForTransChange)) {
-				strDescription += " " + QObject::tr("(NoTCA)", "CLetterMatrix");
+				strDescription += "(" + QObject::tr("NoTCA", "CLetterMatrix") + ")";
+			}
+			if (fullVerseTextOptions().testFlag(LMFVTO_IncludePilcrowMarkers)) {
+				strDescription += "(" + QString(g_chrPilcrow) + ")";
 			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;

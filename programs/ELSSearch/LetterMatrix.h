@@ -99,6 +99,7 @@ enum LMVersePrologueOptions {
 	LMVPO_PS119_HebrewLetter = 0x0010,		// Add Hebrew letter on Ps119 Acrostics
 	LMVPO_PS119_Transliteration = 0x0020,	// Add Hebrew->English Transliteration on Ps119 Acrostics
 	LMVPO_PS119_Punctuation = 0x0040,		// Add period on Ps119 Acrostics Prologues
+	LMVPO_PS119_Mask = 0x0030,				// Mask for only flags that can output the acrostics text
 	// ----
 	LMVPO_Default =							// Default for new format .els files
 		(LMVPO_PS119_HebrewLetter | LMVPO_PS119_Transliteration | LMVPO_PS119_Punctuation),
