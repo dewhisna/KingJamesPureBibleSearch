@@ -35,7 +35,8 @@
 
 // Warning: Don't change this list order or you'll break .els transcript files:
 enum LetterMatrixTextModifierOptions {
-	LMTMO_None = 0x0,						// Default -- No modifiers (use Bible Database as-is)
+	LMTMO_None = 0x0,						// No modifiers (use Bible Database as-is)
+	// ----
 	LMTMO_WordsOfJesusOnly = 0x0001,		// Use Words of Jesus Only
 	LMTMO_RemoveColophons = 0x0002,			// Strip out colophons from epistles
 	LMTMO_RemoveSuperscriptions = 0x0004,	// Strip out superscriptions from Psalms
@@ -47,6 +48,8 @@ enum LetterMatrixTextModifierOptions {
 	LMTMO_FTextModeMask = 0x0040,			// Mask for Punctuation where the "full text" mode must be used -- Used as a placeholder for if/when additional options are added requiring Full Text Mode
 	// ----
 	LMTMO_ALL = 0x007F,						// Values with all flags set to use as a loop iterator over available flags
+	// ----
+	LMTMO_Default = LMTMO_None,				// Default -- No modifiers (use Bible Database as-is)
 };
 Q_DECLARE_FLAGS(LetterMatrixTextModifierOptionFlags, LetterMatrixTextModifierOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
@@ -55,7 +58,9 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
 
 // Warning: Don't change this list order or you'll break .els transcript files:
 enum LMBookPrologueOptions {
-	LMBPO_None = 0x0,						// Default for new format .els files
+	LMBPO_None = 0x0,						// No Modifier Options
+	// ----
+	LMBPO_Default = LMBPO_None,				// Default for new format .els files
 };
 Q_DECLARE_FLAGS(LMBookPrologueOptionFlags, LMBookPrologueOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMBookPrologueOptionFlags)
@@ -63,7 +68,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LMBookPrologueOptionFlags)
 // ============================================================================
 
 enum LMChapterPrologueOptions {
-	LMCPO_None = 0x0,							// Default for new format .els files
+	LMCPO_None = 0x0,							// No Modifier Options
 	// ----
 	LMCPO_NumbersNone = 0x0,					// No numbers will be output
 	LMCPO_NumbersRoman = 0x1,					// Use Roman Numerals
@@ -75,6 +80,8 @@ enum LMChapterPrologueOptions {
 	LMCPO_PsalmBookNumbersRoman = 0x0020,		// Use Roman Numerals
 	LMCPO_PsalmBookNumbersArabic = 0x0040,		// Use Arabic Numerals
 	LMCPO_PsalmBookNumberOptionsMask = 0x01E0,	// Low Nybble is the Number Options
+	// ----
+	LMCPO_Default = LMCPO_None,					// Default for new format .els files
 };
 Q_DECLARE_FLAGS(LMChapterPrologueOptionFlags, LMChapterPrologueOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMChapterPrologueOptionFlags)
@@ -82,13 +89,19 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LMChapterPrologueOptionFlags)
 // ============================================================================
 
 enum LMVersePrologueOptions {
-	LMVPO_None = 0x0,						// Default for new format .els files
+	LMVPO_None = 0x0,						// No Modifier Options
 	// ----
 	LMVPO_NumbersNone = 0x0,				// No numbers will be output
 	LMVPO_NumbersRoman = 0x1,				// Use Roman Numerals
 	LMVPO_NumbersArabic = 0x2,				// Use Arabic Numerals
 	LMVPO_NumberOptionsMask = 0xF,			// Low Nybble is the Number Options
 	// ----
+	LMVPO_PS119_HebrewLetter = 0x0010,		// Add Hebrew letter on Ps119 Acrostics
+	LMVPO_PS119_Transliteration = 0x0020,	// Add Hebrew->English Transliteration on Ps119 Acrostics
+	LMVPO_PS119_Punctuation = 0x0040,		// Add period on Ps119 Acrostics Prologues
+	// ----
+	LMVPO_Default =							// Default for new format .els files
+		(LMVPO_PS119_HebrewLetter | LMVPO_PS119_Transliteration | LMVPO_PS119_Punctuation),
 };
 Q_DECLARE_FLAGS(LMVersePrologueOptionFlags, LMVersePrologueOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMVersePrologueOptionFlags)
@@ -96,10 +109,11 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LMVersePrologueOptionFlags)
 // ============================================================================
 
 enum LMFullVerseTextOptions {
-	LMFVTO_None = 0x0,						// Default for new format .els files
+	LMFVTO_None = 0x0,						// No Modifier Options
 	// ----
 	LMFVTO_NoBracketsForTransChange = 0x1,	// Remove brackets for Translation Add/Change markup
 	// ----
+	LMFVTO_Default = LMFVTO_None,			// Default for new format .els files
 };
 Q_DECLARE_FLAGS(LMFullVerseTextOptionFlags, LMFullVerseTextOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMFullVerseTextOptionFlags)
@@ -136,11 +150,11 @@ public:
 
 private:
 	CBibleDatabasePtr m_pBibleDatabase;
-	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_None;
-	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_None;
-	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_None;
-	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_None;
-	LMFullVerseTextOptionFlags m_flagsLMFVTO = LMFVTO_None;
+	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_Default;
+	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_Default;
+	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_Default;
+	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_Default;
+	LMFullVerseTextOptionFlags m_flagsLMFVTO = LMFVTO_Default;
 
 	// Matrix index to letter count shift for normalize/denormalize computations:
 	//	When we are skipping colophons and/or superscriptions, the matrix index

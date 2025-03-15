@@ -502,7 +502,7 @@ void CELSSearchMainWindow::newELSSearchWindow()
 	Q_ASSERT(!lstCanOpeners.isEmpty());
 	CKJVCanOpener *pCanOpener = lstCanOpeners.at(0);		// Shouldn't matter which one we launch from, so pick the first
 	if (pCanOpener) {
-		pCanOpener->launchELSSearch(QString(), LMTMO_None, LMBPO_None, LMCPO_None, LMVPO_None, LMFVTO_None, this);
+		pCanOpener->launchELSSearch(QString(), LMTMO_Default, LMBPO_Default, LMCPO_Default, LMVPO_Default, LMFVTO_Default, this);
 	}
 }
 #endif
@@ -572,10 +572,10 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 				}
 				QString strUUID = lstEntry.at(1);
 				LetterMatrixTextModifierOptionFlags tmo = static_cast<LetterMatrixTextModifierOptionFlags>(lstEntry.at(2).toInt());		// This would use fromInt(), but that needs Qt 6.2+
-				LMBookPrologueOptionFlags bpo = (lstEntry.size() >= 6) ? static_cast<LMBookPrologueOptionFlags>(lstEntry.at(3).toInt()) : LMBPO_None;	// This would use fromInt(), but that needs Qt 6.2+
-				LMChapterPrologueOptionFlags cpo = (lstEntry.size() >= 6) ? static_cast<LMChapterPrologueOptionFlags>(lstEntry.at(4).toInt()) : LMCPO_NumbersRoman;	// This would use fromInt(), but that needs Qt 6.2+
-				LMVersePrologueOptionFlags vpo = (lstEntry.size() >= 6) ? static_cast<LMVersePrologueOptionFlags>(lstEntry.at(5).toInt()) : LMVPO_None;		// This would use fromInt(), but that needs Qt 6.2+
-				LMFullVerseTextOptionFlags fvto = (lstEntry.size() >= 7) ? static_cast<LMFullVerseTextOptionFlags>(lstEntry.at(6).toInt()) : LMFVTO_None;	// This would use fromInt(), but that needs Qt 6.2+
+				LMBookPrologueOptionFlags bpo = (lstEntry.size() >= 6) ? static_cast<LMBookPrologueOptionFlags>(lstEntry.at(3).toInt()) : LMBPO_Default;		// This would use fromInt(), but that needs Qt 6.2+
+				LMChapterPrologueOptionFlags cpo = (lstEntry.size() >= 6) ? static_cast<LMChapterPrologueOptionFlags>(lstEntry.at(4).toInt()) : LMCPO_NumbersRoman;	// This would use fromInt(), but that needs Qt 6.2+ (Roman for backward compat with old file format)
+				LMVersePrologueOptionFlags vpo = (lstEntry.size() >= 6) ? static_cast<LMVersePrologueOptionFlags>(lstEntry.at(5).toInt()) : LMVPO_Default;		// This would use fromInt(), but that needs Qt 6.2+
+				LMFullVerseTextOptionFlags fvto = (lstEntry.size() >= 7) ? static_cast<LMFullVerseTextOptionFlags>(lstEntry.at(6).toInt()) : LMFVTO_Default;	// This would use fromInt(), but that needs Qt 6.2+
 				if ((bibleDatabase()->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) != 0) ||
 					(tmo != m_letterMatrix.textModifierOptions()) ||
 					(bpo != m_letterMatrix.bookPrologueOptions()) ||

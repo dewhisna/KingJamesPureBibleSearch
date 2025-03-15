@@ -145,10 +145,10 @@ int runTests(CBibleDatabasePtr pBibleDatabase)
 		std::cerr << std::endl;
 
 		CLetterMatrix letterMatrix(pBibleDatabase, flags,
-									LMBPO_None,
-									flags.testFlag(LMTMO_IncludeChapterPrologues) ? LMCPO_NumbersRoman : LMCPO_None,
-									flags.testFlag(LMTMO_IncludeVersePrologues) ? LMVPO_NumbersArabic : LMVPO_None,
-									LMFVTO_None);
+									LMBPO_Default,
+									flags.testFlag(LMTMO_IncludeChapterPrologues) ? LMCPO_NumbersRoman : LMCPO_Default,
+									flags.testFlag(LMTMO_IncludeVersePrologues) ? LMVPO_NumbersArabic : LMVPO_Default,
+									LMFVTO_Default);
 		if (!letterMatrix.runMatrixIndexRoundtripTest()) return -2;
 		std::cerr << std::endl;
 	}
@@ -302,11 +302,11 @@ private:
 	CELSSearchMainWindow *m_pMainWindow = nullptr;
 	CReadDatabase m_rdb;
 	QString m_strBibleUUID;
-	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_None;
-	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_None;
-	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_None;
-	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_None;
-	LMFullVerseTextOptionFlags m_flagsLMFVTO = LMFVTO_None;
+	LetterMatrixTextModifierOptionFlags m_flagsLMTMO = LMTMO_Default;
+	LMBookPrologueOptionFlags m_flagsLMBPO = LMBPO_Default;
+	LMChapterPrologueOptionFlags m_flagsLMCPO = LMCPO_Default;
+	LMVersePrologueOptionFlags m_flagsLMVPO = LMVPO_Default;
+	LMFullVerseTextOptionFlags m_flagsLMFVTO = LMFVTO_Default;
 };
 
 #include "main.moc"
@@ -340,11 +340,11 @@ int main(int argc, char *argv[])
 	bool bTestMode = false;
 	// ----
 	bool bRunMultithreaded = false;
-	LetterMatrixTextModifierOptionFlags flagsLMTMO = LMTMO_None;
-	LMBookPrologueOptionFlags flagsLMBPO = LMBPO_None;
-	LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_None;
-	LMVersePrologueOptionFlags flagsLMVPO = LMVPO_None;
-	LMFullVerseTextOptionFlags flagsLMFVTO = LMFVTO_None;
+	LetterMatrixTextModifierOptionFlags flagsLMTMO = LMTMO_Default;
+	LMBookPrologueOptionFlags flagsLMBPO = LMBPO_Default;
+	LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_Default;
+	LMVersePrologueOptionFlags flagsLMVPO = LMVPO_Default;
+	LMFullVerseTextOptionFlags flagsLMFVTO = LMFVTO_Default;
 	LETTER_CASE_ENUM nLetterCase = LCE_LOWER;
 	unsigned int nBookStart = 0;
 	unsigned int nBookEnd = 0;
@@ -391,6 +391,12 @@ int main(int argc, char *argv[])
 			flagsLMCPO.setFlag(LMCPO_PsalmBookTags, true);
 		} else if (strArg.startsWith("-vpn")) {
 			flagsLMVPO |= static_cast<LMVersePrologueOptions>(strArg.mid(4).toUInt() & LMVPO_NumberOptionsMask);
+		} else if (strArg.compare("-vp119h") == 0) {
+			flagsLMVPO.setFlag(LMVPO_PS119_HebrewLetter, false);
+		} else if (strArg.compare("-vp119t") == 0) {
+			flagsLMVPO.setFlag(LMVPO_PS119_Transliteration, false);
+		} else if (strArg.compare("-vp119p") == 0) {
+			flagsLMVPO.setFlag(LMVPO_PS119_Punctuation, false);
 		} else if (strArg.compare("-pntca") == 0) {
 			flagsLMFVTO.setFlag(LMFVTO_NoBracketsForTransChange);
 		} else if (strArg.compare("-l") == 0) {
@@ -516,6 +522,9 @@ int main(int argc, char *argv[])
 		std::cerr << QString("              0 = None (default)\n").toUtf8().data();
 		std::cerr << QString("              1 = Roman\n").toUtf8().data();
 		std::cerr << QString("              2 = Arabic\n").toUtf8().data();
+		std::cerr << QString("  -vp119h = Remove Ps119 Hebrew Letter from Verse Prologue\n").toUtf8().data();
+		std::cerr << QString("  -vp119t = Remove Ps119 Transliteration from Verse Prologue\n").toUtf8().data();
+		std::cerr << QString("  -vp119p = Remove Ps119 Period from Verse Prologue (Punct. mode only)\n").toUtf8().data();
 		std::cerr << QString("  -p     =  Include Punctuation\n").toUtf8().data();
 		std::cerr << QString("  -pntca =  No Translation Change/Added in Punctuation generation\n").toUtf8().data();
 		std::cerr << QString("  -l     =  Print Output Text in all lowercase (this is the default)\n").toUtf8().data();

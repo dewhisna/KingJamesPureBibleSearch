@@ -159,11 +159,11 @@ public:
 public slots:
 #ifdef USING_ELSSEARCH
 	CELSSearchMainWindow *launchELSSearch(const QString &strUUID = QString(),
-										  LetterMatrixTextModifierOptionFlags flagsTMO = LMTMO_None,
-										  LMBookPrologueOptionFlags flagsLMBPO = LMBPO_None,
-										  LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_None,
-										  LMVersePrologueOptionFlags flagsLMVPO = LMVPO_None,
-										  LMFullVerseTextOptionFlags flagsLMFVTO = LMFVTO_None,
+										  LetterMatrixTextModifierOptionFlags flagsTMO = LMTMO_Default,
+										  LMBookPrologueOptionFlags flagsLMBPO = LMBPO_Default,
+										  LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_Default,
+										  LMVersePrologueOptionFlags flagsLMVPO = LMVPO_Default,
+										  LMFullVerseTextOptionFlags flagsLMFVTO = LMFVTO_Default,
 										  QWidget *pParent = nullptr);
 #endif
 

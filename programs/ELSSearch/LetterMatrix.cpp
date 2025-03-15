@@ -262,6 +262,185 @@ static QString intToRoman(int num, bool b1611Style)
 
 // ----------------------------------------------------------------------------
 
+static QString ps119Prologue(uint32_t nVerse, LMVersePrologueOptionFlags nFlags, bool b1611)
+{
+	if (((nVerse-1) % 8) != 0) return QString();
+
+	QString strHebrewPrefix;
+
+	if (nFlags.testFlag(LMVPO_PS119_HebrewLetter)) {
+		switch ((nVerse-1)/8) {
+			case 0:
+				// ALEPH
+				strHebrewPrefix += QChar(0x005D0);
+				break;
+			case 1:
+				// BETH
+				strHebrewPrefix += QChar(0x005D1);
+				break;
+			case 2:
+				// GIMEL
+				strHebrewPrefix += QChar(0x005D2);
+				break;
+			case 3:
+				// DALETH
+				strHebrewPrefix += QChar(0x005D3);
+				break;
+			case 4:
+				// HE
+				strHebrewPrefix += QChar(0x005D4);
+				break;
+			case 5:
+				// VAU
+				strHebrewPrefix += QChar(0x005D5);
+				break;
+			case 6:
+				// ZAIN
+				strHebrewPrefix += QChar(0x005D6);
+				break;
+			case 7:
+				// CHETH
+				strHebrewPrefix += QChar(0x005D7);
+				break;
+			case 8:
+				// TETH
+				strHebrewPrefix += QChar(0x005D8);
+				break;
+			case 9:
+				// JOD
+				strHebrewPrefix += QChar(0x005D9);
+				break;
+			case 10:
+				// CAPH
+				strHebrewPrefix += QChar(0x005DB);		// Using nonfinal-CAPH
+				break;
+			case 11:
+				// LAMED
+				strHebrewPrefix += QChar(0x005DC);
+				break;
+			case 12:
+				// MEM
+				strHebrewPrefix += QChar(0x005DE);		// Using nonfinal-Mem
+				break;
+			case 13:
+				// NUN
+				strHebrewPrefix += QChar(0x005E0);		// Using nonfinal-Nun
+				break;
+			case 14:
+				// SAMECH
+				strHebrewPrefix += QChar(0x005E1);
+				break;
+			case 15:
+				// AIN
+				strHebrewPrefix += QChar(0x005E2);
+				break;
+			case 16:
+				// PE
+				strHebrewPrefix += QChar(0x005E4);		// Using nonfinal-Pe
+				break;
+			case 17:
+				// TZADDI
+				strHebrewPrefix += QChar(0x005E6);		// Using nonfinal-Tzaddi
+				break;
+			case 18:
+				// KOPH
+				strHebrewPrefix += QChar(0x005E7);
+				break;
+			case 19:
+				// RESH
+				strHebrewPrefix += QChar(0x005E8);
+				break;
+			case 20:
+				// SCHIN
+				strHebrewPrefix += QChar(0x005E9);
+				break;
+			case 21:
+				// TAU
+				strHebrewPrefix += QChar(0x005EA);
+				break;
+		}
+		strHebrewPrefix += " ";
+	}
+
+	if (nFlags.testFlag(LMVPO_PS119_Transliteration)) {
+		switch ((nVerse-1)/8) {
+			case 0:
+				strHebrewPrefix += "ALEPH";
+				break;
+			case 1:
+				strHebrewPrefix += "BETH";
+				break;
+			case 2:
+				strHebrewPrefix += "GIMEL";
+				break;
+			case 3:
+				strHebrewPrefix += "DALETH";
+				break;
+			case 4:
+				strHebrewPrefix += "HE";
+				break;
+			case 5:
+				strHebrewPrefix += (!b1611 ? "VAU" : "VAV");
+				break;
+			case 6:
+				strHebrewPrefix += "ZAIN";
+				break;
+			case 7:
+				strHebrewPrefix += "CHETH";
+				break;
+			case 8:
+				strHebrewPrefix += "TETH";
+				break;
+			case 9:
+				strHebrewPrefix += (!b1611 ? "JOD" : "IOD");
+				break;
+			case 10:
+				strHebrewPrefix += "CAPH";
+				break;
+			case 11:
+				strHebrewPrefix += "LAMED";
+				break;
+			case 12:
+				strHebrewPrefix += "MEM";
+				break;
+			case 13:
+				strHebrewPrefix += (!b1611 ? "NUN" : "NVN");
+				break;
+			case 14:
+				strHebrewPrefix += "SAMECH";
+				break;
+			case 15:
+				strHebrewPrefix += "AIN";
+				break;
+			case 16:
+				strHebrewPrefix += "PE";
+				break;
+			case 17:
+				strHebrewPrefix += (!b1611 ? "TZADDI" : "TSADDI");
+				break;
+			case 18:
+				strHebrewPrefix += "KOPH";
+				break;
+			case 19:
+				strHebrewPrefix += "RESH";
+				break;
+			case 20:
+				strHebrewPrefix += "SCHIN";
+				break;
+			case 21:
+				strHebrewPrefix += (!b1611 ? "TAU" : "TAV");
+				break;
+		}
+	}
+
+	if (nFlags.testFlag(LMVPO_PS119_Punctuation)) strHebrewPrefix += ".";
+	strHebrewPrefix += " ";
+
+	return strHebrewPrefix;
+}
+
+// ----------------------------------------------------------------------------
+
 QString chapterNumber(const QString &strPrefix, LMChapterPrologueOptionFlags flagsCPO, uint32_t nNumber, bool b1611)
 {
 	QString strChapNumber;
@@ -510,10 +689,14 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			entryPrologue.m_ndxPrologue = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), ndxMatrixCurrent.verse(), 0);
 
 			if (bIsKJV || bIs1611) {
+				if ((ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) && (ndxMatrixCurrent.chapter() == 119)) {
+					entryPrologue.m_strPrologue += ps119Prologue(ndxMatrixCurrent.verse(), m_flagsLMVPO, bIs1611);
+				}
 				entryPrologue.m_strPrologue += verseNumber(QString(), m_flagsLMVPO, ndxMatrixCurrent.verse(), bIs1611);
 			}
 			entryPrologue.m_strPrologue.remove(
-				QRegularExpression(m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation) ? "\\s" : "[^a-zA-Z0-9]"));
+				QRegularExpression(m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation) ? QString("\\s") :
+									   (QString("[^a-zA-Z0-9") + QChar(0x005D0) + "-" + QChar(0x005EA) + "]")));
 
 			if (!entryPrologue.m_strPrologue.isEmpty()) {
 				if (m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues) && !m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
@@ -525,8 +708,6 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			bAddedPrologue = true;
 		}
 		if (bAddedPrologue) ndxMatrixLastPrologue = ndxMatrixCurrent;
-
-		// TODO : Figure out what to do about Psalm 119 Hebrew Prefixes!! (Part of Verse Prologue?)
 
 		if (!isFTMode() || m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
 			const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);

@@ -3113,7 +3113,7 @@ CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID,
 	if (strTargetUUID.isEmpty()) {
 		if (pParent == this) strTargetUUID = m_pBibleDatabase->compatibilityUUID();
 		// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strTargetUUID, LMTMO_None, LMBPO_None, LMCPO_None, LMVPO_None, LMFVTO_None, pParent};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strTargetUUID, LMTMO_Default, LMBPO_Default, LMCPO_Default, LMVPO_Default, LMFVTO_Default, pParent};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return nullptr;
 		strTargetUUID = dlgBibleSelect.bibleUUID();
 		flagsTargetTMO = dlgBibleSelect.textModifierOptions();

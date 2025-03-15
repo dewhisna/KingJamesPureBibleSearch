@@ -82,6 +82,9 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	ui->cmbVPONumbers->addItem(tr("Roman"), LMVPO_NumbersRoman);
 	ui->cmbVPONumbers->addItem(tr("Arabic"), LMVPO_NumbersArabic);
 	ui->cmbVPONumbers->setCurrentIndex(ui->cmbVPONumbers->findData(QVariant::fromValue(static_cast<unsigned int>(m_flagsLMVPO & LMVPO_NumberOptionsMask))));
+	ui->chkIncludePs119Hebrew->setChecked(m_flagsLMVPO.testFlag(LMVPO_PS119_HebrewLetter));
+	ui->chkIncludePs119Transliteration->setChecked(m_flagsLMVPO.testFlag(LMVPO_PS119_Transliteration));
+	ui->chkIncludePs119Punctuation->setChecked(m_flagsLMVPO.testFlag(LMVPO_PS119_Punctuation));
 
 	ui->chkNoTransChangeAddedTags->setChecked(m_flagsLMFVTO.testFlag(LMFVTO_NoBracketsForTransChange));
 
@@ -109,6 +112,10 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 
 	ui->lblVPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 	ui->cmbVPONumbers->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+	ui->chkIncludePs119Hebrew->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+	ui->chkIncludePs119Transliteration->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+	ui->chkIncludePs119Punctuation->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues) &&
+											   m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation));
 
 	ui->chkNoTransChangeAddedTags->setEnabled(!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly) && (textModifierOptions() & LMTMO_FTextModeMask));
 
@@ -139,6 +146,9 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 
 			ui->lblVPONumbers->setEnabled(false);
 			ui->cmbVPONumbers->setEnabled(false);
+			ui->chkIncludePs119Hebrew->setEnabled(false);
+			ui->chkIncludePs119Transliteration->setEnabled(false);
+			ui->chkIncludePs119Punctuation->setEnabled(false);
 
 			ui->chkNoTransChangeAddedTags->setEnabled(false);
 		} else {
@@ -157,6 +167,10 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 
 			ui->lblVPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 			ui->cmbVPONumbers->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+			ui->chkIncludePs119Hebrew->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+			ui->chkIncludePs119Transliteration->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
+			ui->chkIncludePs119Punctuation->setEnabled(m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues) &&
+													   m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation));
 
 			ui->chkNoTransChangeAddedTags->setEnabled((textModifierOptions() & LMTMO_FTextModeMask) != 0);
 		}
@@ -183,11 +197,16 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 
 		ui->lblVPONumbers->setEnabled(bIncludeVersePrologues);
 		ui->cmbVPONumbers->setEnabled(bIncludeVersePrologues);
+		ui->chkIncludePs119Hebrew->setEnabled(bIncludeVersePrologues);
+		ui->chkIncludePs119Transliteration->setEnabled(bIncludeVersePrologues);
+		ui->chkIncludePs119Punctuation->setEnabled(bIncludeVersePrologues && m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation));
 	});
 	connect(ui->chkIncludePunctuation, &QCheckBox::toggled, this, [this](bool bIncludePunctuation)->void {
 		m_flagsLMTMO.setFlag(LMTMO_IncludePunctuation, bIncludePunctuation);
 
 		ui->chkNoTransChangeAddedTags->setEnabled((textModifierOptions() & LMTMO_FTextModeMask) != 0);
+
+		ui->chkIncludePs119Punctuation->setEnabled(bIncludePunctuation && m_flagsLMTMO.testFlag(LMTMO_IncludeVersePrologues));
 	});
 
 	connect(ui->cmbCPONumbers, SIGNAL(currentIndexChanged(int)), this, SLOT(en_CPONumberSelectionChanged(int)));
@@ -199,6 +218,15 @@ CELSBibleDatabaseSelectDlg::CELSBibleDatabaseSelectDlg(const QString &strBibleUU
 	connect(ui->cmbCPOPsalmBookNumbers, SIGNAL(currentIndexChanged(int)), this, SLOT(en_CPOPsalmBookNumberSelectionChanged(int)));
 
 	connect(ui->cmbVPONumbers, SIGNAL(currentIndexChanged(int)), this, SLOT(en_VPONumberSelectionChanged(int)));
+	connect(ui->chkIncludePs119Hebrew, &QCheckBox::toggled, this, [this](bool bIncludePs119Hebrew)->void {
+		m_flagsLMVPO.setFlag(LMVPO_PS119_HebrewLetter, bIncludePs119Hebrew);
+	});
+	connect(ui->chkIncludePs119Transliteration, &QCheckBox::toggled, this, [this](bool bIncludePs119Transliteration)->void {
+		m_flagsLMVPO.setFlag(LMVPO_PS119_Transliteration, bIncludePs119Transliteration);
+	});
+	connect(ui->chkIncludePs119Punctuation, &QCheckBox::toggled, this, [this](bool bIncludePs119Punctuation)->void {
+		m_flagsLMVPO.setFlag(LMVPO_PS119_Punctuation, bIncludePs119Punctuation);
+	});
 
 	connect(ui->chkNoTransChangeAddedTags, &QCheckBox::toggled, this, [this](bool bNoTransChangeAddedTags)->void {
 		m_flagsLMFVTO.setFlag(LMFVTO_NoBracketsForTransChange, bNoTransChangeAddedTags);
