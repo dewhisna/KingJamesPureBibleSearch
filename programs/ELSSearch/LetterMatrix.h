@@ -47,7 +47,9 @@ enum LetterMatrixTextModifierOptions {
 	// ----
 	LMTMO_FTextModeMask = 0x0040,			// Mask for Punctuation where the "full text" mode must be used -- Used as a placeholder for if/when additional options are added requiring Full Text Mode
 	// ----
-	LMTMO_ALL = 0x007F,						// Values with all flags set to use as a loop iterator over available flags
+	LMTMO_DecomposeLetters = 0x0080,		// Decompose letters to remove accents
+	// ----
+	LMTMO_ALL = 0x00FF,						// Values with all flags set to use as a loop iterator over available flags
 	// ----
 	LMTMO_Default = LMTMO_None,				// Default -- No modifiers (use Bible Database as-is)
 };
@@ -114,7 +116,6 @@ enum LMFullVerseTextOptions {
 	// ----
 	LMFVTO_NoBracketsForTransChange = 0x1,	// Remove brackets for Translation Add/Change markup
 	LMFVTO_IncludePilcrowMarkers = 0x2,		// Include pilcrow markers in markup
-	LMFVTO_DecomposeLetters = 0x4,			// Decompose letters to remove accents
 	// ----
 	LMFVTO_Default = LMFVTO_None,			// Default for new format .els files
 };

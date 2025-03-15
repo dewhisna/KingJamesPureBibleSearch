@@ -715,7 +715,8 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			const CConcordanceEntry *pWordEntry = pBibleDatabase->concordanceEntryForWordAtIndex(ndxMatrixCurrent);
 			Q_ASSERT(pWordEntry != nullptr);
 			if (pWordEntry) {
-				const QString &strWord = pWordEntry->rawWord();
+				QString strWord = pWordEntry->rawWord();
+				if (m_flagsLMTMO.testFlag(LMTMO_DecomposeLetters)) strWord = StringParse::decompose(strWord, false);
 
 				if (!m_flagsLMTMO.testFlag(LMTMO_WordsOfJesusOnly)) {
 					// Since the Words of Jesus can never be in Colophons or Superscriptions,
@@ -771,7 +772,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			QString strFullVerseText = pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtFullText);
 			strFullVerseText.remove(QRegularExpression("\\s"));		// Remove spaces in verse rendering
 			strFullVerseText = StringParse::deCantillate(strFullVerseText);				// Decantillate first in case that's not the current Bible database setting, so we match the "search word" part of the logic
-			if (m_flagsLMFVTO.testFlag(LMFVTO_DecomposeLetters)) {
+			if (m_flagsLMTMO.testFlag(LMTMO_DecomposeLetters)) {
 				strFullVerseText = StringParse::decompose(strFullVerseText, false);		// Decompose things like ligatures and remove accents, but leave apostrophes and hyphens
 			} else {
 				strFullVerseText = StringParse::reduce(strFullVerseText, false);		// Remove free-standing marks (like Hebrew Sheva)
@@ -1241,8 +1242,15 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 			if (fullVerseTextOptions().testFlag(LMFVTO_IncludePilcrowMarkers)) {
 				strDescription += "(" + QString(g_chrPilcrow) + ")";
 			}
-			if (fullVerseTextOptions().testFlag(LMFVTO_DecomposeLetters)) {
-				strDescription += "(" + QObject::tr("decomp", "CLetterMatrix") + ")";
+			if (!bSingleLine) strDescription += "\n";
+			bPrologues = true;
+		}
+		if (textModifierOptions().testFlag(LMTMO_DecomposeLetters)) {
+			if (bSingleLine) {
+				strDescription += (bPrologues ? ", " : " ");
+				strDescription += QObject::tr("Decomp", "CLetterMatrix");
+			} else {
+				strDescription += QObject::tr("Decomposed Letters", "CLetterMatrix");
 			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;

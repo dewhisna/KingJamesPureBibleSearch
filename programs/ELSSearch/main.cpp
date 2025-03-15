@@ -401,8 +401,8 @@ int main(int argc, char *argv[])
 			flagsLMFVTO.setFlag(LMFVTO_NoBracketsForTransChange, true);
 		} else if (strArg.compare("-pp") == 0) {
 			flagsLMFVTO.setFlag(LMFVTO_IncludePilcrowMarkers, true);
-		} else if (strArg.compare("-pd") == 0) {
-			flagsLMFVTO.setFlag(LMFVTO_DecomposeLetters, true);
+		} else if (strArg.compare("-d") == 0) {
+			flagsLMTMO.setFlag(LMTMO_DecomposeLetters, true);
 		} else if (strArg.compare("-l") == 0) {
 			nLetterCase = LCE_LOWER;
 		} else if (strArg.compare("-u") == 0) {
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -p     =  Include Punctuation\n").toUtf8().data();
 		std::cerr << QString("  -pntca =  No Translation Change/Added in Punctuation generation\n").toUtf8().data();
 		std::cerr << QString("  -pp    =  Include Pilcrow Markers in Punctuation generation\n").toUtf8().data();
-		std::cerr << QString("  -pd    =  Decompose Letters in Punctuation generation\n").toUtf8().data();
+		std::cerr << QString("  -d     =  Decompose Letters (Remove Accent Marks)\n").toUtf8().data();
 		std::cerr << QString("  -l     =  Print Output Text in all lowercase (this is the default)\n").toUtf8().data();
 		std::cerr << QString("  -u     =  Print Output Text in all uppercase (default is lowercase)\n").toUtf8().data();
 		std::cerr << QString("  -o     =  Print Output Text in original case (default is lowercase)\n").toUtf8().data();
