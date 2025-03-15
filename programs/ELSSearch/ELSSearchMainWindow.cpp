@@ -618,8 +618,36 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					}
 #else
 					int nResult = displayWarning(this, QApplication::applicationName(),
-									tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
-										"The playback results will not be same as the original search!  Continue?"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+									 tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
+											"Do you want to launch a new search window with those settings??"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
+					if (nResult == QMessageBox::Yes) {
+						CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+#ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
+						if (pBibleDatabase.isNull()) {
+							if (TBibleDatabaseList::instance()->loadBibleDatabase(strUUID, false, this)) {
+								pBibleDatabase = TBibleDatabaseList::instance()->atUUID(strUUID);
+								Q_ASSERT(!pBibleDatabase.isNull());
+							} else {
+								break;
+							}
+						}
+#else
+						Q_ASSERT(!pBibleDatabase.isNull());
+#endif
+
+						CBusyCursor iAmBusy(this);
+						CELSSearchMainWindow *pNewELSSearch = new CELSSearchMainWindow(pBibleDatabase, tmo, bpo, cpo, vpo, fvto);
+						if (!pNewELSSearch) break;
+						pNewELSSearch->show();
+						// Launch the search in the new window after we've closed and exited here:
+						QTimer::singleShot(1, pNewELSSearch, [pNewELSSearch, strFilePathName]()->void {
+							pNewELSSearch->en_openSearchTranscript(strFilePathName);
+						});
+						break;
+					}
+					nResult = displayWarning(this, QApplication::applicationName(),
+								 tr( "Continue using this search window??\n\n"
+									 "The playback results will not be same as the original search!"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 					if (nResult != QMessageBox::Yes) break;
 #endif
 				}
