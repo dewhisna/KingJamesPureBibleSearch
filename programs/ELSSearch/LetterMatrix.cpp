@@ -575,6 +575,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 	CWordsOfJesusExtractor vtrtWordsOfJesus(lstWordsOfJesus);
 	CVerseTextPlainRichifierTags vtrtFullText;
 	if (m_flagsLMFVTO.testFlag(LMFVTO_NoBracketsForTransChange)) vtrtFullText.setTransChangeAddedTags(QString(), QString());
+	vtrtFullText.setShowPilcrowMarkers(m_flagsLMFVTO.testFlag(LMFVTO_IncludePilcrowMarkers));
 	CRelIndex ndxMatrixLastPrologue;
 	for (uint32_t normalMatrixCurrent = pBibleDatabase->NormalizeIndex(ndxMatrixCurrent);
 		 normalMatrixCurrent <= normalMatrixEnd; ++normalMatrixCurrent) {

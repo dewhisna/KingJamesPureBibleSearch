@@ -112,6 +112,7 @@ enum LMFullVerseTextOptions {
 	LMFVTO_None = 0x0,						// No Modifier Options
 	// ----
 	LMFVTO_NoBracketsForTransChange = 0x1,	// Remove brackets for Translation Add/Change markup
+	LMFVTO_IncludePilcrowMarkers = 0x2,		// Include pilcrow markers in markup
 	// ----
 	LMFVTO_Default = LMFVTO_None,			// Default for new format .els files
 };
