@@ -502,7 +502,14 @@ void CELSSearchMainWindow::newELSSearchWindow()
 	Q_ASSERT(!lstCanOpeners.isEmpty());
 	CKJVCanOpener *pCanOpener = lstCanOpeners.at(0);		// Shouldn't matter which one we launch from, so pick the first
 	if (pCanOpener) {
-		pCanOpener->launchELSSearch(QString(), LMTMO_Default, LMBPO_Default, LMCPO_Default, LMVPO_Default, LMFVTO_Default, this);
+		pCanOpener->launchELSSearch(true,
+									bibleDatabase()->compatibilityUUID(),
+									m_letterMatrix.textModifierOptions(),
+									m_letterMatrix.bookPrologueOptions(),
+									m_letterMatrix.chapterPrologueOptions(),
+									m_letterMatrix.versePrologueOptions(),
+									m_letterMatrix.fullVerseTextOptions(),
+									this);
 	}
 }
 #endif
@@ -591,7 +598,7 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 										tr(	"This ELS Transcript File was created using a Different Bible Database and/or Text Modifier Options.\n\n"
 											"Do you want to launch a new search window with those settings??"), (QMessageBox::Yes | QMessageBox::No), QMessageBox::No);
 						if (nResult == QMessageBox::Yes) {
-							CELSSearchMainWindow *pNewELSSearch = pCanOpener->launchELSSearch(strUUID, tmo, bpo, cpo, vpo, fvto, this);
+							CELSSearchMainWindow *pNewELSSearch = pCanOpener->launchELSSearch(false, strUUID, tmo, bpo, cpo, vpo, fvto, this);
 							if (!pNewELSSearch) break;
 							// Launch the search in the new window after we've closed and exited here:
 							QTimer::singleShot(1, pNewELSSearch, [pNewELSSearch, strFilePathName]()->void {

@@ -3093,7 +3093,8 @@ void CKJVCanOpener::en_NewCanOpener(QAction *pAction)
 }
 
 #ifdef USING_ELSSEARCH
-CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID,
+CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(bool bPromptOptions,
+													 const QString &strUUID,
 													 LetterMatrixTextModifierOptionFlags flagsTMO,
 													 LMBookPrologueOptionFlags flagsLMBPO,
 													 LMChapterPrologueOptionFlags flagsLMCPO,
@@ -3110,10 +3111,10 @@ CELSSearchMainWindow *CKJVCanOpener::launchELSSearch(const QString &strUUID,
 	LMVersePrologueOptionFlags flagsTargetLMVPO = flagsLMVPO;
 	LMFullVerseTextOptionFlags flagsTargetLMFVTO = flagsLMFVTO;
 
-	if (strTargetUUID.isEmpty()) {
-		if (pParent == this) strTargetUUID = m_pBibleDatabase->compatibilityUUID();
+	if (bPromptOptions) {
+		if (strTargetUUID.isEmpty() && (pParent == this)) strTargetUUID = m_pBibleDatabase->compatibilityUUID();
 		// TODO : Get current search spec and enable/disable colophon and superscriptions to match??
-		CELSBibleDatabaseSelectDlg dlgBibleSelect{strTargetUUID, LMTMO_Default, LMBPO_Default, LMCPO_Default, LMVPO_Default, LMFVTO_Default, pParent};
+		CELSBibleDatabaseSelectDlg dlgBibleSelect{strTargetUUID, flagsTargetTMO, flagsTargetLMBPO, flagsTargetLMCPO, flagsTargetLMVPO, flagsTargetLMFVTO, pParent};
 		if (dlgBibleSelect.exec() == QDialog::Rejected) return nullptr;
 		strTargetUUID = dlgBibleSelect.bibleUUID();
 		flagsTargetTMO = dlgBibleSelect.textModifierOptions();

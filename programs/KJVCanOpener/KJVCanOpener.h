@@ -158,7 +158,8 @@ public:
 
 public slots:
 #ifdef USING_ELSSEARCH
-	CELSSearchMainWindow *launchELSSearch(const QString &strUUID = QString(),
+	CELSSearchMainWindow *launchELSSearch(bool bPromptOptions = true,
+										  const QString &strUUID = QString(),
 										  LetterMatrixTextModifierOptionFlags flagsTMO = LMTMO_Default,
 										  LMBookPrologueOptionFlags flagsLMBPO = LMBPO_Default,
 										  LMChapterPrologueOptionFlags flagsLMCPO = LMCPO_Default,
