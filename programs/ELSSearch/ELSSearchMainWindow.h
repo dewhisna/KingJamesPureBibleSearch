@@ -106,9 +106,7 @@ protected:
 	QMenu *createLetterMatrixContextMenu();
 
 protected slots:
-#ifdef USING_ELSSEARCH
 	void newELSSearchWindow();
-#endif
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 	void en_openSearchTranscript(const QString &strFilePath = QString());

@@ -27,6 +27,8 @@
 #ifdef USING_ELSSEARCH			// if using ELSSearch as KJPBS subcomponent:
 #include "myApplication.h"
 #include "KJVCanOpener.h"
+#else
+#include "ELSBibleDatabaseSelectDlg.h"
 #endif
 
 #include "../KJVCanOpener/BusyCursor.h"
@@ -288,14 +290,12 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 	QMenu *pFileMenu = ui->menuBar->addMenu(tr("&File", "MainMenu"));
 	QAction *pAction = nullptr;
 
-#ifdef USING_ELSSEARCH
 	pAction = pFileMenu->addAction(QIcon(":/res/gnome_window_new.png"), tr("&New ELS Search Window...", "MainMenu"), this, SLOT(newELSSearchWindow()));
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
 	pAction->setStatusTip(tr("Create New ELS Search Window", "MainMenu"));
 	pAction->setToolTip(tr("Create New ELS Search Window", "MainMenu"));
 
 	pFileMenu->addSeparator();
-#endif
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER) && !defined(IS_CONSOLE_APP)
 	m_pLoadTranscriptionAction = pFileMenu->addAction(QIcon(":/res/open-file-icon3.png"), tr("Playback Search Rec&ording File...", "MainMenu"), this, SLOT(en_openSearchTranscript()));
@@ -319,12 +319,10 @@ CELSSearchMainWindow::CELSSearchMainWindow(CBibleDatabasePtr pBibleDatabase,
 
 	// -------------
 
-#ifdef USING_ELSSEARCH						// Add "close window" option only for KJPBS embedded ELSSearch, since there are multiple windows
 	pAction = pFileMenu->addAction(QIcon(":/res/window_app_list_close.png"), tr("&Close this ELS Search Window", "MainMenu"), this, SLOT(close()));
 	pAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
 
 	pFileMenu->addSeparator();
-#endif
 
 	// -------------
 
@@ -495,9 +493,9 @@ CELSSearchMainWindow::~CELSSearchMainWindow()
 
 // ----------------------------------------------------------------------------
 
-#ifdef USING_ELSSEARCH
 void CELSSearchMainWindow::newELSSearchWindow()
 {
+#ifdef USING_ELSSEARCH
 	const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 	Q_ASSERT(!lstCanOpeners.isEmpty());
 	CKJVCanOpener *pCanOpener = lstCanOpeners.at(0);		// Shouldn't matter which one we launch from, so pick the first
@@ -511,8 +509,40 @@ void CELSSearchMainWindow::newELSSearchWindow()
 									m_letterMatrix.fullVerseTextOptions(),
 									this);
 	}
-}
+#else
+	CELSBibleDatabaseSelectDlg dlgBibleSelect{bibleDatabase()->compatibilityUUID(),
+											  m_letterMatrix.textModifierOptions(),
+											  m_letterMatrix.bookPrologueOptions(),
+											  m_letterMatrix.chapterPrologueOptions(),
+											  m_letterMatrix.versePrologueOptions(),
+											  m_letterMatrix.fullVerseTextOptions(),
+											  this};
+	if (dlgBibleSelect.exec() == QDialog::Rejected) return;
+
+	CBibleDatabasePtr pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dlgBibleSelect.bibleUUID());
+#ifndef ENABLE_ONLY_LOADED_BIBLE_DATABASES
+	if (pBibleDatabase.isNull()) {
+		if (TBibleDatabaseList::instance()->loadBibleDatabase(dlgBibleSelect.bibleUUID(), false, this)) {
+			pBibleDatabase = TBibleDatabaseList::instance()->atUUID(dlgBibleSelect.bibleUUID());
+			Q_ASSERT(!pBibleDatabase.isNull());
+		} else {
+			return;
+		}
+	}
+#else
+	Q_ASSERT(!pBibleDatabase.isNull());
 #endif
+
+	CBusyCursor iAmBusy(this);
+	CELSSearchMainWindow *pNewELSSearch = new CELSSearchMainWindow(pBibleDatabase,
+																   dlgBibleSelect.textModifierOptions(),
+																   dlgBibleSelect.bookPrologueOptions(),
+																   dlgBibleSelect.chapterPrologueOptions(),
+																   dlgBibleSelect.versePrologueOptions(),
+																   dlgBibleSelect.fullVerseTextOptions());
+	if (pNewELSSearch) pNewELSSearch->show();
+#endif
+}
 
 #if !defined(EMSCRIPTEN) && !defined(VNCSERVER)
 
