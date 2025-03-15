@@ -771,7 +771,7 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			QString strFullVerseText = pBibleDatabase->richVerseText(ndxMatrixCurrent, vtrtFullText);
 			strFullVerseText.remove(QRegularExpression("\\s"));		// Remove spaces in verse rendering
 			strFullVerseText = StringParse::deCantillate(strFullVerseText);			// Decantillate first in case that's not the current Bible database setting, so we match the "search word" part of the logic
-			strFullVerseText = StringParse::decompose(StringParse::deApostrophe(strFullVerseText, true), true);			// Convert to raw words, like CWordEntry::m_lstRawAltWords by decomposition
+			strFullVerseText = StringParse::decompose(strFullVerseText, false);		// Decompose things like ligatures and remove accents, but leave apostrophes and hyphens
 
 			if (!ndxMatrixCurrent.isColophon()) {
 				if (!ndxMatrixCurrent.isSuperscription() || !m_flagsLMTMO.testFlag(LMTMO_RemoveSuperscriptions)) {
