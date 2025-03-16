@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 			if (nArgsFound == 1) {
 				nDescriptor = strArg.toInt();
 			} else if (nArgsFound == 2) {
-				static const QRegularExpression regExWordSplit = QRegularExpression("[\\s,]+");
+				static const QRegularExpression regExWordSplit = QRegularExpression("[\\s]+");
 				lstSearchWords = strArg.split(regExWordSplit, Qt::SkipEmptyParts);
 			} else if (nArgsFound == 3) {
 				nMinSkip = strArg.toInt();
@@ -504,7 +504,8 @@ int main(int argc, char *argv[])
 		std::cerr << QString("    ELS/FLS skip-distances from <Min-Letter-Skip> to <Max-Letter-Skip>.\n").toUtf8().data();
 		std::cerr << QString("    Letter skips are required for ELS and FLS searches, but are optional and\n").toUtf8().data();
 		std::cerr << QString("    aren't used for Vortex-Based FLS searches.\n\n").toUtf8().data();
-		std::cerr << QString("<Words> = Comma separated list of words to search (each must be at least two characters)\n\n").toUtf8().data();
+		std::cerr << QString("<Words> = Space separated list of words to search (each must be at least two characters)\n").toUtf8().data();
+		std::cerr << QString("             (use quotes when there's more than one word)\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
 		std::cerr << QString("  -h, --help =  Show this usage information\n").toUtf8().data();
 		std::cerr << QString("  --test     =  Run regression tests (preempts all search option, only pass <UUID-Index>)\n").toUtf8().data();
@@ -677,7 +678,7 @@ int main(int argc, char *argv[])
 	// Print Summary:
 	std::cout << "\nWord Occurrence Counts:\n";
 	for (auto const & strWord : mapResultWords) {
-		std::cout << QString("%1 : Forward: %2, Reverse: %3\n").arg(strWord)
+		std::cout << QString("\"%1\" : Forward: %2, Reverse: %3\n").arg(strWord)
 						 .arg(mapResultsWordCountForward[strWord])
 						 .arg(mapResultsWordCountReverse[strWord]).toUtf8().data();
 	}

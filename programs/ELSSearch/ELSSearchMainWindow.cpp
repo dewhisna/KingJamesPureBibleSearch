@@ -80,7 +80,7 @@
 					  u'\t' + QKeySequence(k).toString(QKeySequence::NativeText) : QString())
 
 
-constexpr int ELS_FILE_VERSION = 5;		// Current ELS Transcript File Version
+constexpr int ELS_FILE_VERSION = 6;		// Current ELS Transcript File Version
 
 // ============================================================================
 
@@ -754,6 +754,12 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 					if ((nIndexSearchType >= 0) &&
 						(nIndexBookStart >= 0) &&
 						(nIndexBookEnd >= 0)) {
+						if (nELSVersion < 6) {
+							// Backward compatibility for older ELSVersions:
+							//	Switch old comma-separated word list into space separated
+							//	for users searching for commas in text with punctuation:
+							lstEntry[1].replace(',', ' ');
+						}
 						ui->editWords->setText(lstEntry.at(1));
 						ui->cmbSearchType->setCurrentIndex(nIndexSearchType);
 						ui->spinMinSkip->setValue(lstEntry.at(3).toInt());
@@ -1045,7 +1051,7 @@ void CELSSearchMainWindow::clearSearchLogText()
 
 bool CELSSearchMainWindow::search()
 {
-	static const QRegularExpression regExWordSplit = QRegularExpression("[\\s,]+");
+	static const QRegularExpression regExWordSplit = QRegularExpression("[\\s]+");
 	QStringList lstSearchWords = ui->editWords->text().split(regExWordSplit, Qt::SkipEmptyParts);
 
 	// Remove any words that aren't at least 2 letters.  This is needed
@@ -1077,9 +1083,13 @@ bool CELSSearchMainWindow::search()
 	if (nMaxSkip < nMinSkip) std::swap(nMinSkip, nMaxSkip);
 
 	QProgressDialog dlgProgress;
-	dlgProgress.setLabelText(tr("Searching for") + ": " + lstSearchWords.join(','));
+	QStringList lstTemp;
+	for (auto const & strWord : lstSearchWords) {
+		lstTemp.append("\"" + strWord + "\"");
+	}
+	dlgProgress.setLabelText(tr("Searching for") + ": " + lstTemp.join(','));
 
-	insertSearchLogText(tr("Searching for") + ": " + lstSearchWords.join(',') +
+	insertSearchLogText(tr("Searching for") + ": " + lstTemp.join(',') +
 						" (" + (ui->chkCaseSensitive->isChecked() ? tr("Case-Sensitive") : tr("Case-Insensitive")) + ")");
 	insertSearchLogText(tr("Search Type") + ": " + elsSearchTypeDescription(nSearchType));
 
@@ -1142,7 +1152,7 @@ bool CELSSearchMainWindow::search()
 			Q_ASSERT(!m_pSearchTranscriptCSVStream.isNull());
 			(*m_pSearchTranscriptCSVStream) << QStringList{
 				"Search",
-				lstSearchWords.join(","),
+				lstSearchWords.join(" "),
 				elsSearchTypeToID(nSearchType),
 				QString::number(nMinSkip),
 				QString::number(nMaxSkip),
