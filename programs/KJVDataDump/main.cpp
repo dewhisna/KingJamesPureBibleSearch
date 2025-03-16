@@ -32,6 +32,7 @@
 #include "../KJVCanOpener/Gematria.h"
 #include "../KJVCanOpener/CSV.h"
 #endif
+#include "../KJVCanOpener/SearchCriteria.h"
 // ----
 #include "../KJVCanOpener/qwebchannel/webChannelBibleAudio.h"
 
@@ -78,8 +79,6 @@ int main(int argc, char *argv[])
 	int nArgsFound = 0;
 	TBibleDescriptor bblDescriptor;
 	bool bUnknownOption = false;
-	bool bSkipColophons = false;
-	bool bSkipSuperscriptions = false;
 	bool bPrintReference = false;
 	bool bPrintReferenceAbbrev = false;
 	bool bPrintPilcrowMarkers = false;
@@ -95,7 +94,17 @@ int main(int argc, char *argv[])
 #ifdef USE_GEMATRIA
 	bool bOutputGematria = false;
 #endif
+	CSearchCriteria searchCriteria;
+	TRelativeIndexSet setSearchWithin;
+	bool bInvertCriteria = false;
 	QString strV11n;
+
+	// Default to searching Entire Bible:
+	for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
+		setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+	}
+	setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
+	setSearchWithin.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
 
 	for (int ndx = 1; ndx < argc; ++ndx) {
 		QString strArg = QString::fromUtf8(argv[ndx]);
@@ -109,10 +118,6 @@ int main(int argc, char *argv[])
 					nDescriptor = strArg.toInt();
 				}
 			}
-		} else if (strArg.compare("-sc") == 0) {
-			bSkipColophons = true;
-		} else if (strArg.compare("-ss") == 0) {
-			bSkipSuperscriptions = true;
 		} else if (strArg.compare("-r") == 0) {
 			bPrintReference = true;
 		} else if (strArg.compare("-ra") == 0) {
@@ -147,6 +152,65 @@ int main(int argc, char *argv[])
 		} else if (strArg.compare("-gematria") == 0) {
 			bOutputGematria = true;
 #endif
+		} else if (strArg.compare("-sc") == 0) {
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CSearchCriteria::SSI_COLOPHON);
+			} else {
+				setSearchWithin.erase(CSearchCriteria::SSI_COLOPHON);
+			}
+		} else if (strArg.compare("-ss") == 0) {
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+			} else {
+				setSearchWithin.erase(CSearchCriteria::SSI_SUPERSCRIPTION);
+			}
+		} else if (strArg.compare("-so") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_OT; ++nBk) {
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+				}
+			}
+		} else if (strArg.compare("-sn") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_NT; ++nBk) {
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT, 0, 0, 0));
+				}
+			}
+		} else if (strArg.compare("-sa") == 0) {
+			for (unsigned int nBk = 1; nBk <= NUM_BK_APOC; ++nBk) {
+				if (bInvertCriteria) {
+					setSearchWithin.insert(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				} else {
+					setSearchWithin.erase(CRelIndex(nBk+NUM_BK_OT_NT, 0, 0, 0));
+				}
+			}
+		} else if (strArg.startsWith("-s")) {
+			unsigned int nBk = strArg.mid(2).toUInt();
+			if (bInvertCriteria) {
+				setSearchWithin.insert(CRelIndex(nBk, 0, 0, 0));
+			} else {
+				setSearchWithin.erase(CRelIndex(nBk, 0, 0, 0));
+			}
+		} else if (strArg.compare("-i") == 0) {
+			bInvertCriteria = true;
+
+			// Invert the current selection:
+			TRelativeIndexSet setInvert;
+			for (unsigned int nBk = 1; nBk <= NUM_BK; ++nBk) {
+				if (setSearchWithin.find(CRelIndex(nBk, 0, 0, 0)) == setSearchWithin.end()) {
+					setInvert.insert(CRelIndex(nBk, 0, 0, 0));
+				}
+			}
+			if (setSearchWithin.find(CSearchCriteria::SSI_COLOPHON) == setSearchWithin.end())
+				setInvert.insert(CSearchCriteria::SSI_COLOPHON);
+			if (setSearchWithin.find(CSearchCriteria::SSI_SUPERSCRIPTION) == setSearchWithin.end())
+				setInvert.insert(CSearchCriteria::SSI_SUPERSCRIPTION);
+
+			setSearchWithin = setInvert;
 		} else {
 			bUnknownOption = true;
 		}
@@ -165,8 +229,6 @@ int main(int argc, char *argv[])
 		std::cerr << QString("Usage: %1 [options] <UUID-Index>\n\n").arg(argv[0]).toUtf8().data();
 		std::cerr << QString("Reads the specified database and dumps relevant data for each verse\n\n").toUtf8().data();
 		std::cerr << QString("Options are:\n").toUtf8().data();
-		std::cerr << QString("  -sc =  Skip Colophons\n").toUtf8().data();
-		std::cerr << QString("  -ss =  Skip Superscriptions\n").toUtf8().data();
 		std::cerr << QString("  -r  =  Print Reference\n").toUtf8().data();
 		std::cerr << QString("  -ra =  Print Abbreviated Reference (implies -r)\n").toUtf8().data();
 		std::cerr << QString("  -p  =  Print Pilcrow Markers (when outputting text with -x)\n").toUtf8().data();
@@ -183,6 +245,19 @@ int main(int argc, char *argv[])
 #ifdef USE_GEMATRIA
 		std::cerr << QString("  -gematria = Dump CSV output of all gematria counts (supersedes verse text output modes)\n").toUtf8().data();
 #endif
+		std::cerr << QString("\n").toUtf8().data();
+		std::cerr << QString("Search Criteria:\n").toUtf8().data();
+		std::cerr << QString("  Default is to search the Entire Bible\n").toUtf8().data();
+		std::cerr << QString("  -sc =  Skip Colophons (or Search Colophons if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -ss =  Skip Superscriptions (or Search Superscriptions if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -so =  Skip Old Testament (or Search Old Testament if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sn =  Skip New Testament (or Search New Testament if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sa =  Skip Apocrypha (or Search Apocrypha if -i is used)\n").toUtf8().data();
+		std::cerr << QString("  -sN =  Skip Book 'N', where 'N' is Book Number in Bible\n").toUtf8().data();
+		std::cerr << QString("           (or Search Book 'N' if -i is used)\n").toUtf8().data();
+		std::cerr << QString("   -i =  Invert search criteria so that the default is to search\n").toUtf8().data();
+		std::cerr << QString("           none of the Bible except when -sX options are used to\n").toUtf8().data();
+		std::cerr << QString("           select a specific Book or Testament, etc.\n").toUtf8().data();
 		std::cerr << QString("\n").toUtf8().data();
 		std::cerr << QString("UUID-Index:\n").toUtf8().data();
 		for (unsigned int ndx = 0; ndx < bibleDescriptorCount(); ++ndx) {
@@ -252,6 +327,9 @@ int main(int argc, char *argv[])
 		CPersistentSettings::instance()->setBibleDatabaseSettings(pBibleDatabase->compatibilityUUID(), settings);
 	}
 
+	searchCriteria.setSearchWithin(setSearchWithin);
+	std::cerr << QString("Dumping Data from %1\n").arg(searchCriteria.searchWithinDescription(pBibleDatabase)).toUtf8().data();
+
 	// ------------------------------------------------------------------------
 
 	static QStringList lstVerseWords;
@@ -317,8 +395,7 @@ int main(int argc, char *argv[])
 	CRelIndex ndxLastVPL;
 
 	while (ndxCurrent.isSet()) {
-		if ((bSkipColophons && ndxCurrent.isColophon()) ||
-			(bSkipSuperscriptions && ndxCurrent.isSuperscription())) {
+		if (!searchCriteria.indexIsWithin(ndxCurrent)) {
 			// Must increment to next physical word index instead of using calculator movement
 			//	in order to properly traverse colophons and superscriptions:
 //			ndxCurrent = pBibleDatabase->calcRelIndex(ndxCurrent, CBibleDatabase::RIME_NextVerse);
