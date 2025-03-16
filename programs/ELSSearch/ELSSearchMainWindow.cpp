@@ -615,10 +615,10 @@ void CELSSearchMainWindow::en_openSearchTranscript(const QString &strFilePath)
 				LMFullVerseTextOptionFlags fvto = (lstEntry.size() >= 7) ? static_cast<LMFullVerseTextOptionFlags>(lstEntry.at(6).toInt()) : LMFVTO_Default;	// This would use fromInt(), but that needs Qt 6.2+
 				if ((bibleDatabase()->compatibilityUUID().compare(strUUID, Qt::CaseInsensitive) != 0) ||
 					(tmo != m_letterMatrix.textModifierOptions()) ||
-					(bpo != m_letterMatrix.bookPrologueOptions()) ||
-					(cpo != m_letterMatrix.chapterPrologueOptions()) ||
-					(vpo != m_letterMatrix.versePrologueOptions()) ||
-					(fvto != m_letterMatrix.fullVerseTextOptions())) {
+					(tmo.testFlag(LMTMO_IncludeBookPrologues) && (bpo != m_letterMatrix.bookPrologueOptions())) ||
+					(tmo.testFlag(LMTMO_IncludeChapterPrologues) && (cpo != m_letterMatrix.chapterPrologueOptions())) ||
+					(tmo.testFlag(LMTMO_IncludeVersePrologues) && (vpo != m_letterMatrix.versePrologueOptions())) ||
+					((tmo & LMTMO_FTextModeMask) && (fvto != m_letterMatrix.fullVerseTextOptions()))) {
 #ifdef USING_ELSSEARCH
 					const QList<CKJVCanOpener *> &lstCanOpeners = g_pMyApplication->canOpeners();
 					Q_ASSERT(!lstCanOpeners.isEmpty());
