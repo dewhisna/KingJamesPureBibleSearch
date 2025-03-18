@@ -62,6 +62,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(LetterMatrixTextModifierOptionFlags)
 enum LMBookPrologueOptions {
 	LMBPO_None = 0x0,						// No Modifier Options
 	// ----
+	LMBPO_RevelationOfJesus = 0x1,			// Revelation of Jesus instead of S.John
+	// ----
 	LMBPO_Default = LMBPO_None,				// Default for new format .els files
 };
 Q_DECLARE_FLAGS(LMBookPrologueOptionFlags, LMBookPrologueOptions)
@@ -81,9 +83,13 @@ enum LMChapterPrologueOptions {
 	LMCPO_PsalmBookNumbersNone = 0x0000,		// No numbers will be output
 	LMCPO_PsalmBookNumbersRoman = 0x0020,		// Use Roman Numerals
 	LMCPO_PsalmBookNumbersArabic = 0x0040,		// Use Arabic Numerals
-	LMCPO_PsalmBookNumberOptionsMask = 0x01E0,	// Low Nybble is the Number Options
+	LMCPO_PsalmBookNumberOptionsMask = 0x01E0,	// Bits 8-5 is the Number Options
 	// ----
-	LMCPO_Default = LMCPO_None,					// Default for new format .els files
+	LMCPO_DisableChap1LabelAllBooks = 0x0200,	// Disable Labeling Chapter 1 on all books
+	LMCPO_DisableSingleChapLabel = 0x0400,		// Disable Labeling Chapter of Single Chapter books (like Jude, Philemon, etc)
+	// ----
+	LMCPO_Default =								// Default for new format .els files
+		(LMCPO_DisableChap1LabelAllBooks | LMCPO_DisableSingleChapLabel),
 };
 Q_DECLARE_FLAGS(LMChapterPrologueOptionFlags, LMChapterPrologueOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMChapterPrologueOptionFlags)
@@ -102,9 +108,13 @@ enum LMVersePrologueOptions {
 	LMVPO_PS119_Transliteration = 0x0020,	// Add Hebrew->English Transliteration on Ps119 Acrostics
 	LMVPO_PS119_Punctuation = 0x0040,		// Add period on Ps119 Acrostics Prologues
 	LMVPO_PS119_Mask = 0x0030,				// Mask for only flags that can output the acrostics text
+	// Note: 0x0080 reserved for Future PS119 stuff
+	// ----
+	LMVPO_DisableVerse1Number = 0x0100,		// Disable adding Verse 1 on all books/chapters
+	LMVPO_EnableVerse1SingleChap = 0x0200,	// Enable adding Verse 1 on Single Chapter books (like Jude, Philemon, etc)
 	// ----
 	LMVPO_Default =							// Default for new format .els files
-		(LMVPO_PS119_HebrewLetter | LMVPO_PS119_Transliteration | LMVPO_PS119_Punctuation),
+		((LMVPO_PS119_HebrewLetter | LMVPO_PS119_Transliteration | LMVPO_PS119_Punctuation) | LMVPO_DisableVerse1Number),
 };
 Q_DECLARE_FLAGS(LMVersePrologueOptionFlags, LMVersePrologueOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(LMVersePrologueOptionFlags)

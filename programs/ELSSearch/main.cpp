@@ -385,12 +385,22 @@ int main(int argc, char *argv[])
 			flagsLMTMO.setFlag(LMTMO_IncludeVersePrologues, true);
 		} else if (strArg.compare("-p") == 0) {
 			flagsLMTMO.setFlag(LMTMO_IncludePunctuation);
+		} else if (strArg.compare("-bpr") == 0) {
+			flagsLMBPO.setFlag(LMBPO_RevelationOfJesus);
 		} else if (strArg.startsWith("-cpn")) {
 			flagsLMCPO |= static_cast<LMChapterPrologueOptions>(strArg.mid(4).toUInt() & LMCPO_NumberOptionsMask);
 		} else if (strArg.compare("-cppb") == 0) {
 			flagsLMCPO.setFlag(LMCPO_PsalmBookTags, true);
+		} else if (strArg.compare("-cpc1") == 0) {
+			flagsLMCPO.setFlag(LMCPO_DisableChap1LabelAllBooks, false);
+		} else if (strArg.compare("-cpsc") == 0) {
+			flagsLMCPO.setFlag(LMCPO_DisableSingleChapLabel, false);
 		} else if (strArg.startsWith("-vpn")) {
 			flagsLMVPO |= static_cast<LMVersePrologueOptions>(strArg.mid(4).toUInt() & LMVPO_NumberOptionsMask);
+		} else if (strArg.compare("-vpv1") == 0) {
+			flagsLMVPO.setFlag(LMVPO_DisableVerse1Number, false);
+		} else if (strArg.compare("-vpv1sc") == 0) {
+			flagsLMVPO.setFlag(LMVPO_EnableVerse1SingleChap, true);
 		} else if (strArg.compare("-vp119h") == 0) {
 			flagsLMVPO.setFlag(LMVPO_PS119_HebrewLetter, false);
 		} else if (strArg.compare("-vp119t") == 0) {
@@ -518,15 +528,20 @@ int main(int argc, char *argv[])
 		std::cerr << QString("  -sbp   =  Search Book Prologues (Book Title, Subtitle, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -scp   =  Search Chapter Prologues (Chapter Number, etc.)\n").toUtf8().data();
 		std::cerr << QString("  -svp   =  Search Verse Prologues (Verse Number, etc.)\n").toUtf8().data();
+		std::cerr << QString("  -bpr   =  Book Prologue Revelation of Jesus instead of St.John\n").toUtf8().data();
 		std::cerr << QString("  -cpn<n>=  Chapter Prologue Numeral Format, where <n> is:\n").toUtf8().data();
 		std::cerr << QString("              0 = None (default)\n").toUtf8().data();
 		std::cerr << QString("              1 = Roman\n").toUtf8().data();
 		std::cerr << QString("              2 = Arabic\n").toUtf8().data();
 		std::cerr << QString("  -cppb  =  Chapter Prologues enable Psalms \"BOOK\"s tags\n").toUtf8().data();
+		std::cerr << QString("  -cpc1  =  Chapter Prologues on Chapter 1 All Books\n").toUtf8().data();
+		std::cerr << QString("  -cpsc  =  Chapter Prologues on Single Chapter Books\n").toUtf8().data();
 		std::cerr << QString("  -vpn<n>=  Verse Prologue Numeral Format, where <n> is:\n").toUtf8().data();
 		std::cerr << QString("              0 = None (default)\n").toUtf8().data();
 		std::cerr << QString("              1 = Roman\n").toUtf8().data();
 		std::cerr << QString("              2 = Arabic\n").toUtf8().data();
+		std::cerr << QString("  -vpv1  =  Verse Prologue Enable Verse 1 on All Books/Chapters\n").toUtf8().data();
+		std::cerr << QString("  -vpv1sc = Verse Prologue Enable Verse 1 on Single Chapter Books\n").toUtf8().data();
 		std::cerr << QString("  -vp119h = Remove Ps119 Hebrew Letter from Verse Prologue\n").toUtf8().data();
 		std::cerr << QString("  -vp119t = Remove Ps119 Transliteration from Verse Prologue\n").toUtf8().data();
 		std::cerr << QString("  -vp119p = Remove Ps119 Period from Verse Prologue (Punct. mode only)\n").toUtf8().data();

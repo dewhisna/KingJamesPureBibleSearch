@@ -122,6 +122,7 @@ namespace {
 		"THE FIRST BOOK OF THE MACCABEES",
 		"THE SECOND BOOK OF THE MACCABEES",
 	};
+	const QString g_constrPrologueRevelationOfJesusKJV = "THE REVELATION OF JESUS CHRIST";
 
 	const QList<QString> g_conlstBookPrologues1611 =
 	{
@@ -208,6 +209,7 @@ namespace {
 		QString(QChar(0x00B6)) + " The first booke of the Maccabees.",
 		QString(QChar(0x00B6)) + " The second booke of the Maccabees.",
 	};
+	const QString g_constrPrologueRevelationOfJesus1611 = "THE REVELATION OF IESUS CHRIST";
 
 	// ------------------------------------------------------------------------
 
@@ -615,8 +617,16 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 
 			if (bIsKJV && (ndxMatrixCurrent.book() <= static_cast<unsigned int>(g_conlstBookProloguesKJV.size()))) {
 				entryPrologue.m_strPrologue = g_conlstBookProloguesKJV.at(ndxMatrixCurrent.book()-1);
+				if (m_flagsLMBPO.testFlag(LMBPO_RevelationOfJesus) &&
+					(ndxMatrixCurrent.book() == m_pBibleDatabase->bookIndexFromOSISAbbr("Rev").book())) {
+					entryPrologue.m_strPrologue = g_constrPrologueRevelationOfJesusKJV;
+				}
 			} else if (bIs1611 && (ndxMatrixCurrent.book()<= static_cast<unsigned int>(g_conlstBookPrologues1611.size()))) {
 				entryPrologue.m_strPrologue = g_conlstBookPrologues1611.at(ndxMatrixCurrent.book()-1);
+				if (m_flagsLMBPO.testFlag(LMBPO_RevelationOfJesus) &&
+					(ndxMatrixCurrent.book() == m_pBibleDatabase->bookIndexFromOSISAbbr("Rev").book())) {
+					entryPrologue.m_strPrologue = g_constrPrologueRevelationOfJesus1611;
+				}
 			}
 			entryPrologue.m_strPrologue.remove(
 				QRegularExpression(m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation) ? "\\s" : "[^a-zA-Z]"));
@@ -636,6 +646,12 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			(ndxMatrixCurrent.chapter() != 0)) {							// Check entering new chapter
 			TPrologueEntry entryPrologue;
 			entryPrologue.m_ndxPrologue = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), 0, 0);
+
+			const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxMatrixCurrent);
+			Q_ASSERT(pBook != nullptr);
+			bool bSkip = (m_flagsLMCPO.testFlag(LMCPO_DisableChap1LabelAllBooks) &&
+						  (ndxMatrixCurrent.chapter() == 1));
+			if (pBook && (pBook->m_nNumChp == 1) && m_flagsLMCPO.testFlag(LMCPO_DisableSingleChapLabel)) bSkip = true;
 
 			if (bIsKJV || bIs1611) {
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
@@ -659,7 +675,9 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
 					entryPrologue.m_strPrologue += chapterNumber("PSALM", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 				} else {
-					entryPrologue.m_strPrologue += chapterNumber("CHAPTER", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
+					if (!bSkip) {
+						entryPrologue.m_strPrologue += chapterNumber("CHAPTER", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
+					}
 				}
 			} else if (bIs1611) {
 				if (ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) {
@@ -669,7 +687,9 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 						entryPrologue.m_strPrologue += chapterNumber("PSAL.", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611);
 					}
 				} else {
-					entryPrologue.m_strPrologue += chapterNumber("CHAP.", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611) + ".";
+					if (!bSkip) {
+						entryPrologue.m_strPrologue += chapterNumber("CHAP.", m_flagsLMCPO, ndxMatrixCurrent.chapter(), bIs1611) + ".";
+					}
 				}
 			}
 			entryPrologue.m_strPrologue.remove(
@@ -690,11 +710,19 @@ CLetterMatrix::CLetterMatrix(CBibleDatabasePtr pBibleDatabase,
 			TPrologueEntry entryPrologue;
 			entryPrologue.m_ndxPrologue = CRelIndex(ndxMatrixCurrent.book(), ndxMatrixCurrent.chapter(), ndxMatrixCurrent.verse(), 0);
 
+			const CBookEntry *pBook = m_pBibleDatabase->bookEntry(ndxMatrixCurrent);
+			Q_ASSERT(pBook != nullptr);
+			bool bSkip = (m_flagsLMVPO.testFlag(LMVPO_DisableVerse1Number) &&
+						  (ndxMatrixCurrent.verse() == 1));
+			if (pBook && (pBook->m_nNumChp == 1) && m_flagsLMVPO.testFlag(LMVPO_EnableVerse1SingleChap)) bSkip = false;
+
 			if (bIsKJV || bIs1611) {
 				if ((ndxMatrixCurrent.book() == PSALMS_BOOK_NUM) && (ndxMatrixCurrent.chapter() == 119)) {
 					entryPrologue.m_strPrologue += ps119Prologue(ndxMatrixCurrent.verse(), m_flagsLMVPO, bIs1611);
 				}
-				entryPrologue.m_strPrologue += verseNumber(QString(), m_flagsLMVPO, ndxMatrixCurrent.verse(), bIs1611);
+				if (!bSkip) {
+					entryPrologue.m_strPrologue += verseNumber(QString(), m_flagsLMVPO, ndxMatrixCurrent.verse(), bIs1611);
+				}
 			}
 			entryPrologue.m_strPrologue.remove(
 				QRegularExpression(m_flagsLMTMO.testFlag(LMTMO_IncludePunctuation) ? QString("\\s") :
@@ -1199,17 +1227,36 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 		if (textModifierOptions().testFlag(LMTMO_IncludeBookPrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
-			strDescription += QObject::tr("Book Prologues", "CLetterMatrix");
+			if (bSingleLine) {
+				strDescription += QObject::tr("BookPro", "CLetterMatrix");
+			} else {
+				strDescription += QObject::tr("Book Prologues", "CLetterMatrix");
+			}
+			if (bookPrologueOptions().testFlag(LMBPO_RevelationOfJesus)) {
+				strDescription += " (Rev)";
+			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
 		}
 		if (textModifierOptions().testFlag(LMTMO_IncludeChapterPrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
-			strDescription += QObject::tr("Chapter Prologues", "CLetterMatrix");
+			if(bSingleLine) {
+				strDescription += QObject::tr("ChapPro", "CLetterMatrix");
+			} else {
+				strDescription += QObject::tr("Chapter Prologues", "CLetterMatrix");
+			}
 			strDescription += fnCPONumDesc(chapterPrologueOptions());
 			if (chapterPrologueOptions().testFlag(LMCPO_PsalmBookTags)) {
 				strDescription += " " + QObject::tr("w/PsalmBOOKs", "CLetterMatrix") + fnCPOPsalmBookNumDesc(chapterPrologueOptions());
+			}
+			if (chapterPrologueOptions() & (LMCPO_DisableChap1LabelAllBooks | LMCPO_DisableSingleChapLabel)) strDescription += " ";
+			if (chapterPrologueOptions().testFlag(LMCPO_DisableChap1LabelAllBooks)) {
+				strDescription += "(" + QObject::tr("NoChp1All", "CLetterMatrix") + ")";
+			} else {
+				if (chapterPrologueOptions().testFlag(LMCPO_DisableSingleChapLabel)) {
+					strDescription += "(" + QObject::tr("NoSngChp", "CLetterMatrix") + ")";
+				}
 			}
 			if (!bSingleLine) strDescription += "\n";
 			bPrologues = true;
@@ -1217,10 +1264,22 @@ QString CLetterMatrix::getOptionDescription(bool bSingleLine) const
 		if (textModifierOptions().testFlag(LMTMO_IncludeVersePrologues)) {
 			if (bSingleLine) strDescription += (bPrologues ? ", " : " ");
 			strDescription += ((!bPrologues || !bSingleLine) ? strWithPrefix : "");
-			strDescription += QObject::tr("Verse Prologues", "CLetterMatrix");
+			if (bSingleLine) {
+				strDescription += QObject::tr("VrsPro", "CLetterMatrix");
+			} else {
+				strDescription += QObject::tr("Verse Prologues", "CLetterMatrix");
+			}
 			strDescription += fnVPONumDesc(versePrologueOptions());
+			if ((versePrologueOptions() & LMVPO_NumberOptionsMask) != LMVPO_NumbersNone) {
+				if (versePrologueOptions().testFlag(LMVPO_DisableVerse1Number)) {
+					strDescription += "(" + QObject::tr("NoVrs1", "CLetterMatrix") + ")";
+					if (versePrologueOptions().testFlag(LMVPO_EnableVerse1SingleChap)) {
+						strDescription += "(" + QObject::tr("Vrs1SngChp", "CLetterMatrix") + ")";
+					}
+				}
+			}
 			if ((versePrologueOptions() & LMVPO_PS119_Mask) != 0) {
-				strDescription += " (w/";
+				strDescription += "(";
 				if (versePrologueOptions().testFlag(LMVPO_PS119_HebrewLetter)) strDescription += QObject::tr("Heb", "CLetterMatrix");
 				if (versePrologueOptions().testFlag(LMVPO_PS119_Transliteration)) strDescription += QObject::tr("Trn", "CLetterMatrix");
 				if (versePrologueOptions().testFlag(LMVPO_PS119_Punctuation) &&
