@@ -1,0 +1,24 @@
+diff -rupN qt-everywhere-src-6.2.2/qt3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp 6.2.2-src/qt3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp
+--- qt-everywhere-src-6.2.2/qt3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp	2021-11-24 15:47:33.000000000 -0600
++++ 6.2.2-src/qt3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp	2025-03-30 15:41:29.206429730 -0500
+@@ -472,7 +472,7 @@ void TokenizeBinary(TokenList& output_to
+     }
+     catch (const DeadlyImportError& e)
+     {
+-        if (!is64bits && (length > std::numeric_limits<std::uint32_t>::max())) {
++        if (!is64bits && (length > std::numeric_limits<uint32_t>::max())) {
+             throw DeadlyImportError("The FBX file is invalid. This may be because the content is too big for this older version (", ai_to_string(version), ") of the FBX format. (", e.what(), ")");
+         }
+         throw;
+diff -rupN qt-everywhere-src-6.2.2/qtquick3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp 6.2.2-src/qtquick3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp
+--- qt-everywhere-src-6.2.2/qtquick3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp	2021-11-24 18:05:16.000000000 -0600
++++ 6.2.2-src/qtquick3d/src/3rdparty/assimp/src/code/AssetLib/FBX/FBXBinaryTokenizer.cpp	2025-03-30 15:50:37.786413563 -0500
+@@ -472,7 +472,7 @@ void TokenizeBinary(TokenList& output_to
+     }
+     catch (const DeadlyImportError& e)
+     {
+-        if (!is64bits && (length > std::numeric_limits<std::uint32_t>::max())) {
++        if (!is64bits && (length > std::numeric_limits<uint32_t>::max())) {
+             throw DeadlyImportError("The FBX file is invalid. This may be because the content is too big for this older version (", ai_to_string(version), ") of the FBX format. (", e.what(), ")");
+         }
+         throw;

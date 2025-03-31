@@ -904,6 +904,33 @@ cd 5.15.2-build
 
 
 ====================
+  Qt 5.15.16 Linux
+====================
+### WITHOUT WEBENGINE ###
+
+sudo apt-get build-dep qtbase5-dev qtbase5-dev-tools qttools5-dev-tools
+
+sudo apt-get install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev libxcb-util-dev libxcb-dri3-dev
+
+cd ~/Qt/
+tar -Jxvf ~/Downloads/software/Qt/5.15.16/qt-everywhere-src-5.15.16.tar.xz
+mv qt-everywhere-src-5.15.16 5.15.16-src
+
+### GCC 13, mapbox-gl-native Bug Patch:
+# https://github.com/mapbox/mapbox-gl-native/issues/16672
+# https://sources.debian.org/data/main/q/qtlocation-opensource-src/5.15.15+dfsg-3/debian/patches/gcc_13.diff
+cd ~/Qt/5.15.16-src/qtlocation
+patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/Qt_5_15_16_qtlocation.patch
+
+cd ~/Qt/
+mkdir 5.15.16-build
+cd 5.15.16-build
+../5.15.16-src/configure -release -opensource -confirm-license -verbose -prefix /home/dewhisna/Qt/5.15.16 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon -skip qtwebengine
+gmake -j 16
+gmake install
+
+
+====================
   Qt 6.0.0 Linux
 ====================
 
@@ -923,7 +950,9 @@ cd 6.0.0-build
   Qt 6.2.2 Linux
 ====================
 
-Same dependencies as 5.15.2?  (see above)
+Same dependencies as 5.15.2?  (see above), plus:
+
+sudo apt-get install libmd4c-html0-dev
 
 sudo apt-get install libclang-dev
 
@@ -952,10 +981,24 @@ gcc --version
 g++ --version
 ---------------
 
-
 cd ~/Qt/
 tar -Jxvf ~/Downloads/software/Qt/6.2.2/qt-everywhere-src-6.2.2.tar.xz
 mv qt-everywhere-src-6.2.2 6.2.2-src
+
+## QTBUG-117950 patch:
+# NOTE: With libxkbcommon 1.6.0+, it's necessary to patch the source code
+# https://bugreports.qt.io/browse/QTBUG-117950
+# https://code.qt.io/cgit/qt/qtbase.git/commit/?id=8af35d27e8f02bbb99aef4ac495ed406e50e3cca
+cd ~/Qt/6.2.2-src/qtbase
+patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/qtbug-117950.patch
+
+## ASSIMP Bug patch:
+# https://github.com/assimp/assimp/issues/5072
+# https://github.com/assimp/assimp/commit/253f8bfa621a9fa6cd2c36291cdaa8c60c99322c
+cd ~/Qt/6.2.2-src/
+patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/Qt_6_assimp_253f8bf.patch
+
+cd ~/Qt/
 mkdir 6.2.2-build
 cd 6.2.2-build
 ../6.2.2-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.2.2 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
@@ -968,8 +1011,21 @@ WARNING: Need LOTS of RAM to compile, even on a 2 Core CPU, especially for WebEn
 8GB isn't even enough when running parallel on a 2 Core!  You can barely squeak by with
 8GB if only building on a single core with nothing else running -- barely.
 
-Note: Qt is broken with CMake >= 3.25.0:
+Note: Qt is broken with CMake >= 3.25.0 (when building qtwebengine):
 https://bugreports.qt.io/browse/QTBUG-109046
+https://forum.qt.io/topic/140651/need-help-statically-building-qt-for-ubuntu/16
+
+---------------
+
+For building without webengine:
+cd ~/Qt/6.2.2-src
+rm -r qtwebengine
+cd ~/Qt/
+mkdir 6.2.2-build
+cd 6.2.2-build
+../6.2.2-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.2.2 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon
+cmake --build . --parallel
+cmake --install .
 
 
 ====================
@@ -1076,15 +1132,35 @@ gcc --version
 g++ --version
 ---------------
 
-
 cd ~/Qt/
 tar -Jxvf ~/Downloads/software/Qt/6.5.3/qt-everywhere-src-6.5.3.tar.xz
 mv qt-everywhere-src-6.5.3 6.5.3-src
+
+## QTBUG-117950 Patch:
+# NOTE: With libxkbcommon 1.6.0+, it's necessary to patch the source code
+# https://bugreports.qt.io/browse/QTBUG-117950
+# https://code.qt.io/cgit/qt/qtbase.git/commit/?id=8af35d27e8f02bbb99aef4ac495ed406e50e3cca
+cd ~/Qt/6.5.3-src/qtbase
+patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/qtbug-117950.patch
+
+## ASSIMP Bug Patch:
+# https://github.com/assimp/assimp/issues/5072
+# https://github.com/assimp/assimp/commit/253f8bfa621a9fa6cd2c36291cdaa8c60c99322c
+cd ~/Qt/6.5.3-src/
+patch -p1 < ~/Documents/programs/Bible/KingJamesPureBibleSearch/patches/Qt/Qt_6_assimp_253f8bf.patch
+
+cd ~/Qt/
 mkdir 6.5.3-build
 cd 6.5.3-build
+
+### With QtWebEngine: ###
 # Note: It can't seem to find clang, even though libclang-dev is installed, unless we set LLVM_INSTALL_DIR (below on Focal):
 export LLVM_INSTALL_DIR=/usr/lib/llvm-12/
 ../6.5.3-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.5.3 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon -flite -speechd -- -DFEATURE_clang=ON
+
+### Skip QtWebEngine: ###
+../6.5.3-src/configure -release -opensource -confirm-license -prefix /home/dewhisna/Qt/6.5.3 -nomake examples -nomake tests -xcb-xlib -xcb -bundled-xcb-xinput -xkbcommon -flite -speechd -skip qtwebengine -- -DFEATURE_clang=ON
+
 cmake --build . --parallel
 cmake --install .
 
