@@ -420,7 +420,7 @@ void CReflowDelegate::reflowViewport()
 		//	'end' key case.  For that, we'd need a reverseIterator here and always calculate the
 		//	last viewport page in addition to the first.  So, we'll instead just work around
 		//	specific use cases.  See CSearchResultsTreeView::currentChanged().
-		if (option.rect.top() > (rcVisible.bottom()+rcVisible.height())) break;
+		if (option.rect.top() >= (rcVisible.bottom()+rcVisible.height())) break;
 	}
 }
 
