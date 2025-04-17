@@ -134,7 +134,7 @@ CReflowDelegate::CReflowDelegate(QTreeView *parent, bool bDoBlockingUpdate, bool
 	// Install Event Filter for QEvent::Resize and QEvent::Paint events:
 	parent->viewport()->installEventFilter(this);
 
-	connect(this, SIGNAL(sizeHintChanged(QModelIndex,QModelIndex)), parent, SLOT(dataChanged(QModelIndex,QModelIndex)));
+	connect(this, SIGNAL(notifyDataChanged(QModelIndex,QModelIndex)), parent, SLOT(dataChanged(QModelIndex,QModelIndex)));
 	connect(parent->model(), SIGNAL(modelAboutToBeReset()), this, SLOT(reflowHalt()));
 	connect(parent->model(), SIGNAL(layoutChanged()), this, SLOT(startReflow()));
 
@@ -246,12 +246,12 @@ void CReflowDelegate::setOnlyLeaves(bool bOnlyLeaves)
 					// Clear spanning on any headers that presently were spanned and refresh it:
 					if (pView->isFirstColumnSpanned(itr.row(), itr.parent())) {
 						pView->setFirstColumnSpanned(itr.row(), itr.parent(), false);
-						emit sizeHintChanged(*itr);
+						sendSizeHintChanged(*itr);
 					}
 				}
 				if (!m_bOnlyLeaves) {
 					// Re-examine headers:
-					emit sizeHintChanged(*itr);
+					sendSizeHintChanged(*itr);
 				}
 			}
 		}
@@ -306,7 +306,7 @@ void CReflowDelegate::layoutItem(const QModelIndex &index)
 	// Invalidate any cached sizeHint for this item:
 	parentView()->model()->setData(index, QSize(), Qt::SizeHintRole);
 	if (index.isValid()) {
-		emit sizeHintChanged(index);
+		sendSizeHintChanged(index);
 	} else {
 		// Special-case : sizeHintChanged(QModelIndex()) is "invalidate all"
 		startReflow();
@@ -391,7 +391,7 @@ void CReflowDelegate::reflowViewport()
 		bool bWantSpanning = false;
 		if  (bIsSpanning != bWantSpanning) {
 			pView->setFirstColumnSpanned(itr->row(), itr->parent(), bWantSpanning);
-			emit sizeHintChanged(*itr);
+			sendSizeHintChanged(*itr);
 		} else {
 			if (!bWantSpanning) {
 				// layoutRow only gives an overall sizeHint when spanning will be used (i.e., style > Columns)
@@ -401,7 +401,7 @@ void CReflowDelegate::reflowViewport()
 				}
 			}
 
-			if (option.rect.height() != sizeHint.height()) emit sizeHintChanged(*itr);
+			if (option.rect.height() != sizeHint.height()) sendSizeHintChanged(*itr);
 		}
 
 		// We're about to paint anyway, so no need to do an update();
@@ -469,7 +469,7 @@ void CReflowDelegate::reflowTick()
 
 					++nBlockCount;
 				} while((nBlockCount < REFLOW_BATCH_SIZE) && (m_itrReflowIndex) && (m_itrReflowIndex.parent() == ndxParent));		// Note: parents should be the same because dataChanged is defined only when the parents are the same
-				emit sizeHintChanged(ndxTopLeft, ndxBottomRight);
+				emit notifyDataChanged(ndxTopLeft, ndxBottomRight);
 
 				if (timeSlice.elapsed() > REFLOW_TIMESLICE) break;			// If it's taking too long, stop to let the UI run and do more on next tick...
 			}
@@ -477,7 +477,7 @@ void CReflowDelegate::reflowTick()
 			// For models with no hierarchy, it's OK to do them all at once:
 			QAbstractItemModel *pModel = pView->model();
 			Q_ASSERT(pModel != nullptr);
-			emit sizeHintChanged(pModel->index(0,0), pModel->index(pModel->rowCount()-1, 0));
+			emit notifyDataChanged(pModel->index(0,0), pModel->index(pModel->rowCount()-1, 0));
 		}
 
 		// If reflow is complete, stop ticking:
