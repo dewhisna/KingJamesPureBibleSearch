@@ -1393,11 +1393,13 @@ QPixmap CSearchResultsTreeView::renderToPixmap(const QModelIndexList &lstIndexes
 	painter.setOpacity(0.5);
 
 	QStyleOptionViewItemV4_t option = viewOptions();
+#if QT_VERSION < 0x050000
 //    if (wrapItemText)
 //        option.features = QStyleOptionViewItemV2::WrapText;
 	option.locale = locale();
 	option.locale.setNumberOptions(QLocale::OmitGroupSeparator);
 	option.widget = this;
+#endif
 	option.state |= QStyle::State_Selected;
 	for (int j = 0; j < lstPaintPairs.count(); ++j) {
 		option.rect = lstPaintPairs.at(j).first.translated(-pRC->topLeft());
