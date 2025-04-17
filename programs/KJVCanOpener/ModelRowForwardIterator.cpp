@@ -39,6 +39,8 @@ void CModelRowForwardIterator::connect(const QAbstractItemModel *pModel)
 	//	indexes we haven't visited, just start over at the beginning:
 	connect(pModel, SIGNAL(layoutChanged()), this, SLOT(reset()));
 	connect(pModel, SIGNAL(modelReset()), this, SLOT(reset()));
+
+	connect(pModel, SIGNAL(destroyed(QObject*)), this, SLOT(modelDestroyed()));
 }
 
 void CModelRowForwardIterator::disconnect(const QAbstractItemModel *pModel)
@@ -50,6 +52,10 @@ void CModelRowForwardIterator::disconnect(const QAbstractItemModel *pModel)
 
 	disconnect(pModel, SIGNAL(layoutChanged()), this, SLOT(reset()));
 	disconnect(pModel, SIGNAL(modelReset()), this, SLOT(reset()));
+
+	disconnect(pModel, SIGNAL(destroyed(QObject*)), this, SLOT(modelDestroyed()));
+
+//	QObject::disconnect(pModel, nullptr, this, nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -94,6 +100,13 @@ void CModelRowForwardIterator::reset()
 		disconnect(pModel);
 		m_indexCurrent = QModelIndex();
 	}
+}
+
+void CModelRowForwardIterator::modelDestroyed() {
+	m_indexParent = QModelIndex();
+	m_indexCurrent = QModelIndex();
+
+	// no call to disconnect() because QObject already disconnects all signals from an object being destroyed
 }
 
 // ----------------------------------------------------------------------------

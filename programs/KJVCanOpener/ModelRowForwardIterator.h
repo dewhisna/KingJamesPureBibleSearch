@@ -34,7 +34,7 @@ class CModelRowForwardIterator : public QObject
 public:
 	CModelRowForwardIterator() {}
 	CModelRowForwardIterator(const QAbstractItemModel *pModel) { *this = pModel; }
-	CModelRowForwardIterator(QModelIndex &index) { *this = index; }
+	CModelRowForwardIterator(const QModelIndex &index) { *this = index; }
 
 	CModelRowForwardIterator & operator=(const QAbstractItemModel *pModel)
 	{
@@ -44,10 +44,17 @@ public:
 
 	CModelRowForwardIterator & operator=(const QModelIndex &index)
 	{
-		if (m_indexCurrent.isValid()) disconnect(m_indexCurrent.model());
+		const QAbstractItemModel *oldModel = m_indexCurrent.model();
+		const QAbstractItemModel *newModel = index.model();
+		if (oldModel && (oldModel != newModel)) disconnect(oldModel);
 		m_indexCurrent = index.sibling(index.row(), 0);
 		m_indexParent = m_indexCurrent.parent();
-		if (index.isValid()) connect(index.model());
+		if (newModel && (oldModel != newModel)) connect(newModel);
+		return *this;
+	}
+
+	CModelRowForwardIterator & operator=(const CModelRowForwardIterator &other) {
+		operator=(other.m_indexCurrent);
 		return *this;
 	}
 
@@ -55,6 +62,8 @@ public:
 	const QModelIndex *operator->() const { return &m_indexCurrent; }
 	bool operator ==(const QModelIndex &index) const { return m_indexCurrent == index; }
 	bool operator !=(const QModelIndex &index) const { return m_indexCurrent != index; }
+	bool operator ==(const CModelRowForwardIterator &it) const { return m_indexCurrent == it.m_indexCurrent; }
+	bool operator !=(const CModelRowForwardIterator &it) const { return m_indexCurrent != it.m_indexCurrent; }
 	operator bool() const { return m_indexCurrent.isValid(); }
 
 	CModelRowForwardIterator &operator++()
@@ -94,7 +103,6 @@ public:
 	bool hasChildren() const { return m_indexCurrent.model()->hasChildren(m_indexCurrent); }
 	int row() const { return m_indexCurrent.row(); }
 	QModelIndex column(int nCol) const { return m_indexCurrent.model()->index(m_indexCurrent.row(), nCol, m_indexParent); }
-	const QAbstractItemModel *model() const { return m_indexCurrent.model(); }
 
 	using QObject::connect;
 	using QObject::disconnect;
@@ -108,6 +116,7 @@ private slots:
 	void save();
 	void restore();
 	void reset();
+	void modelDestroyed();
 
 private:
 	void connect(const QAbstractItemModel *pModel);
