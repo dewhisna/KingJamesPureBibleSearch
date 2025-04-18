@@ -95,6 +95,16 @@ CSearchSpecWidget::CSearchSpecWidget(CBibleDatabasePtr pBibleDatabase, bool bHav
 	m_buttonCopySummary.setEnabled(false);
 
 	CSearchPhraseEdit *pFirstSearchPhraseEditor = addSearchPhrase();
+
+	// Connect these here instead of in addSearchPhrase() so we don't connect them multiple times!:
+#ifdef USE_SEARCH_RESULTS_UPDATE_DELAY
+	setSearchResultsUpdateDelay(CPersistentSettings::instance()->searchActivationDelay());
+	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchResultsUpdateDelay(int)));
+#else
+	setSearchResultsUpdateDelay(0);
+#endif
+	connect(&m_dlySearchResultsUpdate, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
+
 	QTimer::singleShot(0, pFirstSearchPhraseEditor, SLOT(focusEditor()));
 
 	ui.scrollAreaSearchPhrases->setMinimumSize(m_pLayoutPhrases->sizeHint().width() +
@@ -320,13 +330,6 @@ CSearchPhraseEdit *CSearchSpecWidget::addSearchPhrase()
 	connect(pPhraseWidget, SIGNAL(activatedPhraseEditor(const CPhraseLineEdit*)), this, SLOT(en_activatedPhraseEditor(const CPhraseLineEdit*)));
 
 	connect(pPhraseWidget, SIGNAL(phraseChanged(CSearchPhraseEdit*)), &m_dlySearchResultsUpdate, SLOT(trigger()));
-#ifdef USE_SEARCH_RESULTS_UPDATE_DELAY
-	setSearchResultsUpdateDelay(CPersistentSettings::instance()->searchActivationDelay());
-	connect(CPersistentSettings::instance(), SIGNAL(changedSearchPhraseActivationDelay(int)), this, SLOT(setSearchResultsUpdateDelay(int)));
-#else
-	setSearchResultsUpdateDelay(0);
-#endif
-	connect(&m_dlySearchResultsUpdate, SIGNAL(triggered()), this, SLOT(en_phraseChanged()));
 	connect(pPhraseWidget, SIGNAL(enterTriggered()), this, SLOT(en_phraseChanged()), Qt::QueuedConnection);
 
 	// Set pass-throughs:
